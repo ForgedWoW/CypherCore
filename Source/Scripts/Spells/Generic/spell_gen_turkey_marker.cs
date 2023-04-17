@@ -3,15 +3,17 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Chrono;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_turkey_marker : AuraScript, IHasAuraEffects
+internal class SpellGenTurkeyMarker : AuraScript, IHasAuraEffects
 {
     private readonly List<uint> _applyTimes = new();
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -30,7 +32,7 @@ internal class spell_gen_turkey_marker : AuraScript, IHasAuraEffects
 
         // on stack 15 cast the Achievement crediting spell
         if (StackAmount >= 15)
-            target.CastSpell(target, GenericSpellIds.TurkeyVengeance, new CastSpellExtraArgs(aurEff).SetOriginalCaster(CasterGUID));
+            target.SpellFactory.CastSpell(target, GenericSpellIds.TURKEY_VENGEANCE, new CastSpellExtraArgs(aurEff).SetOriginalCaster(CasterGUID));
     }
 
     private void OnPeriodic(AuraEffect aurEff)

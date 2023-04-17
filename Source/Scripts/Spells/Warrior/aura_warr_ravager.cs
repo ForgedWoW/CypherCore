@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -15,7 +15,7 @@ namespace Scripts.Spells.Warrior;
 {
     152277, 228920
 })]
-public class aura_warr_ravager : AuraScript, IHasAuraEffects
+public class AuraWarrRavager : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,20 +25,20 @@ public class aura_warr_ravager : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 2, AuraType.PeriodicDummy));
     }
 
-    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var player = Target.AsPlayer;
 
         if (player != null)
             if (player.GetPrimarySpecialization() == TalentSpecialization.WarriorProtection)
-                player.CastSpell(player, WarriorSpells.RAVAGER_PARRY, true);
+                player.SpellFactory.CastSpell(player, WarriorSpells.RAVAGER_PARRY, true);
     }
 
-    private void OnTick(AuraEffect UnnamedParameter)
+    private void OnTick(AuraEffect unnamedParameter)
     {
         var creature = Target.GetSummonedCreatureByEntry(WarriorSpells.NPC_WARRIOR_RAVAGER);
 
         if (creature != null)
-            Target.CastSpell(creature.Location, WarriorSpells.RAVAGER_DAMAGE, true);
+            Target.SpellFactory.CastSpell(creature.Location, WarriorSpells.RAVAGER_DAMAGE, true);
     }
 }

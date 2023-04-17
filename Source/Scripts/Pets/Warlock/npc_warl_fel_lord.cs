@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Pets
 {
@@ -12,9 +13,9 @@ namespace Scripts.Pets
     {
         // 107024 - Fel Lord
         [CreatureScript(107024)]
-        public class npc_warl_fel_lord : SmartAI
+        public class NPCWarlFelLord : SmartAI
         {
-            public npc_warl_fel_lord(Creature creature) : base(creature)
+            public NPCWarlFelLord(Creature creature) : base(creature)
             {
                 if (!Me.TryGetOwner(out Player owner))
                     return;
@@ -52,7 +53,7 @@ namespace Scripts.Pets
             //    if (me.HasUnitState(UnitState.Casting))
             //        return;
 
-            //    me.CastSpell(me, WarlockSpells.FEL_LORD_CLEAVE, false);
+            //    me.SpellFactory.CastSpell(me, WarlockSpells.FEL_LORD_CLEAVE, false);
             //}
         }
     }

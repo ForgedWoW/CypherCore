@@ -2,41 +2,43 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Shaman;
 
 //105427 Skyfury Totem
 [CreatureScript(105427)]
-public class npc_skyfury_totem : ScriptedAI
+public class NPCSkyfuryTotem : ScriptedAI
 {
-    public uint m_uiBuffTimer;
-    public int m_buffDuration = 15000;
+    public uint MUIBuffTimer;
+    public int MBuffDuration = 15000;
 
-    public npc_skyfury_totem(Creature creature) : base(creature) { }
+    public NPCSkyfuryTotem(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
-        m_uiBuffTimer = (uint)TotemData.DELAY;
+        MUIBuffTimer = (uint)TotemData.DELAY;
         ApplyBuff();
     }
 
     public override void UpdateAI(uint uiDiff)
     {
-        m_buffDuration -= (int)uiDiff;
+        MBuffDuration -= (int)uiDiff;
 
-        if (m_uiBuffTimer <= uiDiff)
+        if (MUIBuffTimer <= uiDiff)
             ApplyBuff();
         else
-            m_uiBuffTimer -= uiDiff;
+            MUIBuffTimer -= uiDiff;
     }
 
     public void ApplyBuff()
     {
-        m_uiBuffTimer = (uint)TotemData.DELAY;
+        MUIBuffTimer = (uint)TotemData.DELAY;
 
         if (!Me)
             return;
@@ -53,11 +55,11 @@ public class npc_skyfury_totem : ScriptedAI
 
             if (!itr.HasAura(TotemSpells.TOTEM_SKYFURY_EFFECT))
             {
-                Me.CastSpell(itr, TotemSpells.TOTEM_SKYFURY_EFFECT, true);
+                Me.SpellFactory.CastSpell(itr, TotemSpells.TOTEM_SKYFURY_EFFECT, true);
                 var aura = itr.GetAura(TotemSpells.TOTEM_SKYFURY_EFFECT);
 
                 if (aura != null)
-                    aura.SetDuration(m_buffDuration);
+                    aura.SetDuration(MBuffDuration);
             }
         }
     }

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(34026)]
-public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheckCast
+public class SpellHunKillCommand : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -54,7 +55,7 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
                 var target = ExplTargetUnit;
                 var player = Caster.AsPlayer;
 
-                pet.CastSpell(ExplTargetUnit, HunterSpells.KILL_COMMAND_TRIGGER, true);
+                pet.SpellFactory.CastSpell(ExplTargetUnit, HunterSpells.KILL_COMMAND_TRIGGER, true);
 
                 if (pet.Victim)
                 {
@@ -68,16 +69,16 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
                 //pet->CastSpell(GetExplTargetUnit(), KILL_COMMAND_CHARGE, true);
 
                 //191384 Aspect of the Beast
-                if (Caster.HasAura(Sspell.AspectoftheBeast))
+                if (Caster.HasAura(Sspell.ASPECTOFTHE_BEAST))
                 {
-                    if (pet.HasAura(Sspell.SpikedCollar))
-                        player.CastSpell(target, Sspell.BestialFerocity, true);
+                    if (pet.HasAura(Sspell.SPIKED_COLLAR))
+                        player.SpellFactory.CastSpell(target, Sspell.BESTIAL_FEROCITY, true);
 
-                    if (pet.HasAura(Sspell.GreatStamina))
-                        pet.CastSpell(pet, Sspell.BestialTenacity, true);
+                    if (pet.HasAura(Sspell.GREAT_STAMINA))
+                        pet.SpellFactory.CastSpell(pet, Sspell.BESTIAL_TENACITY, true);
 
-                    if (pet.HasAura(Sspell.Cornered))
-                        player.CastSpell(target, Sspell.BestialCunning, true);
+                    if (pet.HasAura(Sspell.CORNERED))
+                        player.SpellFactory.CastSpell(target, Sspell.BESTIAL_CUNNING, true);
                 }
             }
         }
@@ -85,13 +86,13 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 
     private struct Sspell
     {
-        public const uint AnimalInstinctsReduction = 232646;
-        public const uint AspectoftheBeast = 191384;
-        public const uint BestialFerocity = 191413;
-        public const uint BestialTenacity = 191414;
-        public const uint BestialCunning = 191397;
-        public const uint SpikedCollar = 53184;
-        public const uint GreatStamina = 61688;
-        public const uint Cornered = 53497;
+        public const uint ANIMAL_INSTINCTS_REDUCTION = 232646;
+        public const uint ASPECTOFTHE_BEAST = 191384;
+        public const uint BESTIAL_FEROCITY = 191413;
+        public const uint BESTIAL_TENACITY = 191414;
+        public const uint BESTIAL_CUNNING = 191397;
+        public const uint SPIKED_COLLAR = 53184;
+        public const uint GREAT_STAMINA = 61688;
+        public const uint CORNERED = 53497;
     }
 }

@@ -5,5 +5,5 @@ namespace Scripts.Spells.Druid;
 
 public struct SunfireSpells
 {
-    public static uint SUNFIRE_DAMAGE = 164815;
+    public static uint SunfireDamage = 164815;
 }

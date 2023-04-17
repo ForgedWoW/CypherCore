@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 39238 - Fumping
-internal class spell_q10929_fumping : AuraScript, IHasAuraEffects
+internal class SpellQ10929Fumping : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,6 +28,6 @@ internal class spell_q10929_fumping : AuraScript, IHasAuraEffects
         var caster = Caster;
 
         if (caster)
-            caster.CastSpell(caster, RandomHelper.URand(QuestSpellIds.SummonSandGnome, QuestSpellIds.SummonBoneSlicer), true);
+            caster.SpellFactory.CastSpell(caster, RandomHelper.URand(QuestSpellIds.SUMMON_SAND_GNOME, QuestSpellIds.SUMMON_BONE_SLICER), true);
     }
 }

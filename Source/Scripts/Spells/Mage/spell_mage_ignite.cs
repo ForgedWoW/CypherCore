@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 11119 - Ignite
-internal class spell_mage_ignite : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellMageIgnite : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -30,13 +31,13 @@ internal class spell_mage_ignite : AuraScript, IAuraCheckProc, IHasAuraEffects
     {
         PreventDefaultAction();
 
-        var igniteDot = Global.SpellMgr.GetSpellInfo(MageSpells.Ignite, CastDifficulty);
+        var igniteDot = Global.SpellMgr.GetSpellInfo(MageSpells.IGNITE, CastDifficulty);
         var pct = aurEff.Amount;
 
         var amount = (int)(MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, pct) / igniteDot.MaxTicks);
 
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-        Target.CastSpell(eventInfo.ProcTarget, MageSpells.Ignite, args);
+        Target.SpellFactory.CastSpell(eventInfo.ProcTarget, MageSpells.IGNITE, args);
     }
 }

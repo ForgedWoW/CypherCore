@@ -3,31 +3,34 @@
 
 using System;
 using System.Numerics;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Karazhan.Netherspite;
 
 internal struct SpellIds
 {
-    public const uint NetherburnAura = 30522;
-    public const uint Voidzone = 37063;
-    public const uint NetherInfusion = 38688;
-    public const uint Netherbreath = 38523;
-    public const uint BanishVisual = 39833;
-    public const uint BanishRoot = 42716;
-    public const uint Empowerment = 38549;
-    public const uint NetherspiteRoar = 38684;
+    public const uint NETHERBURN_AURA = 30522;
+    public const uint VOIDZONE = 37063;
+    public const uint NETHER_INFUSION = 38688;
+    public const uint NETHERBREATH = 38523;
+    public const uint BANISH_VISUAL = 39833;
+    public const uint BANISH_ROOT = 42716;
+    public const uint EMPOWERMENT = 38549;
+    public const uint NETHERSPITE_ROAR = 38684;
 }
 
 internal struct TextIds
 {
-    public const uint EmotePhasePortal = 0;
-    public const uint EmotePhaseBanish = 1;
+    public const uint EMOTE_PHASE_PORTAL = 0;
+    public const uint EMOTE_PHASE_BANISH = 1;
 }
 
 internal enum Portals
@@ -78,31 +81,31 @@ internal struct MiscConst
 }
 
 [Script]
-internal class boss_netherspite : ScriptedAI
+internal class BossNetherspite : ScriptedAI
 {
-    private readonly ObjectGuid[] BeamerGUID = new ObjectGuid[3]; // Guid's of auxiliary beaming portals
-    private readonly ObjectGuid[] BeamTarget = new ObjectGuid[3]; // Guid's of portals' current targets
-    private readonly InstanceScript instance;
-    private readonly ObjectGuid[] PortalGUID = new ObjectGuid[3]; // Guid's of portals
-    private bool Berserk;
-    private uint EmpowermentTimer;
-    private uint NetherbreathTimer;
-    private uint NetherInfusionTimer; // berserking timer
-    private uint PhaseTimer;          // timer for phase switching
+    private readonly ObjectGuid[] _beamerGUID = new ObjectGuid[3]; // Guid's of auxiliary beaming portals
+    private readonly ObjectGuid[] _beamTarget = new ObjectGuid[3]; // Guid's of portals' current targets
+    private readonly InstanceScript _instance;
+    private readonly ObjectGuid[] _portalGUID = new ObjectGuid[3]; // Guid's of portals
+    private bool _berserk;
+    private uint _empowermentTimer;
+    private uint _netherbreathTimer;
+    private uint _netherInfusionTimer; // berserking timer
+    private uint _phaseTimer;          // timer for phase switching
 
-    private bool PortalPhase;
-    private uint PortalTimer; // timer for beam checking
-    private uint VoidZoneTimer;
+    private bool _portalPhase;
+    private uint _portalTimer; // timer for beam checking
+    private uint _voidZoneTimer;
 
-    public boss_netherspite(Creature creature) : base(creature)
+    public BossNetherspite(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
 
-        PortalPhase = false;
-        PhaseTimer = 0;
-        EmpowermentTimer = 0;
-        PortalTimer = 0;
+        _portalPhase = false;
+        _phaseTimer = 0;
+        _empowermentTimer = 0;
+        _portalTimer = 0;
     }
 
     public override void Reset()
@@ -131,55 +134,55 @@ internal class boss_netherspite : ScriptedAI
             return;
 
         // Void Zone
-        if (VoidZoneTimer <= diff)
+        if (_voidZoneTimer <= diff)
         {
-            DoCast(SelectTarget(SelectTargetMethod.Random, 1, 45, true), SpellIds.Voidzone, new CastSpellExtraArgs(true));
-            VoidZoneTimer = 15000;
+            DoCast(SelectTarget(SelectTargetMethod.Random, 1, 45, true), SpellIds.VOIDZONE, new CastSpellExtraArgs(true));
+            _voidZoneTimer = 15000;
         }
         else
         {
-            VoidZoneTimer -= diff;
+            _voidZoneTimer -= diff;
         }
 
         // NetherInfusion Berserk
-        if (!Berserk &&
-            NetherInfusionTimer <= diff)
+        if (!_berserk &&
+            _netherInfusionTimer <= diff)
         {
-            Me.AddAura(SpellIds.NetherInfusion, Me);
-            DoCast(Me, SpellIds.NetherspiteRoar);
-            Berserk = true;
+            Me.AddAura(SpellIds.NETHER_INFUSION, Me);
+            DoCast(Me, SpellIds.NETHERSPITE_ROAR);
+            _berserk = true;
         }
         else
         {
-            NetherInfusionTimer -= diff;
+            _netherInfusionTimer -= diff;
         }
 
-        if (PortalPhase) // Portal Phase
+        if (_portalPhase) // Portal Phase
         {
             // Distribute beams and buffs
-            if (PortalTimer <= diff)
+            if (_portalTimer <= diff)
             {
                 UpdatePortals();
-                PortalTimer = 1000;
+                _portalTimer = 1000;
             }
             else
             {
-                PortalTimer -= diff;
+                _portalTimer -= diff;
             }
 
             // Empowerment & Nether Burn
-            if (EmpowermentTimer <= diff)
+            if (_empowermentTimer <= diff)
             {
-                DoCast(Me, SpellIds.Empowerment);
-                Me.AddAura(SpellIds.NetherburnAura, Me);
-                EmpowermentTimer = 90000;
+                DoCast(Me, SpellIds.EMPOWERMENT);
+                Me.AddAura(SpellIds.NETHERBURN_AURA, Me);
+                _empowermentTimer = 90000;
             }
             else
             {
-                EmpowermentTimer -= diff;
+                _empowermentTimer -= diff;
             }
 
-            if (PhaseTimer <= diff)
+            if (_phaseTimer <= diff)
             {
                 if (!Me.IsNonMeleeSpellCast(false))
                 {
@@ -190,27 +193,27 @@ internal class boss_netherspite : ScriptedAI
             }
             else
             {
-                PhaseTimer -= diff;
+                _phaseTimer -= diff;
             }
         }
         else // Banish Phase
         {
             // Netherbreath
-            if (NetherbreathTimer <= diff)
+            if (_netherbreathTimer <= diff)
             {
                 var target = SelectTarget(SelectTargetMethod.Random, 0, 40, true);
 
                 if (target)
-                    DoCast(target, SpellIds.Netherbreath);
+                    DoCast(target, SpellIds.NETHERBREATH);
 
-                NetherbreathTimer = RandomHelper.URand(5000, 7000);
+                _netherbreathTimer = RandomHelper.URand(5000, 7000);
             }
             else
             {
-                NetherbreathTimer -= diff;
+                _netherbreathTimer -= diff;
             }
 
-            if (PhaseTimer <= diff)
+            if (_phaseTimer <= diff)
             {
                 if (!Me.IsNonMeleeSpellCast(false))
                 {
@@ -221,7 +224,7 @@ internal class boss_netherspite : ScriptedAI
             }
             else
             {
-                PhaseTimer -= diff;
+                _phaseTimer -= diff;
             }
         }
 
@@ -230,10 +233,10 @@ internal class boss_netherspite : ScriptedAI
 
     private void Initialize()
     {
-        Berserk = false;
-        NetherInfusionTimer = 540000;
-        VoidZoneTimer = 15000;
-        NetherbreathTimer = 3000;
+        _berserk = false;
+        _netherInfusionTimer = 540000;
+        _voidZoneTimer = 15000;
+        _netherbreathTimer = 3000;
     }
 
     private bool IsBetween(WorldObject u1, WorldObject target, WorldObject u2) // the in-line checker
@@ -252,15 +255,15 @@ internal class boss_netherspite : ScriptedAI
         yh = target.Location.Y;
 
         // check if Target is between (not checking distance from the beam yet)
-        if (dist(xn, yn, xh, yh) >= dist(xn, yn, xp, yp) ||
-            dist(xp, yp, xh, yh) >= dist(xn, yn, xp, yp))
+        if (Dist(xn, yn, xh, yh) >= Dist(xn, yn, xp, yp) ||
+            Dist(xp, yp, xh, yh) >= Dist(xn, yn, xp, yp))
             return false;
 
         // check  distance from the beam
-        return (Math.Abs((xn - xp) * yh + (yp - yn) * xh - xn * yp + xp * yn) / dist(xn, yn, xp, yp) < 1.5f);
+        return (Math.Abs((xn - xp) * yh + (yp - yn) * xh - xn * yp + xp * yn) / Dist(xn, yn, xp, yp) < 1.5f);
     }
 
-    private double dist(float xa, float ya, float xb, float yb) // auxiliary method for distance
+    private double Dist(float xa, float ya, float xb, float yb) // auxiliary method for distance
     {
         return MathF.Sqrt((xa - xb) * (xa - xb) + (ya - yb) * (ya - yb));
     }
@@ -279,7 +282,7 @@ internal class boss_netherspite : ScriptedAI
 
             if (portal)
             {
-                PortalGUID[i] = portal.GUID;
+                _portalGUID[i] = portal.GUID;
                 portal.AddAura(MiscConst.PortalVisual[i], portal);
             }
         }
@@ -289,18 +292,18 @@ internal class boss_netherspite : ScriptedAI
     {
         for (var i = 0; i < 3; ++i)
         {
-            var portal = ObjectAccessor.GetCreature(Me, PortalGUID[i]);
+            var portal = ObjectAccessor.GetCreature(Me, _portalGUID[i]);
 
             if (portal)
                 portal.DisappearAndDie();
 
-            var portal1 = ObjectAccessor.GetCreature(Me, BeamerGUID[i]);
+            var portal1 = ObjectAccessor.GetCreature(Me, _beamerGUID[i]);
 
             if (portal1)
                 portal1.DisappearAndDie();
 
-            PortalGUID[i].Clear();
-            BeamTarget[i].Clear();
+            _portalGUID[i].Clear();
+            _beamTarget[i].Clear();
         }
     }
 
@@ -308,12 +311,12 @@ internal class boss_netherspite : ScriptedAI
     {
         for (var j = 0; j < 3; ++j) // j = color
         {
-            var portal = ObjectAccessor.GetCreature(Me, PortalGUID[j]);
+            var portal = ObjectAccessor.GetCreature(Me, _portalGUID[j]);
 
             if (portal)
             {
                 // the one who's been cast upon before
-                var current = Global.ObjAccessor.GetUnit(portal, BeamTarget[j]);
+                var current = Global.ObjAccessor.GetUnit(portal, _beamTarget[j]);
                 // temporary store for the best suitable beam reciever
                 Unit target = Me;
 
@@ -345,15 +348,15 @@ internal class boss_netherspite : ScriptedAI
                 if (!current ||
                     target != current)
                 {
-                    BeamTarget[j] = target.GUID;
+                    _beamTarget[j] = target.GUID;
                     // remove currently beaming portal
-                    var beamer = ObjectAccessor.GetCreature(portal, BeamerGUID[j]);
+                    var beamer = ObjectAccessor.GetCreature(portal, _beamerGUID[j]);
 
                     if (beamer)
                     {
-                        beamer.CastSpell(target, MiscConst.PortalBeam[j], false);
+                        beamer.SpellFactory.CastSpell(target, MiscConst.PortalBeam[j], false);
                         beamer.DisappearAndDie();
-                        BeamerGUID[j].Clear();
+                        _beamerGUID[j].Clear();
                     }
 
                     // create new one and start beaming on the Target
@@ -361,8 +364,8 @@ internal class boss_netherspite : ScriptedAI
 
                     if (beamer1)
                     {
-                        beamer1.CastSpell(target, MiscConst.PortalBeam[j], false);
-                        BeamerGUID[j] = beamer1.GUID;
+                        beamer1.SpellFactory.CastSpell(target, MiscConst.PortalBeam[j], false);
+                        _beamerGUID[j] = beamer1.GUID;
                     }
                 }
 
@@ -377,26 +380,26 @@ internal class boss_netherspite : ScriptedAI
 
     private void SwitchToPortalPhase()
     {
-        Me.RemoveAura(SpellIds.BanishRoot);
-        Me.RemoveAura(SpellIds.BanishVisual);
+        Me.RemoveAura(SpellIds.BANISH_ROOT);
+        Me.RemoveAura(SpellIds.BANISH_VISUAL);
         SummonPortals();
-        PhaseTimer = 60000;
-        PortalPhase = true;
-        PortalTimer = 10000;
-        EmpowermentTimer = 10000;
-        Talk(TextIds.EmotePhasePortal);
+        _phaseTimer = 60000;
+        _portalPhase = true;
+        _portalTimer = 10000;
+        _empowermentTimer = 10000;
+        Talk(TextIds.EMOTE_PHASE_PORTAL);
     }
 
     private void SwitchToBanishPhase()
     {
-        Me.RemoveAura(SpellIds.Empowerment);
-        Me.RemoveAura(SpellIds.NetherburnAura);
-        DoCast(Me, SpellIds.BanishVisual, new CastSpellExtraArgs(true));
-        DoCast(Me, SpellIds.BanishRoot, new CastSpellExtraArgs(true));
+        Me.RemoveAura(SpellIds.EMPOWERMENT);
+        Me.RemoveAura(SpellIds.NETHERBURN_AURA);
+        DoCast(Me, SpellIds.BANISH_VISUAL, new CastSpellExtraArgs(true));
+        DoCast(Me, SpellIds.BANISH_ROOT, new CastSpellExtraArgs(true));
         DestroyPortals();
-        PhaseTimer = 30000;
-        PortalPhase = false;
-        Talk(TextIds.EmotePhaseBanish);
+        _phaseTimer = 30000;
+        _portalPhase = false;
+        Talk(TextIds.EMOTE_PHASE_BANISH);
 
         for (byte i = 0; i < 3; ++i)
             Me.RemoveAura(MiscConst.NetherBuff[i]);
@@ -404,9 +407,9 @@ internal class boss_netherspite : ScriptedAI
 
     private void HandleDoors(bool open) // Massive Door switcher
     {
-        var Door = ObjectAccessor.GetGameObject(Me, instance.GetGuidData(DataTypes.GoMassiveDoor));
+        var door = ObjectAccessor.GetGameObject(Me, _instance.GetGuidData(DataTypes.GO_MASSIVE_DOOR));
 
-        if (Door)
-            Door.SetGoState(open ? GameObjectState.Active : GameObjectState.Ready);
+        if (door)
+            door.SetGoState(open ? GameObjectState.Active : GameObjectState.Ready);
     }
 }

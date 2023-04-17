@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 155835 - Bristling Fur
-internal class spell_dru_bristling_fur : AuraScript, IHasAuraEffects
+internal class SpellDruBristlingFur : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -32,7 +33,7 @@ internal class spell_dru_bristling_fur : AuraScript, IHasAuraEffects
             var rage = (uint)(target.GetMaxPower(PowerType.Rage) * (double)damageInfo.Damage / (double)target.MaxHealth);
 
             if (rage > 0)
-                target.CastSpell(target, DruidSpellIds.BristlingFurGainRage, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)rage));
+                target.SpellFactory.CastSpell(target, DruidSpellIds.BristlingFurGainRage, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)rage));
         }
     }
 }

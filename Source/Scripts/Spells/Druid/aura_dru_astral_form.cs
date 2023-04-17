@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(24858, 102560, 197625)]
-public class aura_dru_astral_form : AuraScript, IHasAuraEffects
+public class AuraDruAstralForm : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -33,28 +33,28 @@ public class aura_dru_astral_form : AuraScript, IHasAuraEffects
         }
     }
 
-    private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void AfterApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var target = Target;
 
-        if (target.HasAura(DruidSpells.GLYPH_OF_STARS))
+        if (target.HasAura(DruidSpells.GlyphOfStars))
         {
             target.SetDisplayId(target.NativeDisplayId);
-            target.AddAura(DruidSpells.BLUE_COLOR, target);
-            target.AddAura(DruidSpells.SHADOWY_GHOST, target);
-            target.CastSpell(target, (uint)Global.SpellMgr.GetSpellInfo(DruidSpells.GLYPH_OF_STARS, Difficulty.None).GetEffect(0).BasePoints, true);
+            target.AddAura(DruidSpells.BlueColor, target);
+            target.AddAura(DruidSpells.ShadowyGhost, target);
+            target.SpellFactory.CastSpell(target, (uint)Global.SpellMgr.GetSpellInfo(DruidSpells.GlyphOfStars, Difficulty.None).GetEffect(0).BasePoints, true);
         }
     }
 
-    private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void AfterRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var target = Target;
 
-        if (target.HasAura(ShapeshiftFormSpells.MOONKIN_FORM) || target.HasAura(DruidSpells.CHOSEN_OF_ELUNE))
+        if (target.HasAura(ShapeshiftFormSpells.MoonkinForm) || target.HasAura(DruidSpells.ChosenOfElune))
             return;
 
-        target.RemoveAura((uint)Global.SpellMgr.GetSpellInfo(DruidSpells.GLYPH_OF_STARS, Difficulty.None).GetEffect(0).BasePoints);
-        target.RemoveAura(DruidSpells.BLUE_COLOR);
-        target.RemoveAura(DruidSpells.SHADOWY_GHOST);
+        target.RemoveAura((uint)Global.SpellMgr.GetSpellInfo(DruidSpells.GlyphOfStars, Difficulty.None).GetEffect(0).BasePoints);
+        target.RemoveAura(DruidSpells.BlueColor);
+        target.RemoveAura(DruidSpells.ShadowyGhost);
     }
 }

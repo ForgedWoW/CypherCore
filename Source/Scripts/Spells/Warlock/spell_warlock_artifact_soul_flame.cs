@@ -3,17 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 199471 - Soul Flame
 [SpellScript(199471)]
-public class spell_warlock_artifact_soul_flame : AuraScript, IHasAuraEffects
+public class SpellWarlockArtifactSoulFlame : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -22,7 +22,7 @@ public class spell_warlock_artifact_soul_flame : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    private void OnProc(AuraEffect unnamedParameter, ProcEventInfo eventInfo)
     {
         var target = eventInfo.ActionTarget;
         var caster = Caster;
@@ -31,6 +31,6 @@ public class spell_warlock_artifact_soul_flame : AuraScript, IHasAuraEffects
             return;
 
         var p = target.Location;
-        caster.Events.AddEvent(() => { caster.CastSpell(p, WarlockSpells.SOUL_FLAME_PROC, true); }, TimeSpan.FromMilliseconds(300));
+        caster.Events.AddEvent(() => { caster.SpellFactory.CastSpell(p, WarlockSpells.SOUL_FLAME_PROC, true); }, TimeSpan.FromMilliseconds(300));
     }
 }

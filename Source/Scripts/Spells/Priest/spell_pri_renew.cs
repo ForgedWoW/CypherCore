@@ -3,15 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(139)]
-public class spell_pri_renew : AuraScript, IHasAuraEffects
+public class SpellPriRenew : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,7 +26,7 @@ public class spell_pri_renew : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(HandleApplyEffect, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.RealOrReapplyMask));
     }
 
-    private void HandleApplyEffect(AuraEffect aurEff, AuraEffectHandleModes UnnamedParameter)
+    private void HandleApplyEffect(AuraEffect aurEff, AuraEffectHandleModes unnamedParameter)
     {
         var caster = Caster;
 
@@ -47,7 +48,7 @@ public class spell_pri_renew : AuraScript, IHasAuraEffects
                 args.AddSpellMod(SpellValueMod.BasePoint0, (int)basepoints0);
                 args.SetTriggerFlags(TriggerCastFlags.FullMask);
                 args.SetTriggeringAura(aurEff);
-                caster.CastSpell(Target, PriestSpells.DIVINE_TOUCH, args);
+                caster.SpellFactory.CastSpell(Target, PriestSpells.DIVINE_TOUCH, args);
             }
         }
     }

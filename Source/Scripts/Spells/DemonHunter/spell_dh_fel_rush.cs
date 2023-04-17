@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(195072)]
-public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
+public class SpellDhFelRush : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,13 +30,13 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
             if (!caster.IsFalling || caster.IsInWater)
             {
                 caster.RemoveAura(DemonHunterSpells.GLIDE);
-                caster.CastSpell(caster, DemonHunterSpells.FEL_RUSH_DASH, true);
+                caster.SpellFactory.CastSpell(caster, DemonHunterSpells.FEL_RUSH_DASH, true);
 
                 if (HitUnit)
-                    caster.CastSpell(HitUnit, DemonHunterSpells.FEL_RUSH_DAMAGE, true);
+                    caster.SpellFactory.CastSpell(HitUnit, DemonHunterSpells.FEL_RUSH_DAMAGE, true);
 
                 if (caster.HasAura(ShatteredSoulsSpells.MOMENTUM))
-                    caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
+                    caster.SpellFactory.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
             }
 
             caster.SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
@@ -51,13 +52,13 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
             {
                 caster.RemoveAura(DemonHunterSpells.GLIDE);
                 caster.SetDisableGravity(true);
-                caster.CastSpell(caster, DemonHunterSpells.FEL_RUSH_AIR, true);
+                caster.SpellFactory.CastSpell(caster, DemonHunterSpells.FEL_RUSH_AIR, true);
 
                 if (HitUnit)
-                    caster.CastSpell(HitUnit, DemonHunterSpells.FEL_RUSH_DAMAGE, true);
+                    caster.SpellFactory.CastSpell(HitUnit, DemonHunterSpells.FEL_RUSH_DAMAGE, true);
 
                 if (caster.HasAura(ShatteredSoulsSpells.MOMENTUM))
-                    caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
+                    caster.SpellFactory.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
 
                 caster.SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
             }

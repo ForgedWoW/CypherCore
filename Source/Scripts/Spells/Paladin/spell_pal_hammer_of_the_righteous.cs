@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(53595)] // 53595 - Hammer of the Righteous
-internal class spell_pal_hammer_of_the_righteous : SpellScript, IHasSpellEffects
+internal class SpellPalHammerOfTheRighteous : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,7 +22,7 @@ internal class spell_pal_hammer_of_the_righteous : SpellScript, IHasSpellEffects
 
     private void HandleAoEHit(int effIndex)
     {
-        if (Caster.HasAura(PaladinSpells.ConsecrationProtectionAura))
-            Caster.CastSpell(HitUnit, PaladinSpells.HammerOfTheRighteousAoe);
+        if (Caster.HasAura(PaladinSpells.CONSECRATION_PROTECTION_AURA))
+            Caster.SpellFactory.CastSpell(HitUnit, PaladinSpells.HAMMER_OF_THE_RIGHTEOUS_AOE);
     }
 }

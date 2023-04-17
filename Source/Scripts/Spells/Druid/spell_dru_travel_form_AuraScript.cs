@@ -2,11 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
@@ -14,9 +15,9 @@ namespace Scripts.Spells.Druid;
 // 33943 - Flight Form
 // 40120 - Swift Flight Form
 [Script] // 165961 - Stag Form
-internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellDruTravelFormAuraScript : AuraScript, IHasAuraEffects
 {
-    private uint triggeredSpellId;
+    private uint _triggeredSpellId;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
@@ -53,36 +54,36 @@ internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
     private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         // If it stays 0, it removes Travel Form dummy in AfterRemove.
-        triggeredSpellId = 0;
+        _triggeredSpellId = 0;
 
         // We should only handle aura interrupts.
         if (TargetApplication.RemoveMode != AuraRemoveMode.Interrupt)
             return;
 
         // Check what form is appropriate
-        triggeredSpellId = GetFormSpellId(Target.AsPlayer, CastDifficulty, true);
+        _triggeredSpellId = GetFormSpellId(Target.AsPlayer, CastDifficulty, true);
 
         // If chosen form is current aura, just don't remove it.
-        if (triggeredSpellId == ScriptSpellId)
+        if (_triggeredSpellId == ScriptSpellId)
             PreventDefaultAction();
     }
 
     private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        if (triggeredSpellId == ScriptSpellId)
+        if (_triggeredSpellId == ScriptSpellId)
             return;
 
         var player = Target.AsPlayer;
 
-        if (triggeredSpellId != 0) // Apply new form
-            player.CastSpell(player, triggeredSpellId, new CastSpellExtraArgs(aurEff));
+        if (_triggeredSpellId != 0) // Apply new form
+            player.SpellFactory.CastSpell(player, _triggeredSpellId, new CastSpellExtraArgs(aurEff));
         else // If not set, simply remove Travel Form dummy
             player.RemoveAura(DruidSpellIds.TravelForm);
     }
 
-    private static SpellCastResult CheckLocationForForm(Player targetPlayer, Difficulty difficulty, bool requireOutdoors, uint spell_id)
+    private static SpellCastResult CheckLocationForForm(Player targetPlayer, Difficulty difficulty, bool requireOutdoors, uint spellID)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, difficulty);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, difficulty);
 
         if (requireOutdoors && !targetPlayer.IsOutdoors)
             return SpellCastResult.OnlyOutdoors;

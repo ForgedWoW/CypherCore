@@ -3,15 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(44614)]
-public class spell_mage_flurry : SpellScript, IHasSpellEffects
+public class SpellMageFlurry : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -49,10 +51,10 @@ public class spell_mage_flurry : SpellScript, IHasSpellEffects
 
                                                        if (target != null)
                                                        {
-                                                           caster.CastSpell(target, MageSpells.FLURRY_VISUAL, false);
+                                                           caster.SpellFactory.CastSpell(target, MageSpells.FLURRY_VISUAL, false);
 
                                                            if (isImproved)
-                                                               caster.CastSpell(target, MageSpells.FLURRY_CHILL_PROC, false);
+                                                               caster.SpellFactory.CastSpell(target, MageSpells.FLURRY_CHILL_PROC, false);
                                                        }
                                                    }
                                                },

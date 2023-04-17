@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Evoker;
 
 [AreaTriggerScript(EvokerAreaTriggers.GREEN_EMERALD_BLOSSOM)]
-public class at_evoker_fluttering_seedling : AreaTriggerScript, IAreaTriggerOnRemove
+public class AtEvokerFlutteringSeedling : AreaTriggerScript, IAreaTriggerOnRemove
 {
     public void OnRemove()
     {
@@ -30,6 +30,6 @@ public class at_evoker_fluttering_seedling : AreaTriggerScript, IAreaTriggerOnRe
 
         // cast on targets
         foreach (var target in targetList)
-            caster.CastSpell(target, EvokerSpells.FLUTTERING_SEEDLINGS_HEAL, true);
+            caster.SpellFactory.CastSpell(target, EvokerSpells.FLUTTERING_SEEDLINGS_HEAL, true);
     }
 }

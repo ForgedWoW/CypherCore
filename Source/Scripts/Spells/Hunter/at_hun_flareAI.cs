@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_flareAI : AreaTriggerScript, IAreaTriggerOnCreate
+public class AtHunFlareAI : AreaTriggerScript, IAreaTriggerOnCreate
 {
     public void OnCreate()
     {
@@ -29,7 +29,7 @@ public class at_hun_flareAI : AreaTriggerScript, IAreaTriggerOnCreate
             tempSumm.Faction = caster.Faction;
             tempSumm.SetSummonerGUID(caster.GUID);
             PhasingHandler.InheritPhaseShift(tempSumm, caster);
-            caster.CastSpell(tempSumm, HunterSpells.FLARE_EFFECT, true);
+            caster.SpellFactory.CastSpell(tempSumm, HunterSpells.FLARE_EFFECT, true);
         }
     }
 }

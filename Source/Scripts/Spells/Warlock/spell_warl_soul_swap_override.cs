@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Warlock;
 
 [Script] // 86211 - Soul Swap - Also acts as a dot container
-public class spell_warl_soul_swap_override : AuraScript
+public class SpellWarlSoulSwapOverride : AuraScript
 {
     private readonly List<uint> _dotList = new();
 

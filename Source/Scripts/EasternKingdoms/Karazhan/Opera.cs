@@ -2,141 +2,146 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
+using Serilog;
 
 namespace Scripts.EasternKingdoms.Karazhan.EsOpera;
 
 internal struct TextIds
 {
-    public const uint SayDorotheeDeath = 0;
-    public const uint SayDorotheeSummon = 1;
-    public const uint SayDorotheeTitoDeath = 2;
-    public const uint SayDorotheeAggro = 3;
+    public const uint SAY_DOROTHEE_DEATH = 0;
+    public const uint SAY_DOROTHEE_SUMMON = 1;
+    public const uint SAY_DOROTHEE_TITO_DEATH = 2;
+    public const uint SAY_DOROTHEE_AGGRO = 3;
 
-    public const uint SayRoarAggro = 0;
-    public const uint SayRoarDeath = 1;
-    public const uint SayRoarSlay = 2;
+    public const uint SAY_ROAR_AGGRO = 0;
+    public const uint SAY_ROAR_DEATH = 1;
+    public const uint SAY_ROAR_SLAY = 2;
 
-    public const uint SayStrawmanAggro = 0;
-    public const uint SayStrawmanDeath = 1;
-    public const uint SayStrawmanSlay = 2;
+    public const uint SAY_STRAWMAN_AGGRO = 0;
+    public const uint SAY_STRAWMAN_DEATH = 1;
+    public const uint SAY_STRAWMAN_SLAY = 2;
 
-    public const uint SayTinheadAggro = 0;
-    public const uint SayTinheadDeath = 1;
-    public const uint SayTinheadSlay = 2;
-    public const uint EmoteRust = 3;
+    public const uint SAY_TINHEAD_AGGRO = 0;
+    public const uint SAY_TINHEAD_DEATH = 1;
+    public const uint SAY_TINHEAD_SLAY = 2;
+    public const uint EMOTE_RUST = 3;
 
-    public const uint SayCroneAggro = 0;
-    public const uint SayCroneDeath = 1;
-    public const uint SayCroneSlay = 2;
+    public const uint SAY_CRONE_AGGRO = 0;
+    public const uint SAY_CRONE_DEATH = 1;
+    public const uint SAY_CRONE_SLAY = 2;
 
     //RedRidingHood
-    public const uint SayWolfAggro = 0;
-    public const uint SayWolfSlay = 1;
-    public const uint SayWolfHood = 2;
-    public const uint OptionWhatPhatLewtsYouHave = 7443;
+    public const uint SAY_WOLF_AGGRO = 0;
+    public const uint SAY_WOLF_SLAY = 1;
+    public const uint SAY_WOLF_HOOD = 2;
+    public const uint OPTION_WHAT_PHAT_LEWTS_YOU_HAVE = 7443;
 
     //Romulo & Julianne
-    public const uint SayJulianneAggro = 0;
-    public const uint SayJulianneEnter = 1;
-    public const uint SayJulianneDeath01 = 2;
-    public const uint SayJulianneDeath02 = 3;
-    public const uint SayJulianneResurrect = 4;
-    public const uint SayJulianneSlay = 5;
+    public const uint SAY_JULIANNE_AGGRO = 0;
+    public const uint SAY_JULIANNE_ENTER = 1;
+    public const uint SAY_JULIANNE_DEATH01 = 2;
+    public const uint SAY_JULIANNE_DEATH02 = 3;
+    public const uint SAY_JULIANNE_RESURRECT = 4;
+    public const uint SAY_JULIANNE_SLAY = 5;
 
-    public const uint SayRomuloAggro = 0;
-    public const uint SayRomuloDeath = 1;
-    public const uint SayRomuloEnter = 2;
-    public const uint SayRomuloResurrect = 3;
-    public const uint SayRomuloSlay = 4;
+    public const uint SAY_ROMULO_AGGRO = 0;
+    public const uint SAY_ROMULO_DEATH = 1;
+    public const uint SAY_ROMULO_ENTER = 2;
+    public const uint SAY_ROMULO_RESURRECT = 3;
+    public const uint SAY_ROMULO_SLAY = 4;
 }
 
 internal struct SpellIds
 {
     // Dorothee
-    public const uint Waterbolt = 31012;
-    public const uint Scream = 31013;
-    public const uint Summontito = 31014;
+    public const uint WATERBOLT = 31012;
+    public const uint SCREAM = 31013;
+    public const uint SUMMONTITO = 31014;
 
     // Tito
-    public const uint Yipping = 31015;
+    public const uint YIPPING = 31015;
 
     // Strawman
-    public const uint BrainBash = 31046;
-    public const uint BrainWipe = 31069;
-    public const uint BurningStraw = 31075;
+    public const uint BRAIN_BASH = 31046;
+    public const uint BRAIN_WIPE = 31069;
+    public const uint BURNING_STRAW = 31075;
 
     // Tinhead
-    public const uint Cleave = 31043;
-    public const uint Rust = 31086;
+    public const uint CLEAVE = 31043;
+    public const uint RUST = 31086;
 
     // Roar
-    public const uint Mangle = 31041;
-    public const uint Shred = 31042;
-    public const uint FrightenedScream = 31013;
+    public const uint MANGLE = 31041;
+    public const uint SHRED = 31042;
+    public const uint FRIGHTENED_SCREAM = 31013;
 
     // Crone
-    public const uint ChainLightning = 32337;
+    public const uint CHAIN_LIGHTNING = 32337;
 
     // Cyclone
-    public const uint Knockback = 32334;
-    public const uint CycloneVisual = 32332;
+    public const uint KNOCKBACK = 32334;
+    public const uint CYCLONE_VISUAL = 32332;
 
     //Red Riding Hood
-    public const uint LittleRedRidingHood = 30768;
-    public const uint TerrifyingHowl = 30752;
-    public const uint WideSwipe = 30761;
+    public const uint LITTLE_RED_RIDING_HOOD = 30768;
+    public const uint TERRIFYING_HOWL = 30752;
+    public const uint WIDE_SWIPE = 30761;
 
     //Romulo & Julianne
-    public const uint BlindingPassion = 30890;
-    public const uint Devotion = 30887;
-    public const uint EternalAffection = 30878;
-    public const uint PowerfulAttraction = 30889;
-    public const uint DrinkPoison = 30907;
+    public const uint BLINDING_PASSION = 30890;
+    public const uint DEVOTION = 30887;
+    public const uint ETERNAL_AFFECTION = 30878;
+    public const uint POWERFUL_ATTRACTION = 30889;
+    public const uint DRINK_POISON = 30907;
 
-    public const uint BackwardLunge = 30815;
-    public const uint Daring = 30841;
-    public const uint DeadlySwathe = 30817;
-    public const uint PoisonThrust = 30822;
+    public const uint BACKWARD_LUNGE = 30815;
+    public const uint DARING = 30841;
+    public const uint DEADLY_SWATHE = 30817;
+    public const uint POISON_THRUST = 30822;
 
-    public const uint UndyingLove = 30951;
-    public const uint ResVisual = 24171;
+    public const uint UNDYING_LOVE = 30951;
+    public const uint RES_VISUAL = 24171;
 }
 
 internal struct CreatureIds
 {
-    public const uint Tito = 17548;
-    public const uint Cyclone = 18412;
-    public const uint Crone = 18168;
+    public const uint TITO = 17548;
+    public const uint CYCLONE = 18412;
+    public const uint CRONE = 18168;
 
     //Red Riding Hood
-    public const uint BigBadWolf = 17521;
+    public const uint BIG_BAD_WOLF = 17521;
 
     //Romulo & Julianne
-    public const uint Romulo = 17533;
+    public const uint ROMULO = 17533;
 }
 
 internal struct MiscConst
 {
     //Red Riding Hood
-    public const uint SoundWolfDeath = 9275;
+    public const uint SOUND_WOLF_DEATH = 9275;
 
     //Romulo & Julianne
-    public const int RomuloX = -10900;
-    public const int RomuloY = -1758;
+    public const int ROMULO_X = -10900;
+    public const int ROMULO_Y = -1758;
 
     public static void SummonCroneIfReady(InstanceScript instance, Creature creature)
     {
-        instance.SetData(DataTypes.OperaOzDeathcount, (uint)EncounterState.Special); // Increment DeathCount
+        instance.SetData(DataTypes.OPERA_OZ_DEATHCOUNT, (uint)EncounterState.Special); // Increment DeathCount
 
-        if (instance.GetData(DataTypes.OperaOzDeathcount) == 4)
+        if (instance.GetData(DataTypes.OPERA_OZ_DEATHCOUNT) == 4)
         {
-            Creature pCrone = creature.SummonCreature(CreatureIds.Crone, -10891.96f, -1755.95f, creature.Location.Z, 4.64f, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+            Creature pCrone = creature.SummonCreature(CreatureIds.CRONE, -10891.96f, -1755.95f, creature.Location.Z, 4.64f, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
             if (pCrone)
                 if (creature.Victim)
@@ -160,7 +165,7 @@ internal struct MiscConst
         target.RemoveUnitFlag(UnitFlags.Uninteractible);
         target.SetFullHealth();
         target.SetStandState(UnitStandStateType.Stand);
-        target.CastSpell(target, SpellIds.ResVisual, true);
+        target.SpellFactory.CastSpell(target, SpellIds.RES_VISUAL, true);
 
         if (target.Victim)
         {
@@ -174,7 +179,7 @@ internal struct MiscConst
     }
 }
 
-internal enum RAJPhase
+internal enum RajPhase
 {
     Julianne = 0,
     Romulo = 1,
@@ -182,21 +187,21 @@ internal enum RAJPhase
 }
 
 [Script]
-internal class boss_dorothee : ScriptedAI
+internal class BossDorothee : ScriptedAI
 {
     public bool SummonedTito;
     public bool TitoDied;
-    private readonly InstanceScript instance;
-    private uint AggroTimer;
-    private uint FearTimer;
-    private uint SummonTitoTimer;
+    private readonly InstanceScript _instance;
+    private uint _aggroTimer;
+    private uint _fearTimer;
+    private uint _summonTitoTimer;
 
-    private uint WaterBoltTimer;
+    private uint _waterBoltTimer;
 
-    public boss_dorothee(Creature creature) : base(creature)
+    public BossDorothee(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -206,7 +211,7 @@ internal class boss_dorothee : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayDorotheeAggro);
+        Talk(TextIds.SAY_DOROTHEE_AGGRO);
     }
 
     public override void JustReachedHome()
@@ -216,9 +221,9 @@ internal class boss_dorothee : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayDorotheeDeath);
+        Talk(TextIds.SAY_DOROTHEE_DEATH);
 
-        MiscConst.SummonCroneIfReady(instance, Me);
+        MiscConst.SummonCroneIfReady(_instance, Me);
     }
 
     public override void AttackStart(Unit who)
@@ -239,47 +244,47 @@ internal class boss_dorothee : ScriptedAI
 
     public override void UpdateAI(uint diff)
     {
-        if (AggroTimer != 0)
+        if (_aggroTimer != 0)
         {
-            if (AggroTimer <= diff)
+            if (_aggroTimer <= diff)
             {
                 Me.RemoveUnitFlag(UnitFlags.NonAttackable);
-                AggroTimer = 0;
+                _aggroTimer = 0;
             }
             else
             {
-                AggroTimer -= diff;
+                _aggroTimer -= diff;
             }
         }
 
         if (!UpdateVictim())
             return;
 
-        if (WaterBoltTimer <= diff)
+        if (_waterBoltTimer <= diff)
         {
-            DoCast(SelectTarget(SelectTargetMethod.Random, 0), SpellIds.Waterbolt);
-            WaterBoltTimer = TitoDied ? 1500 : 5000u;
+            DoCast(SelectTarget(SelectTargetMethod.Random, 0), SpellIds.WATERBOLT);
+            _waterBoltTimer = TitoDied ? 1500 : 5000u;
         }
         else
         {
-            WaterBoltTimer -= diff;
+            _waterBoltTimer -= diff;
         }
 
-        if (FearTimer <= diff)
+        if (_fearTimer <= diff)
         {
-            DoCastVictim(SpellIds.Scream);
-            FearTimer = 30000;
+            DoCastVictim(SpellIds.SCREAM);
+            _fearTimer = 30000;
         }
         else
         {
-            FearTimer -= diff;
+            _fearTimer -= diff;
         }
 
         if (!SummonedTito)
         {
-            if (SummonTitoTimer <= diff)
+            if (_summonTitoTimer <= diff)
                 SummonTito();
-            else SummonTitoTimer -= diff;
+            else _summonTitoTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -287,11 +292,11 @@ internal class boss_dorothee : ScriptedAI
 
     private void Initialize()
     {
-        AggroTimer = 500;
+        _aggroTimer = 500;
 
-        WaterBoltTimer = 5000;
-        FearTimer = 15000;
-        SummonTitoTimer = 47500;
+        _waterBoltTimer = 5000;
+        _fearTimer = 15000;
+        _summonTitoTimer = 47500;
 
         SummonedTito = false;
         TitoDied = false;
@@ -299,12 +304,12 @@ internal class boss_dorothee : ScriptedAI
 
     private void SummonTito()
     {
-        Creature pTito = Me.SummonCreature(CreatureIds.Tito, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+        Creature pTito = Me.SummonCreature(CreatureIds.TITO, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
         if (pTito)
         {
-            Talk(TextIds.SayDorotheeSummon);
-            pTito.GetAI<npc_tito>().DorotheeGUID = Me.GUID;
+            Talk(TextIds.SAY_DOROTHEE_SUMMON);
+            pTito.GetAI<NPCTito>().DorotheeGUID = Me.GUID;
             pTito.AI.AttackStart(Me.Victim);
             SummonedTito = true;
             TitoDied = false;
@@ -313,12 +318,12 @@ internal class boss_dorothee : ScriptedAI
 }
 
 [Script]
-internal class npc_tito : ScriptedAI
+internal class NPCTito : ScriptedAI
 {
     public ObjectGuid DorotheeGUID;
-    private uint YipTimer;
+    private uint _yipTimer;
 
-    public npc_tito(Creature creature) : base(creature)
+    public NPCTito(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -334,12 +339,12 @@ internal class npc_tito : ScriptedAI
     {
         if (!DorotheeGUID.IsEmpty)
         {
-            var Dorothee = ObjectAccessor.GetCreature(Me, DorotheeGUID);
+            var dorothee = ObjectAccessor.GetCreature(Me, DorotheeGUID);
 
-            if (Dorothee && Dorothee.IsAlive)
+            if (dorothee && dorothee.IsAlive)
             {
-                Dorothee.GetAI<boss_dorothee>().TitoDied = true;
-                Talk(TextIds.SayDorotheeTitoDeath, Dorothee);
+                dorothee.GetAI<BossDorothee>().TitoDied = true;
+                Talk(TextIds.SAY_DOROTHEE_TITO_DEATH, dorothee);
             }
         }
     }
@@ -349,14 +354,14 @@ internal class npc_tito : ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (YipTimer <= diff)
+        if (_yipTimer <= diff)
         {
-            DoCastVictim(SpellIds.Yipping);
-            YipTimer = 10000;
+            DoCastVictim(SpellIds.YIPPING);
+            _yipTimer = 10000;
         }
         else
         {
-            YipTimer -= diff;
+            _yipTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -365,22 +370,22 @@ internal class npc_tito : ScriptedAI
     private void Initialize()
     {
         DorotheeGUID.Clear();
-        YipTimer = 10000;
+        _yipTimer = 10000;
     }
 }
 
 [Script]
-internal class boss_strawman : ScriptedAI
+internal class BossStrawman : ScriptedAI
 {
-    private readonly InstanceScript instance;
-    private uint AggroTimer;
-    private uint BrainBashTimer;
-    private uint BrainWipeTimer;
+    private readonly InstanceScript _instance;
+    private uint _aggroTimer;
+    private uint _brainBashTimer;
+    private uint _brainWipeTimer;
 
-    public boss_strawman(Creature creature) : base(creature)
+    public BossStrawman(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -406,7 +411,7 @@ internal class boss_strawman : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayStrawmanAggro);
+        Talk(TextIds.SAY_STRAWMAN_AGGRO);
     }
 
     public override void JustReachedHome()
@@ -418,61 +423,61 @@ internal class boss_strawman : ScriptedAI
     {
         if ((spellInfo.SchoolMask == SpellSchoolMask.Fire) &&
             ((RandomHelper.Rand32() % 10) == 0))
-            DoCast(Me, SpellIds.BurningStraw, new CastSpellExtraArgs(true));
+            DoCast(Me, SpellIds.BURNING_STRAW, new CastSpellExtraArgs(true));
     }
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayStrawmanDeath);
+        Talk(TextIds.SAY_STRAWMAN_DEATH);
 
-        MiscConst.SummonCroneIfReady(instance, Me);
+        MiscConst.SummonCroneIfReady(_instance, Me);
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayStrawmanSlay);
+        Talk(TextIds.SAY_STRAWMAN_SLAY);
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (AggroTimer != 0)
+        if (_aggroTimer != 0)
         {
-            if (AggroTimer <= diff)
+            if (_aggroTimer <= diff)
             {
                 Me.RemoveUnitFlag(UnitFlags.NonAttackable);
-                AggroTimer = 0;
+                _aggroTimer = 0;
             }
             else
             {
-                AggroTimer -= diff;
+                _aggroTimer -= diff;
             }
         }
 
         if (!UpdateVictim())
             return;
 
-        if (BrainBashTimer <= diff)
+        if (_brainBashTimer <= diff)
         {
-            DoCastVictim(SpellIds.BrainBash);
-            BrainBashTimer = 15000;
+            DoCastVictim(SpellIds.BRAIN_BASH);
+            _brainBashTimer = 15000;
         }
         else
         {
-            BrainBashTimer -= diff;
+            _brainBashTimer -= diff;
         }
 
-        if (BrainWipeTimer <= diff)
+        if (_brainWipeTimer <= diff)
         {
             var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
             if (target)
-                DoCast(target, SpellIds.BrainWipe);
+                DoCast(target, SpellIds.BRAIN_WIPE);
 
-            BrainWipeTimer = 20000;
+            _brainWipeTimer = 20000;
         }
         else
         {
-            BrainWipeTimer -= diff;
+            _brainWipeTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -480,26 +485,26 @@ internal class boss_strawman : ScriptedAI
 
     private void Initialize()
     {
-        AggroTimer = 13000;
-        BrainBashTimer = 5000;
-        BrainWipeTimer = 7000;
+        _aggroTimer = 13000;
+        _brainBashTimer = 5000;
+        _brainWipeTimer = 7000;
     }
 }
 
 [Script]
-internal class boss_tinhead : ScriptedAI
+internal class BossTinhead : ScriptedAI
 {
-    private readonly InstanceScript instance;
-    private uint AggroTimer;
-    private uint CleaveTimer;
+    private readonly InstanceScript _instance;
+    private uint _aggroTimer;
+    private uint _cleaveTimer;
 
-    private byte RustCount;
-    private uint RustTimer;
+    private byte _rustCount;
+    private uint _rustTimer;
 
-    public boss_tinhead(Creature creature) : base(creature)
+    public BossTinhead(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -509,7 +514,7 @@ internal class boss_tinhead : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayTinheadAggro);
+        Talk(TextIds.SAY_TINHEAD_AGGRO);
     }
 
     public override void JustReachedHome()
@@ -535,56 +540,56 @@ internal class boss_tinhead : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayTinheadDeath);
+        Talk(TextIds.SAY_TINHEAD_DEATH);
 
-        MiscConst.SummonCroneIfReady(instance, Me);
+        MiscConst.SummonCroneIfReady(_instance, Me);
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayTinheadSlay);
+        Talk(TextIds.SAY_TINHEAD_SLAY);
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (AggroTimer != 0)
+        if (_aggroTimer != 0)
         {
-            if (AggroTimer <= diff)
+            if (_aggroTimer <= diff)
             {
                 Me.RemoveUnitFlag(UnitFlags.NonAttackable);
-                AggroTimer = 0;
+                _aggroTimer = 0;
             }
             else
             {
-                AggroTimer -= diff;
+                _aggroTimer -= diff;
             }
         }
 
         if (!UpdateVictim())
             return;
 
-        if (CleaveTimer <= diff)
+        if (_cleaveTimer <= diff)
         {
-            DoCastVictim(SpellIds.Cleave);
-            CleaveTimer = 5000;
+            DoCastVictim(SpellIds.CLEAVE);
+            _cleaveTimer = 5000;
         }
         else
         {
-            CleaveTimer -= diff;
+            _cleaveTimer -= diff;
         }
 
-        if (RustCount < 8)
+        if (_rustCount < 8)
         {
-            if (RustTimer <= diff)
+            if (_rustTimer <= diff)
             {
-                ++RustCount;
-                Talk(TextIds.EmoteRust);
-                DoCast(Me, SpellIds.Rust);
-                RustTimer = 6000;
+                ++_rustCount;
+                Talk(TextIds.EMOTE_RUST);
+                DoCast(Me, SpellIds.RUST);
+                _rustTimer = 6000;
             }
             else
             {
-                RustTimer -= diff;
+                _rustTimer -= diff;
             }
         }
 
@@ -593,27 +598,27 @@ internal class boss_tinhead : ScriptedAI
 
     private void Initialize()
     {
-        AggroTimer = 15000;
-        CleaveTimer = 5000;
-        RustTimer = 30000;
+        _aggroTimer = 15000;
+        _cleaveTimer = 5000;
+        _rustTimer = 30000;
 
-        RustCount = 0;
+        _rustCount = 0;
     }
 }
 
 [Script]
-internal class boss_roar : ScriptedAI
+internal class BossRoar : ScriptedAI
 {
-    private readonly InstanceScript instance;
-    private uint AggroTimer;
-    private uint MangleTimer;
-    private uint ScreamTimer;
-    private uint ShredTimer;
+    private readonly InstanceScript _instance;
+    private uint _aggroTimer;
+    private uint _mangleTimer;
+    private uint _screamTimer;
+    private uint _shredTimer;
 
-    public boss_roar(Creature creature) : base(creature)
+    public BossRoar(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -640,7 +645,7 @@ internal class boss_roar : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayRoarAggro);
+        Talk(TextIds.SAY_ROAR_AGGRO);
     }
 
     public override void JustReachedHome()
@@ -650,62 +655,62 @@ internal class boss_roar : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayRoarDeath);
+        Talk(TextIds.SAY_ROAR_DEATH);
 
-        MiscConst.SummonCroneIfReady(instance, Me);
+        MiscConst.SummonCroneIfReady(_instance, Me);
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayRoarSlay);
+        Talk(TextIds.SAY_ROAR_SLAY);
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (AggroTimer != 0)
+        if (_aggroTimer != 0)
         {
-            if (AggroTimer <= diff)
+            if (_aggroTimer <= diff)
             {
                 Me.RemoveUnitFlag(UnitFlags.NonAttackable);
-                AggroTimer = 0;
+                _aggroTimer = 0;
             }
             else
             {
-                AggroTimer -= diff;
+                _aggroTimer -= diff;
             }
         }
 
         if (!UpdateVictim())
             return;
 
-        if (MangleTimer <= diff)
+        if (_mangleTimer <= diff)
         {
-            DoCastVictim(SpellIds.Mangle);
-            MangleTimer = RandomHelper.URand(5000, 8000);
+            DoCastVictim(SpellIds.MANGLE);
+            _mangleTimer = RandomHelper.URand(5000, 8000);
         }
         else
         {
-            MangleTimer -= diff;
+            _mangleTimer -= diff;
         }
 
-        if (ShredTimer <= diff)
+        if (_shredTimer <= diff)
         {
-            DoCastVictim(SpellIds.Shred);
-            ShredTimer = RandomHelper.URand(10000, 15000);
+            DoCastVictim(SpellIds.SHRED);
+            _shredTimer = RandomHelper.URand(10000, 15000);
         }
         else
         {
-            ShredTimer -= diff;
+            _shredTimer -= diff;
         }
 
-        if (ScreamTimer <= diff)
+        if (_screamTimer <= diff)
         {
-            DoCastVictim(SpellIds.FrightenedScream);
-            ScreamTimer = RandomHelper.URand(20000, 30000);
+            DoCastVictim(SpellIds.FRIGHTENED_SCREAM);
+            _screamTimer = RandomHelper.URand(20000, 30000);
         }
         else
         {
-            ScreamTimer -= diff;
+            _screamTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -713,25 +718,25 @@ internal class boss_roar : ScriptedAI
 
     private void Initialize()
     {
-        AggroTimer = 20000;
-        MangleTimer = 5000;
-        ShredTimer = 10000;
-        ScreamTimer = 15000;
+        _aggroTimer = 20000;
+        _mangleTimer = 5000;
+        _shredTimer = 10000;
+        _screamTimer = 15000;
     }
 }
 
 [Script]
-internal class boss_crone : ScriptedAI
+internal class BossCrone : ScriptedAI
 {
-    private readonly InstanceScript instance;
-    private uint ChainLightningTimer;
+    private readonly InstanceScript _instance;
+    private uint _chainLightningTimer;
 
-    private uint CycloneTimer;
+    private uint _cycloneTimer;
 
-    public boss_crone(Creature creature) : base(creature)
+    public BossCrone(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -746,18 +751,18 @@ internal class boss_crone : ScriptedAI
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayCroneSlay);
+        Talk(TextIds.SAY_CRONE_SLAY);
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayCroneAggro);
+        Talk(TextIds.SAY_CRONE_AGGRO);
     }
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayCroneDeath);
-        instance.SetBossState(DataTypes.OperaPerformance, EncounterState.Done);
+        Talk(TextIds.SAY_CRONE_DEATH);
+        _instance.SetBossState(DataTypes.OPERA_PERFORMANCE, EncounterState.Done);
     }
 
     public override void UpdateAI(uint diff)
@@ -765,28 +770,28 @@ internal class boss_crone : ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (CycloneTimer <= diff)
+        if (_cycloneTimer <= diff)
         {
-            var Cyclone = DoSpawnCreature(CreatureIds.Cyclone, RandomHelper.URand(0, 9), RandomHelper.URand(0, 9), 0, 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(15));
+            var cyclone = DoSpawnCreature(CreatureIds.CYCLONE, RandomHelper.URand(0, 9), RandomHelper.URand(0, 9), 0, 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(15));
 
-            if (Cyclone)
-                Cyclone.CastSpell(Cyclone, SpellIds.CycloneVisual, true);
+            if (cyclone)
+                cyclone.SpellFactory.CastSpell(cyclone, SpellIds.CYCLONE_VISUAL, true);
 
-            CycloneTimer = 30000;
+            _cycloneTimer = 30000;
         }
         else
         {
-            CycloneTimer -= diff;
+            _cycloneTimer -= diff;
         }
 
-        if (ChainLightningTimer <= diff)
+        if (_chainLightningTimer <= diff)
         {
-            DoCastVictim(SpellIds.ChainLightning);
-            ChainLightningTimer = 15000;
+            DoCastVictim(SpellIds.CHAIN_LIGHTNING);
+            _chainLightningTimer = 15000;
         }
         else
         {
-            ChainLightningTimer -= diff;
+            _chainLightningTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -801,17 +806,17 @@ internal class boss_crone : ScriptedAI
         // It needs a rewrite. Badly. Please, take good care of it.
         Me.RemoveUnitFlag(UnitFlags.NonAttackable);
         Me.SetImmuneToPC(false);
-        CycloneTimer = 30000;
-        ChainLightningTimer = 10000;
+        _cycloneTimer = 30000;
+        _chainLightningTimer = 10000;
     }
 }
 
 [Script]
-internal class npc_cyclone : ScriptedAI
+internal class NPCCyclone : ScriptedAI
 {
-    private uint MoveTimer;
+    private uint _moveTimer;
 
-    public npc_cyclone(Creature creature) : base(creature)
+    public NPCCyclone(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -827,40 +832,40 @@ internal class npc_cyclone : ScriptedAI
 
     public override void UpdateAI(uint diff)
     {
-        if (!Me.HasAura(SpellIds.Knockback))
-            DoCast(Me, SpellIds.Knockback, new CastSpellExtraArgs(true));
+        if (!Me.HasAura(SpellIds.KNOCKBACK))
+            DoCast(Me, SpellIds.KNOCKBACK, new CastSpellExtraArgs(true));
 
-        if (MoveTimer <= diff)
+        if (_moveTimer <= diff)
         {
             var pos = Me.GetRandomNearPosition(10);
             Me.MotionMaster.MovePoint(0, pos);
-            MoveTimer = RandomHelper.URand(5000, 8000);
+            _moveTimer = RandomHelper.URand(5000, 8000);
         }
         else
         {
-            MoveTimer -= diff;
+            _moveTimer -= diff;
         }
     }
 
     private void Initialize()
     {
-        MoveTimer = 1000;
+        _moveTimer = 1000;
     }
 }
 
 [Script]
-internal class npc_grandmother : ScriptedAI
+internal class NPCGrandmother : ScriptedAI
 {
-    public npc_grandmother(Creature creature) : base(creature) { }
+    public NPCGrandmother(Creature creature) : base(creature) { }
 
     public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     {
-        if (menuId == TextIds.OptionWhatPhatLewtsYouHave &&
+        if (menuId == TextIds.OPTION_WHAT_PHAT_LEWTS_YOU_HAVE &&
             gossipListId == 0)
         {
             player.CloseGossipMenu();
 
-            Creature pBigBadWolf = Me.SummonCreature(CreatureIds.BigBadWolf, Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.Orientation, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+            Creature pBigBadWolf = Me.SummonCreature(CreatureIds.BIG_BAD_WOLF, Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.Orientation, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
             if (pBigBadWolf)
                 pBigBadWolf.AI.AttackStart(player);
@@ -873,22 +878,22 @@ internal class npc_grandmother : ScriptedAI
 }
 
 [Script]
-internal class boss_bigbadwolf : ScriptedAI
+internal class BossBigbadwolf : ScriptedAI
 {
-    private readonly InstanceScript instance;
-    private uint ChaseTimer;
-    private uint FearTimer;
+    private readonly InstanceScript _instance;
+    private uint _chaseTimer;
+    private uint _fearTimer;
 
-    private ObjectGuid HoodGUID;
+    private ObjectGuid _hoodGUID;
 
-    private bool IsChasing;
-    private uint SwipeTimer;
-    private double TempThreat;
+    private bool _isChasing;
+    private uint _swipeTimer;
+    private double _tempThreat;
 
-    public boss_bigbadwolf(Creature creature) : base(creature)
+    public BossBigbadwolf(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -898,12 +903,12 @@ internal class boss_bigbadwolf : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayWolfAggro);
+        Talk(TextIds.SAY_WOLF_AGGRO);
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayWolfSlay);
+        Talk(TextIds.SAY_WOLF_SLAY);
     }
 
     public override void JustReachedHome()
@@ -913,8 +918,8 @@ internal class boss_bigbadwolf : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        DoPlaySoundToSet(Me, MiscConst.SoundWolfDeath);
-        instance.SetBossState(DataTypes.OperaPerformance, EncounterState.Done);
+        DoPlaySoundToSet(Me, MiscConst.SOUND_WOLF_DEATH);
+        _instance.SetBossState(DataTypes.OPERA_PERFORMANCE, EncounterState.Done);
     }
 
     public override void UpdateAI(uint diff)
@@ -924,119 +929,119 @@ internal class boss_bigbadwolf : ScriptedAI
 
         DoMeleeAttackIfReady();
 
-        if (ChaseTimer <= diff)
+        if (_chaseTimer <= diff)
         {
-            if (!IsChasing)
+            if (!_isChasing)
             {
                 var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                 if (target)
                 {
-                    Talk(TextIds.SayWolfHood);
-                    DoCast(target, SpellIds.LittleRedRidingHood, new CastSpellExtraArgs(true));
-                    TempThreat = GetThreat(target);
+                    Talk(TextIds.SAY_WOLF_HOOD);
+                    DoCast(target, SpellIds.LITTLE_RED_RIDING_HOOD, new CastSpellExtraArgs(true));
+                    _tempThreat = GetThreat(target);
 
-                    if (TempThreat != 0f)
+                    if (_tempThreat != 0f)
                         ModifyThreatByPercent(target, -100);
 
-                    HoodGUID = target.GUID;
+                    _hoodGUID = target.GUID;
                     AddThreat(target, 1000000.0f);
-                    ChaseTimer = 20000;
-                    IsChasing = true;
+                    _chaseTimer = 20000;
+                    _isChasing = true;
                 }
             }
             else
             {
-                IsChasing = false;
+                _isChasing = false;
 
-                var target = Global.ObjAccessor.GetUnit(Me, HoodGUID);
+                var target = Global.ObjAccessor.GetUnit(Me, _hoodGUID);
 
                 if (target)
                 {
-                    HoodGUID.Clear();
+                    _hoodGUID.Clear();
 
                     if (GetThreat(target) != 0f)
                         ModifyThreatByPercent(target, -100);
 
-                    AddThreat(target, TempThreat);
-                    TempThreat = 0;
+                    AddThreat(target, _tempThreat);
+                    _tempThreat = 0;
                 }
 
-                ChaseTimer = 40000;
+                _chaseTimer = 40000;
             }
         }
         else
         {
-            ChaseTimer -= diff;
+            _chaseTimer -= diff;
         }
 
-        if (IsChasing)
+        if (_isChasing)
             return;
 
-        if (FearTimer <= diff)
+        if (_fearTimer <= diff)
         {
-            DoCastVictim(SpellIds.TerrifyingHowl);
-            FearTimer = RandomHelper.URand(25000, 35000);
+            DoCastVictim(SpellIds.TERRIFYING_HOWL);
+            _fearTimer = RandomHelper.URand(25000, 35000);
         }
         else
         {
-            FearTimer -= diff;
+            _fearTimer -= diff;
         }
 
-        if (SwipeTimer <= diff)
+        if (_swipeTimer <= diff)
         {
-            DoCastVictim(SpellIds.WideSwipe);
-            SwipeTimer = RandomHelper.URand(25000, 30000);
+            DoCastVictim(SpellIds.WIDE_SWIPE);
+            _swipeTimer = RandomHelper.URand(25000, 30000);
         }
         else
         {
-            SwipeTimer -= diff;
+            _swipeTimer -= diff;
         }
     }
 
     private void Initialize()
     {
-        ChaseTimer = 30000;
-        FearTimer = RandomHelper.URand(25000, 35000);
-        SwipeTimer = 5000;
+        _chaseTimer = 30000;
+        _fearTimer = RandomHelper.URand(25000, 35000);
+        _swipeTimer = 5000;
 
-        HoodGUID.Clear();
-        TempThreat = 0;
+        _hoodGUID.Clear();
+        _tempThreat = 0;
 
-        IsChasing = false;
+        _isChasing = false;
     }
 }
 
 [Script]
-internal class boss_julianne : ScriptedAI
+internal class BossJulianne : ScriptedAI
 {
     public bool IsFakingDeath;
     public uint ResurrectSelfTimer;
     public uint ResurrectTimer;
     public bool RomuloDead;
-    private readonly InstanceScript instance;
-    private uint AggroYellTimer;
+    private readonly InstanceScript _instance;
+    private uint _aggroYellTimer;
 
-    private uint BlindingPassionTimer;
-    private uint DevotionTimer;
-    private uint DrinkPoisonTimer;
+    private uint _blindingPassionTimer;
+    private uint _devotionTimer;
+    private uint _drinkPoisonTimer;
 
-    private uint EntryYellTimer;
-    private uint EternalAffectionTimer;
+    private uint _entryYellTimer;
+    private uint _eternalAffectionTimer;
 
-    private RAJPhase Phase;
-    private uint PowerfulAttractionTimer;
+    private RajPhase _phase;
+    private uint _powerfulAttractionTimer;
 
-    private ObjectGuid RomuloGUID;
-    private bool SummonedRomulo;
-    private uint SummonRomuloTimer;
+    private ObjectGuid _romuloGUID;
+    private bool _summonedRomulo;
+    private uint _summonRomuloTimer;
 
-    public boss_julianne(Creature creature) : base(creature)
+    public BossJulianne(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
-        EntryYellTimer = 1000;
-        AggroYellTimer = 10000;
+        _instance = creature.InstanceScript;
+        _entryYellTimer = 1000;
+        _aggroYellTimer = 10000;
         IsFakingDeath = false;
         ResurrectTimer = 0;
     }
@@ -1077,21 +1082,21 @@ internal class boss_julianne : ScriptedAI
 
     public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
     {
-        if (spellInfo.Id == SpellIds.DrinkPoison)
+        if (spellInfo.Id == SpellIds.DRINK_POISON)
         {
-            Talk(TextIds.SayJulianneDeath01);
-            DrinkPoisonTimer = 2500;
+            Talk(TextIds.SAY_JULIANNE_DEATH01);
+            _drinkPoisonTimer = 2500;
         }
     }
 
-    public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+    public override void DamageTaken(Unit doneBy, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (damage < Me.Health)
             return;
 
         //anything below only used if incoming Damage will kill
 
-        if (Phase == RAJPhase.Julianne)
+        if (_phase == RajPhase.Julianne)
         {
             damage = 0;
 
@@ -1100,7 +1105,7 @@ internal class boss_julianne : ScriptedAI
                 return;
 
             Me.InterruptNonMeleeSpells(true);
-            DoCast(Me, SpellIds.DrinkPoison);
+            DoCast(Me, SpellIds.DRINK_POISON);
 
             IsFakingDeath = true;
 
@@ -1108,7 +1113,7 @@ internal class boss_julianne : ScriptedAI
             return;
         }
 
-        if (Phase == RAJPhase.Romulo)
+        if (_phase == RajPhase.Romulo)
         {
             Log.Logger.Error("boss_julianneAI: cannot take Damage in PhaseRomulo, why was i here?");
             damage = 0;
@@ -1116,34 +1121,34 @@ internal class boss_julianne : ScriptedAI
             return;
         }
 
-        if (Phase == RAJPhase.Both)
+        if (_phase == RajPhase.Both)
         {
             //if this is true then we have to kill romulo too
             if (RomuloDead)
             {
-                var Romulo = ObjectAccessor.GetCreature(Me, RomuloGUID);
+                var romulo = ObjectAccessor.GetCreature(Me, _romuloGUID);
 
-                if (Romulo)
+                if (romulo)
                 {
-                    Romulo.RemoveUnitFlag(UnitFlags.Uninteractible);
-                    Romulo.MotionMaster.Clear();
-                    Romulo.SetDeathState(DeathState.JustDied);
-                    Romulo.CombatStop(true);
-                    Romulo.ReplaceAllDynamicFlags(UnitDynFlags.Lootable);
+                    romulo.RemoveUnitFlag(UnitFlags.Uninteractible);
+                    romulo.MotionMaster.Clear();
+                    romulo.SetDeathState(DeathState.JustDied);
+                    romulo.CombatStop(true);
+                    romulo.ReplaceAllDynamicFlags(UnitDynFlags.Lootable);
                 }
 
                 return;
             }
 
             //if not already returned, then romulo is alive and we can pretend die
-            var Romulo1 = (ObjectAccessor.GetCreature((Me), RomuloGUID));
+            var romulo1 = (ObjectAccessor.GetCreature((Me), _romuloGUID));
 
-            if (Romulo1)
+            if (romulo1)
             {
                 MiscConst.PretendToDie(Me);
                 IsFakingDeath = true;
-                Romulo1.GetAI<boss_romulo>().ResurrectTimer = 10000;
-                Romulo1.GetAI<boss_romulo>().JulianneDead = true;
+                romulo1.GetAI<BossRomulo>().ResurrectTimer = 10000;
+                romulo1.GetAI<BossRomulo>().JulianneDead = true;
                 damage = 0;
 
                 return;
@@ -1155,83 +1160,83 @@ internal class boss_julianne : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayJulianneDeath02);
-        instance.SetBossState(DataTypes.OperaPerformance, EncounterState.Done);
+        Talk(TextIds.SAY_JULIANNE_DEATH02);
+        _instance.SetBossState(DataTypes.OPERA_PERFORMANCE, EncounterState.Done);
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayJulianneSlay);
+        Talk(TextIds.SAY_JULIANNE_SLAY);
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (EntryYellTimer != 0)
+        if (_entryYellTimer != 0)
         {
-            if (EntryYellTimer <= diff)
+            if (_entryYellTimer <= diff)
             {
-                Talk(TextIds.SayJulianneEnter);
-                EntryYellTimer = 0;
+                Talk(TextIds.SAY_JULIANNE_ENTER);
+                _entryYellTimer = 0;
             }
             else
             {
-                EntryYellTimer -= diff;
+                _entryYellTimer -= diff;
             }
         }
 
-        if (AggroYellTimer != 0)
+        if (_aggroYellTimer != 0)
         {
-            if (AggroYellTimer <= diff)
+            if (_aggroYellTimer <= diff)
             {
-                Talk(TextIds.SayJulianneAggro);
+                Talk(TextIds.SAY_JULIANNE_AGGRO);
                 Me.RemoveUnitFlag(UnitFlags.NonAttackable);
                 Me.Faction = (uint)FactionTemplates.Monster2;
-                AggroYellTimer = 0;
+                _aggroYellTimer = 0;
             }
             else
             {
-                AggroYellTimer -= diff;
+                _aggroYellTimer -= diff;
             }
         }
 
-        if (DrinkPoisonTimer != 0)
+        if (_drinkPoisonTimer != 0)
         {
             //will do this TimeSpan.FromSeconds(2s)ecs after spell hit. this is Time to display visual as expected
-            if (DrinkPoisonTimer <= diff)
+            if (_drinkPoisonTimer <= diff)
             {
                 MiscConst.PretendToDie(Me);
-                Phase = RAJPhase.Romulo;
-                SummonRomuloTimer = 10000;
-                DrinkPoisonTimer = 0;
+                _phase = RajPhase.Romulo;
+                _summonRomuloTimer = 10000;
+                _drinkPoisonTimer = 0;
             }
             else
             {
-                DrinkPoisonTimer -= diff;
+                _drinkPoisonTimer -= diff;
             }
         }
 
-        if (Phase == RAJPhase.Romulo &&
-            !SummonedRomulo)
+        if (_phase == RajPhase.Romulo &&
+            !_summonedRomulo)
         {
-            if (SummonRomuloTimer <= diff)
+            if (_summonRomuloTimer <= diff)
             {
-                Creature pRomulo = Me.SummonCreature(CreatureIds.Romulo, MiscConst.RomuloX, MiscConst.RomuloY, Me.Location.Z, 0, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+                Creature pRomulo = Me.SummonCreature(CreatureIds.ROMULO, MiscConst.ROMULO_X, MiscConst.ROMULO_Y, Me.Location.Z, 0, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
                 if (pRomulo)
                 {
-                    RomuloGUID = pRomulo.GUID;
-                    pRomulo.GetAI<boss_romulo>().JulianneGUID = Me.GUID;
-                    pRomulo.GetAI<boss_romulo>().Phase = RAJPhase.Romulo;
+                    _romuloGUID = pRomulo.GUID;
+                    pRomulo.GetAI<BossRomulo>().JulianneGUID = Me.GUID;
+                    pRomulo.GetAI<BossRomulo>().Phase = RajPhase.Romulo;
                     DoZoneInCombat(pRomulo);
 
                     pRomulo.Faction = (uint)FactionTemplates.Monster2;
                 }
 
-                SummonedRomulo = true;
+                _summonedRomulo = true;
             }
             else
             {
-                SummonRomuloTimer -= diff;
+                _summonRomuloTimer -= diff;
             }
         }
 
@@ -1240,7 +1245,7 @@ internal class boss_julianne : ScriptedAI
             if (ResurrectSelfTimer <= diff)
             {
                 MiscConst.Resurrect(Me);
-                Phase = RAJPhase.Both;
+                _phase = RajPhase.Both;
                 IsFakingDeath = false;
 
                 if (Me.Victim)
@@ -1262,13 +1267,13 @@ internal class boss_julianne : ScriptedAI
         {
             if (ResurrectTimer <= diff)
             {
-                var Romulo = ObjectAccessor.GetCreature(Me, RomuloGUID);
+                var romulo = ObjectAccessor.GetCreature(Me, _romuloGUID);
 
-                if (Romulo && Romulo.GetAI<boss_romulo>().IsFakingDeath)
+                if (romulo && romulo.GetAI<BossRomulo>().IsFakingDeath)
                 {
-                    Talk(TextIds.SayJulianneResurrect);
-                    MiscConst.Resurrect(Romulo);
-                    Romulo.GetAI<boss_romulo>().IsFakingDeath = false;
+                    Talk(TextIds.SAY_JULIANNE_RESURRECT);
+                    MiscConst.Resurrect(romulo);
+                    romulo.GetAI<BossRomulo>().IsFakingDeath = false;
                     RomuloDead = false;
                     ResurrectTimer = 10000;
                 }
@@ -1279,61 +1284,61 @@ internal class boss_julianne : ScriptedAI
             }
         }
 
-        if (BlindingPassionTimer <= diff)
+        if (_blindingPassionTimer <= diff)
         {
             var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
             if (target)
-                DoCast(target, SpellIds.BlindingPassion);
+                DoCast(target, SpellIds.BLINDING_PASSION);
 
-            BlindingPassionTimer = RandomHelper.URand(30000, 45000);
+            _blindingPassionTimer = RandomHelper.URand(30000, 45000);
         }
         else
         {
-            BlindingPassionTimer -= diff;
+            _blindingPassionTimer -= diff;
         }
 
-        if (DevotionTimer <= diff)
+        if (_devotionTimer <= diff)
         {
-            DoCast(Me, SpellIds.Devotion);
-            DevotionTimer = RandomHelper.URand(15000, 45000);
+            DoCast(Me, SpellIds.DEVOTION);
+            _devotionTimer = RandomHelper.URand(15000, 45000);
         }
         else
         {
-            DevotionTimer -= diff;
+            _devotionTimer -= diff;
         }
 
-        if (PowerfulAttractionTimer <= diff)
+        if (_powerfulAttractionTimer <= diff)
         {
-            DoCast(SelectTarget(SelectTargetMethod.Random, 0), SpellIds.PowerfulAttraction);
-            PowerfulAttractionTimer = RandomHelper.URand(5000, 30000);
+            DoCast(SelectTarget(SelectTargetMethod.Random, 0), SpellIds.POWERFUL_ATTRACTION);
+            _powerfulAttractionTimer = RandomHelper.URand(5000, 30000);
         }
         else
         {
-            PowerfulAttractionTimer -= diff;
+            _powerfulAttractionTimer -= diff;
         }
 
-        if (EternalAffectionTimer <= diff)
+        if (_eternalAffectionTimer <= diff)
         {
-            if (RandomHelper.URand(0, 1) != 0 && SummonedRomulo)
+            if (RandomHelper.URand(0, 1) != 0 && _summonedRomulo)
             {
-                var Romulo = (ObjectAccessor.GetCreature((Me), RomuloGUID));
+                var romulo = (ObjectAccessor.GetCreature((Me), _romuloGUID));
 
-                if (Romulo &&
-                    Romulo.IsAlive &&
+                if (romulo &&
+                    romulo.IsAlive &&
                     !RomuloDead)
-                    DoCast(Romulo, SpellIds.EternalAffection);
+                    DoCast(romulo, SpellIds.ETERNAL_AFFECTION);
             }
             else
             {
-                DoCast(Me, SpellIds.EternalAffection);
+                DoCast(Me, SpellIds.ETERNAL_AFFECTION);
             }
 
-            EternalAffectionTimer = RandomHelper.URand(45000, 60000);
+            _eternalAffectionTimer = RandomHelper.URand(45000, 60000);
         }
         else
         {
-            EternalAffectionTimer -= diff;
+            _eternalAffectionTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -1341,41 +1346,41 @@ internal class boss_julianne : ScriptedAI
 
     private void Initialize()
     {
-        RomuloGUID.Clear();
-        Phase = RAJPhase.Julianne;
+        _romuloGUID.Clear();
+        _phase = RajPhase.Julianne;
 
-        BlindingPassionTimer = 30000;
-        DevotionTimer = 15000;
-        EternalAffectionTimer = 25000;
-        PowerfulAttractionTimer = 5000;
-        SummonRomuloTimer = 10000;
-        DrinkPoisonTimer = 0;
+        _blindingPassionTimer = 30000;
+        _devotionTimer = 15000;
+        _eternalAffectionTimer = 25000;
+        _powerfulAttractionTimer = 5000;
+        _summonRomuloTimer = 10000;
+        _drinkPoisonTimer = 0;
         ResurrectSelfTimer = 0;
 
-        SummonedRomulo = false;
+        _summonedRomulo = false;
         RomuloDead = false;
     }
 }
 
 [Script]
-internal class boss_romulo : ScriptedAI
+internal class BossRomulo : ScriptedAI
 {
     public bool IsFakingDeath;
     public bool JulianneDead;
 
     public ObjectGuid JulianneGUID;
-    public RAJPhase Phase;
+    public RajPhase Phase;
     public uint ResurrectTimer;
-    private readonly InstanceScript instance;
-    private uint BackwardLungeTimer;
-    private uint DaringTimer;
-    private uint DeadlySwatheTimer;
-    private uint PoisonThrustTimer;
+    private readonly InstanceScript _instance;
+    private uint _backwardLungeTimer;
+    private uint _daringTimer;
+    private uint _deadlySwatheTimer;
+    private uint _poisonThrustTimer;
 
-    public boss_romulo(Creature creature) : base(creature)
+    public BossRomulo(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -1388,26 +1393,26 @@ internal class boss_romulo : ScriptedAI
         Me.DespawnOrUnsummon();
     }
 
-    public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+    public override void DamageTaken(Unit doneBy, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (damage < Me.Health)
             return;
 
         //anything below only used if incoming Damage will kill
 
-        if (Phase == RAJPhase.Romulo)
+        if (Phase == RajPhase.Romulo)
         {
-            Talk(TextIds.SayRomuloDeath);
+            Talk(TextIds.SAY_ROMULO_DEATH);
             MiscConst.PretendToDie(Me);
             IsFakingDeath = true;
-            Phase = RAJPhase.Both;
+            Phase = RajPhase.Both;
 
-            var Julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
+            var julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
-            if (Julianne)
+            if (julianne)
             {
-                Julianne.GetAI<boss_julianne>().RomuloDead = true;
-                Julianne.GetAI<boss_julianne>().ResurrectSelfTimer = 10000;
+                julianne.GetAI<BossJulianne>().RomuloDead = true;
+                julianne.GetAI<BossJulianne>().ResurrectSelfTimer = 10000;
             }
 
             damage = 0;
@@ -1415,32 +1420,32 @@ internal class boss_romulo : ScriptedAI
             return;
         }
 
-        if (Phase == RAJPhase.Both)
+        if (Phase == RajPhase.Both)
         {
             if (JulianneDead)
             {
-                var Julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
+                var julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
-                if (Julianne)
+                if (julianne)
                 {
-                    Julianne.RemoveUnitFlag(UnitFlags.Uninteractible);
-                    Julianne.MotionMaster.Clear();
-                    Julianne.SetDeathState(DeathState.JustDied);
-                    Julianne.CombatStop(true);
-                    Julianne.ReplaceAllDynamicFlags(UnitDynFlags.Lootable);
+                    julianne.RemoveUnitFlag(UnitFlags.Uninteractible);
+                    julianne.MotionMaster.Clear();
+                    julianne.SetDeathState(DeathState.JustDied);
+                    julianne.CombatStop(true);
+                    julianne.ReplaceAllDynamicFlags(UnitDynFlags.Lootable);
                 }
 
                 return;
             }
 
-            var Julianne1 = ObjectAccessor.GetCreature(Me, JulianneGUID);
+            var julianne1 = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
-            if (Julianne1)
+            if (julianne1)
             {
                 MiscConst.PretendToDie(Me);
                 IsFakingDeath = true;
-                Julianne1.GetAI<boss_julianne>().ResurrectTimer = 10000;
-                Julianne1.GetAI<boss_julianne>().RomuloDead = true;
+                julianne1.GetAI<BossJulianne>().ResurrectTimer = 10000;
+                julianne1.GetAI<BossJulianne>().RomuloDead = true;
                 damage = 0;
 
                 return;
@@ -1452,16 +1457,16 @@ internal class boss_romulo : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayRomuloAggro);
+        Talk(TextIds.SAY_ROMULO_AGGRO);
 
         if (!JulianneGUID.IsEmpty)
         {
-            var Julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
+            var julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
-            if (Julianne && Julianne.Victim)
+            if (julianne && julianne.Victim)
             {
-                AddThreat(Julianne.Victim, 1.0f);
-                AttackStart(Julianne.Victim);
+                AddThreat(julianne.Victim, 1.0f);
+                AttackStart(julianne.Victim);
             }
         }
     }
@@ -1476,13 +1481,13 @@ internal class boss_romulo : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayRomuloDeath);
-        instance.SetBossState(DataTypes.OperaPerformance, EncounterState.Done);
+        Talk(TextIds.SAY_ROMULO_DEATH);
+        _instance.SetBossState(DataTypes.OPERA_PERFORMANCE, EncounterState.Done);
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayRomuloSlay);
+        Talk(TextIds.SAY_ROMULO_SLAY);
     }
 
     public override void UpdateAI(uint diff)
@@ -1494,13 +1499,13 @@ internal class boss_romulo : ScriptedAI
         {
             if (ResurrectTimer <= diff)
             {
-                var Julianne = (ObjectAccessor.GetCreature((Me), JulianneGUID));
+                var julianne = (ObjectAccessor.GetCreature((Me), JulianneGUID));
 
-                if (Julianne && Julianne.GetAI<boss_julianne>().IsFakingDeath)
+                if (julianne && julianne.GetAI<BossJulianne>().IsFakingDeath)
                 {
-                    Talk(TextIds.SayRomuloResurrect);
-                    MiscConst.Resurrect(Julianne);
-                    Julianne.GetAI<boss_julianne>().IsFakingDeath = false;
+                    Talk(TextIds.SAY_ROMULO_RESURRECT);
+                    MiscConst.Resurrect(julianne);
+                    julianne.GetAI<BossJulianne>().IsFakingDeath = false;
                     JulianneDead = false;
                     ResurrectTimer = 10000;
                 }
@@ -1511,53 +1516,53 @@ internal class boss_romulo : ScriptedAI
             }
         }
 
-        if (BackwardLungeTimer <= diff)
+        if (_backwardLungeTimer <= diff)
         {
             var target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
             if (target && !Me.Location.HasInArc(MathF.PI, target.Location))
             {
-                DoCast(target, SpellIds.BackwardLunge);
-                BackwardLungeTimer = RandomHelper.URand(15000, 30000);
+                DoCast(target, SpellIds.BACKWARD_LUNGE);
+                _backwardLungeTimer = RandomHelper.URand(15000, 30000);
             }
         }
         else
         {
-            BackwardLungeTimer -= diff;
+            _backwardLungeTimer -= diff;
         }
 
-        if (DaringTimer <= diff)
+        if (_daringTimer <= diff)
         {
-            DoCast(Me, SpellIds.Daring);
-            DaringTimer = RandomHelper.URand(20000, 40000);
+            DoCast(Me, SpellIds.DARING);
+            _daringTimer = RandomHelper.URand(20000, 40000);
         }
         else
         {
-            DaringTimer -= diff;
+            _daringTimer -= diff;
         }
 
-        if (DeadlySwatheTimer <= diff)
+        if (_deadlySwatheTimer <= diff)
         {
             var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
             if (target)
-                DoCast(target, SpellIds.DeadlySwathe);
+                DoCast(target, SpellIds.DEADLY_SWATHE);
 
-            DeadlySwatheTimer = RandomHelper.URand(15000, 25000);
+            _deadlySwatheTimer = RandomHelper.URand(15000, 25000);
         }
         else
         {
-            DeadlySwatheTimer -= diff;
+            _deadlySwatheTimer -= diff;
         }
 
-        if (PoisonThrustTimer <= diff)
+        if (_poisonThrustTimer <= diff)
         {
-            DoCastVictim(SpellIds.PoisonThrust);
-            PoisonThrustTimer = RandomHelper.URand(10000, 20000);
+            DoCastVictim(SpellIds.POISON_THRUST);
+            _poisonThrustTimer = RandomHelper.URand(10000, 20000);
         }
         else
         {
-            PoisonThrustTimer -= diff;
+            _poisonThrustTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -1566,12 +1571,12 @@ internal class boss_romulo : ScriptedAI
     private void Initialize()
     {
         JulianneGUID.Clear();
-        Phase = RAJPhase.Romulo;
+        Phase = RajPhase.Romulo;
 
-        BackwardLungeTimer = 15000;
-        DaringTimer = 20000;
-        DeadlySwatheTimer = 25000;
-        PoisonThrustTimer = 10000;
+        _backwardLungeTimer = 15000;
+        _daringTimer = 20000;
+        _deadlySwatheTimer = 25000;
+        _poisonThrustTimer = 10000;
         ResurrectTimer = 10000;
 
         IsFakingDeath = false;

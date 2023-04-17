@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 50286 - Starfall (Dummy)
-internal class spell_dru_starfall_dummy : SpellScript, IHasSpellEffects
+internal class SpellDruStarfallDummy : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -45,6 +46,6 @@ internal class spell_dru_starfall_dummy : SpellScript, IHasSpellEffects
         if (caster.HasUnitState(UnitState.Controlled))
             return;
 
-        caster.CastSpell(HitUnit, (uint)EffectValue, true);
+        caster.SpellFactory.CastSpell(HitUnit, (uint)EffectValue, true);
     }
 }

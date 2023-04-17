@@ -1,11 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
@@ -14,11 +17,11 @@ namespace Scripts.Pets
     {
         // Wild Imp - 99739
         [CreatureScript(55659)]
-        public class npc_pet_warlock_wild_imp : SmartAI
+        public class NPCPetWarlockWildImp : SmartAI
         {
             private ObjectGuid _targetGUID = new();
 
-            public npc_pet_warlock_wild_imp(Creature creature) : base(creature)
+            public NPCPetWarlockWildImp(Creature creature) : base(creature)
             {
                 var owner = Me.OwnerUnit;
 
@@ -50,7 +53,7 @@ namespace Scripts.Pets
                 }
             }
 
-            public override void UpdateAI(uint UnnamedParameter)
+            public override void UpdateAI(uint unnamedParameter)
             {
                 var owner = Me.OwnerUnit;
 
@@ -101,7 +104,7 @@ namespace Scripts.Pets
                     !Me.VariableStorage.GetValue("controlled", false))
                 {
                     _targetGUID = target.GUID;
-                    Me.CastSpell(target, WarlockSpells.FEL_FIREBOLT, new CastSpellExtraArgs(TriggerCastFlags.IgnorePowerAndReagentCost).SetOriginalCaster(owner.GUID));
+                    Me.SpellFactory.CastSpell(target, WarlockSpells.FEL_FIREBOLT, new CastSpellExtraArgs(TriggerCastFlags.IgnorePowerAndReagentCost).SetOriginalCaster(owner.GUID));
                 }
             }
         }

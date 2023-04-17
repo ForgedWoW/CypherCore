@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
-[Script("spell_pvp_trinket_shared_cd", GenericSpellIds.WillOfTheForsakenCooldownTrigger)]
-[Script("spell_wotf_shared_cd", GenericSpellIds.WillOfTheForsakenCooldownTriggerWotf)]
-internal class spell_pvp_trinket_wotf_shared_cd : SpellScript, ISpellAfterCast
+[Script("spell_pvp_trinket_shared_cd", GenericSpellIds.WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER)]
+[Script("spell_wotf_shared_cd", GenericSpellIds.WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF)]
+internal class SpellPVPTrinketWotfSharedCd : SpellScript, ISpellAfterCast
 {
     private readonly uint _triggered;
 
-    public spell_pvp_trinket_wotf_shared_cd(uint triggered)
+    public SpellPVPTrinketWotfSharedCd(uint triggered)
     {
         _triggered = triggered;
     }
@@ -41,6 +41,6 @@ internal class spell_pvp_trinket_wotf_shared_cd : SpellScript, ISpellAfterCast
             */
 
         // Spell flags need further research, until then just cast not triggered
-        Caster.CastSpell((Unit)null, _triggered, false);
+        Caster.SpellFactory.CastSpell((Unit)null, _triggered, false);
     }
 }

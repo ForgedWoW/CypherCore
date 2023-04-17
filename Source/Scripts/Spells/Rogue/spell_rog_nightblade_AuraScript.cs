@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(195452)]
-public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
+public class SpellRogNightbladeAuraScript : AuraScript, IHasAuraEffects
 {
     private int _cp;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -27,7 +27,7 @@ public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
             if (caster == null || target == null)
                 return false;
 
-            caster.CastSpell(target, RogueSpells.NIGHTBLADE_SLOW, true);
+            caster.SpellFactory.CastSpell(target, RogueSpells.NIGHTBLADE_SLOW, true);
 
             return true;
         }
@@ -40,7 +40,7 @@ public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.RealOrReapplyMask));
     }
 
-    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -68,9 +68,9 @@ public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
 
         if (caster != null)
             if (caster.HasAura(RogueSpells.RELENTLESS_STRIKES) && RandomHelper.randChance(20 * _cp))
-                caster.CastSpell(caster, RogueSpells.RELENTLESS_STRIKES_POWER, true);
+                caster.SpellFactory.CastSpell(caster, RogueSpells.RELENTLESS_STRIKES_POWER, true);
 
         if (caster.HasAura(RogueSpells.ALACRITY) && RandomHelper.randChance(20 * _cp))
-            caster.CastSpell(caster, RogueSpells.ALACRITY_BUFF, true);
+            caster.SpellFactory.CastSpell(caster, RogueSpells.ALACRITY_BUFF, true);
     }
 }

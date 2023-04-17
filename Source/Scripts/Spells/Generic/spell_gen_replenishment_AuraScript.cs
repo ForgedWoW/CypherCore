@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_replenishment_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellGenReplenishmentAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -29,15 +29,14 @@ internal class spell_gen_replenishment_AuraScript : AuraScript, IHasAuraEffects
     {
         switch (SpellInfo.Id)
         {
-            case GenericSpellIds.Replenishment:
+            case GenericSpellIds.REPLENISHMENT:
                 amount.Value = (OwnerAsUnit.GetMaxPower(PowerType.Mana) * 0.002f);
 
                 break;
-            case GenericSpellIds.InfiniteReplenishment:
+            case GenericSpellIds.INFINITE_REPLENISHMENT:
                 amount.Value = (OwnerAsUnit.GetMaxPower(PowerType.Mana) * 0.0025f);
 
                 break;
-            
         }
     }
 }

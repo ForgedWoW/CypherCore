@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(107427)]
-public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
+public class SpellMonkRollTrigger : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -22,7 +22,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(SendAmount, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real));
     }
 
-    private void CalcSpeed(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalcSpeed(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         var caster = Caster;
 
@@ -33,7 +33,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
             amount.Value = 277;
     }
 
-    private void CalcSpeed2(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalcSpeed2(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         var caster = Caster;
 
@@ -46,7 +46,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
         amount.Value = 377;
     }
 
-    private void SendAmount(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void SendAmount(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 

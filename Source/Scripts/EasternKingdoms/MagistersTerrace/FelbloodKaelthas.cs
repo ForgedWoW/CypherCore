@@ -3,68 +3,72 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.MagistersTerrace.FelbloodKaelthas;
 
 internal struct TextIds
 {
     // Kael'thas Sunstrider
-    public const uint SayIntro1 = 0;
-    public const uint SayIntro2 = 1;
-    public const uint SayGravityLapse1 = 2;
-    public const uint SayGravityLapse2 = 3;
-    public const uint SayPowerFeedback = 4;
-    public const uint SaySummonPhoenix = 5;
-    public const uint SayAnnouncePyroblast = 6;
-    public const uint SayFlameStrike = 7;
-    public const uint SayDeath = 8;
+    public const uint SAY_INTRO1 = 0;
+    public const uint SAY_INTRO2 = 1;
+    public const uint SAY_GRAVITY_LAPSE1 = 2;
+    public const uint SAY_GRAVITY_LAPSE2 = 3;
+    public const uint SAY_POWER_FEEDBACK = 4;
+    public const uint SAY_SUMMON_PHOENIX = 5;
+    public const uint SAY_ANNOUNCE_PYROBLAST = 6;
+    public const uint SAY_FLAME_STRIKE = 7;
+    public const uint SAY_DEATH = 8;
 }
 
 internal struct SpellIds
 {
     // Kael'thas Sunstrider
-    public const uint Fireball = 44189;
-    public const uint GravityLapse = 49887;
-    public const uint HGravityLapse = 44226;
-    public const uint GravityLapseCenterTeleport = 44218;
-    public const uint GravityLapseLeftTeleport = 44219;
-    public const uint GravityLapseFrontLeftTeleport = 44220;
-    public const uint GravityLapseFrontTeleport = 44221;
-    public const uint GravityLapseFrontRightTeleport = 44222;
-    public const uint GravityLapseRightTeleport = 44223;
-    public const uint GravityLapseInitial = 44224;
-    public const uint GravityLapseFly = 44227;
-    public const uint GravityLapseBeamVisualPeriodic = 44251;
-    public const uint SummonArcaneSphere = 44265;
-    public const uint FlameStrike = 46162;
-    public const uint ShockBarrier = 46165;
-    public const uint PowerFeedback = 44233;
-    public const uint HPowerFeedback = 47109;
-    public const uint Pyroblast = 36819;
-    public const uint Phoenix = 44194;
-    public const uint EmoteTalkExclamation = 48348;
-    public const uint EmotePoint = 48349;
-    public const uint EmoteRoar = 48350;
-    public const uint ClearFlight = 44232;
-    public const uint QuiteSuicide = 3617; // Serverside public const uint 
+    public const uint FIREBALL = 44189;
+    public const uint GRAVITY_LAPSE = 49887;
+    public const uint H_GRAVITY_LAPSE = 44226;
+    public const uint GRAVITY_LAPSE_CENTER_TELEPORT = 44218;
+    public const uint GRAVITY_LAPSE_LEFT_TELEPORT = 44219;
+    public const uint GRAVITY_LAPSE_FRONT_LEFT_TELEPORT = 44220;
+    public const uint GRAVITY_LAPSE_FRONT_TELEPORT = 44221;
+    public const uint GRAVITY_LAPSE_FRONT_RIGHT_TELEPORT = 44222;
+    public const uint GRAVITY_LAPSE_RIGHT_TELEPORT = 44223;
+    public const uint GRAVITY_LAPSE_INITIAL = 44224;
+    public const uint GRAVITY_LAPSE_FLY = 44227;
+    public const uint GRAVITY_LAPSE_BEAM_VISUAL_PERIODIC = 44251;
+    public const uint SUMMON_ARCANE_SPHERE = 44265;
+    public const uint FLAME_STRIKE = 46162;
+    public const uint SHOCK_BARRIER = 46165;
+    public const uint POWER_FEEDBACK = 44233;
+    public const uint H_POWER_FEEDBACK = 47109;
+    public const uint PYROBLAST = 36819;
+    public const uint PHOENIX = 44194;
+    public const uint EMOTE_TALK_EXCLAMATION = 48348;
+    public const uint EMOTE_POINT = 48349;
+    public const uint EMOTE_ROAR = 48350;
+    public const uint CLEAR_FLIGHT = 44232;
+    public const uint QUITE_SUICIDE = 3617; // Serverside public const uint 
 
     // Flame Strike
-    public const uint FlameStrikeDummy = 44191;
-    public const uint FlameStrikeDamage = 44190;
+    public const uint FLAME_STRIKE_DUMMY = 44191;
+    public const uint FLAME_STRIKE_DAMAGE = 44190;
 
     // Phoenix
-    public const uint Rebirth = 44196;
-    public const uint Burn = 44197;
-    public const uint EmberBlast = 44199;
-    public const uint SummonPhoenixEgg = 44195; // Serverside public const uint 
-    public const uint FullHeal = 17683;
+    public const uint REBIRTH = 44196;
+    public const uint BURN = 44197;
+    public const uint EMBER_BLAST = 44199;
+    public const uint SUMMON_PHOENIX_EGG = 44195; // Serverside public const uint 
+    public const uint FULL_HEAL = 17683;
 }
 
 internal enum Phase
@@ -79,20 +83,20 @@ internal struct MiscConst
 {
     public static uint[] GravityLapseTeleportSpells =
     {
-        SpellIds.GravityLapseLeftTeleport, SpellIds.GravityLapseFrontLeftTeleport, SpellIds.GravityLapseFrontTeleport, SpellIds.GravityLapseFrontRightTeleport, SpellIds.GravityLapseRightTeleport
+        SpellIds.GRAVITY_LAPSE_LEFT_TELEPORT, SpellIds.GRAVITY_LAPSE_FRONT_LEFT_TELEPORT, SpellIds.GRAVITY_LAPSE_FRONT_TELEPORT, SpellIds.GRAVITY_LAPSE_FRONT_RIGHT_TELEPORT, SpellIds.GRAVITY_LAPSE_RIGHT_TELEPORT
     };
 }
 
 [Script]
-internal class boss_felblood_kaelthas : BossAI
+internal class BossFelbloodKaelthas : BossAI
 {
-    private static readonly uint groupFireBall = 1;
+    private static readonly uint GroupFireBall = 1;
     private bool _firstGravityLapse;
     private byte _gravityLapseTargetCount;
 
     private Phase _phase;
 
-    public boss_felblood_kaelthas(Creature creature) : base(creature, DataTypes.KaelthasSunstrider)
+    public BossFelbloodKaelthas(Creature creature) : base(creature, DataTypes.KAELTHAS_SUNSTRIDER)
     {
         Initialize();
     }
@@ -103,21 +107,21 @@ internal class boss_felblood_kaelthas : BossAI
         _phase = Phase.One;
 
         Scheduler.Schedule(TimeSpan.FromMilliseconds(1),
-                           groupFireBall,
+                           GroupFireBall,
                            task =>
                            {
-                               DoCastVictim(SpellIds.Fireball);
+                               DoCastVictim(SpellIds.FIREBALL);
                                task.Repeat(TimeSpan.FromSeconds(2.5));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(44),
                            task =>
                            {
-                               Talk(TextIds.SayFlameStrike);
+                               Talk(TextIds.SAY_FLAME_STRIKE);
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 40.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.FlameStrike);
+                                   DoCast(target, SpellIds.FLAME_STRIKE);
 
                                task.Repeat();
                            });
@@ -125,8 +129,8 @@ internal class boss_felblood_kaelthas : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               Talk(TextIds.SaySummonPhoenix);
-                               DoCastSelf(SpellIds.Phoenix);
+                               Talk(TextIds.SAY_SUMMON_PHOENIX);
+                               DoCastSelf(SpellIds.PHOENIX);
                                task.Repeat(TimeSpan.FromSeconds(45));
                            });
 
@@ -134,9 +138,9 @@ internal class boss_felblood_kaelthas : BossAI
             Scheduler.Schedule(TimeSpan.FromMinutes(1) + TimeSpan.FromSeconds(1),
                                task =>
                                {
-                                   Talk(TextIds.SayAnnouncePyroblast);
-                                   DoCastSelf(SpellIds.ShockBarrier);
-                                   task.RescheduleGroup(groupFireBall, TimeSpan.FromSeconds(2.5));
+                                   Talk(TextIds.SAY_ANNOUNCE_PYROBLAST);
+                                   DoCastSelf(SpellIds.SHOCK_BARRIER);
+                                   task.RescheduleGroup(GroupFireBall, TimeSpan.FromSeconds(2.5));
 
                                    task.Schedule(TimeSpan.FromSeconds(2),
                                                  pyroBlastTask =>
@@ -144,7 +148,7 @@ internal class boss_felblood_kaelthas : BossAI
                                                      var target = SelectTarget(SelectTargetMethod.Random, 0, 40.0f, true);
 
                                                      if (target != null)
-                                                         DoCast(target, SpellIds.Pyroblast);
+                                                         DoCast(target, SpellIds.PYROBLAST);
                                                  });
 
                                    task.Repeat(TimeSpan.FromMinutes(1));
@@ -161,12 +165,12 @@ internal class boss_felblood_kaelthas : BossAI
     public override void JustDied(Unit killer)
     {
         // No _JustDied() here because otherwise we would reset the events which will trigger the death sequence twice.
-        Instance.SetBossState(DataTypes.KaelthasSunstrider, EncounterState.Done);
+        Instance.SetBossState(DataTypes.KAELTHAS_SUNSTRIDER, EncounterState.Done);
     }
 
     public override void EnterEvadeMode(EvadeReason why)
     {
-        DoCastAOE(SpellIds.ClearFlight, new CastSpellExtraArgs(true));
+        DoCastAOE(SpellIds.CLEAR_FLIGHT, new CastSpellExtraArgs(true));
         _EnterEvadeMode();
         Summons.DespawnAll();
         _DespawnAtEvade();
@@ -181,19 +185,19 @@ internal class boss_felblood_kaelthas : BossAI
             Me.AttackStop();
             Me.ReactState = ReactStates.Passive;
             Me.InterruptNonMeleeSpells(true);
-            Me.RemoveAura(DungeonMode(SpellIds.PowerFeedback, SpellIds.HPowerFeedback));
+            Me.RemoveAura(DungeonMode(SpellIds.POWER_FEEDBACK, SpellIds.H_POWER_FEEDBACK));
             Summons.DespawnAll();
-            DoCastAOE(SpellIds.ClearFlight);
-            Talk(TextIds.SayDeath);
+            DoCastAOE(SpellIds.CLEAR_FLIGHT);
+            Talk(TextIds.SAY_DEATH);
 
             _phase = Phase.Outro;
             Scheduler.CancelAll();
 
-            Scheduler.Schedule(TimeSpan.FromSeconds(1), task => { DoCastSelf(SpellIds.EmoteTalkExclamation); });
-            Scheduler.Schedule(TimeSpan.FromSeconds(3.8), task => { DoCastSelf(SpellIds.EmotePoint); });
-            Scheduler.Schedule(TimeSpan.FromSeconds(7.4), task => { DoCastSelf(SpellIds.EmoteRoar); });
-            Scheduler.Schedule(TimeSpan.FromSeconds(10), task => { DoCastSelf(SpellIds.EmoteRoar); });
-            Scheduler.Schedule(TimeSpan.FromSeconds(11), task => { DoCastSelf(SpellIds.QuiteSuicide); });
+            Scheduler.Schedule(TimeSpan.FromSeconds(1), task => { DoCastSelf(SpellIds.EMOTE_TALK_EXCLAMATION); });
+            Scheduler.Schedule(TimeSpan.FromSeconds(3.8), task => { DoCastSelf(SpellIds.EMOTE_POINT); });
+            Scheduler.Schedule(TimeSpan.FromSeconds(7.4), task => { DoCastSelf(SpellIds.EMOTE_ROAR); });
+            Scheduler.Schedule(TimeSpan.FromSeconds(10), task => { DoCastSelf(SpellIds.EMOTE_ROAR); });
+            Scheduler.Schedule(TimeSpan.FromSeconds(11), task => { DoCastSelf(SpellIds.QUITE_SUICIDE); });
         }
 
         // Phase two checks. Skip phase two if we are in the outro already
@@ -207,7 +211,7 @@ internal class boss_felblood_kaelthas : BossAI
             Scheduler.Schedule(TimeSpan.FromMilliseconds(1),
                                task =>
                                {
-                                   Talk(_firstGravityLapse ? TextIds.SayGravityLapse1 : TextIds.SayGravityLapse2);
+                                   Talk(_firstGravityLapse ? TextIds.SAY_GRAVITY_LAPSE1 : TextIds.SAY_GRAVITY_LAPSE2);
                                    _firstGravityLapse = false;
                                    Me.ReactState = ReactStates.Passive;
                                    Me.AttackStop();
@@ -216,30 +220,30 @@ internal class boss_felblood_kaelthas : BossAI
                                    task.Schedule(TimeSpan.FromSeconds(1),
                                                  _ =>
                                                  {
-                                                     DoCastSelf(SpellIds.GravityLapseCenterTeleport);
+                                                     DoCastSelf(SpellIds.GRAVITY_LAPSE_CENTER_TELEPORT);
 
                                                      task.Schedule(TimeSpan.FromSeconds(1),
                                                                    _ =>
                                                                    {
                                                                        _gravityLapseTargetCount = 0;
-                                                                       DoCastAOE(SpellIds.GravityLapseInitial);
+                                                                       DoCastAOE(SpellIds.GRAVITY_LAPSE_INITIAL);
 
                                                                        Scheduler.Schedule(TimeSpan.FromSeconds(4),
                                                                                           _ =>
                                                                                           {
                                                                                               for (byte i = 0; i < 3; i++)
-                                                                                                  DoCastSelf(SpellIds.SummonArcaneSphere, new CastSpellExtraArgs(true));
+                                                                                                  DoCastSelf(SpellIds.SUMMON_ARCANE_SPHERE, new CastSpellExtraArgs(true));
                                                                                           });
 
-                                                                       Scheduler.Schedule(TimeSpan.FromSeconds(5), _ => { DoCastAOE(SpellIds.GravityLapseBeamVisualPeriodic); });
+                                                                       Scheduler.Schedule(TimeSpan.FromSeconds(5), _ => { DoCastAOE(SpellIds.GRAVITY_LAPSE_BEAM_VISUAL_PERIODIC); });
 
                                                                        Scheduler.Schedule(TimeSpan.FromSeconds(35),
                                                                                           _ =>
                                                                                           {
-                                                                                              Talk(TextIds.SayPowerFeedback);
-                                                                                              DoCastAOE(SpellIds.ClearFlight);
-                                                                                              DoCastSelf(DungeonMode(SpellIds.PowerFeedback, SpellIds.HPowerFeedback));
-                                                                                              Summons.DespawnEntry(CreatureIds.ArcaneSphere);
+                                                                                              Talk(TextIds.SAY_POWER_FEEDBACK);
+                                                                                              DoCastAOE(SpellIds.CLEAR_FLIGHT);
+                                                                                              DoCastSelf(DungeonMode(SpellIds.POWER_FEEDBACK, SpellIds.H_POWER_FEEDBACK));
+                                                                                              Summons.DespawnEntry(CreatureIds.ARCANE_SPHERE);
                                                                                               task.Repeat(TimeSpan.FromSeconds(11));
                                                                                           });
                                                                    });
@@ -255,7 +259,7 @@ internal class boss_felblood_kaelthas : BossAI
 
     public override void SetData(uint type, uint data)
     {
-        if (type == DataTypes.KaelthasIntro)
+        if (type == DataTypes.KAELTHAS_INTRO)
         {
             // skip the intro if Kael'thas is engaged already
             if (_phase != Phase.Intro)
@@ -266,13 +270,13 @@ internal class boss_felblood_kaelthas : BossAI
             Scheduler.Schedule(TimeSpan.FromSeconds(6),
                                task =>
                                {
-                                   Talk(TextIds.SayIntro1);
+                                   Talk(TextIds.SAY_INTRO1);
                                    Me.EmoteState = Emote.StateTalk;
 
                                    Scheduler.Schedule(TimeSpan.FromSeconds(20.6),
                                                       _ =>
                                                       {
-                                                          Talk(TextIds.SayIntro2);
+                                                          Talk(TextIds.SAY_INTRO2);
 
                                                           Scheduler.Schedule(TimeSpan.FromSeconds(15) + TimeSpan.FromMilliseconds(500),
                                                                              _ =>
@@ -296,14 +300,14 @@ internal class boss_felblood_kaelthas : BossAI
 
         switch (spellInfo.Id)
         {
-            case SpellIds.GravityLapseInitial:
+            case SpellIds.GRAVITY_LAPSE_INITIAL:
             {
                 DoCast(unitTarget, MiscConst.GravityLapseTeleportSpells[_gravityLapseTargetCount], new CastSpellExtraArgs(true));
 
                 target.Events.AddEventAtOffset(() =>
                                                {
-                                                   target.CastSpell(target, DungeonMode(SpellIds.GravityLapse, SpellIds.HGravityLapse));
-                                                   target.CastSpell(target, SpellIds.GravityLapseFly);
+                                                   target.SpellFactory.CastSpell(target, DungeonMode(SpellIds.GRAVITY_LAPSE, SpellIds.H_GRAVITY_LAPSE));
+                                                   target.SpellFactory.CastSpell(target, SpellIds.GRAVITY_LAPSE_FLY);
                                                },
                                                TimeSpan.FromMilliseconds(400));
 
@@ -311,12 +315,11 @@ internal class boss_felblood_kaelthas : BossAI
 
                 break;
             }
-            case SpellIds.ClearFlight:
-                unitTarget.RemoveAura(SpellIds.GravityLapseFly);
-                unitTarget.RemoveAura(DungeonMode(SpellIds.GravityLapse, SpellIds.HGravityLapse));
+            case SpellIds.CLEAR_FLIGHT:
+                unitTarget.RemoveAura(SpellIds.GRAVITY_LAPSE_FLY);
+                unitTarget.RemoveAura(DungeonMode(SpellIds.GRAVITY_LAPSE, SpellIds.H_GRAVITY_LAPSE));
 
                 break;
-            
         }
     }
 
@@ -326,19 +329,18 @@ internal class boss_felblood_kaelthas : BossAI
 
         switch (summon.Entry)
         {
-            case CreatureIds.ArcaneSphere:
+            case CreatureIds.ARCANE_SPHERE:
                 var target = SelectTarget(SelectTargetMethod.Random, 0, 70.0f, true);
 
                 if (target)
                     summon.MotionMaster.MoveFollow(target, 0.0f, 0.0f);
 
                 break;
-            case CreatureIds.FlameStrike:
-                summon.CastSpell(summon, SpellIds.FlameStrikeDummy);
+            case CreatureIds.FLAME_STRIKE:
+                summon.SpellFactory.CastSpell(summon, SpellIds.FLAME_STRIKE_DUMMY);
                 summon.DespawnOrUnsummon(TimeSpan.FromSeconds(15));
 
                 break;
-            
         }
     }
 
@@ -359,14 +361,14 @@ internal class boss_felblood_kaelthas : BossAI
 }
 
 [Script]
-internal class npc_felblood_kaelthas_phoenix : ScriptedAI
+internal class NPCFelbloodKaelthasPhoenix : ScriptedAI
 {
     private readonly InstanceScript _instance;
     private ObjectGuid _eggGUID;
 
     private bool _isInEgg;
 
-    public npc_felblood_kaelthas_phoenix(Creature creature) : base(creature)
+    public NPCFelbloodKaelthasPhoenix(Creature creature) : base(creature)
     {
         _instance = creature.InstanceScript;
         Initialize();
@@ -375,8 +377,8 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
     public override void IsSummonedBy(WorldObject summoner)
     {
         DoZoneInCombat();
-        DoCastSelf(SpellIds.Burn);
-        DoCastSelf(SpellIds.Rebirth);
+        DoCastSelf(SpellIds.BURN);
+        DoCastSelf(SpellIds.REBIRTH);
         Scheduler.Schedule(TimeSpan.FromSeconds(2), task => Me.ReactState = ReactStates.Aggressive);
     }
 
@@ -392,13 +394,13 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
                 Me.ReactState = ReactStates.Passive;
                 Me.RemoveAllAuras();
                 Me.SetUnitFlag(UnitFlags.Uninteractible);
-                DoCastSelf(SpellIds.EmberBlast);
+                DoCastSelf(SpellIds.EMBER_BLAST);
                 // DoCastSelf(SpellSummonPhoenixEgg); -- We do a manual summon for now. Feel free to move it to spelleffect_dbc
-                var egg = DoSummon(CreatureIds.PhoenixEgg, Me.Location, TimeSpan.FromSeconds(0));
+                var egg = DoSummon(CreatureIds.PHOENIX_EGG, Me.Location, TimeSpan.FromSeconds(0));
 
                 if (egg)
                 {
-                    var kaelthas = _instance.GetCreature(DataTypes.KaelthasSunstrider);
+                    var kaelthas = _instance.GetCreature(DataTypes.KAELTHAS_SUNSTRIDER);
 
                     if (kaelthas)
                     {
@@ -420,14 +422,14 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
                                        task.Schedule(TimeSpan.FromSeconds(2),
                                                      rebirthTask =>
                                                      {
-                                                         DoCastSelf(SpellIds.Rebirth);
+                                                         DoCastSelf(SpellIds.REBIRTH);
 
                                                          rebirthTask.Schedule(TimeSpan.FromSeconds(2),
                                                                               engageTask =>
                                                                               {
                                                                                   _isInEgg = false;
-                                                                                  DoCastSelf(SpellIds.FullHeal);
-                                                                                  DoCastSelf(SpellIds.Burn);
+                                                                                  DoCastSelf(SpellIds.FULL_HEAL);
+                                                                                  DoCastSelf(SpellIds.BURN);
                                                                                   Me.RemoveUnitFlag(UnitFlags.Uninteractible);
                                                                                   engageTask.Schedule(TimeSpan.FromSeconds(2), task => Me.ReactState = ReactStates.Aggressive);
                                                                               });
@@ -463,7 +465,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 }
 
 [Script] // 44191 - Flame Strike
-internal class spell_felblood_kaelthas_flame_strike : AuraScript, IHasAuraEffects
+internal class SpellFelbloodKaelthasFlameStrike : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -478,6 +480,6 @@ internal class spell_felblood_kaelthas_flame_strike : AuraScript, IHasAuraEffect
         var target = Target;
 
         if (target)
-            target.CastSpell(target, SpellIds.FlameStrikeDamage);
+            target.SpellFactory.CastSpell(target, SpellIds.FLAME_STRIKE_DAMAGE);
     }
 }

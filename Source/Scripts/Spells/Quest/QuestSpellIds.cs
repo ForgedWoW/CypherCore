@@ -6,179 +6,179 @@ namespace Scripts.Spells.Quest;
 internal struct QuestSpellIds
 {
     //Thaumaturgychannel        
-    public const uint ThaumaturgyChannel = 21029;
+    public const uint THAUMATURGY_CHANNEL = 21029;
 
     //Quest11396-11399
-    public const uint ForceShieldArcanePurpleX3 = 43874;
-    public const uint ScourgingCrystalController = 43878;
+    public const uint FORCE_SHIELD_ARCANE_PURPLE_X3 = 43874;
+    public const uint SCOURGING_CRYSTAL_CONTROLLER = 43878;
 
     //Quest11730
-    public const uint SummonScavengebot004a8 = 46063;
-    public const uint SummonSentrybot57k = 46068;
-    public const uint SummonDefendotank66d = 46058;
-    public const uint SummonScavengebot005b6 = 46066;
-    public const uint Summon55dCollectatron = 46034;
-    public const uint RobotKillCredit = 46027;
+    public const uint SUMMON_SCAVENGEBOT004_A8 = 46063;
+    public const uint SUMMON_SENTRYBOT57_K = 46068;
+    public const uint SUMMON_DEFENDOTANK66D = 46058;
+    public const uint SUMMON_SCAVENGEBOT005_B6 = 46066;
+    public const uint SUMMON55D_COLLECTATRON = 46034;
+    public const uint ROBOT_KILL_CREDIT = 46027;
 
     //Quest12634
-    public const uint BananasFallToGround = 51836;
-    public const uint OrangeFallsToGround = 51837;
-    public const uint PapayaFallsToGround = 51839;
-    public const uint SummonAdventurousDwarf = 52070;
+    public const uint BANANAS_FALL_TO_GROUND = 51836;
+    public const uint ORANGE_FALLS_TO_GROUND = 51837;
+    public const uint PAPAYA_FALLS_TO_GROUND = 51839;
+    public const uint SUMMON_ADVENTUROUS_DWARF = 52070;
 
     //Quest12851
-    public const uint FrostgiantCredit = 58184;
-    public const uint FrostworgCredit = 58183;
-    public const uint Immolation = 54690;
-    public const uint Ablaze = 54683;
+    public const uint FROSTGIANT_CREDIT = 58184;
+    public const uint FROSTWORG_CREDIT = 58183;
+    public const uint IMMOLATION = 54690;
+    public const uint ABLAZE = 54683;
 
     //Quest12937
-    public const uint TriggerAidOfTheEarthen = 55809;
+    public const uint TRIGGER_AID_OF_THE_EARTHEN = 55809;
 
     //Symboloflife
-    public const uint PermanentFeignDeath = 29266;
+    public const uint PERMANENT_FEIGN_DEATH = 29266;
 
     //BattleStandard
-    public const uint PlantHordeBattleStandard = 59643;
-    public const uint HordeBattleStandardState = 59642;
-    public const uint AllianceBattleStandardState = 4339;
-    public const uint JumpRocketBlast = 4340;
+    public const uint PLANT_HORDE_BATTLE_STANDARD = 59643;
+    public const uint HORDE_BATTLE_STANDARD_STATE = 59642;
+    public const uint ALLIANCE_BATTLE_STANDARD_STATE = 4339;
+    public const uint JUMP_ROCKET_BLAST = 4340;
 
     //BreakfastOfChampions
-    public const uint SummonDeepJormungar = 66510;
-    public const uint StormforgedMoleMachine = 66492;
+    public const uint SUMMON_DEEP_JORMUNGAR = 66510;
+    public const uint STORMFORGED_MOLE_MACHINE = 66492;
 
     //Leavenothingtochance
-    public const uint UpperMineShaftCredit = 48744;
-    public const uint LowerMineShaftCredit = 48745;
+    public const uint UPPER_MINE_SHAFT_CREDIT = 48744;
+    public const uint LOWER_MINE_SHAFT_CREDIT = 48745;
 
     //Focusonthebeach
-    public const uint BunnyCreditBeam = 47390;
+    public const uint BUNNY_CREDIT_BEAM = 47390;
 
     //Defendingwyrmresttemple
-    public const uint SummonWyrmrestDefender = 49207;
+    public const uint SUMMON_WYRMREST_DEFENDER = 49207;
 
     //Quest11010 11102 11023
-    public const uint FlakCannonTrigger = 40110;
-    public const uint ChooseLoc = 40056;
-    public const uint AggroCheck = 40112;
+    public const uint FLAK_CANNON_TRIGGER = 40110;
+    public const uint CHOOSE_LOC = 40056;
+    public const uint AGGRO_CHECK = 40112;
 
     //Spellzuldrakrat
-    public const uint SummonGorgedLurkingBasilisk = 50928;
+    public const uint SUMMON_GORGED_LURKING_BASILISK = 50928;
 
     //Quenchingmist
-    public const uint FlickeringFlames = 53504;
+    public const uint FLICKERING_FLAMES = 53504;
 
     //Quest13291 13292 13239 13261
-    public const uint Ride = 59319;
+    public const uint RIDE = 59319;
 
     //Bearflankmaster
-    public const uint BearFlankMaster = 56565;
-    public const uint CreateBearFlank = 56566;
-    public const uint BearFlankFail = 56569;
+    public const uint BEAR_FLANK_MASTER = 56565;
+    public const uint CREATE_BEAR_FLANK = 56566;
+    public const uint BEAR_FLANK_FAIL = 56569;
 
     //BurstAtTheSeams
-    public const uint BloatedAbominationFeignDeath = 52593;
-    public const uint BurstAtTheSeamsBone = 52516;
-    public const uint ExplodeAbominationMeat = 52520;
-    public const uint ExplodeAbominationBloodyMeat = 52523;
-    public const uint TrollExplosion = 52565;
-    public const uint ExplodeTrollMeat = 52578;
-    public const uint ExplodeTrollBloodyMeat = 52580;
+    public const uint BLOATED_ABOMINATION_FEIGN_DEATH = 52593;
+    public const uint BURST_AT_THE_SEAMS_BONE = 52516;
+    public const uint EXPLODE_ABOMINATION_MEAT = 52520;
+    public const uint EXPLODE_ABOMINATION_BLOODY_MEAT = 52523;
+    public const uint TROLL_EXPLOSION = 52565;
+    public const uint EXPLODE_TROLL_MEAT = 52578;
+    public const uint EXPLODE_TROLL_BLOODY_MEAT = 52580;
 
-    public const uint BurstAtTheSeams59576 = 59576; //Script/Knockback; That'S Abominable
-    public const uint BurstAtTheSeams59579 = 59579; //Dummy
-    public const uint BurstAtTheSeams52510 = 52510; //Script/Knockback; Fuel For The Fire
-    public const uint BurstAtTheSeams52508 = 52508; //Damage 20000
-    public const uint BurstAtTheSeams59580 = 59580; //Damage 50000
+    public const uint BURST_AT_THE_SEAMS59576 = 59576; //Script/Knockback; That'S Abominable
+    public const uint BURST_AT_THE_SEAMS59579 = 59579; //Dummy
+    public const uint BURST_AT_THE_SEAMS52510 = 52510; //Script/Knockback; Fuel For The Fire
+    public const uint BURST_AT_THE_SEAMS52508 = 52508; //Damage 20000
+    public const uint BURST_AT_THE_SEAMS59580 = 59580; //Damage 50000
 
-    public const uint AssignGhoulKillCreditToMaster = 59590;
-    public const uint AssignGeistKillCreditToMaster = 60041;
-    public const uint AssignSkeletonKillCreditToMaster = 60039;
+    public const uint ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER = 59590;
+    public const uint ASSIGN_GEIST_KILL_CREDIT_TO_MASTER = 60041;
+    public const uint ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER = 60039;
 
-    public const uint DrakkariSkullcrusherCredit = 52590;
-    public const uint SummonDrakkariChieftain = 52616;
-    public const uint DrakkariChieftainkKillCredit = 52620;
+    public const uint DRAKKARI_SKULLCRUSHER_CREDIT = 52590;
+    public const uint SUMMON_DRAKKARI_CHIEFTAIN = 52616;
+    public const uint DRAKKARI_CHIEFTAINK_KILL_CREDIT = 52620;
 
     // Tamingthebeast
-    public const uint TameIceClawBear = 19548;
-    public const uint TameLargeCragBoar = 19674;
-    public const uint TameSnowLeopard = 19687;
-    public const uint TameAdultPlainstrider = 19688;
-    public const uint TamePrairieStalker = 19689;
-    public const uint TameSwoop = 19692;
-    public const uint TameWebwoodLurker = 19693;
-    public const uint TameDireMottledBoar = 19694;
-    public const uint TameSurfCrawler = 19696;
-    public const uint TameArmoredScorpid = 19697;
-    public const uint TameNightsaberStalker = 19699;
-    public const uint TameStrigidScreecher = 19700;
-    public const uint TameBarbedCrawler = 30646;
-    public const uint TameGreaterTimberstrider = 30653;
-    public const uint TameNightstalker = 30654;
-    public const uint TameCrazedDragonhawk = 30099;
-    public const uint TameElderSpringpaw = 30102;
-    public const uint TameMistbat = 30105;
-    public const uint TameIceClawBear1 = 19597;
-    public const uint TameLargeCragBoar1 = 19677;
-    public const uint TameSnowLeopard1 = 19676;
-    public const uint TameAdultPlainstrider1 = 19678;
-    public const uint TamePrairieStalker1 = 19679;
-    public const uint TameSwoop1 = 19680;
-    public const uint TameWebwoodLurker1 = 19684;
-    public const uint TameDireMottledBoar1 = 19681;
-    public const uint TameSurfCrawler1 = 19682;
-    public const uint TameArmoredScorpid1 = 19683;
-    public const uint TameNightsaberStalker1 = 19685;
-    public const uint TameStrigidScreecher1 = 19686;
-    public const uint TameBarbedCrawler1 = 30647;
-    public const uint TameGreaterTimberstrider1 = 30648;
-    public const uint TameNightstalker1 = 30652;
-    public const uint TameCrazedDragonhawk1 = 30100;
-    public const uint TameElderSpringpaw1 = 30103;
-    public const uint TameMistbat1 = 30104;
+    public const uint TAME_ICE_CLAW_BEAR = 19548;
+    public const uint TAME_LARGE_CRAG_BOAR = 19674;
+    public const uint TAME_SNOW_LEOPARD = 19687;
+    public const uint TAME_ADULT_PLAINSTRIDER = 19688;
+    public const uint TAME_PRAIRIE_STALKER = 19689;
+    public const uint TAME_SWOOP = 19692;
+    public const uint TAME_WEBWOOD_LURKER = 19693;
+    public const uint TAME_DIRE_MOTTLED_BOAR = 19694;
+    public const uint TAME_SURF_CRAWLER = 19696;
+    public const uint TAME_ARMORED_SCORPID = 19697;
+    public const uint TAME_NIGHTSABER_STALKER = 19699;
+    public const uint TAME_STRIGID_SCREECHER = 19700;
+    public const uint TAME_BARBED_CRAWLER = 30646;
+    public const uint TAME_GREATER_TIMBERSTRIDER = 30653;
+    public const uint TAME_NIGHTSTALKER = 30654;
+    public const uint TAME_CRAZED_DRAGONHAWK = 30099;
+    public const uint TAME_ELDER_SPRINGPAW = 30102;
+    public const uint TAME_MISTBAT = 30105;
+    public const uint TAME_ICE_CLAW_BEAR1 = 19597;
+    public const uint TAME_LARGE_CRAG_BOAR1 = 19677;
+    public const uint TAME_SNOW_LEOPARD1 = 19676;
+    public const uint TAME_ADULT_PLAINSTRIDER1 = 19678;
+    public const uint TAME_PRAIRIE_STALKER1 = 19679;
+    public const uint TAME_SWOOP1 = 19680;
+    public const uint TAME_WEBWOOD_LURKER1 = 19684;
+    public const uint TAME_DIRE_MOTTLED_BOAR1 = 19681;
+    public const uint TAME_SURF_CRAWLER1 = 19682;
+    public const uint TAME_ARMORED_SCORPID1 = 19683;
+    public const uint TAME_NIGHTSABER_STALKER1 = 19685;
+    public const uint TAME_STRIGID_SCREECHER1 = 19686;
+    public const uint TAME_BARBED_CRAWLER1 = 30647;
+    public const uint TAME_GREATER_TIMBERSTRIDER1 = 30648;
+    public const uint TAME_NIGHTSTALKER1 = 30652;
+    public const uint TAME_CRAZED_DRAGONHAWK1 = 30100;
+    public const uint TAME_ELDER_SPRINGPAW1 = 30103;
+    public const uint TAME_MISTBAT1 = 30104;
 
     //TributeSpells
-    public const uint GromsTrollTribute = 24101;
-    public const uint GromsTaurenTribute = 24102;
-    public const uint GromsUndeadTribute = 24103;
-    public const uint GromsOrcTribute = 24104;
-    public const uint GromsBloodelfTribute = 69530;
-    public const uint UthersHumanTribute = 24105;
-    public const uint UthersGnomeTribute = 24106;
-    public const uint UthersDwarfTribute = 24107;
-    public const uint UthersNightelfTribute = 24108;
-    public const uint UthersDraeneiTribute = 69533;
+    public const uint GROMS_TROLL_TRIBUTE = 24101;
+    public const uint GROMS_TAUREN_TRIBUTE = 24102;
+    public const uint GROMS_UNDEAD_TRIBUTE = 24103;
+    public const uint GROMS_ORC_TRIBUTE = 24104;
+    public const uint GROMS_BLOODELF_TRIBUTE = 69530;
+    public const uint UTHERS_HUMAN_TRIBUTE = 24105;
+    public const uint UTHERS_GNOME_TRIBUTE = 24106;
+    public const uint UTHERS_DWARF_TRIBUTE = 24107;
+    public const uint UTHERS_NIGHTELF_TRIBUTE = 24108;
+    public const uint UTHERS_DRAENEI_TRIBUTE = 69533;
 
     //Escapefromsilverbrook
-    public const uint SummonWorgen = 48681;
+    public const uint SUMMON_WORGEN = 48681;
 
     //Deathcomesfromonhigh
-    public const uint ForgeCredit = 51974;
-    public const uint TownHallCredit = 51977;
-    public const uint ScarletHoldCredit = 51980;
-    public const uint ChapelCredit = 51982;
+    public const uint FORGE_CREDIT = 51974;
+    public const uint TOWN_HALL_CREDIT = 51977;
+    public const uint SCARLET_HOLD_CREDIT = 51980;
+    public const uint CHAPEL_CREDIT = 51982;
 
     //RecallEyeOfAcherus
-    public const uint TheEyeOfAcherus = 51852;
+    public const uint THE_EYE_OF_ACHERUS = 51852;
 
     //QuestTheStormKing
-    public const uint RideGymer = 43671;
-    public const uint Grabbed = 55424;
+    public const uint RIDE_GYMER = 43671;
+    public const uint GRABBED = 55424;
 
     //QuestTheStormKingThrow
-    public const uint VargulExplosion = 55569;
+    public const uint VARGUL_EXPLOSION = 55569;
 
     //QuestTheHunterAndThePrince
-    public const uint IllidanKillCredit = 61748;
+    public const uint ILLIDAN_KILL_CREDIT = 61748;
 
     //Relicoftheearthenring
-    public const uint TotemOfTheEarthenRing = 66747;
+    public const uint TOTEM_OF_THE_EARTHEN_RING = 66747;
 
     //Fumping
-    public const uint SummonSandGnome = 39240;
-    public const uint SummonBoneSlicer = 39241;
+    public const uint SUMMON_SAND_GNOME = 39240;
+    public const uint SUMMON_BONE_SLICER = 39241;
 
     //Fearnoevil
-    public const uint RenewedLife = 93097;
+    public const uint RENEWED_LIFE = 93097;
 }

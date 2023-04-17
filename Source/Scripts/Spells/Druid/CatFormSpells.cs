@@ -5,10 +5,10 @@ namespace Scripts.Spells.Druid;
 
 public struct CatFormSpells
 {
-    public static uint DASH = 1850;
-    public static uint PROWL = 5215;
-    public static uint FORM_CAT_INCREASE_SPEED = 113636;
-    public static uint CATFORM_OVERRIDE = 48629;
-    public static uint LUNAR_INSPIRATION = 155580;
-    public static uint MOONFIRE_CAT_OVERRIDE = 155627;
+    public static uint Dash = 1850;
+    public static uint Prowl = 5215;
+    public static uint FormCatIncreaseSpeed = 113636;
+    public static uint CatformOverride = 48629;
+    public static uint LunarInspiration = 155580;
+    public static uint MoonfireCatOverride = 155627;
 }

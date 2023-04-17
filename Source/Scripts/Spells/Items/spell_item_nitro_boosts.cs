@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
+internal class SpellItemNitroBoosts : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -40,6 +41,6 @@ internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
             !caster.Map.IsDungeon)
             success = RandomHelper.randChance(95);
 
-        caster.CastSpell(caster, success ? ItemSpellIds.NitroBoostsSuccess : ItemSpellIds.NitroBoostsBackfire, new CastSpellExtraArgs(CastItem));
+        caster.SpellFactory.CastSpell(caster, success ? ItemSpellIds.NITRO_BOOSTS_SUCCESS : ItemSpellIds.NITRO_BOOSTS_BACKFIRE, new CastSpellExtraArgs(CastItem));
     }
 }

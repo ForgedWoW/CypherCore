@@ -4,14 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_artifact_inner_demons : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnRemove
+public class AtDhArtifactInnerDemons : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
     public void OnCreate()
     {
@@ -47,6 +48,6 @@ public class at_dh_artifact_inner_demons : AreaTriggerScript, IAreaTriggerOnCrea
         if (caster == null)
             return;
 
-        caster.CastSpell(At, DemonHunterSpells.INNER_DEMONS_DAMAGE, true);
+        caster.SpellFactory.CastSpell(At, DemonHunterSpells.INNER_DEMONS_DAMAGE, true);
     }
 }

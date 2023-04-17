@@ -1,22 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Shaman;
 
 [Script] //  12676 - AreaTriggerId
-internal class areatrigger_sha_wind_rush_totem : AreaTriggerScript, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnCreate
+internal class AreatriggerShaWindRushTotem : AreaTriggerScript, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnCreate
 {
-    private static readonly int REFRESH_TIME = 4500;
+    private static readonly int RefreshTime = 4500;
 
     private int _refreshTimer;
 
     public void OnCreate()
     {
-        _refreshTimer = REFRESH_TIME;
+        _refreshTimer = RefreshTime;
     }
 
     public void OnUnitEnter(Unit unit)
@@ -28,7 +28,7 @@ internal class areatrigger_sha_wind_rush_totem : AreaTriggerScript, IAreaTrigger
             if (!caster.IsFriendlyTo(unit))
                 return;
 
-            caster.CastSpell(unit, ShamanSpells.WindRush, true);
+            caster.SpellFactory.CastSpell(unit, ShamanSpells.WIND_RUSH, true);
         }
     }
 
@@ -50,11 +50,11 @@ internal class areatrigger_sha_wind_rush_totem : AreaTriggerScript, IAreaTrigger
                         if (!caster.IsFriendlyTo(unit))
                             continue;
 
-                        caster.CastSpell(unit, ShamanSpells.WindRush, true);
+                        caster.SpellFactory.CastSpell(unit, ShamanSpells.WIND_RUSH, true);
                     }
                 }
 
-            _refreshTimer += REFRESH_TIME;
+            _refreshTimer += RefreshTime;
         }
     }
 }

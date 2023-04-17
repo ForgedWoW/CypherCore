@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 603 - Doom
-public class spell_warlock_doom : AuraScript, IHasAuraEffects
+public class SpellWarlockDoom : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,10 +26,10 @@ public class spell_warlock_doom : AuraScript, IHasAuraEffects
         if (caster == null)
             return;
 
-        caster.CastSpell(caster, WarlockSpells.DOOM_ENERGIZE, true);
+        caster.SpellFactory.CastSpell(caster, WarlockSpells.DOOM_ENERGIZE, true);
 
         if (caster.HasAura(WarlockSpells.IMPENDING_DOOM))
-            caster.CastSpell(Target, WarlockSpells.WILD_IMP_SUMMON, true);
+            caster.SpellFactory.CastSpell(Target, WarlockSpells.WILD_IMP_SUMMON, true);
 
         if (caster.HasAura(WarlockSpells.DOOM_DOUBLED) && RandomHelper.randChance(25))
             GetEffect(0).SetAmount(aurEff.Amount * 2);

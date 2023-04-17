@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 /// Item - Death Knight T17 Frost 4P Driver (Periodic) - 170205
 [SpellScript(170205)]
-public class spell_dk_item_t17_frost_4p_driver_periodic : AuraScript, IHasAuraEffects
+public class SpellDkItemT17Frost4PDriverPeriodic : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,45 +20,45 @@ public class spell_dk_item_t17_frost_4p_driver_periodic : AuraScript, IHasAuraEf
         AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
     }
 
-    private void OnTick(AuraEffect UnnamedParameter)
+    private void OnTick(AuraEffect unnamedParameter)
     {
-        var l_Caster = Caster;
+        var lCaster = Caster;
 
-        if (l_Caster == null)
+        if (lCaster == null)
             return;
 
-        var l_Target = l_Caster.Victim;
+        var lTarget = lCaster.Victim;
 
-        if (l_Target == null)
+        if (lTarget == null)
             return;
 
-        var l_Player = l_Caster.AsPlayer;
+        var lPlayer = lCaster.AsPlayer;
 
-        if (l_Player != null)
+        if (lPlayer != null)
         {
-            var l_Aura = l_Player.GetAura(eSpells.FrozenRunebladeStacks);
+            var lAura = lPlayer.GetAura(ESpells.FROZEN_RUNEBLADE_STACKS);
 
-            if (l_Aura != null)
+            if (lAura != null)
             {
-                var l_MainHand = l_Player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+                var lMainHand = lPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-                if (l_MainHand != null)
-                    l_Player.CastSpell(l_Target, eSpells.FrozenRunebladeMainHand, true);
+                if (lMainHand != null)
+                    lPlayer.SpellFactory.CastSpell(lTarget, ESpells.FROZEN_RUNEBLADE_MAIN_HAND, true);
 
-                var l_OffHand = l_Player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+                var lOffHand = lPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-                if (l_OffHand != null)
-                    l_Player.CastSpell(l_Target, eSpells.FrozenRunebladeOffHand, true);
+                if (lOffHand != null)
+                    lPlayer.SpellFactory.CastSpell(lTarget, ESpells.FROZEN_RUNEBLADE_OFF_HAND, true);
 
-                l_Aura.DropCharge();
+                lAura.DropCharge();
             }
         }
     }
 
-    private struct eSpells
+    private struct ESpells
     {
-        public const uint FrozenRunebladeMainHand = 165569;
-        public const uint FrozenRunebladeOffHand = 178808;
-        public const uint FrozenRunebladeStacks = 170202;
+        public const uint FROZEN_RUNEBLADE_MAIN_HAND = 165569;
+        public const uint FROZEN_RUNEBLADE_OFF_HAND = 178808;
+        public const uint FROZEN_RUNEBLADE_STACKS = 170202;
     }
 }

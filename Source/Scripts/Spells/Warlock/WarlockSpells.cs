@@ -244,7 +244,7 @@ internal struct WarlockSpells
     public const uint POWER_TRIP = 196605;
     public const uint POWER_TRIP_ENERGIZE = 216125;
     public const uint PRIEST_SHADOW_WORD_DEATH = 32409;
-    public const uint PVP_4P_BONUS = 143395;
+    public const uint PVP_4_P_BONUS = 143395;
     public const uint PYROCLASM = 123686;
     public const uint PYROGENICS = 387095;
     public const uint RAGING_SOUL = 148463;
@@ -326,10 +326,10 @@ internal struct WarlockSpells
     public const uint SWEET_SOULS = 199220;
     public const uint SWEET_SOULS_HEAL = 199221;
     public const uint T14_BONUS = 123141;
-    public const uint T15_2P_BONUS = 138129;
-    public const uint T15_2P_BONUS_TRIGGERED = 138483;
-    public const uint T16_4P_INTERNAL_CD = 145165;
-    public const uint T16_4P_TRIGGERED = 145164;
+    public const uint T15_2_P_BONUS = 138129;
+    public const uint T15_2_P_BONUS_TRIGGERED = 138483;
+    public const uint T16_4_P_INTERNAL_CD = 145165;
+    public const uint T16_4_P_TRIGGERED = 145164;
     public const uint TEAR_CHAOS_BARRAGE = 187394;
     public const uint TEAR_CHAOS_BOLT = 215279;
     public const uint THALKIELS_CONSUMPTION_DAMAGE = 211715;

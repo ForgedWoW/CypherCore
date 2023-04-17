@@ -2,51 +2,54 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.TombOfSeven;
 
 internal struct SpellIds
 {
     //Gloomrel
-    public const uint SmeltDarkIron = 14891;
-    public const uint LearnSmelt = 14894;
+    public const uint SMELT_DARK_IRON = 14891;
+    public const uint LEARN_SMELT = 14894;
 
     //Doomrel
-    public const uint Shadowboltvolley = 15245;
-    public const uint Immolate = 12742;
-    public const uint Curseofweakness = 12493;
-    public const uint Demonarmor = 13787;
-    public const uint SummonVoidwalkers = 15092;
+    public const uint SHADOWBOLTVOLLEY = 15245;
+    public const uint IMMOLATE = 12742;
+    public const uint CURSEOFWEAKNESS = 12493;
+    public const uint DEMONARMOR = 13787;
+    public const uint SUMMON_VOIDWALKERS = 15092;
 }
 
 internal struct QuestIds
 {
-    public const uint SpectralChalice = 4083;
+    public const uint SPECTRAL_CHALICE = 4083;
 }
 
 internal struct TextIds
 {
-    public const uint GossipSelectDoomrel = 1828;
-    public const uint GossipMenuIdContinue = 1;
+    public const uint GOSSIP_SELECT_DOOMREL = 1828;
+    public const uint GOSSIP_MENU_ID_CONTINUE = 1;
 
-    public const uint GossipMenuChallenge = 1947;
-    public const uint GossipMenuIdChallenge = 0;
+    public const uint GOSSIP_MENU_CHALLENGE = 1947;
+    public const uint GOSSIP_MENU_ID_CHALLENGE = 0;
 }
 
 internal struct MiscConst
 {
-    public const uint DataSkillpointMin = 230;
+    public const uint DATA_SKILLPOINT_MIN = 230;
 
-    public const string GossipItemTeach1 = "Teach me the art of smelting dark iron";
-    public const string GossipItemTeach2 = "Continue...";
-    public const string GossipItemTeach3 = "[PH] Continue...";
-    public const string GossipItemTribute = "I want to pay tribute";
+    public const string GOSSIP_ITEM_TEACH1 = "Teach me the art of smelting dark iron";
+    public const string GOSSIP_ITEM_TEACH2 = "Continue...";
+    public const string GOSSIP_ITEM_TEACH3 = "[PH] Continue...";
+    public const string GOSSIP_ITEM_TRIBUTE = "I want to pay tribute";
 }
 
 internal enum Phases
@@ -56,13 +59,13 @@ internal enum Phases
 }
 
 [Script]
-internal class boss_gloomrel : ScriptedAI
+internal class BossGloomrel : ScriptedAI
 {
-    private readonly InstanceScript instance;
+    private readonly InstanceScript _instance;
 
-    public boss_gloomrel(Creature creature) : base(creature)
+    public BossGloomrel(Creature creature) : base(creature)
     {
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
@@ -73,24 +76,24 @@ internal class boss_gloomrel : ScriptedAI
         switch (action)
         {
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 1:
-                player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTeach2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 11);
+                player.AddGossipItem(GossipOptionNpc.None, MiscConst.GOSSIP_ITEM_TEACH2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 11);
                 player.SendGossipMenu(2606, Me.GUID);
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 11:
                 player.CloseGossipMenu();
-                player.CastSpell(player, SpellIds.LearnSmelt, false);
+                player.SpellFactory.CastSpell(player, SpellIds.LEARN_SMELT, false);
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 2:
-                player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTeach3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 22);
+                player.AddGossipItem(GossipOptionNpc.None, MiscConst.GOSSIP_ITEM_TEACH3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 22);
                 player.SendGossipMenu(2604, Me.GUID);
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 22:
                 player.CloseGossipMenu();
                 //are 5 minutes expected? go template may have data to despawn when used at quest
-                instance.DoRespawnGameObject(instance.GetGuidData(DataTypes.DataGoChalice), TimeSpan.FromMinutes(5));
+                _instance.DoRespawnGameObject(_instance.GetGuidData(DataTypes.DATA_GO_CHALICE), TimeSpan.FromMinutes(5));
 
                 break;
         }
@@ -100,14 +103,14 @@ internal class boss_gloomrel : ScriptedAI
 
     public override bool OnGossipHello(Player player)
     {
-        if (player.GetQuestRewardStatus(QuestIds.SpectralChalice) &&
-            player.GetSkillValue(SkillType.Mining) >= MiscConst.DataSkillpointMin &&
-            !player.HasSpell(SpellIds.SmeltDarkIron))
-            player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTeach1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
+        if (player.GetQuestRewardStatus(QuestIds.SPECTRAL_CHALICE) &&
+            player.GetSkillValue(SkillType.Mining) >= MiscConst.DATA_SKILLPOINT_MIN &&
+            !player.HasSpell(SpellIds.SMELT_DARK_IRON))
+            player.AddGossipItem(GossipOptionNpc.None, MiscConst.GOSSIP_ITEM_TEACH1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
 
-        if (!player.GetQuestRewardStatus(QuestIds.SpectralChalice) &&
-            player.GetSkillValue(SkillType.Mining) >= MiscConst.DataSkillpointMin)
-            player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTribute, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
+        if (!player.GetQuestRewardStatus(QuestIds.SPECTRAL_CHALICE) &&
+            player.GetSkillValue(SkillType.Mining) >= MiscConst.DATA_SKILLPOINT_MIN)
+            player.AddGossipItem(GossipOptionNpc.None, MiscConst.GOSSIP_ITEM_TRIBUTE, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
 
         player.SendGossipMenu(player.GetGossipTextId(Me), Me.GUID);
 
@@ -116,12 +119,12 @@ internal class boss_gloomrel : ScriptedAI
 }
 
 [Script]
-internal class boss_doomrel : ScriptedAI
+internal class BossDoomrel : ScriptedAI
 {
     private readonly InstanceScript _instance;
     private bool _voidwalkers;
 
-    public boss_doomrel(Creature creature) : base(creature)
+    public BossDoomrel(Creature creature) : base(creature)
     {
         Initialize();
         _instance = creature.InstanceScript;
@@ -136,7 +139,7 @@ internal class boss_doomrel : ScriptedAI
         // was set before event start, so set again
         Me.SetImmuneToPC(true);
 
-        if (_instance.GetData(DataTypes.DataGhostkill) >= 7)
+        if (_instance.GetData(DataTypes.DATA_GHOSTKILL) >= 7)
             Me.ReplaceAllNpcFlags(NPCFlags.None);
         else
             Me.ReplaceAllNpcFlags(NPCFlags.Gossip);
@@ -147,7 +150,7 @@ internal class boss_doomrel : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Shadowboltvolley);
+                               DoCastVictim(SpellIds.SHADOWBOLTVOLLEY);
                                task.Repeat(TimeSpan.FromSeconds(12));
                            });
 
@@ -157,7 +160,7 @@ internal class boss_doomrel : ScriptedAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Immolate);
+                                   DoCast(target, SpellIds.IMMOLATE);
 
                                task.Repeat(TimeSpan.FromSeconds(25));
                            });
@@ -165,14 +168,14 @@ internal class boss_doomrel : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(5),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Curseofweakness);
+                               DoCastVictim(SpellIds.CURSEOFWEAKNESS);
                                task.Repeat(TimeSpan.FromSeconds(45));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(16),
                            task =>
                            {
-                               DoCast(Me, SpellIds.Demonarmor);
+                               DoCast(Me, SpellIds.DEMONARMOR);
                                task.Repeat(TimeSpan.FromMinutes(5));
                            });
     }
@@ -182,7 +185,7 @@ internal class boss_doomrel : ScriptedAI
         if (!_voidwalkers &&
             !HealthAbovePct(50))
         {
-            DoCastVictim(SpellIds.SummonVoidwalkers, new CastSpellExtraArgs(true));
+            DoCastVictim(SpellIds.SUMMON_VOIDWALKERS, new CastSpellExtraArgs(true));
             _voidwalkers = true;
         }
     }
@@ -191,12 +194,12 @@ internal class boss_doomrel : ScriptedAI
     {
         base.EnterEvadeMode(why);
 
-        _instance.SetGuidData(DataTypes.DataEvenstarter, ObjectGuid.Empty);
+        _instance.SetGuidData(DataTypes.DATA_EVENSTARTER, ObjectGuid.Empty);
     }
 
     public override void JustDied(Unit killer)
     {
-        _instance.SetData(DataTypes.DataGhostkill, 1);
+        _instance.SetData(DataTypes.DATA_GHOSTKILL, 1);
     }
 
     public override void UpdateAI(uint diff)
@@ -215,8 +218,8 @@ internal class boss_doomrel : ScriptedAI
         switch (action)
         {
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 1:
-                player.InitGossipMenu(TextIds.GossipSelectDoomrel);
-                player.AddGossipItem(TextIds.GossipSelectDoomrel, TextIds.GossipMenuIdContinue, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
+                player.InitGossipMenu(TextIds.GOSSIP_SELECT_DOOMREL);
+                player.AddGossipItem(TextIds.GOSSIP_SELECT_DOOMREL, TextIds.GOSSIP_MENU_ID_CONTINUE, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
                 player.SendGossipMenu(2605, Me.GUID);
 
                 break;
@@ -230,7 +233,7 @@ internal class boss_doomrel : ScriptedAI
                 Me.SetImmuneToPC(false);
                 Me.AI.AttackStart(player);
 
-                _instance.SetGuidData(DataTypes.DataEvenstarter, player.GUID);
+                _instance.SetGuidData(DataTypes.DATA_EVENSTARTER, player.GUID);
 
                 break;
         }
@@ -240,8 +243,8 @@ internal class boss_doomrel : ScriptedAI
 
     public override bool OnGossipHello(Player player)
     {
-        player.InitGossipMenu(TextIds.GossipMenuChallenge);
-        player.AddGossipItem(TextIds.GossipMenuChallenge, TextIds.GossipMenuIdChallenge, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
+        player.InitGossipMenu(TextIds.GOSSIP_MENU_CHALLENGE);
+        player.AddGossipItem(TextIds.GOSSIP_MENU_CHALLENGE, TextIds.GOSSIP_MENU_ID_CHALLENGE, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
         player.SendGossipMenu(2601, Me.GUID);
 
         return true;

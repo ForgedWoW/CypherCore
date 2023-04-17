@@ -2,26 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
-[Script("spell_item_unstable_power", ItemSpellIds.UnstablePowerAuraStack)]
-[Script("spell_item_restless_strength", ItemSpellIds.RestlessStrengthAuraStack)]
-internal class spell_item_zandalarian_charm : AuraScript, IAuraCheckProc, IHasAuraEffects
+[Script("spell_item_unstable_power", ItemSpellIds.UNSTABLE_POWER_AURA_STACK)]
+[Script("spell_item_restless_strength", ItemSpellIds.RESTLESS_STRENGTH_AURA_STACK)]
+internal class SpellItemZandalarianCharm : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     private readonly uint _spellId;
 
-    public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-    public spell_item_zandalarian_charm(uint SpellId)
+    public SpellItemZandalarianCharm(uint spellId)
     {
-        _spellId = SpellId;
+        _spellId = spellId;
     }
+
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
     public bool CheckProc(ProcEventInfo eventInfo)

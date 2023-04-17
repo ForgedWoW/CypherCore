@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 15286 - Vampiric Embrace
-internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellPriVampiricEmbrace : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -43,6 +44,6 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, teamHeal);
         args.AddSpellMod(SpellValueMod.BasePoint1, selfHeal);
-        Target.CastSpell((Unit)null, PriestSpells.VAMPIRIC_EMBRACE_HEAL, args);
+        Target.SpellFactory.CastSpell((Unit)null, PriestSpells.VAMPIRIC_EMBRACE_HEAL, args);
     }
 }

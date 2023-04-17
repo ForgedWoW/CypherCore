@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.RED_LIVING_FLAME_HEAL,
              EvokerSpells.RED_LIVING_FLAME_DAMAGE,
              EvokerSpells.RED_FIRE_BREATH_CHARGED)]
-internal class spell_evoker_lifeforce_mender : SpellScript, ISpellOnCast
+internal class SpellEvokerLifeforceMender : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {

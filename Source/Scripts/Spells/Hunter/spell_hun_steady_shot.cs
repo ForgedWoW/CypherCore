@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-internal class spell_hun_steady_shot : SpellScript, ISpellOnHit
+internal class SpellHunSteadyShot : SpellScript, ISpellOnHit
 {
     public override bool Load()
     {
@@ -17,6 +17,6 @@ internal class spell_hun_steady_shot : SpellScript, ISpellOnHit
 
     public void OnHit()
     {
-        Caster.CastSpell(Caster, HunterSpells.SteadyShotFocus, true);
+        Caster.SpellFactory.CastSpell(Caster, HunterSpells.SteadyShotFocus, true);
     }
 }

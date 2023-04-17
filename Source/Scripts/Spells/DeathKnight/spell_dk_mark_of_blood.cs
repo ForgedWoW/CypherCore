@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 206940 - Mark of Blood
-internal class spell_dk_mark_of_blood : AuraScript, IHasAuraEffects
+internal class SpellDkMarkOfBlood : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,6 +27,6 @@ internal class spell_dk_mark_of_blood : AuraScript, IHasAuraEffects
         var caster = Caster;
 
         if (caster)
-            caster.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.MarkOfBloodHeal, true);
+            caster.SpellFactory.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.MARK_OF_BLOOD_HEAL, true);
     }
 }

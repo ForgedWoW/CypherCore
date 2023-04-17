@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.World.DuelReset;
 
@@ -87,7 +87,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
                                 var totalCooldown = TimeSpan.FromMilliseconds(spellInfo.RecoveryTime);
                                 var categoryCooldown = TimeSpan.FromMilliseconds(spellInfo.CategoryRecoveryTime);
 
-                                void applySpellMod(ref TimeSpan value)
+                                void ApplySpellMod(ref TimeSpan value)
                                 {
                                     var intValue = (int)value.TotalMilliseconds;
                                     player.ApplySpellMod(spellInfo, SpellModOp.Cooldown, ref intValue, null);
@@ -96,7 +96,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 
                                 ;
 
-                                applySpellMod(ref totalCooldown);
+                                ApplySpellMod(ref totalCooldown);
 
                                 var cooldownMod = player.GetTotalAuraModifier(AuraType.ModCooldown);
 
@@ -104,7 +104,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
                                     totalCooldown += TimeSpan.FromMilliseconds(cooldownMod);
 
                                 if (!spellInfo.HasAttribute(SpellAttr6.NoCategoryCooldownMods))
-                                    applySpellMod(ref categoryCooldown);
+                                    ApplySpellMod(ref categoryCooldown);
 
                                 return remainingCooldown > TimeSpan.Zero && !pair.Value.OnHold && totalCooldown < TimeSpan.FromMinutes(10) && categoryCooldown < TimeSpan.FromMinutes(10) && remainingCooldown < TimeSpan.FromMinutes(10) && (onStartDuel ? totalCooldown - remainingCooldown > TimeSpan.FromSeconds(30) : true) && (onStartDuel ? categoryCooldown - remainingCooldown > TimeSpan.FromSeconds(30) : true);
                             },

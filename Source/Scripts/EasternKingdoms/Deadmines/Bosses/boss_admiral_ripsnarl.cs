@@ -3,17 +3,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.Bosses;
 
 [CreatureScript(47626)]
-public class boss_admiral_ripsnarl : BossAI
+public class BossAdmiralRipsnarl : BossAI
 {
     public static readonly Position CookieSpawn = new(-88.1319f, -819.33f, 39.23453f, 0.0f);
 
@@ -27,12 +29,12 @@ public class boss_admiral_ripsnarl : BossAI
     private uint _phase;
     private uint _numberCastCoalesce;
 
-    private bool _below_10;
-    private bool _below_25;
-    private bool _below_50;
-    private bool _below_75;
+    private bool _below10;
+    private bool _below25;
+    private bool _below50;
+    private bool _below75;
 
-    public boss_admiral_ripsnarl(Creature creature) : base(creature, DMData.DATA_RIPSNARL) { }
+    public BossAdmiralRipsnarl(Creature creature) : base(creature, DmData.DATA_RIPSNARL) { }
 
     public override void Reset()
     {
@@ -48,10 +50,10 @@ public class boss_admiral_ripsnarl : BossAI
         RemoveAuraFromMap();
         SetFog(false);
 
-        _below_10 = false;
-        _below_25 = false;
-        _below_50 = false;
-        _below_75 = false;
+        _below10 = false;
+        _below25 = false;
+        _below50 = false;
+        _below75 = false;
         _numberCastCoalesce = 0;
         _phase = AdmiralPhases.PHASE_NORMAL;
     }
@@ -106,19 +108,19 @@ public class boss_admiral_ripsnarl : BossAI
         Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
         RemoveAuraFromMap();
         RemoveFog();
-        Me.SummonCreature(DMCreatures.NPC_CAPTAIN_COOKIE, CookieSpawn);
+        Me.SummonCreature(DmCreatures.NPC_CAPTAIN_COOKIE, CookieSpawn);
     }
 
     public override void SetData(uint uiI, uint uiValue)
     {
-        if (uiValue == eAchievementMisc.VAPOR_CASTED_COALESCE && _numberCastCoalesce < 3)
+        if (uiValue == EAchievementMisc.VAPOR_CASTED_COALESCE && _numberCastCoalesce < 3)
         {
             _numberCastCoalesce++;
 
             if (_numberCastCoalesce >= 3)
             {
                 var map = Me.Map;
-                var its_frost_damage = Global.AchievementMgr.GetAchievementByReferencedId(eAchievementMisc.ACHIEVEMENT_ITS_FROST_DAMAGE).FirstOrDefault();
+                var itsFrostDamage = Global.AchievementMgr.GetAchievementByReferencedId(EAchievementMisc.ACHIEVEMENT_ITS_FROST_DAMAGE).FirstOrDefault();
 
                 if (map != null && map.IsDungeon && map.DifficultyID == Difficulty.Heroic)
                 {
@@ -128,7 +130,7 @@ public class boss_admiral_ripsnarl : BossAI
                         foreach (var player in map.Players)
                             if (player != null)
                                 if (player.GetDistance(Me) < 300.0f)
-                                    player.CompletedAchievement(its_frost_damage);
+                                    player.CompletedAchievement(itsFrostDamage);
                 }
             }
         }
@@ -162,7 +164,7 @@ public class boss_admiral_ripsnarl : BossAI
         Cell.VisitGrid(Me, searcher, 150f);
 
         foreach (var item in players)
-            item.RemoveAura(eSpells.FOG_AURA);
+            item.RemoveAura(ESpells.FOG_AURA);
     }
 
     public void RemoveAuraFromMap()
@@ -176,7 +178,7 @@ public class boss_admiral_ripsnarl : BossAI
     public void SummonFinalVapors()
     {
         for (byte i = 0; i < 3; ++i)
-            Me.SummonCreature(DMCreatures.NPC_VAPOR, VaporFinalSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+            Me.SummonCreature(DmCreatures.NPC_VAPOR, VaporFinalSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
     }
 
     public override void UpdateAI(uint uiDiff)
@@ -191,33 +193,33 @@ public class boss_admiral_ripsnarl : BossAI
 
         Events.Update(uiDiff);
 
-        if (Me.HealthPct < 75 && !_below_75)
+        if (Me.HealthPct < 75 && !_below75)
         {
             Talk(Says.SAY_FOG_1);
 
             SetFog(true);
             Events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(1000));
             Events.ScheduleEvent(BossEvents.EVENT_UPDATE_FOG, TimeSpan.FromMilliseconds(100));
-            _below_75 = true;
+            _below75 = true;
         }
-        else if (Me.HealthPct < 50 && !_below_50)
+        else if (Me.HealthPct < 50 && !_below50)
         {
             Talk(Says.SAY_FOG_1);
             Events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
-            _below_50 = true;
+            _below50 = true;
         }
-        else if (Me.HealthPct < 25 && !_below_25)
+        else if (Me.HealthPct < 25 && !_below25)
         {
             Talk(Says.SAY_FOG_1);
             Events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
-            _below_25 = true;
+            _below25 = true;
         }
-        else if (Me.HealthPct < 10 && !_below_10)
+        else if (Me.HealthPct < 10 && !_below10)
         {
             if (IsHeroic())
             {
                 SummonFinalVapors();
-                _below_10 = true;
+                _below10 = true;
             }
         }
 
@@ -231,14 +233,14 @@ public class boss_admiral_ripsnarl : BossAI
                     var victim = Me.Victim;
 
                     if (victim != null)
-                        Me.CastSpell(victim, IsHeroic() ? eSpells.SWIPE_H : eSpells.SWIPE);
+                        Me.SpellFactory.CastSpell(victim, IsHeroic() ? ESpells.SWIPE_H : ESpells.SWIPE);
 
                     Events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(3000));
 
                     break;
 
                 case BossEvents.EVENT_UPDATE_FOG:
-                    Instance.DoCastSpellOnPlayers(eSpells.FOG_AURA);
+                    Instance.DoCastSpellOnPlayers(ESpells.FOG_AURA);
 
                     break;
 
@@ -246,21 +248,21 @@ public class boss_admiral_ripsnarl : BossAI
                     var target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
                     if (target != null)
-                        DoCast(target, eSpells.GO_FOR_THE_THROAT);
+                        DoCast(target, ESpells.GO_FOR_THE_THROAT);
 
                     Events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(10000));
 
                     break;
 
                 case BossEvents.EVENT_THIRST_FOR_BLOOD:
-                    DoCast(Me, eSpells.THIRST_FOR_BLOOD);
+                    DoCast(Me, ESpells.THIRST_FOR_BLOOD);
 
                     break;
 
                 case BossEvents.EVENT_PHASE_TWO:
                     Events.CancelEvent(BossEvents.EVENT_GO_FOR_THROAT);
                     Events.CancelEvent(BossEvents.EVENT_SWIPE);
-                    Me.RemoveAura(eSpells.THIRST_FOR_BLOOD);
+                    Me.RemoveAura(ESpells.THIRST_FOR_BLOOD);
                     Me.SetVisible(false);
                     Events.ScheduleEvent(BossEvents.EVENT_FLEE_TO_FROG, TimeSpan.FromMilliseconds(100));
 
@@ -275,7 +277,7 @@ public class boss_admiral_ripsnarl : BossAI
                         if (victim2 != null)
                         {
                             Talk(Says.SAY_1);
-                            Me.CastSpell(victim2, eSpells.GO_FOR_THE_THROAT);
+                            Me.SpellFactory.CastSpell(victim2, ESpells.GO_FOR_THE_THROAT);
                         }
                     }
 
@@ -306,7 +308,7 @@ public class boss_admiral_ripsnarl : BossAI
                         var target1 = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                         if (target1 != null)
-                            Me.CastSpell(target1, eSpells.SUMMON_VAPOR);
+                            Me.SpellFactory.CastSpell(target1, ESpells.SUMMON_VAPOR);
                     }
 
                     Events.RescheduleEvent(BossEvents.EVENT_SUMMON_VAPOR, TimeSpan.FromMilliseconds(3500));
@@ -318,7 +320,7 @@ public class boss_admiral_ripsnarl : BossAI
         }
     }
 
-    public struct eSpells
+    public struct ESpells
     {
         public const uint GO_FOR_THE_THROAT = 88836;
         public const uint GO_FOR_THE_THROAT_H = 91863;
@@ -340,7 +342,7 @@ public class boss_admiral_ripsnarl : BossAI
         public const uint CONDENSING_VAPOR = 92008;
     }
 
-    public struct eAchievementMisc
+    public struct EAchievementMisc
     {
         public const uint ACHIEVEMENT_ITS_FROST_DAMAGE = 5369;
         public const uint VAPOR_CASTED_COALESCE = 1;

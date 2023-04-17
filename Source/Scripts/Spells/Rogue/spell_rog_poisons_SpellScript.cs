@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
@@ -11,16 +11,16 @@ namespace Scripts.Spells.Rogue;
 {
     3409, 8679, 108211
 })]
-public class spell_rog_poisons_SpellScript : SpellScript, ISpellBeforeHit
+public class SpellRogPoisonsSpellScript : SpellScript, ISpellBeforeHit
 {
     public void BeforeHit(SpellMissInfo missInfo)
     {
         if (missInfo != SpellMissInfo.None)
             return;
 
-        var _player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-        if (_player != null)
+        if (player != null)
             RemovePreviousPoisons();
     }
 
@@ -30,26 +30,26 @@ public class spell_rog_poisons_SpellScript : SpellScript, ISpellBeforeHit
 
         if (plr != null)
         {
-            if (plr.HasAura(ePoisons.WoundPoison))
-                plr.RemoveAura(ePoisons.WoundPoison);
+            if (plr.HasAura(EPoisons.WoundPoison))
+                plr.RemoveAura(EPoisons.WoundPoison);
 
-            if (plr.HasAura(ePoisons.MindNumbingPoison))
-                plr.RemoveAura(ePoisons.MindNumbingPoison);
+            if (plr.HasAura(EPoisons.MindNumbingPoison))
+                plr.RemoveAura(EPoisons.MindNumbingPoison);
 
-            if (plr.HasAura(ePoisons.CripplingPoison))
-                plr.RemoveAura(ePoisons.CripplingPoison);
+            if (plr.HasAura(EPoisons.CripplingPoison))
+                plr.RemoveAura(EPoisons.CripplingPoison);
 
-            if (plr.HasAura(ePoisons.LeechingPoison))
-                plr.RemoveAura(ePoisons.LeechingPoison);
+            if (plr.HasAura(EPoisons.LeechingPoison))
+                plr.RemoveAura(EPoisons.LeechingPoison);
 
-            if (plr.HasAura(ePoisons.ParalyticPoison))
-                plr.RemoveAura(ePoisons.ParalyticPoison);
+            if (plr.HasAura(EPoisons.ParalyticPoison))
+                plr.RemoveAura(EPoisons.ParalyticPoison);
 
-            if (plr.HasAura(ePoisons.DeadlyPoison))
-                plr.RemoveAura(ePoisons.DeadlyPoison);
+            if (plr.HasAura(EPoisons.DeadlyPoison))
+                plr.RemoveAura(EPoisons.DeadlyPoison);
 
-            if (plr.HasAura(ePoisons.InstantPoison))
-                plr.RemoveAura(ePoisons.InstantPoison);
+            if (plr.HasAura(EPoisons.InstantPoison))
+                plr.RemoveAura(EPoisons.InstantPoison);
         }
     }
 }

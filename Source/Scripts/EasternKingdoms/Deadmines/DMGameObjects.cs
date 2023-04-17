@@ -3,7 +3,7 @@
 
 namespace Scripts.EasternKingdoms.Deadmines;
 
-public static class DMGameObjects
+public static class DmGameObjects
 {
     public const uint GO_FACTORY_DOOR = 13965;     // Door after Glubtok
     public const uint GO_IRONCLAD_DOOR = 16397;    // Door before ship

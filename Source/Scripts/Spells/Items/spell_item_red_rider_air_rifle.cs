@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
+internal class SpellItemRedRiderAirRifle : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,7 +28,7 @@ internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
 
         if (target)
         {
-            caster.CastSpell(caster, ItemSpellIds.AirRifleHoldVisual, true);
+            caster.SpellFactory.CastSpell(caster, ItemSpellIds.AIR_RIFLE_HOLD_VISUAL, true);
             // needed because this spell shares GCD with its triggered spells (which must not be cast with triggered flag)
             var player = caster.AsPlayer;
 
@@ -35,9 +36,9 @@ internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
                 player.SpellHistory.CancelGlobalCooldown(SpellInfo);
 
             if (RandomHelper.URand(0, 4) != 0)
-                caster.CastSpell(target, ItemSpellIds.AirRifleShoot, false);
+                caster.SpellFactory.CastSpell(target, ItemSpellIds.AIR_RIFLE_SHOOT, false);
             else
-                caster.CastSpell(caster, ItemSpellIds.AirRifleShootSelf, false);
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.AIR_RIFLE_SHOOT_SELF, false);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace Scripts.Spells.Generic;
 internal struct EmoteIds
 {
     //FuriousRage
-    public const uint FuriousRage = 19415;
-    public const uint Exhausted = 18368;
+    public const uint FURIOUS_RAGE = 19415;
+    public const uint EXHAUSTED = 18368;
 }

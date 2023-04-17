@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
+internal class SpellGenTournamentDuel : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,9 +30,9 @@ internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
 
             if (playerTarget)
             {
-                if (playerTarget.HasAura(GenericSpellIds.OnTournamentMount) &&
+                if (playerTarget.HasAura(GenericSpellIds.ON_TOURNAMENT_MOUNT) &&
                     playerTarget.VehicleBase)
-                    rider.CastSpell(playerTarget, GenericSpellIds.MountedDuel, true);
+                    rider.SpellFactory.CastSpell(playerTarget, GenericSpellIds.MOUNTED_DUEL, true);
 
                 return;
             }
@@ -41,8 +42,8 @@ internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
             if (unitTarget)
                 if (unitTarget.Charmer &&
                     unitTarget.Charmer.IsTypeId(TypeId.Player) &&
-                    unitTarget.Charmer.HasAura(GenericSpellIds.OnTournamentMount))
-                    rider.CastSpell(unitTarget.Charmer, GenericSpellIds.MountedDuel, true);
+                    unitTarget.Charmer.HasAura(GenericSpellIds.ON_TOURNAMENT_MOUNT))
+                    rider.SpellFactory.CastSpell(unitTarget.Charmer, GenericSpellIds.MOUNTED_DUEL, true);
         }
     }
 }

@@ -2,16 +2,20 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Deadmines.Bosses;
 
-[CreatureScript(DMCreatures.NPC_VANESSA_BOSS)]
-public class boss_vanessa_vancleef : BossAI
+[CreatureScript(DmCreatures.NPC_VANESSA_BOSS)]
+public class BossVanessaVancleef : BossAI
 {
     public const string COMBAT_START = "I will not share my father''s fate!  Your tale ends here!";
     public const string FOOLS_BOMB = "Fools! This entire ship is rigged with explosives! Enjoy your fiery deaths!";
@@ -71,7 +75,7 @@ public class boss_vanessa_vancleef : BossAI
     public Player PlayerGUID;
 
 
-    public boss_vanessa_vancleef(Creature creature) : base(creature, DMData.DATA_VANESSA) { }
+    public BossVanessaVancleef(Creature creature) : base(creature, DmData.DATA_VANESSA) { }
 
     public override void Reset()
     {
@@ -85,10 +89,10 @@ public class boss_vanessa_vancleef : BossAI
 
     public override void JustEnteredCombat(Unit who)
     {
-        var controller_achi = Me.FindNearestCreature(eAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
+        var controllerAchi = Me.FindNearestCreature(EAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
 
-        if (controller_achi != null)
-            controller_achi.AI.SetData(0, eAchievementMisc.ACHIEVEMENT_READY_GET);
+        if (controllerAchi != null)
+            controllerAchi.AI.SetData(0, EAchievementMisc.ACHIEVEMENT_READY_GET);
 
         Events.ScheduleEvent(BossEvents.EVENT_DEADLY_BLADES, TimeSpan.FromMilliseconds(12000));
         Events.ScheduleEvent(BossEvents.EVENT_DEFLECTION, TimeSpan.FromMilliseconds(10000));
@@ -116,9 +120,9 @@ public class boss_vanessa_vancleef : BossAI
     {
         switch (summon.Entry)
         {
-            case DMCreatures.NPC_ROPE:
+            case DmCreatures.NPC_ROPE:
                 Summons.Summon(summon);
-                summon.SummonCreature(DMCreatures.NPC_ROPE_ANCHOR, summon.Location.X, summon.Location.Y, summon.Location.Z + 40.0f, 0, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(10000));
+                summon.SummonCreature(DmCreatures.NPC_ROPE_ANCHOR, summon.Location.X, summon.Location.Y, summon.Location.Z + 40.0f, 0, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(10000));
 
                 break;
         }
@@ -130,7 +134,7 @@ public class boss_vanessa_vancleef : BossAI
     {
         switch (summon.Entry)
         {
-            case DMCreatures.NPC_ROPE:
+            case DmCreatures.NPC_ROPE:
                 Summons.Despawn(summon);
 
                 break;
@@ -139,7 +143,7 @@ public class boss_vanessa_vancleef : BossAI
         Summons.Despawn(summon);
     }
 
-    public override void MovementInform(MovementGeneratorType UnnamedParameter, uint id)
+    public override void MovementInform(MovementGeneratorType unnamedParameter, uint id)
     {
         if (id == 0)
             DoCast(Me, 18373);
@@ -153,7 +157,7 @@ public class boss_vanessa_vancleef : BossAI
         //{
         //    if (item.IsAlive() && item.GetTypeId() == TypeId.Unit)
         //    {
-        //        item.CastSpell(item, Spells.FIERY_BLAZE, true);
+        //        item.SpellFactory.CastSpell(item, Spells.FIERY_BLAZE, true);
         //    }
         //}
     }
@@ -171,9 +175,9 @@ public class boss_vanessa_vancleef : BossAI
         //}
     }
 
-    public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+    public override void DamageTaken(Unit doneBy, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
-        var player = done_by.AsPlayer;
+        var player = doneBy.AsPlayer;
 
         if (player != null)
             PlayerGUID = player;
@@ -189,7 +193,7 @@ public class boss_vanessa_vancleef : BossAI
                 Me.RemoveAllAuras();
                 Me.AttackStop();
                 Me.ClearAllReactives();
-                Me.CastSpell(Me, 18373, true);
+                Me.SpellFactory.CastSpell(Me, 18373, true);
             }
 
             Killed = true;
@@ -230,7 +234,7 @@ public class boss_vanessa_vancleef : BossAI
     public void SummonRopes()
     {
         for (byte i = 0; i < 5; ++i)
-            Me.SummonCreature(DMCreatures.NPC_ROPE, RopeSpawn[i], TempSummonType.ManualDespawn);
+            Me.SummonCreature(DmCreatures.NPC_ROPE, RopeSpawn[i], TempSummonType.ManualDespawn);
     }
 
     public void RopeReady()
@@ -273,7 +277,7 @@ public class boss_vanessa_vancleef : BossAI
                 case BossEvents.EVENT_SUMMON_ADD_1:
                     if ((Me.Health * 100) / Me.MaxHealth > 50)
                     {
-                        Me.SummonCreature(DMCreatures.NPC_DEFIAS_ENFORCER, Shadowspawn[1], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+                        Me.SummonCreature(DmCreatures.NPC_DEFIAS_ENFORCER, Shadowspawn[1], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
                         Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_2, TimeSpan.FromMilliseconds(15000));
                     }
 
@@ -281,7 +285,7 @@ public class boss_vanessa_vancleef : BossAI
                 case BossEvents.EVENT_SUMMON_ADD_2:
                     if ((Me.Health * 100) / Me.MaxHealth > 50)
                     {
-                        Me.SummonCreature(DMCreatures.NPC_DEFIAS_SHADOWGUARD, Shadowspawn[0], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+                        Me.SummonCreature(DmCreatures.NPC_DEFIAS_SHADOWGUARD, Shadowspawn[0], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
                         Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_3, TimeSpan.FromMilliseconds(15000));
                     }
 
@@ -289,7 +293,7 @@ public class boss_vanessa_vancleef : BossAI
                 case BossEvents.EVENT_SUMMON_ADD_3:
                     if ((Me.Health * 100) / Me.MaxHealth > 50)
                     {
-                        Me.SummonCreature(DMCreatures.NPC_DEFIAS_BLOODWIZARD, Shadowspawn[2], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+                        Me.SummonCreature(DmCreatures.NPC_DEFIAS_BLOODWIZARD, Shadowspawn[2], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
                         Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_1, TimeSpan.FromMilliseconds(15000));
                     }
 
@@ -352,7 +356,7 @@ public class boss_vanessa_vancleef : BossAI
                     //}
                     break;
                 case BossEvents.EVENT_FINAL_TIMER:
-                    Me.CastSpell(Me, Spells.POWDER_EXP, true);
+                    Me.SpellFactory.CastSpell(Me, Spells.POWDER_EXP, true);
                     Me.AttackStop();
                     Me.ClearAllReactives();
                     Unit.Kill(Me, Me, false);
@@ -412,7 +416,7 @@ public class boss_vanessa_vancleef : BossAI
         public const uint SPRINT = 92604;
     }
 
-    public struct eAchievementMisc
+    public struct EAchievementMisc
     {
         public const uint ACHIEVEMENT_VIGOROUS_VANCLEEF_VINDICATOR = 5371;
         public const uint NPC_ACHIEVEMENT_CONTROLLER = 51624;

@@ -2,19 +2,20 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.GeneralAngerforge;
 
 internal struct SpellIds
 {
-    public const uint Mightyblow = 14099;
-    public const uint Hamstring = 9080;
-    public const uint Cleave = 20691;
+    public const uint MIGHTYBLOW = 14099;
+    public const uint HAMSTRING = 9080;
+    public const uint CLEAVE = 20691;
 }
 
 internal enum Phases
@@ -24,11 +25,11 @@ internal enum Phases
 }
 
 [Script]
-internal class boss_general_angerforge : ScriptedAI
+internal class BossGeneralAngerforge : ScriptedAI
 {
-    private Phases phase;
+    private Phases _phase;
 
-    public boss_general_angerforge(Creature creature) : base(creature) { }
+    public BossGeneralAngerforge(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -37,26 +38,26 @@ internal class boss_general_angerforge : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        phase = Phases.One;
+        _phase = Phases.One;
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Mightyblow);
+                               DoCastVictim(SpellIds.MIGHTYBLOW);
                                task.Repeat(TimeSpan.FromSeconds(18));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Hamstring);
+                               DoCastVictim(SpellIds.HAMSTRING);
                                task.Repeat(TimeSpan.FromSeconds(15));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(16),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Cleave);
+                               DoCastVictim(SpellIds.CLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(9));
                            });
     }
@@ -64,9 +65,9 @@ internal class boss_general_angerforge : ScriptedAI
     public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (Me.HealthBelowPctDamaged(20, damage) &&
-            phase == Phases.One)
+            _phase == Phases.One)
         {
-            phase = Phases.Two;
+            _phase = Phases.Two;
 
             Scheduler.Schedule(TimeSpan.FromSeconds(0),
                                task =>
@@ -96,17 +97,17 @@ internal class boss_general_angerforge : ScriptedAI
 
     private void SummonAdd(Unit victim)
     {
-        var SummonedAdd = DoSpawnCreature(8901, RandomHelper.IRand(-14, 14), RandomHelper.IRand(-14, 14), 0, 0, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromSeconds(120));
+        var summonedAdd = DoSpawnCreature(8901, RandomHelper.IRand(-14, 14), RandomHelper.IRand(-14, 14), 0, 0, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromSeconds(120));
 
-        if (SummonedAdd)
-            SummonedAdd.AI.AttackStart(victim);
+        if (summonedAdd)
+            summonedAdd.AI.AttackStart(victim);
     }
 
     private void SummonMedic(Unit victim)
     {
-        var SummonedMedic = DoSpawnCreature(8894, RandomHelper.IRand(-9, 9), RandomHelper.IRand(-9, 9), 0, 0, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromSeconds(120));
+        var summonedMedic = DoSpawnCreature(8894, RandomHelper.IRand(-9, 9), RandomHelper.IRand(-9, 9), 0, 0, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromSeconds(120));
 
-        if (SummonedMedic)
-            SummonedMedic.AI.AttackStart(victim);
+        if (summonedMedic)
+            summonedMedic.AI.AttackStart(victim);
     }
 }

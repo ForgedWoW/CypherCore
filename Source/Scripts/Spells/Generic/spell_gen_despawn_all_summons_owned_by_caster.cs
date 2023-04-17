@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 160938 - Despawn All Summons (Garrison Intro Only)
-internal class spell_gen_despawn_all_summons_owned_by_caster : SpellScript, IHasSpellEffects
+internal class SpellGenDespawnAllSummonsOwnedByCaster : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

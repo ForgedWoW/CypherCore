@@ -2,49 +2,50 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockCaverns.Corla;
 
 internal struct SpellIds
 {
-    public const uint Evolution = 75610;
-    public const uint DrainEssense = 75645;
-    public const uint ShadowPower = 35322;
-    public const uint HShadowPower = 39193;
+    public const uint EVOLUTION = 75610;
+    public const uint DRAIN_ESSENSE = 75645;
+    public const uint SHADOW_POWER = 35322;
+    public const uint H_SHADOW_POWER = 39193;
 }
 
 internal struct TextIds
 {
-    public const uint YellAggro = 0;
-    public const uint YellKill = 1;
-    public const uint YellEvolvedZealot = 2;
-    public const uint YellDeath = 3;
+    public const uint YELL_AGGRO = 0;
+    public const uint YELL_KILL = 1;
+    public const uint YELL_EVOLVED_ZEALOT = 2;
+    public const uint YELL_DEATH = 3;
 
-    public const uint EmoteEvolvedZealot = 4;
+    public const uint EMOTE_EVOLVED_ZEALOT = 4;
 }
 
 [Script]
-internal class boss_corla : BossAI
+internal class BossCorla : BossAI
 {
-    private bool combatPhase;
+    private bool _combatPhase;
 
-    public boss_corla(Creature creature) : base(creature, DataTypes.Corla) { }
+    public BossCorla(Creature creature) : base(creature, DataTypes.CORLA) { }
 
     public override void Reset()
     {
         _Reset();
-        combatPhase = false;
+        _combatPhase = false;
 
-        Scheduler.SetValidator(() => !combatPhase);
+        Scheduler.SetValidator(() => !_combatPhase);
 
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            drainTask =>
                            {
-                               DoCast(Me, SpellIds.DrainEssense);
+                               DoCast(Me, SpellIds.DRAIN_ESSENSE);
 
                                drainTask.Schedule(TimeSpan.FromSeconds(15),
                                                   stopDrainTask =>
@@ -54,7 +55,7 @@ internal class boss_corla : BossAI
                                                       stopDrainTask.Schedule(TimeSpan.FromSeconds(2),
                                                                              evolutionTask =>
                                                                              {
-                                                                                 DoCast(Me, SpellIds.Evolution);
+                                                                                 DoCast(Me, SpellIds.EVOLUTION);
                                                                                  drainTask.Repeat(TimeSpan.FromSeconds(2));
                                                                              });
                                                   });
@@ -64,21 +65,21 @@ internal class boss_corla : BossAI
     public override void JustEngagedWith(Unit who)
     {
         base.JustEngagedWith(who);
-        Talk(TextIds.YellAggro);
+        Talk(TextIds.YELL_AGGRO);
         Scheduler.CancelAll();
-        combatPhase = true;
+        _combatPhase = true;
     }
 
     public override void KilledUnit(Unit who)
     {
         if (who.IsPlayer)
-            Talk(TextIds.YellKill);
+            Talk(TextIds.YELL_KILL);
     }
 
     public override void JustDied(Unit killer)
     {
         _JustDied();
-        Talk(TextIds.YellDeath);
+        Talk(TextIds.YELL_DEATH);
     }
 
     public override void UpdateAI(uint diff)

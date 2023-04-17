@@ -2,29 +2,30 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.UrokDoomhowl;
 
 internal struct SpellIds
 {
-    public const uint Rend = 16509;
-    public const uint Strike = 15580;
-    public const uint IntimidatingRoar = 16508;
+    public const uint REND = 16509;
+    public const uint STRIKE = 15580;
+    public const uint INTIMIDATING_ROAR = 16508;
 }
 
 internal struct TextIds
 {
-    public const uint SaySummon = 0;
-    public const uint SayAggro = 1;
+    public const uint SAY_SUMMON = 0;
+    public const uint SAY_AGGRO = 1;
 }
 
 [Script]
-internal class boss_urok_doomhowl : BossAI
+internal class BossUrokDoomhowl : BossAI
 {
-    public boss_urok_doomhowl(Creature creature) : base(creature, DataTypes.UrokDoomhowl) { }
+    public BossUrokDoomhowl(Creature creature) : base(creature, DataTypes.UROK_DOOMHOWL) { }
 
     public override void Reset()
     {
@@ -39,7 +40,7 @@ internal class boss_urok_doomhowl : BossAI
                            TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Rend);
+                               DoCastVictim(SpellIds.REND);
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
                            });
 
@@ -47,11 +48,11 @@ internal class boss_urok_doomhowl : BossAI
                            TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Strike);
+                               DoCastVictim(SpellIds.STRIKE);
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
                            });
 
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
     }
 
     public override void JustDied(Unit killer)

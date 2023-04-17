@@ -2,31 +2,32 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Garr;
 
 internal struct SpellIds
 {
     // Garr
-    public const uint AntimagicPulse = 19492;
-    public const uint MagmaShackles = 19496;
-    public const uint Enrage = 19516;
-    public const uint SeparationAnxiety = 23492;
+    public const uint ANTIMAGIC_PULSE = 19492;
+    public const uint MAGMA_SHACKLES = 19496;
+    public const uint ENRAGE = 19516;
+    public const uint SEPARATION_ANXIETY = 23492;
 
     // Adds
-    public const uint Eruption = 19497;
-    public const uint Immolate = 15732;
+    public const uint ERUPTION = 19497;
+    public const uint IMMOLATE = 15732;
 }
 
 [Script]
-internal class boss_garr : BossAI
+internal class BossGarr : BossAI
 {
-    public boss_garr(Creature creature) : base(creature, DataTypes.Garr) { }
+    public BossGarr(Creature creature) : base(creature, DataTypes.GARR) { }
 
     public override void JustEngagedWith(Unit victim)
     {
@@ -35,14 +36,14 @@ internal class boss_garr : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(25),
                            task =>
                            {
-                               DoCast(Me, SpellIds.AntimagicPulse);
+                               DoCast(Me, SpellIds.ANTIMAGIC_PULSE);
                                task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(15),
                            task =>
                            {
-                               DoCast(Me, SpellIds.MagmaShackles);
+                               DoCast(Me, SpellIds.MAGMA_SHACKLES);
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(12));
                            });
     }
@@ -57,9 +58,9 @@ internal class boss_garr : BossAI
 }
 
 [Script]
-internal class npc_firesworn : ScriptedAI
+internal class NPCFiresworn : ScriptedAI
 {
-    public npc_firesworn(Creature creature) : base(creature) { }
+    public NPCFiresworn(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -73,13 +74,13 @@ internal class npc_firesworn : ScriptedAI
 
     public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
-        var health10pct = Me.CountPctFromMaxHealth(10);
+        var health10Pct = Me.CountPctFromMaxHealth(10);
         var health = Me.Health;
 
-        if (health - damage < health10pct)
+        if (health - damage < health10Pct)
         {
             damage = 0;
-            DoCastVictim(SpellIds.Eruption);
+            DoCastVictim(SpellIds.ERUPTION);
             Me.DespawnOrUnsummon();
         }
     }
@@ -101,7 +102,7 @@ internal class npc_firesworn : ScriptedAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (target)
-                                   DoCast(target, SpellIds.Immolate);
+                                   DoCast(target, SpellIds.IMMOLATE);
 
                                task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10));
                            });
@@ -111,10 +112,10 @@ internal class npc_firesworn : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(3),
                            (Action<Framework.Dynamic.TaskContext>)(task =>
                                                                       {
-                                                                          if (!Me.FindNearestCreature(MCCreatureIds.Garr, 20.0f))
-                                                                              DoCastSelf(SpellIds.SeparationAnxiety);
-                                                                          else if (Me.HasAura(SpellIds.SeparationAnxiety))
-                                                                              Me.RemoveAura(SpellIds.SeparationAnxiety);
+                                                                          if (!Me.FindNearestCreature(McCreatureIds.GARR, 20.0f))
+                                                                              DoCastSelf(SpellIds.SEPARATION_ANXIETY);
+                                                                          else if (Me.HasAura(SpellIds.SEPARATION_ANXIETY))
+                                                                              Me.RemoveAura(SpellIds.SEPARATION_ANXIETY);
 
                                                                           task.Repeat();
                                                                       }));

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 46023 The Ultrasonic Screwdriver
-internal class spell_q11730_ultrasonic_screwdriver : SpellScript, IHasSpellEffects
+internal class SpellQ11730UltrasonicScrewdriver : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -37,32 +38,32 @@ internal class spell_q11730_ultrasonic_screwdriver : SpellScript, IHasSpellEffec
 
             switch (target.Entry)
             {
-                case CreatureIds.Scavengebot004a8:
-                    spellId = QuestSpellIds.SummonScavengebot004a8;
+                case CreatureIds.SCAVENGEBOT004_A8:
+                    spellId = QuestSpellIds.SUMMON_SCAVENGEBOT004_A8;
 
                     break;
-                case CreatureIds.Sentrybot57k:
-                    spellId = QuestSpellIds.SummonSentrybot57k;
+                case CreatureIds.SENTRYBOT57_K:
+                    spellId = QuestSpellIds.SUMMON_SENTRYBOT57_K;
 
                     break;
-                case CreatureIds.Defendotank66d:
-                    spellId = QuestSpellIds.SummonDefendotank66d;
+                case CreatureIds.DEFENDOTANK66D:
+                    spellId = QuestSpellIds.SUMMON_DEFENDOTANK66D;
 
                     break;
-                case CreatureIds.Scavengebot005b6:
-                    spellId = QuestSpellIds.SummonScavengebot005b6;
+                case CreatureIds.SCAVENGEBOT005_B6:
+                    spellId = QuestSpellIds.SUMMON_SCAVENGEBOT005_B6;
 
                     break;
-                case CreatureIds.Npc55dCollectatron:
-                    spellId = QuestSpellIds.Summon55dCollectatron;
+                case CreatureIds.NPC55D_COLLECTATRON:
+                    spellId = QuestSpellIds.SUMMON55D_COLLECTATRON;
 
                     break;
                 default:
                     return;
             }
 
-            caster.CastSpell(caster, spellId, new CastSpellExtraArgs(castItem));
-            caster.CastSpell(caster, QuestSpellIds.RobotKillCredit, true);
+            caster.SpellFactory.CastSpell(caster, spellId, new CastSpellExtraArgs(castItem));
+            caster.SpellFactory.CastSpell(caster, QuestSpellIds.ROBOT_KILL_CREDIT, true);
             target.DespawnOrUnsummon();
         }
     }

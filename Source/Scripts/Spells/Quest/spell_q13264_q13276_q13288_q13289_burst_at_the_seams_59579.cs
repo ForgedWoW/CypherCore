@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 59579 - Burst at the Seams
-internal class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : AuraScript, IHasAuraEffects
+internal class SpellQ13264Q13276Q13288Q13289BurstAtTheSeams59579 : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,12 +23,12 @@ internal class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : Aura
     private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         var target = Target;
-        target.CastSpell(target, QuestSpellIds.TrollExplosion, true);
-        target.CastSpell(target, QuestSpellIds.ExplodeAbominationMeat, true);
-        target.CastSpell(target, QuestSpellIds.ExplodeTrollMeat, true);
-        target.CastSpell(target, QuestSpellIds.ExplodeTrollMeat, true);
-        target.CastSpell(target, QuestSpellIds.ExplodeTrollBloodyMeat, true);
-        target.CastSpell(target, QuestSpellIds.BurstAtTheSeamsBone, true);
+        target.SpellFactory.CastSpell(target, QuestSpellIds.TROLL_EXPLOSION, true);
+        target.SpellFactory.CastSpell(target, QuestSpellIds.EXPLODE_ABOMINATION_MEAT, true);
+        target.SpellFactory.CastSpell(target, QuestSpellIds.EXPLODE_TROLL_MEAT, true);
+        target.SpellFactory.CastSpell(target, QuestSpellIds.EXPLODE_TROLL_MEAT, true);
+        target.SpellFactory.CastSpell(target, QuestSpellIds.EXPLODE_TROLL_BLOODY_MEAT, true);
+        target.SpellFactory.CastSpell(target, QuestSpellIds.BURST_AT_THE_SEAMS_BONE, true);
     }
 
     private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
@@ -39,20 +39,20 @@ internal class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : Aura
         if (caster != null)
             switch (target.Entry)
             {
-                case CreatureIds.IcyGhoul:
-                    target.CastSpell(caster, QuestSpellIds.AssignGhoulKillCreditToMaster, true);
+                case CreatureIds.ICY_GHOUL:
+                    target.SpellFactory.CastSpell(caster, QuestSpellIds.ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER, true);
 
                     break;
-                case CreatureIds.ViciousGeist:
-                    target.CastSpell(caster, QuestSpellIds.AssignGeistKillCreditToMaster, true);
+                case CreatureIds.VICIOUS_GEIST:
+                    target.SpellFactory.CastSpell(caster, QuestSpellIds.ASSIGN_GEIST_KILL_CREDIT_TO_MASTER, true);
 
                     break;
-                case CreatureIds.RisenAllianceSoldiers:
-                    target.CastSpell(caster, QuestSpellIds.AssignSkeletonKillCreditToMaster, true);
+                case CreatureIds.RISEN_ALLIANCE_SOLDIERS:
+                    target.SpellFactory.CastSpell(caster, QuestSpellIds.ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER, true);
 
                     break;
             }
 
-        target.CastSpell(target, QuestSpellIds.BurstAtTheSeams59580, true);
+        target.SpellFactory.CastSpell(target, QuestSpellIds.BURST_AT_THE_SEAMS59580, true);
     }
 }

@@ -1,16 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Movement;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.BLACK_DEEP_BREATH)]
-public class spell_evoker_deep_breath : SpellScript, ISpellOnCast, ISpellCheckCast
+public class SpellEvokerDeepBreath : SpellScript, ISpellOnCast, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {
@@ -49,6 +48,6 @@ public class spell_evoker_deep_breath : SpellScript, ISpellOnCast, ISpellCheckCa
 
     public void OnCast()
     {
-        Caster.CastSpell(Spell.Targets.DstPos, EvokerSpells.BLACK_DEEP_BREATH_EFFECT, true);
+        Caster.SpellFactory.CastSpell(Spell.Targets.DstPos, EvokerSpells.BLACK_DEEP_BREATH_EFFECT, true);
     }
 }

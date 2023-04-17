@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 45297 - Chain Lightning Overload
 [SpellScript(45297)]
-internal class spell_sha_chain_lightning_overload : SpellScript, IHasSpellEffects
+internal class SpellShaChainLightningOverload : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,12 +24,12 @@ internal class spell_sha_chain_lightning_overload : SpellScript, IHasSpellEffect
 
     private void HandleScript(int effIndex)
     {
-        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, 5);
+        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MAELSTROM_CONTROLLER, 5);
 
         if (energizeAmount != null)
             Caster
-                .CastSpell(Caster,
-                           ShamanSpells.ChainLightningOverloadEnergize,
+                .SpellFactory.CastSpell(Caster,
+                           ShamanSpells.CHAIN_LIGHTNING_OVERLOAD_ENERGIZE,
                            new CastSpellExtraArgs(energizeAmount)
                                .AddSpellMod(SpellValueMod.BasePoint0, (int)(energizeAmount.Amount * GetUnitTargetCountForEffect(0))));
     }

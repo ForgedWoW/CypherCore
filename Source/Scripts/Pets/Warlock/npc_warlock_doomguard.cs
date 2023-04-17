@@ -2,12 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
@@ -19,12 +20,12 @@ namespace Scripts.Pets
             11859, 59000
         })]
         // Doomguard - 11859, Terrorguard - 59000
-        public class npc_warlock_doomguard : SmartAI
+        public class NPCWarlockDoomguard : SmartAI
         {
-            public EventMap events = new();
-            public double maxDistance;
+            public EventMap Events = new();
+            public double MaxDistance;
 
-            public npc_warlock_doomguard(Creature creature) : base(creature)
+            public NPCWarlockDoomguard(Creature creature) : base(creature)
             {
                 if (!Me.TryGetOwner(out Player owner))
                     return;
@@ -52,11 +53,11 @@ namespace Scripts.Pets
                 Me.SetMaxPower(PowerType.Energy, 200);
                 Me.SetPower(PowerType.Energy, 200);
 
-                events.Reset();
-                events.ScheduleEvent(1, TimeSpan.FromSeconds(3));
+                Events.Reset();
+                Events.ScheduleEvent(1, TimeSpan.FromSeconds(3));
 
                 Me.SetControlled(true, UnitState.Root);
-                maxDistance = SpellManager.Instance.GetSpellInfo(WarlockSpells.PET_DOOMBOLT, Difficulty.None).RangeEntry.RangeMax[0];
+                MaxDistance = SpellManager.Instance.GetSpellInfo(WarlockSpells.PET_DOOMBOLT, Difficulty.None).RangeEntry.RangeMax[0];
             }
 
             public override void UpdateAI(uint diff)
@@ -72,9 +73,9 @@ namespace Scripts.Pets
                         Me.Attack(victim, false);
                 }
 
-                events.Update(diff);
+                Events.Update(diff);
 
-                var eventId = events.ExecuteEvent();
+                var eventId = Events.ExecuteEvent();
 
                 while (eventId != 0)
                 {
@@ -84,19 +85,19 @@ namespace Scripts.Pets
                             if (!Me.Victim)
                             {
                                 Me.SetControlled(false, UnitState.Root);
-                                events.ScheduleEvent(eventId, TimeSpan.FromSeconds(1));
+                                Events.ScheduleEvent(eventId, TimeSpan.FromSeconds(1));
 
                                 return;
                             }
 
                             Me.SetControlled(true, UnitState.Root);
-                            Me.CastSpell(Me.Victim, WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(Me.OwnerGUID));
-                            events.ScheduleEvent(eventId, TimeSpan.FromSeconds(3));
+                            Me.SpellFactory.CastSpell(Me.Victim, WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(Me.OwnerGUID));
+                            Events.ScheduleEvent(eventId, TimeSpan.FromSeconds(3));
 
                             break;
                     }
 
-                    eventId = events.ExecuteEvent();
+                    eventId = Events.ExecuteEvent();
                 }
             }
         }

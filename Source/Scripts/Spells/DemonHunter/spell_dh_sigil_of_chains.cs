@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script] // 208673 - Sigil of Chains
-internal class spell_dh_sigil_of_chains : SpellScript, IHasSpellEffects
+internal class SpellDhSigilOfChains : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,8 +27,8 @@ internal class spell_dh_sigil_of_chains : SpellScript, IHasSpellEffects
 
         if (loc != null)
         {
-            Caster.CastSpell(HitUnit, DemonHunterSpells.SigilOfChainsSlow, new CastSpellExtraArgs(true));
-            HitUnit.CastSpell(loc, DemonHunterSpells.SigilOfChainsGrip, new CastSpellExtraArgs(true));
+            Caster.SpellFactory.CastSpell(HitUnit, DemonHunterSpells.SigilOfChainsSlow, new CastSpellExtraArgs(true));
+            HitUnit.SpellFactory.CastSpell(loc, DemonHunterSpells.SIGIL_OF_CHAINS_GRIP, new CastSpellExtraArgs(true));
         }
     }
 }

@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 88766 - Fulmination
 [SpellScript(88766)]
-public class spell_sha_fulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellShaFulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -53,21 +54,21 @@ public class spell_sha_fulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
                     damage = caster.SpellDamageBonusDone(target, triggerSpell, triggerEffect.CalcValue(caster), DamageEffectType.SpellDirect, triggerEffect, stacks - 1);
                     damage = target.SpellDamageBonusTaken(caster, triggerSpell, damage, DamageEffectType.SpellDirect);
 
-                    caster.CastSpell(target, ShamanSpells.FULMINATION, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)(int)damage));
+                    caster.SpellFactory.CastSpell(target, ShamanSpells.FULMINATION, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)(int)damage));
                     caster.RemoveAura(ShamanSpells.FULMINATION_INFO);
 
-                    var t18_4p = caster.GetAuraEffect(ShamanSpells.ITEM_T18_ELEMENTAL_4P_BONUS, 0);
+                    var t184P = caster.GetAuraEffect(ShamanSpells.ITEM_T18_ELEMENTAL_4_P_BONUS, 0);
 
-                    if (t18_4p != null)
+                    if (t184P != null)
                     {
                         var gatheringVortex = caster.GetAura(ShamanSpells.ITEM_T18_GATHERING_VORTEX);
 
                         if (gatheringVortex != null)
                         {
-                            if (gatheringVortex.StackAmount + stacks >= (uint)t18_4p.Amount)
-                                caster.CastSpell(caster, ShamanSpells.ITEM_T18_LIGHTNING_VORTEX, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+                            if (gatheringVortex.StackAmount + stacks >= (uint)t184P.Amount)
+                                caster.SpellFactory.CastSpell(caster, ShamanSpells.ITEM_T18_LIGHTNING_VORTEX, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-                            var newStacks = (byte)((gatheringVortex.StackAmount + stacks) % t18_4p.Amount);
+                            var newStacks = (byte)((gatheringVortex.StackAmount + stacks) % t184P.Amount);
 
                             if (newStacks != 0)
                                 gatheringVortex.SetStackAmount(newStacks);
@@ -76,14 +77,14 @@ public class spell_sha_fulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
                         }
                         else
                         {
-                            caster.CastSpell(caster, ShamanSpells.ITEM_T18_GATHERING_VORTEX, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, (int)stacks));
+                            caster.SpellFactory.CastSpell(caster, ShamanSpells.ITEM_T18_GATHERING_VORTEX, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, (int)stacks));
                         }
                     }
 
-                    var t18_2p = caster.GetAuraEffect(ShamanSpells.ITEM_T18_ELEMENTAL_2P_BONUS, 0);
+                    var t182P = caster.GetAuraEffect(ShamanSpells.ITEM_T18_ELEMENTAL_2_P_BONUS, 0);
 
-                    if (t18_2p != null)
-                        if (RandomHelper.randChance(t18_2p.Amount))
+                    if (t182P != null)
+                        if (RandomHelper.randChance(t182P.Amount))
                         {
                             caster.SpellHistory.ResetCooldown(ShamanSpells.EARTH_SHOCK, true);
 
@@ -101,7 +102,7 @@ public class spell_sha_fulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
                 aura.RefreshDuration();
 
                 if (aura.Charges == aurEff.Amount)
-                    caster.CastSpell(caster, ShamanSpells.FULMINATION_INFO, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+                    caster.SpellFactory.CastSpell(caster, ShamanSpells.FULMINATION_INFO, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
             }
         }
     }

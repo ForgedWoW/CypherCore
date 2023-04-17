@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 53750 - Crazy Alchemist's Potion (40077)
-internal class spell_item_crazy_alchemists_potion : SpellScript, ISpellAfterCast
+internal class SpellItemCrazyAlchemistsPotion : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -39,6 +39,6 @@ internal class spell_item_crazy_alchemists_potion : SpellScript, ISpellAfterCast
 
         var chosenElixir = availableElixirs.SelectRandom();
 
-        target.CastSpell(target, chosenElixir, new CastSpellExtraArgs(CastItem));
+        target.SpellFactory.CastSpell(target, chosenElixir, new CastSpellExtraArgs(CastItem));
     }
 }

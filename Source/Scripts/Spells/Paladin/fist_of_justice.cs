@@ -2,20 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.Spells.Paladin;
 
 //234299
 [Script]
-public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
+public class FistOfJustice : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
+    public FistOfJustice() : base("fist_of_justice") { }
     public PlayerClass PlayerClass { get; } = PlayerClass.Paladin;
-
-    public fist_of_justice() : base("fist_of_justice") { }
 
     public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
     {
@@ -28,6 +27,6 @@ public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
         if (player.DisplayPowerType == PowerType.HolyPower)
             if (newValue < oldValue)
                 if (player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
-                    player.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-2));
+                    player.SpellHistory.ModifyCooldown(PaladinSpells.HAMMER_OF_JUSTICE, TimeSpan.FromSeconds(-2));
     }
 }

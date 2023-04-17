@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.Pets
 {
@@ -16,16 +19,16 @@ namespace Scripts.Pets
     {
         internal struct SpellIds
         {
-            public const uint SummonGargoyle1 = 49206;
-            public const uint SummonGargoyle2 = 50514;
-            public const uint DismissGargoyle = 50515;
-            public const uint Sanctuary = 54661;
+            public const uint SUMMON_GARGOYLE1 = 49206;
+            public const uint SUMMON_GARGOYLE2 = 50514;
+            public const uint DISMISS_GARGOYLE = 50515;
+            public const uint SANCTUARY = 54661;
         }
 
         [Script]
-        internal class npc_pet_dk_ebon_gargoyle : CasterAI
+        internal class NPCPetDkEbonGargoyle : CasterAI
         {
-            public npc_pet_dk_ebon_gargoyle(Creature creature) : base(creature) { }
+            public NPCPetDkEbonGargoyle(Creature creature) : base(creature) { }
 
             public override void InitializeAI()
             {
@@ -37,8 +40,8 @@ namespace Scripts.Pets
 
                 // Find victim of Summon Gargoyle spell
                 List<Unit> targets = new();
-                var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(Me, Me, 30.0f, target => target.HasAura(SpellIds.SummonGargoyle1, ownerGuid));
-                var searcher = new UnitListSearcher(Me, targets, u_check, GridType.All);
+                var uCheck = new AnyUnfriendlyUnitInObjectRangeCheck(Me, Me, 30.0f, target => target.HasAura(SpellIds.SUMMON_GARGOYLE1, ownerGuid));
+                var searcher = new UnitListSearcher(Me, targets, uCheck, GridType.All);
                 Cell.VisitGrid(Me, searcher, 30.0f);
 
                 foreach (var target in targets)
@@ -55,13 +58,13 @@ namespace Scripts.Pets
                 var owner = Me.OwnerUnit;
 
                 if (owner)
-                    owner.RemoveAura(SpellIds.SummonGargoyle2);
+                    owner.RemoveAura(SpellIds.SUMMON_GARGOYLE2);
             }
 
             // Fly away when dismissed
             public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
             {
-                if (spellInfo.Id != SpellIds.DismissGargoyle ||
+                if (spellInfo.Id != SpellIds.DISMISS_GARGOYLE ||
                     !Me.IsAlive)
                     return;
 
@@ -75,7 +78,7 @@ namespace Scripts.Pets
                 Me.SetUnitFlag(UnitFlags.NonAttackable);
 
                 // Sanctuary
-                Me.CastSpell(Me, SpellIds.Sanctuary, true);
+                Me.SpellFactory.CastSpell(Me, SpellIds.SANCTUARY, true);
                 Me.ReactState = ReactStates.Passive;
 
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
@@ -95,9 +98,9 @@ namespace Scripts.Pets
         }
 
         [Script]
-        internal class npc_pet_dk_guardian : AggressorAI
+        internal class NPCPetDkGuardian : AggressorAI
         {
-            public npc_pet_dk_guardian(Creature creature) : base(creature) { }
+            public NPCPetDkGuardian(Creature creature) : base(creature) { }
 
             public override bool CanAIAttack(Unit target)
             {

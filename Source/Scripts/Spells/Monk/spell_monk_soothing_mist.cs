@@ -3,16 +3,17 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(115175)]
-public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
+public class SpellMonkSoothingMist : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,7 +25,7 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
     }
 
 
-    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         if (!Caster)
             return;
@@ -32,7 +33,7 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
         var target = Target;
 
         if (target != null)
-            target.CastSpell(target, MonkSpells.SOOTHING_MIST_VISUAL, true);
+            target.SpellFactory.CastSpell(target, MonkSpells.SOOTHING_MIST_VISUAL, true);
 
         var player = Caster.AsPlayer;
 
@@ -73,12 +74,12 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
 
                         if (statue.OwnerUnit != null && statue.OwnerUnit.GUID == player.GUID)
                             if (statue.OwnerUnit && statue.OwnerUnit.GUID == player.GUID)
-                                statue.CastSpell(statue.OwnerUnit.AsPlayer.SelectedUnit, MonkSpells.SERPENT_STATUE_SOOTHING_MIST, false);
+                                statue.SpellFactory.CastSpell(statue.OwnerUnit.AsPlayer.SelectedUnit, MonkSpells.SERPENT_STATUE_SOOTHING_MIST, false);
                     }
             }
     }
 
-    private void HandleEffectPeriodic(AuraEffect UnnamedParameter)
+    private void HandleEffectPeriodic(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 
@@ -86,10 +87,10 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
             if (Target)
                 // 25% to give 1 chi per tick
                 if (RandomHelper.randChance(25))
-                    caster.CastSpell(caster, MonkSpells.SOOTHING_MIST_ENERGIZE, true);
+                    caster.SpellFactory.CastSpell(caster, MonkSpells.SOOTHING_MIST_ENERGIZE, true);
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         if (Caster)
         {

@@ -2,61 +2,65 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IMap;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore;
 
 internal struct DataTypes
 {
-    public const uint Lucifron = 0;
-    public const uint Magmadar = 1;
-    public const uint Gehennas = 2;
-    public const uint Garr = 3;
-    public const uint Shazzrah = 4;
-    public const uint BaronGeddon = 5;
-    public const uint SulfuronHarbinger = 6;
-    public const uint GolemaggTheIncinerator = 7;
-    public const uint MajordomoExecutus = 8;
-    public const uint Ragnaros = 9;
+    public const uint LUCIFRON = 0;
+    public const uint MAGMADAR = 1;
+    public const uint GEHENNAS = 2;
+    public const uint GARR = 3;
+    public const uint SHAZZRAH = 4;
+    public const uint BARON_GEDDON = 5;
+    public const uint SULFURON_HARBINGER = 6;
+    public const uint GOLEMAGG_THE_INCINERATOR = 7;
+    public const uint MAJORDOMO_EXECUTUS = 8;
+    public const uint RAGNAROS = 9;
 
-    public const uint MaxEncounter = 10;
+    public const uint MAX_ENCOUNTER = 10;
 }
 
 internal struct ActionIds
 {
-    public const int StartRagnaros = 0;
-    public const int StartRagnarosAlt = 1;
+    public const int START_RAGNAROS = 0;
+    public const int START_RAGNAROS_ALT = 1;
 }
 
-internal struct MCCreatureIds
+internal struct McCreatureIds
 {
-    public const uint Lucifron = 12118;
-    public const uint Magmadar = 11982;
-    public const uint Gehennas = 12259;
-    public const uint Garr = 12057;
-    public const uint Shazzrah = 12264;
-    public const uint BaronGeddon = 12056;
-    public const uint SulfuronHarbinger = 12098;
-    public const uint GolemaggTheIncinerator = 11988;
-    public const uint MajordomoExecutus = 12018;
-    public const uint Ragnaros = 11502;
-    public const uint FlamewakerHealer = 11663;
-    public const uint FlamewakerElite = 11664;
+    public const uint LUCIFRON = 12118;
+    public const uint MAGMADAR = 11982;
+    public const uint GEHENNAS = 12259;
+    public const uint GARR = 12057;
+    public const uint SHAZZRAH = 12264;
+    public const uint BARON_GEDDON = 12056;
+    public const uint SULFURON_HARBINGER = 12098;
+    public const uint GOLEMAGG_THE_INCINERATOR = 11988;
+    public const uint MAJORDOMO_EXECUTUS = 12018;
+    public const uint RAGNAROS = 11502;
+    public const uint FLAMEWAKER_HEALER = 11663;
+    public const uint FLAMEWAKER_ELITE = 11664;
 }
 
-internal struct MCGameObjectIds
+internal struct McGameObjectIds
 {
-    public const uint CacheOfTheFirelord = 179703;
+    public const uint CACHE_OF_THE_FIRELORD = 179703;
 }
 
-internal struct MCMiscConst
+internal struct McMiscConst
 {
-    public const uint DataRagnarosAdds = 0;
+    public const uint DATA_RAGNAROS_ADDS = 0;
 
     public static Position[] SummonPositions =
     {
@@ -68,21 +72,21 @@ internal struct MCMiscConst
 }
 
 [Script]
-internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstanceScript
+internal class InstanceMoltenCore : InstanceMapScript, IInstanceMapGetInstanceScript
 {
-    private static readonly DungeonEncounterData[] encounters =
+    private static readonly DungeonEncounterData[] Encounters =
     {
-        new(DataTypes.Lucifron, 663), new(DataTypes.Magmadar, 664), new(DataTypes.Gehennas, 665), new(DataTypes.Garr, 666), new(DataTypes.Shazzrah, 667), new(DataTypes.BaronGeddon, 668), new(DataTypes.SulfuronHarbinger, 669), new(DataTypes.GolemaggTheIncinerator, 670), new(DataTypes.MajordomoExecutus, 671), new(DataTypes.Ragnaros, 672)
+        new(DataTypes.LUCIFRON, 663), new(DataTypes.MAGMADAR, 664), new(DataTypes.GEHENNAS, 665), new(DataTypes.GARR, 666), new(DataTypes.SHAZZRAH, 667), new(DataTypes.BARON_GEDDON, 668), new(DataTypes.SULFURON_HARBINGER, 669), new(DataTypes.GOLEMAGG_THE_INCINERATOR, 670), new(DataTypes.MAJORDOMO_EXECUTUS, 671), new(DataTypes.RAGNAROS, 672)
     };
 
-    public instance_molten_core() : base(nameof(instance_molten_core), 409) { }
+    public InstanceMoltenCore() : base(nameof(InstanceMoltenCore), 409) { }
 
     public InstanceScript GetInstanceScript(InstanceMap map)
     {
-        return new instance_molten_core_InstanceMapScript(map);
+        return new InstanceMoltenCoreInstanceMapScript(map);
     }
 
-    private class instance_molten_core_InstanceMapScript : InstanceScript
+    private class InstanceMoltenCoreInstanceMapScript : InstanceScript
     {
         private ObjectGuid _cacheOfTheFirelordGUID;
         private bool _executusSchedule;
@@ -90,11 +94,11 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
         private ObjectGuid _majordomoExecutusGUID;
         private byte _ragnarosAddDeaths;
 
-        public instance_molten_core_InstanceMapScript(InstanceMap map) : base(map)
+        public InstanceMoltenCoreInstanceMapScript(InstanceMap map) : base(map)
         {
             SetHeaders("MC");
-            SetBossNumber(DataTypes.MaxEncounter);
-            LoadDungeonEncounterData(encounters);
+            SetBossNumber(DataTypes.MAX_ENCOUNTER);
+            LoadDungeonEncounterData(Encounters);
             _executusSchedule = false;
             _ragnarosAddDeaths = 0;
         }
@@ -109,15 +113,14 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
         {
             switch (creature.Entry)
             {
-                case MCCreatureIds.GolemaggTheIncinerator:
+                case McCreatureIds.GOLEMAGG_THE_INCINERATOR:
                     _golemaggTheIncineratorGUID = creature.GUID;
 
                     break;
-                case MCCreatureIds.MajordomoExecutus:
+                case McCreatureIds.MAJORDOMO_EXECUTUS:
                     _majordomoExecutusGUID = creature.GUID;
 
                     break;
-                
             }
         }
 
@@ -125,17 +128,16 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
         {
             switch (go.Entry)
             {
-                case MCGameObjectIds.CacheOfTheFirelord:
+                case McGameObjectIds.CACHE_OF_THE_FIRELORD:
                     _cacheOfTheFirelordGUID = go.GUID;
 
                     break;
-                
             }
         }
 
         public override void SetData(uint type, uint data)
         {
-            if (type == MCMiscConst.DataRagnarosAdds)
+            if (type == McMiscConst.DATA_RAGNAROS_ADDS)
             {
                 if (data == 1)
                     ++_ragnarosAddDeaths;
@@ -148,7 +150,7 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
         {
             switch (type)
             {
-                case MCMiscConst.DataRagnarosAdds:
+                case McMiscConst.DATA_RAGNAROS_ADDS:
                     return _ragnarosAddDeaths;
             }
 
@@ -159,9 +161,9 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
         {
             switch (type)
             {
-                case DataTypes.GolemaggTheIncinerator:
+                case DataTypes.GOLEMAGG_THE_INCINERATOR:
                     return _golemaggTheIncineratorGUID;
-                case DataTypes.MajordomoExecutus:
+                case DataTypes.MAJORDOMO_EXECUTUS:
                     return _majordomoExecutusGUID;
             }
 
@@ -174,11 +176,11 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
                 return false;
 
             if (state == EncounterState.Done &&
-                bossId < DataTypes.MajordomoExecutus)
+                bossId < DataTypes.MAJORDOMO_EXECUTUS)
                 if (CheckMajordomoExecutus())
                     SummonMajordomoExecutus();
 
-            if (bossId == DataTypes.MajordomoExecutus &&
+            if (bossId == DataTypes.MAJORDOMO_EXECUTUS &&
                 state == EncounterState.Done)
                 DoRespawnGameObject(_cacheOfTheFirelordGUID, TimeSpan.FromDays(7));
 
@@ -198,33 +200,33 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
             if (!_majordomoExecutusGUID.IsEmpty)
                 return;
 
-            if (GetBossState(DataTypes.MajordomoExecutus) != EncounterState.Done)
+            if (GetBossState(DataTypes.MAJORDOMO_EXECUTUS) != EncounterState.Done)
             {
-                Instance.SummonCreature(MCCreatureIds.MajordomoExecutus, MCMiscConst.SummonPositions[0]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerHealer, MCMiscConst.SummonPositions[1]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerHealer, MCMiscConst.SummonPositions[2]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerHealer, MCMiscConst.SummonPositions[3]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerHealer, MCMiscConst.SummonPositions[4]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerElite, MCMiscConst.SummonPositions[5]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerElite, MCMiscConst.SummonPositions[6]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerElite, MCMiscConst.SummonPositions[7]);
-                Instance.SummonCreature(MCCreatureIds.FlamewakerElite, MCMiscConst.SummonPositions[8]);
+                Instance.SummonCreature(McCreatureIds.MAJORDOMO_EXECUTUS, McMiscConst.SummonPositions[0]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_HEALER, McMiscConst.SummonPositions[1]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_HEALER, McMiscConst.SummonPositions[2]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_HEALER, McMiscConst.SummonPositions[3]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_HEALER, McMiscConst.SummonPositions[4]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_ELITE, McMiscConst.SummonPositions[5]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_ELITE, McMiscConst.SummonPositions[6]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_ELITE, McMiscConst.SummonPositions[7]);
+                Instance.SummonCreature(McCreatureIds.FLAMEWAKER_ELITE, McMiscConst.SummonPositions[8]);
             }
             else
             {
-                var summon = Instance.SummonCreature(MCCreatureIds.MajordomoExecutus, MCMiscConst.RagnarosTelePos);
+                var summon = Instance.SummonCreature(McCreatureIds.MAJORDOMO_EXECUTUS, McMiscConst.RagnarosTelePos);
 
                 if (summon)
-                    summon.AI.DoAction(ActionIds.StartRagnarosAlt);
+                    summon.AI.DoAction(ActionIds.START_RAGNAROS_ALT);
             }
         }
 
         private bool CheckMajordomoExecutus()
         {
-            if (GetBossState(DataTypes.Ragnaros) == EncounterState.Done)
+            if (GetBossState(DataTypes.RAGNAROS) == EncounterState.Done)
                 return false;
 
-            for (byte i = 0; i < DataTypes.MajordomoExecutus; ++i)
+            for (byte i = 0; i < DataTypes.MAJORDOMO_EXECUTUS; ++i)
                 if (GetBossState(i) != EncounterState.Done)
                     return false;
 

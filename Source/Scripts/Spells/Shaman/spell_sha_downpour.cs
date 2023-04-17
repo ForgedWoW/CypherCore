@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // 207778 - Downpour
 [SpellScript(207778)]
-internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit, IHasSpellEffects
+internal class SpellShaDownpour : SpellScript, ISpellAfterCast, ISpellAfterHit, IHasSpellEffects
 {
     private int _healedTargets = 0;
 

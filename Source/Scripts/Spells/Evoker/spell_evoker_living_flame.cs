@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.RED_LIVING_FLAME)] // 361469 - Living Flame (Red)
-class spell_evoker_living_flame : SpellScript, IHasSpellEffects
+class SpellEvokerLivingFlame : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,7 +30,7 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
         if (caster.IsFriendlyTo(hitUnit))
         {
             CastSpellExtraArgs args = new(TriggerCastFlags.TriggeredAllowProc);
-            caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL, args);
+            caster.SpellFactory.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL, args);
         }
         else
         {
@@ -44,7 +45,7 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
             CastSpellExtraArgs args = new(TriggerCastFlags.TriggeredAllowProc);
             args.SpellValueOverrides[SpellValueMod.BasePoint0] = damage;
 
-            caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, args);
+            caster.SpellFactory.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, args);
         }
     }
 

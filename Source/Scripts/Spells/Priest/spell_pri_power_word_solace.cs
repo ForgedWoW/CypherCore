@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 129250 - Power Word: Solace
-internal class spell_pri_power_word_solace : SpellScript, IHasSpellEffects
+internal class SpellPriPowerWordSolace : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,7 +24,7 @@ internal class spell_pri_power_word_solace : SpellScript, IHasSpellEffects
     private void RestoreMana(int effIndex)
     {
         Caster
-            .CastSpell(Caster,
+            .SpellFactory.CastSpell(Caster,
                        PriestSpells.POWER_WORD_SOLACE_ENERGIZE,
                        new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell)
                                                                                     .AddSpellMod(SpellValueMod.BasePoint0, EffectValue / 100));

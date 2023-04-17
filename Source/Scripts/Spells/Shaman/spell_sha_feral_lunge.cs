@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // Feral Lunge - 196884
 [SpellScript(196884)]
-public class spell_sha_feral_lunge : SpellScript, IHasSpellEffects
+public class SpellShaFeralLunge : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,6 +28,6 @@ public class spell_sha_feral_lunge : SpellScript, IHasSpellEffects
         if (caster == null || target == null)
             return;
 
-        caster.CastSpell(target, ShamanSpells.FERAL_LUNGE_DAMAGE, true);
+        caster.SpellFactory.CastSpell(target, ShamanSpells.FERAL_LUNGE_DAMAGE, true);
     }
 }

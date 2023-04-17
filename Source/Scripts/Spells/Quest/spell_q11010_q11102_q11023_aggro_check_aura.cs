@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 40113 Knockdown Fel Cannon: The Aggro Check Aura
-internal class spell_q11010_q11102_q11023_aggro_check_aura : AuraScript, IHasAuraEffects
+internal class SpellQ11010Q11102Q11023AggroCheckAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,6 +25,6 @@ internal class spell_q11010_q11102_q11023_aggro_check_aura : AuraScript, IHasAur
 
         if (target)
             // On trigger proccing
-            target.CastSpell(target, QuestSpellIds.AggroCheck);
+            target.SpellFactory.CastSpell(target, QuestSpellIds.AGGRO_CHECK);
     }
 }

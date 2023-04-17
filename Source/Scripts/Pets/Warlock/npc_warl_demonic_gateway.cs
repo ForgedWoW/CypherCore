@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
@@ -15,30 +16,30 @@ namespace Scripts.Pets
         // 59262
         // 59271
         [CreatureScript(47319, 59271, 59262)]
-        public class npc_warl_demonic_gateway : CreatureAI
+        public class NPCWarlDemonicGateway : CreatureAI
         {
-            public EventMap events = new();
-            public bool firstTick = true;
+            public EventMap Events = new();
+            public bool FirstTick = true;
 
             readonly uint[] _aurasToCheck =
             {
                 121164, 121175, 121176, 121177
             }; // Orbs of Power @ Temple of Kotmogu
 
-            public npc_warl_demonic_gateway(Creature creature) : base(creature) { }
+            public NPCWarlDemonicGateway(Creature creature) : base(creature) { }
 
-            public override void UpdateAI(uint UnnamedParameter)
+            public override void UpdateAI(uint unnamedParameter)
             {
-                if (firstTick)
+                if (FirstTick)
                 {
-                    Me.CastSpell(Me, WarlockSpells.DEMONIC_GATEWAY_VISUAL, true);
+                    Me.SpellFactory.CastSpell(Me, WarlockSpells.DEMONIC_GATEWAY_VISUAL, true);
 
                     Me.SetUnitFlag(UnitFlags.NonAttackable);
                     Me.SetNpcFlag(NPCFlags.SpellClick);
                     Me.ReactState = ReactStates.Passive;
                     Me.SetControlled(true, UnitState.Root);
 
-                    firstTick = false;
+                    FirstTick = false;
                 }
             }
 
@@ -92,13 +93,13 @@ namespace Scripts.Pets
                         continue;
 
                     target.SetFacingToUnit(gateway);
-                    target.CastSpell(gateway.Location, teleportSpell, true);
+                    target.SpellFactory.CastSpell(gateway.Location, teleportSpell, true);
 
                     if (target.HasAura(WarlockSpells.PLANESWALKER))
-                        target.CastSpell(target, WarlockSpells.PLANESWALKER_BUFF, true);
+                        target.SpellFactory.CastSpell(target, WarlockSpells.PLANESWALKER_BUFF, true);
 
                     // Item - Warlock PvP Set 4P Bonus: "Your allies can use your Demonic Gateway again 15 sec sooner"
-                    if (owner.TryGetAuraEffect(WarlockSpells.PVP_4P_BONUS, 0, out var eff))
+                    if (owner.TryGetAuraEffect(WarlockSpells.PVP_4_P_BONUS, 0, out var eff))
                     {
                         var aura = target.GetAura(WarlockSpells.DEMONIC_GATEWAY_DEBUFF);
 

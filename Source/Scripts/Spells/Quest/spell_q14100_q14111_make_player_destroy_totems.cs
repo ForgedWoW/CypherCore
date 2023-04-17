@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 66744 - Make Player Destroy Totems
-internal class spell_q14100_q14111_make_player_destroy_totems : SpellScript, IHasSpellEffects
+internal class SpellQ14100Q14111MakePlayerDestroyTotems : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -25,6 +26,6 @@ internal class spell_q14100_q14111_make_player_destroy_totems : SpellScript, IHa
         var player = HitPlayer;
 
         if (player)
-            player.CastSpell(player, QuestSpellIds.TotemOfTheEarthenRing, new CastSpellExtraArgs(TriggerCastFlags.FullMask)); // ignore reagent cost, consumed by quest
+            player.SpellFactory.CastSpell(player, QuestSpellIds.TOTEM_OF_THE_EARTHEN_RING, new CastSpellExtraArgs(TriggerCastFlags.FullMask)); // ignore reagent cost, consumed by quest
     }
 }

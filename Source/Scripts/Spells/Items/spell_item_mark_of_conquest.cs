@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 33510 - Health Restore
-internal class spell_item_mark_of_conquest : AuraScript, IHasAuraEffects
+internal class SpellItemMarkOfConquest : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -30,7 +31,7 @@ internal class spell_item_mark_of_conquest : AuraScript, IHasAuraEffects
 
             // but mana instead
             eventInfo. // but mana instead
-                Actor.CastSpell((Unit)null, ItemSpellIds.MarkOfConquestEnergize, new CastSpellExtraArgs(aurEff));
+                Actor.SpellFactory.CastSpell((Unit)null, ItemSpellIds.MARK_OF_CONQUEST_ENERGIZE, new CastSpellExtraArgs(aurEff));
         }
     }
 }

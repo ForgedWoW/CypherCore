@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(137019)]
-public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
+public class SpellMageFireMagePassive : AuraScript, IHasAuraEffects
 {
-    private readonly SpellModifier mod = null;
+    private readonly SpellModifier _mod = null;
 
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -22,7 +23,7 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 4, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
     }
 
-    private void HandleApply(AuraEffect aurEffect, AuraEffectHandleModes UnnamedParameter)
+    private void HandleApply(AuraEffect aurEffect, AuraEffectHandleModes unnamedParameter)
     {
         var player = Caster.AsPlayer;
 
@@ -39,14 +40,14 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
         player.AddSpellMod(mod, true);
     }
 
-    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var player = Caster.AsPlayer;
 
         if (player == null)
             return;
 
-        if (mod != null)
-            player.AddSpellMod(mod, false);
+        if (_mod != null)
+            player.AddSpellMod(_mod, false);
     }
 }

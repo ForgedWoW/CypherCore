@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(197923)]
-public class spell_dh_fel_rush_dash_AuraScript : AuraScript, IHasAuraEffects
+public class SpellDhFelRushDashAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +23,7 @@ public class spell_dh_fel_rush_dash_AuraScript : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 9, AuraType.ModMinimumSpeedRate, AuraEffectHandleModes.SendForClientMask, AuraScriptHookType.EffectAfterRemove));
     }
 
-    private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void AfterRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -37,7 +37,7 @@ public class spell_dh_fel_rush_dash_AuraScript : AuraScript, IHasAuraEffects
                                     TimeSpan.FromMilliseconds(100));
     }
 
-    private void CalcSpeed(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalcSpeed(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         amount.Value = 1250;
         RefreshDuration();

@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(191427)]
-public class spell_dh_metamorphosis : SpellScript, ISpellBeforeCast
+public class SpellDhMetamorphosis : SpellScript, ISpellBeforeCast
 {
     public void BeforeCast()
     {
@@ -26,7 +26,7 @@ public class spell_dh_metamorphosis : SpellScript, ISpellBeforeCast
         var dest = ExplTargetDest;
 
         if (dest != null)
-            player.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.METAMORPHOSIS_JUMP, true);
+            player.SpellFactory.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.METAMORPHOSIS_JUMP, true);
 
         if (player.HasAura(DemonHunterSpells.DEMON_REBORN)) // Remove CD of Eye Beam, Chaos Nova and Blur
         {

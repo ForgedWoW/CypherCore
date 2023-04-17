@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.OPPRESSING_ROAR)]
-public class spell_evoker_overawe : SpellScript, IHasSpellEffects, ISpellAfterCast, ISpellBeforeCast
+public class SpellEvokerOverawe : SpellScript, IHasSpellEffects, ISpellAfterCast, ISpellBeforeCast
 {
     int _dispells = 0;
 

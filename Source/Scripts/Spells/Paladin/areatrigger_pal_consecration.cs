@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Paladin;
 
 // 26573 - Consecration
 [Script] //  9228 - AreaTriggerId
-internal class areatrigger_pal_consecration : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
+internal class AreatriggerPalConsecration : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
     public void OnUnitEnter(Unit unit)
     {
@@ -22,19 +22,19 @@ internal class areatrigger_pal_consecration : AreaTriggerScript, IAreaTriggerOnU
             if (unit == caster &&
                 caster.IsPlayer &&
                 caster.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.PaladinProtection)
-                caster.CastSpell(caster, PaladinSpells.ConsecrationProtectionAura);
+                caster.SpellFactory.CastSpell(caster, PaladinSpells.CONSECRATION_PROTECTION_AURA);
 
             if (caster.IsValidAttackTarget(unit))
-                if (caster.HasAura(PaladinSpells.ConsecratedGroundPassive))
-                    caster.CastSpell(unit, PaladinSpells.ConsecratedGroundSlow);
+                if (caster.HasAura(PaladinSpells.CONSECRATED_GROUND_PASSIVE))
+                    caster.SpellFactory.CastSpell(unit, PaladinSpells.CONSECRATED_GROUND_SLOW);
         }
     }
 
     public void OnUnitExit(Unit unit)
     {
         if (At.CasterGuid == unit.GUID)
-            unit.RemoveAurasDueToSpell(PaladinSpells.ConsecrationProtectionAura, At.CasterGuid);
+            unit.RemoveAurasDueToSpell(PaladinSpells.CONSECRATION_PROTECTION_AURA, At.CasterGuid);
 
-        unit.RemoveAurasDueToSpell(PaladinSpells.ConsecratedGroundSlow, At.CasterGuid);
+        unit.RemoveAurasDueToSpell(PaladinSpells.CONSECRATED_GROUND_SLOW, At.CasterGuid);
     }
 }

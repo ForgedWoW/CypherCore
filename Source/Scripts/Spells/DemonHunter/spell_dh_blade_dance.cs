@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script] // 210152 - Death Sweep
-internal class spell_dh_blade_dance : SpellScript, IHasSpellEffects
+internal class SpellDhBladeDance : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -46,7 +47,7 @@ internal class spell_dh_blade_dance : SpellScript, IHasSpellEffects
         if (firstTargetGUID.IsEmpty)
             firstTargetGUID = targetList[0].GUID;
 
-        var script = aura.GetScript<spell_dh_first_blood>();
+        var script = aura.GetScript<SpellDhFirstBlood>();
 
         script?.SetFirstTarget(firstTargetGUID);
     }

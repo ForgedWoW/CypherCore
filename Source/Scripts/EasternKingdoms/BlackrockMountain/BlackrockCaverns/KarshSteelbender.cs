@@ -2,33 +2,34 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockCaverns.KarshSteelbender;
 
 internal struct SpellIds
 {
-    public const uint Cleave = 15284;
-    public const uint QuicksilverArmor = 75842;
-    public const uint SuperheatedQuicksilverArmor = 75846;
+    public const uint CLEAVE = 15284;
+    public const uint QUICKSILVER_ARMOR = 75842;
+    public const uint SUPERHEATED_QUICKSILVER_ARMOR = 75846;
 }
 
 internal struct TextIds
 {
-    public const uint YellAggro = 0;
-    public const uint YellKill = 1;
-    public const uint YellQuicksilverArmor = 2;
-    public const uint YellDeath = 3;
+    public const uint YELL_AGGRO = 0;
+    public const uint YELL_KILL = 1;
+    public const uint YELL_QUICKSILVER_ARMOR = 2;
+    public const uint YELL_DEATH = 3;
 
-    public const uint EmoteQuicksilverArmor = 4;
+    public const uint EMOTE_QUICKSILVER_ARMOR = 4;
 }
 
 [Script]
-internal class boss_karsh_steelbender : BossAI
+internal class BossKarshSteelbender : BossAI
 {
-    public boss_karsh_steelbender(Creature creature) : base(creature, DataTypes.KarshSteelbender) { }
+    public BossKarshSteelbender(Creature creature) : base(creature, DataTypes.KARSH_STEELBENDER) { }
 
     public override void Reset()
     {
@@ -38,12 +39,12 @@ internal class boss_karsh_steelbender : BossAI
     public override void JustEngagedWith(Unit who)
     {
         base.JustEngagedWith(who);
-        Talk(TextIds.YellAggro);
+        Talk(TextIds.YELL_AGGRO);
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Cleave);
+                               DoCastVictim(SpellIds.CLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
     }
@@ -51,13 +52,13 @@ internal class boss_karsh_steelbender : BossAI
     public override void KilledUnit(Unit who)
     {
         if (who.IsPlayer)
-            Talk(TextIds.YellKill);
+            Talk(TextIds.YELL_KILL);
     }
 
     public override void JustDied(Unit victim)
     {
         _JustDied();
-        Talk(TextIds.YellDeath);
+        Talk(TextIds.YELL_DEATH);
     }
 
     public override void UpdateAI(uint diff)

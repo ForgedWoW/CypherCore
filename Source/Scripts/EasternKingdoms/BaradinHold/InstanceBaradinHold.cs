@@ -1,91 +1,94 @@
 // Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IMap;
 
 namespace Scripts.EasternKingdoms.BaradinHold;
 
 internal struct DataTypes
 {
-    public const uint Argaloth = 0;
-    public const uint Occuthar = 1;
-    public const uint Alizabal = 2;
+    public const uint ARGALOTH = 0;
+    public const uint OCCUTHAR = 1;
+    public const uint ALIZABAL = 2;
 }
 
 internal struct CreatureIds
 {
-    public const uint EyeOfOccuthar = 52389;
-    public const uint FocusFireDummy = 52369;
-    public const uint OccutharEye = 52368;
+    public const uint EYE_OF_OCCUTHAR = 52389;
+    public const uint FOCUS_FIRE_DUMMY = 52369;
+    public const uint OCCUTHAR_EYE = 52368;
 }
 
 internal struct BossIds
 {
-    public const uint Argaloth = 47120;
-    public const uint Occuthar = 52363;
-    public const uint Alizabal = 55869;
+    public const uint ARGALOTH = 47120;
+    public const uint OCCUTHAR = 52363;
+    public const uint ALIZABAL = 55869;
 }
 
 internal struct GameObjectIds
 {
-    public const uint ArgalothDoor = 207619;
-    public const uint OccutharDoor = 208953;
-    public const uint AlizabalDoor = 209849;
+    public const uint ARGALOTH_DOOR = 207619;
+    public const uint OCCUTHAR_DOOR = 208953;
+    public const uint ALIZABAL_DOOR = 209849;
 }
 
 [Script]
-internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanceScript
+internal class InstanceBaradinHold : InstanceMapScript, IInstanceMapGetInstanceScript
 {
-    private static readonly DoorData[] doorData =
+    private static readonly DoorData[] DoorData =
     {
-        new(GameObjectIds.ArgalothDoor, DataTypes.Argaloth, DoorType.Room), new(GameObjectIds.OccutharDoor, DataTypes.Occuthar, DoorType.Room), new(GameObjectIds.AlizabalDoor, DataTypes.Alizabal, DoorType.Room)
+        new(GameObjectIds.ARGALOTH_DOOR, DataTypes.ARGALOTH, DoorType.Room), new(GameObjectIds.OCCUTHAR_DOOR, DataTypes.OCCUTHAR, DoorType.Room), new(GameObjectIds.ALIZABAL_DOOR, DataTypes.ALIZABAL, DoorType.Room)
     };
 
-    private static readonly DungeonEncounterData[] encounters =
+    private static readonly DungeonEncounterData[] Encounters =
     {
-        new(DataTypes.Argaloth, 1033), new(DataTypes.Occuthar, 1250), new(DataTypes.Alizabal, 1332)
+        new(DataTypes.ARGALOTH, 1033), new(DataTypes.OCCUTHAR, 1250), new(DataTypes.ALIZABAL, 1332)
     };
 
-    public instance_baradin_hold() : base(nameof(instance_baradin_hold), 757) { }
+    public InstanceBaradinHold() : base(nameof(InstanceBaradinHold), 757) { }
 
     public InstanceScript GetInstanceScript(InstanceMap map)
     {
-        return new instance_baradin_hold_InstanceMapScript(map);
+        return new InstanceBaradinHoldInstanceMapScript(map);
     }
 
-    private class instance_baradin_hold_InstanceMapScript : InstanceScript
+    private class InstanceBaradinHoldInstanceMapScript : InstanceScript
     {
-        private ObjectGuid AlizabalGUID;
-        private ObjectGuid ArgalothGUID;
-        private ObjectGuid OccutharGUID;
+        private ObjectGuid _alizabalGUID;
+        private ObjectGuid _argalothGUID;
+        private ObjectGuid _occutharGUID;
 
-        public instance_baradin_hold_InstanceMapScript(InstanceMap map) : base(map)
+        public InstanceBaradinHoldInstanceMapScript(InstanceMap map) : base(map)
         {
             SetHeaders("BH");
             SetBossNumber(3);
-            LoadDoorData(doorData);
-            LoadDungeonEncounterData(encounters);
+            LoadDoorData(DoorData);
+            LoadDungeonEncounterData(Encounters);
         }
 
         public override void OnCreatureCreate(Creature creature)
         {
             switch (creature.Entry)
             {
-                case BossIds.Argaloth:
-                    ArgalothGUID = creature.GUID;
+                case BossIds.ARGALOTH:
+                    _argalothGUID = creature.GUID;
 
                     break;
-                case BossIds.Occuthar:
-                    OccutharGUID = creature.GUID;
+                case BossIds.OCCUTHAR:
+                    _occutharGUID = creature.GUID;
 
                     break;
-                case BossIds.Alizabal:
-                    AlizabalGUID = creature.GUID;
+                case BossIds.ALIZABAL:
+                    _alizabalGUID = creature.GUID;
 
                     break;
             }
@@ -95,9 +98,9 @@ internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanc
         {
             switch (go.Entry)
             {
-                case GameObjectIds.ArgalothDoor:
-                case GameObjectIds.OccutharDoor:
-                case GameObjectIds.AlizabalDoor:
+                case GameObjectIds.ARGALOTH_DOOR:
+                case GameObjectIds.OCCUTHAR_DOOR:
+                case GameObjectIds.ALIZABAL_DOOR:
                     AddDoor(go, true);
 
                     break;
@@ -108,13 +111,12 @@ internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanc
         {
             switch (data)
             {
-                case DataTypes.Argaloth:
-                    return ArgalothGUID;
-                case DataTypes.Occuthar:
-                    return OccutharGUID;
-                case DataTypes.Alizabal:
-                    return AlizabalGUID;
-                
+                case DataTypes.ARGALOTH:
+                    return _argalothGUID;
+                case DataTypes.OCCUTHAR:
+                    return _occutharGUID;
+                case DataTypes.ALIZABAL:
+                    return _alizabalGUID;
             }
 
             return ObjectGuid.Empty;
@@ -124,9 +126,9 @@ internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanc
         {
             switch (go.Entry)
             {
-                case GameObjectIds.ArgalothDoor:
-                case GameObjectIds.OccutharDoor:
-                case GameObjectIds.AlizabalDoor:
+                case GameObjectIds.ARGALOTH_DOOR:
+                case GameObjectIds.OCCUTHAR_DOOR:
+                case GameObjectIds.ALIZABAL_DOOR:
                     AddDoor(go, false);
 
                     break;

@@ -2,32 +2,33 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(73325)]
-public class spell_pri_leap_of_faith : SpellScript, IHasSpellEffects, ISpellOnHit
+public class SpellPriLeapOfFaith : SpellScript, IHasSpellEffects, ISpellOnHit
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
 
     public void OnHit()
     {
-        var _player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-        if (_player != null)
+        if (player != null)
         {
             var target = HitUnit;
 
             if (target != null)
             {
-                target.CastSpell(_player, PriestSpells.LEAP_OF_FAITH_JUMP, true);
+                target.SpellFactory.CastSpell(player, PriestSpells.LEAP_OF_FAITH_JUMP, true);
 
-                if (_player.HasAura(PriestSpells.BODY_AND_SOUL_AURA))
-                    _player.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
+                if (player.HasAura(PriestSpells.BODY_AND_SOUL_AURA))
+                    player.SpellFactory.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
             }
         }
     }
@@ -47,6 +48,6 @@ public class spell_pri_leap_of_faith : SpellScript, IHasSpellEffects, ISpellOnHi
         if (caster.HasAura(PriestSpells.LEAP_OF_FAITH_GLYPH))
             HitUnit.RemoveMovementImpairingAuras(false);
 
-        HitUnit.CastSpell(caster, PriestSpells.LEAP_OF_FAITH_EFFECT, true);
+        HitUnit.SpellFactory.CastSpell(caster, PriestSpells.LEAP_OF_FAITH_EFFECT, true);
     }
 }

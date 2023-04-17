@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(116645)]
-public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellMonkTeachingsOfTheMonasteryPassive : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -33,7 +33,7 @@ public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAur
     {
         if (eventInfo.SpellInfo.Id == MonkSpells.TIGER_PALM)
         {
-            Target.CastSpell(Target, MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
+            Target.SpellFactory.CastSpell(Target, MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
         }
         else if (RandomHelper.randChance(aurEff.Amount))
         {

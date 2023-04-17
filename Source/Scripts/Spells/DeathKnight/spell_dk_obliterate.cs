@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(49020)]
-public class spell_dk_obliterate : SpellScript, IHasSpellEffects
+public class SpellDkObliterate : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,9 +30,9 @@ public class spell_dk_obliterate : SpellScript, IHasSpellEffects
                 Caster.SpellHistory.ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
 
         if (Caster.HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
-            Caster.CastSpell(HitUnit, DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
+            Caster.SpellFactory.CastSpell(HitUnit, DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
 
         if (Caster.HasAura(DeathKnightSpells.RIME) && RandomHelper.randChance(45))
-            Caster.CastSpell(null, DeathKnightSpells.RIME_BUFF, true);
+            Caster.SpellFactory.CastSpell(null, DeathKnightSpells.RIME_BUFF, true);
     }
 }

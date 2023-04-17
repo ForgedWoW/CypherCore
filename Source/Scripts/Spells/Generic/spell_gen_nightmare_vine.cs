@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 28720 - Nightmare Vine
-internal class spell_gen_nightmare_vine : SpellScript, IHasSpellEffects
+internal class SpellGenNightmareVine : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,6 +28,6 @@ internal class spell_gen_nightmare_vine : SpellScript, IHasSpellEffects
         if (target)
             // 25% chance of casting Nightmare Pollen
             if (RandomHelper.randChance(25))
-                target.CastSpell(target, GenericSpellIds.NightmarePollen, true);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.NIGHTMARE_POLLEN, true);
     }
 }

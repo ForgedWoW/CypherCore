@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
@@ -12,7 +12,7 @@ namespace Scripts.Spells.Evoker;
              EvokerSpells.RED_FIRE_STORM,
              EvokerSpells.RED_LIVING_FLAME,
              EvokerSpells.RED_PYRE)]
-public class spell_evoker_iridescence_red_cast : SpellScript, ISpellAfterCast
+public class SpellEvokerIridescenceRedCast : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {

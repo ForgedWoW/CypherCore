@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // 30108 - Unstable Affliction
 [SpellScript(30108)]
-public class spell_warlock_unstable_affliction : SpellScript, IHasSpellEffects
+public class SpellWarlockUnstableAffliction : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -60,14 +61,14 @@ public class spell_warlock_unstable_affliction : SpellScript, IHasSpellEffects
         }
 
         if (spellToCast == 0)
-            caster.CastSpell(target, lowestDurationSpell, true);
+            caster.SpellFactory.CastSpell(target, lowestDurationSpell, true);
         else
-            caster.CastSpell(target, spellToCast, true);
+            caster.SpellFactory.CastSpell(target, spellToCast, true);
 
         if (caster.HasAura(WarlockSpells.CONTAGION))
-            caster.CastSpell(target, WarlockSpells.CONTAGION_DEBUFF, true);
+            caster.SpellFactory.CastSpell(target, WarlockSpells.CONTAGION_DEBUFF, true);
 
         if (caster.HasAura(WarlockSpells.COMPOUNDING_HORROR))
-            caster.CastSpell(target, WarlockSpells.COMPOUNDING_HORROR_DAMAGE, true);
+            caster.SpellFactory.CastSpell(target, WarlockSpells.COMPOUNDING_HORROR_DAMAGE, true);
     }
 }

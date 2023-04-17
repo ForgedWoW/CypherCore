@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 54190 - Lifeblood Dummy
-internal class spell_q12805_lifeblood_dummy : SpellScript, IHasSpellEffects
+internal class SpellQ12805LifebloodDummy : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -32,8 +33,8 @@ internal class spell_q12805_lifeblood_dummy : SpellScript, IHasSpellEffects
 
         if (target)
         {
-            caster.KilledMonsterCredit(CreatureIds.ShardKillCredit);
-            target.CastSpell(target, (uint)EffectValue, true);
+            caster.KilledMonsterCredit(CreatureIds.SHARD_KILL_CREDIT);
+            target.SpellFactory.CastSpell(target, (uint)EffectValue, true);
             target.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
         }
     }

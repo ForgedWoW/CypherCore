@@ -2,15 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(191840)]
-public class spell_monk_essence_font_heal : SpellScript, IHasSpellEffects
+public class SpellMonkEssenceFontHeal : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -20,13 +22,13 @@ public class spell_monk_essence_font_heal : SpellScript, IHasSpellEffects
         SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaAlly));
     }
 
-    private void FilterTargets(List<WorldObject> p_Targets)
+    private void FilterTargets(List<WorldObject> pTargets)
     {
         var caster = Caster;
 
         if (caster != null)
         {
-            p_Targets.RemoveIf((WorldObject @object) =>
+            pTargets.RemoveIf((WorldObject @object) =>
             {
                 if (@object == null || @object.AsUnit == null)
                     return true;
@@ -42,10 +44,10 @@ public class spell_monk_essence_font_heal : SpellScript, IHasSpellEffects
                 return false;
             });
 
-            if (p_Targets.Count > 1)
+            if (pTargets.Count > 1)
             {
-                p_Targets.Sort(new HealthPctOrderPred());
-                p_Targets.Resize(1);
+                pTargets.Sort(new HealthPctOrderPred());
+                pTargets.Resize(1);
             }
         }
     }

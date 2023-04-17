@@ -1,25 +1,26 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_freezing_trapAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
+public class AtHunFreezingTrapAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
     public enum UsedSpells
     {
-        FREEZING_TRAP_STUN = 3355
+        FreezingTrapStun = 3355
     }
 
-    public int timeInterval;
+    public int TimeInterval;
 
     public void OnCreate()
     {
-        timeInterval = 200;
+        TimeInterval = 200;
         var caster = At.GetCaster();
 
         if (caster == null)
@@ -34,7 +35,7 @@ public class at_hun_freezing_trapAI : AreaTriggerScript, IAreaTriggerOnCreate, I
 
             if (!caster.IsFriendlyTo(target))
             {
-                caster.CastSpell(target, UsedSpells.FREEZING_TRAP_STUN, true);
+                caster.SpellFactory.CastSpell(target, UsedSpells.FreezingTrapStun, true);
                 At.Remove();
 
                 return;
@@ -54,7 +55,7 @@ public class at_hun_freezing_trapAI : AreaTriggerScript, IAreaTriggerOnCreate, I
 
         if (!caster.IsFriendlyTo(unit))
         {
-            caster.CastSpell(unit, UsedSpells.FREEZING_TRAP_STUN, true);
+            caster.SpellFactory.CastSpell(unit, UsedSpells.FreezingTrapStun, true);
             At.Remove();
 
             return;

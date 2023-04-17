@@ -1,16 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(49532)]
-public class npc_enraged_worgen_dm : ScriptedAI
+public class NPCEnragedWorgenDm : ScriptedAI
 {
-    public npc_enraged_worgen_dm(Creature creature) : base(creature) { }
+    public NPCEnragedWorgenDm(Creature creature) : base(creature) { }
 
     public override void JustEnteredCombat(Unit who)
     {
@@ -19,11 +20,11 @@ public class npc_enraged_worgen_dm : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+        var vanessa = Me.FindNearestCreature(DmCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
-        if (Vanessa != null)
+        if (vanessa != null)
         {
-            var pAI = (npc_vanessa_nightmare)Vanessa.AI;
+            var pAI = (NPCVanessaNightmare)vanessa.AI;
 
             if (pAI != null)
                 pAI.WorgenKilled();

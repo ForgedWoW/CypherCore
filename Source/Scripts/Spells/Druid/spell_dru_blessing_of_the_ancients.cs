@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(202360)]
-public class spell_dru_blessing_of_the_ancients : SpellScript, IHasSpellEffects
+public class SpellDruBlessingOfTheAncients : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,10 +22,10 @@ public class spell_dru_blessing_of_the_ancients : SpellScript, IHasSpellEffects
 
     private void HandleDummy(int effIndex)
     {
-        var removeAura = Caster.HasAura(DruidSpells.BLESSING_OF_ELUNE) ? (uint)DruidSpells.BLESSING_OF_ELUNE : (uint)DruidSpells.BLESSING_OF_ANSHE;
-        var addAura = Caster.HasAura(DruidSpells.BLESSING_OF_ELUNE) ? (uint)DruidSpells.BLESSING_OF_ANSHE : (uint)DruidSpells.BLESSING_OF_ELUNE;
+        var removeAura = Caster.HasAura(DruidSpells.BlessingOfElune) ? (uint)DruidSpells.BlessingOfElune : (uint)DruidSpells.BlessingOfAnshe;
+        var addAura = Caster.HasAura(DruidSpells.BlessingOfElune) ? (uint)DruidSpells.BlessingOfAnshe : (uint)DruidSpells.BlessingOfElune;
 
         Caster.RemoveAura(removeAura);
-        Caster.CastSpell(null, addAura, true);
+        Caster.SpellFactory.CastSpell(null, addAura, true);
     }
 }

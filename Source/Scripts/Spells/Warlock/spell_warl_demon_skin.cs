@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 //219272 - Demon Skin
 [SpellScript(219272)]
-public class spell_warl_demon_skin : AuraScript, IHasAuraEffects
+public class SpellWarlDemonSkin : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -45,10 +46,10 @@ public class spell_warl_demon_skin : AuraScript, IHasAuraEffects
         if (soulLeechShield != null)
             soulLeechShield.SetAmount((int)absorb);
         else
-            caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_SHIELD, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorb));
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.SOUL_LEECH_SHIELD, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorb));
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 

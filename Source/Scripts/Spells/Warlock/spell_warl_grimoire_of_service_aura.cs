@@ -2,20 +2,20 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // Grimoire of Service - 108501
 [SpellScript(108501)]
-internal class spell_warl_grimoire_of_service_aura : AuraScript, IHasAuraEffects
+internal class SpellWarlGrimoireOfServiceAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-    public void Handlearn(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    public void Handlearn(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var player = Caster.AsPlayer;
 
@@ -31,7 +31,7 @@ internal class spell_warl_grimoire_of_service_aura : AuraScript, IHasAuraEffects
         }
     }
 
-    public void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    public void HandleRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var player = Caster.AsPlayer;
 

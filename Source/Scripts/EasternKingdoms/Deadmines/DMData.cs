@@ -3,7 +3,7 @@
 
 namespace Scripts.EasternKingdoms.Deadmines;
 
-public static class DMData
+public static class DmData
 {
     public const uint DATA_GLUBTOK = 1;
     public const uint DATA_HELIX = 2;

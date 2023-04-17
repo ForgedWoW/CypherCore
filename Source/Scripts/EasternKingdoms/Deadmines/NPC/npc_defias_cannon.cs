@@ -1,16 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(48266)]
-public class npc_defias_cannon : ScriptedAI
+public class NPCDefiasCannon : ScriptedAI
 {
     public static readonly Position[] SourcePosition =
     {
@@ -24,10 +27,10 @@ public class npc_defias_cannon : ScriptedAI
 
     public InstanceScript Instance;
     public uint Phase;
-    public uint CannonBlast_Timer;
+    public uint CannonBlastTimer;
     public ObjectGuid TargetGUID;
 
-    public npc_defias_cannon(Creature creature) : base(creature)
+    public NPCDefiasCannon(Creature creature) : base(creature)
     {
         ;
         Instance = creature.InstanceScript;
@@ -37,7 +40,7 @@ public class npc_defias_cannon : ScriptedAI
     {
         base.Reset();
         Phase = 0;
-        CannonBlast_Timer = DMData.DATA_CANNON_BLAST_TIMER;
+        CannonBlastTimer = DmData.DATA_CANNON_BLAST_TIMER;
 
         if (!Me)
             return;
@@ -48,12 +51,12 @@ public class npc_defias_cannon : ScriptedAI
 
     public bool GetSupporter()
     {
-        var supporter = Me.FindNearestCreature(DMCreatures.NPC_OGRE_HENCHMAN, 7.0f, true);
+        var supporter = Me.FindNearestCreature(DmCreatures.NPC_OGRE_HENCHMAN, 7.0f, true);
 
         if (supporter != null)
             return true;
 
-        supporter = Me.FindNearestCreature(DMCreatures.NPC_DEFIAS_PIRATE, 5.0f, true);
+        supporter = Me.FindNearestCreature(DmCreatures.NPC_DEFIAS_PIRATE, 5.0f, true);
 
         if (supporter != null)
             return true;
@@ -61,7 +64,7 @@ public class npc_defias_cannon : ScriptedAI
         return false;
     }
 
-    public void EnterCombat(Unit UnnamedParameter) { }
+    public void EnterCombat(Unit unnamedParameter) { }
 
     public void GetCreature()
     {
@@ -85,7 +88,7 @@ public class npc_defias_cannon : ScriptedAI
 
         if (Phase == 0)
         {
-            if (CannonBlast_Timer <= uiDiff)
+            if (CannonBlastTimer <= uiDiff)
             {
                 if (!GetSupporter())
                 {
@@ -97,14 +100,14 @@ public class npc_defias_cannon : ScriptedAI
                     var target = ObjectAccessor.GetCreature(Me, TargetGUID);
 
                     if (target != null)
-                        Me.CastSpell(target, DMSpells.CANNONBALL);
+                        Me.SpellFactory.CastSpell(target, DmSpells.CANNONBALL);
                 }
 
-                CannonBlast_Timer = (uint)RandomHelper.IRand(3000, 5000);
+                CannonBlastTimer = (uint)RandomHelper.IRand(3000, 5000);
             }
             else
             {
-                CannonBlast_Timer -= uiDiff;
+                CannonBlastTimer -= uiDiff;
             }
         }
     }

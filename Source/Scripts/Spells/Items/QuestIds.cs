@@ -6,9 +6,9 @@ namespace Scripts.Spells.Items;
 internal struct QuestIds
 {
     //Demonbroiledsurprise
-    public const uint SuperHotStew = 11379;
+    public const uint SUPER_HOT_STEW = 11379;
 
     //Chickencover
-    public const uint ChickenParty = 12702;
-    public const uint FlownTheCoop = 12532;
+    public const uint CHICKEN_PARTY = 12702;
+    public const uint FLOWN_THE_COOP = 12532;
 }

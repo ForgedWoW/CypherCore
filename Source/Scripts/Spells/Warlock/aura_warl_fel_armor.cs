@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(WarlockSpells.FEL_ARMOR_DMG_DELAY)]
-internal class aura_warl_fel_armor : AuraScript, IHasAuraEffects
+internal class AuraWarlFelArmor : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 

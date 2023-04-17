@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_defender_of_azeroth_speak_with_mograine : SpellScript, IHasSpellEffects
+internal class SpellDefenderOfAzerothSpeakWithMograine : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -28,15 +29,15 @@ internal class spell_defender_of_azeroth_speak_with_mograine : SpellScript, IHas
         if (player == null)
             return;
 
-        var nazgrim = HitUnit.FindNearestCreature(CreatureIds.Nazgrim, 10.0f);
+        var nazgrim = HitUnit.FindNearestCreature(CreatureIds.NAZGRIM, 10.0f);
 
         nazgrim?.HandleEmoteCommand(Emote.OneshotPoint, player);
 
-        var trollbane = HitUnit.FindNearestCreature(CreatureIds.Trollbane, 10.0f);
+        var trollbane = HitUnit.FindNearestCreature(CreatureIds.TROLLBANE, 10.0f);
 
         trollbane?.HandleEmoteCommand(Emote.OneshotPoint, player);
 
-        var whitemane = HitUnit.FindNearestCreature(CreatureIds.Whitemane, 10.0f);
+        var whitemane = HitUnit.FindNearestCreature(CreatureIds.WHITEMANE, 10.0f);
 
         whitemane?.HandleEmoteCommand(Emote.OneshotPoint, player);
 

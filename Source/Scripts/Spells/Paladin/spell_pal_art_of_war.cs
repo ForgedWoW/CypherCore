@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 // 267344 - Art of War
 [SpellScript(267344)]
-internal class spell_pal_art_of_war : AuraScript, IHasAuraEffects
+internal class SpellPalArtOfWar : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -31,6 +32,6 @@ internal class spell_pal_art_of_war : AuraScript, IHasAuraEffects
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         Target.SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
-        Target.CastSpell(Target, PaladinSpells.ArtOfWarTriggered, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+        Target.SpellFactory.CastSpell(Target, PaladinSpells.ART_OF_WAR_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
     }
 }

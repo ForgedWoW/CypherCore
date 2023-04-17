@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(47541)]
-internal class spell_dk_death_coil : SpellScript, IHasSpellEffects
+internal class SpellDkDeathCoil : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -32,17 +33,17 @@ internal class spell_dk_death_coil : SpellScript, IHasSpellEffects
             {
                 if (target.IsFriendlyTo(caster) && target.CreatureType == CreatureType.Undead)
                 {
-                    caster.CastSpell(HitUnit, DeathKnightSpells.DEATH_COIL_HEAL, true);
+                    caster.SpellFactory.CastSpell(HitUnit, DeathKnightSpells.DEATH_COIL_HEAL, true);
                 }
                 else
                 {
-                    var spell = caster.CastSpell(HitUnit, DeathKnightSpells.DEATH_COIL_DAMAGE, true);
+                    var spell = caster.SpellFactory.CastSpell(HitUnit, DeathKnightSpells.DEATH_COIL_DAMAGE, true);
                 }
 
-                var unholyAura = caster.GetAuraEffect(DeathKnightSpells.Unholy, 6);
+                var unholyAura = caster.GetAuraEffect(DeathKnightSpells.UNHOLY, 6);
 
                 if (unholyAura != null) // can be any effect, just here to send SpellFailedDontReport on failure
-                    caster.CastSpell(caster, DeathKnightSpells.UnholyVigor, new CastSpellExtraArgs(unholyAura));
+                    caster.SpellFactory.CastSpell(caster, DeathKnightSpells.UnholyVigor, new CastSpellExtraArgs(unholyAura));
 
                 var suddenDoom = caster.GetAura(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM_AURA);
 

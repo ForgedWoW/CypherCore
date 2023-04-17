@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(51556)] // 196926 - Crusader Might
-internal class spell_pal_crusader_might : AuraScript, IHasAuraEffects
+internal class SpellPalCrusaderMight : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,6 +24,6 @@ internal class spell_pal_crusader_might : AuraScript, IHasAuraEffects
 
     private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
-        Target.SpellHistory.ModifyCooldown(PaladinSpells.HolyShock, TimeSpan.FromSeconds(aurEff.Amount));
+        Target.SpellHistory.ModifyCooldown(PaladinSpells.HOLY_SHOCK, TimeSpan.FromSeconds(aurEff.Amount));
     }
 }

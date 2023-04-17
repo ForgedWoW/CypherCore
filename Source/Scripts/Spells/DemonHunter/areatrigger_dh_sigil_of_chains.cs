@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script] // 202138 - Sigil of Chains
-internal class areatrigger_dh_sigil_of_chains : AreaTriggerScript, IAreaTriggerOnRemove
+internal class AreatriggerDhSigilOfChains : AreaTriggerScript, IAreaTriggerOnRemove
 {
     public void OnRemove()
     {
@@ -16,8 +16,8 @@ internal class areatrigger_dh_sigil_of_chains : AreaTriggerScript, IAreaTriggerO
 
         if (caster != null)
         {
-            caster.CastSpell(At.Location, DemonHunterSpells.SigilOfChainsVisual, new CastSpellExtraArgs());
-            caster.CastSpell(At.Location, DemonHunterSpells.SigilOfChainsTargetSelect, new CastSpellExtraArgs());
+            caster.SpellFactory.CastSpell(At.Location, DemonHunterSpells.SIGIL_OF_CHAINS_VISUAL, new CastSpellExtraArgs());
+            caster.SpellFactory.CastSpell(At.Location, DemonHunterSpells.SIGIL_OF_CHAINS_TARGET_SELECT, new CastSpellExtraArgs());
         }
     }
 }

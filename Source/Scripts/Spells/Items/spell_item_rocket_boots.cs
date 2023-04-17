@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellItemRocketBoots : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -41,7 +42,7 @@ internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpell
         if (bg)
             bg.EventPlayerDroppedFlag(caster);
 
-        caster.SpellHistory.ResetCooldown(ItemSpellIds.RocketBootsProc);
-        caster.CastSpell(caster, ItemSpellIds.RocketBootsProc, true);
+        caster.SpellHistory.ResetCooldown(ItemSpellIds.ROCKET_BOOTS_PROC);
+        caster.SpellFactory.CastSpell(caster, ItemSpellIds.ROCKET_BOOTS_PROC, true);
     }
 }

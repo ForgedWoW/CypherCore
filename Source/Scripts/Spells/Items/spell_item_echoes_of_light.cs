@@ -3,15 +3,17 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 71610, 71641 - Echoes of Light (Althor's Abacus)
-internal class spell_item_echoes_of_light : SpellScript, IHasSpellEffects
+internal class SpellItemEchoesOfLight : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

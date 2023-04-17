@@ -2,11 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -15,7 +16,7 @@ namespace Scripts.Spells.Paladin;
 {
     53651, 177173
 })]
-public class spell_pal_beacon_of_light_proc : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellPalBeaconOfLightProc : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -41,7 +42,7 @@ public class spell_pal_beacon_of_light_proc : AuraScript, IHasAuraEffects, IAura
         switch (spellID)
         {
             case PaladinSpells.ARCING_LIGHT_HEAL:   // Light's Hammer
-            case PaladinSpells.HolyPrismTargetAlly: // Holy Prism
+            case PaladinSpells.HOLY_PRISM_TARGET_ALLY: // Holy Prism
             case PaladinSpells.LIGHT_OF_DAWN:       // Light of Dawn
                 pct = 15;                           // 15% heal from these spells
 
@@ -55,7 +56,7 @@ public class spell_pal_beacon_of_light_proc : AuraScript, IHasAuraEffects, IAura
         return pct;
     }
 
-    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    private void OnProc(AuraEffect unnamedParameter, ProcEventInfo eventInfo)
     {
         PreventDefaultAction();
         var auraCheck = false;
@@ -72,16 +73,16 @@ public class spell_pal_beacon_of_light_proc : AuraScript, IHasAuraEffects, IAura
 
         var bp = MathFunctions.CalculatePct(healInfo.Heal, GetPctBySpell(SpellInfo.Id));
 
-        if (SpellInfo.Id == PaladinSpells.BEACON_OF_LIGHT_PROC_AURA && (targetOfBeacon.HasAura(PaladinSpells.BeaconOfLight) || targetOfBeacon.HasAura(PaladinSpells.BEACON_OF_VIRTUE)))
+        if (SpellInfo.Id == PaladinSpells.BEACON_OF_LIGHT_PROC_AURA && (targetOfBeacon.HasAura(PaladinSpells.BEACON_OF_LIGHT) || targetOfBeacon.HasAura(PaladinSpells.BEACON_OF_VIRTUE)))
         {
-            ownerOfBeacon.CastSpell(targetOfBeacon, PaladinSpells.BeaconOfLightHeal, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
+            ownerOfBeacon.SpellFactory.CastSpell(targetOfBeacon, PaladinSpells.BEACON_OF_LIGHT_HEAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
             auraCheck = true;
         }
 
         if ((SpellInfo.Id == PaladinSpells.BEACON_OF_FAITH_PROC_AURA && targetOfBeacon.HasAura(PaladinSpells.BEACON_OF_FAITH)))
         {
             bp /= 2;
-            ownerOfBeacon.CastSpell(targetOfBeacon, PaladinSpells.BeaconOfLightHeal, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
+            ownerOfBeacon.SpellFactory.CastSpell(targetOfBeacon, PaladinSpells.BEACON_OF_LIGHT_HEAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
             auraCheck = true;
         }
 

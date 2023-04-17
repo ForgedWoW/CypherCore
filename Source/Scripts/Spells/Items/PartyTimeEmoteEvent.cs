@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Entities;
 
 namespace Scripts.Spells.Items;
 
@@ -19,7 +19,7 @@ internal class PartyTimeEmoteEvent : BasicEvent
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        if (!_player.HasAura(ItemSpellIds.PartyTime))
+        if (!_player.HasAura(ItemSpellIds.PARTY_TIME))
             return true;
 
         if (_player.IsMoving)

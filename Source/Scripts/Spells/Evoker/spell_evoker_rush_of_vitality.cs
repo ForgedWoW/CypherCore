@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.GREEN_EMERALD_COMMUNION)]
-internal class spell_evoker_rush_of_vitality : SpellScript, ISpellOnCast
+internal class SpellEvokerRushOfVitality : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {

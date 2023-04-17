@@ -6,21 +6,21 @@ namespace Scripts.Spells.Items;
 internal struct TextIds
 {
     //Auraofmadness
-    public const uint SayMadness = 21954;
+    public const uint SAY_MADNESS = 21954;
 
     //Roll Dice
-    public const uint DecahedralDwarvenDice = 26147;
+    public const uint DECAHEDRAL_DWARVEN_DICE = 26147;
 
     //Roll 'dem Bones
-    public const uint WornTrollDice = 26152;
+    public const uint WORN_TROLL_DICE = 26152;
 
     //TauntFlag
-    public const uint EmotePlantsFlag = 28008;
+    public const uint EMOTE_PLANTS_FLAG = 28008;
 
     //Feast
-    public const uint GreatFeast = 31843;
-    public const uint TextFishFeast = 31844;
-    public const uint TextGiganticFeast = 31846;
-    public const uint SmallFeast = 31845;
-    public const uint BountifulFeast = 35153;
+    public const uint GREAT_FEAST = 31843;
+    public const uint TEXT_FISH_FEAST = 31844;
+    public const uint TEXT_GIGANTIC_FEAST = 31846;
+    public const uint SMALL_FEAST = 31845;
+    public const uint BOUNTIFUL_FEAST = 35153;
 }

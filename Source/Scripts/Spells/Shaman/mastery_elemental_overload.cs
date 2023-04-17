@@ -1,23 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 //168534
 [Script]
-public class mastery_elemental_overload : ScriptObjectAutoAdd, IPlayerOnSpellCast
+public class MasteryElementalOverload : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
+    public MasteryElementalOverload() : base("mastery_elemental_overload") { }
     public PlayerClass PlayerClass { get; } = PlayerClass.Shaman;
 
-    public mastery_elemental_overload() : base("mastery_elemental_overload") { }
-
-    public void OnSpellCast(Player player, Spell spell, bool UnnamedParameter)
+    public void OnSpellCast(Player player, Spell spell, bool unnamedParameter)
     {
         if (player.GetPrimarySpecialization() != TalentSpecialization.ShamanElemental)
             return;
@@ -30,19 +29,19 @@ public class mastery_elemental_overload : ScriptObjectAutoAdd, IPlayerOnSpellCas
                 switch (spell.SpellInfo.Id)
                 {
                     case ShamanSpells.LIGHTNING_BOLT_ELEM:
-                        player.CastSpell(player.SelectedUnit, ShamanSpells.LIGHTNING_BOLT_ELEM, true);
+                        player.SpellFactory.CastSpell(player.SelectedUnit, ShamanSpells.LIGHTNING_BOLT_ELEM, true);
 
                         break;
                     case ShamanSpells.ELEMENTAL_BLAST:
-                        player.CastSpell(player.SelectedUnit, ShamanSpells.ELEMENTAL_BLAST, true);
+                        player.SpellFactory.CastSpell(player.SelectedUnit, ShamanSpells.ELEMENTAL_BLAST, true);
 
                         break;
                     case ShamanSpells.LAVA_BURST:
-                        player.CastSpell(player.SelectedUnit, ShamanSpells.LAVA_BURST, true);
+                        player.SpellFactory.CastSpell(player.SelectedUnit, ShamanSpells.LAVA_BURST, true);
 
                         break;
                     case ShamanSpells.CHAIN_LIGHTNING:
-                        player.CastSpell(player.SelectedUnit, ShamanSpells.LAVA_BURST, true);
+                        player.SpellFactory.CastSpell(player.SelectedUnit, ShamanSpells.LAVA_BURST, true);
 
                         break;
                 }

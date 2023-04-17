@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 319778 - Flametongue
 [SpellScript(319778)]
-internal class spell_sha_flametongue_weapon_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellShaFlametongueWeaponAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -30,6 +31,6 @@ internal class spell_sha_flametongue_weapon_AuraScript : AuraScript, IHasAuraEff
         var attacker = eventInfo.Actor;
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, Math.Max(1, (int)(attacker.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.0264f)));
-        attacker.CastSpell(eventInfo.ActionTarget, ShamanSpells.FlametongueAttack, args);
+        attacker.SpellFactory.CastSpell(eventInfo.ActionTarget, ShamanSpells.FlametongueAttack, args);
     }
 }

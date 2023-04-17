@@ -2,22 +2,23 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.HighlordOmokk;
 
 internal struct SpellIds
 {
-    public const uint Frenzy = 8269;
-    public const uint KnockAway = 10101;
+    public const uint FRENZY = 8269;
+    public const uint KNOCK_AWAY = 10101;
 }
 
 [Script]
-internal class boss_highlord_omokk : BossAI
+internal class BossHighlordOmokk : BossAI
 {
-    public boss_highlord_omokk(Creature creature) : base(creature, DataTypes.HighlordOmokk) { }
+    public BossHighlordOmokk(Creature creature) : base(creature, DataTypes.HIGHLORD_OMOKK) { }
 
     public override void Reset()
     {
@@ -31,14 +32,14 @@ internal class boss_highlord_omokk : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Frenzy);
+                               DoCastVictim(SpellIds.FRENZY);
                                task.Repeat(TimeSpan.FromMinutes(1));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(18),
                            task =>
                            {
-                               DoCastVictim(SpellIds.KnockAway);
+                               DoCastVictim(SpellIds.KNOCK_AWAY);
                                task.Repeat(TimeSpan.FromSeconds(12));
                            });
     }

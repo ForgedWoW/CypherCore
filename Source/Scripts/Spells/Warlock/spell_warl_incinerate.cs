@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Incinerate - 29722
 [SpellScript(29722)]
-public class spell_warl_incinerate : SpellScript, IHasSpellEffects
+public class SpellWarlIncinerate : SpellScript, IHasSpellEffects
 {
     double _brimstoneDamage = 0;
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -22,15 +23,15 @@ public class spell_warl_incinerate : SpellScript, IHasSpellEffects
         SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
     }
 
-    private void HandleOnHitMainTarget(int UnnamedParameter)
+    private void HandleOnHitMainTarget(int unnamedParameter)
     {
-        Caster.CastSpell(WarlockSpells.INCINERATE_ENERGIZE, true);
+        Caster.SpellFactory.CastSpell(WarlockSpells.INCINERATE_ENERGIZE, true);
 
         if (IsHitCrit)
             Caster.ModifyPower(PowerType.SoulShards, 10);
     }
 
-    private void HandleOnHitTarget(int UnnamedParameter)
+    private void HandleOnHitTarget(int unnamedParameter)
     {
         var target = HitUnit;
         var caster = Caster;
@@ -46,7 +47,7 @@ public class spell_warl_incinerate : SpellScript, IHasSpellEffects
     private void DiabolicEmbers(Unit caster)
     {
         if (caster.HasAura(WarlockSpells.DIABOLIC_EMBERS))
-            caster.CastSpell(WarlockSpells.INCINERATE_ENERGIZE, true);
+            caster.SpellFactory.CastSpell(WarlockSpells.INCINERATE_ENERGIZE, true);
     }
 
     private void FireAndBrimstone(Unit target, Unit caster)

@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_pvp_trinket : SpellScript, ISpellAfterCast
+internal class SpellGenPVPTrinket : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -18,11 +18,11 @@ internal class spell_gen_pvp_trinket : SpellScript, ISpellAfterCast
         switch (caster.EffectiveTeam)
         {
             case TeamFaction.Alliance:
-                caster.CastSpell(caster, GenericSpellIds.PvpTrinketAlliance, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+                caster.SpellFactory.CastSpell(caster, GenericSpellIds.PVP_TRINKET_ALLIANCE, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
                 break;
             case TeamFaction.Horde:
-                caster.CastSpell(caster, GenericSpellIds.PvpTrinketHorde, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+                caster.SpellFactory.CastSpell(caster, GenericSpellIds.PVP_TRINKET_HORDE, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
                 break;
         }

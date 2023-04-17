@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // Thal'kiel's Consumption - 211714
 [SpellScript(211714)]
-public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpellEffects
+public class SpellWarlockArtifactThalkielsConsumption : SpellScript, IHasSpellEffects
 {
     private uint _damage = 0;
 
@@ -32,7 +33,7 @@ public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpe
         if (target == null || caster == null)
             return;
 
-        caster.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_damage));
+        caster.SpellFactory.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_damage));
     }
 
     private void SaveDamage(List<WorldObject> targets)

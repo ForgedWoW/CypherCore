@@ -6,6 +6,6 @@ namespace Scripts.Spells.Items;
 internal struct FactionIds
 {
     //ExaltedSunwellNeck
-    public const uint Aldor = 932;
-    public const uint Scryers = 934;
+    public const uint ALDOR = 932;
+    public const uint SCRYERS = 934;
 }

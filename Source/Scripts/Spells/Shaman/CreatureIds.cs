@@ -5,5 +5,5 @@ namespace Scripts.Spells.Shaman;
 
 internal struct CreatureIds
 {
-    public const uint HealingRainInvisibleStalker = 73400;
+    public const uint HEALING_RAIN_INVISIBLE_STALKER = 73400;
 }

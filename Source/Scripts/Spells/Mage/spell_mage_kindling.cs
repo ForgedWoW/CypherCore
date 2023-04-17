@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(155148)]
-public class spell_mage_kindling : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellMageKindling : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,7 +26,7 @@ public class spell_mage_kindling : AuraScript, IHasAuraEffects, IAuraCheckProc
         AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo unnamedParameter)
     {
         var caster = Caster;
 

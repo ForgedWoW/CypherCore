@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // Flametongue - 193796
 [SpellScript(193796)]
-public class bfa_spell_flametongue : SpellScript, ISpellOnHit
+public class BfaSpellFlametongue : SpellScript, ISpellOnHit
 {
     public override bool Load()
     {
@@ -24,6 +24,6 @@ public class bfa_spell_flametongue : SpellScript, ISpellOnHit
             return;
 
         if (caster.HasAura(ShamanSpells.SEARING_ASSAULT_TALENT))
-            caster.CastSpell(target, ShamanSpells.SEARING_ASSULAT_TALENT_PROC, true);
+            caster.SpellFactory.CastSpell(target, ShamanSpells.SEARING_ASSULAT_TALENT_PROC, true);
     }
 }

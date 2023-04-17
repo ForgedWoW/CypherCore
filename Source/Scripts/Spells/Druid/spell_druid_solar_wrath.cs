@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(190984)]
-public class spell_druid_solar_wrath : SpellScript, IHasSpellEffects
+public class SpellDruidSolarWrath : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,31 +25,31 @@ public class spell_druid_solar_wrath : SpellScript, IHasSpellEffects
         var target = HitUnit;
 
         if (target != null)
-            if (Caster.HasAura(Spells.NATURES_BALANCE))
+            if (Caster.HasAura(Spells.NaturesBalance))
             {
-                var sunfireDOT = target.GetAura(Spells.SUNFIRE_DOT, Caster.GUID);
+                var sunfireDot = target.GetAura(Spells.SunfireDot, Caster.GUID);
 
-                if (sunfireDOT != null)
+                if (sunfireDot != null)
                 {
-                    var duration = sunfireDOT.Duration;
+                    var duration = sunfireDot.Duration;
                     var newDuration = duration + 4 * Time.IN_MILLISECONDS;
 
-                    if (newDuration > sunfireDOT.MaxDuration)
-                        sunfireDOT.SetMaxDuration(newDuration);
+                    if (newDuration > sunfireDot.MaxDuration)
+                        sunfireDot.SetMaxDuration(newDuration);
 
-                    sunfireDOT.SetDuration(newDuration);
+                    sunfireDot.SetDuration(newDuration);
                 }
             }
 
-        if (Caster && RandomHelper.randChance(20) && Caster.HasAura(DruidSpells.ECLIPSE))
-            Caster.CastSpell(null, DruidSpells.LUNAR_EMPOWEREMENT, true);
+        if (Caster && RandomHelper.randChance(20) && Caster.HasAura(DruidSpells.Eclipse))
+            Caster.SpellFactory.CastSpell(null, DruidSpells.LunarEmpowerement, true);
     }
 
 
     private struct Spells
     {
-        public static readonly uint SOLAR_WRATH = 190984;
-        public static readonly uint NATURES_BALANCE = 202430;
-        public static readonly uint SUNFIRE_DOT = 164815;
+        public static readonly uint SolarWrath = 190984;
+        public static readonly uint NaturesBalance = 202430;
+        public static readonly uint SunfireDot = 164815;
     }
 }

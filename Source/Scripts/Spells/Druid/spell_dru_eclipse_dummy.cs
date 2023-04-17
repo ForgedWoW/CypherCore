@@ -3,24 +3,25 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 79577 - Eclipse - ECLIPSE_DUMMY
-internal class spell_dru_eclipse_dummy : AuraScript, IAuraOnProc, IAuraEnterLeaveCombat, IHasAuraEffects
+internal class SpellDruEclipseDummy : AuraScript, IAuraOnProc, IAuraEnterLeaveCombat, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
     public void EnterLeaveCombat(bool isNowInCombat)
     {
         if (!isNowInCombat)
-            Target.CastSpell(Target, DruidSpellIds.EclipseOoc, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+            Target.SpellFactory.CastSpell(Target, DruidSpellIds.EclipseOoc, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
     }
 
 
@@ -74,7 +75,7 @@ internal class spell_dru_eclipse_dummy : AuraScript, IAuraOnProc, IAuraEnterLeav
             else
             {
                 // cast eclipse
-                target.CastSpell(target, eclipseAuraSpellId, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+                target.SpellFactory.CastSpell(target, eclipseAuraSpellId, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
                 // Remove stacks from other one as well
                 // reset remaining power on other spellId
@@ -97,8 +98,8 @@ internal class spell_dru_eclipse_dummy : AuraScript, IAuraOnProc, IAuraEnterLeav
 
         public override bool Execute(ulong etime, uint pTime)
         {
-            spell_dru_eclipse_common.SetSpellCount(_owner, DruidSpellIds.EclipseSolarSpellCnt, _count);
-            spell_dru_eclipse_common.SetSpellCount(_owner, DruidSpellIds.EclipseLunarSpellCnt, _count);
+            SpellDruEclipseCommon.SetSpellCount(_owner, DruidSpellIds.EclipseSolarSpellCnt, _count);
+            SpellDruEclipseCommon.SetSpellCount(_owner, DruidSpellIds.EclipseLunarSpellCnt, _count);
 
             return true;
         }

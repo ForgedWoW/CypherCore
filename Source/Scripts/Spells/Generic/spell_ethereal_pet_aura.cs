@@ -3,16 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_ethereal_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellEtherealPetAura : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -33,13 +35,13 @@ internal class spell_ethereal_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEff
         PreventDefaultAction();
 
         List<TempSummon> minionList = new();
-        OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.EtherealSoulTrader);
+        OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.ETHEREAL_SOUL_TRADER);
 
         foreach (Creature minion in minionList)
             if (minion.IsAIEnabled)
             {
-                minion.AI.Talk(TextIds.SayStealEssence);
-                minion.CastSpell(eventInfo.ProcTarget, GenericSpellIds.StealEssenceVisual);
+                minion.AI.Talk(TextIds.SAY_STEAL_ESSENCE);
+                minion.SpellFactory.CastSpell(eventInfo.ProcTarget, GenericSpellIds.STEAL_ESSENCE_VISUAL);
             }
     }
 }

@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 //146739 - Corruption
 [SpellScript(146739)]
-public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
+public class SpellWarlCorruptionEffect : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -21,7 +21,7 @@ public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
     }
 
-    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var target = Target;
         var caster = Caster;
@@ -37,7 +37,7 @@ public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
     /*
     Removes the aura if the caster is null, far away or dead.
     */
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
         var target = Target;
         var caster = Caster;

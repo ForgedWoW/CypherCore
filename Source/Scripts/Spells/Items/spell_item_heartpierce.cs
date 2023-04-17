@@ -2,32 +2,33 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
-[Script("spell_item_heartpierce", ItemSpellIds.InvigorationEnergy, ItemSpellIds.InvigorationMana, ItemSpellIds.InvigorationRage, ItemSpellIds.InvigorationRp)]
-[Script("spell_item_heartpierce_hero", ItemSpellIds.InvigorationEnergyHero, ItemSpellIds.InvigorationManaHero, ItemSpellIds.InvigorationRageHero, ItemSpellIds.InvigorationRpHero)]
-internal class spell_item_heartpierce : AuraScript, IHasAuraEffects
+[Script("spell_item_heartpierce", ItemSpellIds.INVIGORATION_ENERGY, ItemSpellIds.INVIGORATION_MANA, ItemSpellIds.INVIGORATION_RAGE, ItemSpellIds.INVIGORATION_RP)]
+[Script("spell_item_heartpierce_hero", ItemSpellIds.INVIGORATION_ENERGY_HERO, ItemSpellIds.INVIGORATION_MANA_HERO, ItemSpellIds.INVIGORATION_RAGE_HERO, ItemSpellIds.INVIGORATION_RP_HERO)]
+internal class SpellItemHeartpierce : AuraScript, IHasAuraEffects
 {
     private readonly uint _energySpellId;
     private readonly uint _manaSpellId;
     private readonly uint _rageSpellId;
     private readonly uint _rpSpellId;
 
-    public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-    public spell_item_heartpierce(uint energySpellId, uint manaSpellId, uint rageSpellId, uint rpSpellId)
+    public SpellItemHeartpierce(uint energySpellId, uint manaSpellId, uint rageSpellId, uint rpSpellId)
     {
         _energySpellId = energySpellId;
         _manaSpellId = manaSpellId;
         _rageSpellId = rageSpellId;
         _rpSpellId = rpSpellId;
     }
+
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
     public override void Register()
@@ -65,6 +66,6 @@ internal class spell_item_heartpierce : AuraScript, IHasAuraEffects
                 return;
         }
 
-        caster.CastSpell((Unit)null, spellId, new CastSpellExtraArgs(aurEff));
+        caster.SpellFactory.CastSpell((Unit)null, spellId, new CastSpellExtraArgs(aurEff));
     }
 }

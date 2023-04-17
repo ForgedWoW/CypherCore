@@ -1,14 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Evoker;
 
 [AreaTriggerScript(EvokerAreaTriggers.BLACK_LANDSLIDE)]
-public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
+public class AtEvokerLandslide : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
     uint _castInterval;
 
@@ -44,7 +45,7 @@ public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreate
 
         if (_castInterval <= diff)
         {
-            caster.CastSpell(At.Location, EvokerSpells.BLACK_LANDSLIDE_ROOT, true);
+            caster.SpellFactory.CastSpell(At.Location, EvokerSpells.BLACK_LANDSLIDE_ROOT, true);
             _castInterval += 100;
         }
         else

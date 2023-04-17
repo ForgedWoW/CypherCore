@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(49552)]
-public class npc_rope_ship : ScriptedAI
+public class NPCRopeShip : ScriptedAI
 {
-    public npc_rope_ship(Creature creature) : base(creature) { }
+    public NPCRopeShip(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -20,7 +20,7 @@ public class npc_rope_ship : ScriptedAI
 
             if (summoner != null)
                 if (summoner)
-                    Me.CastSpell(summoner, 43785, true);
+                    Me.SpellFactory.CastSpell(summoner, 43785, true);
         }
     }
 }

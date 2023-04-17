@@ -3,18 +3,20 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 52759 - Ancestral Awakening
 /// Updated 4.3.4
 [SpellScript(52759)]
-public class spell_sha_ancestral_awakening_proc : SpellScript, IHasSpellEffects
+public class SpellShaAncestralAwakeningProc : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -39,6 +41,6 @@ public class spell_sha_ancestral_awakening_proc : SpellScript, IHasSpellEffects
 
     private void HandleDummy(int effIndex)
     {
-        Caster.CastSpell(HitUnit, ShamanSpells.ANCESTRAL_AWAKENING_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)EffectValue));
+        Caster.SpellFactory.CastSpell(HitUnit, ShamanSpells.ANCESTRAL_AWAKENING_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)EffectValue));
     }
 }

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
 [Script] // Heroic Leap (triggered by Heroic Leap (6544)) - 178368
-internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
+internal class SpellWarrHeroicLeapJump : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,7 +23,7 @@ internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
     private void AfterJump(int effIndex)
     {
         if (Caster.HasAura(WarriorSpells.GLYPH_OF_HEROIC_LEAP))
-            Caster.CastSpell(Caster, WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF, true);
+            Caster.SpellFactory.CastSpell(Caster, WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF, true);
 
         if (Caster.HasAura(WarriorSpells.IMPROVED_HEROIC_LEAP))
             Caster.SpellHistory.ResetCooldown(WarriorSpells.TAUNT, true);

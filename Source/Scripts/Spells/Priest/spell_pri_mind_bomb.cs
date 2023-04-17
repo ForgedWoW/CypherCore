@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 205369 - Mind Bomb
-internal class spell_pri_mind_bomb : AuraScript, IHasAuraEffects
+internal class SpellPriMindBomb : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,6 +25,6 @@ internal class spell_pri_mind_bomb : AuraScript, IHasAuraEffects
     {
         if (TargetApplication.RemoveMode == AuraRemoveMode.Death ||
             TargetApplication.RemoveMode == AuraRemoveMode.Expire)
-            Caster?.CastSpell(Target.Location, PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
+            Caster?.SpellFactory.CastSpell(Target.Location, PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
     }
 }

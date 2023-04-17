@@ -1,22 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(48279)]
-public class npc_goblin_overseer : ScriptedAI
+public class NPCGoblinOverseer : ScriptedAI
 {
     public uint MotivateTimer;
 
     private bool _threat;
 
-    public npc_goblin_overseer(Creature creature) : base(creature) { }
+    public NPCGoblinOverseer(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -31,7 +31,7 @@ public class npc_goblin_overseer : ScriptedAI
             var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
             if (target != null)
-                DoCast(target, boss_vanessa_vancleef.Spells.MOTIVATE);
+                DoCast(target, BossVanessaVancleef.Spells.MOTIVATE);
 
             MotivateTimer = RandomHelper.URand(8000, 11000);
         }
@@ -42,7 +42,7 @@ public class npc_goblin_overseer : ScriptedAI
 
         if (HealthBelowPct(50) && !_threat)
         {
-            DoCast(Me, boss_vanessa_vancleef.Spells.THREATENING);
+            DoCast(Me, BossVanessaVancleef.Spells.THREATENING);
             _threat = true;
         }
 

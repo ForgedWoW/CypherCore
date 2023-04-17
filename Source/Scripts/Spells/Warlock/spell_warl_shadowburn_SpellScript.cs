@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(WarlockSpells.SHADOWBURN)]
-public class spell_warl_shadowburn_SpellScript : SpellScript, ISpellCalcCritChance, ISpellOnHit, ISpellOnCast
+public class SpellWarlShadowburnSpellScript : SpellScript, ISpellCalcCritChance, ISpellOnHit, ISpellOnCast
 {
     public void CalcCritChance(Unit victim, ref double chance)
     {
@@ -56,7 +56,7 @@ public class spell_warl_shadowburn_SpellScript : SpellScript, ISpellCalcCritChan
 
         if (caster.TryGetAura(WarlockSpells.CONFLAGRATION_OF_CHAOS, out var conflagrate))
             if (RandomHelper.randChance(conflagrate.GetEffect(0).BaseAmount))
-                caster.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_SHADOWBURN, true);
+                caster.SpellFactory.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_SHADOWBURN, true);
     }
 
     private void BurnToAshes(Unit caster)

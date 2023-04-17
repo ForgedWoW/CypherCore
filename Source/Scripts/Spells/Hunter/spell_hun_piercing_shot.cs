@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(198670)]
-public class spell_hun_piercing_shot : SpellScript, ISpellOnHit
+public class SpellHunPiercingShot : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -34,7 +34,7 @@ public class spell_hun_piercing_shot : SpellScript, ISpellOnHit
                 if (otherTarget != target)
                     if (!caster.IsFriendlyTo(otherTarget))
                         if (otherTarget.IsInBetween(caster, target, 5.0f))
-                            caster.CastSpell(otherTarget, 213678, true);
+                            caster.SpellFactory.CastSpell(otherTarget, 213678, true);
         }
     }
 }

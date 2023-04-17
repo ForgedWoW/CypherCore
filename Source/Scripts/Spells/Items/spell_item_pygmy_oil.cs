@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_pygmy_oil : SpellScript, IHasSpellEffects
+internal class SpellItemPygmyOil : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,7 +23,7 @@ internal class spell_item_pygmy_oil : SpellScript, IHasSpellEffects
     private void HandleDummy(int effIndex)
     {
         var caster = Caster;
-        var aura = caster.GetAura(ItemSpellIds.PygmyOilPygmyAura);
+        var aura = caster.GetAura(ItemSpellIds.PYGMY_OIL_PYGMY_AURA);
 
         if (aura != null)
         {
@@ -30,18 +31,18 @@ internal class spell_item_pygmy_oil : SpellScript, IHasSpellEffects
         }
         else
         {
-            aura = caster.GetAura(ItemSpellIds.PygmyOilSmallerAura);
+            aura = caster.GetAura(ItemSpellIds.PYGMY_OIL_SMALLER_AURA);
 
             if (aura == null ||
                 aura.StackAmount < 5 ||
                 !RandomHelper.randChance(50))
             {
-                caster.CastSpell(caster, ItemSpellIds.PygmyOilSmallerAura, true);
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.PYGMY_OIL_SMALLER_AURA, true);
             }
             else
             {
                 aura.Remove();
-                caster.CastSpell(caster, ItemSpellIds.PygmyOilPygmyAura, true);
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.PYGMY_OIL_PYGMY_AURA, true);
             }
         }
     }

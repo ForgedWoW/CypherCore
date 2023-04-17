@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(194909)]
-public class spell_dk_frozen_pulse : AuraScript, IAuraCheckProc
+public class SpellDkFrozenPulse : AuraScript, IAuraCheckProc
 {
-    public bool CheckProc(ProcEventInfo UnnamedParameter)
+    public bool CheckProc(ProcEventInfo unnamedParameter)
     {
         var caster = Caster;
 

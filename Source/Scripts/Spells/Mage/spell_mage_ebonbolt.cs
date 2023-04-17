@@ -2,22 +2,23 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(257537)]
-public class spell_mage_ebonbolt : SpellScript, IHasSpellEffects, ISpellOnCast
+public class SpellMageEbonbolt : SpellScript, IHasSpellEffects, ISpellOnCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
 
     public void OnCast()
     {
-        Caster.CastSpell(Caster, MageSpells.BRAIN_FREEZE_AURA, true);
+        Caster.SpellFactory.CastSpell(Caster, MageSpells.BRAIN_FREEZE_AURA, true);
     }
 
     public override void Register()
@@ -36,6 +37,6 @@ public class spell_mage_ebonbolt : SpellScript, IHasSpellEffects, ISpellOnCast
         if (Caster.HasAura(MageSpells.SPLITTING_ICE))
             Caster.VariableStorage.Set<ObjectGuid>("explTarget", explTarget.GUID);
 
-        Caster.CastSpell(hitUnit, MageSpells.EBONBOLT_DAMAGE, true);
+        Caster.SpellFactory.CastSpell(hitUnit, MageSpells.EBONBOLT_DAMAGE, true);
     }
 }

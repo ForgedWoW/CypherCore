@@ -3,16 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(116858)] // 116858 - Chaos Bolt
-internal class spell_warl_chaos_bolt : SpellScript, IHasSpellEffects, ISpellCalcCritChance, ISpellOnHit, ISpellOnCast
+internal class SpellWarlChaosBolt : SpellScript, IHasSpellEffects, ISpellCalcCritChance, ISpellOnHit, ISpellOnCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -132,12 +137,12 @@ internal class spell_warl_chaos_bolt : SpellScript, IHasSpellEffects, ISpellCalc
         if (diff > 0)
         {
             immolationAura.ModDuration(-modDur);
-            p.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(modDur / Time.IN_MILLISECONDS, 1) * dmgPerTick, true);
+            p.SpellFactory.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(modDur / Time.IN_MILLISECONDS, 1) * dmgPerTick, true);
         }
         else
         {
             immolationAura.ModDuration(-duration);
-            p.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(duration / Time.IN_MILLISECONDS, 1) * dmgPerTick, true);
+            p.SpellFactory.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(duration / Time.IN_MILLISECONDS, 1) * dmgPerTick, true);
         }
     }
 
@@ -146,7 +151,7 @@ internal class spell_warl_chaos_bolt : SpellScript, IHasSpellEffects, ISpellCalc
         if (caster.TryGetAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA, out var ror))
         {
             caster.RemoveAura(ror);
-            caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, true);
+            caster.SpellFactory.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, true);
         }
     }
 

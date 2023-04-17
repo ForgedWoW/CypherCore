@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_vehicle_scaling : AuraScript, IHasAuraEffects
+internal class SpellGenVehicleScaling : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -36,7 +36,7 @@ internal class spell_gen_vehicle_scaling : AuraScript, IHasAuraEffects
         // @todo Reserach coeffs for different vehicles
         switch (Id)
         {
-            case GenericSpellIds.GearScaling:
+            case GenericSpellIds.GEAR_SCALING:
                 factor = 1.0f;
                 baseItemLevel = 205;
 

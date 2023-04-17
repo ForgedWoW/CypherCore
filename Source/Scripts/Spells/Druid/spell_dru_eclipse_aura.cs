@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
-internal class spell_dru_eclipse_aura : AuraScript, IHasAuraEffects
+internal class SpellDruEclipseAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,6 +28,6 @@ internal class spell_dru_eclipse_aura : AuraScript, IHasAuraEffects
             return;
 
         var spellId = SpellInfo.Id == DruidSpellIds.EclipseSolarAura ? DruidSpellIds.EclipseLunarSpellCnt : DruidSpellIds.EclipseSolarSpellCnt;
-        spell_dru_eclipse_common.SetSpellCount(Target, spellId, (uint)auraEffDummy.Amount);
+        SpellDruEclipseCommon.SetSpellCount(Target, spellId, (uint)auraEffDummy.Amount);
     }
 }

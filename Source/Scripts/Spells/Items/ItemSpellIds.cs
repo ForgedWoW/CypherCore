@@ -6,400 +6,400 @@ namespace Scripts.Spells.Items;
 internal struct ItemSpellIds
 {
     //Aegisofpreservation
-    public const uint AegisHeal = 23781;
+    public const uint AEGIS_HEAL = 23781;
 
     //ZezzaksShard
-    public const uint EyeOfGrillok = 38495;
+    public const uint EYE_OF_GRILLOK = 38495;
 
     // LowerCityPrayerbook
-    public const uint BlessingOfLowerCityDruid = 37878;
-    public const uint BlessingOfLowerCityPaladin = 37879;
-    public const uint BlessingOfLowerCityPriest = 37880;
-    public const uint BlessingOfLowerCityShaman = 37881;
+    public const uint BLESSING_OF_LOWER_CITY_DRUID = 37878;
+    public const uint BLESSING_OF_LOWER_CITY_PALADIN = 37879;
+    public const uint BLESSING_OF_LOWER_CITY_PRIEST = 37880;
+    public const uint BLESSING_OF_LOWER_CITY_SHAMAN = 37881;
 
     //Alchemiststone
-    public const uint AlchemistStoneExtraHeal = 21399;
-    public const uint AlchemistStoneExtraMana = 21400;
+    public const uint ALCHEMIST_STONE_EXTRA_HEAL = 21399;
+    public const uint ALCHEMIST_STONE_EXTRA_MANA = 21400;
 
     //Angercapacitor
-    public const uint MoteOfAnger = 71432;
-    public const uint ManifestAngerMainHand = 71433;
-    public const uint ManifestAngerOffHand = 71434;
+    public const uint MOTE_OF_ANGER = 71432;
+    public const uint MANIFEST_ANGER_MAIN_HAND = 71433;
+    public const uint MANIFEST_ANGER_OFF_HAND = 71434;
 
     //Auraofmadness
-    public const uint Sociopath = 39511;     // Sociopath: +35 Strength(Paladin; Rogue; Druid; Warrior)
-    public const uint Delusional = 40997;    // Delusional: +70 Attack Power(Rogue; Hunter; Paladin; Warrior; Druid)
-    public const uint Kleptomania = 40998;   // Kleptomania: +35 Agility(Warrior; Rogue; Paladin; Hunter; Druid)
-    public const uint Megalomania = 40999;   // Megalomania: +41 Damage / Healing(Druid; Shaman; Priest; Warlock; Mage; Paladin)
-    public const uint Paranoia = 41002;      // Paranoia: +35 Spell / Melee / Ranged Crit Strike Rating(All Classes)
-    public const uint Manic = 41005;         // Manic: +35 Haste(Spell; Melee And Ranged) (All Classes)
-    public const uint Narcissism = 41009;    // Narcissism: +35 Intellect(Druid; Shaman; Priest; Warlock; Mage; Paladin; Hunter)
-    public const uint MartyrComplex = 41011; // Martyr Complex: +35 Stamina(All Classes)
-    public const uint Dementia = 41404;      // Dementia: Every 5 Seconds Either Gives You +5/-5%  Damage/Healing. (Druid; Shaman; Priest; Warlock; Mage; Paladin)
-    public const uint DementiaPos = 41406;
-    public const uint DementiaNeg = 41409;
+    public const uint SOCIOPATH = 39511;     // Sociopath: +35 Strength(Paladin; Rogue; Druid; Warrior)
+    public const uint DELUSIONAL = 40997;    // Delusional: +70 Attack Power(Rogue; Hunter; Paladin; Warrior; Druid)
+    public const uint KLEPTOMANIA = 40998;   // Kleptomania: +35 Agility(Warrior; Rogue; Paladin; Hunter; Druid)
+    public const uint MEGALOMANIA = 40999;   // Megalomania: +41 Damage / Healing(Druid; Shaman; Priest; Warlock; Mage; Paladin)
+    public const uint PARANOIA = 41002;      // Paranoia: +35 Spell / Melee / Ranged Crit Strike Rating(All Classes)
+    public const uint MANIC = 41005;         // Manic: +35 Haste(Spell; Melee And Ranged) (All Classes)
+    public const uint NARCISSISM = 41009;    // Narcissism: +35 Intellect(Druid; Shaman; Priest; Warlock; Mage; Paladin; Hunter)
+    public const uint MARTYR_COMPLEX = 41011; // Martyr Complex: +35 Stamina(All Classes)
+    public const uint DEMENTIA = 41404;      // Dementia: Every 5 Seconds Either Gives You +5/-5%  Damage/Healing. (Druid; Shaman; Priest; Warlock; Mage; Paladin)
+    public const uint DEMENTIA_POS = 41406;
+    public const uint DEMENTIA_NEG = 41409;
 
     // BrittleArmor
-    public const uint BrittleArmor = 24575;
+    public const uint BRITTLE_ARMOR = 24575;
 
     //Blessingofancientkings
-    public const uint ProtectionOfAncientKings = 64413;
+    public const uint PROTECTION_OF_ANCIENT_KINGS = 64413;
 
     //Deadlyprecision
-    public const uint DeadlyPrecision = 71564;
+    public const uint DEADLY_PRECISION = 71564;
 
     //Deathbringerswill
-    public const uint StrengthOfTheTaunka = 71484;     // +600 Strength
-    public const uint AgilityOfTheVrykul = 71485;      // +600 Agility
-    public const uint PowerOfTheTaunka = 71486;        // +1200 Attack Power
-    public const uint AimOfTheIronDwarves = 71491;     // +600 Critical
-    public const uint SpeedOfTheVrykul = 71492;        // +600 Haste
-    public const uint AgilityOfTheVrykulHero = 71556;  // +700 Agility
-    public const uint PowerOfTheTaunkaHero = 71558;    // +1400 Attack Power
-    public const uint AimOfTheIronDwarvesHero = 71559; // +700 Critical
-    public const uint SpeedOfTheVrykulHero = 71560;    // +700 Haste
-    public const uint StrengthOfTheTaunkaHero = 71561; // +700 Strength
+    public const uint STRENGTH_OF_THE_TAUNKA = 71484;     // +600 Strength
+    public const uint AGILITY_OF_THE_VRYKUL = 71485;      // +600 Agility
+    public const uint POWER_OF_THE_TAUNKA = 71486;        // +1200 Attack Power
+    public const uint AIM_OF_THE_IRON_DWARVES = 71491;     // +600 Critical
+    public const uint SPEED_OF_THE_VRYKUL = 71492;        // +600 Haste
+    public const uint AGILITY_OF_THE_VRYKUL_HERO = 71556;  // +700 Agility
+    public const uint POWER_OF_THE_TAUNKA_HERO = 71558;    // +1400 Attack Power
+    public const uint AIM_OF_THE_IRON_DWARVES_HERO = 71559; // +700 Critical
+    public const uint SPEED_OF_THE_VRYKUL_HERO = 71560;    // +700 Haste
+    public const uint STRENGTH_OF_THE_TAUNKA_HERO = 71561; // +700 Strength
 
     //GoblinBombDispenser
-    public const uint SummonGoblinBomb = 13258;
-    public const uint MalfunctionExplosion = 13261;
+    public const uint SUMMON_GOBLIN_BOMB = 13258;
+    public const uint MALFUNCTION_EXPLOSION = 13261;
 
     //GoblinWeatherMachine
-    public const uint PersonalizedWeather1 = 46740;
-    public const uint PersonalizedWeather2 = 46739;
-    public const uint PersonalizedWeather3 = 46738;
-    public const uint PersonalizedWeather4 = 46736;
+    public const uint PERSONALIZED_WEATHER1 = 46740;
+    public const uint PERSONALIZED_WEATHER2 = 46739;
+    public const uint PERSONALIZED_WEATHER3 = 46738;
+    public const uint PERSONALIZED_WEATHER4 = 46736;
 
     //Defibrillate
-    public const uint GoblinJumperCablesFail = 8338;
-    public const uint GoblinJumperCablesXlFail = 23055;
+    public const uint GOBLIN_JUMPER_CABLES_FAIL = 8338;
+    public const uint GOBLIN_JUMPER_CABLES_XL_FAIL = 23055;
 
     //Desperatedefense
-    public const uint DesperateRage = 33898;
+    public const uint DESPERATE_RAGE = 33898;
 
     //Deviatefishspells
-    public const uint Sleepy = 8064;
-    public const uint Invigorate = 8065;
-    public const uint Shrink = 8066;
-    public const uint PartyTime = 8067;
-    public const uint HealthySpirit = 8068;
-    public const uint Rejuvenation = 8070;
+    public const uint SLEEPY = 8064;
+    public const uint INVIGORATE = 8065;
+    public const uint SHRINK = 8066;
+    public const uint PARTY_TIME = 8067;
+    public const uint HEALTHY_SPIRIT = 8068;
+    public const uint REJUVENATION = 8070;
 
     //Discerningeyebeastmisc
-    public const uint DiscerningEyeBeast = 59914;
+    public const uint DISCERNING_EYE_BEAST = 59914;
 
     //Fateruneofunsurpassedvigor
-    public const uint UnsurpassedVigor = 25733;
+    public const uint UNSURPASSED_VIGOR = 25733;
 
     //Flaskofthenorthspells
-    public const uint FlaskOfTheNorthSp = 67016;
-    public const uint FlaskOfTheNorthAp = 67017;
-    public const uint FlaskOfTheNorthStr = 67018;
+    public const uint FLASK_OF_THE_NORTH_SP = 67016;
+    public const uint FLASK_OF_THE_NORTH_AP = 67017;
+    public const uint FLASK_OF_THE_NORTH_STR = 67018;
 
     //Frozenshadoweave
-    public const uint Shadowmend = 39373;
+    public const uint SHADOWMEND = 39373;
 
     //Gnomishdeathray
-    public const uint GnomishDeathRaySelf = 13493;
-    public const uint GnomishDeathRayTarget = 13279;
+    public const uint GNOMISH_DEATH_RAY_SELF = 13493;
+    public const uint GNOMISH_DEATH_RAY_TARGET = 13279;
 
     //Heartpierce
-    public const uint InvigorationMana = 71881;
-    public const uint InvigorationEnergy = 71882;
-    public const uint InvigorationRage = 71883;
-    public const uint InvigorationRp = 71884;
-    public const uint InvigorationRpHero = 71885;
-    public const uint InvigorationRageHero = 71886;
-    public const uint InvigorationEnergyHero = 71887;
-    public const uint InvigorationManaHero = 71888;
+    public const uint INVIGORATION_MANA = 71881;
+    public const uint INVIGORATION_ENERGY = 71882;
+    public const uint INVIGORATION_RAGE = 71883;
+    public const uint INVIGORATION_RP = 71884;
+    public const uint INVIGORATION_RP_HERO = 71885;
+    public const uint INVIGORATION_RAGE_HERO = 71886;
+    public const uint INVIGORATION_ENERGY_HERO = 71887;
+    public const uint INVIGORATION_MANA_HERO = 71888;
 
     //HourglassSand
-    public const uint BroodAfflictionBronze = 23170;
+    public const uint BROOD_AFFLICTION_BRONZE = 23170;
 
     //Makeawish
-    public const uint MrPinchysBlessing = 33053;
-    public const uint SummonMightyMrPinchy = 33057;
-    public const uint SummonFuriousMrPinchy = 33059;
-    public const uint TinyMagicalCrawdad = 33062;
-    public const uint MrPinchysGift = 33064;
+    public const uint MR_PINCHYS_BLESSING = 33053;
+    public const uint SUMMON_MIGHTY_MR_PINCHY = 33057;
+    public const uint SUMMON_FURIOUS_MR_PINCHY = 33059;
+    public const uint TINY_MAGICAL_CRAWDAD = 33062;
+    public const uint MR_PINCHYS_GIFT = 33064;
 
     //Markofconquest
-    public const uint MarkOfConquestEnergize = 39599;
+    public const uint MARK_OF_CONQUEST_ENERGIZE = 39599;
 
     // MercurialShield
-    public const uint MercurialShield = 26464;
+    public const uint MERCURIAL_SHIELD = 26464;
 
     //MingoFortune
-    public const uint CreateFortune1 = 40804;
-    public const uint CreateFortune2 = 40805;
-    public const uint CreateFortune3 = 40806;
-    public const uint CreateFortune4 = 40807;
-    public const uint CreateFortune5 = 40808;
-    public const uint CreateFortune6 = 40809;
-    public const uint CreateFortune7 = 40908;
-    public const uint CreateFortune8 = 40910;
-    public const uint CreateFortune9 = 40911;
-    public const uint CreateFortune10 = 40912;
-    public const uint CreateFortune11 = 40913;
-    public const uint CreateFortune12 = 40914;
-    public const uint CreateFortune13 = 40915;
-    public const uint CreateFortune14 = 40916;
-    public const uint CreateFortune15 = 40918;
-    public const uint CreateFortune16 = 40919;
-    public const uint CreateFortune17 = 40920;
-    public const uint CreateFortune18 = 40921;
-    public const uint CreateFortune19 = 40922;
-    public const uint CreateFortune20 = 40923;
+    public const uint CREATE_FORTUNE1 = 40804;
+    public const uint CREATE_FORTUNE2 = 40805;
+    public const uint CREATE_FORTUNE3 = 40806;
+    public const uint CREATE_FORTUNE4 = 40807;
+    public const uint CREATE_FORTUNE5 = 40808;
+    public const uint CREATE_FORTUNE6 = 40809;
+    public const uint CREATE_FORTUNE7 = 40908;
+    public const uint CREATE_FORTUNE8 = 40910;
+    public const uint CREATE_FORTUNE9 = 40911;
+    public const uint CREATE_FORTUNE10 = 40912;
+    public const uint CREATE_FORTUNE11 = 40913;
+    public const uint CREATE_FORTUNE12 = 40914;
+    public const uint CREATE_FORTUNE13 = 40915;
+    public const uint CREATE_FORTUNE14 = 40916;
+    public const uint CREATE_FORTUNE15 = 40918;
+    public const uint CREATE_FORTUNE16 = 40919;
+    public const uint CREATE_FORTUNE17 = 40920;
+    public const uint CREATE_FORTUNE18 = 40921;
+    public const uint CREATE_FORTUNE19 = 40922;
+    public const uint CREATE_FORTUNE20 = 40923;
 
     //Necrotictouch
-    public const uint ItemNecroticTouchProc = 71879;
+    public const uint ITEM_NECROTIC_TOUCH_PROC = 71879;
 
     //Netomaticspells
-    public const uint NetOMaticTriggered1 = 16566;
-    public const uint NetOMaticTriggered2 = 13119;
-    public const uint NetOMaticTriggered3 = 13099;
+    public const uint NET_O_MATIC_TRIGGERED1 = 16566;
+    public const uint NET_O_MATIC_TRIGGERED2 = 13119;
+    public const uint NET_O_MATIC_TRIGGERED3 = 13099;
 
     //Noggenfoggerelixirspells
-    public const uint NoggenfoggerElixirTriggered1 = 16595;
-    public const uint NoggenfoggerElixirTriggered2 = 16593;
-    public const uint NoggenfoggerElixirTriggered3 = 16591;
+    public const uint NOGGENFOGGER_ELIXIR_TRIGGERED1 = 16595;
+    public const uint NOGGENFOGGER_ELIXIR_TRIGGERED2 = 16593;
+    public const uint NOGGENFOGGER_ELIXIR_TRIGGERED3 = 16591;
 
     //Persistentshieldmisc
-    public const uint PersistentShieldTriggered = 26470;
+    public const uint PERSISTENT_SHIELD_TRIGGERED = 26470;
 
     //Pethealing
-    public const uint HealthLink = 37382;
+    public const uint HEALTH_LINK = 37382;
 
     //PowerCircle
-    public const uint LimitlessPower = 45044;
+    public const uint LIMITLESS_POWER = 45044;
 
     //Savorydeviatedelight
-    public const uint FlipOutMale = 8219;
-    public const uint FlipOutFemale = 8220;
-    public const uint YaaarrrrMale = 8221;
-    public const uint YaaarrrrFemale = 8222;
+    public const uint FLIP_OUT_MALE = 8219;
+    public const uint FLIP_OUT_FEMALE = 8220;
+    public const uint YAAARRRR_MALE = 8221;
+    public const uint YAAARRRR_FEMALE = 8222;
 
     //Scrollofrecall
-    public const uint ScrollOfRecallI = 48129;
-    public const uint ScrollOfRecallII = 60320;
-    public const uint ScrollOfRecallIII = 60321;
-    public const uint Lost = 60444;
-    public const uint ScrollOfRecallFailAlliance1 = 60323;
-    public const uint ScrollOfRecallFailHorde1 = 60328;
+    public const uint SCROLL_OF_RECALL_I = 48129;
+    public const uint SCROLL_OF_RECALL_II = 60320;
+    public const uint SCROLL_OF_RECALL_III = 60321;
+    public const uint LOST = 60444;
+    public const uint SCROLL_OF_RECALL_FAIL_ALLIANCE1 = 60323;
+    public const uint SCROLL_OF_RECALL_FAIL_HORDE1 = 60328;
 
     // TransporterSpells
-    public const uint EvilTwin = 23445;
-    public const uint TransporterMalfunctionFire = 23449;
-    public const uint TransporterMalfunctionSmaller = 36893;
-    public const uint TransporterMalfunctionBigger = 36895;
-    public const uint TransporterMalfunctionChicken = 36940;
-    public const uint TransformHorde = 36897;
-    public const uint TransformAlliance = 36899;
-    public const uint SoulSplitEvil = 36900;
-    public const uint SoulSplitGood = 36901;
+    public const uint EVIL_TWIN = 23445;
+    public const uint TRANSPORTER_MALFUNCTION_FIRE = 23449;
+    public const uint TRANSPORTER_MALFUNCTION_SMALLER = 36893;
+    public const uint TRANSPORTER_MALFUNCTION_BIGGER = 36895;
+    public const uint TRANSPORTER_MALFUNCTION_CHICKEN = 36940;
+    public const uint TRANSFORM_HORDE = 36897;
+    public const uint TRANSFORM_ALLIANCE = 36899;
+    public const uint SOUL_SPLIT_EVIL = 36900;
+    public const uint SOUL_SPLIT_GOOD = 36901;
 
     //Shadowsfate
-    public const uint SoulFeast = 71203;
+    public const uint SOUL_FEAST = 71203;
 
     //Shadowmourne
-    public const uint ShadowmourneChaosBaneDamage = 71904;
-    public const uint ShadowmourneSoulFragment = 71905;
-    public const uint ShadowmourneVisualLow = 72521;
-    public const uint ShadowmourneVisualHigh = 72523;
-    public const uint ShadowmourneChaosBaneBuff = 73422;
+    public const uint SHADOWMOURNE_CHAOS_BANE_DAMAGE = 71904;
+    public const uint SHADOWMOURNE_SOUL_FRAGMENT = 71905;
+    public const uint SHADOWMOURNE_VISUAL_LOW = 72521;
+    public const uint SHADOWMOURNE_VISUAL_HIGH = 72523;
+    public const uint SHADOWMOURNE_CHAOS_BANE_BUFF = 73422;
 
     //Sixdemonbagspells
-    public const uint Frostbolt = 11538;
-    public const uint Polymorph = 14621;
-    public const uint SummonFelhoundMinion = 14642;
-    public const uint Fireball = 15662;
-    public const uint ChainLightning = 21179;
-    public const uint EnvelopingWinds = 25189;
+    public const uint FROSTBOLT = 11538;
+    public const uint POLYMORPH = 14621;
+    public const uint SUMMON_FELHOUND_MINION = 14642;
+    public const uint FIREBALL = 15662;
+    public const uint CHAIN_LIGHTNING = 21179;
+    public const uint ENVELOPING_WINDS = 25189;
 
     //Swifthandjusticemisc
-    public const uint SwiftHandOfJusticeHeal = 59913;
+    public const uint SWIFT_HAND_OF_JUSTICE_HEAL = 59913;
 
     //Underbellyelixirspells
-    public const uint UnderbellyElixirTriggered1 = 59645;
-    public const uint UnderbellyElixirTriggered2 = 59831;
-    public const uint UnderbellyElixirTriggered3 = 59843;
+    public const uint UNDERBELLY_ELIXIR_TRIGGERED1 = 59645;
+    public const uint UNDERBELLY_ELIXIR_TRIGGERED2 = 59831;
+    public const uint UNDERBELLY_ELIXIR_TRIGGERED3 = 59843;
 
     //Wormholegeneratorpandariaspell
-    public const uint Wormholepandariaisleofreckoning = 126756;
-    public const uint Wormholepandariakunlaiunderwater = 126757;
-    public const uint Wormholepandariasravess = 126758;
-    public const uint Wormholepandariarikkitunvillage = 126759;
-    public const uint Wormholepandariazanvesstree = 126760;
-    public const uint Wormholepandariaanglerswharf = 126761;
-    public const uint Wormholepandariacranestatue = 126762;
-    public const uint Wormholepandariaemperorsomen = 126763;
-    public const uint Wormholepandariawhitepetallake = 126764;
+    public const uint WORMHOLEPANDARIAISLEOFRECKONING = 126756;
+    public const uint WORMHOLEPANDARIAKUNLAIUNDERWATER = 126757;
+    public const uint WORMHOLEPANDARIASRAVESS = 126758;
+    public const uint WORMHOLEPANDARIARIKKITUNVILLAGE = 126759;
+    public const uint WORMHOLEPANDARIAZANVESSTREE = 126760;
+    public const uint WORMHOLEPANDARIAANGLERSWHARF = 126761;
+    public const uint WORMHOLEPANDARIACRANESTATUE = 126762;
+    public const uint WORMHOLEPANDARIAEMPERORSOMEN = 126763;
+    public const uint WORMHOLEPANDARIAWHITEPETALLAKE = 126764;
 
     //Airriflespells
-    public const uint AirRifleHoldVisual = 65582;
-    public const uint AirRifleShoot = 67532;
-    public const uint AirRifleShootSelf = 65577;
+    public const uint AIR_RIFLE_HOLD_VISUAL = 65582;
+    public const uint AIR_RIFLE_SHOOT = 67532;
+    public const uint AIR_RIFLE_SHOOT_SELF = 65577;
 
     //Genericdata
-    public const uint ArcaniteDragonling = 19804;
-    public const uint BattleChicken = 13166;
-    public const uint MechanicalDragonling = 4073;
-    public const uint MithrilMechanicalDragonling = 12749;
+    public const uint ARCANITE_DRAGONLING = 19804;
+    public const uint BATTLE_CHICKEN = 13166;
+    public const uint MECHANICAL_DRAGONLING = 4073;
+    public const uint MITHRIL_MECHANICAL_DRAGONLING = 12749;
 
     //Vanquishedclutchesspells
-    public const uint Crusher = 64982;
-    public const uint Constrictor = 64983;
-    public const uint Corruptor = 64984;
+    public const uint CRUSHER = 64982;
+    public const uint CONSTRICTOR = 64983;
+    public const uint CORRUPTOR = 64984;
 
     //Magiceater
-    public const uint WildMagic = 58891;
-    public const uint WellFed1 = 57288;
-    public const uint WellFed2 = 57139;
-    public const uint WellFed3 = 57111;
-    public const uint WellFed4 = 57286;
-    public const uint WellFed5 = 57291;
+    public const uint WILD_MAGIC = 58891;
+    public const uint WELL_FED1 = 57288;
+    public const uint WELL_FED2 = 57139;
+    public const uint WELL_FED3 = 57111;
+    public const uint WELL_FED4 = 57286;
+    public const uint WELL_FED5 = 57291;
 
     //Purifyhelboarmeat
-    public const uint SummonPurifiedHelboarMeat = 29277;
-    public const uint SummonToxicHelboarMeat = 29278;
+    public const uint SUMMON_PURIFIED_HELBOAR_MEAT = 29277;
+    public const uint SUMMON_TOXIC_HELBOAR_MEAT = 29278;
 
     //Nighinvulnerability
-    public const uint NighInvulnerability = 30456;
-    public const uint CompleteVulnerability = 30457;
+    public const uint NIGH_INVULNERABILITY = 30456;
+    public const uint COMPLETE_VULNERABILITY = 30457;
 
     //Poultryzer
-    public const uint PoultryizerSuccess = 30501;
-    public const uint PoultryizerBackfire = 30504;
+    public const uint POULTRYIZER_SUCCESS = 30501;
+    public const uint POULTRYIZER_BACKFIRE = 30504;
 
     //Socretharsstone
-    public const uint SocretharToSeat = 35743;
-    public const uint SocretharFromSeat = 35744;
+    public const uint SOCRETHAR_TO_SEAT = 35743;
+    public const uint SOCRETHAR_FROM_SEAT = 35744;
 
     //Demonbroiledsurprise
-    public const uint CreateDemonBroiledSurprise = 43753;
+    public const uint CREATE_DEMON_BROILED_SURPRISE = 43753;
 
     //Completeraptorcapture
-    public const uint RaptorCaptureCredit = 42337;
+    public const uint RAPTOR_CAPTURE_CREDIT = 42337;
 
     //Impaleleviroth
-    public const uint LevirothSelfImpale = 49882;
+    public const uint LEVIROTH_SELF_IMPALE = 49882;
 
     //LifegivingGem
-    public const uint GiftOfLife1 = 23782;
-    public const uint GiftOfLife2 = 23783;
+    public const uint GIFT_OF_LIFE1 = 23782;
+    public const uint GIFT_OF_LIFE2 = 23783;
 
     //Nitroboots
-    public const uint NitroBoostsSuccess = 54861;
-    public const uint NitroBoostsBackfire = 46014;
-    public const uint NitroBoostsParachute = 54649;
+    public const uint NITRO_BOOSTS_SUCCESS = 54861;
+    public const uint NITRO_BOOSTS_BACKFIRE = 46014;
+    public const uint NITRO_BOOSTS_PARACHUTE = 54649;
 
     //Teachlanguage
-    public const uint LearnGnomishBinary = 50242;
-    public const uint LearnGoblinBinary = 50246;
+    public const uint LEARN_GNOMISH_BINARY = 50242;
+    public const uint LEARN_GOBLIN_BINARY = 50246;
 
     //Rocketboots
-    public const uint RocketBootsProc = 30452;
+    public const uint ROCKET_BOOTS_PROC = 30452;
 
     //Pygmyoil
-    public const uint PygmyOilPygmyAura = 53806;
-    public const uint PygmyOilSmallerAura = 53805;
+    public const uint PYGMY_OIL_PYGMY_AURA = 53806;
+    public const uint PYGMY_OIL_SMALLER_AURA = 53805;
 
     //Chickencover
-    public const uint ChickenNet = 51959;
-    public const uint CaptureChickenEscape = 51037;
+    public const uint CHICKEN_NET = 51959;
+    public const uint CAPTURE_CHICKEN_ESCAPE = 51037;
 
     //Greatmotherssoulcather
-    public const uint ForceCastSummonGnomeSoul = 46486;
+    public const uint FORCE_CAST_SUMMON_GNOME_SOUL = 46486;
 
     //Shardofthescale
-    public const uint PurifiedCauterizingHeal = 69733;
-    public const uint PurifiedSearingFlames = 69729;
-    public const uint ShinyCauterizingHeal = 69734;
-    public const uint ShinySearingFlames = 69730;
+    public const uint PURIFIED_CAUTERIZING_HEAL = 69733;
+    public const uint PURIFIED_SEARING_FLAMES = 69729;
+    public const uint SHINY_CAUTERIZING_HEAL = 69734;
+    public const uint SHINY_SEARING_FLAMES = 69730;
 
     //Soulpreserver
-    public const uint SoulPreserverDruid = 60512;
-    public const uint SoulPreserverPaladin = 60513;
-    public const uint SoulPreserverPriest = 60514;
-    public const uint SoulPreserverShaman = 60515;
+    public const uint SOUL_PRESERVER_DRUID = 60512;
+    public const uint SOUL_PRESERVER_PALADIN = 60513;
+    public const uint SOUL_PRESERVER_PRIEST = 60514;
+    public const uint SOUL_PRESERVER_SHAMAN = 60515;
 
     //ExaltedSunwellNeck
-    public const uint LightsWrath = 45479; // Light'S Wrath If Exalted By Aldor
-    public const uint ArcaneBolt = 45429;  // Arcane Bolt If Exalted By Scryers
+    public const uint LIGHTS_WRATH = 45479; // Light'S Wrath If Exalted By Aldor
+    public const uint ARCANE_BOLT = 45429;  // Arcane Bolt If Exalted By Scryers
 
-    public const uint LightsStrength = 45480; // Light'S Strength If Exalted By Aldor
-    public const uint ArcaneStrike = 45428;   // Arcane Strike If Exalted By Scryers
+    public const uint LIGHTS_STRENGTH = 45480; // Light'S Strength If Exalted By Aldor
+    public const uint ARCANE_STRIKE = 45428;   // Arcane Strike If Exalted By Scryers
 
-    public const uint LightsWard = 45432;    // Light'S Ward If Exalted By Aldor
-    public const uint ArcaneInsight = 45431; // Arcane Insight If Exalted By Scryers
+    public const uint LIGHTS_WARD = 45432;    // Light'S Ward If Exalted By Aldor
+    public const uint ARCANE_INSIGHT = 45431; // Arcane Insight If Exalted By Scryers
 
-    public const uint LightsSalvation = 45478; // Light'S Salvation If Exalted By Aldor
-    public const uint ArcaneSurge = 45430;     // Arcane Surge If Exalted By Scryers
+    public const uint LIGHTS_SALVATION = 45478; // Light'S Salvation If Exalted By Aldor
+    public const uint ARCANE_SURGE = 45430;     // Arcane Surge If Exalted By Scryers
 
     //Deathchoicespells
-    public const uint DeathChoiceNormalAura = 67702;
-    public const uint DeathChoiceNormalAgility = 67703;
-    public const uint DeathChoiceNormalStrength = 67708;
-    public const uint DeathChoiceHeroicAura = 67771;
-    public const uint DeathChoiceHeroicAgility = 67772;
-    public const uint DeathChoiceHeroicStrength = 67773;
+    public const uint DEATH_CHOICE_NORMAL_AURA = 67702;
+    public const uint DEATH_CHOICE_NORMAL_AGILITY = 67703;
+    public const uint DEATH_CHOICE_NORMAL_STRENGTH = 67708;
+    public const uint DEATH_CHOICE_HEROIC_AURA = 67771;
+    public const uint DEATH_CHOICE_HEROIC_AGILITY = 67772;
+    public const uint DEATH_CHOICE_HEROIC_STRENGTH = 67773;
 
     //Trinketstackspells
-    public const uint LightningCapacitorAura = 37657; // Lightning Capacitor
-    public const uint LightningCapacitorStack = 37658;
-    public const uint LightningCapacitorTrigger = 37661;
-    public const uint ThunderCapacitorAura = 54841; // Thunder Capacitor
-    public const uint ThunderCapacitorStack = 54842;
-    public const uint ThunderCapacitorTrigger = 54843;
-    public const uint Toc25CasterTrinketNormalAura = 67712; // Item - Coliseum 25 Normal Caster Trinket
-    public const uint Toc25CasterTrinketNormalStack = 67713;
-    public const uint Toc25CasterTrinketNormalTrigger = 67714;
-    public const uint Toc25CasterTrinketHeroicAura = 67758; // Item - Coliseum 25 Heroic Caster Trinket
-    public const uint Toc25CasterTrinketHeroicStack = 67759;
-    public const uint Toc25CasterTrinketHeroicTrigger = 67760;
+    public const uint LIGHTNING_CAPACITOR_AURA = 37657; // Lightning Capacitor
+    public const uint LIGHTNING_CAPACITOR_STACK = 37658;
+    public const uint LIGHTNING_CAPACITOR_TRIGGER = 37661;
+    public const uint THUNDER_CAPACITOR_AURA = 54841; // Thunder Capacitor
+    public const uint THUNDER_CAPACITOR_STACK = 54842;
+    public const uint THUNDER_CAPACITOR_TRIGGER = 54843;
+    public const uint TOC25_CASTER_TRINKET_NORMAL_AURA = 67712; // Item - Coliseum 25 Normal Caster Trinket
+    public const uint TOC25_CASTER_TRINKET_NORMAL_STACK = 67713;
+    public const uint TOC25_CASTER_TRINKET_NORMAL_TRIGGER = 67714;
+    public const uint TOC25_CASTER_TRINKET_HEROIC_AURA = 67758; // Item - Coliseum 25 Heroic Caster Trinket
+    public const uint TOC25_CASTER_TRINKET_HEROIC_STACK = 67759;
+    public const uint TOC25_CASTER_TRINKET_HEROIC_TRIGGER = 67760;
 
     //Darkmooncardspells
-    public const uint DarkmoonCardStrenght = 60229;
-    public const uint DarkmoonCardAgility = 60233;
-    public const uint DarkmoonCardIntellect = 60234;
-    public const uint DarkmoonCardVersatility = 60235;
+    public const uint DARKMOON_CARD_STRENGHT = 60229;
+    public const uint DARKMOON_CARD_AGILITY = 60233;
+    public const uint DARKMOON_CARD_INTELLECT = 60234;
+    public const uint DARKMOON_CARD_VERSATILITY = 60235;
 
     //Manadrainspells
-    public const uint ManaDrainEnergize = 29471;
-    public const uint ManaDrainLeech = 27526;
+    public const uint MANA_DRAIN_ENERGIZE = 29471;
+    public const uint MANA_DRAIN_LEECH = 27526;
 
     //Tauntflag
-    public const uint TauntFlag = 51657;
+    public const uint TAUNT_FLAG = 51657;
 
     //MirrensDrinkingHat
-    public const uint LochModanLager = 29827;
-    public const uint StouthammerLite = 29828;
-    public const uint AeriePeakPaleAle = 29829;
+    public const uint LOCH_MODAN_LAGER = 29827;
+    public const uint STOUTHAMMER_LITE = 29828;
+    public const uint AERIE_PEAK_PALE_ALE = 29829;
 
     //MindControlCap
-    public const uint GnomishMindControlCap = 13181;
-    public const uint Dullard = 67809;
+    public const uint GNOMISH_MIND_CONTROL_CAP = 13181;
+    public const uint DULLARD = 67809;
 
     //UniversalRemote
-    public const uint ControlMachine = 8345;
-    public const uint MobilityMalfunction = 8346;
-    public const uint TargetLock = 8347;
+    public const uint CONTROL_MACHINE = 8345;
+    public const uint MOBILITY_MALFUNCTION = 8346;
+    public const uint TARGET_LOCK = 8347;
 
     //Zandalariancharms
-    public const uint UnstablePowerAuraStack = 24659;
-    public const uint RestlessStrengthAuraStack = 24662;
+    public const uint UNSTABLE_POWER_AURA_STACK = 24659;
+    public const uint RESTLESS_STRENGTH_AURA_STACK = 24662;
 
     // AuraprocRemovespells        
-    public const uint TalismanOfAscendance = 28200;
-    public const uint JomGabbar = 29602;
-    public const uint BattleTrance = 45040;
-    public const uint WorldQuellerFocus = 90900;
-    public const uint BrutalKinship1 = 144671;
-    public const uint BrutalKinship2 = 145738;
+    public const uint TALISMAN_OF_ASCENDANCE = 28200;
+    public const uint JOM_GABBAR = 29602;
+    public const uint BATTLE_TRANCE = 45040;
+    public const uint WORLD_QUELLER_FOCUS = 90900;
+    public const uint BRUTAL_KINSHIP1 = 144671;
+    public const uint BRUTAL_KINSHIP2 = 145738;
 
     // Eggnog
-    public const uint EggNogReindeer = 21936;
-    public const uint EggNogSnowman = 21980;
+    public const uint EGG_NOG_REINDEER = 21936;
+    public const uint EGG_NOG_SNOWMAN = 21980;
 }
 
 // 23074 Arcanite Dragonling

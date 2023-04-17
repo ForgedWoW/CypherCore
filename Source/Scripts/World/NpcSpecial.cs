@@ -3,15 +3,24 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Quest;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Movement;
-using Game.Scripting;
-using Game.Spells;
+using Serilog;
 
 namespace Scripts.World.NpcSpecial;
 
@@ -23,262 +32,262 @@ internal enum SpawnType
 
 internal class AirForceSpawn
 {
-    public uint myEntry;
-    public uint otherEntry;
-    public SpawnType spawnType;
+    public uint MyEntry;
+    public uint OtherEntry;
+    public SpawnType SpawnType;
 
-    public AirForceSpawn(uint _myEntry, uint _otherEntry, SpawnType _spawnType)
+    public AirForceSpawn(uint myEntry, uint otherEntry, SpawnType spawnType)
     {
-        myEntry = _myEntry;
-        otherEntry = _otherEntry;
-        spawnType = _spawnType;
+        MyEntry = myEntry;
+        OtherEntry = otherEntry;
+        SpawnType = spawnType;
     }
 }
 
 internal struct CreatureIds
 {
     //Torchtossingtarget
-    public const uint TorchTossingTargetBunny = 25535;
+    public const uint TORCH_TOSSING_TARGET_BUNNY = 25535;
 
     //Garments
-    public const uint Shaya = 12429;
-    public const uint Roberts = 12423;
-    public const uint Dolf = 12427;
-    public const uint Korja = 12430;
-    public const uint DgKel = 12428;
+    public const uint SHAYA = 12429;
+    public const uint ROBERTS = 12423;
+    public const uint DOLF = 12427;
+    public const uint KORJA = 12430;
+    public const uint DG_KEL = 12428;
 
     //Doctor
-    public const uint DoctorAlliance = 12939;
-    public const uint DoctorHorde = 12920;
+    public const uint DOCTOR_ALLIANCE = 12939;
+    public const uint DOCTOR_HORDE = 12920;
 
     //Fireworks
-    public const uint Omen = 15467;
-    public const uint MinionOfOmen = 15466;
-    public const uint FireworkBlue = 15879;
-    public const uint FireworkGreen = 15880;
-    public const uint FireworkPurple = 15881;
-    public const uint FireworkRed = 15882;
-    public const uint FireworkYellow = 15883;
-    public const uint FireworkWhite = 15884;
-    public const uint FireworkBigBlue = 15885;
-    public const uint FireworkBigGreen = 15886;
-    public const uint FireworkBigPurple = 15887;
-    public const uint FireworkBigRed = 15888;
-    public const uint FireworkBigYellow = 15889;
-    public const uint FireworkBigWhite = 15890;
+    public const uint OMEN = 15467;
+    public const uint MINION_OF_OMEN = 15466;
+    public const uint FIREWORK_BLUE = 15879;
+    public const uint FIREWORK_GREEN = 15880;
+    public const uint FIREWORK_PURPLE = 15881;
+    public const uint FIREWORK_RED = 15882;
+    public const uint FIREWORK_YELLOW = 15883;
+    public const uint FIREWORK_WHITE = 15884;
+    public const uint FIREWORK_BIG_BLUE = 15885;
+    public const uint FIREWORK_BIG_GREEN = 15886;
+    public const uint FIREWORK_BIG_PURPLE = 15887;
+    public const uint FIREWORK_BIG_RED = 15888;
+    public const uint FIREWORK_BIG_YELLOW = 15889;
+    public const uint FIREWORK_BIG_WHITE = 15890;
 
-    public const uint ClusterBlue = 15872;
-    public const uint ClusterRed = 15873;
-    public const uint ClusterGreen = 15874;
-    public const uint ClusterPurple = 15875;
-    public const uint ClusterWhite = 15876;
-    public const uint ClusterYellow = 15877;
-    public const uint ClusterBigBlue = 15911;
-    public const uint ClusterBigGreen = 15912;
-    public const uint ClusterBigPurple = 15913;
-    public const uint ClusterBigRed = 15914;
-    public const uint ClusterBigWhite = 15915;
-    public const uint ClusterBigYellow = 15916;
-    public const uint ClusterElune = 15918;
+    public const uint CLUSTER_BLUE = 15872;
+    public const uint CLUSTER_RED = 15873;
+    public const uint CLUSTER_GREEN = 15874;
+    public const uint CLUSTER_PURPLE = 15875;
+    public const uint CLUSTER_WHITE = 15876;
+    public const uint CLUSTER_YELLOW = 15877;
+    public const uint CLUSTER_BIG_BLUE = 15911;
+    public const uint CLUSTER_BIG_GREEN = 15912;
+    public const uint CLUSTER_BIG_PURPLE = 15913;
+    public const uint CLUSTER_BIG_RED = 15914;
+    public const uint CLUSTER_BIG_WHITE = 15915;
+    public const uint CLUSTER_BIG_YELLOW = 15916;
+    public const uint CLUSTER_ELUNE = 15918;
 
     // Rabbitspells
-    public const uint SpringRabbit = 32791;
+    public const uint SPRING_RABBIT = 32791;
 
     // TrainWrecker
-    public const uint ExultingWindUpTrainWrecker = 81071;
+    public const uint EXULTING_WIND_UP_TRAIN_WRECKER = 81071;
 
     // Argent squire/gruntling
-    public const uint ArgentSquire = 33238;
+    public const uint ARGENT_SQUIRE = 33238;
 
     // BountifulTable
-    public const uint TheTurkeyChair = 34812;
-    public const uint TheCranberryChair = 34823;
-    public const uint TheStuffingChair = 34819;
-    public const uint TheSweetPotatoChair = 34824;
-    public const uint ThePieChair = 34822;
+    public const uint THE_TURKEY_CHAIR = 34812;
+    public const uint THE_CRANBERRY_CHAIR = 34823;
+    public const uint THE_STUFFING_CHAIR = 34819;
+    public const uint THE_SWEET_POTATO_CHAIR = 34824;
+    public const uint THE_PIE_CHAIR = 34822;
 
     // TravelerTundraMammothNPCs
-    public const uint HakmudOfArgus = 32638;
-    public const uint Gnimo = 32639;
-    public const uint DrixBlackwrench = 32641;
-    public const uint Mojodishu = 32642;
+    public const uint HAKMUD_OF_ARGUS = 32638;
+    public const uint GNIMO = 32639;
+    public const uint DRIX_BLACKWRENCH = 32641;
+    public const uint MOJODISHU = 32642;
 
     // BrewfestReveler2
-    public const uint BrewfestReveler = 24484;
+    public const uint BREWFEST_REVELER = 24484;
 }
 
 internal struct GameobjectIds
 {
     //Fireworks
-    public const uint FireworkLauncher1 = 180771;
-    public const uint FireworkLauncher2 = 180868;
-    public const uint FireworkLauncher3 = 180850;
-    public const uint ClusterLauncher1 = 180772;
-    public const uint ClusterLauncher2 = 180859;
-    public const uint ClusterLauncher3 = 180869;
-    public const uint ClusterLauncher4 = 180874;
+    public const uint FIREWORK_LAUNCHER1 = 180771;
+    public const uint FIREWORK_LAUNCHER2 = 180868;
+    public const uint FIREWORK_LAUNCHER3 = 180850;
+    public const uint CLUSTER_LAUNCHER1 = 180772;
+    public const uint CLUSTER_LAUNCHER2 = 180859;
+    public const uint CLUSTER_LAUNCHER3 = 180869;
+    public const uint CLUSTER_LAUNCHER4 = 180874;
 
     //TrainWrecker
-    public const uint ToyTrain = 193963;
+    public const uint TOY_TRAIN = 193963;
 
     //RibbonPole
-    public const uint RibbonPole = 181605;
+    public const uint RIBBON_POLE = 181605;
 }
 
 internal struct SpellIds
 {
-    public const uint GuardsMark = 38067;
+    public const uint GUARDS_MARK = 38067;
 
     //Dancingflames
-    public const uint SummonBrazier = 45423;
-    public const uint BrazierDance = 45427;
-    public const uint FierySeduction = 47057;
+    public const uint SUMMON_BRAZIER = 45423;
+    public const uint BRAZIER_DANCE = 45427;
+    public const uint FIERY_SEDUCTION = 47057;
 
     //RibbonPole
-    public const uint RibbonDanceCosmetic = 29726;
-    public const uint RedFireRing = 46836;
-    public const uint BlueFireRing = 46842;
+    public const uint RIBBON_DANCE_COSMETIC = 29726;
+    public const uint RED_FIRE_RING = 46836;
+    public const uint BLUE_FIRE_RING = 46842;
 
     //Torchtossingtarget
-    public const uint TargetIndicator = 45723;
+    public const uint TARGET_INDICATOR = 45723;
 
     //Garments    
-    public const uint LesserHealR2 = 2052;
-    public const uint FortitudeR1 = 1243;
+    public const uint LESSER_HEAL_R2 = 2052;
+    public const uint FORTITUDE_R1 = 1243;
 
     //Guardianspells
-    public const uint Deathtouch = 5;
+    public const uint DEATHTOUCH = 5;
 
     //Brewfestreveler
-    public const uint BrewfestToast = 41586;
+    public const uint BREWFEST_TOAST = 41586;
 
     //Wormholespells
-    public const uint BoreanTundra = 67834;
-    public const uint SholazarBasin = 67835;
-    public const uint Icecrown = 67836;
-    public const uint StormPeaks = 67837;
-    public const uint HowlingFjord = 67838;
-    public const uint Underground = 68081;
+    public const uint BOREAN_TUNDRA = 67834;
+    public const uint SHOLAZAR_BASIN = 67835;
+    public const uint ICECROWN = 67836;
+    public const uint STORM_PEAKS = 67837;
+    public const uint HOWLING_FJORD = 67838;
+    public const uint UNDERGROUND = 68081;
 
     //Rabbitspells
-    public const uint SpringFling = 61875;
-    public const uint SpringRabbitJump = 61724;
-    public const uint SpringRabbitWander = 61726;
-    public const uint SummonBabyBunny = 61727;
-    public const uint SpringRabbitInLove = 61728;
+    public const uint SPRING_FLING = 61875;
+    public const uint SPRING_RABBIT_JUMP = 61724;
+    public const uint SPRING_RABBIT_WANDER = 61726;
+    public const uint SUMMON_BABY_BUNNY = 61727;
+    public const uint SPRING_RABBIT_IN_LOVE = 61728;
 
     //TrainWrecker
-    public const uint ToyTrainPulse = 61551;
-    public const uint WreckTrain = 62943;
+    public const uint TOY_TRAIN_PULSE = 61551;
+    public const uint WRECK_TRAIN = 62943;
 
     //Argent squire/gruntling
-    public const uint DarnassusPennant = 63443;
-    public const uint ExodarPennant = 63439;
-    public const uint GnomereganPennant = 63442;
-    public const uint IronforgePennant = 63440;
-    public const uint StormwindPennant = 62727;
-    public const uint SenjinPennant = 63446;
-    public const uint UndercityPennant = 63441;
-    public const uint OrgrimmarPennant = 63444;
-    public const uint SilvermoonPennant = 63438;
-    public const uint ThunderbluffPennant = 63445;
-    public const uint AuraPostmanS = 67376;
-    public const uint AuraShopS = 67377;
-    public const uint AuraBankS = 67368;
-    public const uint AuraTiredS = 67401;
-    public const uint AuraBankG = 68849;
-    public const uint AuraPostmanG = 68850;
-    public const uint AuraShopG = 68851;
-    public const uint AuraTiredG = 68852;
-    public const uint TiredPlayer = 67334;
+    public const uint DARNASSUS_PENNANT = 63443;
+    public const uint EXODAR_PENNANT = 63439;
+    public const uint GNOMEREGAN_PENNANT = 63442;
+    public const uint IRONFORGE_PENNANT = 63440;
+    public const uint STORMWIND_PENNANT = 62727;
+    public const uint SENJIN_PENNANT = 63446;
+    public const uint UNDERCITY_PENNANT = 63441;
+    public const uint ORGRIMMAR_PENNANT = 63444;
+    public const uint SILVERMOON_PENNANT = 63438;
+    public const uint THUNDERBLUFF_PENNANT = 63445;
+    public const uint AURA_POSTMAN_S = 67376;
+    public const uint AURA_SHOP_S = 67377;
+    public const uint AURA_BANK_S = 67368;
+    public const uint AURA_TIRED_S = 67401;
+    public const uint AURA_BANK_G = 68849;
+    public const uint AURA_POSTMAN_G = 68850;
+    public const uint AURA_SHOP_G = 68851;
+    public const uint AURA_TIRED_G = 68852;
+    public const uint TIRED_PLAYER = 67334;
 
     //BountifulTable
-    public const uint CranberryServer = 61793;
-    public const uint PieServer = 61794;
-    public const uint StuffingServer = 61795;
-    public const uint TurkeyServer = 61796;
-    public const uint SweetPotatoesServer = 61797;
+    public const uint CRANBERRY_SERVER = 61793;
+    public const uint PIE_SERVER = 61794;
+    public const uint STUFFING_SERVER = 61795;
+    public const uint TURKEY_SERVER = 61796;
+    public const uint SWEET_POTATOES_SERVER = 61797;
 
     //VoidZone
-    public const uint Consumption = 28874;
+    public const uint CONSUMPTION = 28874;
 }
 
 internal struct QuestConst
 {
     //Lunaclawspirit
-    public const uint BodyHeartA = 6001;
-    public const uint BodyHeartH = 6002;
+    public const uint BODY_HEART_A = 6001;
+    public const uint BODY_HEART_H = 6002;
 
     //ChickenCluck
-    public const uint Cluck = 3861;
+    public const uint CLUCK = 3861;
 
     //Garments
-    public const uint Moon = 5621;
-    public const uint Light1 = 5624;
-    public const uint Light2 = 5625;
-    public const uint Spirit = 5648;
-    public const uint Darkness = 5650;
+    public const uint MOON = 5621;
+    public const uint LIGHT1 = 5624;
+    public const uint LIGHT2 = 5625;
+    public const uint SPIRIT = 5648;
+    public const uint DARKNESS = 5650;
 }
 
 internal struct TextIds
 {
     //Lunaclawspirit
-    public const uint TextIdDefault = 4714;
-    public const uint TextIdProgress = 4715;
+    public const uint TEXT_ID_DEFAULT = 4714;
+    public const uint TEXT_ID_PROGRESS = 4715;
 
     //Chickencluck
-    public const uint EmoteHelloA = 0;
-    public const uint EmoteHelloH = 1;
-    public const uint EmoteCluck = 2;
+    public const uint EMOTE_HELLO_A = 0;
+    public const uint EMOTE_HELLO_H = 1;
+    public const uint EMOTE_CLUCK = 2;
 
     //Doctor
-    public const uint SayDoc = 0;
+    public const uint SAY_DOC = 0;
 
     //    Garments
     // Used By 12429; 12423; 12427; 12430; 12428; But Signed For 12429
-    public const uint SayThanks = 0;
-    public const uint SayGoodbye = 1;
-    public const uint SayHealed = 2;
+    public const uint SAY_THANKS = 0;
+    public const uint SAY_GOODBYE = 1;
+    public const uint SAY_HEALED = 2;
 
     //Wormholespells
-    public const uint Wormhole = 14785;
+    public const uint WORMHOLE = 14785;
 
     //NpcExperience
-    public const uint XpOnOff = 14736;
+    public const uint XP_ON_OFF = 14736;
 }
 
 internal struct GossipMenus
 {
     //Wormhole
-    public const int MenuIdWormhole = 10668; // "This tear in the fabric of Time and space looks ominous."
-    public const int OptionIdWormhole1 = 0;  // "Borean Tundra"
-    public const int OptionIdWormhole2 = 1;  // "Howling Fjord"
-    public const int OptionIdWormhole3 = 2;  // "Sholazar Basin"
-    public const int OptionIdWormhole4 = 3;  // "Icecrown"
-    public const int OptionIdWormhole5 = 4;  // "Storm Peaks"
-    public const int OptionIdWormhole6 = 5;  // "Underground..."
+    public const int MENU_ID_WORMHOLE = 10668; // "This tear in the fabric of Time and space looks ominous."
+    public const int OPTION_ID_WORMHOLE1 = 0;  // "Borean Tundra"
+    public const int OPTION_ID_WORMHOLE2 = 1;  // "Howling Fjord"
+    public const int OPTION_ID_WORMHOLE3 = 2;  // "Sholazar Basin"
+    public const int OPTION_ID_WORMHOLE4 = 3;  // "Icecrown"
+    public const int OPTION_ID_WORMHOLE5 = 4;  // "Storm Peaks"
+    public const int OPTION_ID_WORMHOLE6 = 5;  // "Underground..."
 
     //Lunaclawspirit
-    public const string ItemGrant = "You Have Thought Well; Spirit. I Ask You To Grant Me The Strength Of Your Body And The Strength Of Your Heart.";
+    public const string ITEM_GRANT = "You Have Thought Well; Spirit. I Ask You To Grant Me The Strength Of Your Body And The Strength Of Your Heart.";
 
     //Pettrainer
-    public const uint MenuIdPetUnlearn = 6520;
-    public const uint OptionIdPleaseDo = 0;
+    public const uint MENU_ID_PET_UNLEARN = 6520;
+    public const uint OPTION_ID_PLEASE_DO = 0;
 
     //NpcExperience
-    public const uint MenuIdXpOnOff = 10638;
-    public const uint OptionIdXpOff = 0;
-    public const uint OptionIdXpOn = 1;
+    public const uint MENU_ID_XP_ON_OFF = 10638;
+    public const uint OPTION_ID_XP_OFF = 0;
+    public const uint OPTION_ID_XP_ON = 1;
 
     //Argent squire/gruntling
-    public const uint OptionIdBank = 0;
-    public const uint OptionIdShop = 1;
-    public const uint OptionIdMail = 2;
-    public const uint OptionIdDarnassusSenjinPennant = 3;
-    public const uint OptionIdExodarUndercityPennant = 4;
-    public const uint OptionIdGnomereganOrgrimmarPennant = 5;
-    public const uint OptionIdIronforgeSilvermoonPennant = 6;
-    public const uint OptionIdStormwindThunderbluffPennant = 7;
+    public const uint OPTION_ID_BANK = 0;
+    public const uint OPTION_ID_SHOP = 1;
+    public const uint OPTION_ID_MAIL = 2;
+    public const uint OPTION_ID_DARNASSUS_SENJIN_PENNANT = 3;
+    public const uint OPTION_ID_EXODAR_UNDERCITY_PENNANT = 4;
+    public const uint OPTION_ID_GNOMEREGAN_ORGRIMMAR_PENNANT = 5;
+    public const uint OPTION_ID_IRONFORGE_SILVERMOON_PENNANT = 6;
+    public const uint OPTION_ID_STORMWIND_THUNDERBLUFF_PENNANT = 7;
 }
 
 internal enum SeatIds
@@ -326,12 +335,12 @@ internal struct Misc
         new(22126, 22122, SpawnType.AlarmBot)  //Air Force Trip Wire - Rooftop (Cenarion Expedition)
     };
 
-    public const float RangeTripwire = 15.0f;
-    public const float RangeAlarmbot = 100.0f;
+    public const float RANGE_TRIPWIRE = 15.0f;
+    public const float RANGE_ALARMBOT = 100.0f;
 
     //ChickenCluck
-    public const uint FactionFriendly = 35;
-    public const uint FactionChicken = 31;
+    public const uint FACTION_FRIENDLY = 35;
+    public const uint FACTION_CHICKEN = 31;
 
     //Doctor
     public static Position[] DoctorAllianceCoords =
@@ -376,33 +385,33 @@ internal struct Misc
     };
 
     //    WormholeSpells
-    public const uint DataShowUnderground = 1;
+    public const uint DATA_SHOW_UNDERGROUND = 1;
 
     //Fireworks
-    public const uint AnimGoLaunchFirework = 3;
-    public const uint ZoneMoonglade = 493;
+    public const uint ANIM_GO_LAUNCH_FIREWORK = 3;
+    public const uint ZONE_MOONGLADE = 493;
 
-    public static Position omenSummonPos = new(7558.993f, -2839.999f, 450.0214f, 4.46f);
+    public static Position OmenSummonPos = new(7558.993f, -2839.999f, 450.0214f, 4.46f);
 
-    public const uint AuraDurationTimeLeft = 30000;
+    public const uint AURA_DURATION_TIME_LEFT = 30000;
 
     //Argent squire/gruntling
-    public const uint AchievementPonyUp = 3736;
+    public const uint ACHIEVEMENT_PONY_UP = 3736;
 
-    public static Tuple<uint, uint>[] bannerSpells =
+    public static Tuple<uint, uint>[] BannerSpells =
     {
-        Tuple.Create(SpellIds.DarnassusPennant, SpellIds.SenjinPennant), Tuple.Create(SpellIds.ExodarPennant, SpellIds.UndercityPennant), Tuple.Create(SpellIds.GnomereganPennant, SpellIds.OrgrimmarPennant), Tuple.Create(SpellIds.IronforgePennant, SpellIds.SilvermoonPennant), Tuple.Create(SpellIds.StormwindPennant, SpellIds.ThunderbluffPennant)
+        Tuple.Create(SpellIds.DARNASSUS_PENNANT, SpellIds.SENJIN_PENNANT), Tuple.Create(SpellIds.EXODAR_PENNANT, SpellIds.UNDERCITY_PENNANT), Tuple.Create(SpellIds.GNOMEREGAN_PENNANT, SpellIds.ORGRIMMAR_PENNANT), Tuple.Create(SpellIds.IRONFORGE_PENNANT, SpellIds.SILVERMOON_PENNANT), Tuple.Create(SpellIds.STORMWIND_PENNANT, SpellIds.THUNDERBLUFF_PENNANT)
     };
 }
 
 [Script]
-internal class npc_air_force_bots : NullCreatureAI
+internal class NPCAirForceBots : NullCreatureAI
 {
     private readonly AirForceSpawn _spawn;
     private readonly List<ObjectGuid> _toAttack = new();
     private ObjectGuid _myGuard;
 
-    public npc_air_force_bots(Creature creature) : base(creature)
+    public NPCAirForceBots(Creature creature) : base(creature)
     {
         _spawn = FindSpawnFor(creature.Entry);
     }
@@ -435,8 +444,8 @@ internal class npc_air_force_bots : NullCreatureAI
 
             guard.EngageWithTarget(target);
 
-            if (_spawn.spawnType == SpawnType.AlarmBot)
-                guard.CastSpell(target, SpellIds.GuardsMark, true);
+            if (_spawn.SpawnType == SpawnType.AlarmBot)
+                guard.SpellFactory.CastSpell(target, SpellIds.GUARDS_MARK, true);
         }
 
         _toAttack.Clear();
@@ -453,7 +462,7 @@ internal class npc_air_force_bots : NullCreatureAI
             return;
 
         // check if they're in range
-        if (!who.IsWithinDistInMap(Me, (_spawn.spawnType == SpawnType.AlarmBot) ? Misc.RangeAlarmbot : Misc.RangeTripwire))
+        if (!who.IsWithinDistInMap(Me, (_spawn.SpawnType == SpawnType.AlarmBot) ? Misc.RANGE_ALARMBOT : Misc.RANGE_TRIPWIRE))
             return;
 
         // check if they're hostile
@@ -464,7 +473,7 @@ internal class npc_air_force_bots : NullCreatureAI
         if (!Me.IsValidAttackTarget(who))
             return;
 
-        if ((_spawn.spawnType == SpawnType.Tripwire) &&
+        if ((_spawn.SpawnType == SpawnType.Tripwire) &&
             who.IsFlying)
             return;
 
@@ -474,7 +483,7 @@ internal class npc_air_force_bots : NullCreatureAI
     private static AirForceSpawn FindSpawnFor(uint entry)
     {
         foreach (var spawn in Misc.AirforceSpawns)
-            if (spawn.myEntry == entry)
+            if (spawn.MyEntry == entry)
                 return spawn;
 
         return null;
@@ -485,7 +494,7 @@ internal class npc_air_force_bots : NullCreatureAI
         var guard = ObjectAccessor.GetCreature(Me, _myGuard);
 
         if (guard == null &&
-            (guard = Me.SummonCreature(_spawn.otherEntry, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5))))
+            (guard = Me.SummonCreature(_spawn.OtherEntry, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5))))
             _myGuard = guard.GUID;
 
         return guard;
@@ -493,11 +502,11 @@ internal class npc_air_force_bots : NullCreatureAI
 }
 
 [Script]
-internal class npc_chicken_cluck : ScriptedAI
+internal class NPCChickenCluck : ScriptedAI
 {
-    private uint ResetFlagTimer;
+    private uint _resetFlagTimer;
 
-    public npc_chicken_cluck(Creature creature) : base(creature)
+    public NPCChickenCluck(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -505,7 +514,7 @@ internal class npc_chicken_cluck : ScriptedAI
     public override void Reset()
     {
         Initialize();
-        Me.Faction = Misc.FactionChicken;
+        Me.Faction = Misc.FACTION_CHICKEN;
         Me.RemoveNpcFlag(NPCFlags.QuestGiver);
     }
 
@@ -516,7 +525,7 @@ internal class npc_chicken_cluck : ScriptedAI
         // Reset flags after a certain Time has passed so that the next player has to start the 'event' again
         if (Me.HasNpcFlag(NPCFlags.QuestGiver))
         {
-            if (ResetFlagTimer <= diff)
+            if (_resetFlagTimer <= diff)
             {
                 EnterEvadeMode();
 
@@ -524,7 +533,7 @@ internal class npc_chicken_cluck : ScriptedAI
             }
             else
             {
-                ResetFlagTimer -= diff;
+                _resetFlagTimer -= diff;
             }
         }
 
@@ -537,21 +546,21 @@ internal class npc_chicken_cluck : ScriptedAI
         switch (emote)
         {
             case TextEmotes.Chicken:
-                if (player.GetQuestStatus(QuestConst.Cluck) == QuestStatus.None &&
+                if (player.GetQuestStatus(QuestConst.CLUCK) == QuestStatus.None &&
                     RandomHelper.Rand32() % 30 == 1)
                 {
                     Me.SetNpcFlag(NPCFlags.QuestGiver);
-                    Me.Faction = Misc.FactionFriendly;
-                    Talk(player.Team == TeamFaction.Horde ? TextIds.EmoteHelloH : TextIds.EmoteHelloA);
+                    Me.Faction = Misc.FACTION_FRIENDLY;
+                    Talk(player.Team == TeamFaction.Horde ? TextIds.EMOTE_HELLO_H : TextIds.EMOTE_HELLO_A);
                 }
 
                 break;
             case TextEmotes.Cheer:
-                if (player.GetQuestStatus(QuestConst.Cluck) == QuestStatus.Complete)
+                if (player.GetQuestStatus(QuestConst.CLUCK) == QuestStatus.Complete)
                 {
                     Me.SetNpcFlag(NPCFlags.QuestGiver);
-                    Me.Faction = Misc.FactionFriendly;
-                    Talk(TextIds.EmoteCluck);
+                    Me.Faction = Misc.FACTION_FRIENDLY;
+                    Talk(TextIds.EMOTE_CLUCK);
                 }
 
                 break;
@@ -560,31 +569,31 @@ internal class npc_chicken_cluck : ScriptedAI
 
     public override void OnQuestAccept(Player player, Quest quest)
     {
-        if (quest.Id == QuestConst.Cluck)
+        if (quest.Id == QuestConst.CLUCK)
             Reset();
     }
 
     public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     {
-        if (quest.Id == QuestConst.Cluck)
+        if (quest.Id == QuestConst.CLUCK)
             Reset();
     }
 
     private void Initialize()
     {
-        ResetFlagTimer = 120000;
+        _resetFlagTimer = 120000;
     }
 }
 
 [Script]
-internal class npc_dancing_flames : ScriptedAI
+internal class NPCDancingFlames : ScriptedAI
 {
-    public npc_dancing_flames(Creature creature) : base(creature) { }
+    public NPCDancingFlames(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
-        DoCastSelf(SpellIds.SummonBrazier, new CastSpellExtraArgs(true));
-        DoCastSelf(SpellIds.BrazierDance, new CastSpellExtraArgs(false));
+        DoCastSelf(SpellIds.SUMMON_BRAZIER, new CastSpellExtraArgs(true));
+        DoCastSelf(SpellIds.BRAZIER_DANCE, new CastSpellExtraArgs(false));
         Me.EmoteState = Emote.StateDance;
         Me.Location.Relocate(Me.Location.X, Me.Location.Y, Me.Location.Z + 1.05f);
     }
@@ -624,9 +633,9 @@ internal class npc_dancing_flames : ScriptedAI
 
                     break;
                 case TextEmotes.Dance:
-                    if (!player.HasAura(SpellIds.FierySeduction))
+                    if (!player.HasAura(SpellIds.FIERY_SEDUCTION))
                     {
-                        DoCast(player, SpellIds.FierySeduction, new CastSpellExtraArgs(true));
+                        DoCast(player, SpellIds.FIERY_SEDUCTION, new CastSpellExtraArgs(true));
                         Me.SetFacingTo(Me.Location.GetAbsoluteAngle(player.Location));
                     }
 
@@ -637,13 +646,13 @@ internal class npc_dancing_flames : ScriptedAI
 }
 
 [Script]
-internal class npc_torch_tossing_target_bunny_controller : ScriptedAI
+internal class NPCTorchTossingTargetBunnyController : ScriptedAI
 {
     private ObjectGuid _lastTargetGUID;
 
     private uint _targetTimer;
 
-    public npc_torch_tossing_target_bunny_controller(Creature creature) : base(creature)
+    public NPCTorchTossingTargetBunnyController(Creature creature) : base(creature)
     {
         _targetTimer = 3000;
     }
@@ -655,7 +664,7 @@ internal class npc_torch_tossing_target_bunny_controller : ScriptedAI
             var target = Global.ObjAccessor.GetUnit(Me, DoSearchForTargets(_lastTargetGUID));
 
             if (target)
-                target.CastSpell(target, SpellIds.TargetIndicator, true);
+                target.SpellFactory.CastSpell(target, SpellIds.TARGET_INDICATOR, true);
 
             _targetTimer = 3000;
         }
@@ -667,7 +676,7 @@ internal class npc_torch_tossing_target_bunny_controller : ScriptedAI
 
     private ObjectGuid DoSearchForTargets(ObjectGuid lastTargetGUID)
     {
-        var targets = Me.GetCreatureListWithEntryInGrid(CreatureIds.TorchTossingTargetBunny, 60.0f);
+        var targets = Me.GetCreatureListWithEntryInGrid(CreatureIds.TORCH_TOSSING_TARGET_BUNNY, 60.0f);
         targets.RemoveAll(creature => creature.GUID == lastTargetGUID);
 
         if (!targets.Empty())
@@ -682,11 +691,11 @@ internal class npc_torch_tossing_target_bunny_controller : ScriptedAI
 }
 
 [Script]
-internal class npc_midsummer_bunny_pole : ScriptedAI
+internal class NPCMidsummerBunnyPole : ScriptedAI
 {
-    private bool running;
+    private bool _running;
 
-    public npc_midsummer_bunny_pole(Creature creature) : base(creature)
+    public NPCMidsummerBunnyPole(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -695,37 +704,37 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
     {
         Initialize();
 
-        Scheduler.SetValidator(() => running);
+        Scheduler.SetValidator(() => _running);
 
         Scheduler.Schedule(TimeSpan.FromMilliseconds(1),
                            task =>
                            {
-                               if (checkNearbyPlayers())
+                               if (CheckNearbyPlayers())
                                {
                                    Reset();
 
                                    return;
                                }
 
-                               var go = Me.FindNearestGameObject(GameobjectIds.RibbonPole, 10.0f);
+                               var go = Me.FindNearestGameObject(GameobjectIds.RIBBON_POLE, 10.0f);
 
                                if (go)
-                                   Me.CastSpell(go, SpellIds.RedFireRing, true);
+                                   Me.SpellFactory.CastSpell(go, SpellIds.RED_FIRE_RING, true);
 
                                task.Schedule(TimeSpan.FromSeconds(5),
                                              task1 =>
                                              {
-                                                 if (checkNearbyPlayers())
+                                                 if (CheckNearbyPlayers())
                                                  {
                                                      Reset();
 
                                                      return;
                                                  }
 
-                                                 go = Me.FindNearestGameObject(GameobjectIds.RibbonPole, 10.0f);
+                                                 go = Me.FindNearestGameObject(GameobjectIds.RIBBON_POLE, 10.0f);
 
                                                  if (go)
-                                                     Me.CastSpell(go, SpellIds.BlueFireRing, true);
+                                                     Me.SpellFactory.CastSpell(go, SpellIds.BLUE_FIRE_RING, true);
 
                                                  task.Repeat(TimeSpan.FromSeconds(5));
                                              });
@@ -735,16 +744,16 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
     public override void DoAction(int action)
     {
         // Don't start event if it's already running.
-        if (running)
+        if (_running)
             return;
 
-        running = true;
+        _running = true;
         //events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 1);
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (!running)
+        if (!_running)
             return;
 
         Scheduler.Update(diff);
@@ -753,14 +762,14 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
     private void Initialize()
     {
         Scheduler.CancelAll();
-        running = false;
+        _running = false;
     }
 
-    private bool checkNearbyPlayers()
+    private bool CheckNearbyPlayers()
     {
         // Returns true if no nearby player has aura "Test Ribbon Pole Channel".
         List<Unit> players = new();
-        var check = new UnitAuraCheck<Player>(true, SpellIds.RibbonDanceCosmetic);
+        var check = new UnitAuraCheck<Player>(true, SpellIds.RIBBON_DANCE_COSMETIC);
         var searcher = new PlayerListSearcher(Me, players, check);
         Cell.VisitGrid(Me, searcher, 10.0f);
 
@@ -769,22 +778,22 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
 }
 
 [Script]
-internal class npc_doctor : ScriptedAI
+internal class NPCDoctor : ScriptedAI
 {
-    private readonly List<Position> Coordinates = new();
+    private readonly List<Position> _coordinates = new();
 
-    private readonly List<ObjectGuid> Patients = new();
+    private readonly List<ObjectGuid> _patients = new();
 
-    private bool Event;
-    private uint PatientDiedCount;
-    private uint PatientSavedCount;
+    private bool _event;
+    private uint _patientDiedCount;
+    private uint _patientSavedCount;
 
-    private ObjectGuid PlayerGUID;
-    private uint SummonPatientCount;
+    private ObjectGuid _playerGUID;
+    private uint _summonPatientCount;
 
-    private uint SummonPatientTimer;
+    private uint _summonPatientTimer;
 
-    public npc_doctor(Creature creature) : base(creature)
+    public NPCDoctor(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -797,40 +806,40 @@ internal class npc_doctor : ScriptedAI
 
     public void BeginEvent(Player player)
     {
-        PlayerGUID = player.GUID;
+        _playerGUID = player.GUID;
 
-        SummonPatientTimer = 10000;
-        SummonPatientCount = 0;
-        PatientDiedCount = 0;
-        PatientSavedCount = 0;
+        _summonPatientTimer = 10000;
+        _summonPatientCount = 0;
+        _patientDiedCount = 0;
+        _patientSavedCount = 0;
 
         switch (Me.Entry)
         {
-            case CreatureIds.DoctorAlliance:
+            case CreatureIds.DOCTOR_ALLIANCE:
                 foreach (var coord in Misc.DoctorAllianceCoords)
-                    Coordinates.Add(coord);
+                    _coordinates.Add(coord);
 
                 break;
-            case CreatureIds.DoctorHorde:
+            case CreatureIds.DOCTOR_HORDE:
                 foreach (var coord in Misc.DoctorHordeCoords)
-                    Coordinates.Add(coord);
+                    _coordinates.Add(coord);
 
                 break;
         }
 
-        Event = true;
+        _event = true;
         Me.SetUnitFlag(UnitFlags.Uninteractible);
     }
 
     public void PatientDied(Position point)
     {
-        var player = Global.ObjAccessor.GetPlayer(Me, PlayerGUID);
+        var player = Global.ObjAccessor.GetPlayer(Me, _playerGUID);
 
         if (player && ((player.GetQuestStatus(6624) == QuestStatus.Incomplete) || (player.GetQuestStatus(6622) == QuestStatus.Incomplete)))
         {
-            ++PatientDiedCount;
+            ++_patientDiedCount;
 
-            if (PatientDiedCount > 5 && Event)
+            if (_patientDiedCount > 5 && _event)
             {
                 if (player.GetQuestStatus(6624) == QuestStatus.Incomplete)
                     player.FailQuest(6624);
@@ -842,7 +851,7 @@ internal class npc_doctor : ScriptedAI
                 return;
             }
 
-            Coordinates.Add(point);
+            _coordinates.Add(point);
         }
         else
             // If no player or player abandon quest in progress
@@ -853,16 +862,16 @@ internal class npc_doctor : ScriptedAI
 
     public void PatientSaved(Creature soldier, Player player, Position point)
     {
-        if (player && PlayerGUID == player.GUID)
+        if (player && _playerGUID == player.GUID)
             if ((player.GetQuestStatus(6624) == QuestStatus.Incomplete) ||
                 (player.GetQuestStatus(6622) == QuestStatus.Incomplete))
             {
-                ++PatientSavedCount;
+                ++_patientSavedCount;
 
-                if (PatientSavedCount == 15)
+                if (_patientSavedCount == 15)
                 {
-                    if (!Patients.Empty())
-                        foreach (var guid in Patients)
+                    if (!_patients.Empty())
+                        foreach (var guid in _patients)
                         {
                             var patient = ObjectAccessor.GetCreature(Me, guid);
 
@@ -880,35 +889,35 @@ internal class npc_doctor : ScriptedAI
                     return;
                 }
 
-                Coordinates.Add(point);
+                _coordinates.Add(point);
             }
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (Event && SummonPatientCount >= 20)
+        if (_event && _summonPatientCount >= 20)
         {
             Reset();
 
             return;
         }
 
-        if (Event)
+        if (_event)
         {
-            if (SummonPatientTimer <= diff)
+            if (_summonPatientTimer <= diff)
             {
-                if (Coordinates.Empty())
+                if (_coordinates.Empty())
                     return;
 
                 uint patientEntry;
 
                 switch (Me.Entry)
                 {
-                    case CreatureIds.DoctorAlliance:
+                    case CreatureIds.DOCTOR_ALLIANCE:
                         patientEntry = Misc.AllianceSoldierId[RandomHelper.Rand32() % 3];
 
                         break;
-                    case CreatureIds.DoctorHorde:
+                    case CreatureIds.DOCTOR_HORDE:
                         patientEntry = Misc.HordeSoldierId[RandomHelper.Rand32() % 3];
 
                         break;
@@ -918,28 +927,28 @@ internal class npc_doctor : ScriptedAI
                         return;
                 }
 
-                var index = RandomHelper.IRand(0, Coordinates.Count - 1);
+                var index = RandomHelper.IRand(0, _coordinates.Count - 1);
 
-                Creature Patient = Me.SummonCreature(patientEntry, Coordinates[index], TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(5));
+                Creature patient = Me.SummonCreature(patientEntry, _coordinates[index], TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(5));
 
-                if (Patient)
+                if (patient)
                 {
                     //303, this flag appear to be required for client side Item.spell to work (TARGET_SINGLE_FRIEND)
-                    Patient.SetUnitFlag(UnitFlags.PlayerControlled);
+                    patient.SetUnitFlag(UnitFlags.PlayerControlled);
 
-                    Patients.Add(Patient.GUID);
-                    ((npc_injured_patient)Patient.AI).DoctorGUID = Me.GUID;
-                    ((npc_injured_patient)Patient.AI).Coord = Coordinates[index];
+                    _patients.Add(patient.GUID);
+                    ((NPCInjuredPatient)patient.AI).DoctorGUID = Me.GUID;
+                    ((NPCInjuredPatient)patient.AI).Coord = _coordinates[index];
 
-                    Coordinates.RemoveAt(index);
+                    _coordinates.RemoveAt(index);
                 }
 
-                SummonPatientTimer = 10000;
-                ++SummonPatientCount;
+                _summonPatientTimer = 10000;
+                ++_summonPatientCount;
             }
             else
             {
-                SummonPatientTimer -= diff;
+                _summonPatientTimer -= diff;
             }
         }
     }
@@ -955,28 +964,28 @@ internal class npc_doctor : ScriptedAI
 
     private void Initialize()
     {
-        PlayerGUID.Clear();
+        _playerGUID.Clear();
 
-        SummonPatientTimer = 10000;
-        SummonPatientCount = 0;
-        PatientDiedCount = 0;
-        PatientSavedCount = 0;
+        _summonPatientTimer = 10000;
+        _summonPatientCount = 0;
+        _patientDiedCount = 0;
+        _patientSavedCount = 0;
 
-        Patients.Clear();
-        Coordinates.Clear();
+        _patients.Clear();
+        _coordinates.Clear();
 
-        Event = false;
+        _event = false;
     }
 }
 
 [Script]
-public class npc_injured_patient : ScriptedAI
+public class NPCInjuredPatient : ScriptedAI
 {
     public Position Coord;
 
     public ObjectGuid DoctorGUID;
 
-    public npc_injured_patient(Creature creature) : base(creature)
+    public NPCInjuredPatient(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -1035,7 +1044,7 @@ public class npc_injured_patient : ScriptedAI
                 var doctor = ObjectAccessor.GetCreature(Me, DoctorGUID);
 
                 if (doctor)
-                    ((npc_doctor)doctor.AI).PatientSaved(Me, player, Coord);
+                    ((NPCDoctor)doctor.AI).PatientSaved(Me, player, Coord);
             }
 
         //make not selectable
@@ -1047,7 +1056,7 @@ public class npc_injured_patient : ScriptedAI
         //stand up
         Me.SetStandState(UnitStandStateType.Stand);
 
-        Talk(TextIds.SayDoc);
+        Talk(TextIds.SAY_DOC);
 
         var mobId = Me.Entry;
         Me.SetWalk(false);
@@ -1089,7 +1098,7 @@ public class npc_injured_patient : ScriptedAI
                 var doctor = ObjectAccessor.GetCreature((Me), DoctorGUID);
 
                 if (doctor)
-                    ((npc_doctor)doctor.AI).PatientDied(Coord);
+                    ((NPCDoctor)doctor.AI).PatientDied(Coord);
             }
         }
     }
@@ -1102,42 +1111,42 @@ public class npc_injured_patient : ScriptedAI
 }
 
 [Script]
-internal class npc_garments_of_quests : EscortAI
+internal class NPCGarmentsOfQuests : EscortAI
 {
-    private readonly uint quest;
-    private bool CanRun;
-    private ObjectGuid CasterGUID;
+    private readonly uint _quest;
+    private bool _canRun;
+    private ObjectGuid _casterGUID;
 
-    private bool IsHealed;
+    private bool _isHealed;
 
-    private uint RunAwayTimer;
+    private uint _runAwayTimer;
 
-    public npc_garments_of_quests(Creature creature) : base(creature)
+    public NPCGarmentsOfQuests(Creature creature) : base(creature)
     {
         switch (Me.Entry)
         {
-            case CreatureIds.Shaya:
-                quest = QuestConst.Moon;
+            case CreatureIds.SHAYA:
+                _quest = QuestConst.MOON;
 
                 break;
-            case CreatureIds.Roberts:
-                quest = QuestConst.Light1;
+            case CreatureIds.ROBERTS:
+                _quest = QuestConst.LIGHT1;
 
                 break;
-            case CreatureIds.Dolf:
-                quest = QuestConst.Light2;
+            case CreatureIds.DOLF:
+                _quest = QuestConst.LIGHT2;
 
                 break;
-            case CreatureIds.Korja:
-                quest = QuestConst.Spirit;
+            case CreatureIds.KORJA:
+                _quest = QuestConst.SPIRIT;
 
                 break;
-            case CreatureIds.DgKel:
-                quest = QuestConst.Darkness;
+            case CreatureIds.DG_KEL:
+                _quest = QuestConst.DARKNESS;
 
                 break;
             default:
-                quest = 0;
+                _quest = 0;
 
                 break;
         }
@@ -1147,7 +1156,7 @@ internal class npc_garments_of_quests : EscortAI
 
     public override void Reset()
     {
-        CasterGUID.Clear();
+        _casterGUID.Clear();
 
         Initialize();
 
@@ -1160,43 +1169,43 @@ internal class npc_garments_of_quests : EscortAI
 
     public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
     {
-        if (spellInfo.Id == SpellIds.LesserHealR2 ||
-            spellInfo.Id == SpellIds.FortitudeR1)
+        if (spellInfo.Id == SpellIds.LESSER_HEAL_R2 ||
+            spellInfo.Id == SpellIds.FORTITUDE_R1)
         {
             //not while in combat
             if (Me.IsInCombat)
                 return;
 
             //nothing to be done now
-            if (IsHealed && CanRun)
+            if (_isHealed && _canRun)
                 return;
 
             var player = caster.AsPlayer;
 
             if (player)
             {
-                if (quest != 0 &&
-                    player.GetQuestStatus(quest) == QuestStatus.Incomplete)
+                if (_quest != 0 &&
+                    player.GetQuestStatus(_quest) == QuestStatus.Incomplete)
                 {
-                    if (IsHealed &&
-                        !CanRun &&
-                        spellInfo.Id == SpellIds.FortitudeR1)
+                    if (_isHealed &&
+                        !_canRun &&
+                        spellInfo.Id == SpellIds.FORTITUDE_R1)
                     {
-                        Talk(TextIds.SayThanks, player);
-                        CanRun = true;
+                        Talk(TextIds.SAY_THANKS, player);
+                        _canRun = true;
                     }
-                    else if (!IsHealed &&
-                             spellInfo.Id == SpellIds.LesserHealR2)
+                    else if (!_isHealed &&
+                             spellInfo.Id == SpellIds.LESSER_HEAL_R2)
                     {
-                        CasterGUID = player.GUID;
+                        _casterGUID = player.GUID;
                         Me.SetStandState(UnitStandStateType.Stand);
-                        Talk(TextIds.SayHealed, player);
-                        IsHealed = true;
+                        Talk(TextIds.SAY_HEALED, player);
+                        _isHealed = true;
                     }
                 }
 
                 // give quest credit, not expect any special quest objectives
-                if (CanRun)
+                if (_canRun)
                     player.TalkedToCreature(Me.Entry, Me.GUID);
             }
         }
@@ -1206,22 +1215,22 @@ internal class npc_garments_of_quests : EscortAI
 
     public override void UpdateAI(uint diff)
     {
-        if (CanRun && !Me.IsInCombat)
+        if (_canRun && !Me.IsInCombat)
         {
-            if (RunAwayTimer <= diff)
+            if (_runAwayTimer <= diff)
             {
-                var unit = Global.ObjAccessor.GetUnit(Me, CasterGUID);
+                var unit = Global.ObjAccessor.GetUnit(Me, _casterGUID);
 
                 if (unit)
                 {
                     switch (Me.Entry)
                     {
-                        case CreatureIds.Shaya:
-                        case CreatureIds.Roberts:
-                        case CreatureIds.Dolf:
-                        case CreatureIds.Korja:
-                        case CreatureIds.DgKel:
-                            Talk(TextIds.SayGoodbye, unit);
+                        case CreatureIds.SHAYA:
+                        case CreatureIds.ROBERTS:
+                        case CreatureIds.DOLF:
+                        case CreatureIds.KORJA:
+                        case CreatureIds.DG_KEL:
+                            Talk(TextIds.SAY_GOODBYE, unit);
 
                             break;
                     }
@@ -1233,11 +1242,11 @@ internal class npc_garments_of_quests : EscortAI
                     EnterEvadeMode(); //something went wrong
                 }
 
-                RunAwayTimer = 30000;
+                _runAwayTimer = 30000;
             }
             else
             {
-                RunAwayTimer -= diff;
+                _runAwayTimer -= diff;
             }
         }
 
@@ -1246,17 +1255,17 @@ internal class npc_garments_of_quests : EscortAI
 
     private void Initialize()
     {
-        IsHealed = false;
-        CanRun = false;
+        _isHealed = false;
+        _canRun = false;
 
-        RunAwayTimer = 5000;
+        _runAwayTimer = 5000;
     }
 }
 
 [Script]
-internal class npc_guardian : ScriptedAI
+internal class NPCGuardian : ScriptedAI
 {
-    public npc_guardian(Creature creature) : base(creature) { }
+    public NPCGuardian(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -1272,16 +1281,16 @@ internal class npc_guardian : ScriptedAI
 
         if (Me.IsAttackReady())
         {
-            DoCastVictim(SpellIds.Deathtouch, new CastSpellExtraArgs(true));
+            DoCastVictim(SpellIds.DEATHTOUCH, new CastSpellExtraArgs(true));
             Me.ResetAttackTimer();
         }
     }
 }
 
 [Script]
-internal class npc_steam_tonk : ScriptedAI
+internal class NPCSteamTonk : ScriptedAI
 {
-    public npc_steam_tonk(Creature creature) : base(creature) { }
+    public NPCSteamTonk(Creature creature) : base(creature) { }
 
     public override void Reset() { }
 
@@ -1305,9 +1314,9 @@ internal class npc_steam_tonk : ScriptedAI
 }
 
 [Script]
-internal class npc_brewfest_reveler : ScriptedAI
+internal class NPCBrewfestReveler : ScriptedAI
 {
-    public npc_brewfest_reveler(Creature creature) : base(creature) { }
+    public NPCBrewfestReveler(Creature creature) : base(creature) { }
 
     public override void ReceiveEmote(Player player, TextEmotes emote)
     {
@@ -1315,21 +1324,21 @@ internal class npc_brewfest_reveler : ScriptedAI
             return;
 
         if (emote == TextEmotes.Dance)
-            Me.CastSpell(player, SpellIds.BrewfestToast, false);
+            Me.SpellFactory.CastSpell(player, SpellIds.BREWFEST_TOAST, false);
     }
 }
 
 [Script]
-internal class npc_brewfest_reveler_2 : ScriptedAI
+internal class NPCBrewfestReveler2 : ScriptedAI
 {
     private readonly List<ObjectGuid> _revelerGuids = new();
 
-    private readonly Emote[] BrewfestRandomEmote =
+    private readonly Emote[] _brewfestRandomEmote =
     {
         Emote.OneshotQuestion, Emote.OneshotApplaud, Emote.OneshotShout, Emote.OneshotEatNoSheathe, Emote.OneshotLaughNoSheathe
     };
 
-    public npc_brewfest_reveler_2(Creature creature) : base(creature) { }
+    public NPCBrewfestReveler2(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -1339,7 +1348,7 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
                            TimeSpan.FromSeconds(2),
                            fillListTask =>
                            {
-                               var creatureList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BrewfestReveler, 5.0f);
+                               var creatureList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BREWFEST_REVELER, 5.0f);
 
                                foreach (var creature in creatureList)
                                    if (creature != Me)
@@ -1378,7 +1387,7 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
                                                                                 // Play random Emote or dance
                                                                                 if (RandomHelper.randChance(50))
                                                                                 {
-                                                                                    Me.HandleEmoteCommand(BrewfestRandomEmote.SelectRandom());
+                                                                                    Me.HandleEmoteCommand(_brewfestRandomEmote.SelectRandom());
                                                                                     Scheduler.Schedule(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(6), nextTask);
                                                                                 }
                                                                                 else
@@ -1398,7 +1407,7 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
             return;
 
         if (emote == TextEmotes.Dance)
-            Me.CastSpell(player, SpellIds.BrewfestToast, false);
+            Me.SpellFactory.CastSpell(player, SpellIds.BREWFEST_TOAST, false);
     }
 
     public override void UpdateAI(uint diff)
@@ -1410,11 +1419,11 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
 }
 
 [Script]
-internal class npc_wormhole : PassiveAI
+internal class NPCWormhole : PassiveAI
 {
     private bool _showUnderground;
 
-    public npc_wormhole(Creature creature) : base(creature)
+    public NPCWormhole(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -1426,21 +1435,21 @@ internal class npc_wormhole : PassiveAI
 
     public override bool OnGossipHello(Player player)
     {
-        player.InitGossipMenu(GossipMenus.MenuIdWormhole);
+        player.InitGossipMenu(GossipMenus.MENU_ID_WORMHOLE);
 
         if (Me.IsSummon)
             if (player == Me.ToTempSummon().GetSummoner())
             {
-                player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
-                player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
-                player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 3);
-                player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole4, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 4);
-                player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole5, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 5);
+                player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
+                player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
+                player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 3);
+                player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE4, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 4);
+                player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE5, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 5);
 
                 if (_showUnderground)
-                    player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole6, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 6);
+                    player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE6, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 6);
 
-                player.SendGossipMenu(TextIds.Wormhole, Me.GUID);
+                player.SendGossipMenu(TextIds.WORMHOLE, Me.GUID);
             }
 
         return true;
@@ -1455,32 +1464,32 @@ internal class npc_wormhole : PassiveAI
         {
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 1: // Borean Tundra
                 player.CloseGossipMenu();
-                DoCast(player, SpellIds.BoreanTundra, new CastSpellExtraArgs(false));
+                DoCast(player, SpellIds.BOREAN_TUNDRA, new CastSpellExtraArgs(false));
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 2: // Howling Fjord
                 player.CloseGossipMenu();
-                DoCast(player, SpellIds.HowlingFjord, new CastSpellExtraArgs(false));
+                DoCast(player, SpellIds.HOWLING_FJORD, new CastSpellExtraArgs(false));
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 3: // Sholazar Basin
                 player.CloseGossipMenu();
-                DoCast(player, SpellIds.SholazarBasin, new CastSpellExtraArgs(false));
+                DoCast(player, SpellIds.SHOLAZAR_BASIN, new CastSpellExtraArgs(false));
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 4: // Icecrown
                 player.CloseGossipMenu();
-                DoCast(player, SpellIds.Icecrown, new CastSpellExtraArgs(false));
+                DoCast(player, SpellIds.ICECROWN, new CastSpellExtraArgs(false));
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 5: // Storm peaks
                 player.CloseGossipMenu();
-                DoCast(player, SpellIds.StormPeaks, new CastSpellExtraArgs(false));
+                DoCast(player, SpellIds.STORM_PEAKS, new CastSpellExtraArgs(false));
 
                 break;
             case GossipAction.GOSSIP_ACTION_INFO_DEF + 6: // Underground
                 player.CloseGossipMenu();
-                DoCast(player, SpellIds.Underground, new CastSpellExtraArgs(false));
+                DoCast(player, SpellIds.UNDERGROUND, new CastSpellExtraArgs(false));
 
                 break;
         }
@@ -1495,16 +1504,16 @@ internal class npc_wormhole : PassiveAI
 }
 
 [Script]
-internal class npc_spring_rabbit : ScriptedAI
+internal class NPCSpringRabbit : ScriptedAI
 {
-    private uint bunnyTimer;
+    private uint _bunnyTimer;
 
-    private bool inLove;
-    private uint jumpTimer;
-    private ObjectGuid rabbitGUID;
-    private uint searchTimer;
+    private bool _inLove;
+    private uint _jumpTimer;
+    private ObjectGuid _rabbitGUID;
+    private uint _searchTimer;
 
-    public npc_spring_rabbit(Creature creature) : base(creature)
+    public NPCSpringRabbit(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -1522,100 +1531,100 @@ internal class npc_spring_rabbit : ScriptedAI
 
     public override void DoAction(int param)
     {
-        inLove = true;
+        _inLove = true;
         var owner = Me.OwnerUnit;
 
         if (owner)
-            owner.CastSpell(owner, SpellIds.SpringFling, true);
+            owner.SpellFactory.CastSpell(owner, SpellIds.SPRING_FLING, true);
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (inLove)
+        if (_inLove)
         {
-            if (jumpTimer <= diff)
+            if (_jumpTimer <= diff)
             {
-                var rabbit = Global.ObjAccessor.GetUnit(Me, rabbitGUID);
+                var rabbit = Global.ObjAccessor.GetUnit(Me, _rabbitGUID);
 
                 if (rabbit)
-                    DoCast(rabbit, SpellIds.SpringRabbitJump);
+                    DoCast(rabbit, SpellIds.SPRING_RABBIT_JUMP);
 
-                jumpTimer = RandomHelper.URand(5000, 10000);
+                _jumpTimer = RandomHelper.URand(5000, 10000);
             }
             else
             {
-                jumpTimer -= diff;
+                _jumpTimer -= diff;
             }
 
-            if (bunnyTimer <= diff)
+            if (_bunnyTimer <= diff)
             {
-                DoCast(SpellIds.SummonBabyBunny);
-                bunnyTimer = RandomHelper.URand(20000, 40000);
+                DoCast(SpellIds.SUMMON_BABY_BUNNY);
+                _bunnyTimer = RandomHelper.URand(20000, 40000);
             }
             else
             {
-                bunnyTimer -= diff;
+                _bunnyTimer -= diff;
             }
         }
         else
         {
-            if (searchTimer <= diff)
+            if (_searchTimer <= diff)
             {
-                var rabbit = Me.FindNearestCreature(CreatureIds.SpringRabbit, 10.0f);
+                var rabbit = Me.FindNearestCreature(CreatureIds.SPRING_RABBIT, 10.0f);
 
                 if (rabbit)
                 {
                     if (rabbit == Me ||
-                        rabbit.HasAura(SpellIds.SpringRabbitInLove))
+                        rabbit.HasAura(SpellIds.SPRING_RABBIT_IN_LOVE))
                         return;
 
-                    Me.AddAura(SpellIds.SpringRabbitInLove, Me);
+                    Me.AddAura(SpellIds.SPRING_RABBIT_IN_LOVE, Me);
                     DoAction(1);
-                    rabbit.AddAura(SpellIds.SpringRabbitInLove, rabbit);
+                    rabbit.AddAura(SpellIds.SPRING_RABBIT_IN_LOVE, rabbit);
                     rabbit.AI.DoAction(1);
-                    rabbit.CastSpell(rabbit, SpellIds.SpringRabbitJump, true);
-                    rabbitGUID = rabbit.GUID;
+                    rabbit.SpellFactory.CastSpell(rabbit, SpellIds.SPRING_RABBIT_JUMP, true);
+                    _rabbitGUID = rabbit.GUID;
                 }
 
-                searchTimer = RandomHelper.URand(5000, 10000);
+                _searchTimer = RandomHelper.URand(5000, 10000);
             }
             else
             {
-                searchTimer -= diff;
+                _searchTimer -= diff;
             }
         }
     }
 
     private void Initialize()
     {
-        inLove = false;
-        rabbitGUID.Clear();
-        jumpTimer = RandomHelper.URand(5000, 10000);
-        bunnyTimer = RandomHelper.URand(10000, 20000);
-        searchTimer = RandomHelper.URand(5000, 10000);
+        _inLove = false;
+        _rabbitGUID.Clear();
+        _jumpTimer = RandomHelper.URand(5000, 10000);
+        _bunnyTimer = RandomHelper.URand(10000, 20000);
+        _searchTimer = RandomHelper.URand(5000, 10000);
     }
 }
 
 [Script]
-internal class npc_imp_in_a_ball : ScriptedAI
+internal class NPCImpInABall : ScriptedAI
 {
-    private ObjectGuid summonerGUID;
+    private ObjectGuid _summonerGUID;
 
-    public npc_imp_in_a_ball(Creature creature) : base(creature)
+    public NPCImpInABall(Creature creature) : base(creature)
     {
-        summonerGUID.Clear();
+        _summonerGUID.Clear();
     }
 
     public override void IsSummonedBy(WorldObject summoner)
     {
         if (summoner.IsTypeId(TypeId.Player))
         {
-            summonerGUID = summoner.GUID;
+            _summonerGUID = summoner.GUID;
 
             Scheduler.Schedule(TimeSpan.FromSeconds(3),
                                task =>
                                {
-                                   var owner = Global.ObjAccessor.GetPlayer(Me, summonerGUID);
+                                   var owner = Global.ObjAccessor.GetPlayer(Me, _summonerGUID);
 
                                    if (owner)
                                        Global.CreatureTextMgr.SendChat(Me, 0, owner, owner.Group ? ChatMsg.MonsterParty : ChatMsg.MonsterWhisper, Language.Addon, CreatureTextRange.Normal);
@@ -1631,23 +1640,23 @@ internal class npc_imp_in_a_ball : ScriptedAI
 
 internal struct TrainWrecker
 {
-    public const int EventDoJump = 1;
-    public const int EventDoFacing = 2;
-    public const int EventDoWreck = 3;
-    public const int EventDoDance = 4;
-    public const uint MoveidChase = 1;
-    public const uint MoveidJump = 2;
+    public const int EVENT_DO_JUMP = 1;
+    public const int EVENT_DO_FACING = 2;
+    public const int EVENT_DO_WRECK = 3;
+    public const int EVENT_DO_DANCE = 4;
+    public const uint MOVEID_CHASE = 1;
+    public const uint MOVEID_JUMP = 2;
 }
 
 [Script]
-internal class npc_train_wrecker : NullCreatureAI
+internal class NPCTrainWrecker : NullCreatureAI
 {
     private bool _isSearching;
     private byte _nextAction;
     private ObjectGuid _target;
     private uint _timer;
 
-    public npc_train_wrecker(Creature creature) : base(creature)
+    public NPCTrainWrecker(Creature creature) : base(creature)
     {
         _isSearching = true;
         _nextAction = 0;
@@ -1664,14 +1673,14 @@ internal class npc_train_wrecker : NullCreatureAI
             }
             else
             {
-                var target = Me.FindNearestGameObject(GameobjectIds.ToyTrain, 15.0f);
+                var target = Me.FindNearestGameObject(GameobjectIds.TOY_TRAIN, 15.0f);
 
                 if (target)
                 {
                     _isSearching = false;
                     _target = target.GUID;
                     Me.SetWalk(true);
-                    Me.MotionMaster.MovePoint(TrainWrecker.MoveidChase, target.GetNearPosition(3.0f, target.Location.GetAbsoluteAngle(Me.Location)));
+                    Me.MotionMaster.MovePoint(TrainWrecker.MOVEID_CHASE, target.GetNearPosition(3.0f, target.Location.GetAbsoluteAngle(Me.Location)));
                 }
                 else
                 {
@@ -1683,18 +1692,18 @@ internal class npc_train_wrecker : NullCreatureAI
         {
             switch (_nextAction)
             {
-                case TrainWrecker.EventDoJump:
+                case TrainWrecker.EVENT_DO_JUMP:
                 {
                     var target = VerifyTarget();
 
                     if (target)
-                        Me.MotionMaster.MoveJump(target.Location, 5.0f, 10.0f, TrainWrecker.MoveidJump);
+                        Me.MotionMaster.MoveJump(target.Location, 5.0f, 10.0f, TrainWrecker.MOVEID_JUMP);
 
                     _nextAction = 0;
                 }
 
                     break;
-                case TrainWrecker.EventDoFacing:
+                case TrainWrecker.EVENT_DO_FACING:
                 {
                     var target = VerifyTarget();
 
@@ -1703,7 +1712,7 @@ internal class npc_train_wrecker : NullCreatureAI
                         Me.SetFacingTo(target.Location.Orientation);
                         Me.HandleEmoteCommand(Emote.OneshotAttack1h);
                         _timer = (uint)(1.5 * Time.IN_MILLISECONDS);
-                        _nextAction = TrainWrecker.EventDoWreck;
+                        _nextAction = TrainWrecker.EVENT_DO_WRECK;
                     }
                     else
                     {
@@ -1712,7 +1721,7 @@ internal class npc_train_wrecker : NullCreatureAI
                 }
 
                     break;
-                case TrainWrecker.EventDoWreck:
+                case TrainWrecker.EVENT_DO_WRECK:
                 {
                     if (diff < _timer)
                     {
@@ -1725,9 +1734,9 @@ internal class npc_train_wrecker : NullCreatureAI
 
                     if (target)
                     {
-                        Me.CastSpell(target, SpellIds.WreckTrain, false);
+                        Me.SpellFactory.CastSpell(target, SpellIds.WRECK_TRAIN, false);
                         _timer = 2 * Time.IN_MILLISECONDS;
-                        _nextAction = TrainWrecker.EventDoDance;
+                        _nextAction = TrainWrecker.EVENT_DO_DANCE;
                     }
                     else
                     {
@@ -1736,7 +1745,7 @@ internal class npc_train_wrecker : NullCreatureAI
                 }
 
                     break;
-                case TrainWrecker.EventDoDance:
+                case TrainWrecker.EVENT_DO_DANCE:
                     if (diff < _timer)
                     {
                         _timer -= diff;
@@ -1744,23 +1753,22 @@ internal class npc_train_wrecker : NullCreatureAI
                         break;
                     }
 
-                    Me.UpdateEntry(CreatureIds.ExultingWindUpTrainWrecker);
+                    Me.UpdateEntry(CreatureIds.EXULTING_WIND_UP_TRAIN_WRECKER);
                     Me.EmoteState = Emote.OneshotDance;
                     Me.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
                     _nextAction = 0;
 
                     break;
-                
             }
         }
     }
 
     public override void MovementInform(MovementGeneratorType type, uint id)
     {
-        if (id == TrainWrecker.MoveidChase)
-            _nextAction = TrainWrecker.EventDoJump;
-        else if (id == TrainWrecker.MoveidJump)
-            _nextAction = TrainWrecker.EventDoFacing;
+        if (id == TrainWrecker.MOVEID_CHASE)
+            _nextAction = TrainWrecker.EVENT_DO_JUMP;
+        else if (id == TrainWrecker.MOVEID_JUMP)
+            _nextAction = TrainWrecker.EVENT_DO_FACING;
     }
 
     private GameObject VerifyTarget()
@@ -1778,9 +1786,9 @@ internal class npc_train_wrecker : NullCreatureAI
 }
 
 [Script]
-internal class npc_argent_squire_gruntling : ScriptedAI
+internal class NPCArgentSquireGruntling : ScriptedAI
 {
-    public npc_argent_squire_gruntling(Creature creature) : base(creature) { }
+    public NPCArgentSquireGruntling(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -1788,18 +1796,18 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 
         if (owner != null)
         {
-            var ownerTired = owner.GetAura(SpellIds.TiredPlayer);
+            var ownerTired = owner.GetAura(SpellIds.TIRED_PLAYER);
 
             if (ownerTired != null)
             {
-                var squireTired = Me.AddAura(IsArgentSquire() ? SpellIds.AuraTiredS : SpellIds.AuraTiredG, Me);
+                var squireTired = Me.AddAura(IsArgentSquire() ? SpellIds.AURA_TIRED_S : SpellIds.AURA_TIRED_G, Me);
 
                 squireTired?.SetDuration(ownerTired.Duration);
             }
 
-            if (owner.HasAchieved(Misc.AchievementPonyUp) &&
-                !Me.HasAura(SpellIds.AuraTiredS) &&
-                !Me.HasAura(SpellIds.AuraTiredG))
+            if (owner.HasAchieved(Misc.ACHIEVEMENT_PONY_UP) &&
+                !Me.HasAura(SpellIds.AURA_TIRED_S) &&
+                !Me.HasAura(SpellIds.AURA_TIRED_G))
             {
                 Me.SetNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox | NPCFlags.Vendor);
 
@@ -1814,60 +1822,59 @@ internal class npc_argent_squire_gruntling : ScriptedAI
     {
         switch (gossipListId)
         {
-            case GossipMenus.OptionIdBank:
+            case GossipMenus.OPTION_ID_BANK:
             {
                 Me.RemoveNpcFlag(NPCFlags.Mailbox | NPCFlags.Vendor);
-                var _bankAura = IsArgentSquire() ? SpellIds.AuraBankS : SpellIds.AuraBankG;
+                var bankAura = IsArgentSquire() ? SpellIds.AURA_BANK_S : SpellIds.AURA_BANK_G;
 
-                if (!Me.HasAura(_bankAura))
-                    DoCastSelf(_bankAura);
+                if (!Me.HasAura(bankAura))
+                    DoCastSelf(bankAura);
 
-                if (!player.HasAura(SpellIds.TiredPlayer))
-                    player.CastSpell(player, SpellIds.TiredPlayer, true);
+                if (!player.HasAura(SpellIds.TIRED_PLAYER))
+                    player.SpellFactory.CastSpell(player, SpellIds.TIRED_PLAYER, true);
 
                 break;
             }
-            case GossipMenus.OptionIdShop:
+            case GossipMenus.OPTION_ID_SHOP:
             {
                 Me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox);
-                var _shopAura = IsArgentSquire() ? SpellIds.AuraShopS : SpellIds.AuraShopG;
+                var shopAura = IsArgentSquire() ? SpellIds.AURA_SHOP_S : SpellIds.AURA_SHOP_G;
 
-                if (!Me.HasAura(_shopAura))
-                    DoCastSelf(_shopAura);
+                if (!Me.HasAura(shopAura))
+                    DoCastSelf(shopAura);
 
-                if (!player.HasAura(SpellIds.TiredPlayer))
-                    player.CastSpell(player, SpellIds.TiredPlayer, true);
+                if (!player.HasAura(SpellIds.TIRED_PLAYER))
+                    player.SpellFactory.CastSpell(player, SpellIds.TIRED_PLAYER, true);
 
                 break;
             }
-            case GossipMenus.OptionIdMail:
+            case GossipMenus.OPTION_ID_MAIL:
             {
                 Me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Vendor);
 
-                var _mailAura = IsArgentSquire() ? SpellIds.AuraPostmanS : SpellIds.AuraPostmanG;
+                var mailAura = IsArgentSquire() ? SpellIds.AURA_POSTMAN_S : SpellIds.AURA_POSTMAN_G;
 
-                if (!Me.HasAura(_mailAura))
-                    DoCastSelf(_mailAura);
+                if (!Me.HasAura(mailAura))
+                    DoCastSelf(mailAura);
 
-                if (!player.HasAura(SpellIds.TiredPlayer))
-                    player.CastSpell(player, SpellIds.TiredPlayer, true);
+                if (!player.HasAura(SpellIds.TIRED_PLAYER))
+                    player.SpellFactory.CastSpell(player, SpellIds.TIRED_PLAYER, true);
 
                 break;
             }
-            case GossipMenus.OptionIdDarnassusSenjinPennant:
-            case GossipMenus.OptionIdExodarUndercityPennant:
-            case GossipMenus.OptionIdGnomereganOrgrimmarPennant:
-            case GossipMenus.OptionIdIronforgeSilvermoonPennant:
-            case GossipMenus.OptionIdStormwindThunderbluffPennant:
+            case GossipMenus.OPTION_ID_DARNASSUS_SENJIN_PENNANT:
+            case GossipMenus.OPTION_ID_EXODAR_UNDERCITY_PENNANT:
+            case GossipMenus.OPTION_ID_GNOMEREGAN_ORGRIMMAR_PENNANT:
+            case GossipMenus.OPTION_ID_IRONFORGE_SILVERMOON_PENNANT:
+            case GossipMenus.OPTION_ID_STORMWIND_THUNDERBLUFF_PENNANT:
                 if (IsArgentSquire())
-                    DoCastSelf(Misc.bannerSpells[gossipListId - 3].Item1, new CastSpellExtraArgs(true));
+                    DoCastSelf(Misc.BannerSpells[gossipListId - 3].Item1, new CastSpellExtraArgs(true));
                 else
-                    DoCastSelf(Misc.bannerSpells[gossipListId - 3].Item2, new CastSpellExtraArgs(true));
+                    DoCastSelf(Misc.BannerSpells[gossipListId - 3].Item2, new CastSpellExtraArgs(true));
 
                 player.PlayerTalkClass.SendCloseGossip();
 
                 break;
-            
         }
 
         return false;
@@ -1875,33 +1882,33 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 
     private bool IsArgentSquire()
     {
-        return Me.Entry == CreatureIds.ArgentSquire;
+        return Me.Entry == CreatureIds.ARGENT_SQUIRE;
     }
 }
 
 [Script]
-internal class npc_bountiful_table : PassiveAI
+internal class NPCBountifulTable : PassiveAI
 {
-    private readonly Dictionary<uint, uint> ChairSpells = new()
+    private readonly Dictionary<uint, uint> _chairSpells = new()
     {
         {
-            CreatureIds.TheCranberryChair, SpellIds.CranberryServer
+            CreatureIds.THE_CRANBERRY_CHAIR, SpellIds.CRANBERRY_SERVER
         },
         {
-            CreatureIds.ThePieChair, SpellIds.PieServer
+            CreatureIds.THE_PIE_CHAIR, SpellIds.PIE_SERVER
         },
         {
-            CreatureIds.TheStuffingChair, SpellIds.StuffingServer
+            CreatureIds.THE_STUFFING_CHAIR, SpellIds.STUFFING_SERVER
         },
         {
-            CreatureIds.TheTurkeyChair, SpellIds.TurkeyServer
+            CreatureIds.THE_TURKEY_CHAIR, SpellIds.TURKEY_SERVER
         },
         {
-            CreatureIds.TheSweetPotatoChair, SpellIds.SweetPotatoesServer
+            CreatureIds.THE_SWEET_POTATO_CHAIR, SpellIds.SWEET_POTATOES_SERVER
         }
     };
 
-    public npc_bountiful_table(Creature creature) : base(creature) { }
+    public NPCBountifulTable(Creature creature) : base(creature) { }
 
     public override void PassengerBoarded(Unit who, sbyte seatId, bool apply)
     {
@@ -1948,7 +1955,6 @@ internal class npc_bountiful_table : PassiveAI
                     holders.InstallAllAccessories(true);
 
                 return;
-            
         }
 
         var initializer = (MoveSplineInit init) =>
@@ -1959,7 +1965,7 @@ internal class npc_bountiful_table : PassiveAI
         };
 
         who.MotionMaster.LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
-        who.Events.AddEvent(new CastFoodSpell(who, ChairSpells[who.Entry]), who.Events.CalculateTime(TimeSpan.FromSeconds(1)));
+        who.Events.AddEvent(new CastFoodSpell(who, _chairSpells[who.Entry]), who.Events.CalculateTime(TimeSpan.FromSeconds(1)));
         var creature = who.AsCreature;
 
         if (creature)
@@ -1968,9 +1974,9 @@ internal class npc_bountiful_table : PassiveAI
 }
 
 [Script]
-internal class npc_gen_void_zone : ScriptedAI
+internal class NPCGenVoidZone : ScriptedAI
 {
-    public npc_gen_void_zone(Creature creature) : base(creature) { }
+    public NPCGenVoidZone(Creature creature) : base(creature) { }
 
     public override void InitializeAI()
     {
@@ -1979,7 +1985,7 @@ internal class npc_gen_void_zone : ScriptedAI
 
     public override void JustAppeared()
     {
-        Scheduler.Schedule(TimeSpan.FromSeconds(2), task => { DoCastSelf(SpellIds.Consumption); });
+        Scheduler.Schedule(TimeSpan.FromSeconds(2), task => { DoCastSelf(SpellIds.CONSUMPTION); });
     }
 
     public override void UpdateAI(uint diff)
@@ -2001,7 +2007,7 @@ internal class CastFoodSpell : BasicEvent
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        _owner.CastSpell(_owner, _spellId, true);
+        _owner.SpellFactory.CastSpell(_owner, _spellId, true);
 
         return true;
     }

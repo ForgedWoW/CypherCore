@@ -3,277 +3,282 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Scripting.Interfaces.IMap;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire;
 
 internal struct DataTypes
 {
-    public const uint HighlordOmokk = 0;
-    public const uint ShadowHunterVoshgajin = 1;
-    public const uint WarmasterVoone = 2;
-    public const uint MotherSmolderweb = 3;
-    public const uint UrokDoomhowl = 4;
-    public const uint QuartermasterZigris = 5;
-    public const uint GizrulTheSlavener = 6;
-    public const uint Halycon = 7;
-    public const uint OverlordWyrmthalak = 8;
-    public const uint PyrogaurdEmberseer = 9;
-    public const uint WarchiefRendBlackhand = 10;
-    public const uint Gyth = 11;
-    public const uint TheBeast = 12;
-    public const uint GeneralDrakkisath = 13;
+    public const uint HIGHLORD_OMOKK = 0;
+    public const uint SHADOW_HUNTER_VOSHGAJIN = 1;
+    public const uint WARMASTER_VOONE = 2;
+    public const uint MOTHER_SMOLDERWEB = 3;
+    public const uint UROK_DOOMHOWL = 4;
+    public const uint QUARTERMASTER_ZIGRIS = 5;
+    public const uint GIZRUL_THE_SLAVENER = 6;
+    public const uint HALYCON = 7;
+    public const uint OVERLORD_WYRMTHALAK = 8;
+    public const uint PYROGAURD_EMBERSEER = 9;
+    public const uint WARCHIEF_REND_BLACKHAND = 10;
+    public const uint GYTH = 11;
+    public const uint THE_BEAST = 12;
+    public const uint GENERAL_DRAKKISATH = 13;
 
-    public const uint LordValthalak = 14;
+    public const uint LORD_VALTHALAK = 14;
 
     // Extra
-    public const uint DragonspireRoom = 15;
-    public const uint HallRune1 = 16;
-    public const uint HallRune2 = 17;
-    public const uint HallRune3 = 18;
-    public const uint HallRune4 = 19;
-    public const uint HallRune5 = 20;
-    public const uint HallRune6 = 21;
-    public const uint HallRune7 = 22;
-    public const uint ScarshieldInfiltrator = 23;
-    public const uint BlackhandIncarcerator = 24;
+    public const uint DRAGONSPIRE_ROOM = 15;
+    public const uint HALL_RUNE1 = 16;
+    public const uint HALL_RUNE2 = 17;
+    public const uint HALL_RUNE3 = 18;
+    public const uint HALL_RUNE4 = 19;
+    public const uint HALL_RUNE5 = 20;
+    public const uint HALL_RUNE6 = 21;
+    public const uint HALL_RUNE7 = 22;
+    public const uint SCARSHIELD_INFILTRATOR = 23;
+    public const uint BLACKHAND_INCARCERATOR = 24;
 }
 
 internal struct CreaturesIds
 {
-    public const uint HighlordOmokk = 9196;
-    public const uint ShadowHunterVoshgajin = 9236;
-    public const uint WarmasterVoone = 9237;
-    public const uint MotherSmolderweb = 10596;
-    public const uint UrokDoomhowl = 10584;
-    public const uint QuartermasterZigris = 9736;
-    public const uint GizrulTheSlavener = 10268;
-    public const uint Halycon = 10220;
-    public const uint OverlordWyrmthalak = 9568;
-    public const uint PyrogaurdEmberseer = 9816;
-    public const uint WarchiefRendBlackhand = 10429;
-    public const uint Gyth = 10339;
-    public const uint TheBeast = 10430;
-    public const uint GeneralDrakkisath = 10363;
-    public const uint BlackhandDreadweaver = 9817;
-    public const uint BlackhandSummoner = 9818;
-    public const uint BlackhandVeteran = 9819;
-    public const uint BlackhandIncarcerator = 10316;
-    public const uint LordVictorNefarius = 10162;
-    public const uint ScarshieldInfiltrator = 10299;
+    public const uint HIGHLORD_OMOKK = 9196;
+    public const uint SHADOW_HUNTER_VOSHGAJIN = 9236;
+    public const uint WARMASTER_VOONE = 9237;
+    public const uint MOTHER_SMOLDERWEB = 10596;
+    public const uint UROK_DOOMHOWL = 10584;
+    public const uint QUARTERMASTER_ZIGRIS = 9736;
+    public const uint GIZRUL_THE_SLAVENER = 10268;
+    public const uint HALYCON = 10220;
+    public const uint OVERLORD_WYRMTHALAK = 9568;
+    public const uint PYROGAURD_EMBERSEER = 9816;
+    public const uint WARCHIEF_REND_BLACKHAND = 10429;
+    public const uint GYTH = 10339;
+    public const uint THE_BEAST = 10430;
+    public const uint GENERAL_DRAKKISATH = 10363;
+    public const uint BLACKHAND_DREADWEAVER = 9817;
+    public const uint BLACKHAND_SUMMONER = 9818;
+    public const uint BLACKHAND_VETERAN = 9819;
+    public const uint BLACKHAND_INCARCERATOR = 10316;
+    public const uint LORD_VICTOR_NEFARIUS = 10162;
+    public const uint SCARSHIELD_INFILTRATOR = 10299;
 }
 
 internal struct GameObjectsIds
 {
-    public const uint WhelpSpawner = 175622; // trap spawned by public const uint  Id 175124
+    public const uint WHELP_SPAWNER = 175622; // trap spawned by public const uint  Id 175124
 
     // Doors
-    public const uint EmberseerIn = 175244;  // First door to Pyroguard Emberseer
-    public const uint Doors = 175705;        // Second door to Pyroguard Emberseer
-    public const uint EmberseerOut = 175153; // Door after Pyroguard Emberseer event
-    public const uint GythEntryDoor = 164726;
-    public const uint GythCombatDoor = 175185;
-    public const uint GythExitDoor = 175186;
-    public const uint DrakkisathDoor1 = 175946;
+    public const uint EMBERSEER_IN = 175244;  // First door to Pyroguard Emberseer
+    public const uint DOORS = 175705;        // Second door to Pyroguard Emberseer
+    public const uint EMBERSEER_OUT = 175153; // Door after Pyroguard Emberseer event
+    public const uint GYTH_ENTRY_DOOR = 164726;
+    public const uint GYTH_COMBAT_DOOR = 175185;
+    public const uint GYTH_EXIT_DOOR = 175186;
+    public const uint DRAKKISATH_DOOR1 = 175946;
 
-    public const uint DrakkisathDoor2 = 175947;
+    public const uint DRAKKISATH_DOOR2 = 175947;
 
     // Runes in drapublic const uint nspire hall
-    public const uint HallRune1 = 175197;
-    public const uint HallRune2 = 175199;
-    public const uint HallRune3 = 175195;
-    public const uint HallRune4 = 175200;
-    public const uint HallRune5 = 175198;
-    public const uint HallRune6 = 175196;
+    public const uint HALL_RUNE1 = 175197;
+    public const uint HALL_RUNE2 = 175199;
+    public const uint HALL_RUNE3 = 175195;
+    public const uint HALL_RUNE4 = 175200;
+    public const uint HALL_RUNE5 = 175198;
+    public const uint HALL_RUNE6 = 175196;
 
-    public const uint HallRune7 = 175194;
+    public const uint HALL_RUNE7 = 175194;
 
     // Runes in emberseers room
-    public const uint EmberseerRune1 = 175266;
-    public const uint EmberseerRune2 = 175267;
-    public const uint EmberseerRune3 = 175268;
-    public const uint EmberseerRune4 = 175269;
-    public const uint EmberseerRune5 = 175270;
-    public const uint EmberseerRune6 = 175271;
+    public const uint EMBERSEER_RUNE1 = 175266;
+    public const uint EMBERSEER_RUNE2 = 175267;
+    public const uint EMBERSEER_RUNE3 = 175268;
+    public const uint EMBERSEER_RUNE4 = 175269;
+    public const uint EMBERSEER_RUNE5 = 175270;
+    public const uint EMBERSEER_RUNE6 = 175271;
 
-    public const uint EmberseerRune7 = 175272;
+    public const uint EMBERSEER_RUNE7 = 175272;
 
     // For Gyth event
-    public const uint DrPortcullis = 175185;
-    public const uint PortcullisActive = 164726;
-    public const uint PortcullisTobossrooms = 175186;
+    public const uint DR_PORTCULLIS = 175185;
+    public const uint PORTCULLIS_ACTIVE = 164726;
+    public const uint PORTCULLIS_TOBOSSROOMS = 175186;
 }
 
-internal struct BRSMiscConst
+internal struct BrsMiscConst
 {
-    public const uint SpellSummonRookeryWhelp = 15745;
-    public const uint EventUrokDoomhowl = 4845;
-    public const uint EventPyroguardEmberseer = 4884;
-    public const uint Areatrigger = 1;
-    public const uint AreatriggerDragonspireHall = 2046;
-    public const uint AreatriggerBlackrockStadium = 2026;
+    public const uint SPELL_SUMMON_ROOKERY_WHELP = 15745;
+    public const uint EVENT_UROK_DOOMHOWL = 4845;
+    public const uint EVENT_PYROGUARD_EMBERSEER = 4884;
+    public const uint AREATRIGGER = 1;
+    public const uint AREATRIGGER_DRAGONSPIRE_HALL = 2046;
+    public const uint AREATRIGGER_BLACKROCK_STADIUM = 2026;
 
-    public const uint EncounterCount = 23;
+    public const uint ENCOUNTER_COUNT = 23;
 
     //uint const DragonspireRunes[7] = { GoHallRune1, GoHallRune2, GoHallRune3, GoHallRune4, GoHallRune5, GoHallRune6, GoHallRune7 }
 
     public static uint[] DragonspireMobs =
     {
-        CreaturesIds.BlackhandDreadweaver, CreaturesIds.BlackhandSummoner, CreaturesIds.BlackhandVeteran
+        CreaturesIds.BLACKHAND_DREADWEAVER, CreaturesIds.BLACKHAND_SUMMONER, CreaturesIds.BLACKHAND_VETERAN
     };
 
-    public static DoorData[] doorData =
+    public static DoorData[] DoorData =
     {
-        new(GameObjectsIds.Doors, DataTypes.PyrogaurdEmberseer, DoorType.Passage), new(GameObjectsIds.EmberseerOut, DataTypes.PyrogaurdEmberseer, DoorType.Passage), new(GameObjectsIds.DrakkisathDoor1, DataTypes.GeneralDrakkisath, DoorType.Passage), new(GameObjectsIds.DrakkisathDoor2, DataTypes.GeneralDrakkisath, DoorType.Passage), new(GameObjectsIds.PortcullisActive, DataTypes.WarchiefRendBlackhand, DoorType.Passage), new(GameObjectsIds.PortcullisTobossrooms, DataTypes.WarchiefRendBlackhand, DoorType.Passage)
+        new(GameObjectsIds.DOORS, DataTypes.PYROGAURD_EMBERSEER, DoorType.Passage), new(GameObjectsIds.EMBERSEER_OUT, DataTypes.PYROGAURD_EMBERSEER, DoorType.Passage), new(GameObjectsIds.DRAKKISATH_DOOR1, DataTypes.GENERAL_DRAKKISATH, DoorType.Passage), new(GameObjectsIds.DRAKKISATH_DOOR2, DataTypes.GENERAL_DRAKKISATH, DoorType.Passage), new(GameObjectsIds.PORTCULLIS_ACTIVE, DataTypes.WARCHIEF_REND_BLACKHAND, DoorType.Passage), new(GameObjectsIds.PORTCULLIS_TOBOSSROOMS, DataTypes.WARCHIEF_REND_BLACKHAND, DoorType.Passage)
     };
 }
 
 internal struct EventIds
 {
-    public const uint DargonspireRoomStore = 1;
-    public const uint DargonspireRoomCheck = 2;
-    public const uint UrokDoomhowlSpawns1 = 3;
-    public const uint UrokDoomhowlSpawns2 = 4;
-    public const uint UrokDoomhowlSpawns3 = 5;
-    public const uint UrokDoomhowlSpawns4 = 6;
-    public const uint UrokDoomhowlSpawns5 = 7;
-    public const uint UrokDoomhowlSpawnIn = 8;
+    public const uint DARGONSPIRE_ROOM_STORE = 1;
+    public const uint DARGONSPIRE_ROOM_CHECK = 2;
+    public const uint UROK_DOOMHOWL_SPAWNS1 = 3;
+    public const uint UROK_DOOMHOWL_SPAWNS2 = 4;
+    public const uint UROK_DOOMHOWL_SPAWNS3 = 5;
+    public const uint UROK_DOOMHOWL_SPAWNS4 = 6;
+    public const uint UROK_DOOMHOWL_SPAWNS5 = 7;
+    public const uint UROK_DOOMHOWL_SPAWN_IN = 8;
 }
 
 [Script]
-internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInstanceScript
+internal class InstanceBlackrockSpire : InstanceMapScript, IInstanceMapGetInstanceScript
 {
-    public instance_blackrock_spire() : base(nameof(instance_blackrock_spire), 229) { }
+    public InstanceBlackrockSpire() : base(nameof(InstanceBlackrockSpire), 229) { }
 
     public InstanceScript GetInstanceScript(InstanceMap map)
     {
-        return new instance_blackrock_spireMapScript(map);
+        return new InstanceBlackrockSpireMapScript(map);
     }
 
-    private class instance_blackrock_spireMapScript : InstanceScript
+    private class InstanceBlackrockSpireMapScript : InstanceScript
     {
         private readonly List<ObjectGuid> _incarceratorList = new();
-        private readonly ObjectGuid[] go_emberseerrunes = new ObjectGuid[7];
-        private readonly ObjectGuid[] go_roomrunes = new ObjectGuid[7];
-        private readonly List<ObjectGuid>[] runecreaturelist = new List<ObjectGuid>[7];
-        private ObjectGuid GeneralDrakkisath;
-        private ObjectGuid GizrultheSlavener;
-        private ObjectGuid go_doors;
-        private ObjectGuid go_emberseerin;
-        private ObjectGuid go_emberseerout;
-        private ObjectGuid go_portcullis_active;
-        private ObjectGuid go_portcullis_tobossrooms;
-        private ObjectGuid Gyth;
-        private ObjectGuid Halycon;
+        private readonly ObjectGuid[] _goEmberseerrunes = new ObjectGuid[7];
+        private readonly ObjectGuid[] _goRoomrunes = new ObjectGuid[7];
+        private readonly List<ObjectGuid>[] _runecreaturelist = new List<ObjectGuid>[7];
+        private ObjectGuid _generalDrakkisath;
+        private ObjectGuid _gizrultheSlavener;
+        private ObjectGuid _goDoors;
+        private ObjectGuid _goEmberseerin;
+        private ObjectGuid _goEmberseerout;
+        private ObjectGuid _goPortcullisActive;
+        private ObjectGuid _goPortcullisTobossrooms;
+        private ObjectGuid _gyth;
+        private ObjectGuid _halycon;
 
-        private ObjectGuid HighlordOmokk;
-        private ObjectGuid LordVictorNefarius;
-        private ObjectGuid MotherSmolderweb;
-        private ObjectGuid OverlordWyrmthalak;
-        private ObjectGuid PyroguardEmberseer;
-        private ObjectGuid QuartermasterZigris;
-        private ObjectGuid ScarshieldInfiltrator;
-        private ObjectGuid ShadowHunterVoshgajin;
-        private ObjectGuid TheBeast;
-        private ObjectGuid UrokDoomhowl;
-        private ObjectGuid WarchiefRendBlackhand;
-        private ObjectGuid WarMasterVoone;
+        private ObjectGuid _highlordOmokk;
+        private ObjectGuid _lordVictorNefarius;
+        private ObjectGuid _motherSmolderweb;
+        private ObjectGuid _overlordWyrmthalak;
+        private ObjectGuid _pyroguardEmberseer;
+        private ObjectGuid _quartermasterZigris;
+        private ObjectGuid _scarshieldInfiltrator;
+        private ObjectGuid _shadowHunterVoshgajin;
+        private ObjectGuid _theBeast;
+        private ObjectGuid _urokDoomhowl;
+        private ObjectGuid _warchiefRendBlackhand;
+        private ObjectGuid _warMasterVoone;
 
-        public instance_blackrock_spireMapScript(InstanceMap map) : base(map)
+        public InstanceBlackrockSpireMapScript(InstanceMap map) : base(map)
         {
             SetHeaders("BRSv1");
-            SetBossNumber(BRSMiscConst.EncounterCount);
-            LoadDoorData(BRSMiscConst.doorData);
+            SetBossNumber(BrsMiscConst.ENCOUNTER_COUNT);
+            LoadDoorData(BrsMiscConst.DoorData);
 
             for (byte i = 0; i < 7; ++i)
-                runecreaturelist[i] = new List<ObjectGuid>();
+                _runecreaturelist[i] = new List<ObjectGuid>();
         }
 
         public override void OnCreatureCreate(Creature creature)
         {
             switch (creature.Entry)
             {
-                case CreaturesIds.HighlordOmokk:
-                    HighlordOmokk = creature.GUID;
+                case CreaturesIds.HIGHLORD_OMOKK:
+                    _highlordOmokk = creature.GUID;
 
                     break;
-                case CreaturesIds.ShadowHunterVoshgajin:
-                    ShadowHunterVoshgajin = creature.GUID;
+                case CreaturesIds.SHADOW_HUNTER_VOSHGAJIN:
+                    _shadowHunterVoshgajin = creature.GUID;
 
                     break;
-                case CreaturesIds.WarmasterVoone:
-                    WarMasterVoone = creature.GUID;
+                case CreaturesIds.WARMASTER_VOONE:
+                    _warMasterVoone = creature.GUID;
 
                     break;
-                case CreaturesIds.MotherSmolderweb:
-                    MotherSmolderweb = creature.GUID;
+                case CreaturesIds.MOTHER_SMOLDERWEB:
+                    _motherSmolderweb = creature.GUID;
 
                     break;
-                case CreaturesIds.UrokDoomhowl:
-                    UrokDoomhowl = creature.GUID;
+                case CreaturesIds.UROK_DOOMHOWL:
+                    _urokDoomhowl = creature.GUID;
 
                     break;
-                case CreaturesIds.QuartermasterZigris:
-                    QuartermasterZigris = creature.GUID;
+                case CreaturesIds.QUARTERMASTER_ZIGRIS:
+                    _quartermasterZigris = creature.GUID;
 
                     break;
-                case CreaturesIds.GizrulTheSlavener:
-                    GizrultheSlavener = creature.GUID;
+                case CreaturesIds.GIZRUL_THE_SLAVENER:
+                    _gizrultheSlavener = creature.GUID;
 
                     break;
-                case CreaturesIds.Halycon:
-                    Halycon = creature.GUID;
+                case CreaturesIds.HALYCON:
+                    _halycon = creature.GUID;
 
                     break;
-                case CreaturesIds.OverlordWyrmthalak:
-                    OverlordWyrmthalak = creature.GUID;
+                case CreaturesIds.OVERLORD_WYRMTHALAK:
+                    _overlordWyrmthalak = creature.GUID;
 
                     break;
-                case CreaturesIds.PyrogaurdEmberseer:
-                    PyroguardEmberseer = creature.GUID;
+                case CreaturesIds.PYROGAURD_EMBERSEER:
+                    _pyroguardEmberseer = creature.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         creature.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromDays(7));
 
                     break;
-                case CreaturesIds.WarchiefRendBlackhand:
-                    WarchiefRendBlackhand = creature.GUID;
+                case CreaturesIds.WARCHIEF_REND_BLACKHAND:
+                    _warchiefRendBlackhand = creature.GUID;
 
-                    if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
+                    if (GetBossState(DataTypes.GYTH) == EncounterState.Done)
                         creature.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromDays(7));
 
                     break;
-                case CreaturesIds.Gyth:
-                    Gyth = creature.GUID;
+                case CreaturesIds.GYTH:
+                    _gyth = creature.GUID;
 
                     break;
-                case CreaturesIds.TheBeast:
-                    TheBeast = creature.GUID;
+                case CreaturesIds.THE_BEAST:
+                    _theBeast = creature.GUID;
 
                     break;
-                case CreaturesIds.GeneralDrakkisath:
-                    GeneralDrakkisath = creature.GUID;
+                case CreaturesIds.GENERAL_DRAKKISATH:
+                    _generalDrakkisath = creature.GUID;
 
                     break;
-                case CreaturesIds.LordVictorNefarius:
-                    LordVictorNefarius = creature.GUID;
+                case CreaturesIds.LORD_VICTOR_NEFARIUS:
+                    _lordVictorNefarius = creature.GUID;
 
-                    if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
+                    if (GetBossState(DataTypes.GYTH) == EncounterState.Done)
                         creature.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromDays(7));
 
                     break;
-                case CreaturesIds.ScarshieldInfiltrator:
-                    ScarshieldInfiltrator = creature.GUID;
+                case CreaturesIds.SCARSHIELD_INFILTRATOR:
+                    _scarshieldInfiltrator = creature.GUID;
 
                     break;
-                case CreaturesIds.BlackhandIncarcerator:
+                case CreaturesIds.BLACKHAND_INCARCERATOR:
                     _incarceratorList.Add(creature.GUID);
 
                     break;
@@ -286,144 +291,143 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 
             switch (go.Entry)
             {
-                case GameObjectsIds.WhelpSpawner:
-                    go.CastSpell(BRSMiscConst.SpellSummonRookeryWhelp);
+                case GameObjectsIds.WHELP_SPAWNER:
+                    go.SpellFactory.CastSpell(BrsMiscConst.SPELL_SUMMON_ROOKERY_WHELP);
 
                     break;
-                case GameObjectsIds.EmberseerIn:
-                    go_emberseerin = go.GUID;
+                case GameObjectsIds.EMBERSEER_IN:
+                    _goEmberseerin = go.GUID;
 
-                    if (GetBossState(DataTypes.DragonspireRoom) == EncounterState.Done)
+                    if (GetBossState(DataTypes.DRAGONSPIRE_ROOM) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, true, go);
 
                     break;
-                case GameObjectsIds.Doors:
-                    go_doors = go.GUID;
+                case GameObjectsIds.DOORS:
+                    _goDoors = go.GUID;
 
-                    if (GetBossState(DataTypes.DragonspireRoom) == EncounterState.Done)
+                    if (GetBossState(DataTypes.DRAGONSPIRE_ROOM) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, true, go);
 
                     break;
-                case GameObjectsIds.EmberseerOut:
-                    go_emberseerout = go.GUID;
+                case GameObjectsIds.EMBERSEER_OUT:
+                    _goEmberseerout = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, true, go);
 
                     break;
-                case GameObjectsIds.HallRune1:
-                    go_roomrunes[0] = go.GUID;
+                case GameObjectsIds.HALL_RUNE1:
+                    _goRoomrunes[0] = go.GUID;
 
-                    if (GetBossState(DataTypes.HallRune1) == EncounterState.Done)
+                    if (GetBossState(DataTypes.HALL_RUNE1) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.HallRune2:
-                    go_roomrunes[1] = go.GUID;
+                case GameObjectsIds.HALL_RUNE2:
+                    _goRoomrunes[1] = go.GUID;
 
-                    if (GetBossState(DataTypes.HallRune2) == EncounterState.Done)
+                    if (GetBossState(DataTypes.HALL_RUNE2) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.HallRune3:
-                    go_roomrunes[2] = go.GUID;
+                case GameObjectsIds.HALL_RUNE3:
+                    _goRoomrunes[2] = go.GUID;
 
-                    if (GetBossState(DataTypes.HallRune3) == EncounterState.Done)
+                    if (GetBossState(DataTypes.HALL_RUNE3) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.HallRune4:
-                    go_roomrunes[3] = go.GUID;
+                case GameObjectsIds.HALL_RUNE4:
+                    _goRoomrunes[3] = go.GUID;
 
-                    if (GetBossState(DataTypes.HallRune4) == EncounterState.Done)
+                    if (GetBossState(DataTypes.HALL_RUNE4) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.HallRune5:
-                    go_roomrunes[4] = go.GUID;
+                case GameObjectsIds.HALL_RUNE5:
+                    _goRoomrunes[4] = go.GUID;
 
-                    if (GetBossState(DataTypes.HallRune5) == EncounterState.Done)
+                    if (GetBossState(DataTypes.HALL_RUNE5) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.HallRune6:
-                    go_roomrunes[5] = go.GUID;
+                case GameObjectsIds.HALL_RUNE6:
+                    _goRoomrunes[5] = go.GUID;
 
-                    if (GetBossState(DataTypes.HallRune6) == EncounterState.Done)
+                    if (GetBossState(DataTypes.HALL_RUNE6) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.HallRune7:
-                    go_roomrunes[6] = go.GUID;
+                case GameObjectsIds.HALL_RUNE7:
+                    _goRoomrunes[6] = go.GUID;
 
-                    if (GetBossState(DataTypes.HallRune7) == EncounterState.Done)
+                    if (GetBossState(DataTypes.HALL_RUNE7) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.EmberseerRune1:
-                    go_emberseerrunes[0] = go.GUID;
+                case GameObjectsIds.EMBERSEER_RUNE1:
+                    _goEmberseerrunes[0] = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.EmberseerRune2:
-                    go_emberseerrunes[1] = go.GUID;
+                case GameObjectsIds.EMBERSEER_RUNE2:
+                    _goEmberseerrunes[1] = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.EmberseerRune3:
-                    go_emberseerrunes[2] = go.GUID;
+                case GameObjectsIds.EMBERSEER_RUNE3:
+                    _goEmberseerrunes[2] = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.EmberseerRune4:
-                    go_emberseerrunes[3] = go.GUID;
+                case GameObjectsIds.EMBERSEER_RUNE4:
+                    _goEmberseerrunes[3] = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.EmberseerRune5:
-                    go_emberseerrunes[4] = go.GUID;
+                case GameObjectsIds.EMBERSEER_RUNE5:
+                    _goEmberseerrunes[4] = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.EmberseerRune6:
-                    go_emberseerrunes[5] = go.GUID;
+                case GameObjectsIds.EMBERSEER_RUNE6:
+                    _goEmberseerrunes[5] = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.EmberseerRune7:
-                    go_emberseerrunes[6] = go.GUID;
+                case GameObjectsIds.EMBERSEER_RUNE7:
+                    _goEmberseerrunes[6] = go.GUID;
 
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, false, go);
 
                     break;
-                case GameObjectsIds.PortcullisActive:
-                    go_portcullis_active = go.GUID;
+                case GameObjectsIds.PORTCULLIS_ACTIVE:
+                    _goPortcullisActive = go.GUID;
 
-                    if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
+                    if (GetBossState(DataTypes.GYTH) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, true, go);
 
                     break;
-                case GameObjectsIds.PortcullisTobossrooms:
-                    go_portcullis_tobossrooms = go.GUID;
+                case GameObjectsIds.PORTCULLIS_TOBOSSROOMS:
+                    _goPortcullisTobossrooms = go.GUID;
 
-                    if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
+                    if (GetBossState(DataTypes.GYTH) == EncounterState.Done)
                         HandleGameObject(ObjectGuid.Empty, true, go);
 
                     break;
-                
             }
         }
 
@@ -434,23 +438,22 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 
             switch (type)
             {
-                case DataTypes.HighlordOmokk:
-                case DataTypes.ShadowHunterVoshgajin:
-                case DataTypes.WarmasterVoone:
-                case DataTypes.MotherSmolderweb:
-                case DataTypes.UrokDoomhowl:
-                case DataTypes.QuartermasterZigris:
-                case DataTypes.GizrulTheSlavener:
-                case DataTypes.Halycon:
-                case DataTypes.OverlordWyrmthalak:
-                case DataTypes.PyrogaurdEmberseer:
-                case DataTypes.WarchiefRendBlackhand:
-                case DataTypes.Gyth:
-                case DataTypes.TheBeast:
-                case DataTypes.GeneralDrakkisath:
-                case DataTypes.DragonspireRoom:
+                case DataTypes.HIGHLORD_OMOKK:
+                case DataTypes.SHADOW_HUNTER_VOSHGAJIN:
+                case DataTypes.WARMASTER_VOONE:
+                case DataTypes.MOTHER_SMOLDERWEB:
+                case DataTypes.UROK_DOOMHOWL:
+                case DataTypes.QUARTERMASTER_ZIGRIS:
+                case DataTypes.GIZRUL_THE_SLAVENER:
+                case DataTypes.HALYCON:
+                case DataTypes.OVERLORD_WYRMTHALAK:
+                case DataTypes.PYROGAURD_EMBERSEER:
+                case DataTypes.WARCHIEF_REND_BLACKHAND:
+                case DataTypes.GYTH:
+                case DataTypes.THE_BEAST:
+                case DataTypes.GENERAL_DRAKKISATH:
+                case DataTypes.DRAGONSPIRE_ROOM:
                     break;
-                
             }
 
             return true;
@@ -460,21 +463,20 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
         {
             switch (eventId)
             {
-                case BRSMiscConst.EventPyroguardEmberseer:
-                    if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.NotStarted)
+                case BrsMiscConst.EVENT_PYROGUARD_EMBERSEER:
+                    if (GetBossState(DataTypes.PYROGAURD_EMBERSEER) == EncounterState.NotStarted)
                     {
-                        var Emberseer = Instance.GetCreature(PyroguardEmberseer);
+                        var emberseer = Instance.GetCreature(_pyroguardEmberseer);
 
-                        if (Emberseer)
-                            Emberseer.AI.SetData(1, 1);
+                        if (emberseer)
+                            emberseer.AI.SetData(1, 1);
                     }
 
                     break;
-                case BRSMiscConst.EventUrokDoomhowl:
-                    if (GetBossState(CreaturesIds.UrokDoomhowl) == EncounterState.NotStarted) { }
+                case BrsMiscConst.EVENT_UROK_DOOMHOWL:
+                    if (GetBossState(CreaturesIds.UROK_DOOMHOWL) == EncounterState.NotStarted) { }
 
                     break;
-                
             }
         }
 
@@ -482,13 +484,13 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
         {
             switch (type)
             {
-                case BRSMiscConst.Areatrigger:
-                    if (data == BRSMiscConst.AreatriggerDragonspireHall)
-                        if (GetBossState(DataTypes.DragonspireRoom) != EncounterState.Done)
-                            _events.ScheduleEvent(EventIds.DargonspireRoomStore, TimeSpan.FromSeconds(1));
+                case BrsMiscConst.AREATRIGGER:
+                    if (data == BrsMiscConst.AREATRIGGER_DRAGONSPIRE_HALL)
+                        if (GetBossState(DataTypes.DRAGONSPIRE_ROOM) != EncounterState.Done)
+                            _events.ScheduleEvent(EventIds.DARGONSPIRE_ROOM_STORE, TimeSpan.FromSeconds(1));
 
                     break;
-                case DataTypes.BlackhandIncarcerator:
+                case DataTypes.BLACKHAND_INCARCERATOR:
                     foreach (var itr in _incarceratorList)
                     {
                         var creature = Instance.GetCreature(itr);
@@ -498,7 +500,6 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                     }
 
                     break;
-                
             }
         }
 
@@ -506,75 +507,74 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
         {
             switch (type)
             {
-                case DataTypes.HighlordOmokk:
-                    return HighlordOmokk;
-                case DataTypes.ShadowHunterVoshgajin:
-                    return ShadowHunterVoshgajin;
-                case DataTypes.WarmasterVoone:
-                    return WarMasterVoone;
-                case DataTypes.MotherSmolderweb:
-                    return MotherSmolderweb;
-                case DataTypes.UrokDoomhowl:
-                    return UrokDoomhowl;
-                case DataTypes.QuartermasterZigris:
-                    return QuartermasterZigris;
-                case DataTypes.GizrulTheSlavener:
-                    return GizrultheSlavener;
-                case DataTypes.Halycon:
-                    return Halycon;
-                case DataTypes.OverlordWyrmthalak:
-                    return OverlordWyrmthalak;
-                case DataTypes.PyrogaurdEmberseer:
-                    return PyroguardEmberseer;
-                case DataTypes.WarchiefRendBlackhand:
-                    return WarchiefRendBlackhand;
-                case DataTypes.Gyth:
-                    return Gyth;
-                case DataTypes.TheBeast:
-                    return TheBeast;
-                case DataTypes.GeneralDrakkisath:
-                    return GeneralDrakkisath;
-                case DataTypes.ScarshieldInfiltrator:
-                    return ScarshieldInfiltrator;
-                case GameObjectsIds.EmberseerIn:
-                    return go_emberseerin;
-                case GameObjectsIds.Doors:
-                    return go_doors;
-                case GameObjectsIds.EmberseerOut:
-                    return go_emberseerout;
-                case GameObjectsIds.HallRune1:
-                    return go_roomrunes[0];
-                case GameObjectsIds.HallRune2:
-                    return go_roomrunes[1];
-                case GameObjectsIds.HallRune3:
-                    return go_roomrunes[2];
-                case GameObjectsIds.HallRune4:
-                    return go_roomrunes[3];
-                case GameObjectsIds.HallRune5:
-                    return go_roomrunes[4];
-                case GameObjectsIds.HallRune6:
-                    return go_roomrunes[5];
-                case GameObjectsIds.HallRune7:
-                    return go_roomrunes[6];
-                case GameObjectsIds.EmberseerRune1:
-                    return go_emberseerrunes[0];
-                case GameObjectsIds.EmberseerRune2:
-                    return go_emberseerrunes[1];
-                case GameObjectsIds.EmberseerRune3:
-                    return go_emberseerrunes[2];
-                case GameObjectsIds.EmberseerRune4:
-                    return go_emberseerrunes[3];
-                case GameObjectsIds.EmberseerRune5:
-                    return go_emberseerrunes[4];
-                case GameObjectsIds.EmberseerRune6:
-                    return go_emberseerrunes[5];
-                case GameObjectsIds.EmberseerRune7:
-                    return go_emberseerrunes[6];
-                case GameObjectsIds.PortcullisActive:
-                    return go_portcullis_active;
-                case GameObjectsIds.PortcullisTobossrooms:
-                    return go_portcullis_tobossrooms;
-                
+                case DataTypes.HIGHLORD_OMOKK:
+                    return _highlordOmokk;
+                case DataTypes.SHADOW_HUNTER_VOSHGAJIN:
+                    return _shadowHunterVoshgajin;
+                case DataTypes.WARMASTER_VOONE:
+                    return _warMasterVoone;
+                case DataTypes.MOTHER_SMOLDERWEB:
+                    return _motherSmolderweb;
+                case DataTypes.UROK_DOOMHOWL:
+                    return _urokDoomhowl;
+                case DataTypes.QUARTERMASTER_ZIGRIS:
+                    return _quartermasterZigris;
+                case DataTypes.GIZRUL_THE_SLAVENER:
+                    return _gizrultheSlavener;
+                case DataTypes.HALYCON:
+                    return _halycon;
+                case DataTypes.OVERLORD_WYRMTHALAK:
+                    return _overlordWyrmthalak;
+                case DataTypes.PYROGAURD_EMBERSEER:
+                    return _pyroguardEmberseer;
+                case DataTypes.WARCHIEF_REND_BLACKHAND:
+                    return _warchiefRendBlackhand;
+                case DataTypes.GYTH:
+                    return _gyth;
+                case DataTypes.THE_BEAST:
+                    return _theBeast;
+                case DataTypes.GENERAL_DRAKKISATH:
+                    return _generalDrakkisath;
+                case DataTypes.SCARSHIELD_INFILTRATOR:
+                    return _scarshieldInfiltrator;
+                case GameObjectsIds.EMBERSEER_IN:
+                    return _goEmberseerin;
+                case GameObjectsIds.DOORS:
+                    return _goDoors;
+                case GameObjectsIds.EMBERSEER_OUT:
+                    return _goEmberseerout;
+                case GameObjectsIds.HALL_RUNE1:
+                    return _goRoomrunes[0];
+                case GameObjectsIds.HALL_RUNE2:
+                    return _goRoomrunes[1];
+                case GameObjectsIds.HALL_RUNE3:
+                    return _goRoomrunes[2];
+                case GameObjectsIds.HALL_RUNE4:
+                    return _goRoomrunes[3];
+                case GameObjectsIds.HALL_RUNE5:
+                    return _goRoomrunes[4];
+                case GameObjectsIds.HALL_RUNE6:
+                    return _goRoomrunes[5];
+                case GameObjectsIds.HALL_RUNE7:
+                    return _goRoomrunes[6];
+                case GameObjectsIds.EMBERSEER_RUNE1:
+                    return _goEmberseerrunes[0];
+                case GameObjectsIds.EMBERSEER_RUNE2:
+                    return _goEmberseerrunes[1];
+                case GameObjectsIds.EMBERSEER_RUNE3:
+                    return _goEmberseerrunes[2];
+                case GameObjectsIds.EMBERSEER_RUNE4:
+                    return _goEmberseerrunes[3];
+                case GameObjectsIds.EMBERSEER_RUNE5:
+                    return _goEmberseerrunes[4];
+                case GameObjectsIds.EMBERSEER_RUNE6:
+                    return _goEmberseerrunes[5];
+                case GameObjectsIds.EMBERSEER_RUNE7:
+                    return _goEmberseerrunes[6];
+                case GameObjectsIds.PORTCULLIS_ACTIVE:
+                    return _goPortcullisActive;
+                case GameObjectsIds.PORTCULLIS_TOBOSSROOMS:
+                    return _goPortcullisTobossrooms;
             }
 
             return ObjectGuid.Empty;
@@ -588,19 +588,18 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
             {
                 switch (eventId)
                 {
-                    case EventIds.DargonspireRoomStore:
+                    case EventIds.DARGONSPIRE_ROOM_STORE:
                         Dragonspireroomstore();
-                        _events.ScheduleEvent(EventIds.DargonspireRoomCheck, TimeSpan.FromSeconds(3));
+                        _events.ScheduleEvent(EventIds.DARGONSPIRE_ROOM_CHECK, TimeSpan.FromSeconds(3));
 
                         break;
-                    case EventIds.DargonspireRoomCheck:
+                    case EventIds.DARGONSPIRE_ROOM_CHECK:
                         Dragonspireroomcheck();
 
-                        if (GetBossState(DataTypes.DragonspireRoom) != EncounterState.Done)
-                            _events.ScheduleEvent(EventIds.DargonspireRoomCheck, TimeSpan.FromSeconds(3));
+                        if (GetBossState(DataTypes.DRAGONSPIRE_ROOM) != EncounterState.Done)
+                            _events.ScheduleEvent(EventIds.DARGONSPIRE_ROOM_CHECK, TimeSpan.FromSeconds(3));
 
                         break;
-                    
                 }
             });
         }
@@ -610,18 +609,18 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
             for (byte i = 0; i < 7; ++i)
             {
                 // Refresh the creature list
-                runecreaturelist[i].Clear();
+                _runecreaturelist[i].Clear();
 
-                var rune = Instance.GetGameObject(go_roomrunes[i]);
+                var rune = Instance.GetGameObject(_goRoomrunes[i]);
 
                 if (rune)
                     for (byte j = 0; j < 3; ++j)
                     {
-                        var creatureList = rune.GetCreatureListWithEntryInGrid(BRSMiscConst.DragonspireMobs[j], 15.0f);
+                        var creatureList = rune.GetCreatureListWithEntryInGrid(BrsMiscConst.DragonspireMobs[j], 15.0f);
 
                         foreach (var creature in creatureList)
                             if (creature)
-                                runecreaturelist[i].Add(creature.GUID);
+                                _runecreaturelist[i].Add(creature.GUID);
                     }
             }
         }
@@ -633,76 +632,75 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 
             for (byte i = 0; i < 7; ++i)
             {
-                var _mobAlive = false;
-                rune = Instance.GetGameObject(go_roomrunes[i]);
+                var mobAlive = false;
+                rune = Instance.GetGameObject(_goRoomrunes[i]);
 
                 if (!rune)
                     continue;
 
                 if (rune.GoState == GameObjectState.Active)
-                    foreach (var guid in runecreaturelist[i])
+                    foreach (var guid in _runecreaturelist[i])
                     {
                         mob = Instance.GetCreature(guid);
 
                         if (mob && mob.IsAlive)
-                            _mobAlive = true;
+                            mobAlive = true;
                     }
 
-                if (!_mobAlive &&
+                if (!mobAlive &&
                     rune.GoState == GameObjectState.Active)
                 {
                     HandleGameObject(ObjectGuid.Empty, false, rune);
 
                     switch (rune.Entry)
                     {
-                        case GameObjectsIds.HallRune1:
-                            SetBossState(DataTypes.HallRune1, EncounterState.Done);
+                        case GameObjectsIds.HALL_RUNE1:
+                            SetBossState(DataTypes.HALL_RUNE1, EncounterState.Done);
 
                             break;
-                        case GameObjectsIds.HallRune2:
-                            SetBossState(DataTypes.HallRune2, EncounterState.Done);
+                        case GameObjectsIds.HALL_RUNE2:
+                            SetBossState(DataTypes.HALL_RUNE2, EncounterState.Done);
 
                             break;
-                        case GameObjectsIds.HallRune3:
-                            SetBossState(DataTypes.HallRune3, EncounterState.Done);
+                        case GameObjectsIds.HALL_RUNE3:
+                            SetBossState(DataTypes.HALL_RUNE3, EncounterState.Done);
 
                             break;
-                        case GameObjectsIds.HallRune4:
-                            SetBossState(DataTypes.HallRune4, EncounterState.Done);
+                        case GameObjectsIds.HALL_RUNE4:
+                            SetBossState(DataTypes.HALL_RUNE4, EncounterState.Done);
 
                             break;
-                        case GameObjectsIds.HallRune5:
-                            SetBossState(DataTypes.HallRune5, EncounterState.Done);
+                        case GameObjectsIds.HALL_RUNE5:
+                            SetBossState(DataTypes.HALL_RUNE5, EncounterState.Done);
 
                             break;
-                        case GameObjectsIds.HallRune6:
-                            SetBossState(DataTypes.HallRune6, EncounterState.Done);
+                        case GameObjectsIds.HALL_RUNE6:
+                            SetBossState(DataTypes.HALL_RUNE6, EncounterState.Done);
 
                             break;
-                        case GameObjectsIds.HallRune7:
-                            SetBossState(DataTypes.HallRune7, EncounterState.Done);
+                        case GameObjectsIds.HALL_RUNE7:
+                            SetBossState(DataTypes.HALL_RUNE7, EncounterState.Done);
 
                             break;
-                        
                     }
                 }
             }
 
-            if (GetBossState(DataTypes.HallRune1) == EncounterState.Done &&
-                GetBossState(DataTypes.HallRune2) == EncounterState.Done &&
-                GetBossState(DataTypes.HallRune3) == EncounterState.Done &&
-                GetBossState(DataTypes.HallRune4) == EncounterState.Done &&
-                GetBossState(DataTypes.HallRune5) == EncounterState.Done &&
-                GetBossState(DataTypes.HallRune6) == EncounterState.Done &&
-                GetBossState(DataTypes.HallRune7) == EncounterState.Done)
+            if (GetBossState(DataTypes.HALL_RUNE1) == EncounterState.Done &&
+                GetBossState(DataTypes.HALL_RUNE2) == EncounterState.Done &&
+                GetBossState(DataTypes.HALL_RUNE3) == EncounterState.Done &&
+                GetBossState(DataTypes.HALL_RUNE4) == EncounterState.Done &&
+                GetBossState(DataTypes.HALL_RUNE5) == EncounterState.Done &&
+                GetBossState(DataTypes.HALL_RUNE6) == EncounterState.Done &&
+                GetBossState(DataTypes.HALL_RUNE7) == EncounterState.Done)
             {
-                SetBossState(DataTypes.DragonspireRoom, EncounterState.Done);
-                var door1 = Instance.GetGameObject(go_emberseerin);
+                SetBossState(DataTypes.DRAGONSPIRE_ROOM, EncounterState.Done);
+                var door1 = Instance.GetGameObject(_goEmberseerin);
 
                 if (door1)
                     HandleGameObject(ObjectGuid.Empty, true, door1);
 
-                var door2 = Instance.GetGameObject(go_doors);
+                var door2 = Instance.GetGameObject(_goDoors);
 
                 if (door2)
                     HandleGameObject(ObjectGuid.Empty, true, door2);
@@ -712,9 +710,9 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 }
 
 [Script]
-internal class at_dragonspire_hall : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
+internal class AtDragonspireHall : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
 {
-    public at_dragonspire_hall() : base("at_dragonspire_hall") { }
+    public AtDragonspireHall() : base("at_dragonspire_hall") { }
 
     public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
     {
@@ -724,7 +722,7 @@ internal class at_dragonspire_hall : ScriptObjectAutoAddDBBound, IAreaTriggerOnT
 
             if (instance != null)
             {
-                instance.SetData(BRSMiscConst.Areatrigger, BRSMiscConst.AreatriggerDragonspireHall);
+                instance.SetData(BrsMiscConst.AREATRIGGER, BrsMiscConst.AREATRIGGER_DRAGONSPIRE_HALL);
 
                 return true;
             }
@@ -735,9 +733,9 @@ internal class at_dragonspire_hall : ScriptObjectAutoAddDBBound, IAreaTriggerOnT
 }
 
 [Script]
-internal class at_blackrock_stadium : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
+internal class AtBlackrockStadium : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
 {
-    public at_blackrock_stadium() : base("at_blackrock_stadium") { }
+    public AtBlackrockStadium() : base("at_blackrock_stadium") { }
 
     public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
     {
@@ -748,11 +746,11 @@ internal class at_blackrock_stadium : ScriptObjectAutoAddDBBound, IAreaTriggerOn
             if (instance == null)
                 return false;
 
-            var rend = player.FindNearestCreature(CreaturesIds.WarchiefRendBlackhand, 50.0f);
+            var rend = player.FindNearestCreature(CreaturesIds.WARCHIEF_REND_BLACKHAND, 50.0f);
 
             if (rend)
             {
-                rend.AI.SetData(BRSMiscConst.Areatrigger, BRSMiscConst.AreatriggerBlackrockStadium);
+                rend.AI.SetData(BrsMiscConst.AREATRIGGER, BrsMiscConst.AREATRIGGER_BLACKROCK_STADIUM);
 
                 return true;
             }
@@ -763,9 +761,9 @@ internal class at_blackrock_stadium : ScriptObjectAutoAddDBBound, IAreaTriggerOn
 }
 
 [Script]
-internal class at_nearby_scarshield_infiltrator : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
+internal class AtNearbyScarshieldInfiltrator : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
 {
-    public at_nearby_scarshield_infiltrator() : base("at_nearby_scarshield_infiltrator") { }
+    public AtNearbyScarshieldInfiltrator() : base("at_nearby_scarshield_infiltrator") { }
 
     public bool OnTrigger(Player player, AreaTriggerRecord at)
     {
@@ -775,13 +773,13 @@ internal class at_nearby_scarshield_infiltrator : ScriptObjectAutoAddDBBound, IA
 
             if (instance != null)
             {
-                var infiltrator = ObjectAccessor.GetCreature(player, instance.GetGuidData(DataTypes.ScarshieldInfiltrator));
+                var infiltrator = ObjectAccessor.GetCreature(player, instance.GetGuidData(DataTypes.SCARSHIELD_INFILTRATOR));
 
                 if (infiltrator)
                 {
                     if (player.Level >= 57)
                         infiltrator.AI.SetData(1, 1);
-                    else if (infiltrator.Entry == CreaturesIds.ScarshieldInfiltrator)
+                    else if (infiltrator.Entry == CreaturesIds.SCARSHIELD_INFILTRATOR)
                         infiltrator.AI.Talk(0, player);
 
                     return true;

@@ -2,18 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
+using Serilog;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
+internal class SpellGenMixologyBonus : AuraScript, IHasAuraEffects
 {
-    private double bonus;
+    private double _bonus;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
@@ -30,7 +31,7 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
     private void SetBonusValueForEffect(uint effIndex, int value, AuraEffect aurEff)
     {
         if (aurEff.EffIndex == effIndex)
-            bonus = value;
+            _bonus = value;
     }
 
     private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -42,13 +43,13 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
             {
                 case RequiredMixologySpells.WeakTrollsBloodElixir:
                 case RequiredMixologySpells.MagebloodElixir:
-                    bonus = amount;
+                    _bonus = amount;
 
                     break;
                 case RequiredMixologySpells.ElixirOfFrostPower:
                 case RequiredMixologySpells.LesserFlaskOfToughness:
                 case RequiredMixologySpells.LesserFlaskOfResistance:
-                    bonus = MathFunctions.CalculatePct(amount, 80);
+                    _bonus = MathFunctions.CalculatePct(amount, 80);
 
                     break;
                 case RequiredMixologySpells.ElixirOfMinorDefense:
@@ -66,61 +67,61 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
                 case RequiredMixologySpells.FlaskOfRelentlessAssault:
                 case RequiredMixologySpells.FlaskOfStoneblood:
                 case RequiredMixologySpells.ElixirOfMinorAccuracy:
-                    bonus = MathFunctions.CalculatePct(amount, 50);
+                    _bonus = MathFunctions.CalculatePct(amount, 50);
 
                     break;
                 case RequiredMixologySpells.ElixirOfProtection:
-                    bonus = 280;
+                    _bonus = 280;
 
                     break;
                 case RequiredMixologySpells.ElixirOfMajorDefense:
-                    bonus = 200;
+                    _bonus = 200;
 
                     break;
                 case RequiredMixologySpells.ElixirOfGreaterDefense:
                 case RequiredMixologySpells.ElixirOfSuperiorDefense:
-                    bonus = 140;
+                    _bonus = 140;
 
                     break;
                 case RequiredMixologySpells.ElixirOfFortitude:
-                    bonus = 100;
+                    _bonus = 100;
 
                     break;
                 case RequiredMixologySpells.FlaskOfEndlessRage:
-                    bonus = 82;
+                    _bonus = 82;
 
                     break;
                 case RequiredMixologySpells.ElixirOfDefense:
-                    bonus = 70;
+                    _bonus = 70;
 
                     break;
                 case RequiredMixologySpells.ElixirOfDemonslaying:
-                    bonus = 50;
+                    _bonus = 50;
 
                     break;
                 case RequiredMixologySpells.FlaskOfTheFrostWyrm:
-                    bonus = 47;
+                    _bonus = 47;
 
                     break;
                 case RequiredMixologySpells.WrathElixir:
-                    bonus = 32;
+                    _bonus = 32;
 
                     break;
                 case RequiredMixologySpells.ElixirOfMajorFrostPower:
                 case RequiredMixologySpells.ElixirOfMajorFirepower:
                 case RequiredMixologySpells.ElixirOfMajorShadowPower:
-                    bonus = 29;
+                    _bonus = 29;
 
                     break;
                 case RequiredMixologySpells.ElixirOfMightyToughts:
-                    bonus = 27;
+                    _bonus = 27;
 
                     break;
                 case RequiredMixologySpells.FlaskOfSupremePower:
                 case RequiredMixologySpells.FlaskOfBlindingLight:
                 case RequiredMixologySpells.FlaskOfPureDeath:
                 case RequiredMixologySpells.ShadowpowerElixir:
-                    bonus = 23;
+                    _bonus = 23;
 
                     break;
                 case RequiredMixologySpells.ElixirOfMightyAgility:
@@ -134,29 +135,29 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
                 case RequiredMixologySpells.ElixirOfExpertise:
                 case RequiredMixologySpells.ElixirOfArmorPiercing:
                 case RequiredMixologySpells.ElixirOfLightningSpeed:
-                    bonus = 20;
+                    _bonus = 20;
 
                     break;
                 case RequiredMixologySpells.FlaskOfChromaticResistance:
-                    bonus = 17;
+                    _bonus = 17;
 
                     break;
                 case RequiredMixologySpells.ElixirOfMinorFortitude:
                 case RequiredMixologySpells.ElixirOfMajorStrength:
-                    bonus = 15;
+                    _bonus = 15;
 
                     break;
                 case RequiredMixologySpells.FlaskOfMightyRestoration:
-                    bonus = 13;
+                    _bonus = 13;
 
                     break;
                 case RequiredMixologySpells.ArcaneElixir:
-                    bonus = 12;
+                    _bonus = 12;
 
                     break;
                 case RequiredMixologySpells.ElixirOfGreaterAgility:
                 case RequiredMixologySpells.ElixirOfGiants:
-                    bonus = 11;
+                    _bonus = 11;
 
                     break;
                 case RequiredMixologySpells.ElixirOfAgility:
@@ -164,38 +165,38 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
                 case RequiredMixologySpells.ElixirOfSages:
                 case RequiredMixologySpells.ElixirOfIronskin:
                 case RequiredMixologySpells.ElixirOfMightyMageblood:
-                    bonus = 10;
+                    _bonus = 10;
 
                     break;
                 case RequiredMixologySpells.ElixirOfHealingPower:
-                    bonus = 9;
+                    _bonus = 9;
 
                     break;
                 case RequiredMixologySpells.ElixirOfDraenicWisdom:
                 case RequiredMixologySpells.GurusElixir:
-                    bonus = 8;
+                    _bonus = 8;
 
                     break;
                 case RequiredMixologySpells.ElixirOfFirepower:
                 case RequiredMixologySpells.ElixirOfMajorMageblood:
                 case RequiredMixologySpells.ElixirOfMastery:
-                    bonus = 6;
+                    _bonus = 6;
 
                     break;
                 case RequiredMixologySpells.ElixirOfLesserAgility:
                 case RequiredMixologySpells.ElixirOfOgresStrength:
                 case RequiredMixologySpells.ElixirOfWisdom:
                 case RequiredMixologySpells.ElixirOfTheMongoose:
-                    bonus = 5;
+                    _bonus = 5;
 
                     break;
                 case RequiredMixologySpells.StrongTrollsBloodElixir:
                 case RequiredMixologySpells.FlaskOfChromaticWonder:
-                    bonus = 4;
+                    _bonus = 4;
 
                     break;
                 case RequiredMixologySpells.ElixirOfEmpowerment:
-                    bonus = -10;
+                    _bonus = -10;
 
                     break;
                 case RequiredMixologySpells.AdeptsElixir:
@@ -239,7 +240,7 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
                     break;
             }
 
-            amount.Value += bonus;
+            amount.Value += _bonus;
         }
     }
 }

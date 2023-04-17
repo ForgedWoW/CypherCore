@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_upper_deck_create_foam_sword : SpellScript, IHasSpellEffects
+internal class SpellGenUpperDeckCreateFoamSword : SpellScript, IHasSpellEffects
 {
     //                       green  pink   blue   red    yellow
-    private static readonly uint[] itemId =
+    private static readonly uint[] ItemId =
     {
         45061, 45176, 45177, 45178, 45179
     };
@@ -32,10 +33,10 @@ internal class spell_gen_upper_deck_create_foam_sword : SpellScript, IHasSpellEf
         {
             // player can only have one of these items
             for (byte i = 0; i < 5; ++i)
-                if (player.HasItemCount(itemId[i], 1, true))
+                if (player.HasItemCount(ItemId[i], 1, true))
                     return;
 
-            CreateItem(itemId[RandomHelper.URand(0, 4)], ItemContext.None);
+            CreateItem(ItemId[RandomHelper.URand(0, 4)], ItemContext.None);
         }
     }
 }

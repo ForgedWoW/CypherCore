@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(185313)]
-public class spell_rog_shadow_dance_SpellScript : SpellScript, IHasSpellEffects
+public class SpellRogShadowDanceSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -28,6 +29,6 @@ public class spell_rog_shadow_dance_SpellScript : SpellScript, IHasSpellEffects
         if (caster.HasAura(RogueSpells.MASTER_OF_SHADOWS))
             caster.ModifyPower(PowerType.Energy, +30);
 
-        caster.CastSpell(caster, RogueSpells.SHADOW_DANCE_AURA, true);
+        caster.SpellFactory.CastSpell(caster, RogueSpells.SHADOW_DANCE_AURA, true);
     }
 }

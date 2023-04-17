@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_orc_disguise : SpellScript, IHasSpellEffects
+internal class SpellGenOrcDisguise : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,9 +30,9 @@ internal class spell_gen_orc_disguise : SpellScript, IHasSpellEffects
             var gender = target.NativeGender;
 
             if (gender == Gender.Male)
-                caster.CastSpell(target, GenericSpellIds.OrcDisguiseMale, true);
+                caster.SpellFactory.CastSpell(target, GenericSpellIds.ORC_DISGUISE_MALE, true);
             else
-                caster.CastSpell(target, GenericSpellIds.OrcDisguiseFemale, true);
+                caster.SpellFactory.CastSpell(target, GenericSpellIds.ORC_DISGUISE_FEMALE, true);
         }
     }
 }

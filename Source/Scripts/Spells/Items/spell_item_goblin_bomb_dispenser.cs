@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 23134 - Goblin Bomb
-internal class spell_item_goblin_bomb_dispenser : SpellScript, IHasSpellEffects
+internal class SpellItemGoblinBombDispenser : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,6 +25,6 @@ internal class spell_item_goblin_bomb_dispenser : SpellScript, IHasSpellEffects
         var item = CastItem;
 
         if (item != null)
-            Caster.CastSpell(Caster, RandomHelper.randChance(95) ? ItemSpellIds.SummonGoblinBomb : ItemSpellIds.MalfunctionExplosion, item);
+            Caster.SpellFactory.CastSpell(Caster, RandomHelper.randChance(95) ? ItemSpellIds.SUMMON_GOBLIN_BOMB : ItemSpellIds.MALFUNCTION_EXPLOSION, item);
     }
 }

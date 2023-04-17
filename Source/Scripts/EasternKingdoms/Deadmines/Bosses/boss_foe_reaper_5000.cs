@@ -2,16 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Deadmines.Bosses;
 
 [CreatureScript(43778)]
-public class boss_foe_reaper_5000 : BossAI
+public class BossFoeReaper5000 : BossAI
 {
     public const string MONSTER_START = "A stray jolt from the Foe Reaper has distrupted the foundry controls!";
     public const string MONSTER_SLAG = "The monster slag begins to bubble furiously!";
@@ -27,7 +30,7 @@ public class boss_foe_reaper_5000 : BossAI
 
     private bool _below;
 
-    public boss_foe_reaper_5000(Creature creature) : base(creature, DMData.DATA_FOEREAPER)
+    public BossFoeReaper5000(Creature creature) : base(creature, DmData.DATA_FOEREAPER)
     {
         Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.ImmuneToPc | UnitFlags.Stunned);
     }
@@ -56,12 +59,12 @@ public class boss_foe_reaper_5000 : BossAI
 
         if (IsHeroic())
         {
-            var Reaper = ObjectAccessor.GetCreature(Me, _prototypeGUID);
+            var reaper = ObjectAccessor.GetCreature(Me, _prototypeGUID);
 
-            if (Reaper != null)
-                Reaper.DespawnOrUnsummon();
+            if (reaper != null)
+                reaper.DespawnOrUnsummon();
 
-            Creature prototype = Me.SummonCreature(DMCreatures.NPC_PROTOTYPE_REAPER, PrototypeSpawn, TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+            Creature prototype = Me.SummonCreature(DmCreatures.NPC_PROTOTYPE_REAPER, PrototypeSpawn, TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 
             if (prototype != null)
             {
@@ -94,15 +97,15 @@ public class boss_foe_reaper_5000 : BossAI
 
         base.JustDied(killer);
         DespawnOldWatchers();
-        Talk(eSays.SAY_JUSTDIED);
+        Talk(ESays.SAY_JUSTDIED);
         Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 
         if (IsHeroic())
         {
-            var Reaper = ObjectAccessor.GetCreature(Me, _prototypeGUID);
+            var reaper = ObjectAccessor.GetCreature(Me, _prototypeGUID);
 
-            if (Reaper != null)
-                Reaper.DespawnOrUnsummon();
+            if (reaper != null)
+                reaper.DespawnOrUnsummon();
         }
     }
 
@@ -110,7 +113,7 @@ public class boss_foe_reaper_5000 : BossAI
     //ORIGINAL LINE: uint GetData(uint type) const
     public override uint GetData(uint type)
     {
-        if (type == (uint)eAchievementMisc.DATA_ACHIV_PROTOTYPE_PRODIGY)
+        if (type == (uint)EAchievementMisc.DATA_ACHIV_PROTOTYPE_PRODIGY)
         {
             if (!IsHeroic())
                 return false ? 1 : 0;
@@ -131,9 +134,9 @@ public class boss_foe_reaper_5000 : BossAI
             return;
 
         base.JustReachedHome();
-        Talk(eSays.SAY_KILLED_UNIT);
+        Talk(ESays.SAY_KILLED_UNIT);
         Me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.Stunned);
-        Instance.SetBossState(DMData.DATA_FOEREAPER, EncounterState.Fail);
+        Instance.SetBossState(DmData.DATA_FOEREAPER, EncounterState.Fail);
     }
 
     public void DespawnOldWatchers()
@@ -153,12 +156,12 @@ public class boss_foe_reaper_5000 : BossAI
             Me.SummonCreature(47403, HarvestSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
     }
 
-    public void SpellHit(Unit UnnamedParameter, SpellInfo spell)
+    public void SpellHit(Unit unnamedParameter, SpellInfo spell)
     {
         if (spell == null || !Me)
             return;
 
-        if (spell.Id == eSpell.ENERGIZE)
+        if (spell.Id == ESpell.ENERGIZE)
         {
             if (_step == 3)
                 Events.ScheduleEvent(BossEvents.EVENT_START, TimeSpan.FromMilliseconds(100));
@@ -167,16 +170,16 @@ public class boss_foe_reaper_5000 : BossAI
         }
     }
 
-    public void MovementInform(uint UnnamedParameter, uint id)
+    public void MovementInform(uint unnamedParameter, uint id)
     {
         if (id == 0)
         {
-            var HarvestTarget = Me.FindNearestCreature(DMCreatures.NPC_HARVEST_TARGET, 200.0f, true);
+            var harvestTarget = Me.FindNearestCreature(DmCreatures.NPC_HARVEST_TARGET, 200.0f, true);
 
-            if (HarvestTarget != null)
+            if (harvestTarget != null)
             {
                 //DoCast(HarvestTarget, IsHeroic() ? HARVEST_SWEEP_H : HARVEST_SWEEP);
-                Me.RemoveAura(eSpell.HARVEST_AURA);
+                Me.RemoveAura(ESpell.HARVEST_AURA);
                 Events.ScheduleEvent(BossEvents.EVENT_START_ATTACK, TimeSpan.FromMilliseconds(1000));
             }
         }
@@ -184,13 +187,13 @@ public class boss_foe_reaper_5000 : BossAI
 
     public void HarvestChase()
     {
-        var HarvestTarget = Me.FindNearestCreature(DMCreatures.NPC_HARVEST_TARGET, 200.0f, true);
+        var harvestTarget = Me.FindNearestCreature(DmCreatures.NPC_HARVEST_TARGET, 200.0f, true);
 
-        if (HarvestTarget != null)
+        if (harvestTarget != null)
         {
             Me.SetSpeed(UnitMoveType.Run, 3.0f);
-            Me.MotionMaster.MoveCharge(HarvestTarget.Location.X, HarvestTarget.Location.Y, HarvestTarget.Location.Z, 5.0f, 0);
-            HarvestTarget.DespawnOrUnsummon(TimeSpan.FromMilliseconds(8500));
+            Me.MotionMaster.MoveCharge(harvestTarget.Location.X, harvestTarget.Location.Y, harvestTarget.Location.Z, 5.0f, 0);
+            harvestTarget.DespawnOrUnsummon(TimeSpan.FromMilliseconds(8500));
         }
     }
 
@@ -210,8 +213,8 @@ public class boss_foe_reaper_5000 : BossAI
             switch (eventId)
             {
                 case BossEvents.EVENT_START:
-                    Talk(eSays.SAY_EVENT_START);
-                    Me.AddAura(eSpell.ENERGIZED, Me);
+                    Talk(ESays.SAY_EVENT_START);
+                    Me.AddAura(ESpell.ENERGIZED, Me);
                     Me.TextEmote(MONSTER_START, null, true);
                     Events.ScheduleEvent(BossEvents.EVENT_START_2, TimeSpan.FromMilliseconds(5000));
 
@@ -225,13 +228,13 @@ public class boss_foe_reaper_5000 : BossAI
                     Me.RemoveUnitFlag(UnitFlags.NonAttackable);
                     Me.RemoveUnitFlag(UnitFlags.ImmuneToPc);
                     Me.RemoveUnitFlag(UnitFlags.Stunned);
-                    Me.RemoveAura(eSpell.ENERGIZED);
+                    Me.RemoveAura(ESpell.ENERGIZED);
                     Events.ScheduleEvent(BossEvents.EVENT_SRO, TimeSpan.FromMilliseconds(1000));
 
                     break;
 
                 case BossEvents.EVENT_SRO:
-                    Me.RemoveAura(DMSharedSpells.OFFLINE);
+                    Me.RemoveAura(DmSharedSpells.OFFLINE);
 
                     var victim = Me.FindNearestPlayer(40.0f);
 
@@ -241,7 +244,7 @@ public class boss_foe_reaper_5000 : BossAI
                     break;
 
                 case BossEvents.EVENT_START_ATTACK:
-                    Me.RemoveAura(eSpell.HARVEST_AURA);
+                    Me.RemoveAura(ESpell.HARVEST_AURA);
                     Me.SetSpeed(UnitMoveType.Run, 2.0f);
                     var victim2 = Me.FindNearestPlayer(40.0f);
 
@@ -255,7 +258,7 @@ public class boss_foe_reaper_5000 : BossAI
                         return;
 
                     Me.TextEmote("|TInterface\\Icons\\ability_whirlwind.blp:20|tFoe Reaper 5000 begins to activate |cFFFF0000|Hspell:91716|h[Overdrive]|h|r!", null, true);
-                    Me.AddAura(eSpell.OVERDRIVE, Me);
+                    Me.AddAura(ESpell.OVERDRIVE, Me);
                     Me.SetSpeed(UnitMoveType.Run, 4.0f);
                     Events.ScheduleEvent(BossEvents.EVENT_SWITCH_TARGET, TimeSpan.FromMilliseconds(1500));
                     Events.ScheduleEvent(BossEvents.EVENT_OVERDRIVE, TimeSpan.FromMilliseconds(45000));
@@ -268,7 +271,7 @@ public class boss_foe_reaper_5000 : BossAI
                     if (victim3 != null)
                         Me.Attack(victim3, true);
 
-                    if (Me.HasAura(eSpell.OVERDRIVE))
+                    if (Me.HasAura(ESpell.OVERDRIVE))
                         Events.ScheduleEvent(BossEvents.EVENT_SWITCH_TARGET, TimeSpan.FromMilliseconds(1500));
 
                     break;
@@ -280,7 +283,7 @@ public class boss_foe_reaper_5000 : BossAI
                     var target = SelectTarget(SelectTargetMethod.Random, 0, 150, true);
 
                     if (target != null)
-                        Me.CastSpell(target, eSpell.HARVEST);
+                        Me.SpellFactory.CastSpell(target, ESpell.HARVEST);
 
                     Events.RescheduleEvent(BossEvents.EVENT_HARVEST_SWEAP, TimeSpan.FromMilliseconds(5500));
 
@@ -291,7 +294,7 @@ public class boss_foe_reaper_5000 : BossAI
                         return;
 
                     HarvestChase();
-                    Talk(eSays.SAY_HARVEST_SWEAP);
+                    Talk(ESays.SAY_HARVEST_SWEAP);
                     Events.ScheduleEvent(BossEvents.EVENT_START_ATTACK, TimeSpan.FromMilliseconds(8000));
                     Events.RescheduleEvent(BossEvents.EVENT_HARVEST, TimeSpan.FromMilliseconds(45000));
 
@@ -305,7 +308,7 @@ public class boss_foe_reaper_5000 : BossAI
 
                     if (victim4 != null)
                         if (Me.IsWithinDist(victim4, 25.0f))
-                            DoCast(victim4, IsHeroic() ? eSpell.REAPER_STRIKE_H : eSpell.REAPER_STRIKE);
+                            DoCast(victim4, IsHeroic() ? ESpell.REAPER_STRIKE_H : ESpell.REAPER_STRIKE);
 
                     Events.ScheduleEvent(BossEvents.EVENT_REAPER_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(9000, 12000)));
 
@@ -313,14 +316,14 @@ public class boss_foe_reaper_5000 : BossAI
 
                 case BossEvents.EVENT_MOLTEN_SLAG:
                     Me.TextEmote(MONSTER_SLAG, null, true);
-                    Me.CastSpell(-213.21f, -576.85f, 20.97f, eSpell.SUMMON_MOLTEN_SLAG, false);
+                    Me.SpellFactory.CastSpell(-213.21f, -576.85f, 20.97f, ESpell.SUMMON_MOLTEN_SLAG, false);
                     Events.ScheduleEvent(BossEvents.EVENT_MOLTEN_SLAG, TimeSpan.FromMilliseconds(20000));
 
                     break;
 
                 case BossEvents.EVENT_SAFETY_OFFLINE:
-                    Talk(eSays.SAY_EVENT_SRO);
-                    DoCast(Me, IsHeroic() ? eSpell.SAFETY_REST_OFFLINE_H : eSpell.SAFETY_REST_OFFLINE);
+                    Talk(ESays.SAY_EVENT_SRO);
+                    DoCast(Me, IsHeroic() ? ESpell.SAFETY_REST_OFFLINE_H : ESpell.SAFETY_REST_OFFLINE);
 
                     break;
             }
@@ -333,7 +336,7 @@ public class boss_foe_reaper_5000 : BossAI
         }
     }
 
-    public struct eSpell
+    public struct ESpell
     {
         public const uint ENERGIZE = 89132;
         public const uint ENERGIZED = 91733; // -> 89200;
@@ -357,7 +360,7 @@ public class boss_foe_reaper_5000 : BossAI
         public const uint SUMMON_MOLTEN_SLAG = 91839;
     }
 
-    public struct eAchievementMisc
+    public struct EAchievementMisc
     {
         public const uint ACHIEVEMENT_PROTOTYPE_PRODIGY = 5368;
         public const uint DATA_ACHIV_PROTOTYPE_PRODIGY = 1;
@@ -379,7 +382,7 @@ public class boss_foe_reaper_5000 : BossAI
         public const uint EVENT_START_ATTACK = 11;
     }
 
-    public struct eSays
+    public struct ESays
     {
         public const uint SAY_CAST_OVERDRIVE = 0;
         public const uint SAY_JUSTDIED = 1;

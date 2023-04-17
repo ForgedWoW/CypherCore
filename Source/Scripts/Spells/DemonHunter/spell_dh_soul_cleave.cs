@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(228477)]
-public class spell_dh_soul_cleave : SpellScript, IHasSpellEffects
+public class SpellDhSoulCleave : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -33,7 +34,7 @@ public class spell_dh_soul_cleave : SpellScript, IHasSpellEffects
             return;
 
         if (caster.HasAura(DemonHunterSpells.FEAST_OF_SOULS))
-            caster.CastSpell(caster, DemonHunterSpells.FEAST_OF_SOULS_HEAL, true);
+            caster.SpellFactory.CastSpell(caster, DemonHunterSpells.FEAST_OF_SOULS_HEAL, true);
     }
 
     private void HandleDummy(int effIndex)
@@ -78,16 +79,16 @@ public class spell_dh_soul_cleave : SpellScript, IHasSpellEffects
                             break;
                     }
 
-                    caster.CastSpell(tempSumm, ShatteredSoulsSpells.CONSUME_SOUL_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
+                    caster.SpellFactory.CastSpell(tempSumm, ShatteredSoulsSpells.CONSUME_SOUL_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
 
                     if (at.GetTemplate().Id.Id == 6007)
-                        caster.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
+                        caster.SpellFactory.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
 
                     if (caster.HasAura(DemonHunterSpells.FEED_THE_DEMON))
                         caster.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
 
                     if (caster.HasAura(ShatteredSoulsSpells.PAINBRINGER))
-                        caster.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
+                        caster.SpellFactory.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
 
                     var soulBarrier = caster.GetAuraEffect(DemonHunterSpells.SOUL_BARRIER, 0);
 

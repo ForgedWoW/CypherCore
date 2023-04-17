@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(27827)]
-public class spell_pri_spirit_of_redemption_form : AuraScript, IHasAuraEffects
+public class SpellPriSpiritOfRedemptionForm : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -19,17 +19,17 @@ public class spell_pri_spirit_of_redemption_form : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.WaterBreathing, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
     }
 
-    private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void AfterRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
-        var l_Target = Target;
+        var lTarget = Target;
 
-        l_Target.RemoveAura(eSpells.SpiritOfRedemptionForm);
-        l_Target.RemoveAura(eSpells.SpiritOfRedemptionImmunity);
+        lTarget.RemoveAura(ESpells.SPIRIT_OF_REDEMPTION_FORM);
+        lTarget.RemoveAura(ESpells.SPIRIT_OF_REDEMPTION_IMMUNITY);
     }
 
-    private struct eSpells
+    private struct ESpells
     {
-        public const uint SpiritOfRedemptionImmunity = 62371;
-        public const uint SpiritOfRedemptionForm = 27795;
+        public const uint SPIRIT_OF_REDEMPTION_IMMUNITY = 62371;
+        public const uint SPIRIT_OF_REDEMPTION_FORM = 27795;
     }
 }

@@ -2,22 +2,22 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.BLUE_ETERNITY_SURGE, EvokerSpells.BLUE_ETERNITY_SURGE_2)]
-internal class spell_evoker_eternity_surge : SpellScript, ISpellOnEpowerSpellEnd
+internal class SpellEvokerEternitySurge : SpellScript, ISpellOnEpowerSpellEnd
 {
     public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
     {
         var caster = Caster;
 
         // cast on primary target
-        caster.CastSpell(EvokerSpells.ETERNITY_SURGE_CHARGED, true, stage.Stage);
+        caster.SpellFactory.CastSpell(EvokerSpells.ETERNITY_SURGE_CHARGED, true, stage.Stage);
 
         // determine number of additional targets
         var multi = 1;
@@ -41,7 +41,6 @@ internal class spell_evoker_eternity_surge : SpellScript, ISpellOnEpowerSpellEnd
                 targets = 4 * multi;
 
                 break;
-            
         }
 
         targets--;
@@ -57,7 +56,7 @@ internal class spell_evoker_eternity_surge : SpellScript, ISpellOnEpowerSpellEnd
 
             // cast on targets
             foreach (var target in targetList)
-                caster.CastSpell(target, EvokerSpells.ETERNITY_SURGE_CHARGED, true, stage.Stage);
+                caster.SpellFactory.CastSpell(target, EvokerSpells.ETERNITY_SURGE_CHARGED, true, stage.Stage);
         }
     }
 }

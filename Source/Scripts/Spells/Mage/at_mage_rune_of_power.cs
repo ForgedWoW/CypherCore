@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_rune_of_power : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
+public class AtMageRuneOfPower : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
     public void OnCreate()
     {
@@ -21,7 +21,7 @@ public class at_mage_rune_of_power : AreaTriggerScript, IAreaTriggerOnCreate, IA
 
         if (caster != null)
             if (unit.GUID == caster.GUID)
-                caster.CastSpell(unit, UsingSpells.RUNE_OF_POWER_AURA, true);
+                caster.SpellFactory.CastSpell(unit, UsingSpells.RUNE_OF_POWER_AURA, true);
     }
 
     public void OnUnitExit(Unit unit)

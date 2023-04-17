@@ -2,22 +2,23 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_sentinelAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnRemove
+public class AtHunSentinelAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnRemove
 {
-    public int timeInterval;
+    public int TimeInterval;
 
     public void OnCreate()
     {
-        timeInterval = 6000;
+        TimeInterval = 6000;
     }
 
     public void OnRemove()
@@ -29,26 +30,26 @@ public class at_hun_sentinelAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaT
             var targetList = new List<Unit>();
             var radius = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
 
-            var l_Check = new AnyUnitInObjectRangeCheck(At, radius);
-            var l_Searcher = new UnitListSearcher(At, targetList, l_Check, GridType.All);
-            Cell.VisitGrid(At, l_Searcher, radius);
+            var lCheck = new AnyUnitInObjectRangeCheck(At, radius);
+            var lSearcher = new UnitListSearcher(At, targetList, lCheck, GridType.All);
+            Cell.VisitGrid(At, lSearcher, radius);
 
-            foreach (var l_Unit in targetList)
-                if (l_Unit != caster && caster.IsValidAttackTarget(l_Unit))
+            foreach (var lUnit in targetList)
+                if (lUnit != caster && caster.IsValidAttackTarget(lUnit))
                 {
-                    caster.CastSpell(l_Unit, HunterSpells.HUNTERS_MARK_AURA, true);
-                    caster.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
+                    caster.SpellFactory.CastSpell(lUnit, HunterSpells.HUNTERS_MARK_AURA, true);
+                    caster.SpellFactory.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
 
-                    timeInterval -= 6000;
+                    TimeInterval -= 6000;
                 }
         }
     }
 
     public void OnUpdate(uint diff)
     {
-        timeInterval += (int)diff;
+        TimeInterval += (int)diff;
 
-        if (timeInterval < 6000)
+        if (TimeInterval < 6000)
             return;
 
         var caster = At.GetCaster();
@@ -58,17 +59,17 @@ public class at_hun_sentinelAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaT
             var targetList = new List<Unit>();
             var radius = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
 
-            var l_Check = new AnyUnitInObjectRangeCheck(At, radius);
-            var l_Searcher = new UnitListSearcher(At, targetList, l_Check, GridType.All);
-            Cell.VisitGrid(At, l_Searcher, radius);
+            var lCheck = new AnyUnitInObjectRangeCheck(At, radius);
+            var lSearcher = new UnitListSearcher(At, targetList, lCheck, GridType.All);
+            Cell.VisitGrid(At, lSearcher, radius);
 
-            foreach (var l_Unit in targetList)
+            foreach (var lUnit in targetList)
 
             {
-                caster.CastSpell(l_Unit, HunterSpells.HUNTERS_MARK_AURA, true);
-                caster.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
+                caster.SpellFactory.CastSpell(lUnit, HunterSpells.HUNTERS_MARK_AURA, true);
+                caster.SpellFactory.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
 
-                timeInterval -= 6000;
+                TimeInterval -= 6000;
             }
         }
     }

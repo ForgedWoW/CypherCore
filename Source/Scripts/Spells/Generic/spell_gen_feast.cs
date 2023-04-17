@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_feast : SpellScript, IHasSpellEffects
+internal class SpellGenFeast : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,37 +25,36 @@ internal class spell_gen_feast : SpellScript, IHasSpellEffects
 
         switch (SpellInfo.Id)
         {
-            case GenericSpellIds.GreatFeast:
-                target.CastSpell(target, GenericSpellIds.FeastFood);
-                target.CastSpell(target, GenericSpellIds.FeastDrink);
-                target.CastSpell(target, GenericSpellIds.GreatFeastRefreshment);
+            case GenericSpellIds.GREAT_FEAST:
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_FOOD);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_DRINK);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.GREAT_FEAST_REFRESHMENT);
 
                 break;
-            case GenericSpellIds.FishFeast:
-                target.CastSpell(target, GenericSpellIds.FeastFood);
-                target.CastSpell(target, GenericSpellIds.FeastDrink);
-                target.CastSpell(target, GenericSpellIds.FishFeastRefreshment);
+            case GenericSpellIds.FISH_FEAST:
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_FOOD);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_DRINK);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FISH_FEAST_REFRESHMENT);
 
                 break;
-            case GenericSpellIds.GiganticFeast:
-                target.CastSpell(target, GenericSpellIds.FeastFood);
-                target.CastSpell(target, GenericSpellIds.FeastDrink);
-                target.CastSpell(target, GenericSpellIds.GiganticFeastRefreshment);
+            case GenericSpellIds.GIGANTIC_FEAST:
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_FOOD);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_DRINK);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.GIGANTIC_FEAST_REFRESHMENT);
 
                 break;
-            case GenericSpellIds.SmallFeast:
-                target.CastSpell(target, GenericSpellIds.FeastFood);
-                target.CastSpell(target, GenericSpellIds.FeastDrink);
-                target.CastSpell(target, GenericSpellIds.SmallFeastRefreshment);
+            case GenericSpellIds.SMALL_FEAST:
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_FOOD);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.FEAST_DRINK);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.SMALL_FEAST_REFRESHMENT);
 
                 break;
-            case GenericSpellIds.BountifulFeast:
-                target.CastSpell(target, GenericSpellIds.BountifulFeastRefreshment);
-                target.CastSpell(target, GenericSpellIds.BountifulFeastDrink);
-                target.CastSpell(target, GenericSpellIds.BountifulFeastFood);
+            case GenericSpellIds.BOUNTIFUL_FEAST:
+                target.SpellFactory.CastSpell(target, GenericSpellIds.BOUNTIFUL_FEAST_REFRESHMENT);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.BOUNTIFUL_FEAST_DRINK);
+                target.SpellFactory.CastSpell(target, GenericSpellIds.BOUNTIFUL_FEAST_FOOD);
 
                 break;
-            
         }
     }
 }

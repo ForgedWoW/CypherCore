@@ -2,10 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
@@ -13,17 +16,17 @@ namespace Scripts.Spells.Hunter;
 {
     120761, 121414
 })]
-public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpellOnHit
+public class SpellHunGlaiveTossDamage : SpellScript, IHasSpellEffects, ISpellOnHit
 {
-    private ObjectGuid mainTargetGUID = ObjectGuid.Empty;
+    private ObjectGuid _mainTargetGUID = ObjectGuid.Empty;
     public List<ISpellEffect> SpellEffects { get; } = new();
 
     public void OnHit()
     {
-        if (mainTargetGUID == default)
+        if (_mainTargetGUID == default)
             return;
 
-        var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
+        var target = ObjectAccessor.Instance.GetUnit(Caster, _mainTargetGUID);
 
         if (target == null)
             return;
@@ -51,15 +54,15 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
         foreach (var itr in targetList)
             if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
             {
-                mainTargetGUID = itr.GUID;
+                _mainTargetGUID = itr.GUID;
 
                 break;
             }
 
-        if (mainTargetGUID == default)
+        if (_mainTargetGUID == default)
             return;
 
-        var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
+        var target = ObjectAccessor.Instance.GetUnit(Caster, _mainTargetGUID);
 
         if (target == null)
             return;
@@ -84,18 +87,18 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
         foreach (var itr in targetList)
             if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
             {
-                mainTargetGUID = itr.GUID;
+                _mainTargetGUID = itr.GUID;
 
                 break;
             }
 
-        if (mainTargetGUID == default)
+        if (_mainTargetGUID == default)
             return;
 
-        if (mainTargetGUID == default)
+        if (_mainTargetGUID == default)
             return;
 
-        var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
+        var target = ObjectAccessor.Instance.GetUnit(Caster, _mainTargetGUID);
 
         if (target == null)
             return;

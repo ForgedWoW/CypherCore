@@ -3,17 +3,19 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(263648)]
-public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
+public class SpellDhSoulBarrier : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +25,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
     }
 
-    private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalcAmount(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         var caster = Caster;
 
@@ -75,16 +77,16 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
                                 break;
                         }
 
-                        caster.CastSpell(tempSumm, ShatteredSoulsSpells.CONSUME_SOUL_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
+                        caster.SpellFactory.CastSpell(tempSumm, ShatteredSoulsSpells.CONSUME_SOUL_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
 
                         if (at.GetTemplate().Id.Id == 6007)
-                            caster.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
+                            caster.SpellFactory.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
 
                         if (caster.HasAura(DemonHunterSpells.FEED_THE_DEMON))
                             caster.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
 
                         if (caster.HasAura(ShatteredSoulsSpells.PAINBRINGER))
-                            caster.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
+                            caster.SpellFactory.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
 
                         amount.Value += (soulShardCoeff * ap);
 

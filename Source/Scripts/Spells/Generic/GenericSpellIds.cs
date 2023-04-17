@@ -6,312 +6,312 @@ namespace Scripts.Spells.Generic;
 internal struct GenericSpellIds
 {
     // Adaptivewarding
-    public const uint GenAdaptiveWardingFire = 28765;
-    public const uint GenAdaptiveWardingNature = 28768;
-    public const uint GenAdaptiveWardingFrost = 28766;
-    public const uint GenAdaptiveWardingShadow = 28769;
-    public const uint GenAdaptiveWardingArcane = 28770;
+    public const uint GEN_ADAPTIVE_WARDING_FIRE = 28765;
+    public const uint GEN_ADAPTIVE_WARDING_NATURE = 28768;
+    public const uint GEN_ADAPTIVE_WARDING_FROST = 28766;
+    public const uint GEN_ADAPTIVE_WARDING_SHADOW = 28769;
+    public const uint GEN_ADAPTIVE_WARDING_ARCANE = 28770;
 
     // Animalbloodpoolspell
-    public const uint AnimalBlood = 46221;
-    public const uint SpawnBloodPool = 63471;
+    public const uint ANIMAL_BLOOD = 46221;
+    public const uint SPAWN_BLOOD_POOL = 63471;
 
     // Serviceuniform
-    public const uint ServiceUniform = 71450;
+    public const uint SERVICE_UNIFORM = 71450;
 
     // Genericbandage
-    public const uint RecentlyBandaged = 11196;
+    public const uint RECENTLY_BANDAGED = 11196;
 
     // Bloodreserve
-    public const uint BloodReserveAura = 64568;
-    public const uint BloodReserveHeal = 64569;
+    public const uint BLOOD_RESERVE_AURA = 64568;
+    public const uint BLOOD_RESERVE_HEAL = 64569;
 
     // Bonked
-    public const uint Bonked = 62991;
-    public const uint FormSwordDefeat = 62994;
-    public const uint Onguard = 62972;
+    public const uint BONKED = 62991;
+    public const uint FORM_SWORD_DEFEAT = 62994;
+    public const uint ONGUARD = 62972;
 
     // Breakshieldspells
-    public const uint BreakShieldDamage2k = 62626;
-    public const uint BreakShieldDamage10k = 64590;
-    public const uint BreakShieldTriggerFactionMounts = 62575; // Also On Toc5 Mounts
-    public const uint BreakShieldTriggerCampaingWarhorse = 64595;
-    public const uint BreakShieldTriggerUnk = 66480;
+    public const uint BREAK_SHIELD_DAMAGE2_K = 62626;
+    public const uint BREAK_SHIELD_DAMAGE10_K = 64590;
+    public const uint BREAK_SHIELD_TRIGGER_FACTION_MOUNTS = 62575; // Also On Toc5 Mounts
+    public const uint BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE = 64595;
+    public const uint BREAK_SHIELD_TRIGGER_UNK = 66480;
 
     // Cannibalizespells
-    public const uint CannibalizeTriggered = 20578;
+    public const uint CANNIBALIZE_TRIGGERED = 20578;
 
     // Chaosblast
-    public const uint ChaosBlast = 37675;
+    public const uint CHAOS_BLAST = 37675;
 
     // Clone
-    public const uint NightmareFigmentMirrorImage = 57528;
+    public const uint NIGHTMARE_FIGMENT_MIRROR_IMAGE = 57528;
 
     // Cloneweaponspells        
-    public const uint WeaponAura = 41054;
-    public const uint Weapon2Aura = 63418;
-    public const uint Weapon3Aura = 69893;
+    public const uint WEAPON_AURA = 41054;
+    public const uint WEAPON2_AURA = 63418;
+    public const uint WEAPON3_AURA = 69893;
 
-    public const uint OffhandAura = 45205;
-    public const uint Offhand2Aura = 69896;
+    public const uint OFFHAND_AURA = 45205;
+    public const uint OFFHAND2_AURA = 69896;
 
-    public const uint RangedAura = 57594;
+    public const uint RANGED_AURA = 57594;
 
     // Createlancespells
-    public const uint CreateLanceAlliance = 63914;
-    public const uint CreateLanceHorde = 63919;
+    public const uint CREATE_LANCE_ALLIANCE = 63914;
+    public const uint CREATE_LANCE_HORDE = 63919;
 
     // Dalarandisguisespells        
-    public const uint SunreaverTrigger = 69672;
-    public const uint SunreaverFemale = 70973;
-    public const uint SunreaverMale = 70974;
+    public const uint SUNREAVER_TRIGGER = 69672;
+    public const uint SUNREAVER_FEMALE = 70973;
+    public const uint SUNREAVER_MALE = 70974;
 
-    public const uint SilverCovenantTrigger = 69673;
-    public const uint SilverCovenantFemale = 70971;
-    public const uint SilverCovenantMale = 70972;
+    public const uint SILVER_COVENANT_TRIGGER = 69673;
+    public const uint SILVER_COVENANT_FEMALE = 70971;
+    public const uint SILVER_COVENANT_MALE = 70972;
 
     // Defendvisuals
-    public const uint VisualShield1 = 63130;
-    public const uint VisualShield2 = 63131;
-    public const uint VisualShield3 = 63132;
+    public const uint VISUAL_SHIELD1 = 63130;
+    public const uint VISUAL_SHIELD2 = 63131;
+    public const uint VISUAL_SHIELD3 = 63132;
 
     // Divinestormspell
-    public const uint DivineStorm = 53385;
+    public const uint DIVINE_STORM = 53385;
 
     // Elunecandle
-    public const uint OmenHead = 26622;
-    public const uint OmenChest = 26624;
-    public const uint OmenHandR = 26625;
-    public const uint OmenHandL = 26649;
-    public const uint Normal = 26636;
+    public const uint OMEN_HEAD = 26622;
+    public const uint OMEN_CHEST = 26624;
+    public const uint OMEN_HAND_R = 26625;
+    public const uint OMEN_HAND_L = 26649;
+    public const uint NORMAL = 26636;
 
     // EtherealPet
-    public const uint ProcTriggerOnKillAura = 50051;
-    public const uint EtherealPetAura = 50055;
-    public const uint CreateToken = 50063;
-    public const uint StealEssenceVisual = 50101;
+    public const uint PROC_TRIGGER_ON_KILL_AURA = 50051;
+    public const uint ETHEREAL_PET_AURA = 50055;
+    public const uint CREATE_TOKEN = 50063;
+    public const uint STEAL_ESSENCE_VISUAL = 50101;
 
     // Feast
-    public const uint GreatFeast = 57337;
-    public const uint FishFeast = 57397;
-    public const uint GiganticFeast = 58466;
-    public const uint SmallFeast = 58475;
-    public const uint BountifulFeast = 66477;
+    public const uint GREAT_FEAST = 57337;
+    public const uint FISH_FEAST = 57397;
+    public const uint GIGANTIC_FEAST = 58466;
+    public const uint SMALL_FEAST = 58475;
+    public const uint BOUNTIFUL_FEAST = 66477;
 
-    public const uint FeastFood = 45548;
-    public const uint FeastDrink = 57073;
-    public const uint BountifulFeastDrink = 66041;
-    public const uint BountifulFeastFood = 66478;
+    public const uint FEAST_FOOD = 45548;
+    public const uint FEAST_DRINK = 57073;
+    public const uint BOUNTIFUL_FEAST_DRINK = 66041;
+    public const uint BOUNTIFUL_FEAST_FOOD = 66478;
 
-    public const uint GreatFeastRefreshment = 57338;
-    public const uint FishFeastRefreshment = 57398;
-    public const uint GiganticFeastRefreshment = 58467;
-    public const uint SmallFeastRefreshment = 58477;
-    public const uint BountifulFeastRefreshment = 66622;
+    public const uint GREAT_FEAST_REFRESHMENT = 57338;
+    public const uint FISH_FEAST_REFRESHMENT = 57398;
+    public const uint GIGANTIC_FEAST_REFRESHMENT = 58467;
+    public const uint SMALL_FEAST_REFRESHMENT = 58477;
+    public const uint BOUNTIFUL_FEAST_REFRESHMENT = 66622;
 
     //FuriousRage
-    public const uint Exhaustion = 35492;
+    public const uint EXHAUSTION = 35492;
 
     // Fishingspells
-    public const uint FishingNoFishingPole = 131476;
-    public const uint FishingWithPole = 131490;
+    public const uint FISHING_NO_FISHING_POLE = 131476;
+    public const uint FISHING_WITH_POLE = 131490;
 
     // Transporterbackfires
-    public const uint TransporterMalfunctionPolymorph = 23444;
-    public const uint TransporterEviltwin = 23445;
-    public const uint TransporterMalfunctionMiss = 36902;
+    public const uint TRANSPORTER_MALFUNCTION_POLYMORPH = 23444;
+    public const uint TRANSPORTER_EVILTWIN = 23445;
+    public const uint TRANSPORTER_MALFUNCTION_MISS = 36902;
 
     // Gnomishtransporter
-    public const uint TransporterSuccess = 23441;
-    public const uint TransporterFailure = 23446;
+    public const uint TRANSPORTER_SUCCESS = 23441;
+    public const uint TRANSPORTER_FAILURE = 23446;
 
     // Interrupt
-    public const uint GenThrowInterrupt = 32747;
+    public const uint GEN_THROW_INTERRUPT = 32747;
 
     // Genericlifebloomspells        
-    public const uint HexlordMalacrass = 43422;
-    public const uint TurragePaw = 52552;
-    public const uint CenarionScout = 53692;
-    public const uint TwistedVisage = 57763;
-    public const uint FactionChampionsDru = 66094;
+    public const uint HEXLORD_MALACRASS = 43422;
+    public const uint TURRAGE_PAW = 52552;
+    public const uint CENARION_SCOUT = 53692;
+    public const uint TWISTED_VISAGE = 57763;
+    public const uint FACTION_CHAMPIONS_DRU = 66094;
 
     // Chargespells        
-    public const uint Damage8k5 = 62874;
-    public const uint Damage20k = 68498;
-    public const uint Damage45k = 64591;
+    public const uint DAMAGE8_K5 = 62874;
+    public const uint DAMAGE20_K = 68498;
+    public const uint DAMAGE45_K = 64591;
 
-    public const uint ChargingEffect8k5 = 63661;
-    public const uint Charging20k1 = 68284;
-    public const uint Charging20k2 = 68501;
-    public const uint ChargingEffect45k1 = 62563;
-    public const uint ChargingEffect45k2 = 66481;
+    public const uint CHARGING_EFFECT8_K5 = 63661;
+    public const uint CHARGING20_K1 = 68284;
+    public const uint CHARGING20_K2 = 68501;
+    public const uint CHARGING_EFFECT45_K1 = 62563;
+    public const uint CHARGING_EFFECT45_K2 = 66481;
 
-    public const uint TriggerFactionMounts = 62960;
-    public const uint TriggerTrialChampion = 68282;
+    public const uint TRIGGER_FACTION_MOUNTS = 62960;
+    public const uint TRIGGER_TRIAL_CHAMPION = 68282;
 
-    public const uint MissEffect = 62977;
+    public const uint MISS_EFFECT = 62977;
 
     // MossCoveredFeet
-    public const uint FallDown = 6869;
+    public const uint FALL_DOWN = 6869;
 
     // Netherbloom
-    public const uint NetherBloomPollen1 = 28703;
+    public const uint NETHER_BLOOM_POLLEN1 = 28703;
 
     // Nightmarevine
-    public const uint NightmarePollen = 28721;
+    public const uint NIGHTMARE_POLLEN = 28721;
 
     // Obsidianarmorspells        
-    public const uint Holy = 27536;
-    public const uint Fire = 27533;
-    public const uint Nature = 27538;
-    public const uint Frost = 27534;
-    public const uint Shadow = 27535;
-    public const uint Arcane = 27540;
+    public const uint HOLY = 27536;
+    public const uint FIRE = 27533;
+    public const uint NATURE = 27538;
+    public const uint FROST = 27534;
+    public const uint SHADOW = 27535;
+    public const uint ARCANE = 27540;
 
     // Tournamentpennantspells
-    public const uint StormwindAspirant = 62595;
-    public const uint StormwindValiant = 62596;
-    public const uint StormwindChampion = 62594;
-    public const uint GnomereganAspirant = 63394;
-    public const uint GnomereganValiant = 63395;
-    public const uint GnomereganChampion = 63396;
-    public const uint SenjinAspirant = 63397;
-    public const uint SenjinValiant = 63398;
-    public const uint SenjinChampion = 63399;
-    public const uint SilvermoonAspirant = 63401;
-    public const uint SilvermoonValiant = 63402;
-    public const uint SilvermoonChampion = 63403;
-    public const uint DarnassusAspirant = 63404;
-    public const uint DarnassusValiant = 63405;
-    public const uint DarnassusChampion = 63406;
-    public const uint ExodarAspirant = 63421;
-    public const uint ExodarValiant = 63422;
-    public const uint ExodarChampion = 63423;
-    public const uint IronforgeAspirant = 63425;
-    public const uint IronforgeValiant = 63426;
-    public const uint IronforgeChampion = 63427;
-    public const uint UndercityAspirant = 63428;
-    public const uint UndercityValiant = 63429;
-    public const uint UndercityChampion = 63430;
-    public const uint OrgrimmarAspirant = 63431;
-    public const uint OrgrimmarValiant = 63432;
-    public const uint OrgrimmarChampion = 63433;
-    public const uint ThunderbluffAspirant = 63434;
-    public const uint ThunderbluffValiant = 63435;
-    public const uint ThunderbluffChampion = 63436;
-    public const uint ArgentcrusadeAspirant = 63606;
-    public const uint ArgentcrusadeValiant = 63500;
-    public const uint ArgentcrusadeChampion = 63501;
-    public const uint EbonbladeAspirant = 63607;
-    public const uint EbonbladeValiant = 63608;
-    public const uint EbonbladeChampion = 63609;
+    public const uint STORMWIND_ASPIRANT = 62595;
+    public const uint STORMWIND_VALIANT = 62596;
+    public const uint STORMWIND_CHAMPION = 62594;
+    public const uint GNOMEREGAN_ASPIRANT = 63394;
+    public const uint GNOMEREGAN_VALIANT = 63395;
+    public const uint GNOMEREGAN_CHAMPION = 63396;
+    public const uint SENJIN_ASPIRANT = 63397;
+    public const uint SENJIN_VALIANT = 63398;
+    public const uint SENJIN_CHAMPION = 63399;
+    public const uint SILVERMOON_ASPIRANT = 63401;
+    public const uint SILVERMOON_VALIANT = 63402;
+    public const uint SILVERMOON_CHAMPION = 63403;
+    public const uint DARNASSUS_ASPIRANT = 63404;
+    public const uint DARNASSUS_VALIANT = 63405;
+    public const uint DARNASSUS_CHAMPION = 63406;
+    public const uint EXODAR_ASPIRANT = 63421;
+    public const uint EXODAR_VALIANT = 63422;
+    public const uint EXODAR_CHAMPION = 63423;
+    public const uint IRONFORGE_ASPIRANT = 63425;
+    public const uint IRONFORGE_VALIANT = 63426;
+    public const uint IRONFORGE_CHAMPION = 63427;
+    public const uint UNDERCITY_ASPIRANT = 63428;
+    public const uint UNDERCITY_VALIANT = 63429;
+    public const uint UNDERCITY_CHAMPION = 63430;
+    public const uint ORGRIMMAR_ASPIRANT = 63431;
+    public const uint ORGRIMMAR_VALIANT = 63432;
+    public const uint ORGRIMMAR_CHAMPION = 63433;
+    public const uint THUNDERBLUFF_ASPIRANT = 63434;
+    public const uint THUNDERBLUFF_VALIANT = 63435;
+    public const uint THUNDERBLUFF_CHAMPION = 63436;
+    public const uint ARGENTCRUSADE_ASPIRANT = 63606;
+    public const uint ARGENTCRUSADE_VALIANT = 63500;
+    public const uint ARGENTCRUSADE_CHAMPION = 63501;
+    public const uint EBONBLADE_ASPIRANT = 63607;
+    public const uint EBONBLADE_VALIANT = 63608;
+    public const uint EBONBLADE_CHAMPION = 63609;
 
     // Orcdisguisespells
-    public const uint OrcDisguiseTrigger = 45759;
-    public const uint OrcDisguiseMale = 45760;
-    public const uint OrcDisguiseFemale = 45762;
+    public const uint ORC_DISGUISE_TRIGGER = 45759;
+    public const uint ORC_DISGUISE_MALE = 45760;
+    public const uint ORC_DISGUISE_FEMALE = 45762;
 
     // Paralytic Poison
-    public const uint Paralysis = 35202;
+    public const uint PARALYSIS = 35202;
 
     // Parachutespells
-    public const uint Parachute = 45472;
-    public const uint ParachuteBuff = 44795;
+    public const uint PARACHUTE = 45472;
+    public const uint PARACHUTE_BUFF = 44795;
 
     // ProfessionResearch
-    public const uint NorthrendInscriptionResearch = 61177;
+    public const uint NORTHREND_INSCRIPTION_RESEARCH = 61177;
 
     // Trinketspells
-    public const uint PvpTrinketAlliance = 97403;
-    public const uint PvpTrinketHorde = 97404;
+    public const uint PVP_TRINKET_ALLIANCE = 97403;
+    public const uint PVP_TRINKET_HORDE = 97404;
 
     // Replenishment
-    public const uint Replenishment = 57669;
-    public const uint InfiniteReplenishment = 61782;
+    public const uint REPLENISHMENT = 57669;
+    public const uint INFINITE_REPLENISHMENT = 61782;
 
     // Runningwild
-    public const uint AlteredForm = 97709;
+    public const uint ALTERED_FORM = 97709;
 
     // Seaforiumspells
-    public const uint PlantChargesCreditAchievement = 60937;
+    public const uint PLANT_CHARGES_CREDIT_ACHIEVEMENT = 60937;
 
     // Summonelemental
-    public const uint SummonFireElemental = 8985;
-    public const uint SummonEarthElemental = 19704;
+    public const uint SUMMON_FIRE_ELEMENTAL = 8985;
+    public const uint SUMMON_EARTH_ELEMENTAL = 19704;
 
     // Tournamentmountsspells
-    public const uint LanceEquipped = 62853;
+    public const uint LANCE_EQUIPPED = 62853;
 
     // Mountedduelspells
-    public const uint OnTournamentMount = 63034;
-    public const uint MountedDuel = 62875;
+    public const uint ON_TOURNAMENT_MOUNT = 63034;
+    public const uint MOUNTED_DUEL = 62875;
 
     // Teleporting
-    public const uint TeleportSpireDown = 59316;
-    public const uint TeleportSpireUp = 59314;
+    public const uint TELEPORT_SPIRE_DOWN = 59316;
+    public const uint TELEPORT_SPIRE_UP = 59314;
 
     // Pvptrinkettriggeredspells
-    public const uint WillOfTheForsakenCooldownTrigger = 72752;
-    public const uint WillOfTheForsakenCooldownTriggerWotf = 72757;
+    public const uint WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER = 72752;
+    public const uint WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF = 72757;
 
     // Friendorfowl
-    public const uint TurkeyVengeance = 25285;
+    public const uint TURKEY_VENGEANCE = 25285;
 
     // Vampirictouch
-    public const uint VampiricTouchHeal = 52724;
+    public const uint VAMPIRIC_TOUCH_HEAL = 52724;
 
     // Vehiclescaling
-    public const uint GearScaling = 66668;
+    public const uint GEAR_SCALING = 66668;
 
     // Whispergulchyoggsaronwhisper
-    public const uint YoggSaronWhisperDummy = 29072;
+    public const uint YOGG_SARON_WHISPER_DUMMY = 29072;
 
     // Gmfreeze
-    public const uint GmFreeze = 9454;
+    public const uint GM_FREEZE = 9454;
 
     // Landmineknockbackachievement        
-    public const uint LandmineKnockbackAchievement = 57064;
+    public const uint LANDMINE_KNOCKBACK_ACHIEVEMENT = 57064;
 
     // Ponyspells
-    public const uint AchievementPonyup = 3736;
-    public const uint MountPony = 29736;
+    public const uint ACHIEVEMENT_PONYUP = 3736;
+    public const uint MOUNT_PONY = 29736;
 
     // CorruptinPlagueEntrys
-    public const uint CorruptingPlague = 40350;
+    public const uint CORRUPTING_PLAGUE = 40350;
 
     // StasisFieldEntrys
-    public const uint StasisField = 40307;
+    public const uint STASIS_FIELD = 40307;
 
     // SiegeTankControl
-    public const uint SiegeTankControl = 47963;
+    public const uint SIEGE_TANK_CONTROL = 47963;
 
     // CannonBlast
-    public const uint CannonBlast = 42578;
-    public const uint CannonBlastDamage = 42576;
+    public const uint CANNON_BLAST = 42578;
+    public const uint CANNON_BLAST_DAMAGE = 42576;
 
     // FreezingCircleMisc
-    public const uint FreezingCirclePitOfSaronNormal = 69574;
-    public const uint FreezingCirclePitOfSaronHeroic = 70276;
-    public const uint FreezingCircle = 34787;
-    public const uint FreezingCircleScenario = 141383;
+    public const uint FREEZING_CIRCLE_PIT_OF_SARON_NORMAL = 69574;
+    public const uint FREEZING_CIRCLE_PIT_OF_SARON_HEROIC = 70276;
+    public const uint FREEZING_CIRCLE = 34787;
+    public const uint FREEZING_CIRCLE_SCENARIO = 141383;
 
     // Kazrogalhellfiremark
-    public const uint MarkOfKazrogalHellfire = 189512;
-    public const uint MarkOfKazrogalDamageHellfire = 189515;
+    public const uint MARK_OF_KAZROGAL_HELLFIRE = 189512;
+    public const uint MARK_OF_KAZROGAL_DAMAGE_HELLFIRE = 189515;
 
     // AuraprocRemovespells
-    public const uint FaceRage = 99947;
-    public const uint ImpatientMind = 187213;
+    public const uint FACE_RAGE = 99947;
+    public const uint IMPATIENT_MIND = 187213;
 
     // DefenderOfAzerothData
-    public const uint DeathGateTeleportStormwind = 316999;
-    public const uint DeathGateTeleportOrgrimmar = 317000;
+    public const uint DEATH_GATE_TELEPORT_STORMWIND = 316999;
+    public const uint DEATH_GATE_TELEPORT_ORGRIMMAR = 317000;
 
     // AncestralCallSpells
-    public const uint RictusOfTheLaughingSkull = 274739;
-    public const uint ZealOfTheBurningBlade = 274740;
-    public const uint FerocityOfTheFrostwolf = 274741;
-    public const uint MightOfTheBlackrock = 274742;
+    public const uint RICTUS_OF_THE_LAUGHING_SKULL = 274739;
+    public const uint ZEAL_OF_THE_BURNING_BLADE = 274740;
+    public const uint FEROCITY_OF_THE_FROSTWOLF = 274741;
+    public const uint MIGHT_OF_THE_BLACKROCK = 274742;
 }
 
 // 430 Drink

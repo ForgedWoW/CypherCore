@@ -3,15 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(194913)]
-public class spell_dk_glacial_advance : SpellScript, IHasSpellEffects
+public class SpellDkGlacialAdvance : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -33,7 +34,7 @@ public class spell_dk_glacial_advance : SpellScript, IHasSpellEffects
                                            {
                                                var targetPosition = new Position(castPosition);
                                                caster.MovePosition(targetPosition, dist, 0.0f);
-                                               caster.CastSpell(targetPosition, DeathKnightSpells.GLACIAL_ADVANCE_DAMAGE, true);
+                                               caster.SpellFactory.CastSpell(targetPosition, DeathKnightSpells.GLACIAL_ADVANCE_DAMAGE, true);
                                            },
                                            TimeSpan.FromMilliseconds(dist / 1.5f * 50.0f));
     }

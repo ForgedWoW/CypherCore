@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // Script to handle the dummy proc of 16196
 [SpellScript(16196)]
-public class spell_sha_resurgence : AuraScript, IAuraOnProc, IAuraCheckProc
+public class SpellShaResurgence : AuraScript, IAuraOnProc, IAuraCheckProc
 {
     // Spell cannot proc if caster doesn't have aura 52127
     public bool CheckProc(ProcEventInfo procInfo)
@@ -71,7 +71,7 @@ public class spell_sha_resurgence : AuraScript, IAuraOnProc, IAuraCheckProc
                             return;
                     } //switch damageInfo->GetSpellInfo()->Id
 
-                    target.CastSpell(target, Resurgence.RESURGENCE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)healAmount));
+                    target.SpellFactory.CastSpell(target, Resurgence.RESURGENCE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)healAmount));
                 } // if procInfo.GetDamageInfo()
             }     // if target->CalculateSpellDamage()
         }         // if procInfo.GetActor()

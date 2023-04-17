@@ -3,7 +3,7 @@
 
 namespace Scripts.EasternKingdoms.Deadmines;
 
-public static class DMSharedSpells
+public static class DmSharedSpells
 {
     public const uint NIGHTMARE_ELIXIR = 92113;
     public const uint OFFLINE = 88348;

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [Script] //  93402 - Sunfire
-internal class spell_dru_sunfire : SpellScript, IHasSpellEffects
+internal class SpellDruSunfire : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -20,6 +21,6 @@ internal class spell_dru_sunfire : SpellScript, IHasSpellEffects
 
     private void HandleOnHit(int effIndex)
     {
-        Caster.CastSpell(HitUnit, DruidSpellIds.SunfireDamage, true);
+        Caster.SpellFactory.CastSpell(HitUnit, DruidSpellIds.SunfireDamage, true);
     }
 }

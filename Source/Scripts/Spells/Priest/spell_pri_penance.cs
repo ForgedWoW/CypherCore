@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 47540 - Penance
-internal class spell_pri_penance : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellPriPenance : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -46,9 +47,9 @@ internal class spell_pri_penance : SpellScript, ISpellCheckCast, IHasSpellEffect
         if (target)
         {
             if (caster.IsFriendlyTo(target))
-                caster.CastSpell(target, PriestSpells.PENANCE_CHANNEL_HEALING, new CastSpellExtraArgs().SetTriggeringSpell(Spell));
+                caster.SpellFactory.CastSpell(target, PriestSpells.PENANCE_CHANNEL_HEALING, new CastSpellExtraArgs().SetTriggeringSpell(Spell));
             else
-                caster.CastSpell(target, PriestSpells.PENANCE_CHANNEL_DAMAGE, new CastSpellExtraArgs().SetTriggeringSpell(Spell));
+                caster.SpellFactory.CastSpell(target, PriestSpells.PENANCE_CHANNEL_DAMAGE, new CastSpellExtraArgs().SetTriggeringSpell(Spell));
         }
     }
 }

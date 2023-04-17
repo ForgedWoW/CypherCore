@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 57345 - Darkmoon Card: Greatness
-internal class spell_item_darkmoon_card_greatness : AuraScript, IHasAuraEffects
+internal class SpellItemDarkmoonCardGreatness : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -32,32 +33,32 @@ internal class spell_item_darkmoon_card_greatness : AuraScript, IHasAuraEffects
         var vers = 0.0f; // caster.GetStat(STAT_VERSATILITY);
         var stat = 0.0f;
 
-        var spellTrigger = ItemSpellIds.DarkmoonCardStrenght;
+        var spellTrigger = ItemSpellIds.DARKMOON_CARD_STRENGHT;
 
         if (str > stat)
         {
-            spellTrigger = ItemSpellIds.DarkmoonCardStrenght;
+            spellTrigger = ItemSpellIds.DARKMOON_CARD_STRENGHT;
             stat = str;
         }
 
         if (agi > stat)
         {
-            spellTrigger = ItemSpellIds.DarkmoonCardAgility;
+            spellTrigger = ItemSpellIds.DARKMOON_CARD_AGILITY;
             stat = agi;
         }
 
         if (intl > stat)
         {
-            spellTrigger = ItemSpellIds.DarkmoonCardIntellect;
+            spellTrigger = ItemSpellIds.DARKMOON_CARD_INTELLECT;
             stat = intl;
         }
 
         if (vers > stat)
         {
-            spellTrigger = ItemSpellIds.DarkmoonCardVersatility;
+            spellTrigger = ItemSpellIds.DARKMOON_CARD_VERSATILITY;
             stat = vers;
         }
 
-        caster.CastSpell(caster, spellTrigger, new CastSpellExtraArgs(aurEff));
+        caster.SpellFactory.CastSpell(caster, spellTrigger, new CastSpellExtraArgs(aurEff));
     }
 }

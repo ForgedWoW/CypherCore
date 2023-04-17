@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warrior;
 
 // 203179 - Opportunity Strike
 [SpellScript(203179)]
-public class spell_warr_opportunity_strike : AuraScript, IAuraOnProc
+public class SpellWarrOpportunityStrike : AuraScript, IAuraOnProc
 {
     public void OnProc(ProcEventInfo eventInfo)
     {
@@ -23,9 +23,9 @@ public class spell_warr_opportunity_strike : AuraScript, IAuraOnProc
 
         if (target != null)
         {
-            var _player = Caster.AsPlayer;
+            var player = Caster.AsPlayer;
 
-            if (_player != null)
+            if (player != null)
             {
                 var aur = Aura;
 
@@ -35,7 +35,7 @@ public class spell_warr_opportunity_strike : AuraScript, IAuraOnProc
 
                     if (eff != null)
                         if (RandomHelper.randChance(eff.Amount))
-                            _player.CastSpell(target, WarriorSpells.OPPORTUNITY_STRIKE_DAMAGE, true);
+                            player.SpellFactory.CastSpell(target, WarriorSpells.OPPORTUNITY_STRIKE_DAMAGE, true);
                 }
             }
         }

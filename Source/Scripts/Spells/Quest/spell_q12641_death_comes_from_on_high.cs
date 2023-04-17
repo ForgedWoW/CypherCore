@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 51858 - Siphon of Acherus
-internal class spell_q12641_death_comes_from_on_high : SpellScript, IHasSpellEffects
+internal class SpellQ12641DeathComesFromOnHigh : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,26 +27,26 @@ internal class spell_q12641_death_comes_from_on_high : SpellScript, IHasSpellEff
 
         switch (HitCreature.Entry)
         {
-            case CreatureIds.NewAvalonForge:
-                spellId = QuestSpellIds.ForgeCredit;
+            case CreatureIds.NEW_AVALON_FORGE:
+                spellId = QuestSpellIds.FORGE_CREDIT;
 
                 break;
-            case CreatureIds.NewAvalonTownHall:
-                spellId = QuestSpellIds.TownHallCredit;
+            case CreatureIds.NEW_AVALON_TOWN_HALL:
+                spellId = QuestSpellIds.TOWN_HALL_CREDIT;
 
                 break;
-            case CreatureIds.ScarletHold:
-                spellId = QuestSpellIds.ScarletHoldCredit;
+            case CreatureIds.SCARLET_HOLD:
+                spellId = QuestSpellIds.SCARLET_HOLD_CREDIT;
 
                 break;
-            case CreatureIds.ChapelOfTheCrimsonFlame:
-                spellId = QuestSpellIds.ChapelCredit;
+            case CreatureIds.CHAPEL_OF_THE_CRIMSON_FLAME:
+                spellId = QuestSpellIds.CHAPEL_CREDIT;
 
                 break;
             default:
                 return;
         }
 
-        Caster.CastSpell((Unit)null, spellId, true);
+        Caster.SpellFactory.CastSpell((Unit)null, spellId, true);
     }
 }

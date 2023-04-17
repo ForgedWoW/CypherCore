@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class npc_dk_defile : ScriptedAI
+public class NPCDkDefile : ScriptedAI
 {
-    public npc_dk_defile(Creature creature) : base(creature)
+    public NPCDkDefile(Creature creature) : base(creature)
     {
         SetCombatMovement(false);
         Me.ReactState = ReactStates.Passive;

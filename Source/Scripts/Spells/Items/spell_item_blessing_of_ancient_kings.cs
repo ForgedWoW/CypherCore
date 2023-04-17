@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 64411 - Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
-internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellItemBlessingOfAncientKings : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -38,7 +39,7 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
             return;
 
         var absorb = (int)MathFunctions.CalculatePct(healInfo.Heal, 15.0f);
-        var protEff = eventInfo.ProcTarget.GetAuraEffect(ItemSpellIds.ProtectionOfAncientKings, 0, eventInfo.Actor.GUID);
+        var protEff = eventInfo.ProcTarget.GetAuraEffect(ItemSpellIds.PROTECTION_OF_ANCIENT_KINGS, 0, eventInfo.Actor.GUID);
 
         if (protEff != null)
         {
@@ -52,7 +53,7 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
         {
             CastSpellExtraArgs args = new(aurEff);
             args.AddSpellMod(SpellValueMod.BasePoint0, absorb);
-            Target.CastSpell(eventInfo.ProcTarget, ItemSpellIds.ProtectionOfAncientKings, args);
+            Target.SpellFactory.CastSpell(eventInfo.ProcTarget, ItemSpellIds.PROTECTION_OF_ANCIENT_KINGS, args);
         }
     }
 }

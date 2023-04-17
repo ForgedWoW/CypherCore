@@ -2,23 +2,23 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellGenCloneWeaponAuraScript : AuraScript, IHasAuraEffects
 {
-    private uint prevItem;
+    private uint _prevItem;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
     public override bool Load()
     {
-        prevItem = 0;
+        _prevItem = 0;
 
         return true;
     }
@@ -39,11 +39,11 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
         switch (SpellInfo.Id)
         {
-            case GenericSpellIds.WeaponAura:
-            case GenericSpellIds.Weapon2Aura:
-            case GenericSpellIds.Weapon3Aura:
+            case GenericSpellIds.WEAPON_AURA:
+            case GenericSpellIds.WEAPON2_AURA:
+            case GenericSpellIds.WEAPON3_AURA:
             {
-                prevItem = target.GetVirtualItemId(0);
+                _prevItem = target.GetVirtualItemId(0);
 
                 var player = caster.AsPlayer;
 
@@ -61,10 +61,10 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
                 break;
             }
-            case GenericSpellIds.OffhandAura:
-            case GenericSpellIds.Offhand2Aura:
+            case GenericSpellIds.OFFHAND_AURA:
+            case GenericSpellIds.OFFHAND2_AURA:
             {
-                prevItem = target.GetVirtualItemId(1);
+                _prevItem = target.GetVirtualItemId(1);
 
                 var player = caster.AsPlayer;
 
@@ -82,9 +82,9 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
                 break;
             }
-            case GenericSpellIds.RangedAura:
+            case GenericSpellIds.RANGED_AURA:
             {
-                prevItem = target.GetVirtualItemId(2);
+                _prevItem = target.GetVirtualItemId(2);
 
                 var player = caster.AsPlayer;
 
@@ -102,7 +102,6 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
                 break;
             }
-            
         }
     }
 
@@ -112,22 +111,21 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
         switch (SpellInfo.Id)
         {
-            case GenericSpellIds.WeaponAura:
-            case GenericSpellIds.Weapon2Aura:
-            case GenericSpellIds.Weapon3Aura:
-                target.SetVirtualItem(0, prevItem);
+            case GenericSpellIds.WEAPON_AURA:
+            case GenericSpellIds.WEAPON2_AURA:
+            case GenericSpellIds.WEAPON3_AURA:
+                target.SetVirtualItem(0, _prevItem);
 
                 break;
-            case GenericSpellIds.OffhandAura:
-            case GenericSpellIds.Offhand2Aura:
-                target.SetVirtualItem(1, prevItem);
+            case GenericSpellIds.OFFHAND_AURA:
+            case GenericSpellIds.OFFHAND2_AURA:
+                target.SetVirtualItem(1, _prevItem);
 
                 break;
-            case GenericSpellIds.RangedAura:
-                target.SetVirtualItem(2, prevItem);
+            case GenericSpellIds.RANGED_AURA:
+                target.SetVirtualItem(2, _prevItem);
 
                 break;
-            
         }
     }
 }

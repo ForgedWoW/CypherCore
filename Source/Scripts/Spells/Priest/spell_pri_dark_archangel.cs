@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(197871)]
-public class spell_pri_dark_archangel : SpellScript, IHasSpellEffects
+public class SpellPriDarkArchangel : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -30,6 +31,6 @@ public class spell_pri_dark_archangel : SpellScript, IHasSpellEffects
 
     private void HandleScriptEffect(int effIndex)
     {
-        Caster.CastSpell(HitUnit, PriestSpells.DARK_ARCHANGEL_BUFF, true);
+        Caster.SpellFactory.CastSpell(HitUnit, PriestSpells.DARK_ARCHANGEL_BUFF, true);
     }
 }

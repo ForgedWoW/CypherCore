@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(774)]
-public class spell_dru_rejuvenation_AuraScript : AuraScript, IHasAuraEffects
+public class SpellDruRejuvenationAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,51 +27,51 @@ public class spell_dru_rejuvenation_AuraScript : AuraScript, IHasAuraEffects
         //  AfterEffectRemove += AuraEffectRemoveFn(spell_dru_rejuvenation::AfterRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real);
     }
 
-    private void HandleCalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void HandleCalculateAmount(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
-        var l_Caster = Caster;
+        var lCaster = Caster;
 
-        if (l_Caster != null)
+        if (lCaster != null)
             ///If soul of the forest is activated we increase the heal by 100%
-            if (l_Caster.HasAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO) && !l_Caster.HasAura(DruidSpells.REJUVENATION))
+            if (lCaster.HasAura(SoulOfTheForestSpells.SoulOfTheForestResto) && !lCaster.HasAura(DruidSpells.Rejuvenation))
             {
                 amount.Value *= 2;
-                l_Caster.RemoveAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO);
+                lCaster.RemoveAura(SoulOfTheForestSpells.SoulOfTheForestResto);
             }
     }
 
-    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
         if (caster == null)
             return;
 
-        var GlyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
+        var glyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
 
-        if (GlyphOfRejuvenation != null)
+        if (glyphOfRejuvenation != null)
         {
-            GlyphOfRejuvenation.SetAmount(GlyphOfRejuvenation.Amount + 1);
+            glyphOfRejuvenation.SetAmount(glyphOfRejuvenation.Amount + 1);
 
-            if (GlyphOfRejuvenation.Amount >= 3)
-                caster.CastSpell(caster, Spells.GlyphofRejuvenationEffect, true);
+            if (glyphOfRejuvenation.Amount >= 3)
+                caster.SpellFactory.CastSpell(caster, Spells.GlyphofRejuvenationEffect, true);
         }
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
         if (caster == null)
             return;
 
-        var l_GlyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
+        var lGlyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
 
-        if (l_GlyphOfRejuvenation != null)
+        if (lGlyphOfRejuvenation != null)
         {
-            l_GlyphOfRejuvenation.SetAmount(l_GlyphOfRejuvenation.Amount - 1);
+            lGlyphOfRejuvenation.SetAmount(lGlyphOfRejuvenation.Amount - 1);
 
-            if (l_GlyphOfRejuvenation.Amount < 3)
+            if (lGlyphOfRejuvenation.Amount < 3)
                 caster.RemoveAura(Spells.GlyphofRejuvenationEffect);
         }
     }

@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 194509 - Power Word: Radiance
-internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
+internal class SpellPriPowerWordRadiance : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -58,7 +59,7 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
         var durationPct = GetEffectInfo(3).CalcValue(caster);
 
         if (caster.HasAura(PriestSpells.ATONEMENT))
-            caster.CastSpell(HitUnit, PriestSpells.ATONEMENT_TRIGGERED, new CastSpellExtraArgs(SpellValueMod.DurationPct, durationPct).SetTriggerFlags(TriggerCastFlags.FullMask));
+            caster.SpellFactory.CastSpell(HitUnit, PriestSpells.ATONEMENT_TRIGGERED, new CastSpellExtraArgs(SpellValueMod.DurationPct, durationPct).SetTriggerFlags(TriggerCastFlags.FullMask));
     }
 
     private Tuple<bool, bool> MakeSortTuple(WorldObject obj)

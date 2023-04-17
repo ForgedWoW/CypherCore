@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Meteor Strike - 171152
 [SpellScript(171152)]
-public class spell_warl_meteor_strike : SpellScript, ISpellAfterHit, ISpellCheckCast
+public class SpellWarlMeteorStrike : SpellScript, ISpellAfterHit, ISpellCheckCast
 {
     public void AfterHit()
     {
@@ -23,7 +23,7 @@ public class spell_warl_meteor_strike : SpellScript, ISpellAfterHit, ISpellCheck
         /*if (pet->GetEntry() != PET_ENTRY_INFERNAL)
             return;*/
 
-        pet.CastSpell(pet, WarlockSpells.INFERNAL_METEOR_STRIKE, true);
+        pet.SpellFactory.CastSpell(pet, WarlockSpells.INFERNAL_METEOR_STRIKE, true);
 
         caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(60));
     }

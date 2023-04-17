@@ -2,27 +2,27 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 //AT id : 3691
 //Spell ID : 61882
 [Script]
-public class at_sha_earthquake_totem : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
+public class AtShaEarthquakeTotem : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
-    public int timeInterval;
+    public int TimeInterval;
 
     public void OnCreate()
     {
-        timeInterval = 200;
+        TimeInterval = 200;
     }
 
-    public void OnUpdate(uint p_Time)
+    public void OnUpdate(uint pTime)
     {
         var caster = At.GetCaster();
 
@@ -33,9 +33,9 @@ public class at_sha_earthquake_totem : AreaTriggerScript, IAreaTriggerOnCreate, 
             return;
 
         // Check if we can handle actions
-        timeInterval += (int)p_Time;
+        TimeInterval += (int)pTime;
 
-        if (timeInterval < 1000)
+        if (TimeInterval < 1000)
             return;
 
         var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(200));
@@ -46,13 +46,13 @@ public class at_sha_earthquake_totem : AreaTriggerScript, IAreaTriggerOnCreate, 
             tempSumm.SetSummonerGUID(caster.GUID);
             PhasingHandler.InheritPhaseShift(tempSumm, caster);
 
-            tempSumm.CastSpell(caster,
+            tempSumm.SpellFactory.CastSpell(caster,
                                UsedSpells.EARTHQUAKE_DAMAGE,
                                new CastSpellExtraArgs(TriggerCastFlags.FullMask)
                                    .AddSpellMod(SpellValueMod.BasePoint0, (int)(caster.GetTotalSpellPowerValue(SpellSchoolMask.Normal, false) * 0.3)));
         }
 
-        timeInterval -= 1000;
+        TimeInterval -= 1000;
     }
 
     public struct UsedSpells

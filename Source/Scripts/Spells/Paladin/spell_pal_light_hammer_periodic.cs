@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(114918)] // 114918 - Light's Hammer (Periodic)
-internal class spell_pal_light_hammer_periodic : AuraScript, IHasAuraEffects
+internal class SpellPalLightHammerPeriodic : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,8 +28,8 @@ internal class spell_pal_light_hammer_periodic : AuraScript, IHasAuraEffects
 
         if (originalCaster != null)
         {
-            originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-            originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerHealing, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+            originalCaster.SpellFactory.CastSpell(lightHammer.Location, PaladinSpells.LIGHT_HAMMER_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+            originalCaster.SpellFactory.CastSpell(lightHammer.Location, PaladinSpells.LIGHT_HAMMER_HEALING, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
         }
     }
 }

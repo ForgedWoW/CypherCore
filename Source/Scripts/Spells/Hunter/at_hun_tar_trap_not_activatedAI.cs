@@ -2,27 +2,28 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_tar_trap_not_activatedAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
+public class AtHunTarTrapNotActivatedAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
     public enum UsedSpells
     {
-        ACTIVATE_TAR_TRAP = 187700
+        ActivateTarTrap = 187700
     }
 
-    public int timeInterval;
+    public int TimeInterval;
 
     public void OnCreate()
     {
-        timeInterval = 200;
+        TimeInterval = 200;
         var caster = At.GetCaster();
 
         if (caster == null)
@@ -44,7 +45,7 @@ public class at_hun_tar_trap_not_activatedAI : AreaTriggerScript, IAreaTriggerOn
                     tempSumm.Faction = caster.Faction;
                     tempSumm.SetSummonerGUID(caster.GUID);
                     PhasingHandler.InheritPhaseShift(tempSumm, caster);
-                    caster.CastSpell(tempSumm, UsedSpells.ACTIVATE_TAR_TRAP, true);
+                    caster.SpellFactory.CastSpell(tempSumm, UsedSpells.ActivateTarTrap, true);
                     At.Remove();
                 }
             }
@@ -70,7 +71,7 @@ public class at_hun_tar_trap_not_activatedAI : AreaTriggerScript, IAreaTriggerOn
                 tempSumm.Faction = caster.Faction;
                 tempSumm.SetSummonerGUID(caster.GUID);
                 PhasingHandler.InheritPhaseShift(tempSumm, caster);
-                caster.CastSpell(tempSumm, UsedSpells.ACTIVATE_TAR_TRAP, true);
+                caster.SpellFactory.CastSpell(tempSumm, UsedSpells.ActivateTarTrap, true);
                 At.Remove();
             }
         }

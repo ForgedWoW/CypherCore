@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 19483 - Immolation
-public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
+public class SpellWarlockInfernalImmolation : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,7 +21,7 @@ public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
     }
 
 
-    private void PeriodicTick(AuraEffect UnnamedParameter)
+    private void PeriodicTick(AuraEffect unnamedParameter)
     {
         PreventDefaultAction();
         var caster = Caster;
@@ -28,6 +29,6 @@ public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
         if (caster == null)
             return;
 
-        caster.CastSpell(caster, WarlockSpells.IMMOLATION_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.OwnerGUID));
+        caster.SpellFactory.CastSpell(caster, WarlockSpells.IMMOLATION_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.OwnerGUID));
     }
 }

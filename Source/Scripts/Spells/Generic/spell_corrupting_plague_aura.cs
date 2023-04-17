@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 40349 - Corrupting Plague
-internal class spell_corrupting_plague_aura : AuraScript, IHasAuraEffects
+internal class SpellCorruptingPlagueAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,9 +27,9 @@ internal class spell_corrupting_plague_aura : AuraScript, IHasAuraEffects
         var owner = Target;
 
         List<Creature> targets = new();
-        CorruptingPlagueSearcher creature_check = new(owner, 15.0f);
-        CreatureListSearcher creature_searcher = new(owner, targets, creature_check, GridType.Grid);
-        Cell.VisitGrid(owner, creature_searcher, 15.0f);
+        CorruptingPlagueSearcher creatureCheck = new(owner, 15.0f);
+        CreatureListSearcher creatureSearcher = new(owner, targets, creatureCheck, GridType.Grid);
+        Cell.VisitGrid(owner, creatureSearcher, 15.0f);
 
         if (!targets.Empty())
             return;

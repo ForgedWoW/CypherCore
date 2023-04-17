@@ -3,7 +3,7 @@
 
 namespace Scripts.EasternKingdoms.Deadmines;
 
-public static class DMCreatures
+public static class DmCreatures
 {
     public const uint NPC_GLUBTOK = 47162;
     public const uint NPC_OAF = 47297;

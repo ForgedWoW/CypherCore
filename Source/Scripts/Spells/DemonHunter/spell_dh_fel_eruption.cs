@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(211881)]
-public class spell_dh_fel_eruption : SpellScript, ISpellBeforeHit, ISpellOnHit
+public class SpellDhFelEruption : SpellScript, ISpellBeforeHit, ISpellOnHit
 {
     public void BeforeHit(SpellMissInfo missInfo)
     {
@@ -20,7 +20,7 @@ public class spell_dh_fel_eruption : SpellScript, ISpellBeforeHit, ISpellOnHit
             return;
 
         if (missInfo == SpellMissInfo.Immune || missInfo == SpellMissInfo.Immune2)
-            caster.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 2));
+            caster.SpellFactory.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 2));
     }
 
     public void OnHit()
@@ -31,6 +31,6 @@ public class spell_dh_fel_eruption : SpellScript, ISpellBeforeHit, ISpellOnHit
         if (caster == null || target == null)
             return;
 
-        caster.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 1));
+        caster.SpellFactory.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 1));
     }
 }

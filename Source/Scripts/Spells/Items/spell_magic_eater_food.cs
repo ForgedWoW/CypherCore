@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 58886 - Food
-internal class spell_magic_eater_food : AuraScript, IHasAuraEffects
+internal class SpellMagicEaterFood : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,27 +27,27 @@ internal class spell_magic_eater_food : AuraScript, IHasAuraEffects
         switch (RandomHelper.URand(0, 5))
         {
             case 0:
-                target.CastSpell(target, ItemSpellIds.WildMagic, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.WILD_MAGIC, true);
 
                 break;
             case 1:
-                target.CastSpell(target, ItemSpellIds.WellFed1, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.WELL_FED1, true);
 
                 break;
             case 2:
-                target.CastSpell(target, ItemSpellIds.WellFed2, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.WELL_FED2, true);
 
                 break;
             case 3:
-                target.CastSpell(target, ItemSpellIds.WellFed3, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.WELL_FED3, true);
 
                 break;
             case 4:
-                target.CastSpell(target, ItemSpellIds.WellFed4, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.WELL_FED4, true);
 
                 break;
             case 5:
-                target.CastSpell(target, ItemSpellIds.WellFed5, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.WELL_FED5, true);
 
                 break;
         }

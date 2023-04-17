@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 50546 - The Focus on the Beach: Ley Line Focus Control Ring Effect
-internal class spell_q12066_bunny_kill_credit : SpellScript, IHasSpellEffects
+internal class SpellQ12066BunnyKillCredit : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,6 +24,6 @@ internal class spell_q12066_bunny_kill_credit : SpellScript, IHasSpellEffects
         var target = HitCreature;
 
         if (target)
-            target.CastSpell(Caster, QuestSpellIds.BunnyCreditBeam, false);
+            target.SpellFactory.CastSpell(Caster, QuestSpellIds.BUNNY_CREDIT_BEAM, false);
     }
 }

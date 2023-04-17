@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [Script] // 109132 - Roll
-internal class spell_monk_roll : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellMonkRoll : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,10 +32,10 @@ internal class spell_monk_roll : SpellScript, ISpellCheckCast, IHasSpellEffects
     private void HandleDummy(int effIndex)
     {
         Caster
-            .CastSpell(Caster,
-                       Caster.HasUnitMovementFlag(MovementFlag.Backward) ? MonkSpells.RollBackward : MonkSpells.RollForward,
+            .SpellFactory.CastSpell(Caster,
+                       Caster.HasUnitMovementFlag(MovementFlag.Backward) ? MonkSpells.RollBackward : MonkSpells.ROLL_FORWARD,
                        new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
 
-        Caster.CastSpell(Caster, MonkSpells.NoFeatherFall, true);
+        Caster.SpellFactory.CastSpell(Caster, MonkSpells.NO_FEATHER_FALL, true);
     }
 }

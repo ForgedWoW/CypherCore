@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(205604)]
-public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
+public class SpellDhReverseMagic : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {
@@ -20,19 +21,19 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
         if (player == null || !player.AsPlayer)
             return;
 
-        Unit _player = player.AsPlayer;
+        Unit player = player.AsPlayer;
 
         var allies = new List<Unit>();
-        var check = new AnyFriendlyUnitInObjectRangeCheck(_player, _player, 10.0f, true);
-        var searcher = new UnitListSearcher(_player, allies, check, GridType.All);
-        Cell.VisitGrid(_player, searcher, 10.0f);
+        var check = new AnyFriendlyUnitInObjectRangeCheck(player, player, 10.0f, true);
+        var searcher = new UnitListSearcher(player, allies, check, GridType.All);
+        Cell.VisitGrid(player, searcher, 10.0f);
 
         foreach (var unit in allies)
         {
-            var auraListToRemove = new SortedSet<auraData>();
-            var AuraList = unit.GetAppliedAurasQuery();
+            var auraListToRemove = new SortedSet<AuraData>();
+            var auraList = unit.GetAppliedAurasQuery();
 
-            foreach (var iter in AuraList.IsPositive(false).GetResults())
+            foreach (var iter in auraList.IsPositive(false).GetResults())
             {
                 var aura = iter.Base;
 
@@ -91,11 +92,11 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
                     targetAura.SetNeedClientUpdateForTargets();
                 }
 
-                auraListToRemove.Add(new auraData(aura.Id, caster.GUID));
+                auraListToRemove.Add(new AuraData(aura.Id, caster.GUID));
             }
 
             foreach (var aura in auraListToRemove)
-                unit.RemoveAura(aura.m_id, aura.m_casterGuid);
+                unit.RemoveAura(aura.MID, aura.MCasterGuid);
 
             auraListToRemove.Clear();
         }

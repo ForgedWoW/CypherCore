@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 //383185,
 [SpellScript(383185)]
-public class spell_paladin_exorcism : SpellScript, ISpellOnHit
+public class SpellPaladinExorcism : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -21,8 +22,8 @@ public class spell_paladin_exorcism : SpellScript, ISpellOnHit
         if (player != null)
         {
             var damage = player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
-            var dot_damage = (damage * 0.23f * 6);
-            HitUnit.CastSpell(HitUnit, PaladinSpells.EXORCISM_DF, damage);
+            var dotDamage = (damage * 0.23f * 6);
+            HitUnit.SpellFactory.CastSpell(HitUnit, PaladinSpells.EXORCISM_DF, damage);
 
             if (HitUnit.HasAura(26573))
             {
@@ -31,11 +32,11 @@ public class spell_paladin_exorcism : SpellScript, ISpellOnHit
                 var searcher = new UnitListSearcher(HitUnit, targets, check, GridType.All);
 
                 for (var i = targets.GetEnumerator(); i.MoveNext();)
-                    HitUnit.CastSpell(i.Current, PaladinSpells.EXORCISM_DF, damage);
+                    HitUnit.SpellFactory.CastSpell(i.Current, PaladinSpells.EXORCISM_DF, damage);
             }
 
             if (HitUnit.CreatureType == CreatureType.Undead || HitUnit.CreatureType == CreatureType.Demon)
-                HitUnit.CastSpell(HitUnit, AuraType.ModStun, true);
+                HitUnit.SpellFactory.CastSpell(HitUnit, AuraType.ModStun, true);
         }
     }
 }

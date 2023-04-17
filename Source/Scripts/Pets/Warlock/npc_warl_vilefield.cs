@@ -1,19 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Pets
 {
     namespace Warlock
     {
         [CreatureScript(135816)]
-        public class npc_warl_vilefield : SmartAI
+        public class NPCWarlVilefield : SmartAI
         {
-            public npc_warl_vilefield(Creature creature) : base(creature)
+            public NPCWarlVilefield(Creature creature) : base(creature)
             {
                 if (!Me.TryGetOwner(out Player owner))
                     return;

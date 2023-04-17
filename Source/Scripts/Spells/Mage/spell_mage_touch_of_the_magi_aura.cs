@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 210824 - Touch of the Magi (Aura)
-internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
+internal class SpellMageTouchOfTheMagiAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -47,6 +48,6 @@ internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
 
         var caster = Caster;
 
-        caster?.CastSpell(Target, MageSpells.TouchOfTheMagiExplode, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
+        caster?.SpellFactory.CastSpell(Target, MageSpells.TOUCH_OF_THE_MAGI_EXPLODE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
     }
 }

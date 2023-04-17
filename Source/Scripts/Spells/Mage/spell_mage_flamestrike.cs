@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(2120)]
-public class spell_mage_flamestrike : SpellScript, ISpellAfterCast, IHasSpellEffects
+public class SpellMageFlamestrike : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,7 +23,7 @@ public class spell_mage_flamestrike : SpellScript, ISpellAfterCast, IHasSpellEff
             return;
 
         if (caster.HasAura(MageSpells.FLAME_PATCH))
-            caster.CastSpell(dest, MageSpells.FLAME_PATCH_TRIGGER, true);
+            caster.SpellFactory.CastSpell(dest, MageSpells.FLAME_PATCH_TRIGGER, true);
     }
 
     public override void Register()
@@ -51,7 +52,7 @@ public class spell_mage_flamestrike : SpellScript, ISpellAfterCast, IHasSpellEff
                         if (caster.HasAura(MageSpells.HEATING_UP))
                             caster.RemoveAura(MageSpells.HEATING_UP);
 
-                        caster.CastSpell(caster, MageSpells.HOT_STREAK, true);
+                        caster.SpellFactory.CastSpell(caster, MageSpells.HOT_STREAK, true);
                     }
             }
         }

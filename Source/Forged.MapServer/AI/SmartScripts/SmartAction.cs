@@ -9,247 +9,247 @@ namespace Forged.MapServer.AI.SmartScripts;
 [StructLayout(LayoutKind.Explicit)]
 public struct SmartAction
 {
-    [FieldOffset(0)] public SmartActions type;
+    [FieldOffset(0)] public SmartActions Type;
 
-    [FieldOffset(4)] public Talk talk;
+    [FieldOffset(4)] public AiTalk Talk;
 
-    [FieldOffset(4)] public SimpleTalk simpleTalk;
+    [FieldOffset(4)] public AiSimpleTalk SimpleTalk;
 
-    [FieldOffset(4)] public Faction faction;
+    [FieldOffset(4)] public AiFaction Faction;
 
-    [FieldOffset(4)] public MorphOrMount morphOrMount;
+    [FieldOffset(4)] public AiMorphOrMount MorphOrMount;
 
-    [FieldOffset(4)] public Sound sound;
+    [FieldOffset(4)] public AiSound Sound;
 
-    [FieldOffset(4)] public Emote emote;
+    [FieldOffset(4)] public AiEmote Emote;
 
-    [FieldOffset(4)] public Quest quest;
+    [FieldOffset(4)] public AiQuest Quest;
 
-    [FieldOffset(4)] public QuestOffer questOffer;
+    [FieldOffset(4)] public AiQuestOffer QuestOffer;
 
-    [FieldOffset(4)] public React react;
+    [FieldOffset(4)] public AiReact React;
 
-    [FieldOffset(4)] public RandomEmote randomEmote;
+    [FieldOffset(4)] public AiRandomEmote RandomEmote;
 
-    [FieldOffset(4)] public Cast cast;
+    [FieldOffset(4)] public AiCast Cast;
 
-    [FieldOffset(4)] public CrossCast crossCast;
+    [FieldOffset(4)] public AiCrossCast CrossCast;
 
-    [FieldOffset(4)] public SummonCreature summonCreature;
+    [FieldOffset(4)] public AiSummonCreature SummonCreature;
 
-    [FieldOffset(4)] public ThreatPct threatPCT;
+    [FieldOffset(4)] public AiThreatPct ThreatPct;
 
-    [FieldOffset(4)] public Threat threat;
+    [FieldOffset(4)] public AiThreat Threat;
 
-    [FieldOffset(4)] public CastCreatureOrGO castCreatureOrGO;
+    [FieldOffset(4)] public AiCastCreatureOrGO CastCreatureOrGO;
 
-    [FieldOffset(4)] public AutoAttack autoAttack;
+    [FieldOffset(4)] public AiAutoAttack AutoAttack;
 
-    [FieldOffset(4)] public CombatMove combatMove;
+    [FieldOffset(4)] public AiCombatMove CombatMove;
 
-    [FieldOffset(4)] public SetEventPhase setEventPhase;
+    [FieldOffset(4)] public AiSetEventPhase SetEventPhase;
 
-    [FieldOffset(4)] public IncEventPhase incEventPhase;
+    [FieldOffset(4)] public AiIncEventPhase IncEventPhase;
 
-    [FieldOffset(4)] public CastedCreatureOrGO castedCreatureOrGO;
+    [FieldOffset(4)] public AiCastedCreatureOrGO CastedCreatureOrGO;
 
-    [FieldOffset(4)] public RemoveAura removeAura;
+    [FieldOffset(4)] public AiRemoveAura RemoveAura;
 
-    [FieldOffset(4)] public Follow follow;
+    [FieldOffset(4)] public AiFollow Follow;
 
-    [FieldOffset(4)] public RandomPhase randomPhase;
+    [FieldOffset(4)] public AiRandomPhase RandomPhase;
 
-    [FieldOffset(4)] public RandomPhaseRange randomPhaseRange;
+    [FieldOffset(4)] public AiRandomPhaseRange RandomPhaseRange;
 
-    [FieldOffset(4)] public KilledMonster killedMonster;
+    [FieldOffset(4)] public AiKilledMonster KilledMonster;
 
-    [FieldOffset(4)] public SetInstanceData setInstanceData;
+    [FieldOffset(4)] public AiSetInstanceData SetInstanceData;
 
-    [FieldOffset(4)] public SetInstanceData64 setInstanceData64;
+    [FieldOffset(4)] public AiSetInstanceData64 SetInstanceData64;
 
-    [FieldOffset(4)] public UpdateTemplate updateTemplate;
+    [FieldOffset(4)] public AiUpdateTemplate UpdateTemplate;
 
-    [FieldOffset(4)] public CallHelp callHelp;
+    [FieldOffset(4)] public AiCallHelp CallHelp;
 
-    [FieldOffset(4)] public SetSheath setSheath;
+    [FieldOffset(4)] public AiSetSheath SetSheath;
 
-    [FieldOffset(4)] public ForceDespawn forceDespawn;
+    [FieldOffset(4)] public AiForceDespawn ForceDespawn;
 
-    [FieldOffset(4)] public InvincHp invincHP;
+    [FieldOffset(4)] public AiInvincHp InvincHp;
 
-    [FieldOffset(4)] public IngamePhaseId ingamePhaseId;
+    [FieldOffset(4)] public AiIngamePhaseId IngamePhaseId;
 
-    [FieldOffset(4)] public IngamePhaseGroup ingamePhaseGroup;
+    [FieldOffset(4)] public AiIngamePhaseGroup IngamePhaseGroup;
 
-    [FieldOffset(4)] public SetData setData;
+    [FieldOffset(4)] public AiSetData SetData;
 
-    [FieldOffset(4)] public MoveRandom moveRandom;
+    [FieldOffset(4)] public AiMoveRandom MoveRandom;
 
-    [FieldOffset(4)] public Visibility visibility;
+    [FieldOffset(4)] public AiVisibility Visibility;
 
-    [FieldOffset(4)] public SummonGO summonGO;
+    [FieldOffset(4)] public AiSummonGO SummonGO;
 
-    [FieldOffset(4)] public Active active;
+    [FieldOffset(4)] public AiActive Active;
 
-    [FieldOffset(4)] public Taxi taxi;
+    [FieldOffset(4)] public AiTaxi Taxi;
 
-    [FieldOffset(4)] public WpStart wpStart;
+    [FieldOffset(4)] public AiWpStart WpStart;
 
-    [FieldOffset(4)] public WpPause wpPause;
+    [FieldOffset(4)] public AiWpPause WpPause;
 
-    [FieldOffset(4)] public WpStop wpStop;
+    [FieldOffset(4)] public AiWpStop WpStop;
 
-    [FieldOffset(4)] public Item item;
+    [FieldOffset(4)] public AiItem Item;
 
-    [FieldOffset(4)] public SetRun setRun;
+    [FieldOffset(4)] public AiSetRun SetRun;
 
-    [FieldOffset(4)] public SetDisableGravity setDisableGravity;
+    [FieldOffset(4)] public AiSetDisableGravity SetDisableGravity;
 
-    [FieldOffset(4)] public Teleport teleport;
+    [FieldOffset(4)] public AiTeleport Teleport;
 
-    [FieldOffset(4)] public SetCounter setCounter;
+    [FieldOffset(4)] public AiSetCounter SetCounter;
 
-    [FieldOffset(4)] public StoreTargets storeTargets;
+    [FieldOffset(4)] public AiStoreTargets StoreTargets;
 
-    [FieldOffset(4)] public TimeEvent timeEvent;
+    [FieldOffset(4)] public AiTimeEvent TimeEvent;
 
-    [FieldOffset(4)] public Movie movie;
+    [FieldOffset(4)] public AiMovie Movie;
 
-    [FieldOffset(4)] public Equip equip;
+    [FieldOffset(4)] public AiEquip Equip;
 
-    [FieldOffset(4)] public Flag flag;
+    [FieldOffset(4)] public AiFlag Flag;
 
-    [FieldOffset(4)] public SetunitByte setunitByte;
+    [FieldOffset(4)] public AiSetunitByte SetunitByte;
 
-    [FieldOffset(4)] public DelunitByte delunitByte;
+    [FieldOffset(4)] public AiDelunitByte DelunitByte;
 
-    [FieldOffset(4)] public TimedActionList timedActionList;
+    [FieldOffset(4)] public AiTimedActionList TimedActionList;
 
-    [FieldOffset(4)] public RandTimedActionList randTimedActionList;
+    [FieldOffset(4)] public AiRandTimedActionList RandTimedActionList;
 
-    [FieldOffset(4)] public RandRangeTimedActionList randRangeTimedActionList;
+    [FieldOffset(4)] public AiRandRangeTimedActionList RandRangeTimedActionList;
 
-    [FieldOffset(4)] public InterruptSpellCasting interruptSpellCasting;
+    [FieldOffset(4)] public AiInterruptSpellCasting InterruptSpellCasting;
 
-    [FieldOffset(4)] public Jump jump;
+    [FieldOffset(4)] public AiJump Jump;
 
-    [FieldOffset(4)] public FleeAssist fleeAssist;
+    [FieldOffset(4)] public AiFleeAssist FleeAssist;
 
-    [FieldOffset(4)] public EnableTempGO enableTempGO;
+    [FieldOffset(4)] public AiEnableTempGO EnableTempGO;
 
-    [FieldOffset(4)] public MoveToPos moveToPos;
+    [FieldOffset(4)] public AiMoveToPos MoveToPos;
 
-    [FieldOffset(4)] public SendGossipMenu sendGossipMenu;
+    [FieldOffset(4)] public AiSendGossipMenu SendGossipMenu;
 
-    [FieldOffset(4)] public SetGoLootState setGoLootState;
+    [FieldOffset(4)] public AiSetGoLootState SetGoLootState;
 
-    [FieldOffset(4)] public SendTargetToTarget sendTargetToTarget;
+    [FieldOffset(4)] public AiSendTargetToTarget SendTargetToTarget;
 
-    [FieldOffset(4)] public SetRangedMovement setRangedMovement;
+    [FieldOffset(4)] public AiSetRangedMovement SetRangedMovement;
 
-    [FieldOffset(4)] public SetHealthRegen setHealthRegen;
+    [FieldOffset(4)] public AiSetHealthRegen SetHealthRegen;
 
-    [FieldOffset(4)] public SetRoot setRoot;
+    [FieldOffset(4)] public AiSetRoot SetRoot;
 
-    [FieldOffset(4)] public GoState goState;
+    [FieldOffset(4)] public AiGoState GoState;
 
-    [FieldOffset(4)] public CreatureGroup creatureGroup;
+    [FieldOffset(4)] public AiCreatureGroup CreatureGroup;
 
-    [FieldOffset(4)] public Power power;
+    [FieldOffset(4)] public AiPower Power;
 
-    [FieldOffset(4)] public GameEventStop gameEventStop;
+    [FieldOffset(4)] public AiGameEventStop GameEventStop;
 
-    [FieldOffset(4)] public GameEventStart gameEventStart;
+    [FieldOffset(4)] public AiGameEventStart GameEventStart;
 
-    [FieldOffset(4)] public ClosestWaypointFromList closestWaypointFromList;
+    [FieldOffset(4)] public AiClosestWaypointFromList ClosestWaypointFromList;
 
-    [FieldOffset(4)] public MoveOffset moveOffset;
+    [FieldOffset(4)] public AiMoveOffset MoveOffset;
 
-    [FieldOffset(4)] public RandomSound randomSound;
+    [FieldOffset(4)] public AiRandomSound RandomSound;
 
-    [FieldOffset(4)] public CorpseDelay corpseDelay;
+    [FieldOffset(4)] public AiCorpseDelay CorpseDelay;
 
-    [FieldOffset(4)] public DisableEvade disableEvade;
+    [FieldOffset(4)] public AiDisableEvade DisableEvade;
 
-    [FieldOffset(4)] public GroupSpawn groupSpawn;
+    [FieldOffset(4)] public AiGroupSpawn GroupSpawn;
 
     [FieldOffset(4)] public AuraType auraType;
 
-    [FieldOffset(4)] public LoadEquipment loadEquipment;
+    [FieldOffset(4)] public AiLoadEquipment LoadEquipment;
 
-    [FieldOffset(4)] public RandomTimedEvent randomTimedEvent;
+    [FieldOffset(4)] public AiRandomTimedEvent RandomTimedEvent;
 
-    [FieldOffset(4)] public PauseMovement pauseMovement;
+    [FieldOffset(4)] public AiPauseMovement PauseMovement;
 
-    [FieldOffset(4)] public RespawnData respawnData;
+    [FieldOffset(4)] public AiRespawnData RespawnData;
 
-    [FieldOffset(4)] public AnimKit animKit;
+    [FieldOffset(4)] public AiAnimKit AnimKit;
 
-    [FieldOffset(4)] public Scene scene;
+    [FieldOffset(4)] public AiScene Scene;
 
-    [FieldOffset(4)] public Cinematic cinematic;
+    [FieldOffset(4)] public AiCinematic Cinematic;
 
-    [FieldOffset(4)] public MovementSpeed movementSpeed;
+    [FieldOffset(4)] public AiMovementSpeed MovementSpeed;
 
-    [FieldOffset(4)] public SpellVisualKit spellVisualKit;
+    [FieldOffset(4)] public AiSpellVisualKit SpellVisualKit;
 
-    [FieldOffset(4)] public OverrideLight overrideLight;
+    [FieldOffset(4)] public AiOverrideLight OverrideLight;
 
-    [FieldOffset(4)] public OverrideWeather overrideWeather;
+    [FieldOffset(4)] public AiOverrideWeather OverrideWeather;
 
-    [FieldOffset(4)] public SetHover setHover;
+    [FieldOffset(4)] public AiSetHover SetHover;
 
-    [FieldOffset(4)] public Evade evade;
+    [FieldOffset(4)] public AiEvade Evade;
 
-    [FieldOffset(4)] public SetHealthPct setHealthPct;
+    [FieldOffset(4)] public AiSetHealthPct SetHealthPct;
 
-    [FieldOffset(4)] public Conversation conversation;
+    [FieldOffset(4)] public AiConversation Conversation;
 
-    [FieldOffset(4)] public SetImmunePc setImmunePC;
+    [FieldOffset(4)] public AiSetImmunePc SetImmunePc;
 
-    [FieldOffset(4)] public SetImmuneNPC setImmuneNPC;
+    [FieldOffset(4)] public AiSetImmuneNPC SetImmuneNPC;
 
-    [FieldOffset(4)] public SetUninteractible setUninteractible;
+    [FieldOffset(4)] public AiSetUninteractible SetUninteractible;
 
-    [FieldOffset(4)] public ActivateGameObject activateGameObject;
+    [FieldOffset(4)] public AiActivateGameObject ActivateGameObject;
 
-    [FieldOffset(4)] public AddToStoredTargets addToStoredTargets;
+    [FieldOffset(4)] public AiAddToStoredTargets AddToStoredTargets;
 
-    [FieldOffset(4)] public BecomePersonalClone becomePersonalClone;
+    [FieldOffset(4)] public AiBecomePersonalClone BecomePersonalClone;
 
-    [FieldOffset(4)] public TriggerGameEvent triggerGameEvent;
+    [FieldOffset(4)] public AiTriggerGameEvent TriggerGameEvent;
 
-    [FieldOffset(4)] public DoAction doAction;
+    [FieldOffset(4)] public AiDoAction doAction;
 
-    [FieldOffset(4)] public Raw raw;
+    [FieldOffset(4)] public AiRaw raw;
 
     #region Stucts
 
-    public struct Talk
+    public struct AiTalk
     {
         public uint TextGroupId;
         public uint Duration;
         public uint UseTalkTarget;
     }
 
-    public struct SimpleTalk
+    public struct AiSimpleTalk
     {
         public uint TextGroupId;
         public uint Duration;
     }
 
-    public struct Faction
+    public struct AiFaction
     {
         public uint FactionId;
     }
 
-    public struct MorphOrMount
+    public struct AiMorphOrMount
     {
         public uint Creature;
         public uint Model;
     }
 
-    public struct Sound
+    public struct AiSound
     {
         public uint SoundId;
         public uint OnlySelf;
@@ -257,28 +257,28 @@ public struct SmartAction
         public uint KeyBroadcastTextId;
     }
 
-    public struct Emote
+    public struct AiEmote
     {
         public uint EmoteId;
     }
 
-    public struct Quest
+    public struct AiQuest
     {
         public uint QuestId;
     }
 
-    public struct QuestOffer
+    public struct AiQuestOffer
     {
         public uint QuestId;
         public uint DirectAdd;
     }
 
-    public struct React
+    public struct AiReact
     {
         public uint State;
     }
 
-    public struct RandomEmote
+    public struct AiRandomEmote
     {
         public uint Emote1;
         public uint Emote2;
@@ -288,7 +288,7 @@ public struct SmartAction
         public uint Emote6;
     }
 
-    public struct Cast
+    public struct AiCast
     {
         public uint Spell;
         public uint CastFlags;
@@ -296,7 +296,7 @@ public struct SmartAction
         public uint TargetsLimit;
     }
 
-    public struct CrossCast
+    public struct AiCrossCast
     {
         public uint Spell;
         public uint CastFlags;
@@ -306,7 +306,7 @@ public struct SmartAction
         public uint TargetParam3;
     }
 
-    public struct SummonCreature
+    public struct AiSummonCreature
     {
         public uint Creature;
         public uint Type;
@@ -317,59 +317,59 @@ public struct SmartAction
         public uint Count;
     }
 
-    public struct ThreatPct
+    public struct AiThreatPct
     {
         public uint ThreatInc;
         public uint ThreatDec;
     }
 
-    public struct CastCreatureOrGO
+    public struct AiCastCreatureOrGO
     {
         public uint QuestId;
         public uint Spell;
     }
 
-    public struct Threat
+    public struct AiThreat
     {
         public uint ThreatInc;
         public uint ThreatDec;
     }
 
-    public struct AutoAttack
+    public struct AiAutoAttack
     {
         public uint Attack;
     }
 
-    public struct CombatMove
+    public struct AiCombatMove
     {
         public uint Move;
     }
 
-    public struct SetEventPhase
+    public struct AiSetEventPhase
     {
         public uint Phase;
     }
 
-    public struct IncEventPhase
+    public struct AiIncEventPhase
     {
         public uint Inc;
         public uint Dec;
     }
 
-    public struct CastedCreatureOrGO
+    public struct AiCastedCreatureOrGO
     {
         public uint Creature;
         public uint Spell;
     }
 
-    public struct RemoveAura
+    public struct AiRemoveAura
     {
         public uint Spell;
         public uint Charges;
         public uint OnlyOwnedAuras;
     }
 
-    public struct Follow
+    public struct AiFollow
     {
         public uint Dist;
         public uint Angle;
@@ -378,7 +378,7 @@ public struct SmartAction
         public uint CreditType;
     }
 
-    public struct RandomPhase
+    public struct AiRandomPhase
     {
         public uint Phase1;
         public uint Phase2;
@@ -388,104 +388,104 @@ public struct SmartAction
         public uint Phase6;
     }
 
-    public struct RandomPhaseRange
+    public struct AiRandomPhaseRange
     {
         public uint PhaseMin;
         public uint PhaseMax;
     }
 
-    public struct KilledMonster
+    public struct AiKilledMonster
     {
         public uint Creature;
     }
 
-    public struct SetInstanceData
+    public struct AiSetInstanceData
     {
         public uint Field;
         public uint Data;
         public uint Type;
     }
 
-    public struct SetInstanceData64
+    public struct AiSetInstanceData64
     {
         public uint Field;
     }
 
-    public struct UpdateTemplate
+    public struct AiUpdateTemplate
     {
         public uint Creature;
         public uint UpdateLevel;
     }
 
-    public struct CallHelp
+    public struct AiCallHelp
     {
         public uint Range;
         public uint WithEmote;
     }
 
-    public struct SetSheath
+    public struct AiSetSheath
     {
         public uint Sheath;
     }
 
-    public struct ForceDespawn
+    public struct AiForceDespawn
     {
         public uint Delay;
         public uint ForceRespawnTimer;
     }
 
-    public struct InvincHp
+    public struct AiInvincHp
     {
         public uint MinHp;
         public uint Percent;
     }
 
-    public struct IngamePhaseId
+    public struct AiIngamePhaseId
     {
         public uint ID;
         public uint Apply;
     }
 
-    public struct IngamePhaseGroup
+    public struct AiIngamePhaseGroup
     {
         public uint GroupId;
         public uint Apply;
     }
 
-    public struct SetData
+    public struct AiSetData
     {
         public uint Field;
         public uint Data;
     }
 
-    public struct MoveRandom
+    public struct AiMoveRandom
     {
         public uint Distance;
     }
 
-    public struct Visibility
+    public struct AiVisibility
     {
         public uint State;
     }
 
-    public struct SummonGO
+    public struct AiSummonGO
     {
         public uint Entry;
         public uint DespawnTime;
         public uint SummonType;
     }
 
-    public struct Active
+    public struct AiActive
     {
         public uint State;
     }
 
-    public struct Taxi
+    public struct AiTaxi
     {
         public uint ID;
     }
 
-    public struct WpStart
+    public struct AiWpStart
     {
         public uint Run;
         public uint PathID;
@@ -496,52 +496,52 @@ public struct SmartAction
         //public uint reactState; DO NOT REUSE
     }
 
-    public struct WpPause
+    public struct AiWpPause
     {
         public uint Delay;
     }
 
-    public struct WpStop
+    public struct AiWpStop
     {
         public uint DespawnTime;
         public uint QuestId;
         public uint Fail;
     }
 
-    public struct Item
+    public struct AiItem
     {
         public uint Entry;
         public uint Count;
     }
 
-    public struct SetRun
+    public struct AiSetRun
     {
         public uint Run;
     }
 
-    public struct SetDisableGravity
+    public struct AiSetDisableGravity
     {
         public uint Disable;
     }
 
-    public struct Teleport
+    public struct AiTeleport
     {
         public uint MapID;
     }
 
-    public struct SetCounter
+    public struct AiSetCounter
     {
         public uint CounterId;
         public uint Value;
         public uint Reset;
     }
 
-    public struct StoreTargets
+    public struct AiStoreTargets
     {
         public uint ID;
     }
 
-    public struct TimeEvent
+    public struct AiTimeEvent
     {
         public uint ID;
         public uint Min;
@@ -551,12 +551,12 @@ public struct SmartAction
         public uint Chance;
     }
 
-    public struct Movie
+    public struct AiMovie
     {
         public uint Entry;
     }
 
-    public struct Equip
+    public struct AiEquip
     {
         public uint Entry;
         public uint Mask;
@@ -565,31 +565,31 @@ public struct SmartAction
         public uint Slot3;
     }
 
-    public struct Flag
+    public struct AiFlag
     {
         public uint Id;
     }
 
-    public struct SetunitByte
+    public struct AiSetunitByte
     {
         public uint Byte1;
         public uint Type;
     }
 
-    public struct DelunitByte
+    public struct AiDelunitByte
     {
         public uint Byte1;
         public uint Type;
     }
 
-    public struct TimedActionList
+    public struct AiTimedActionList
     {
         public uint ID;
         public uint TimerType;
         public uint AllowOverride;
     }
 
-    public struct RandTimedActionList
+    public struct AiRandTimedActionList
     {
         public uint ActionList1;
         public uint ActionList2;
@@ -599,20 +599,20 @@ public struct SmartAction
         public uint ActionList6;
     }
 
-    public struct RandRangeTimedActionList
+    public struct AiRandRangeTimedActionList
     {
         public uint IDMin;
         public uint IDMax;
     }
 
-    public struct InterruptSpellCasting
+    public struct AiInterruptSpellCasting
     {
         public uint WithDelayed;
         public uint SpellID;
         public uint WithInstant;
     }
 
-    public struct Jump
+    public struct AiJump
     {
         public uint SpeedXy;
         public uint SpeedZ;
@@ -622,17 +622,17 @@ public struct SmartAction
         public uint ContactDistance;
     }
 
-    public struct FleeAssist
+    public struct AiFleeAssist
     {
         public uint WithEmote;
     }
 
-    public struct EnableTempGO
+    public struct AiEnableTempGO
     {
         public uint Duration;
     }
 
-    public struct MoveToPos
+    public struct AiMoveToPos
     {
         public uint PointId;
         public uint Transport;
@@ -640,66 +640,66 @@ public struct SmartAction
         public uint ContactDistance;
     }
 
-    public struct SendGossipMenu
+    public struct AiSendGossipMenu
     {
         public uint GossipMenuId;
         public uint GossipNpcTextId;
     }
 
-    public struct SetGoLootState
+    public struct AiSetGoLootState
     {
         public uint State;
     }
 
-    public struct SendTargetToTarget
+    public struct AiSendTargetToTarget
     {
         public uint ID;
     }
 
-    public struct SetRangedMovement
+    public struct AiSetRangedMovement
     {
         public uint Distance;
         public uint Angle;
     }
 
-    public struct SetHealthRegen
+    public struct AiSetHealthRegen
     {
         public uint RegenHealth;
     }
 
-    public struct SetRoot
+    public struct AiSetRoot
     {
         public uint Root;
     }
 
-    public struct GoState
+    public struct AiGoState
     {
         public uint State;
     }
 
-    public struct CreatureGroup
+    public struct AiCreatureGroup
     {
         public uint Group;
         public uint AttackInvoker;
     }
 
-    public struct Power
+    public struct AiPower
     {
         public uint PowerType;
         public uint NewPower;
     }
 
-    public struct GameEventStop
+    public struct AiGameEventStop
     {
         public uint ID;
     }
 
-    public struct GameEventStart
+    public struct AiGameEventStart
     {
         public uint ID;
     }
 
-    public struct ClosestWaypointFromList
+    public struct AiClosestWaypointFromList
     {
         public uint Wp1;
         public uint Wp2;
@@ -709,12 +709,12 @@ public struct SmartAction
         public uint Wp6;
     }
 
-    public struct MoveOffset
+    public struct AiMoveOffset
     {
         public uint PointId;
     }
 
-    public struct RandomSound
+    public struct AiRandomSound
     {
         public uint Sound1;
         public uint Sound2;
@@ -724,18 +724,18 @@ public struct SmartAction
         public uint Distance;
     }
 
-    public struct CorpseDelay
+    public struct AiCorpseDelay
     {
         public uint Timer;
         public uint IncludeDecayRatio;
     }
 
-    public struct DisableEvade
+    public struct AiDisableEvade
     {
         public uint Disable;
     }
 
-    public struct GroupSpawn
+    public struct AiGroupSpawn
     {
         public uint GroupId;
         public uint MinDelay;
@@ -743,62 +743,62 @@ public struct SmartAction
         public uint Spawnflags;
     }
 
-    public struct LoadEquipment
+    public struct AiLoadEquipment
     {
         public uint ID;
         public uint Force;
     }
 
-    public struct RandomTimedEvent
+    public struct AiRandomTimedEvent
     {
         public uint MinId;
         public uint MaxId;
     }
 
-    public struct PauseMovement
+    public struct AiPauseMovement
     {
         public uint MovementSlot;
         public uint PauseTimer;
         public uint Force;
     }
 
-    public struct RespawnData
+    public struct AiRespawnData
     {
         public uint SpawnType;
         public uint SpawnId;
     }
 
-    public struct AnimKit
+    public struct AiAnimKit
     {
         public uint Kit;
         public uint Type;
     }
 
-    public struct Scene
+    public struct AiScene
     {
         public uint SceneId;
     }
 
-    public struct Cinematic
+    public struct AiCinematic
     {
         public uint Entry;
     }
 
-    public struct MovementSpeed
+    public struct AiMovementSpeed
     {
         public uint MovementType;
         public uint SpeedInteger;
         public uint SpeedFraction;
     }
 
-    public struct SpellVisualKit
+    public struct AiSpellVisualKit
     {
         public uint SpellVisualKitId;
         public uint KitType;
         public uint Duration;
     }
 
-    public struct OverrideLight
+    public struct AiOverrideLight
     {
         public uint ZoneId;
         public uint AreaLightId;
@@ -806,77 +806,77 @@ public struct SmartAction
         public uint TransitionMilliseconds;
     }
 
-    public struct OverrideWeather
+    public struct AiOverrideWeather
     {
         public uint ZoneId;
         public uint WeatherId;
         public uint Intensity;
     }
 
-    public struct SetHover
+    public struct AiSetHover
     {
         public uint Enable;
     }
 
-    public struct Evade
+    public struct AiEvade
     {
         public uint ToRespawnPosition;
     }
 
-    public struct SetHealthPct
+    public struct AiSetHealthPct
     {
         public uint Percent;
     }
 
-    public struct Conversation
+    public struct AiConversation
     {
         public uint ID;
     }
 
-    public struct SetImmunePc
+    public struct AiSetImmunePc
     {
         public uint ImmunePc;
     }
 
-    public struct SetImmuneNPC
+    public struct AiSetImmuneNPC
     {
         public uint ImmuneNPC;
     }
 
-    public struct SetUninteractible
+    public struct AiSetUninteractible
     {
         public uint Uninteractible;
     }
 
-    public struct ActivateGameObject
+    public struct AiActivateGameObject
     {
         public uint GameObjectAction;
         public uint Param;
     }
 
-    public struct AddToStoredTargets
+    public struct AiAddToStoredTargets
     {
         public uint ID;
     }
 
-    public struct BecomePersonalClone
+    public struct AiBecomePersonalClone
     {
         public uint Type;
         public uint Duration;
     }
 
-    public struct TriggerGameEvent
+    public struct AiTriggerGameEvent
     {
         public uint EventId;
         public uint UseSaiTargetAsGameEventSource;
     }
 
-    public struct DoAction
+    public struct AiDoAction
     {
         public uint ActionId;
     }
 
-    public struct Raw
+    public struct AiRaw
     {
         public uint Param1;
         public uint Param2;

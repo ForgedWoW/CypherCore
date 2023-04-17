@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 342247 - Alter Time Active
-internal class spell_mage_alter_time_active : SpellScript, IHasSpellEffects
+internal class SpellMageAlterTimeActive : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,7 +24,7 @@ internal class spell_mage_alter_time_active : SpellScript, IHasSpellEffects
     private void RemoveAlterTimeAura(int effIndex)
     {
         var unit = Caster;
-        unit.RemoveAura(MageSpells.AlterTimeAura, AuraRemoveMode.Expire);
-        unit.RemoveAura(MageSpells.ArcaneAlterTimeAura, AuraRemoveMode.Expire);
+        unit.RemoveAura(MageSpells.ALTER_TIME_AURA, AuraRemoveMode.Expire);
+        unit.RemoveAura(MageSpells.ARCANE_ALTER_TIME_AURA, AuraRemoveMode.Expire);
     }
 }

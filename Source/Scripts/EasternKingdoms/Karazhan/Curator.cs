@@ -2,47 +2,48 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Karazhan.Curator;
 
 internal struct SpellIds
 {
-    public const uint HatefulBolt = 30383;
-    public const uint Evocation = 30254;
-    public const uint ArcaneInfusion = 30403;
-    public const uint Berserk = 26662;
-    public const uint SummonAstralFlareNe = 30236;
-    public const uint SummonAstralFlareNw = 30239;
-    public const uint SummonAstralFlareSe = 30240;
-    public const uint SummonAstralFlareSw = 30241;
+    public const uint HATEFUL_BOLT = 30383;
+    public const uint EVOCATION = 30254;
+    public const uint ARCANE_INFUSION = 30403;
+    public const uint BERSERK = 26662;
+    public const uint SUMMON_ASTRAL_FLARE_NE = 30236;
+    public const uint SUMMON_ASTRAL_FLARE_NW = 30239;
+    public const uint SUMMON_ASTRAL_FLARE_SE = 30240;
+    public const uint SUMMON_ASTRAL_FLARE_SW = 30241;
 }
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SaySummon = 1;
-    public const uint SayEvocate = 2;
-    public const uint SayEnrage = 3;
-    public const uint SayKill = 4;
-    public const uint SayDeath = 5;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_SUMMON = 1;
+    public const uint SAY_EVOCATE = 2;
+    public const uint SAY_ENRAGE = 3;
+    public const uint SAY_KILL = 4;
+    public const uint SAY_DEATH = 5;
 }
 
 internal struct MiscConst
 {
-    public const uint GroupAstralFlare = 1;
+    public const uint GROUP_ASTRAL_FLARE = 1;
 }
 
 [Script]
-internal class boss_curator : BossAI
+internal class BossCurator : BossAI
 {
     private bool _infused;
 
-    public boss_curator(Creature creature) : base(creature, DataTypes.Curator) { }
+    public BossCurator(Creature creature) : base(creature, DataTypes.CURATOR) { }
 
     public override void Reset()
     {
@@ -53,19 +54,19 @@ internal class boss_curator : BossAI
     public override void KilledUnit(Unit victim)
     {
         if (victim.IsPlayer)
-            Talk(TextIds.SayKill);
+            Talk(TextIds.SAY_KILL);
     }
 
     public override void JustDied(Unit killer)
     {
         _JustDied();
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
     }
 
     public override void JustEngagedWith(Unit who)
     {
         base.JustEngagedWith(who);
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
 
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
@@ -73,19 +74,19 @@ internal class boss_curator : BossAI
                                var target = SelectTarget(SelectTargetMethod.MaxThreat, 1);
 
                                if (target)
-                                   DoCast(target, SpellIds.HatefulBolt);
+                                   DoCast(target, SpellIds.HATEFUL_BOLT);
 
                                task.Repeat(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
-                           MiscConst.GroupAstralFlare,
+                           MiscConst.GROUP_ASTRAL_FLARE,
                            task =>
                            {
                                if (RandomHelper.randChance(50))
-                                   Talk(TextIds.SaySummon);
+                                   Talk(TextIds.SAY_SUMMON);
 
-                               DoCastSelf(RandomHelper.RAND(SpellIds.SummonAstralFlareNe, SpellIds.SummonAstralFlareNw, SpellIds.SummonAstralFlareSe, SpellIds.SummonAstralFlareSw), new CastSpellExtraArgs(true));
+                               DoCastSelf(RandomHelper.RAND(SpellIds.SUMMON_ASTRAL_FLARE_NE, SpellIds.SUMMON_ASTRAL_FLARE_NW, SpellIds.SUMMON_ASTRAL_FLARE_SE, SpellIds.SUMMON_ASTRAL_FLARE_SW), new CastSpellExtraArgs(true));
 
                                var mana = (Me.GetMaxPower(PowerType.Mana) / 10);
 
@@ -95,9 +96,9 @@ internal class boss_curator : BossAI
 
                                    if (Me.GetPower(PowerType.Mana) * 100 / Me.GetMaxPower(PowerType.Mana) < 10)
                                    {
-                                       Talk(TextIds.SayEvocate);
+                                       Talk(TextIds.SAY_EVOCATE);
                                        Me.InterruptNonMeleeSpells(false);
-                                       DoCastSelf(SpellIds.Evocation);
+                                       DoCastSelf(SpellIds.EVOCATION);
                                    }
                                }
 
@@ -105,10 +106,10 @@ internal class boss_curator : BossAI
                            });
 
         Scheduler.Schedule(TimeSpan.FromMinutes(12),
-                           ScheduleTasks =>
+                           scheduleTasks =>
                            {
-                               Talk(TextIds.SayEnrage);
-                               DoCastSelf(SpellIds.Berserk, new CastSpellExtraArgs(true));
+                               Talk(TextIds.SAY_ENRAGE);
+                               DoCastSelf(SpellIds.BERSERK, new CastSpellExtraArgs(true));
                            });
     }
 
@@ -118,8 +119,8 @@ internal class boss_curator : BossAI
             !_infused)
         {
             _infused = true;
-            Scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => DoCastSelf(SpellIds.ArcaneInfusion, new CastSpellExtraArgs(true)));
-            Scheduler.CancelGroup(MiscConst.GroupAstralFlare);
+            Scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => DoCastSelf(SpellIds.ARCANE_INFUSION, new CastSpellExtraArgs(true)));
+            Scheduler.CancelGroup(MiscConst.GROUP_ASTRAL_FLARE);
         }
     }
 
@@ -130,9 +131,9 @@ internal class boss_curator : BossAI
 }
 
 [Script]
-internal class npc_curator_astral_flare : ScriptedAI
+internal class NPCCuratorAstralFlare : ScriptedAI
 {
-    public npc_curator_astral_flare(Creature creature) : base(creature)
+    public NPCCuratorAstralFlare(Creature creature) : base(creature)
     {
         Me.ReactState = ReactStates.Passive;
     }

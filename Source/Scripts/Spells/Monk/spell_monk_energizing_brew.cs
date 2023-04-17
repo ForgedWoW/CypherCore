@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(115288)]
-public class spell_monk_energizing_brew : SpellScript, ISpellCheckCast
+public class SpellMonkEnergizingBrew : SpellScript, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {

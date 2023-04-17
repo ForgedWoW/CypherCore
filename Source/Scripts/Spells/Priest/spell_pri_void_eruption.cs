@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(228260)]
-public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCast, ISpellOnTakePower
+public class SpellPriVoidEruption : SpellScript, IHasSpellEffects, ISpellOnCast, ISpellOnTakePower
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,10 +24,10 @@ public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCa
         if (caster == null)
             return;
 
-        caster.CastSpell(caster, PriestSpells.VOIDFORM_BUFFS, true);
+        caster.SpellFactory.CastSpell(caster, PriestSpells.VOIDFORM_BUFFS, true);
 
         if (!caster.HasAura(PriestSpells.SHADOWFORM_STANCE))
-            caster.CastSpell(caster, PriestSpells.SHADOWFORM_STANCE, true);
+            caster.SpellFactory.CastSpell(caster, PriestSpells.SHADOWFORM_STANCE, true);
     }
 
     public override void Register()
@@ -67,6 +68,6 @@ public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCa
             return;
 
         var spellid = RandomHelper.RandShort() % 2; //there are two animations which should be random
-        caster.CastSpell(target, PriestSpells.VOID_ERUPTION_DAMAGE + spellid, true);
+        caster.SpellFactory.CastSpell(target, PriestSpells.VOID_ERUPTION_DAMAGE + spellid, true);
     }
 }

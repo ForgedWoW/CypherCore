@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
 [Script]
-internal class spell_rog_pickpocket : SpellScript, ISpellCheckCast
+internal class SpellRogPickpocket : SpellScript, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {

@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 // 19042 - Ashen Hallow
 [Script]
-internal class areatrigger_pal_ashen_hallow : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
+internal class AreatriggerPalAshenHallow : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
     private TimeSpan _period;
     private TimeSpan _refreshTimer;
@@ -25,13 +25,13 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerScript, IAreaTriggerOnC
     public void OnUnitEnter(Unit unit)
     {
         if (unit.GUID == At.CasterGuid)
-            unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
+            unit.SpellFactory.CastSpell(unit, PaladinSpells.ASHEN_HALLOW_ALLOW_HAMMER, true);
     }
 
     public void OnUnitExit(Unit unit)
     {
         if (unit.GUID == At.CasterGuid)
-            unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);
+            unit.RemoveAura(PaladinSpells.ASHEN_HALLOW_ALLOW_HAMMER);
     }
 
     public void OnUpdate(uint diff)
@@ -44,8 +44,8 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerScript, IAreaTriggerOnC
 
             if (caster != null)
             {
-                caster.CastSpell(At.Location, PaladinSpells.AshenHallowHeal, new CastSpellExtraArgs());
-                caster.CastSpell(At.Location, PaladinSpells.AshenHallowDamage, new CastSpellExtraArgs());
+                caster.SpellFactory.CastSpell(At.Location, PaladinSpells.ASHEN_HALLOW_HEAL, new CastSpellExtraArgs());
+                caster.SpellFactory.CastSpell(At.Location, PaladinSpells.ASHEN_HALLOW_DAMAGE, new CastSpellExtraArgs());
             }
 
             RefreshPeriod();
@@ -60,7 +60,7 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerScript, IAreaTriggerOnC
 
         if (caster != null)
         {
-            var ashen = caster.GetAuraEffect(PaladinSpells.AshenHallow, 1);
+            var ashen = caster.GetAuraEffect(PaladinSpells.ASHEN_HALLOW, 1);
 
             if (ashen != null)
                 _period = TimeSpan.FromMilliseconds(ashen.Period);

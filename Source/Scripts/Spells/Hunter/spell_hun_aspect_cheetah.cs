@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
 [Script] // 186257 - Aspect of the Cheetah
-internal class spell_hun_aspect_cheetah : AuraScript, IHasAuraEffects
+internal class SpellHunAspectCheetah : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,6 +23,6 @@ internal class spell_hun_aspect_cheetah : AuraScript, IHasAuraEffects
     private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         if (TargetApplication.RemoveMode == AuraRemoveMode.Expire)
-            Target.CastSpell(Target, HunterSpells.AspectCheetahSlow, true);
+            Target.SpellFactory.CastSpell(Target, HunterSpells.ASPECT_CHEETAH_SLOW, true);
     }
 }

@@ -3,24 +3,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Entities;
-using Game.Movement;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 110744 - Divine Star
-internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate,
+internal class AreatriggerPriDivineStar : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate,
                                              IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnDestinationReached
 {
     private readonly List<ObjectGuid> _affectedUnits = new();
-    private readonly TaskScheduler Scheduler = new();
+    private readonly TaskScheduler _scheduler = new();
     private Position _casterCurrentPosition = new();
 
     public void OnCreate()
@@ -74,9 +74,9 @@ internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnCr
             if (!_affectedUnits.Contains(unit.GUID))
             {
                 if (caster.IsValidAttackTarget(unit))
-                    caster.CastSpell(unit, PriestSpells.DIVINE_STAR_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
+                    caster.SpellFactory.CastSpell(unit, PriestSpells.DIVINE_STAR_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
                 else if (caster.IsValidAssistTarget(unit))
-                    caster.CastSpell(unit, PriestSpells.DIVINE_STAR_HEAL, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
+                    caster.SpellFactory.CastSpell(unit, PriestSpells.DIVINE_STAR_HEAL, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
 
                 _affectedUnits.Add(unit.GUID);
             }
@@ -91,9 +91,9 @@ internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnCr
             if (!_affectedUnits.Contains(unit.GUID))
             {
                 if (caster.IsValidAttackTarget(unit))
-                    caster.CastSpell(unit, PriestSpells.DIVINE_STAR_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
+                    caster.SpellFactory.CastSpell(unit, PriestSpells.DIVINE_STAR_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
                 else if (caster.IsValidAssistTarget(unit))
-                    caster.CastSpell(unit, PriestSpells.DIVINE_STAR_HEAL, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
+                    caster.SpellFactory.CastSpell(unit, PriestSpells.DIVINE_STAR_HEAL, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress));
 
                 _affectedUnits.Add(unit.GUID);
             }
@@ -101,12 +101,12 @@ internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnCr
 
     public void OnUpdate(uint diff)
     {
-        Scheduler.Update(diff);
+        _scheduler.Update(diff);
     }
 
     private void ReturnToCaster()
     {
-        Scheduler.Schedule(TimeSpan.FromMilliseconds(0),
+        _scheduler.Schedule(TimeSpan.FromMilliseconds(0),
                            task =>
                            {
                                var caster = At.GetCaster();

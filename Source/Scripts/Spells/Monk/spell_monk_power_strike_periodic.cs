@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(121817)]
-public class spell_monk_power_strike_periodic : AuraScript, IHasAuraEffects
+public class SpellMonkPowerStrikePeriodic : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,8 +20,8 @@ public class spell_monk_power_strike_periodic : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
     }
 
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
-        Target.CastSpell(Target, MonkSpells.POWER_STRIKES_AURA, true);
+        Target.SpellFactory.CastSpell(Target, MonkSpells.POWER_STRIKES_AURA, true);
     }
 }

@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // 17962 - Conflagrate
 [SpellScript(17962)]
-public class spell_warl_conflagrate : SpellScript, IHasSpellEffects
+public class SpellWarlConflagrate : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,7 +23,7 @@ public class spell_warl_conflagrate : SpellScript, IHasSpellEffects
         SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
     }
 
-    private void HandleHit(int UnnamedParameter)
+    private void HandleHit(int unnamedParameter)
     {
         var caster = Caster;
         var target = HitUnit;
@@ -44,7 +45,7 @@ public class spell_warl_conflagrate : SpellScript, IHasSpellEffects
 
         if (caster.TryGetAura(WarlockSpells.CONFLAGRATION_OF_CHAOS, out var conflagrate))
             if (RandomHelper.randChance(conflagrate.GetEffect(0).BaseAmount))
-                caster.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_CONFLAGRATE, true);
+                caster.SpellFactory.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_CONFLAGRATE, true);
     }
 
     private void Decimation(Unit caster, Unit target)
@@ -56,7 +57,7 @@ public class spell_warl_conflagrate : SpellScript, IHasSpellEffects
     private void Backdraft(Unit caster)
     {
         if (caster.HasAura(WarlockSpells.BACKDRAFT_AURA))
-            caster.CastSpell(caster, WarlockSpells.BACKDRAFT, true);
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.BACKDRAFT, true);
     }
 
     private void RoaringBlaze(Unit caster, Unit target)

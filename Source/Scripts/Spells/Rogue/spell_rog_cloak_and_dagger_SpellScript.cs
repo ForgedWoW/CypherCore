@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
@@ -11,7 +11,7 @@ namespace Scripts.Spells.Rogue;
 {
     703, 1833, 8676
 })]
-public class spell_rog_cloak_and_dagger_SpellScript : SpellScript, ISpellCheckCast
+public class SpellRogCloakAndDaggerSpellScript : SpellScript, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {
@@ -24,7 +24,7 @@ public class spell_rog_cloak_and_dagger_SpellScript : SpellScript, ISpellCheckCa
                     var target = ExplTargetUnit;
 
                     if (target != null)
-                        caster.CastSpell(target, 138916, true);
+                        caster.SpellFactory.CastSpell(target, 138916, true);
                 }
 
         return SpellCastResult.SpellCastOk;

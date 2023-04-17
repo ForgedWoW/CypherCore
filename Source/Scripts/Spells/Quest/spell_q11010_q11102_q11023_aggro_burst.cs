@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 40119 Knockdown Fel Cannon: The Aggro Burst
-internal class spell_q11010_q11102_q11023_aggro_burst : AuraScript, IHasAuraEffects
+internal class SpellQ11010Q11102Q11023AggroBurst : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,6 +25,6 @@ internal class spell_q11010_q11102_q11023_aggro_burst : AuraScript, IHasAuraEffe
 
         if (target)
             // On each tick cast Choose Loc to trigger summon
-            target.CastSpell(target, QuestSpellIds.ChooseLoc);
+            target.SpellFactory.CastSpell(target, QuestSpellIds.CHOOSE_LOC);
     }
 }

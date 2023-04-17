@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(45243)]
-public class spell_pri_focused_will : AuraScript, IHasAuraEffects
+public class SpellPriFocusedWill : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -29,7 +29,7 @@ public class spell_pri_focused_will : AuraScript, IHasAuraEffects
 
         if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.AttackType == WeaponAttackType.OffAttack)
         {
-            caster.CastSpell(caster, PriestSpells.FOCUSED_WILL_BUFF, true);
+            caster.SpellFactory.CastSpell(caster, PriestSpells.FOCUSED_WILL_BUFF, true);
 
             return true;
         }
@@ -37,7 +37,7 @@ public class spell_pri_focused_will : AuraScript, IHasAuraEffects
         return false;
     }
 
-    private void PreventAction(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    private void PreventAction(AuraEffect unnamedParameter, ProcEventInfo unnamedParameter2)
     {
         PreventDefaultAction();
     }

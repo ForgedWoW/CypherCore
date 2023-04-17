@@ -2,18 +2,21 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 
 namespace Scripts.Spells.Evoker;
 
 [AreaTriggerScript(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY)]
-public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
+public class AtEvokerTemporalAnomaly : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
+    readonly List<Unit> _hit = new();
     double _amount = 0;
     int _targets = 0;
-    readonly List<Unit> _hit = new();
 
     public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY);
 
@@ -46,7 +49,7 @@ public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrid
         if (caster.IsFriendlyTo(unit) && !_hit.Contains(unit))
         {
             _hit.Add(unit);
-            caster.CastSpell(unit, EvokerSpells.BRONZE_TEMPORAL_ANOMALY_AURA, _amount / (_targets > 0 ? 1 : 2), true);
+            caster.SpellFactory.CastSpell(unit, EvokerSpells.BRONZE_TEMPORAL_ANOMALY_AURA, _amount / (_targets > 0 ? 1 : 2), true);
             _targets--;
         }
     }

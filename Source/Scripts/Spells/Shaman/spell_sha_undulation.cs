@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
@@ -13,7 +13,7 @@ namespace Scripts.Spells.Shaman;
 {
     8004, 77472
 })]
-public class spell_sha_undulation : SpellScript, ISpellOnHit
+public class SpellShaUndulation : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -23,7 +23,7 @@ public class spell_sha_undulation : SpellScript, ISpellOnHit
         if (count >= 3)
         {
             variableStore.Remove("spell_sha_undulation");
-            Caster.CastSpell(ShamanSpells.UNDULATION_PROC, true);
+            Caster.SpellFactory.CastSpell(ShamanSpells.UNDULATION_PROC, true);
         }
         else
         {

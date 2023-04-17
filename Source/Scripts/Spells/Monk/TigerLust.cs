@@ -5,5 +5,5 @@ namespace Scripts.Spells.Monk;
 
 public enum TigerLust
 {
-    TIGER_LUST = 116841
+    TigerLust = 116841
 }

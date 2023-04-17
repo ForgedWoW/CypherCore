@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_profession_research : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellGenProfessionResearch : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -45,14 +46,14 @@ internal class spell_gen_profession_research : SpellScript, ISpellCheckCast, IHa
 
         // Learn random explicit discovery recipe (if any)
         // Players will now learn 3 recipes the very first Time they perform Northrend Inscription Research (3.3.0 patch notes)
-        if (spellId == GenericSpellIds.NorthrendInscriptionResearch &&
+        if (spellId == GenericSpellIds.NORTHREND_INSCRIPTION_RESEARCH &&
             !SkillDiscovery.HasDiscoveredAnySpell(spellId, caster))
             for (var i = 0; i < 2; ++i)
             {
-                var _discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
+                var discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
 
-                if (_discoveredSpellId != 0)
-                    caster.LearnSpell(_discoveredSpellId, false);
+                if (discoveredSpellId != 0)
+                    caster.LearnSpell(discoveredSpellId, false);
             }
 
         var discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);

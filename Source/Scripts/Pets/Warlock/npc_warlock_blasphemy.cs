@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
@@ -13,12 +14,12 @@ namespace Scripts.Pets
     namespace Warlock
     {
         [CreatureScript(185584)]
-        public class npc_warlock_blasphemy : SmartAI
+        public class NPCWarlockBlasphemy : SmartAI
         {
-            private static readonly TimeSpan _tickTime = TimeSpan.FromMilliseconds(500);
+            private static readonly TimeSpan TickTime = TimeSpan.FromMilliseconds(500);
             private readonly Player _owner;
 
-            public npc_warlock_blasphemy(Creature creature) : base(creature)
+            public NPCWarlockBlasphemy(Creature creature) : base(creature)
             {
                 if (!Me.TryGetOwner(out Player owner))
                     return;
@@ -43,20 +44,20 @@ namespace Scripts.Pets
                                                        {
                                                            _owner.ModifyPower(PowerType.SoulShards, 1);
 
-                                                           return _tickTime;
+                                                           return TickTime;
                                                        },
-                                                       _tickTime);
+                                                       TickTime);
             }
 
 
-            public override void UpdateAI(uint UnnamedParameter)
+            public override void UpdateAI(uint unnamedParameter)
             {
                 if (!Me.HasAura(WarlockSpells.IMMOLATION))
                     DoCast(WarlockSpells.IMMOLATION);
 
 
                 //DoMeleeAttackIfReady();
-                base.UpdateAI(UnnamedParameter);
+                base.UpdateAI(unnamedParameter);
             }
         }
     }

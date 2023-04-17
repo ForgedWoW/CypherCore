@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.Scripting;
 
 namespace Scripts.Spells.DeathKnight;
 
@@ -10,7 +10,7 @@ namespace Scripts.Spells.DeathKnight;
 {
     48263, 48265, 48266
 })]
-public class spell_dk_presence_SpellScript : SpellScript
+public class SpellDkPresenceSpellScript : SpellScript
 {
     public void AfterHit()
     {

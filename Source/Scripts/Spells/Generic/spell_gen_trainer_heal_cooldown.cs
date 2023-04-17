@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 132334 - Trainer Heal Cooldown (SERVERSIDE)
-internal class spell_gen_trainer_heal_cooldown : AuraScript, IHasAuraEffects
+internal class SpellGenTrainerHealCooldown : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 

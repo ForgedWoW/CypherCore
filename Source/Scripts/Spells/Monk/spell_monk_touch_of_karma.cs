@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(122470)]
-public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
+public class SpellMonkTouchOfKarma : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -42,33 +43,33 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
         }
     }
 
-    private double OnAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double UnnamedParameter)
+    private double OnAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double unnamedParameter)
     {
         var caster = Caster;
 
         if (caster == null)
-            return UnnamedParameter;
+            return unnamedParameter;
 
         foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
             if (aurApp.Target != caster)
             {
                 var periodicDamage = dmgInfo.Damage / Global.SpellMgr.GetSpellInfo(MonkSpells.TOUCH_OF_KARMA_DAMAGE, Difficulty.None).MaxTicks;
                 //  periodicDamage += int32(aurApp->GetTarget()->GetRemainingPeriodicAmount(GetCasterGUID(), TOUCH_OF_KARMA_DAMAGE, AuraType.PeriodicDamage));
-                caster.CastSpell(aurApp.Target, MonkSpells.TOUCH_OF_KARMA_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
+                caster.SpellFactory.CastSpell(aurApp.Target, MonkSpells.TOUCH_OF_KARMA_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
 
                 if (caster.HasAura(MonkSpells.GOOD_KARMA_TALENT))
-                    caster.CastSpell(caster, MonkSpells.GOOD_KARMA_TALENT_HEAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
+                    caster.SpellFactory.CastSpell(caster, MonkSpells.GOOD_KARMA_TALENT_HEAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
             }
 
-        return UnnamedParameter;
+        return unnamedParameter;
     }
 
-    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
-        Caster.CastSpell(Caster, MonkSpells.TOUCH_OF_KARMA_BUFF, true);
+        Caster.SpellFactory.CastSpell(Caster, MonkSpells.TOUCH_OF_KARMA_BUFF, true);
     }
 
-    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 

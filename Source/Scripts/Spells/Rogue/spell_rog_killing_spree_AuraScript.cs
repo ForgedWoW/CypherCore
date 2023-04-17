@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [Script]
-internal class spell_rog_killing_spree_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellRogKillingSpreeAuraScript : AuraScript, IHasAuraEffects
 {
     private readonly List<ObjectGuid> _targets = new();
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -31,7 +32,7 @@ internal class spell_rog_killing_spree_AuraScript : AuraScript, IHasAuraEffects
 
     private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.CastSpell(Target, RogueSpells.KillingSpreeDmgBuff, true);
+        Target.SpellFactory.CastSpell(Target, RogueSpells.KillingSpreeDmgBuff, true);
     }
 
     private void HandleEffectPeriodic(AuraEffect aurEff)
@@ -43,8 +44,8 @@ internal class spell_rog_killing_spree_AuraScript : AuraScript, IHasAuraEffects
 
             if (target != null)
             {
-                Target.CastSpell(target, RogueSpells.KillingSpreeTeleport, true);
-                Target.CastSpell(target, RogueSpells.KillingSpreeWeaponDmg, true);
+                Target.SpellFactory.CastSpell(target, RogueSpells.KillingSpreeTeleport, true);
+                Target.SpellFactory.CastSpell(target, RogueSpells.KillingSpreeWeaponDmg, true);
 
                 break;
             }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [Script] // 124255 - Stagger - STAGGER_DAMAGE_AURA
-internal class spell_monk_stagger_damage_aura : AuraScript, IHasAuraEffects
+internal class SpellMonkStaggerDamageAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +23,7 @@ internal class spell_monk_stagger_damage_aura : AuraScript, IHasAuraEffects
     private void OnPeriodicDamage(AuraEffect aurEff)
     {
         // Update our light/medium/heavy stagger with the correct stagger amount left
-        var auraStagger = spell_monk_stagger.FindExistingStaggerEffect(Target);
+        var auraStagger = SpellMonkStagger.FindExistingStaggerEffect(Target);
 
         if (auraStagger != null)
         {

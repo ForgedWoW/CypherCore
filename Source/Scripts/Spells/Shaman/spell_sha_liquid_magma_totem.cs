@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // 192223 - Liquid Magma Totem (erupting hit spell)
 [SpellScript(192223)]
-internal class spell_sha_liquid_magma_totem : SpellScript, IHasSpellEffects
+internal class SpellShaLiquidMagmaTotem : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,7 +28,7 @@ internal class spell_sha_liquid_magma_totem : SpellScript, IHasSpellEffects
         var hitUnit = HitUnit;
 
         if (hitUnit != null)
-            Caster.CastSpell(hitUnit, ShamanSpells.LiquidMagmaHit, true);
+            Caster.SpellFactory.CastSpell(hitUnit, ShamanSpells.LIQUID_MAGMA_HIT, true);
     }
 
     private void HandleTargetSelect(List<WorldObject> targets)

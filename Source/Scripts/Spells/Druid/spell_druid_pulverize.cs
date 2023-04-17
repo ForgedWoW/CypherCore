@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(80313)]
-public class spell_druid_pulverize : SpellScript, IHasSpellEffects
+public class SpellDruidPulverize : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -25,15 +26,15 @@ public class spell_druid_pulverize : SpellScript, IHasSpellEffects
 
         if (target != null)
         {
-            target.RemoveAura(Spells.TRASH_DOT_TWO_STACKS_MARKER);
-            Caster.CastSpell(target, Spells.PULVERIZE_DAMAGE_REDUCTION_BUFF, true);
+            target.RemoveAura(Spells.TrashDotTwoStacksMarker);
+            Caster.SpellFactory.CastSpell(target, Spells.PulverizeDamageReductionBuff, true);
         }
     }
 
     private struct Spells
     {
-        public static readonly uint PULVERIZE = 80313;
-        public static readonly uint TRASH_DOT_TWO_STACKS_MARKER = 158790;
-        public static readonly uint PULVERIZE_DAMAGE_REDUCTION_BUFF = 158792;
+        public static readonly uint Pulverize = 80313;
+        public static readonly uint TrashDotTwoStacksMarker = 158790;
+        public static readonly uint PulverizeDamageReductionBuff = 158792;
     }
 }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Warrior;
 
 // 202603 Into the Fray
 // MiscId - 5839
 [Script]
-public class at_into_the_fray : AreaTriggerScript, IAreaTriggerOnUpdate
+public class AtIntoTheFray : AreaTriggerScript, IAreaTriggerOnUpdate
 {
     public void OnUpdate(uint diff)
     {
@@ -29,7 +29,7 @@ public class at_into_the_fray : AreaTriggerScript, IAreaTriggerOnUpdate
             if (count != 0)
             {
                 if (!caster.HasAura(WarriorSpells.INTO_THE_FRAY))
-                    caster.CastSpell(caster, WarriorSpells.INTO_THE_FRAY, true);
+                    caster.SpellFactory.CastSpell(caster, WarriorSpells.INTO_THE_FRAY, true);
 
                 var itf = caster.GetAura(WarriorSpells.INTO_THE_FRAY);
 

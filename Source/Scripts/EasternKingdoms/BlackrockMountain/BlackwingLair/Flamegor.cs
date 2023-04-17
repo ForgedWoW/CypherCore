@@ -2,28 +2,29 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.Flamegor;
 
 internal struct SpellIds
 {
-    public const uint Shadowflame = 22539;
-    public const uint Wingbuffet = 23339;
-    public const uint Frenzy = 23342; //This spell periodically triggers fire nova
+    public const uint SHADOWFLAME = 22539;
+    public const uint WINGBUFFET = 23339;
+    public const uint FRENZY = 23342; //This spell periodically triggers fire nova
 }
 
 internal struct TextIds
 {
-    public const uint EmoteFrenzy = 0;
+    public const uint EMOTE_FRENZY = 0;
 }
 
 [Script]
-internal class boss_flamegor : BossAI
+internal class BossFlamegor : BossAI
 {
-    public boss_flamegor(Creature creature) : base(creature, DataTypes.Flamegor) { }
+    public BossFlamegor(Creature creature) : base(creature, DataTypes.FLAMEGOR) { }
 
     public override void JustEngagedWith(Unit who)
     {
@@ -33,14 +34,14 @@ internal class boss_flamegor : BossAI
                            TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Shadowflame);
+                               DoCastVictim(SpellIds.SHADOWFLAME);
                                task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(30),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Wingbuffet);
+                               DoCastVictim(SpellIds.WINGBUFFET);
 
                                if (GetThreat(Me.Victim) != 0)
                                    ModifyThreatByPercent(Me.Victim, -75);
@@ -51,8 +52,8 @@ internal class boss_flamegor : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               Talk(TextIds.EmoteFrenzy);
-                               DoCast(Me, SpellIds.Frenzy);
+                               Talk(TextIds.EMOTE_FRENZY);
+                               DoCast(Me, SpellIds.FRENZY);
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
                            });
     }

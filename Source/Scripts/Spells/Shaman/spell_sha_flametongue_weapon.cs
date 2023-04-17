@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // 318038 - Flametongue Weapon
 [SpellScript(318038)]
-internal class spell_sha_flametongue_weapon : SpellScript, ISpellOnCast, ISpellCheckCast
+internal class SpellShaFlametongueWeapon : SpellScript, ISpellOnCast, ISpellCheckCast
 {
     Item _item;
 
@@ -35,6 +35,6 @@ internal class spell_sha_flametongue_weapon : SpellScript, ISpellOnCast, ISpellC
 
     public void OnCast()
     {
-        Caster.CastSpell(_item, ShamanSpells.FlametongueWeaponEnchant, true);
+        Caster.SpellFactory.CastSpell(_item, ShamanSpells.FlametongueWeaponEnchant, true);
     }
 }

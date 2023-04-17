@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
+internal class SpellGenMountedCharge : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -38,12 +39,12 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 
                 switch (SpellInfo.Id)
                 {
-                    case GenericSpellIds.TriggerTrialChampion:
-                        spellId = GenericSpellIds.Charging20k1;
+                    case GenericSpellIds.TRIGGER_TRIAL_CHAMPION:
+                        spellId = GenericSpellIds.CHARGING20_K1;
 
                         break;
-                    case GenericSpellIds.TriggerFactionMounts:
-                        spellId = GenericSpellIds.ChargingEffect8k5;
+                    case GenericSpellIds.TRIGGER_FACTION_MOUNTS:
+                        spellId = GenericSpellIds.CHARGING_EFFECT8_K5;
 
                         break;
                     default:
@@ -53,14 +54,14 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
                 // If Target isn't a training dummy there's a chance of failing the charge
                 if (!target.IsCharmedOwnedByPlayerOrPlayer &&
                     RandomHelper.randChance(12.5f))
-                    spellId = GenericSpellIds.MissEffect;
+                    spellId = GenericSpellIds.MISS_EFFECT;
 
                 var vehicle = Caster.VehicleBase;
 
                 if (vehicle)
-                    vehicle.CastSpell(target, spellId, false);
+                    vehicle.SpellFactory.CastSpell(target, spellId, false);
                 else
-                    Caster.CastSpell(target, spellId, false);
+                    Caster.SpellFactory.CastSpell(target, spellId, false);
 
                 break;
             }
@@ -101,18 +102,18 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 
         switch (SpellInfo.Id)
         {
-            case GenericSpellIds.ChargingEffect8k5:
-                spellId = GenericSpellIds.Damage8k5;
+            case GenericSpellIds.CHARGING_EFFECT8_K5:
+                spellId = GenericSpellIds.DAMAGE8_K5;
 
                 break;
-            case GenericSpellIds.Charging20k1:
-            case GenericSpellIds.Charging20k2:
-                spellId = GenericSpellIds.Damage20k;
+            case GenericSpellIds.CHARGING20_K1:
+            case GenericSpellIds.CHARGING20_K2:
+                spellId = GenericSpellIds.DAMAGE20_K;
 
                 break;
-            case GenericSpellIds.ChargingEffect45k1:
-            case GenericSpellIds.ChargingEffect45k2:
-                spellId = GenericSpellIds.Damage45k;
+            case GenericSpellIds.CHARGING_EFFECT45_K1:
+            case GenericSpellIds.CHARGING_EFFECT45_K2:
+                spellId = GenericSpellIds.DAMAGE45_K;
 
                 break;
             default:
@@ -122,8 +123,8 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
         var rider = Caster.Charmer;
 
         if (rider)
-            rider.CastSpell(HitUnit, spellId, false);
+            rider.SpellFactory.CastSpell(HitUnit, spellId, false);
         else
-            Caster.CastSpell(HitUnit, spellId, false);
+            Caster.SpellFactory.CastSpell(HitUnit, spellId, false);
     }
 }

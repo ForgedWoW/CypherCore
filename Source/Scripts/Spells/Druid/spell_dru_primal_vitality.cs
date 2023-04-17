@@ -2,20 +2,20 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(202808)]
-public class spell_dru_primal_vitality : AuraScript, IHasAuraEffects
+public class SpellDruPrimalVitality : AuraScript, IHasAuraEffects
 {
-    private const int PRIMAL_VITALITY_PASSIVE = 202808;
-    private const int PRIMAL_VITALITY_EFFECT = 202812;
-    private const int PROWL = 5215;
+    private const int PrimalVitalityPassive = 202808;
+    private const int PrimalVitalityEffect = 202812;
+    private const int Prowl = 5215;
 
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,7 +27,7 @@ public class spell_dru_primal_vitality : AuraScript, IHasAuraEffects
         if (eventInfo.DamageInfo != null)
             return false;
 
-        if (eventInfo.SpellInfo.Id != PROWL)
+        if (eventInfo.SpellInfo.Id != Prowl)
             return false;
 
         return true;
@@ -45,7 +45,7 @@ public class spell_dru_primal_vitality : AuraScript, IHasAuraEffects
         var target = eventInfo.ProcTarget;
 
         if (target != null)
-            if (!target.HasAura(PRIMAL_VITALITY_EFFECT))
-                target.AddAura(PRIMAL_VITALITY_EFFECT, target);
+            if (!target.HasAura(PrimalVitalityEffect))
+                target.AddAura(PrimalVitalityEffect, target);
     }
 }

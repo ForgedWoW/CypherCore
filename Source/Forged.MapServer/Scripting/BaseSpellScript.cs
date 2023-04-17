@@ -4,12 +4,15 @@
 using Forged.MapServer.Scripting.Interfaces;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Scripting;
 
 public class BaseSpellScript : IBaseSpellScript
 {
+    public SpellManager SpellManager { get; set; }
+    public ClassFactory ClassFactory { get; set; }
     public byte CurrentScriptState { get; set; }
     public string ScriptName { get; set; }
 
@@ -27,11 +30,13 @@ public class BaseSpellScript : IBaseSpellScript
         return ScriptName;
     }
 
-    public void _Init(string scriptname, uint spellId)
+    public void _Init(string scriptname, uint spellId, ClassFactory classFactory)
     {
         CurrentScriptState = (byte)SpellScriptState.None;
         ScriptName = scriptname;
         ScriptSpellId = spellId;
+        SpellManager = classFactory.Resolve<SpellManager>();
+        ClassFactory = classFactory;
     }
 
     public void _Register()
@@ -50,14 +55,13 @@ public class BaseSpellScript : IBaseSpellScript
 
     public virtual bool _Validate(SpellInfo entry)
     {
-        if (!ValidateSpellInfo(entry.Id))
-        {
-            Log.Logger.Error("Spell `{0}` did not pass Validate() function of script `{1}` - script will be not added to the spell", entry.Id, ScriptName);
+        if (ValidateSpellInfo(entry.Id))
+            return true;
 
-            return false;
-        }
+        Log.Logger.Error("Spell `{0}` did not pass Validate() function of script `{1}` - script will be not added to the spell", entry.Id, ScriptName);
 
-        return true;
+        return false;
+
     }
 
     // Function called when script is created, if returns false script will be unloaded afterwards
@@ -83,7 +87,7 @@ public class BaseSpellScript : IBaseSpellScript
         var allValid = true;
 
         foreach (var spellId in spellIds)
-            if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
+            if (!SpellManager.HasSpellInfo(spellId))
             {
                 Log.Logger.Error("BaseSpellScript::ValidateSpellInfo: Spell {0} does not exist.", spellId);
                 allValid = false;

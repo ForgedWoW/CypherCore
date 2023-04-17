@@ -1,28 +1,29 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.Spells.Druid;
 
 [Script]
-public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCreatureKill
+public class DruPredator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCreatureKill
 {
-    public dru_predator() : base("dru_predator") { }
+    public DruPredator() : base("dru_predator") { }
 
     public void OnCreatureKill(Player killer, Creature killed)
     {
         if (killer.Class == PlayerClass.Druid)
             return;
 
-        if (!killer.HasAura(DruidSpells.PREDATOR))
+        if (!killer.HasAura(DruidSpells.Predator))
             return;
 
-        if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
-            killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
+        if (killer.SpellHistory.HasCooldown(DruidSpells.TigerFury))
+            killer.SpellHistory.ResetCooldown(DruidSpells.TigerFury);
     }
 
     public void OnPVPKill(Player killer, Player killed)
@@ -30,10 +31,10 @@ public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCrea
         if (killer.Class == PlayerClass.Druid)
             return;
 
-        if (!killer.HasAura(DruidSpells.PREDATOR))
+        if (!killer.HasAura(DruidSpells.Predator))
             return;
 
-        if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
-            killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
+        if (killer.SpellHistory.HasCooldown(DruidSpells.TigerFury))
+            killer.SpellHistory.ResetCooldown(DruidSpells.TigerFury);
     }
 }

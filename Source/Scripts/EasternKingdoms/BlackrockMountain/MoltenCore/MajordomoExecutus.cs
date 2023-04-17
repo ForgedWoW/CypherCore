@@ -2,73 +2,75 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Majordomo;
 
 internal struct SpellIds
 {
-    public const uint SummonRagnaros = 19774;
-    public const uint BlastWave = 20229;
-    public const uint Teleport = 20618;
-    public const uint MagicReflection = 20619;
-    public const uint AegisOfRagnaros = 20620;
-    public const uint DamageReflection = 21075;
+    public const uint SUMMON_RAGNAROS = 19774;
+    public const uint BLAST_WAVE = 20229;
+    public const uint TELEPORT = 20618;
+    public const uint MAGIC_REFLECTION = 20619;
+    public const uint AEGIS_OF_RAGNAROS = 20620;
+    public const uint DAMAGE_REFLECTION = 21075;
 }
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SaySpawn = 1;
-    public const uint SaySlay = 2;
-    public const uint SaySpecial = 3;
-    public const uint SayDefeat = 4;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_SPAWN = 1;
+    public const uint SAY_SLAY = 2;
+    public const uint SAY_SPECIAL = 3;
+    public const uint SAY_DEFEAT = 4;
 
-    public const uint SaySummonMaj = 5;
-    public const uint SayArrival2Maj = 6;
+    public const uint SAY_SUMMON_MAJ = 5;
+    public const uint SAY_ARRIVAL2_MAJ = 6;
 
-    public const uint OptionIdYouChallengedUs = 0;
-    public const uint MenuOptionYouChallengedUs = 4108;
+    public const uint OPTION_ID_YOU_CHALLENGED_US = 0;
+    public const uint MENU_OPTION_YOU_CHALLENGED_US = 4108;
 }
 
 [Script]
-internal class boss_majordomo : BossAI
+internal class BossMajordomo : BossAI
 {
-    public boss_majordomo(Creature creature) : base(creature, DataTypes.MajordomoExecutus) { }
+    public BossMajordomo(Creature creature) : base(creature, DataTypes.MAJORDOMO_EXECUTUS) { }
 
     public override void KilledUnit(Unit victim)
     {
         if (RandomHelper.URand(0, 99) < 25)
-            Talk(TextIds.SaySlay);
+            Talk(TextIds.SAY_SLAY);
     }
 
     public override void JustEngagedWith(Unit who)
     {
         base.JustEngagedWith(who);
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
 
         Scheduler.Schedule(TimeSpan.FromSeconds(30),
                            task =>
                            {
-                               DoCast(Me, SpellIds.MagicReflection);
+                               DoCast(Me, SpellIds.MAGIC_REFLECTION);
                                task.Repeat(TimeSpan.FromSeconds(30));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(15),
                            task =>
                            {
-                               DoCast(Me, SpellIds.DamageReflection);
+                               DoCast(Me, SpellIds.DAMAGE_REFLECTION);
                                task.Repeat(TimeSpan.FromSeconds(30));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCastVictim(SpellIds.BlastWave);
+                               DoCastVictim(SpellIds.BLAST_WAVE);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
 
@@ -78,7 +80,7 @@ internal class boss_majordomo : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 1);
 
                                if (target)
-                                   DoCast(target, SpellIds.Teleport);
+                                   DoCast(target, SpellIds.TELEPORT);
 
                                task.Repeat(TimeSpan.FromSeconds(20));
                            });
@@ -88,24 +90,24 @@ internal class boss_majordomo : BossAI
     {
         Scheduler.Update(diff);
 
-        if (Instance.GetBossState(DataTypes.MajordomoExecutus) != EncounterState.Done)
+        if (Instance.GetBossState(DataTypes.MAJORDOMO_EXECUTUS) != EncounterState.Done)
         {
             if (!UpdateVictim())
                 return;
 
-            if (!Me.FindNearestCreature(MCCreatureIds.FlamewakerHealer, 100.0f) &&
-                !Me.FindNearestCreature(MCCreatureIds.FlamewakerElite, 100.0f))
+            if (!Me.FindNearestCreature(McCreatureIds.FLAMEWAKER_HEALER, 100.0f) &&
+                !Me.FindNearestCreature(McCreatureIds.FLAMEWAKER_ELITE, 100.0f))
             {
                 Instance.UpdateEncounterStateForKilledCreature(Me.Entry, Me);
                 Me.Faction = (uint)FactionTemplates.Friendly;
                 EnterEvadeMode();
-                Talk(TextIds.SayDefeat);
+                Talk(TextIds.SAY_DEFEAT);
                 _JustDied();
 
                 Scheduler.Schedule(TimeSpan.FromSeconds(32),
                                    (Action<Framework.Dynamic.TaskContext>)(task =>
                                                                               {
-                                                                                  Me.NearTeleportTo(MCMiscConst.RagnarosTelePos.X, MCMiscConst.RagnarosTelePos.Y, MCMiscConst.RagnarosTelePos.Z, MCMiscConst.RagnarosTelePos.Orientation);
+                                                                                  Me.NearTeleportTo(McMiscConst.RagnarosTelePos.X, McMiscConst.RagnarosTelePos.Y, McMiscConst.RagnarosTelePos.Z, McMiscConst.RagnarosTelePos.Orientation);
                                                                                   Me.SetNpcFlag(NPCFlags.Gossip);
                                                                               }));
 
@@ -116,7 +118,7 @@ internal class boss_majordomo : BossAI
                 return;
 
             if (HealthBelowPct(50))
-                DoCast(Me, SpellIds.AegisOfRagnaros, new CastSpellExtraArgs(true));
+                DoCast(Me, SpellIds.AEGIS_OF_RAGNAROS, new CastSpellExtraArgs(true));
 
             DoMeleeAttackIfReady();
         }
@@ -124,15 +126,15 @@ internal class boss_majordomo : BossAI
 
     public override void DoAction(int action)
     {
-        if (action == ActionIds.StartRagnaros)
+        if (action == ActionIds.START_RAGNAROS)
         {
             Me.RemoveNpcFlag(NPCFlags.Gossip);
-            Talk(TextIds.SaySummonMaj);
+            Talk(TextIds.SAY_SUMMON_MAJ);
 
-            Scheduler.Schedule(TimeSpan.FromSeconds(8), task => { Instance.Instance.SummonCreature(MCCreatureIds.Ragnaros, MCMiscConst.RagnarosSummonPos); });
-            Scheduler.Schedule(TimeSpan.FromSeconds(24), task => { Talk(TextIds.SayArrival2Maj); });
+            Scheduler.Schedule(TimeSpan.FromSeconds(8), task => { Instance.Instance.SummonCreature(McCreatureIds.RAGNAROS, McMiscConst.RagnarosSummonPos); });
+            Scheduler.Schedule(TimeSpan.FromSeconds(24), task => { Talk(TextIds.SAY_ARRIVAL2_MAJ); });
         }
-        else if (action == ActionIds.StartRagnarosAlt)
+        else if (action == ActionIds.START_RAGNAROS_ALT)
         {
             Me.Faction = (uint)FactionTemplates.Friendly;
             Me.SetNpcFlag(NPCFlags.Gossip);
@@ -141,11 +143,11 @@ internal class boss_majordomo : BossAI
 
     public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     {
-        if (menuId == TextIds.MenuOptionYouChallengedUs &&
-            gossipListId == TextIds.OptionIdYouChallengedUs)
+        if (menuId == TextIds.MENU_OPTION_YOU_CHALLENGED_US &&
+            gossipListId == TextIds.OPTION_ID_YOU_CHALLENGED_US)
         {
             player.CloseGossipMenu();
-            DoAction(ActionIds.StartRagnaros);
+            DoAction(ActionIds.START_RAGNAROS);
         }
 
         return false;

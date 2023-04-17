@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
-[Script("spell_item_deathbringers_will_normal", ItemSpellIds.StrengthOfTheTaunka, ItemSpellIds.AgilityOfTheVrykul, ItemSpellIds.PowerOfTheTaunka, ItemSpellIds.AimOfTheIronDwarves, ItemSpellIds.SpeedOfTheVrykul)]
-[Script("spell_item_deathbringers_will_heroic", ItemSpellIds.StrengthOfTheTaunkaHero, ItemSpellIds.AgilityOfTheVrykulHero, ItemSpellIds.PowerOfTheTaunkaHero, ItemSpellIds.AimOfTheIronDwarvesHero, ItemSpellIds.SpeedOfTheVrykulHero)]
-internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
+[Script("spell_item_deathbringers_will_normal", ItemSpellIds.STRENGTH_OF_THE_TAUNKA, ItemSpellIds.AGILITY_OF_THE_VRYKUL, ItemSpellIds.POWER_OF_THE_TAUNKA, ItemSpellIds.AIM_OF_THE_IRON_DWARVES, ItemSpellIds.SPEED_OF_THE_VRYKUL)]
+[Script("spell_item_deathbringers_will_heroic", ItemSpellIds.STRENGTH_OF_THE_TAUNKA_HERO, ItemSpellIds.AGILITY_OF_THE_VRYKUL_HERO, ItemSpellIds.POWER_OF_THE_TAUNKA_HERO, ItemSpellIds.AIM_OF_THE_IRON_DWARVES_HERO, ItemSpellIds.SPEED_OF_THE_VRYKUL_HERO)]
+internal class SpellItemDeathbringersWill : AuraScript, IHasAuraEffects
 {
     private readonly uint _agilitySpellId;
     private readonly uint _apSpellId;
@@ -22,9 +23,7 @@ internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
 
     private readonly uint _strengthSpellId;
 
-    public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-    public spell_item_deathbringers_will(uint strengthSpellId, uint agilitySpellId, uint apSpellId, uint criticalSpellId, uint hasteSpellId)
+    public SpellItemDeathbringersWill(uint strengthSpellId, uint agilitySpellId, uint apSpellId, uint criticalSpellId, uint hasteSpellId)
     {
         _strengthSpellId = strengthSpellId;
         _agilitySpellId = agilitySpellId;
@@ -32,6 +31,8 @@ internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
         _criticalSpellId = criticalSpellId;
         _hasteSpellId = hasteSpellId;
     }
+
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
     public override void Register()
@@ -98,6 +99,6 @@ internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
             return;
 
         var spellId = randomSpells.SelectRandom();
-        caster.CastSpell(caster, spellId, new CastSpellExtraArgs(aurEff));
+        caster.SpellFactory.CastSpell(caster, spellId, new CastSpellExtraArgs(aurEff));
     }
 }

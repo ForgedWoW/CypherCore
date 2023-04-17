@@ -1,20 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.GameObjects;
 
 /**
      * explode door and say mobs after Door to attack tank...
      */
-[GameObjectScript(DMGameObjects.GO_DEFIAS_CANNON)]
-public class go_defias_cannon : GameObjectAI
+[GameObjectScript(DmGameObjects.GO_DEFIAS_CANNON)]
+public class GODefiasCannon : GameObjectAI
 {
-    public go_defias_cannon(GameObject go) : base(go) { }
+    public GODefiasCannon(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
@@ -22,18 +23,18 @@ public class go_defias_cannon : GameObjectAI
             return false;
 
         var instance = Me.InstanceScript;
-        var ironCladDoor = Me.FindNearestGameObject(DMGameObjects.GO_IRONCLAD_DOOR, 30.0f);
+        var ironCladDoor = Me.FindNearestGameObject(DmGameObjects.GO_IRONCLAD_DOOR, 30.0f);
 
         if (ironCladDoor != null)
         {
             Me.SetGoState(GameObjectState.Active);
-            Me.PlayDistanceSound(DMSound.SOUND_CANNONFIRE, player);
+            Me.PlayDistanceSound(DmSound.SOUND_CANNONFIRE, player);
             ironCladDoor.SetGoState(GameObjectState.Active);
-            ironCladDoor.PlayDistanceSound(DMSound.SOUND_DESTROYDOOR, player);
+            ironCladDoor.PlayDistanceSound(DmSound.SOUND_DESTROYDOOR, player);
 
-            MoveCreatureInside(Me, DMCreatures.NPC_DEFIAS_SHADOWGUARD);
-            MoveCreatureInside(Me, DMCreatures.NPC_DEFIAS_ENFORCER);
-            MoveCreatureInside(Me, DMCreatures.NPC_DEFIAS_BLOODWIZARD);
+            MoveCreatureInside(Me, DmCreatures.NPC_DEFIAS_SHADOWGUARD);
+            MoveCreatureInside(Me, DmCreatures.NPC_DEFIAS_ENFORCER);
+            MoveCreatureInside(Me, DmCreatures.NPC_DEFIAS_BLOODWIZARD);
             //Creature bunny = me.SummonCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, me.Location.X, me.Location.Y, me.Location.Z);
 
             //if (bunny != null)

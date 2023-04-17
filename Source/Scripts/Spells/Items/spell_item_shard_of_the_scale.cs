@@ -2,29 +2,30 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
-[Script("spell_item_purified_shard_of_the_scale", ItemSpellIds.PurifiedCauterizingHeal, ItemSpellIds.PurifiedSearingFlames)]
-[Script("spell_item_shiny_shard_of_the_scale", ItemSpellIds.ShinyCauterizingHeal, ItemSpellIds.ShinySearingFlames)]
-internal class spell_item_shard_of_the_scale : AuraScript, IHasAuraEffects
+[Script("spell_item_purified_shard_of_the_scale", ItemSpellIds.PURIFIED_CAUTERIZING_HEAL, ItemSpellIds.PURIFIED_SEARING_FLAMES)]
+[Script("spell_item_shiny_shard_of_the_scale", ItemSpellIds.SHINY_CAUTERIZING_HEAL, ItemSpellIds.SHINY_SEARING_FLAMES)]
+internal class SpellItemShardOfTheScale : AuraScript, IHasAuraEffects
 {
     private readonly uint _damageProcSpellId;
 
     private readonly uint _healProcSpellId;
 
-    public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-    public spell_item_shard_of_the_scale(uint healProcSpellId, uint damageProcSpellId)
+    public SpellItemShardOfTheScale(uint healProcSpellId, uint damageProcSpellId)
     {
         _healProcSpellId = healProcSpellId;
         _damageProcSpellId = damageProcSpellId;
     }
+
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
     public override void Register()
@@ -39,9 +40,9 @@ internal class spell_item_shard_of_the_scale : AuraScript, IHasAuraEffects
         var target = eventInfo.ProcTarget;
 
         if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHelpfulSpell))
-            caster.CastSpell(target, _healProcSpellId, new CastSpellExtraArgs(aurEff));
+            caster.SpellFactory.CastSpell(target, _healProcSpellId, new CastSpellExtraArgs(aurEff));
 
         if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHarmfulSpell))
-            caster.CastSpell(target, _damageProcSpellId, new CastSpellExtraArgs(aurEff));
+            caster.SpellFactory.CastSpell(target, _damageProcSpellId, new CastSpellExtraArgs(aurEff));
     }
 }

@@ -2,25 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script("spell_future_you_whisper_to_controller_random", 2u)]
 [Script("spell_wyrmrest_defender_whisper_to_controller_random", 1u)]
 [Script("spell_past_you_whisper_to_controller_random", 2u)]
-internal class spell_gen_whisper_to_controller_random : SpellScript, IHasSpellEffects
+internal class SpellGenWhisperToControllerRandom : SpellScript, IHasSpellEffects
 {
     private readonly uint _text;
 
-    public List<ISpellEffect> SpellEffects { get; } = new();
-
-    public spell_gen_whisper_to_controller_random(uint text)
+    public SpellGenWhisperToControllerRandom(uint text)
     {
         _text = text;
     }
+
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
     public override void Register()
     {

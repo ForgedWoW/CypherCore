@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 76245 - Area Restrict Abom
-internal class spell_q13264_q13276_q13288_q13289_area_restrict_abom : SpellScript, IHasSpellEffects
+internal class SpellQ13264Q13276Q13288Q13289AreaRestrictAbom : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,8 +27,8 @@ internal class spell_q13264_q13276_q13288_q13289_area_restrict_abom : SpellScrip
         {
             var area = creature.Area;
 
-            if (area != Misc.AreaTheBrokenFront &&
-                area != Misc.AreaMordRetharTheDeathGate)
+            if (area != Misc.AREA_THE_BROKEN_FRONT &&
+                area != Misc.AREA_MORD_RETHAR_THE_DEATH_GATE)
                 creature.DespawnOrUnsummon();
         }
     }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 45051 - Mad Alchemist's Potion (34440)
-internal class spell_item_mad_alchemists_potion : SpellScript, ISpellAfterCast
+internal class SpellItemMadAlchemistsPotion : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -59,13 +59,13 @@ internal class spell_item_mad_alchemists_potion : SpellScript, ISpellAfterCast
         // If another spell of the same group is already active the elixir should not be cast
         if (chosenSpellGroup != 0)
         {
-            var Auras = target.AppliedAuras;
+            var auras = target.AppliedAuras;
 
-            foreach (var pair in Auras)
+            foreach (var pair in auras)
             {
-                var spell_id = pair.Base.Id;
+                var spellID = pair.Base.Id;
 
-                if (Global.SpellMgr.IsSpellMemberOfSpellGroup(spell_id, chosenSpellGroup) && spell_id != chosenElixir)
+                if (Global.SpellMgr.IsSpellMemberOfSpellGroup(spellID, chosenSpellGroup) && spellID != chosenElixir)
                 {
                     useElixir = false;
 
@@ -75,6 +75,6 @@ internal class spell_item_mad_alchemists_potion : SpellScript, ISpellAfterCast
         }
 
         if (useElixir)
-            target.CastSpell(target, chosenElixir, new CastSpellExtraArgs(CastItem));
+            target.SpellFactory.CastSpell(target, chosenElixir, new CastSpellExtraArgs(CastItem));
     }
 }

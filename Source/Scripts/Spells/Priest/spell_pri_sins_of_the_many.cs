@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 280391 - Sins of the Many
-internal class spell_pri_sins_of_the_many : AuraScript, IHasAuraEffects
+internal class SpellPriSinsOfTheMany : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +23,7 @@ internal class spell_pri_sins_of_the_many : AuraScript, IHasAuraEffects
 
     private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.CastSpell(Target, PriestSpells.SINS_OF_THE_MANY, true);
+        Target.SpellFactory.CastSpell(Target, PriestSpells.SINS_OF_THE_MANY, true);
     }
 
     private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

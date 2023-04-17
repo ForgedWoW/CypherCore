@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 228601 - Comet Storm (Damage)
-internal class spell_mage_comet_storm_damage : SpellScript, IHasSpellEffects
+internal class SpellMageCometStormDamage : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,6 +23,6 @@ internal class spell_mage_comet_storm_damage : SpellScript, IHasSpellEffects
 
     private void HandleEffectHitTarget(int effIndex)
     {
-        Caster.CastSpell(HitDest, MageSpells.CometStormDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(Spell.OriginalCastId));
+        Caster.SpellFactory.CastSpell(HitDest, MageSpells.CometStormDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(Spell.OriginalCastId));
     }
 }

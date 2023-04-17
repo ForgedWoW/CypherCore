@@ -37,24 +37,20 @@ public class SpellScript : BaseSpellScript, ISpellScript
     // returns: cast Item if present.
     public Item CastItem => Spell.CastItem;
 
-    public SpellEffectInfo EffectInfo
-    {
-        get { return Spell.EffectInfo; }
-    }
+    public SpellEffectInfo EffectInfo => Spell.EffectInfo;
 
     // method avalible only in EffectHandler method
     public double EffectValue
     {
         get
         {
-            if (!IsInEffectHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.PreventHitDefaultEffect was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInEffectHook)
+                return Spell.Damage;
 
-                return 0;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.PreventHitDefaultEffect was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.Damage;
+            return 0;
+
         }
 
         set
@@ -74,14 +70,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInEffectHook)
-            {
-                Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript::GetEffectVariance was called, but function has no effect in current hook!");
+            if (IsInEffectHook)
+                return Spell.Variance;
 
-                return 0.0f;
-            }
+            Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript::GetEffectVariance was called, but function has no effect in current hook!");
 
-            return Spell.Variance;
+            return 0.0f;
+
         }
 
         set
@@ -100,14 +95,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
     // returns: WorldLocation which was selected as a spell destination or null
     public WorldLocation ExplTargetDest
     {
-        get
-        {
-            if (Spell.Targets.HasDst)
-                return Spell.Targets.DstPos;
-
-            return null;
-        }
-
+        get => Spell.Targets.HasDst ? Spell.Targets.DstPos : null;
         set => Spell.Targets.SetDst(value);
     }
 
@@ -156,14 +144,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript::GetHitCorpse was called, but function has no effect in current hook!");
+            if (IsInTargetHook)
+                return Spell.CorpseTarget;
 
-                return null;
-            }
+            Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript::GetHitCorpse was called, but function has no effect in current hook!");
 
-            return Spell.CorpseTarget;
+            return null;
+
         }
     }
 
@@ -174,14 +161,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitCreature was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInTargetHook)
+                return Spell.UnitTarget?.AsCreature;
 
-                return null;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitCreature was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.UnitTarget?.AsCreature;
+            return null;
+
         }
     }
 
@@ -191,14 +177,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitDamage was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInTargetHook)
+                return Spell.DamageInEffects;
 
-                return 0;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitDamage was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.DamageInEffects;
+            return 0;
+
         }
 
         set
@@ -221,14 +206,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInEffectHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitDest was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInEffectHook)
+                return Spell.DestTarget;
 
-                return null;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitDest was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.DestTarget;
+            return null;
+
         }
     }
 
@@ -239,14 +223,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitGObj was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInTargetHook)
+                return Spell.GameObjTarget;
 
-                return null;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitGObj was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.GameObjTarget;
+            return null;
+
         }
     }
 
@@ -256,14 +239,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitHeal was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInTargetHook)
+                return Spell.HealingInEffects;
 
-                return 0;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitHeal was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.HealingInEffects;
+            return 0;
+
         }
 
         set
@@ -286,14 +268,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitItem was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInTargetHook)
+                return Spell.ItemTarget;
 
-                return null;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitItem was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.ItemTarget;
+            return null;
+
         }
     }
 
@@ -304,14 +285,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitPlayer was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInTargetHook)
+                return Spell.UnitTarget?.AsPlayer;
 
-                return null;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitPlayer was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.UnitTarget?.AsPlayer;
+            return null;
+
         }
     }
 
@@ -323,14 +303,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (!IsInTargetHook)
-            {
-                Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitUnit was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
+            if (IsInTargetHook)
+                return Spell.UnitTarget;
 
-                return null;
-            }
+            Log.Logger.Error("Script: `{0}` Spell: `{1}`: function SpellScript.GetHitUnit was called, but function has no effect in current hook!", ScriptName, ScriptSpellId);
 
-            return Spell.UnitTarget;
+            return null;
+
         }
     }
 
@@ -350,14 +329,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
             var hitUnit = HitUnit;
 
-            if (hitUnit != null)
-            {
-                var targetInfo = Spell.UniqueTargetInfoOrgi.Find(targetInfo => targetInfo.TargetGuid == hitUnit.GUID);
+            if (hitUnit == null)
+                return false;
 
-                return targetInfo.IsCrit;
-            }
+            var targetInfo = Spell.UniqueTargetInfoOrgi.Find(targetInfo => targetInfo.TargetGuid == hitUnit.GUID);
 
-            return false;
+            return targetInfo.IsCrit;
+
         }
     }
 
@@ -475,14 +453,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     public long GetCorpseTargetCountForEffect(int effect)
     {
-        if (!IsAfterTargetSelectionPhase)
-        {
-            Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript::GetCorpseTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
+        if (IsAfterTargetSelectionPhase)
+            return Spell.GetCorpseTargetCountForEffect(effect);
 
-            return 0;
-        }
+        Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript::GetCorpseTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
 
-        return Spell.GetCorpseTargetCountForEffect(effect);
+        return 0;
+
     }
 
     public SpellEffectInfo GetEffectInfo(int effIndex)
@@ -492,14 +469,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     public long GetGameObjectTargetCountForEffect(int effect)
     {
-        if (!IsAfterTargetSelectionPhase)
-        {
-            Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript.GetGameObjectTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
+        if (IsAfterTargetSelectionPhase)
+            return Spell.GetGameObjectTargetCountForEffect(effect);
 
-            return 0;
-        }
+        Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript.GetGameObjectTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
 
-        return Spell.GetGameObjectTargetCountForEffect(effect);
+        return 0;
+
     }
 
     // returns current spell hit Target aura
@@ -525,26 +501,24 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     public long GetItemTargetCountForEffect(int effect)
     {
-        if (!IsAfterTargetSelectionPhase)
-        {
-            Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript.GetItemTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
+        if (IsAfterTargetSelectionPhase)
+            return Spell.GetItemTargetCountForEffect(effect);
 
-            return 0;
-        }
+        Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript.GetItemTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
 
-        return Spell.GetItemTargetCountForEffect(effect);
+        return 0;
+
     }
 
     public long GetUnitTargetCountForEffect(int effect)
     {
-        if (!IsAfterTargetSelectionPhase)
-        {
-            Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript.GetUnitTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
+        if (IsAfterTargetSelectionPhase)
+            return Spell.GetUnitTargetCountForEffect(effect);
 
-            return 0;
-        }
+        Log.Logger.Error($"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript.GetUnitTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)");
 
-        return Spell.GetUnitTargetCountForEffect(effect);
+        return 0;
+
     }
 
     // prevents applying aura on current spell hit Target

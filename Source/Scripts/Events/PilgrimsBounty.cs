@@ -2,113 +2,116 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.m_Events.PilgrimsBounty;
 
 internal struct SpellIds
 {
     //Pilgrims Bounty
-    public const uint WellFedApTrigger = 65414;
-    public const uint WellFedZmTrigger = 65412;
-    public const uint WellFedHitTrigger = 65416;
-    public const uint WellFedHasteTrigger = 65410;
-    public const uint WellFedSpiritTrigger = 65415;
+    public const uint WELL_FED_AP_TRIGGER = 65414;
+    public const uint WELL_FED_ZM_TRIGGER = 65412;
+    public const uint WELL_FED_HIT_TRIGGER = 65416;
+    public const uint WELL_FED_HASTE_TRIGGER = 65410;
+    public const uint WELL_FED_SPIRIT_TRIGGER = 65415;
 
     //FeastOnSpells
     //Feastonspells
-    public const uint FeastOnTurkey = 61784;
-    public const uint FeastOnCranberries = 61785;
-    public const uint FeastOnSweetPotatoes = 61786;
-    public const uint FeastOnPie = 61787;
-    public const uint FeastOnStuffing = 61788;
-    public const uint CranberryHelpins = 61841;
-    public const uint TurkeyHelpins = 61842;
-    public const uint StuffingHelpins = 61843;
-    public const uint SweetPotatoHelpins = 61844;
-    public const uint PieHelpins = 61845;
-    public const uint OnPlateEatVisual = 61826;
+    public const uint FEAST_ON_TURKEY = 61784;
+    public const uint FEAST_ON_CRANBERRIES = 61785;
+    public const uint FEAST_ON_SWEET_POTATOES = 61786;
+    public const uint FEAST_ON_PIE = 61787;
+    public const uint FEAST_ON_STUFFING = 61788;
+    public const uint CRANBERRY_HELPINS = 61841;
+    public const uint TURKEY_HELPINS = 61842;
+    public const uint STUFFING_HELPINS = 61843;
+    public const uint SWEET_POTATO_HELPINS = 61844;
+    public const uint PIE_HELPINS = 61845;
+    public const uint ON_PLATE_EAT_VISUAL = 61826;
 
     //Theturkinator
-    public const uint KillCounterVisual = 62015;
-    public const uint KillCounterVisualMax = 62021;
+    public const uint KILL_COUNTER_VISUAL = 62015;
+    public const uint KILL_COUNTER_VISUAL_MAX = 62021;
 
     //Spiritofsharing
-    public const uint TheSpiritOfSharing = 61849;
+    public const uint THE_SPIRIT_OF_SHARING = 61849;
 
     //Bountifultablemisc
-    public const uint OnPlateTurkey = 61928;
-    public const uint OnPlateCranberries = 61925;
-    public const uint OnPlateStuffing = 61927;
-    public const uint OnPlateSweetPotatoes = 61929;
-    public const uint OnPlatePie = 61926;
-    public const uint PassTheTurkey = 66373;
-    public const uint PassTheCranberries = 66372;
-    public const uint PassTheStuffing = 66375;
-    public const uint PassTheSweetPotatoes = 66376;
-    public const uint PassThePie = 66374;
-    public const uint OnPlateVisualPie = 61825;
-    public const uint OnPlateVisualCranberries = 61821;
-    public const uint OnPlateVisualPotatoes = 61824;
-    public const uint OnPlateVisualTurkey = 61822;
-    public const uint OnPlateVisualStuffing = 61823;
-    public const uint AServingOfCranberriesPlate = 61833;
-    public const uint AServingOfTurkeyPlate = 61835;
-    public const uint AServingOfStuffingPlate = 61836;
-    public const uint AServingOfSweetPotatoesPlate = 61837;
-    public const uint AServingOfPiePlate = 61838;
-    public const uint AServingOfCranberriesChair = 61804;
-    public const uint AServingOfTurkeyChair = 61807;
-    public const uint AServingOfStuffingChair = 61806;
-    public const uint AServingOfSweetPotatoesChair = 61808;
-    public const uint AServingOfPieChair = 61805;
+    public const uint ON_PLATE_TURKEY = 61928;
+    public const uint ON_PLATE_CRANBERRIES = 61925;
+    public const uint ON_PLATE_STUFFING = 61927;
+    public const uint ON_PLATE_SWEET_POTATOES = 61929;
+    public const uint ON_PLATE_PIE = 61926;
+    public const uint PASS_THE_TURKEY = 66373;
+    public const uint PASS_THE_CRANBERRIES = 66372;
+    public const uint PASS_THE_STUFFING = 66375;
+    public const uint PASS_THE_SWEET_POTATOES = 66376;
+    public const uint PASS_THE_PIE = 66374;
+    public const uint ON_PLATE_VISUAL_PIE = 61825;
+    public const uint ON_PLATE_VISUAL_CRANBERRIES = 61821;
+    public const uint ON_PLATE_VISUAL_POTATOES = 61824;
+    public const uint ON_PLATE_VISUAL_TURKEY = 61822;
+    public const uint ON_PLATE_VISUAL_STUFFING = 61823;
+    public const uint A_SERVING_OF_CRANBERRIES_PLATE = 61833;
+    public const uint A_SERVING_OF_TURKEY_PLATE = 61835;
+    public const uint A_SERVING_OF_STUFFING_PLATE = 61836;
+    public const uint A_SERVING_OF_SWEET_POTATOES_PLATE = 61837;
+    public const uint A_SERVING_OF_PIE_PLATE = 61838;
+    public const uint A_SERVING_OF_CRANBERRIES_CHAIR = 61804;
+    public const uint A_SERVING_OF_TURKEY_CHAIR = 61807;
+    public const uint A_SERVING_OF_STUFFING_CHAIR = 61806;
+    public const uint A_SERVING_OF_SWEET_POTATOES_CHAIR = 61808;
+    public const uint A_SERVING_OF_PIE_CHAIR = 61805;
 }
 
 internal struct CreatureIds
 {
     //BountifulTableMisc
-    public const uint BountifulTable = 32823;
+    public const uint BOUNTIFUL_TABLE = 32823;
 }
 
 internal struct EmoteIds
 {
     //TheTurkinator
-    public const uint TurkeyHunter = 0;
-    public const uint TurkeyDomination = 1;
-    public const uint TurkeySlaughter = 2;
-    public const uint TurkeyTriumph = 3;
+    public const uint TURKEY_HUNTER = 0;
+    public const uint TURKEY_DOMINATION = 1;
+    public const uint TURKEY_SLAUGHTER = 2;
+    public const uint TURKEY_TRIUMPH = 3;
 }
 
 internal struct SeatIds
 {
     //BountifulTableMisc
-    public const sbyte Player = 0;
-    public const sbyte PlateHolder = 6;
+    public const sbyte PLAYER = 0;
+    public const sbyte PLATE_HOLDER = 6;
 }
 
-[Script("spell_gen_slow_roasted_turkey", SpellIds.WellFedApTrigger)]
-[Script("spell_gen_cranberry_chutney", SpellIds.WellFedZmTrigger)]
-[Script("spell_gen_spice_bread_stuffing", SpellIds.WellFedHitTrigger)]
-[Script("spell_gen_pumpkin_pie", SpellIds.WellFedSpiritTrigger)]
-[Script("spell_gen_candied_sweet_potato", SpellIds.WellFedHasteTrigger)]
-internal class spell_pilgrims_bounty_buff_food : AuraScript, IHasAuraEffects
+[Script("spell_gen_slow_roasted_turkey", SpellIds.WELL_FED_AP_TRIGGER)]
+[Script("spell_gen_cranberry_chutney", SpellIds.WELL_FED_ZM_TRIGGER)]
+[Script("spell_gen_spice_bread_stuffing", SpellIds.WELL_FED_HIT_TRIGGER)]
+[Script("spell_gen_pumpkin_pie", SpellIds.WELL_FED_SPIRIT_TRIGGER)]
+[Script("spell_gen_candied_sweet_potato", SpellIds.WELL_FED_HASTE_TRIGGER)]
+internal class SpellPilgrimsBountyBuffFood : AuraScript, IHasAuraEffects
 {
     private readonly uint _triggeredSpellId;
 
     private bool _handled;
 
-    public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-    public spell_pilgrims_bounty_buff_food(uint triggeredSpellId)
+    public SpellPilgrimsBountyBuffFood(uint triggeredSpellId)
     {
         _triggeredSpellId = triggeredSpellId;
         _handled = false;
     }
+
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
     public override void Register()
     {
@@ -123,7 +126,7 @@ internal class spell_pilgrims_bounty_buff_food : AuraScript, IHasAuraEffects
             return;
 
         _handled = true;
-        Target.CastSpell(Target, _triggeredSpellId, true);
+        Target.SpellFactory.CastSpell(Target, _triggeredSpellId, true);
     }
 }
 
@@ -133,7 +136,7 @@ internal class spell_pilgrims_bounty_buff_food : AuraScript, IHasAuraEffects
  * 61787 - Feast On Pie
  * 61788 - Feast On Stuffing */
 [Script]
-internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellPilgrimsBountyFeastOnSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -147,28 +150,28 @@ internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpe
     {
         var caster = Caster;
 
-        uint _spellId = 0;
+        uint spellId = 0;
 
         switch (SpellInfo.Id)
         {
-            case SpellIds.FeastOnTurkey:
-                _spellId = SpellIds.TurkeyHelpins;
+            case SpellIds.FEAST_ON_TURKEY:
+                spellId = SpellIds.TURKEY_HELPINS;
 
                 break;
-            case SpellIds.FeastOnCranberries:
-                _spellId = SpellIds.CranberryHelpins;
+            case SpellIds.FEAST_ON_CRANBERRIES:
+                spellId = SpellIds.CRANBERRY_HELPINS;
 
                 break;
-            case SpellIds.FeastOnSweetPotatoes:
-                _spellId = SpellIds.SweetPotatoHelpins;
+            case SpellIds.FEAST_ON_SWEET_POTATOES:
+                spellId = SpellIds.SWEET_POTATO_HELPINS;
 
                 break;
-            case SpellIds.FeastOnPie:
-                _spellId = SpellIds.PieHelpins;
+            case SpellIds.FEAST_ON_PIE:
+                spellId = SpellIds.PIE_HELPINS;
 
                 break;
-            case SpellIds.FeastOnStuffing:
-                _spellId = SpellIds.StuffingHelpins;
+            case SpellIds.FEAST_ON_STUFFING:
+                spellId = SpellIds.STUFFING_HELPINS;
 
                 break;
             default:
@@ -187,10 +190,10 @@ internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpe
 
                 if (player != null)
                 {
-                    player.CastSpell(player, SpellIds.OnPlateEatVisual, true);
+                    player.SpellFactory.CastSpell(player, SpellIds.ON_PLATE_EAT_VISUAL, true);
 
-                    caster.CastSpell(player,
-                                     _spellId,
+                    caster.SpellFactory.CastSpell(player,
+                                     spellId,
                                      new CastSpellExtraArgs(TriggerCastFlags.FullMask)
                                          .SetOriginalCaster(player.GUID));
                 }
@@ -210,7 +213,7 @@ internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpe
 }
 
 [Script] // 62014 - Turkey Tracker
-internal class spell_pilgrims_bounty_turkey_tracker_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellPilgrimsBountyTurkeyTrackerSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -229,7 +232,7 @@ internal class spell_pilgrims_bounty_turkey_tracker_SpellScript : SpellScript, I
             caster == null)
             return;
 
-        if (target.HasAura(SpellIds.KillCounterVisualMax))
+        if (target.HasAura(SpellIds.KILL_COUNTER_VISUAL_MAX))
             return;
 
         var aura = target.GetAura(SpellInfo.Id);
@@ -239,20 +242,20 @@ internal class spell_pilgrims_bounty_turkey_tracker_SpellScript : SpellScript, I
             switch (aura.StackAmount)
             {
                 case 10:
-                    caster.AI.Talk(EmoteIds.TurkeyHunter, target);
+                    caster.AI.Talk(EmoteIds.TURKEY_HUNTER, target);
 
                     break;
                 case 20:
-                    caster.AI.Talk(EmoteIds.TurkeyDomination, target);
+                    caster.AI.Talk(EmoteIds.TURKEY_DOMINATION, target);
 
                     break;
                 case 30:
-                    caster.AI.Talk(EmoteIds.TurkeySlaughter, target);
+                    caster.AI.Talk(EmoteIds.TURKEY_SLAUGHTER, target);
 
                     break;
                 case 40:
-                    caster.AI.Talk(EmoteIds.TurkeyTriumph, target);
-                    target.CastSpell(target, SpellIds.KillCounterVisualMax, true);
+                    caster.AI.Talk(EmoteIds.TURKEY_TRIUMPH, target);
+                    target.SpellFactory.CastSpell(target, SpellIds.KILL_COUNTER_VISUAL_MAX, true);
                     target.RemoveAura(SpellInfo.Id);
 
                     break;
@@ -260,26 +263,26 @@ internal class spell_pilgrims_bounty_turkey_tracker_SpellScript : SpellScript, I
                     return;
             }
 
-            target.CastSpell(target, SpellIds.KillCounterVisual, true);
+            target.SpellFactory.CastSpell(target, SpellIds.KILL_COUNTER_VISUAL, true);
         }
     }
 }
 
-[Script("spell_pilgrims_bounty_well_fed_turkey", SpellIds.WellFedApTrigger)]
-[Script("spell_pilgrims_bounty_well_fed_cranberry", SpellIds.WellFedZmTrigger)]
-[Script("spell_pilgrims_bounty_well_fed_stuffing", SpellIds.WellFedHitTrigger)]
-[Script("spell_pilgrims_bounty_well_fed_sweet_potatoes", SpellIds.WellFedHasteTrigger)]
-[Script("spell_pilgrims_bounty_well_fed_pie", SpellIds.WellFedSpiritTrigger)]
-internal class spell_pilgrims_bounty_well_fed_SpellScript : SpellScript, IHasSpellEffects
+[Script("spell_pilgrims_bounty_well_fed_turkey", SpellIds.WELL_FED_AP_TRIGGER)]
+[Script("spell_pilgrims_bounty_well_fed_cranberry", SpellIds.WELL_FED_ZM_TRIGGER)]
+[Script("spell_pilgrims_bounty_well_fed_stuffing", SpellIds.WELL_FED_HIT_TRIGGER)]
+[Script("spell_pilgrims_bounty_well_fed_sweet_potatoes", SpellIds.WELL_FED_HASTE_TRIGGER)]
+[Script("spell_pilgrims_bounty_well_fed_pie", SpellIds.WELL_FED_SPIRIT_TRIGGER)]
+internal class SpellPilgrimsBountyWellFedSpellScript : SpellScript, IHasSpellEffects
 {
     private readonly uint _triggeredSpellId;
 
-    public List<ISpellEffect> SpellEffects { get; } = new();
-
-    public spell_pilgrims_bounty_well_fed_SpellScript(uint triggeredSpellId)
+    public SpellPilgrimsBountyWellFedSpellScript(uint triggeredSpellId)
     {
         _triggeredSpellId = triggeredSpellId;
     }
+
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
     public override void Register()
@@ -299,13 +302,13 @@ internal class spell_pilgrims_bounty_well_fed_SpellScript : SpellScript, IHasSpe
 
         if (aura != null)
             if (aura.StackAmount == 5)
-                target.CastSpell(target, _triggeredSpellId, true);
+                target.SpellFactory.CastSpell(target, _triggeredSpellId, true);
 
-        var turkey = target.GetAura(SpellIds.TurkeyHelpins);
-        var cranberies = target.GetAura(SpellIds.CranberryHelpins);
-        var stuffing = target.GetAura(SpellIds.StuffingHelpins);
-        var sweetPotatoes = target.GetAura(SpellIds.SweetPotatoHelpins);
-        var pie = target.GetAura(SpellIds.PieHelpins);
+        var turkey = target.GetAura(SpellIds.TURKEY_HELPINS);
+        var cranberies = target.GetAura(SpellIds.CRANBERRY_HELPINS);
+        var stuffing = target.GetAura(SpellIds.STUFFING_HELPINS);
+        var sweetPotatoes = target.GetAura(SpellIds.SWEET_POTATO_HELPINS);
+        var pie = target.GetAura(SpellIds.PIE_HELPINS);
 
         if ((turkey != null && turkey.StackAmount == 5) &&
             (cranberies != null && cranberies.StackAmount == 5) &&
@@ -313,37 +316,37 @@ internal class spell_pilgrims_bounty_well_fed_SpellScript : SpellScript, IHasSpe
             (sweetPotatoes != null && sweetPotatoes.StackAmount == 5) &&
             (pie != null && pie.StackAmount == 5))
         {
-            target.CastSpell(target, SpellIds.TheSpiritOfSharing, true);
-            target.RemoveAura(SpellIds.TurkeyHelpins);
-            target.RemoveAura(SpellIds.CranberryHelpins);
-            target.RemoveAura(SpellIds.StuffingHelpins);
-            target.RemoveAura(SpellIds.SweetPotatoHelpins);
-            target.RemoveAura(SpellIds.PieHelpins);
+            target.SpellFactory.CastSpell(target, SpellIds.THE_SPIRIT_OF_SHARING, true);
+            target.RemoveAura(SpellIds.TURKEY_HELPINS);
+            target.RemoveAura(SpellIds.CRANBERRY_HELPINS);
+            target.RemoveAura(SpellIds.STUFFING_HELPINS);
+            target.RemoveAura(SpellIds.SWEET_POTATO_HELPINS);
+            target.RemoveAura(SpellIds.PIE_HELPINS);
         }
     }
 }
 
-[Script("spell_pilgrims_bounty_on_plate_turkey", SpellIds.OnPlateTurkey, SpellIds.PassTheTurkey, SpellIds.OnPlateVisualTurkey, SpellIds.AServingOfTurkeyChair)]
-[Script("spell_pilgrims_bounty_on_plate_cranberries", SpellIds.OnPlateCranberries, SpellIds.PassTheCranberries, SpellIds.OnPlateVisualCranberries, SpellIds.AServingOfCranberriesChair)]
-[Script("spell_pilgrims_bounty_on_plate_stuffing", SpellIds.OnPlateStuffing, SpellIds.PassTheStuffing, SpellIds.OnPlateVisualStuffing, SpellIds.AServingOfStuffingChair)]
-[Script("spell_pilgrims_bounty_on_plate_sweet_potatoes", SpellIds.OnPlateSweetPotatoes, SpellIds.PassTheSweetPotatoes, SpellIds.OnPlateVisualPotatoes, SpellIds.AServingOfSweetPotatoesChair)]
-[Script("spell_pilgrims_bounty_on_plate_pie", SpellIds.OnPlatePie, SpellIds.PassThePie, SpellIds.OnPlateVisualPie, SpellIds.AServingOfPieChair)]
-internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpellEffects
+[Script("spell_pilgrims_bounty_on_plate_turkey", SpellIds.ON_PLATE_TURKEY, SpellIds.PASS_THE_TURKEY, SpellIds.ON_PLATE_VISUAL_TURKEY, SpellIds.A_SERVING_OF_TURKEY_CHAIR)]
+[Script("spell_pilgrims_bounty_on_plate_cranberries", SpellIds.ON_PLATE_CRANBERRIES, SpellIds.PASS_THE_CRANBERRIES, SpellIds.ON_PLATE_VISUAL_CRANBERRIES, SpellIds.A_SERVING_OF_CRANBERRIES_CHAIR)]
+[Script("spell_pilgrims_bounty_on_plate_stuffing", SpellIds.ON_PLATE_STUFFING, SpellIds.PASS_THE_STUFFING, SpellIds.ON_PLATE_VISUAL_STUFFING, SpellIds.A_SERVING_OF_STUFFING_CHAIR)]
+[Script("spell_pilgrims_bounty_on_plate_sweet_potatoes", SpellIds.ON_PLATE_SWEET_POTATOES, SpellIds.PASS_THE_SWEET_POTATOES, SpellIds.ON_PLATE_VISUAL_POTATOES, SpellIds.A_SERVING_OF_SWEET_POTATOES_CHAIR)]
+[Script("spell_pilgrims_bounty_on_plate_pie", SpellIds.ON_PLATE_PIE, SpellIds.PASS_THE_PIE, SpellIds.ON_PLATE_VISUAL_PIE, SpellIds.A_SERVING_OF_PIE_CHAIR)]
+internal class SpellPilgrimsBountyOnPlateSpellScript : SpellScript, IHasSpellEffects
 {
     private readonly uint _triggeredSpellId1;
     private readonly uint _triggeredSpellId2;
     private readonly uint _triggeredSpellId3;
     private readonly uint _triggeredSpellId4;
 
-    public List<ISpellEffect> SpellEffects { get; } = new();
-
-    public spell_pilgrims_bounty_on_plate_SpellScript(uint triggeredSpellId1, uint triggeredSpellId2, uint triggeredSpellId3, uint triggeredSpellId4)
+    public SpellPilgrimsBountyOnPlateSpellScript(uint triggeredSpellId1, uint triggeredSpellId2, uint triggeredSpellId3, uint triggeredSpellId4)
     {
         _triggeredSpellId1 = triggeredSpellId1;
         _triggeredSpellId2 = triggeredSpellId2;
         _triggeredSpellId3 = triggeredSpellId3;
         _triggeredSpellId4 = triggeredSpellId4;
     }
+
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
     public override void Register()
@@ -362,7 +365,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
                 var table = vehBase.Vehicle1;
 
                 if (table != null)
-                    if (table.GetCreatureEntry() == CreatureIds.BountifulTable)
+                    if (table.GetCreatureEntry() == CreatureIds.BOUNTIFUL_TABLE)
                         return table;
             }
         }
@@ -371,7 +374,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
             var veh = target.Vehicle1;
 
             if (veh != null)
-                if (veh.GetCreatureEntry() == CreatureIds.BountifulTable)
+                if (veh.GetCreatureEntry() == CreatureIds.BOUNTIFUL_TABLE)
                     return veh;
         }
 
@@ -380,7 +383,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 
     private Unit GetPlateInSeat(Vehicle table, sbyte seat)
     {
-        var holderUnit = table.GetPassenger(SeatIds.PlateHolder);
+        var holderUnit = table.GetPassenger(SeatIds.PLATE_HOLDER);
 
         if (holderUnit != null)
         {
@@ -412,14 +415,14 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 
         if (casterChair != null)
         {
-            var casterPlr = casterChair.GetPassenger(SeatIds.Player);
+            var casterPlr = casterChair.GetPassenger(SeatIds.PLAYER);
 
             if (casterPlr != null)
             {
                 if (casterPlr == target)
                     return;
 
-                casterPlr.CastSpell(casterPlr, _triggeredSpellId2, true); //Credit for Sharing is Caring(always)
+                casterPlr.SpellFactory.CastSpell(casterPlr, _triggeredSpellId2, true); //Credit for Sharing is Caring(always)
 
                 var seat = target.TransSeat;
 
@@ -433,13 +436,13 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
                 {
                     if (target.IsPlayer) //Food Fight case
                     {
-                        casterPlr.CastSpell(target, _triggeredSpellId1, true);
-                        caster.CastSpell(target.VehicleBase, _triggeredSpellId4, true); //CanEat-chair(always)
+                        casterPlr.SpellFactory.CastSpell(target, _triggeredSpellId1, true);
+                        caster.SpellFactory.CastSpell(target.VehicleBase, _triggeredSpellId4, true); //CanEat-chair(always)
                     }
                     else
                     {
-                        casterPlr.CastSpell(plate, _triggeredSpellId3, true); //Food Visual on plate
-                        caster.CastSpell(target, _triggeredSpellId4, true);   //CanEat-chair(always)
+                        casterPlr.SpellFactory.CastSpell(plate, _triggeredSpellId3, true); //Food Visual on plate
+                        caster.SpellFactory.CastSpell(target, _triggeredSpellId4, true);   //CanEat-chair(always)
                     }
                 }
             }
@@ -447,21 +450,21 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
     }
 }
 
-[Script("spell_pilgrims_bounty_a_serving_of_cranberries", SpellIds.AServingOfCranberriesPlate)]
-[Script("spell_pilgrims_bounty_a_serving_of_turkey", SpellIds.AServingOfTurkeyPlate)]
-[Script("spell_pilgrims_bounty_a_serving_of_stuffing", SpellIds.AServingOfStuffingPlate)]
-[Script("spell_pilgrims_bounty_a_serving_of_potatoes", SpellIds.AServingOfSweetPotatoesPlate)]
-[Script("spell_pilgrims_bounty_a_serving_of_pie", SpellIds.AServingOfPiePlate)]
-internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasAuraEffects
+[Script("spell_pilgrims_bounty_a_serving_of_cranberries", SpellIds.A_SERVING_OF_CRANBERRIES_PLATE)]
+[Script("spell_pilgrims_bounty_a_serving_of_turkey", SpellIds.A_SERVING_OF_TURKEY_PLATE)]
+[Script("spell_pilgrims_bounty_a_serving_of_stuffing", SpellIds.A_SERVING_OF_STUFFING_PLATE)]
+[Script("spell_pilgrims_bounty_a_serving_of_potatoes", SpellIds.A_SERVING_OF_SWEET_POTATOES_PLATE)]
+[Script("spell_pilgrims_bounty_a_serving_of_pie", SpellIds.A_SERVING_OF_PIE_PLATE)]
+internal class SpellPilgrimsBountyAServingOfAuraScript : AuraScript, IHasAuraEffects
 {
     private readonly uint _triggeredSpellId;
 
-    public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-    public spell_pilgrims_bounty_a_serving_of_AuraScript(uint triggeredSpellId)
+    public SpellPilgrimsBountyAServingOfAuraScript(uint triggeredSpellId)
     {
         _triggeredSpellId = triggeredSpellId;
     }
+
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
     public override void Register()
@@ -473,7 +476,7 @@ internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasA
     private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         var target = Target;
-        target.CastSpell(target, (uint)aurEff.Amount, true);
+        target.SpellFactory.CastSpell(target, (uint)aurEff.Amount, true);
         HandlePlate(target, true);
     }
 
@@ -490,7 +493,7 @@ internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasA
 
         if (table != null)
         {
-            var holderUnit = table.GetPassenger(SeatIds.PlateHolder);
+            var holderUnit = table.GetPassenger(SeatIds.PLATE_HOLDER);
 
             if (holderUnit != null)
             {
@@ -503,7 +506,7 @@ internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasA
                     if (plate != null)
                     {
                         if (apply)
-                            target.CastSpell(plate, _triggeredSpellId, true);
+                            target.SpellFactory.CastSpell(plate, _triggeredSpellId, true);
                         else
                             plate.RemoveAura(_triggeredSpellId);
                     }

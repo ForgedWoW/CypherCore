@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 108370 - Soul Leech
 [SpellScript(108370)]
-public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
+public class SpellWarlockSoulLeech : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -82,7 +83,7 @@ public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
                     args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)finalAmount);
                     args.SpellValueOverrides.Add(SpellValueMod.BasePoint2, (int)finalAmount);
                     args.SpellValueOverrides.Add(SpellValueMod.BasePoint3, (int)finalAmount);
-                    target.CastSpell(target, WarlockSpells.SOUL_LEECH_SHIELD, args);
+                    target.SpellFactory.CastSpell(target, WarlockSpells.SOUL_LEECH_SHIELD, args);
 
                     if (target.AsPlayer && target.TryGetAura(WarlockSpells.SOUL_LINK_BUFF, out var soulLink))
                     {
@@ -92,7 +93,7 @@ public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
                         args.SpellValueOverrides.Add(SpellValueMod.BasePoint0, (int)playerHeal);
                         args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)petHeal);
 
-                        target.CastSpell(target, WarlockSpells.SOUL_LINK_HEAL, args);
+                        target.SpellFactory.CastSpell(target, WarlockSpells.SOUL_LINK_HEAL, args);
                     }
                 }
             }

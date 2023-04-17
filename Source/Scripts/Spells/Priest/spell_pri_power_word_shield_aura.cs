@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(17)] // 17 - Power Word: Shield Aura
-internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
+internal class SpellPriPowerWordShieldAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -64,20 +64,20 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
             return;
 
         if (caster.HasAura(PriestSpells.BODY_AND_SOUL))
-            caster.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
+            caster.SpellFactory.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
 
         if (caster.HasAura(PriestSpells.STRENGTH_OF_SOUL))
-            caster.CastSpell(target, PriestSpells.STRENGTH_OF_SOUL_EFFECT, true);
+            caster.SpellFactory.CastSpell(target, PriestSpells.STRENGTH_OF_SOUL_EFFECT, true);
 
         if (caster.HasAura(PriestSpells.RENEWED_HOPE))
-            caster.CastSpell(target, PriestSpells.RENEWED_HOPE_EFFECT, true);
+            caster.SpellFactory.CastSpell(target, PriestSpells.RENEWED_HOPE_EFFECT, true);
 
         if (caster.HasAura(PriestSpells.VOID_SHIELD) &&
             caster == target)
-            caster.CastSpell(target, PriestSpells.VOID_SHIELD_EFFECT, true);
+            caster.SpellFactory.CastSpell(target, PriestSpells.VOID_SHIELD_EFFECT, true);
 
         if (caster.HasAura(PriestSpells.ATONEMENT))
-            caster.CastSpell(target, caster.HasAura(PriestSpells.TRINITY) ? PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY : PriestSpells.ATONEMENT_TRIGGERED, true);
+            caster.SpellFactory.CastSpell(target, caster.HasAura(PriestSpells.TRINITY) ? PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY : PriestSpells.ATONEMENT_TRIGGERED, true);
     }
 
     private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
@@ -88,6 +88,6 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
         if (caster)
             if (TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell &&
                 caster.HasAura(PriestSpells.SHIELD_DISCIPLINE_PASSIVE))
-                caster.CastSpell(caster, PriestSpells.SHIELD_DISCIPLINE_ENERGIZE, true);
+                caster.SpellFactory.CastSpell(caster, PriestSpells.SHIELD_DISCIPLINE_ENERGIZE, true);
     }
 }

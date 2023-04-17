@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
 [Script] // 51690 - Killing Spree
-internal class spell_rog_killing_spree_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellRogKillingSpreeSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -33,7 +34,7 @@ internal class spell_rog_killing_spree_SpellScript : SpellScript, IHasSpellEffec
 
         if (aura != null)
         {
-            var script = aura.GetScript<spell_rog_killing_spree_AuraScript>();
+            var script = aura.GetScript<SpellRogKillingSpreeAuraScript>();
 
             script?.AddTarget(HitUnit);
         }

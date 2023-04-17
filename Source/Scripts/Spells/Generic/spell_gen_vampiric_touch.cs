@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 60501 - Vampiric Touch
-internal class spell_gen_vampiric_touch : AuraScript, IHasAuraEffects
+internal class SpellGenVampiricTouch : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -33,6 +34,6 @@ internal class spell_gen_vampiric_touch : AuraScript, IHasAuraEffects
         var caster = eventInfo.Actor;
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.Damage / 2);
-        caster.CastSpell(caster, GenericSpellIds.VampiricTouchHeal, args);
+        caster.SpellFactory.CastSpell(caster, GenericSpellIds.VAMPIRIC_TOUCH_HEAL, args);
     }
 }

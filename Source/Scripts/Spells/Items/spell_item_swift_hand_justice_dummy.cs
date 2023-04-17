@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 59906 - Swift Hand of Justice Dummy
-internal class spell_item_swift_hand_justice_dummy : AuraScript, IHasAuraEffects
+internal class SpellItemSwiftHandJusticeDummy : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,6 +29,6 @@ internal class spell_item_swift_hand_justice_dummy : AuraScript, IHasAuraEffects
         var caster = eventInfo.Actor;
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(aurEff.Amount));
-        caster.CastSpell((Unit)null, ItemSpellIds.SwiftHandOfJusticeHeal, args);
+        caster.SpellFactory.CastSpell((Unit)null, ItemSpellIds.SWIFT_HAND_OF_JUSTICE_HEAL, args);
     }
 }

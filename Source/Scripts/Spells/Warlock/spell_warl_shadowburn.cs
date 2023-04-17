@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(WarlockSpells.SHADOWBURN)]
-public class spell_warl_shadowburn : AuraScript, IHasAuraEffects
+public class SpellWarlShadowburn : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -19,7 +19,7 @@ public class spell_warl_shadowburn : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real));
     }
 
-    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -28,7 +28,7 @@ public class spell_warl_shadowburn : AuraScript, IHasAuraEffects
             var removeMode = TargetApplication.RemoveMode;
 
             if (removeMode == AuraRemoveMode.Death)
-                caster.CastSpell(WarlockSpells.SHADOWBURN_ENERGIZE, true);
+                caster.SpellFactory.CastSpell(WarlockSpells.SHADOWBURN_ENERGIZE, true);
         }
     }
 }

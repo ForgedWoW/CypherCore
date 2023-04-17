@@ -2,13 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(WarlockSpells.DIMENSIONAL_RIFT)]
-public class spell_warl_dimensional_rift : SpellScript, IHasSpellEffects
+public class SpellWarlDimensionalRift : SpellScript, IHasSpellEffects
 {
     private readonly List<uint> _spells = new()
     {
@@ -21,7 +22,7 @@ public class spell_warl_dimensional_rift : SpellScript, IHasSpellEffects
 
     public void HandleScriptEffect(int effectIndex)
     {
-        Caster.CastSpell(_spells.SelectRandom(), true);
+        Caster.SpellFactory.CastSpell(_spells.SelectRandom(), true);
     }
 
     public override void Register()

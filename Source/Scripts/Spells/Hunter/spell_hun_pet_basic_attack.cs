@@ -3,9 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
@@ -13,7 +14,7 @@ namespace Scripts.Spells.Hunter;
 {
     49966, 17253, 16827
 })]
-public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellCheckCast
+public class SpellHunPetBasicAttack : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -44,7 +45,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 
             if (!owner.AsPlayer.SpellHistory.HasCooldown(HunterSpells.BLINK_STRIKES) && target.IsWithinLOSInMap(caster) && caster.GetDistance(target) > 10.0f && caster.GetDistance(target) < 30.0f && !caster.HasAuraType(AuraType.ModStun))
             {
-                caster.CastSpell(target, HunterSpells.BLINK_STRIKES_TELEPORT, true);
+                caster.SpellFactory.CastSpell(target, HunterSpells.BLINK_STRIKES_TELEPORT, true);
 
                 if (caster.AsCreature.IsAIEnabled && caster.AsPet)
                 {
@@ -92,18 +93,18 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
                 // (1.5 * 1 * 1 * (Ranged attack power * 0.333) * (1 + $versadmg))
                 double dmg = owner.UnitData.RangedAttackPower * 0.333f;
 
-                var CostModifier = Global.SpellMgr.GetSpellInfo(HunterSpells.BASIC_ATTACK_COST_MODIFIER, Difficulty.None);
-                var SpikedCollar = Global.SpellMgr.GetSpellInfo(HunterSpells.SPIKED_COLLAR, Difficulty.None);
+                var costModifier = Global.SpellMgr.GetSpellInfo(HunterSpells.BASIC_ATTACK_COST_MODIFIER, Difficulty.None);
+                var spikedCollar = Global.SpellMgr.GetSpellInfo(HunterSpells.SPIKED_COLLAR, Difficulty.None);
 
                 // Increases the damage done by your pet's Basic Attacks by 10%
-                if (pet.HasAura(HunterSpells.SPIKED_COLLAR) && SpikedCollar != null)
-                    MathFunctions.AddPct(ref dmg, SpikedCollar.GetEffect(0).BasePoints);
+                if (pet.HasAura(HunterSpells.SPIKED_COLLAR) && spikedCollar != null)
+                    MathFunctions.AddPct(ref dmg, spikedCollar.GetEffect(0).BasePoints);
 
                 // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
                 if (pet.GetPower(PowerType.Focus) + 25 >= 50)
                 {
-                    if (CostModifier != null)
-                        dmg += MathFunctions.CalculatePct(dmg, CostModifier.GetEffect(1).BasePoints);
+                    if (costModifier != null)
+                        dmg += MathFunctions.CalculatePct(dmg, costModifier.GetEffect(1).BasePoints);
 
                     pet.EnergizeBySpell(pet, SpellInfo, 25, PowerType.Focus);
                     // pet->EnergizeBySpell(pet, GetSpellInfo()->Id, -25, PowerType.Focus);

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 92833 - Leap of Faith
-internal class spell_pri_leap_of_faith_effect_trigger : SpellScript, IHasSpellEffects
+internal class SpellPriLeapOfFaithEffectTrigger : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,6 +28,6 @@ internal class spell_pri_leap_of_faith_effect_trigger : SpellScript, IHasSpellEf
         SpellCastTargets targets = new();
         targets.SetDst(destPos);
         targets.UnitTarget = Caster;
-        HitUnit.CastSpell(targets, (uint)EffectValue, new CastSpellExtraArgs(CastDifficulty));
+        HitUnit.SpellFactory.CastSpell(targets, (uint)EffectValue, new CastSpellExtraArgs(CastDifficulty));
     }
 }

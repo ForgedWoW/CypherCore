@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 //183218
 [SpellScript(183218)]
-public class spell_pal_hand_of_hindrance : AuraScript, IHasAuraEffects
+public class SpellPalHandOfHindrance : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -21,7 +21,7 @@ public class spell_pal_hand_of_hindrance : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes mode)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes mode)
     {
         if (TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell)
         {

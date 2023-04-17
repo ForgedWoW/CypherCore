@@ -2,15 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA)]
-public class aura_evoker_feed_the_flames : AuraScript, IAuraOnRemove
+public class AuraEvokerFeedTheFlames : AuraScript, IAuraOnRemove
 {
     public void AuraRemoved(AuraRemoveMode removeMode)
     {

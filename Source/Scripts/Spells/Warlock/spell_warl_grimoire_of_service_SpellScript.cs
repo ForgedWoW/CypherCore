@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
@@ -12,15 +12,15 @@ namespace Scripts.Spells.Warlock;
 {
     111859, 111895, 111896, 111897, 111898
 })]
-public class spell_warl_grimoire_of_service_SpellScript : SpellScript, ISpellOnSummon
+public class SpellWarlGrimoireOfServiceSpellScript : SpellScript, ISpellOnSummon
 {
-    public enum eServiceSpells
+    public enum EServiceSpells
     {
-        IMP_SINGE_MAGIC = 89808,
-        VOIDWALKER_SUFFERING = 17735,
-        SUCCUBUS_SEDUCTION = 6358,
-        FELHUNTER_LOCK = 19647,
-        FELGUARD_AXE_TOSS = 89766
+        ImpSingeMagic = 89808,
+        VoidwalkerSuffering = 17735,
+        SuccubusSeduction = 6358,
+        FelhunterLock = 19647,
+        FelguardAxeToss = 89766
     }
 
     public void OnSummon(Creature creature)
@@ -36,23 +36,23 @@ public class spell_warl_grimoire_of_service_SpellScript : SpellScript, ISpellOnS
         switch (SpellInfo.Id)
         {
             case WarlockSpells.GRIMOIRE_IMP: // Imp
-                creature.CastSpell(caster, (uint)eServiceSpells.IMP_SINGE_MAGIC, true);
+                creature.SpellFactory.CastSpell(caster, (uint)EServiceSpells.ImpSingeMagic, true);
 
                 break;
             case WarlockSpells.GRIMOIRE_VOIDWALKER: // Voidwalker
-                creature.CastSpell(target, (uint)eServiceSpells.VOIDWALKER_SUFFERING, true);
+                creature.SpellFactory.CastSpell(target, (uint)EServiceSpells.VoidwalkerSuffering, true);
 
                 break;
             case WarlockSpells.GRIMOIRE_SUCCUBUS: // Succubus
-                creature.CastSpell(target, (uint)eServiceSpells.SUCCUBUS_SEDUCTION, true);
+                creature.SpellFactory.CastSpell(target, (uint)EServiceSpells.SuccubusSeduction, true);
 
                 break;
             case WarlockSpells.GRIMOIRE_FELHUNTER: // Felhunter
-                creature.CastSpell(target, (uint)eServiceSpells.FELHUNTER_LOCK, true);
+                creature.SpellFactory.CastSpell(target, (uint)EServiceSpells.FelhunterLock, true);
 
                 break;
             case WarlockSpells.GRIMOIRE_FELGUARD: // Felguard
-                creature.CastSpell(target, (uint)eServiceSpells.FELGUARD_AXE_TOSS, true);
+                creature.SpellFactory.CastSpell(target, (uint)EServiceSpells.FelguardAxeToss, true);
 
                 break;
         }

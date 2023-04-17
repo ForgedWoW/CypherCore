@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(49184)]
-public class spell_dk_icy_touch : SpellScript, ISpellOnHit
+public class SpellDkIcyTouch : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -17,9 +17,9 @@ public class spell_dk_icy_touch : SpellScript, ISpellOnHit
         if (target != null)
         {
             if (caster.HasAura(152281))
-                caster.CastSpell(target, 155159, true);
+                caster.SpellFactory.CastSpell(target, 155159, true);
             else
-                caster.CastSpell(target, DeathKnightSpells.FROST_FEVER, true);
+                caster.SpellFactory.CastSpell(target, DeathKnightSpells.FROST_FEVER, true);
         }
     }
 }

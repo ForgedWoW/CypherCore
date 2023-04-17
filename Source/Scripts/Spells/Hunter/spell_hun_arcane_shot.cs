@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(185358)]
-public class spell_hun_arcane_shot : SpellScript, ISpellOnHit
+public class SpellHunArcaneShot : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -20,8 +20,8 @@ public class spell_hun_arcane_shot : SpellScript, ISpellOnHit
 
         if (caster.HasAura(HunterSpells.MARKING_TARGETS))
         {
-            caster.CastSpell(target, HunterSpells.HUNTERS_MARK_AURA, true);
-            caster.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
+            caster.SpellFactory.CastSpell(target, HunterSpells.HUNTERS_MARK_AURA, true);
+            caster.SpellFactory.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
             caster.RemoveAura(HunterSpells.MARKING_TARGETS);
         }
 

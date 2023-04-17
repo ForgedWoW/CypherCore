@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
+internal class SpellGenPetSummoned : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -50,12 +51,11 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 
                 switch (newPet.Entry)
                 {
-                    case CreatureIds.Doomguard:
-                    case CreatureIds.Infernal:
-                        newPet.Entry = CreatureIds.Imp;
+                    case CreatureIds.DOOMGUARD:
+                    case CreatureIds.INFERNAL:
+                        newPet.Entry = CreatureIds.IMP;
 
                         break;
-                    
                 }
             }
         }

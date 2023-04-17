@@ -2,23 +2,24 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Lucifron;
 
 internal struct SpellIds
 {
-    public const uint ImpendingDoom = 19702;
-    public const uint LucifronCurse = 19703;
-    public const uint ShadowShock = 20603;
+    public const uint IMPENDING_DOOM = 19702;
+    public const uint LUCIFRON_CURSE = 19703;
+    public const uint SHADOW_SHOCK = 20603;
 }
 
 [Script]
-internal class boss_lucifron : BossAI
+internal class BossLucifron : BossAI
 {
-    public boss_lucifron(Creature creature) : base(creature, DataTypes.Lucifron) { }
+    public BossLucifron(Creature creature) : base(creature, DataTypes.LUCIFRON) { }
 
     public override void JustEngagedWith(Unit victim)
     {
@@ -27,21 +28,21 @@ internal class boss_lucifron : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ImpendingDoom);
+                               DoCastVictim(SpellIds.IMPENDING_DOOM);
                                task.Repeat(TimeSpan.FromSeconds(20));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastVictim(SpellIds.LucifronCurse);
+                               DoCastVictim(SpellIds.LUCIFRON_CURSE);
                                task.Repeat(TimeSpan.FromSeconds(15));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ShadowShock);
+                               DoCastVictim(SpellIds.SHADOW_SHOCK);
                                task.Repeat(TimeSpan.FromSeconds(6));
                            });
     }

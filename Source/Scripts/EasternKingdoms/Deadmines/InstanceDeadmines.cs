@@ -3,50 +3,52 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IMap;
 
 namespace Scripts.EasternKingdoms.Deadmines;
 
 [Script]
-internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceScript
+internal class InstanceDeadmines : InstanceMapScript, IInstanceMapGetInstanceScript
 {
-    public instance_deadmines() : base(nameof(instance_deadmines), 36) { }
+    public InstanceDeadmines() : base(nameof(InstanceDeadmines), 36) { }
 
     public InstanceScript GetInstanceScript(InstanceMap map)
     {
-        return new instance_deadmines_InstanceMapScript(map);
+        return new InstanceDeadminesInstanceMapScript(map);
     }
 
-    private class instance_deadmines_InstanceMapScript : InstanceScript
+    private class InstanceDeadminesInstanceMapScript : InstanceScript
     {
         public const string NOTE_TEXT = "A note falls to the floor!";
         public static readonly Position NoteSpawn = new(-74.36111f, -820.0139f, 40.67145f, 4.014257f);
 
         /// https://wowpedia.fandom.com/wiki/DungeonEncounterID
-        private static readonly DungeonEncounterData[] _encounters =
+        private static readonly DungeonEncounterData[] Encounters =
         {
-            new(DMData.DATA_HELIX, 1065),
+            new(DmData.DATA_HELIX, 1065),
             // new(DMData.DATA_NIGHTMARE_HELIX, 1065),
-            new(DMData.DATA_GLUBTOK, 1064), new(DMData.DATA_COOKIE, 1060), new(DMData.DATA_FOEREAPER, 1063), new(DMData.DATA_RIPSNARL, 1062), new(DMData.DATA_VANESSA, 1081),
+            new(DmData.DATA_GLUBTOK, 1064), new(DmData.DATA_COOKIE, 1060), new(DmData.DATA_FOEREAPER, 1063), new(DmData.DATA_RIPSNARL, 1062), new(DmData.DATA_VANESSA, 1081),
             // new(DMData.DATA_VANESSA_NIGHTMARE, 1081)
         };
 
-        private static readonly DoorData[] _doorData =
+        private static readonly DoorData[] DoorData =
         {
-            new(DMGameObjects.GO_FACTORY_DOOR, DMData.DATA_GLUBTOK, DoorType.Passage), new(DMGameObjects.GO_HEAVY_DOOR_HELIX, DMData.DATA_HELIX, DoorType.Passage), new(DMGameObjects.GO_FOUNDRY_DOOR, DMData.DATA_FOEREAPER, DoorType.Passage), new(DMGameObjects.GO_IRONCLAD_DOOR, DMData.DATA_FOEREAPER, DoorType.Passage),
+            new(DmGameObjects.GO_FACTORY_DOOR, DmData.DATA_GLUBTOK, DoorType.Passage), new(DmGameObjects.GO_HEAVY_DOOR_HELIX, DmData.DATA_HELIX, DoorType.Passage), new(DmGameObjects.GO_FOUNDRY_DOOR, DmData.DATA_FOEREAPER, DoorType.Passage), new(DmGameObjects.GO_IRONCLAD_DOOR, DmData.DATA_FOEREAPER, DoorType.Passage),
         };
 
-        private static readonly ObjectData[] _creatureData =
+        private static readonly ObjectData[] CreatureData =
         {
-            new(DMCreatures.NPC_HELIX_GEARBREAKER, DMData.DATA_HELIX), new(DMCreatures.NPC_HELIX_NIGHTMARE, DMData.DATA_NIGHTMARE_HELIX), new(DMCreatures.NPC_GLUBTOK, DMData.DATA_GLUBTOK), new(DMCreatures.NPC_CAPTAIN_COOKIE, DMData.DATA_COOKIE), new(DMCreatures.NPC_FOE_REAPER_5000, DMData.DATA_FOEREAPER), new(DMCreatures.NPC_ADMIRAL_RIPSNARL, DMData.DATA_RIPSNARL), new(DMCreatures.NPC_VANESSA_NIGHTMARE, DMData.DATA_VANESSA_NIGHTMARE), new(DMCreatures.NPC_VANESSA_BOSS, DMData.DATA_VANESSA), new(DMCreatures.NPC_GLUBTOK_NIGHTMARE, DMData.DATA_NIGHTMARE_MECHANICAL)
+            new(DmCreatures.NPC_HELIX_GEARBREAKER, DmData.DATA_HELIX), new(DmCreatures.NPC_HELIX_NIGHTMARE, DmData.DATA_NIGHTMARE_HELIX), new(DmCreatures.NPC_GLUBTOK, DmData.DATA_GLUBTOK), new(DmCreatures.NPC_CAPTAIN_COOKIE, DmData.DATA_COOKIE), new(DmCreatures.NPC_FOE_REAPER_5000, DmData.DATA_FOEREAPER), new(DmCreatures.NPC_ADMIRAL_RIPSNARL, DmData.DATA_RIPSNARL), new(DmCreatures.NPC_VANESSA_NIGHTMARE, DmData.DATA_VANESSA_NIGHTMARE), new(DmCreatures.NPC_VANESSA_BOSS, DmData.DATA_VANESSA), new(DmCreatures.NPC_GLUBTOK_NIGHTMARE, DmData.DATA_NIGHTMARE_MECHANICAL)
         };
 
-        private static readonly ObjectData[] _gameObjectData =
+        private static readonly ObjectData[] GameObjectData =
             { };
 
         private ObjectGuid _vanessa;
@@ -57,13 +59,13 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
         private TeamFaction _teamInInstance;
 
 
-        public instance_deadmines_InstanceMapScript(InstanceMap map) : base(map)
+        public InstanceDeadminesInstanceMapScript(InstanceMap map) : base(map)
         {
-            SetBossNumber((uint)DMData.MAX_BOSSES);
+            SetBossNumber((uint)DmData.MAX_BOSSES);
             SetHeaders("DM");
-            LoadDoorData(_doorData);
-            LoadObjectData(_creatureData, _gameObjectData);
-            LoadDungeonEncounterData(_encounters);
+            LoadDoorData(DoorData);
+            LoadObjectData(CreatureData, GameObjectData);
+            LoadDungeonEncounterData(Encounters);
         }
 
         public override void OnCreatureCreate(Creature creature)
@@ -110,19 +112,19 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
                         creature.UpdateEntry(1); // GM WAYPOINT
 
                     break;
-                case DMCreatures.NPC_VANESSA_VANCLEEF:
+                case DmCreatures.NPC_VANESSA_VANCLEEF:
                     _vanessa = creature.GUID;
 
                     break;
-                case DMCreatures.NPC_VANESSA_BOSS:
+                case DmCreatures.NPC_VANESSA_BOSS:
                     _vanessaBoss = creature.GUID;
 
                     break;
-                case DMCreatures.NPC_VANESSA_NOTE:
+                case DmCreatures.NPC_VANESSA_NOTE:
                     _vanessaNote = creature.GUID;
 
                     break;
-                case DMCreatures.NPC_GLUBTOK:
+                case DmCreatures.NPC_GLUBTOK:
                     _glubtokGUID = creature.GUID;
 
                     break;
@@ -136,18 +138,17 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
 
             switch (id)
             {
-                case DMData.DATA_COOKIE:
+                case DmData.DATA_COOKIE:
                     if (state == EncounterState.Done)
                         if (Instance.IsHeroic)
                             SummonNote();
 
                     break;
-                case DMData.DATA_VANESSA_NIGHTMARE:
+                case DmData.DATA_VANESSA_NIGHTMARE:
                     if (state == EncounterState.Fail)
                         SummonNote();
 
                     break;
-                
             }
 
             return true;
@@ -157,16 +158,16 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
         {
             switch (data)
             {
-                case DMCreatures.NPC_VANESSA_VANCLEEF:
+                case DmCreatures.NPC_VANESSA_VANCLEEF:
                     return _vanessa.Counter;
 
-                case DMCreatures.NPC_VANESSA_BOSS:
+                case DmCreatures.NPC_VANESSA_BOSS:
                     return _vanessaBoss.Counter;
 
-                case DMCreatures.NPC_VANESSA_NOTE:
+                case DmCreatures.NPC_VANESSA_NOTE:
                     return _vanessaNote.Counter;
 
-                case DMCreatures.NPC_GLUBTOK:
+                case DmCreatures.NPC_GLUBTOK:
                     return _glubtokGUID.Counter;
             }
 
@@ -175,10 +176,10 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
 
         private void SummonNote()
         {
-            Creature Note = Instance.SummonCreature(DMCreatures.NPC_VANESSA_NOTE, NoteSpawn);
+            Creature note = Instance.SummonCreature(DmCreatures.NPC_VANESSA_NOTE, NoteSpawn);
 
-            if (Note != null)
-                Note.TextEmote(NOTE_TEXT, null, true);
+            if (note != null)
+                note.TextEmote(NOTE_TEXT, null, true);
         }
     }
 }

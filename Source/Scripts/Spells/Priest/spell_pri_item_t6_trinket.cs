@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 40438 - Priest Tier 6 Trinket
-internal class spell_pri_item_t6_trinket : AuraScript, IHasAuraEffects
+internal class SpellPriItemT6Trinket : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,9 +28,9 @@ internal class spell_pri_item_t6_trinket : AuraScript, IHasAuraEffects
         var caster = eventInfo.Actor;
 
         if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Heal))
-            caster.CastSpell((Unit)null, PriestSpells.DIVINE_BLESSING, true);
+            caster.SpellFactory.CastSpell((Unit)null, PriestSpells.DIVINE_BLESSING, true);
 
         if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Damage))
-            caster.CastSpell((Unit)null, PriestSpells.DIVINE_WRATH, true);
+            caster.SpellFactory.CastSpell((Unit)null, PriestSpells.DIVINE_WRATH, true);
     }
 }

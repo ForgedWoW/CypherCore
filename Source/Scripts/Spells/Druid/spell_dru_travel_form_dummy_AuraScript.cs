@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script]
-internal class spell_dru_travel_form_dummy_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellDruTravelFormDummyAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -31,9 +32,9 @@ internal class spell_dru_travel_form_dummy_AuraScript : AuraScript, IHasAuraEffe
         var player = Target.AsPlayer;
 
         // Outdoor check already passed - Travel Form (dummy) has ATTR0_OUTDOORS_ONLY attribute.
-        var triggeredSpellId = spell_dru_travel_form_AuraScript.GetFormSpellId(player, CastDifficulty, false);
+        var triggeredSpellId = SpellDruTravelFormAuraScript.GetFormSpellId(player, CastDifficulty, false);
 
-        player.CastSpell(player, triggeredSpellId, new CastSpellExtraArgs(aurEff));
+        player.SpellFactory.CastSpell(player, triggeredSpellId, new CastSpellExtraArgs(aurEff));
     }
 
     private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

@@ -1,14 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class at_monk_windwalking : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
+public class AtMonkWindwalking : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
     public void OnRemove()
     {
@@ -55,7 +56,7 @@ public class at_monk_windwalking : AreaTriggerScript, IAreaTriggerOnUnitEnter, I
         if (aur != null)
             aur.SetDuration(-1);
         else if (caster.IsFriendlyTo(unit))
-            caster.CastSpell(unit, MonkSpells.WINDWALKER_AURA, true);
+            caster.SpellFactory.CastSpell(unit, MonkSpells.WINDWALKER_AURA, true);
     }
 
     public void OnUnitExit(Unit unit)

@@ -1,38 +1,38 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(197908)]
-public class spell_monk_mana_tea : SpellScript, ISpellAfterCast, ISpellBeforeCast
+public class SpellMonkManaTea : SpellScript, ISpellAfterCast, ISpellBeforeCast
 {
-    private readonly SpellModifier mod = null;
+    private readonly SpellModifier _mod = null;
 
     public void AfterCast()
     {
-        if (mod != null)
+        if (_mod != null)
         {
-            var _player = Caster.AsPlayer;
+            var player = Caster.AsPlayer;
 
-            if (_player != null)
-                _player.AddSpellMod(mod, false);
+            if (player != null)
+                player.AddSpellMod(_mod, false);
         }
     }
 
     public void BeforeCast()
     {
-        var _player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-        if (_player != null)
+        if (player != null)
         {
             var stacks = 0;
 
-            var manaTeaStacks = _player.GetAura(MonkSpells.MANA_TEA_STACKS);
+            var manaTeaStacks = player.GetAura(MonkSpells.MANA_TEA_STACKS);
 
             if (manaTeaStacks != null)
             {
@@ -49,7 +49,7 @@ public class spell_monk_mana_tea : SpellScript, ISpellAfterCast, ISpellBeforeCas
                 mod.Mask[1] = 0x200000;
                 mod.Mask[2] = 0x1;
 
-                _player.AddSpellMod(mod, true);
+                player.AddSpellMod(mod, true);
             }
         }
     }

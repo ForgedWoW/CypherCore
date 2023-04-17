@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 23725 - Gift of Life
-internal class spell_item_lifegiving_gem : SpellScript, IHasSpellEffects
+internal class SpellItemLifegivingGem : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,7 +23,7 @@ internal class spell_item_lifegiving_gem : SpellScript, IHasSpellEffects
     private void HandleDummy(int effIndex)
     {
         var caster = Caster;
-        caster.CastSpell(caster, ItemSpellIds.GiftOfLife1, true);
-        caster.CastSpell(caster, ItemSpellIds.GiftOfLife2, true);
+        caster.SpellFactory.CastSpell(caster, ItemSpellIds.GIFT_OF_LIFE1, true);
+        caster.SpellFactory.CastSpell(caster, ItemSpellIds.GIFT_OF_LIFE2, true);
     }
 }

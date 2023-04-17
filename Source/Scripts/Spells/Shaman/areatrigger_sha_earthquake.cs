@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 [AreaTriggerScript(8382)] //  8382 - AreaTriggerId
-internal class areatrigger_sha_earthquake : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerScriptValues
+internal class AreatriggerShaEarthquake : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerScriptValues
 {
     private TimeSpan _period = TimeSpan.Zero;
     private TimeSpan _refreshTimer = TimeSpan.FromSeconds(1);
@@ -39,7 +39,7 @@ internal class areatrigger_sha_earthquake : AreaTriggerScript, IAreaTriggerOnCre
         {
             var caster = At.GetCaster();
 
-            caster?.CastSpell(At.Location,
+            caster?.SpellFactory.CastSpell(At.Location,
                               ShamanSpells.EarthquakeTick,
                               new CastSpellExtraArgs(TriggerCastFlags.FullMask)
                                   .SetOriginalCaster(At.GUID));

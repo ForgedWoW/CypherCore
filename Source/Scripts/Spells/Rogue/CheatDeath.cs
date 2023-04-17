@@ -5,8 +5,8 @@ namespace Scripts.Spells.Rogue;
 
 public enum CheatDeath
 {
-    CHEAT_DEATH = 31230,
-    CHEAT_DEATH_ANIM = 31231,
-    CHEAT_DEATH_DMG_REDUC = 45182,
-    CHEAT_DEATH_CD_AURA = 45181
+    CheatDeath = 31230,
+    CheatDeathAnim = 31231,
+    CheatDeathDmgReduc = 45182,
+    CheatDeathCdAura = 45181
 }

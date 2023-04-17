@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(207407)]
-public class spell_dh_artifact_soul_carver_AuraScript : AuraScript, IHasAuraEffects
+public class SpellDhArtifactSoulCarverAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,13 +20,13 @@ public class spell_dh_artifact_soul_carver_AuraScript : AuraScript, IHasAuraEffe
     }
 
 
-    private void PeriodicTick(AuraEffect UnnamedParameter)
+    private void PeriodicTick(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 
         if (caster == null)
             return;
 
-        caster.CastSpell(caster, ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, SpellValueMod.BasePoint0, (int)ShatteredSoulsSpells.LESSER_SOUL_SHARD, true);
+        caster.SpellFactory.CastSpell(caster, ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, SpellValueMod.BasePoint0, (int)ShatteredSoulsSpells.LESSER_SOUL_SHARD, true);
     }
 }

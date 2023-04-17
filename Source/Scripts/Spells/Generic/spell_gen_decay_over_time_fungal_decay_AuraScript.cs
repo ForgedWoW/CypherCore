@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 32065 - Fungal Decay
-internal class spell_gen_decay_over_time_fungal_decay_AuraScript : AuraScript, IAuraCheckProc, IAuraOnProc, IHasAuraEffects
+internal class SpellGenDecayOverTimeFungalDecayAuraScript : AuraScript, IAuraCheckProc, IAuraOnProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -36,8 +36,8 @@ internal class spell_gen_decay_over_time_fungal_decay_AuraScript : AuraScript, I
         // only on actual reapply, not on stack decay
         if (Duration == MaxDuration)
         {
-            MaxDuration = Misc.AuraDuration;
-            SetDuration(Misc.AuraDuration);
+            MaxDuration = Misc.AURA_DURATION;
+            SetDuration(Misc.AURA_DURATION);
         }
     }
 }

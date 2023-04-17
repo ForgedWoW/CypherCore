@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(124682)]
-public class spell_monk_enveloping_mist : SpellScript, ISpellAfterCast, ISpellBeforeCast
+public class SpellMonkEnvelopingMist : SpellScript, ISpellAfterCast, ISpellBeforeCast
 {
     public void AfterCast()
     {
@@ -18,7 +18,7 @@ public class spell_monk_enveloping_mist : SpellScript, ISpellAfterCast, ISpellBe
             return;
 
         if (caster.HasAura(MonkSpells.LIFECYCLES))
-            caster.CastSpell(caster, MonkSpells.LIFECYCLES_VIVIFY, true);
+            caster.SpellFactory.CastSpell(caster, MonkSpells.LIFECYCLES_VIVIFY, true);
     }
 
     public void BeforeCast()

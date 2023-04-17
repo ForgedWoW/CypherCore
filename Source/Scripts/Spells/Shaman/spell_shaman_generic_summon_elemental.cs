@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
@@ -13,7 +14,7 @@ namespace Scripts.Spells.Shaman;
 {
     198067, 198103, 192249
 })]
-public class spell_shaman_generic_summon_elemental : SpellScript, IHasSpellEffects
+public class SpellShamanGenericSummonElemental : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -28,16 +29,16 @@ public class spell_shaman_generic_summon_elemental : SpellScript, IHasSpellEffec
 
         switch (SpellInfo.Id)
         {
-            case Spells.SummonFireElemental:
-                triggerSpell = (Caster.HasAura(Spells.PrimalElementalist)) ? Spells.SummonPrimalElementalistFireElemental : Spells.SummonFireElementalTriggered;
+            case Spells.SUMMON_FIRE_ELEMENTAL:
+                triggerSpell = (Caster.HasAura(Spells.PRIMAL_ELEMENTALIST)) ? Spells.SUMMON_PRIMAL_ELEMENTALIST_FIRE_ELEMENTAL : Spells.SUMMON_FIRE_ELEMENTAL_TRIGGERED;
 
                 break;
-            case Spells.SummonEarthElemental:
-                triggerSpell = (Caster.HasAura(Spells.PrimalElementalist)) ? Spells.SummonPrimalElementalistEarthElemental : Spells.SummonEarthElementalTriggered;
+            case Spells.SUMMON_EARTH_ELEMENTAL:
+                triggerSpell = (Caster.HasAura(Spells.PRIMAL_ELEMENTALIST)) ? Spells.SUMMON_PRIMAL_ELEMENTALIST_EARTH_ELEMENTAL : Spells.SUMMON_EARTH_ELEMENTAL_TRIGGERED;
 
                 break;
-            case Spells.SummonStormElemental:
-                triggerSpell = (Caster.HasAura(Spells.PrimalElementalist)) ? Spells.SummonPrimalElementalistStormElemental : Spells.SummonStormElementalTriggered;
+            case Spells.SUMMON_STORM_ELEMENTAL:
+                triggerSpell = (Caster.HasAura(Spells.PRIMAL_ELEMENTALIST)) ? Spells.SUMMON_PRIMAL_ELEMENTALIST_STORM_ELEMENTAL : Spells.SUMMON_STORM_ELEMENTAL_TRIGGERED;
 
                 break;
             default:
@@ -47,20 +48,20 @@ public class spell_shaman_generic_summon_elemental : SpellScript, IHasSpellEffec
         }
 
         if (triggerSpell != 0)
-            Caster.CastSpell(Caster, triggerSpell, true);
+            Caster.SpellFactory.CastSpell(Caster, triggerSpell, true);
     }
 
     private struct Spells
     {
-        public const uint PrimalElementalist = 117013;
-        public const uint SummonFireElemental = 198067;
-        public const uint SummonFireElementalTriggered = 188592;
-        public const uint SummonPrimalElementalistFireElemental = 118291;
-        public const uint SummonEarthElemental = 198103;
-        public const uint SummonEarthElementalTriggered = 188616;
-        public const uint SummonPrimalElementalistEarthElemental = 118323;
-        public const uint SummonStormElemental = 192249;
-        public const uint SummonStormElementalTriggered = 157299;
-        public const uint SummonPrimalElementalistStormElemental = 157319;
+        public const uint PRIMAL_ELEMENTALIST = 117013;
+        public const uint SUMMON_FIRE_ELEMENTAL = 198067;
+        public const uint SUMMON_FIRE_ELEMENTAL_TRIGGERED = 188592;
+        public const uint SUMMON_PRIMAL_ELEMENTALIST_FIRE_ELEMENTAL = 118291;
+        public const uint SUMMON_EARTH_ELEMENTAL = 198103;
+        public const uint SUMMON_EARTH_ELEMENTAL_TRIGGERED = 188616;
+        public const uint SUMMON_PRIMAL_ELEMENTALIST_EARTH_ELEMENTAL = 118323;
+        public const uint SUMMON_STORM_ELEMENTAL = 192249;
+        public const uint SUMMON_STORM_ELEMENTAL_TRIGGERED = 157299;
+        public const uint SUMMON_PRIMAL_ELEMENTALIST_STORM_ELEMENTAL = 157319;
     }
 }

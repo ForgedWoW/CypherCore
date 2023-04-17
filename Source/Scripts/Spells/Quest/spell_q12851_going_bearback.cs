@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 54798 FLAMING Arrow Triggered Effect
-internal class spell_q12851_going_bearback : AuraScript, IHasAuraEffects
+internal class SpellQ12851GoingBearback : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,7 +28,7 @@ internal class spell_q12851_going_bearback : AuraScript, IHasAuraEffects
             var target = Target;
 
             // Already in fire
-            if (target.HasAura(QuestSpellIds.Ablaze))
+            if (target.HasAura(QuestSpellIds.ABLAZE))
                 return;
 
             var player = caster.CharmerOrOwnerPlayerOrPlayerItself;
@@ -36,16 +36,16 @@ internal class spell_q12851_going_bearback : AuraScript, IHasAuraEffects
             if (player)
                 switch (target.Entry)
                 {
-                    case CreatureIds.Frostworg:
-                        target.CastSpell(player, QuestSpellIds.FrostworgCredit, true);
-                        target.CastSpell(target, QuestSpellIds.Immolation, true);
-                        target.CastSpell(target, QuestSpellIds.Ablaze, true);
+                    case CreatureIds.FROSTWORG:
+                        target.SpellFactory.CastSpell(player, QuestSpellIds.FROSTWORG_CREDIT, true);
+                        target.SpellFactory.CastSpell(target, QuestSpellIds.IMMOLATION, true);
+                        target.SpellFactory.CastSpell(target, QuestSpellIds.ABLAZE, true);
 
                         break;
-                    case CreatureIds.Frostgiant:
-                        target.CastSpell(player, QuestSpellIds.FrostgiantCredit, true);
-                        target.CastSpell(target, QuestSpellIds.Immolation, true);
-                        target.CastSpell(target, QuestSpellIds.Ablaze, true);
+                    case CreatureIds.FROSTGIANT:
+                        target.SpellFactory.CastSpell(player, QuestSpellIds.FROSTGIANT_CREDIT, true);
+                        target.SpellFactory.CastSpell(target, QuestSpellIds.IMMOLATION, true);
+                        target.SpellFactory.CastSpell(target, QuestSpellIds.ABLAZE, true);
 
                         break;
                 }

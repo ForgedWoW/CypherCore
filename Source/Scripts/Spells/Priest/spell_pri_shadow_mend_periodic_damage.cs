@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 187464 - Shadow Mend (Damage)
-internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellPriShadowMendPeriodicDamage : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -33,7 +34,7 @@ internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckPro
         args.SetOriginalCaster(CasterGUID);
         args.SetTriggeringAura(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
-        Target.CastSpell(Target, PriestSpells.SHADOW_MEND_DAMAGE, args);
+        Target.SpellFactory.CastSpell(Target, PriestSpells.SHADOW_MEND_DAMAGE, args);
     }
 
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

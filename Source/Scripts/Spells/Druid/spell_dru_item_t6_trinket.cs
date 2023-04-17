@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 40442 - Druid Tier 6 Trinket
-internal class spell_dru_item_t6_trinket : AuraScript, IHasAuraEffects
+internal class SpellDruItemT6Trinket : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -57,6 +58,6 @@ internal class spell_dru_item_t6_trinket : AuraScript, IHasAuraEffects
         }
 
         if (RandomHelper.randChance(chance))
-            eventInfo.Actor.CastSpell((Unit)null, spellId, new CastSpellExtraArgs(aurEff));
+            eventInfo.Actor.SpellFactory.CastSpell((Unit)null, spellId, new CastSpellExtraArgs(aurEff));
     }
 }

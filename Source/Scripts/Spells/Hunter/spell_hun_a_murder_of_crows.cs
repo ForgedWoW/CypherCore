@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
 [Script] // 131894 - A Murder of Crows
-internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
+internal class SpellHunAMurderOfCrows : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,12 +26,12 @@ internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
         var target = Target;
         var caster = Caster;
 
-        caster?.CastSpell(target, HunterSpells.AMurderOfCrowsDamage, true);
+        caster?.SpellFactory.CastSpell(target, HunterSpells.AMurderOfCrowsDamage, true);
 
-        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual1, true);
-        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual2, true);
-        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual3, true);
-        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual3, true); // not a mistake, it is intended to cast twice
+        target.SpellFactory.CastSpell(target, HunterSpells.A_MURDER_OF_CROWS_VISUAL1, true);
+        target.SpellFactory.CastSpell(target, HunterSpells.A_MURDER_OF_CROWS_VISUAL2, true);
+        target.SpellFactory.CastSpell(target, HunterSpells.A_MURDER_OF_CROWS_VISUAL3, true);
+        target.SpellFactory.CastSpell(target, HunterSpells.A_MURDER_OF_CROWS_VISUAL3, true); // not a mistake, it is intended to cast twice
     }
 
     private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)

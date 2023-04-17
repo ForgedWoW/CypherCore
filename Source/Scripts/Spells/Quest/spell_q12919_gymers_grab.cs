@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 55516 - Gymer's Grab
-internal class spell_q12919_gymers_grab : SpellScript, IHasSpellEffects
+internal class SpellQ12919GymersGrab : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,7 +28,7 @@ internal class spell_q12919_gymers_grab : SpellScript, IHasSpellEffects
 
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
         args.AddSpellMod(SpellValueMod.BasePoint0, 2);
-        HitCreature.CastSpell(Caster, QuestSpellIds.RideGymer, args);
-        HitCreature.CastSpell(HitCreature, QuestSpellIds.Grabbed, true);
+        HitCreature.SpellFactory.CastSpell(Caster, QuestSpellIds.RIDE_GYMER, args);
+        HitCreature.SpellFactory.CastSpell(HitCreature, QuestSpellIds.GRABBED, true);
     }
 }

@@ -1,16 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.STASIS_OVERRIDE_SPELL)]
-public class spell_evoker_stasis_override_cast : SpellScript, ISpellOnCast
+public class SpellEvokerStasisOverrideCast : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {
@@ -42,7 +43,7 @@ public class spell_evoker_stasis_override_cast : SpellScript, ISpellOnCast
 
                 var spell = (Spell)obj;
 
-                player.CastSpell(spell.Targets,
+                player.SpellFactory.CastSpell(spell.Targets,
                                  spell.SpellInfo.Id,
                                  new CastSpellExtraArgs(true)
                                  {

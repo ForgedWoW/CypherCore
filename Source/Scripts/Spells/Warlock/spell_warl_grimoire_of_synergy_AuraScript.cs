@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warlock;
 
 // Grimoire of Synergy - 171975
 [SpellScript(171975, "spell_warl_grimoire_of_synergy")]
-public class spell_warl_grimoire_of_synergy_AuraScript : AuraScript, IAuraCheckProc
+public class SpellWarlGrimoireOfSynergyAuraScript : AuraScript, IAuraCheckProc
 {
     public bool CheckProc(ProcEventInfo eventInfo)
     {
@@ -27,7 +27,7 @@ public class spell_warl_grimoire_of_synergy_AuraScript : AuraScript, IAuraCheckP
                 return false;
 
             if (RandomHelper.randChance(10))
-                owner.CastSpell(owner, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
+                owner.SpellFactory.CastSpell(owner, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
 
             return true;
         }
@@ -42,7 +42,7 @@ public class spell_warl_grimoire_of_synergy_AuraScript : AuraScript, IAuraCheckP
                 return false;
 
             if (RandomHelper.randChance(10))
-                player.CastSpell(guardian, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
+                player.SpellFactory.CastSpell(guardian, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
 
             return true;
         }

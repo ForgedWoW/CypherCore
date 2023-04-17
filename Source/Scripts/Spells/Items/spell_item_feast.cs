@@ -2,27 +2,28 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
-[Script("spell_item_great_feast", TextIds.GreatFeast)]
-[Script("spell_item_fish_feast", TextIds.TextFishFeast)]
-[Script("spell_item_gigantic_feast", TextIds.TextGiganticFeast)]
-[Script("spell_item_small_feast", TextIds.SmallFeast)]
-[Script("spell_item_bountiful_feast", TextIds.BountifulFeast)]
-internal class spell_item_feast : SpellScript, IHasSpellEffects
+[Script("spell_item_great_feast", TextIds.GREAT_FEAST)]
+[Script("spell_item_fish_feast", TextIds.TEXT_FISH_FEAST)]
+[Script("spell_item_gigantic_feast", TextIds.TEXT_GIGANTIC_FEAST)]
+[Script("spell_item_small_feast", TextIds.SMALL_FEAST)]
+[Script("spell_item_bountiful_feast", TextIds.BOUNTIFUL_FEAST)]
+internal class SpellItemFeast : SpellScript, IHasSpellEffects
 {
     private readonly uint _text;
 
-    public List<ISpellEffect> SpellEffects { get; } = new();
-
-    public spell_item_feast(uint text)
+    public SpellItemFeast(uint text)
     {
         _text = text;
     }
+
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
     public override void Register()

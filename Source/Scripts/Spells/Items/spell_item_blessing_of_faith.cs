@@ -2,13 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
-internal class spell_item_blessing_of_faith : SpellScript, IHasSpellEffects
+internal class SpellItemBlessingOfFaith : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,19 +30,19 @@ internal class spell_item_blessing_of_faith : SpellScript, IHasSpellEffects
             switch (unitTarget.Class)
             {
                 case PlayerClass.Druid:
-                    spellId = ItemSpellIds.BlessingOfLowerCityDruid;
+                    spellId = ItemSpellIds.BLESSING_OF_LOWER_CITY_DRUID;
 
                     break;
                 case PlayerClass.Paladin:
-                    spellId = ItemSpellIds.BlessingOfLowerCityPaladin;
+                    spellId = ItemSpellIds.BLESSING_OF_LOWER_CITY_PALADIN;
 
                     break;
                 case PlayerClass.Priest:
-                    spellId = ItemSpellIds.BlessingOfLowerCityPriest;
+                    spellId = ItemSpellIds.BLESSING_OF_LOWER_CITY_PRIEST;
 
                     break;
                 case PlayerClass.Shaman:
-                    spellId = ItemSpellIds.BlessingOfLowerCityShaman;
+                    spellId = ItemSpellIds.BLESSING_OF_LOWER_CITY_SHAMAN;
 
                     break;
                 default:
@@ -49,7 +50,7 @@ internal class spell_item_blessing_of_faith : SpellScript, IHasSpellEffects
             }
 
             var caster = Caster;
-            caster.CastSpell(caster, spellId, true);
+            caster.SpellFactory.CastSpell(caster, spellId, true);
         }
     }
 }

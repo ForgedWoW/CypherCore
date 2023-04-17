@@ -2,7 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Units;
 
 namespace Scripts.Spells.Generic;
 
@@ -21,8 +21,8 @@ internal class CorruptingPlagueSearcher : ICheck<Unit>
     public bool Invoke(Unit u)
     {
         if (_unit.GetDistance2d(u) < _distance &&
-            (u.Entry == CreatureIds.ApexisFlayer || u.Entry == CreatureIds.ShardHideBoar || u.Entry == CreatureIds.AetherRay) &&
-            !u.HasAura(GenericSpellIds.CorruptingPlague))
+            (u.Entry == CreatureIds.APEXIS_FLAYER || u.Entry == CreatureIds.SHARD_HIDE_BOAR || u.Entry == CreatureIds.AETHER_RAY) &&
+            !u.HasAura(GenericSpellIds.CORRUPTING_PLAGUE))
             return true;
 
         return false;

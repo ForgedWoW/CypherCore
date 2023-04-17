@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 33395 Water Elemental's Freeze
-internal class spell_mage_water_elemental_freeze : SpellScript, ISpellAfterHit
+internal class SpellMageWaterElementalFreeze : SpellScript, ISpellAfterHit
 {
     public void AfterHit()
     {
@@ -16,6 +16,6 @@ internal class spell_mage_water_elemental_freeze : SpellScript, ISpellAfterHit
         if (!owner)
             return;
 
-        owner.CastSpell(owner, MageSpells.FingersOfFrost, true);
+        owner.SpellFactory.CastSpell(owner, MageSpells.FingersOfFrost, true);
     }
 }

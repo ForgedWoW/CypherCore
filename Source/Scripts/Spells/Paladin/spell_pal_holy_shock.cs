@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(20473)] // 20473 - Holy Shock
-internal class spell_pal_holy_shock : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellPalHolyShock : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -52,9 +53,9 @@ internal class spell_pal_holy_shock : SpellScript, ISpellCheckCast, IHasSpellEff
         if (unitTarget != null)
         {
             if (caster.IsFriendlyTo(unitTarget))
-                caster.CastSpell(unitTarget, PaladinSpells.HolyShockHealing, new CastSpellExtraArgs(Spell));
+                caster.SpellFactory.CastSpell(unitTarget, PaladinSpells.HOLY_SHOCK_HEALING, new CastSpellExtraArgs(Spell));
             else
-                caster.CastSpell(unitTarget, PaladinSpells.HolyShockDamage, new CastSpellExtraArgs(Spell));
+                caster.SpellFactory.CastSpell(unitTarget, PaladinSpells.HOLY_SHOCK_DAMAGE, new CastSpellExtraArgs(Spell));
         }
     }
 }

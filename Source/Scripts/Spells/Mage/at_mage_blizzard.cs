@@ -2,21 +2,21 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
+public class AtMageBlizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
-    public int timeInterval;
+    public int TimeInterval;
 
     public void OnCreate()
     {
-        timeInterval = 1000;
+        TimeInterval = 1000;
         At.SetDuration(8000);
     }
 
@@ -30,9 +30,9 @@ public class at_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTr
         if (!caster.IsPlayer)
             return;
 
-        timeInterval += (int)diff;
+        TimeInterval += (int)diff;
 
-        if (timeInterval < 1000)
+        if (TimeInterval < 1000)
             return;
 
         var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(8100));
@@ -41,10 +41,10 @@ public class at_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTr
             tempSumm.Faction = caster.Faction;
             tempSumm.SetSummonerGUID(caster.GUID);
             PhasingHandler.InheritPhaseShift(tempSumm, caster);
-            caster.CastSpell(tempSumm, UsingSpells.BLIZZARD_DAMAGE, true);
+            caster.SpellFactory.CastSpell(tempSumm, UsingSpells.BLIZZARD_DAMAGE, true);
         }
 
-        timeInterval -= 1000;
+        TimeInterval -= 1000;
     }
 
     public struct UsingSpells

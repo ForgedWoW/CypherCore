@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 48750 - Burning Depths Necrolyte Image
-internal class spell_gen_burning_depths_necrolyte_image : AuraScript, IHasAuraEffects
+internal class SpellGenBurningDepthsNecrolyteImage : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,7 +26,7 @@ internal class spell_gen_burning_depths_necrolyte_image : AuraScript, IHasAuraEf
         var caster = Caster;
 
         if (caster)
-            caster.CastSpell(Target, (uint)GetEffectInfo(2).CalcValue());
+            caster.SpellFactory.CastSpell(Target, (uint)GetEffectInfo(2).CalcValue());
     }
 
     private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

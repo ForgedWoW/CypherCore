@@ -2,24 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_helix_gearbreaker;
+using static Scripts.EasternKingdoms.Deadmines.Bosses.BossHelixGearbreaker;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(47297)]
-public class npc_lumbering_oafAI : ScriptedAI
+public class NPCLumberingOafAI : ScriptedAI
 {
     private readonly InstanceScript _instance;
     private readonly SummonList _summons;
     private readonly Vehicle _vehicle;
 
-    public npc_lumbering_oafAI(Creature pCreature) : base(pCreature)
+    public NPCLumberingOafAI(Creature pCreature) : base(pCreature)
     {
         _vehicle = Me.VehicleKit1;
         _instance = pCreature.InstanceScript;
@@ -39,16 +41,16 @@ public class npc_lumbering_oafAI : ScriptedAI
         if (!Me)
             return;
 
-        Events.ScheduleEvent(HelOaf_Events.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(5000));
+        Events.ScheduleEvent(HelOafEvents.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(5000));
     }
 
     public override void JustDied(Unit killer)
     {
-        var Helix = Me.FindNearestCreature(DMCreatures.NPC_HELIX_GEARBREAKER, 200, true);
+        var helix = Me.FindNearestCreature(DmCreatures.NPC_HELIX_GEARBREAKER, 200, true);
 
-        if (Helix != null)
+        if (helix != null)
         {
-            var pAI = (boss_helix_gearbreaker)Helix.AI;
+            var pAI = (BossHelixGearbreaker)helix.AI;
 
             if (pAI != null)
                 pAI.OafDead();
@@ -82,7 +84,7 @@ public class npc_lumbering_oafAI : ScriptedAI
 
             //    if (_bunny = me.FindNearestCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, 100.0f))
             //    {
-            //        me.CastSpell(me, IsHeroic() ? eSpels.OAF_SMASH_H : eSpels.OAF_SMASH);
+            //        me.SpellFactory.CastSpell(me, IsHeroic() ? eSpels.OAF_SMASH_H : eSpels.OAF_SMASH);
 
             //        me.SummonCreature(DMCreatures.NPC_MINE_RAT, -303.193481f, -486.287140f, 49.185917f, 2.152038f, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(360000));
             //        me.SummonCreature(DMCreatures.NPC_MINE_RAT, -300.496674f, -490.433746f, 49.073387f, 5.243889f, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds( 360000));
@@ -117,30 +119,30 @@ public class npc_lumbering_oafAI : ScriptedAI
         while ((eventId = Events.ExecuteEvent()) != 0)
             switch (eventId)
             {
-                case HelOaf_Events.EVENT_OAFQUARD:
+                case HelOafEvents.EVENT_OAFQUARD:
                     SummonBunny();
-                    Events.ScheduleEvent(HelOaf_Events.EVENT_MOUNT_PLAYER, TimeSpan.FromMilliseconds(500));
+                    Events.ScheduleEvent(HelOafEvents.EVENT_MOUNT_PLAYER, TimeSpan.FromMilliseconds(500));
 
                     break;
 
-                case HelOaf_Events.EVENT_MOUNT_PLAYER:
+                case HelOafEvents.EVENT_MOUNT_PLAYER:
                     var target = SelectTarget(SelectTargetMethod.Random, 0, 150, true);
 
                     if (target != null)
-                        target.CastSpell(Me, eSpels.RIDE_VEHICLE_HARDCODED);
+                        target.SpellFactory.CastSpell(Me, ESpels.RIDE_VEHICLE_HARDCODED);
 
-                    Events.ScheduleEvent(HelOaf_Events.EVENT_MOVE_TO_POINT, TimeSpan.FromMilliseconds(500));
+                    Events.ScheduleEvent(HelOafEvents.EVENT_MOVE_TO_POINT, TimeSpan.FromMilliseconds(500));
 
                     break;
 
-                case HelOaf_Events.EVENT_MOVE_TO_POINT:
+                case HelOafEvents.EVENT_MOVE_TO_POINT:
                     Me.SetSpeed(UnitMoveType.Run, 5.0f);
                     Me.MotionMaster.MovePoint(0, -289.809f, -527.215f, 49.8021f);
-                    Events.ScheduleEvent(HelOaf_Events.EVEMT_CHARGE, TimeSpan.FromMilliseconds(2000));
+                    Events.ScheduleEvent(HelOafEvents.EVEMT_CHARGE, TimeSpan.FromMilliseconds(2000));
 
                     break;
 
-                case HelOaf_Events.EVEMT_CHARGE:
+                case HelOafEvents.EVEMT_CHARGE:
                     //if (me.GetDistance(OafPos[0]) <= 2.0f)
                     //{
                     //    me.GetMotionMaster().Clear();
@@ -150,12 +152,12 @@ public class npc_lumbering_oafAI : ScriptedAI
                     //        _bunny.SetUnitFlag(UnitFlags.Uninteractible);
                     //    }
                     //}
-                    Events.ScheduleEvent(HelOaf_Events.EVENT_FINISH, TimeSpan.FromMilliseconds(1500));
+                    Events.ScheduleEvent(HelOafEvents.EVENT_FINISH, TimeSpan.FromMilliseconds(1500));
 
                     break;
 
-                case HelOaf_Events.EVENT_FINISH:
-                    Events.ScheduleEvent(HelOaf_Events.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(17000));
+                case HelOafEvents.EVENT_FINISH:
+                    Events.ScheduleEvent(HelOafEvents.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(17000));
 
                     break;
             }

@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_death_choice : AuraScript, IHasAuraEffects
+internal class SpellItemDeathChoice : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -31,25 +32,24 @@ internal class spell_item_death_choice : AuraScript, IHasAuraEffects
 
         switch (aurEff.Id)
         {
-            case ItemSpellIds.DeathChoiceNormalAura:
+            case ItemSpellIds.DEATH_CHOICE_NORMAL_AURA:
             {
                 if (str > agi)
-                    caster.CastSpell(caster, ItemSpellIds.DeathChoiceNormalStrength, new CastSpellExtraArgs(aurEff));
+                    caster.SpellFactory.CastSpell(caster, ItemSpellIds.DEATH_CHOICE_NORMAL_STRENGTH, new CastSpellExtraArgs(aurEff));
                 else
-                    caster.CastSpell(caster, ItemSpellIds.DeathChoiceNormalAgility, new CastSpellExtraArgs(aurEff));
+                    caster.SpellFactory.CastSpell(caster, ItemSpellIds.DEATH_CHOICE_NORMAL_AGILITY, new CastSpellExtraArgs(aurEff));
 
                 break;
             }
-            case ItemSpellIds.DeathChoiceHeroicAura:
+            case ItemSpellIds.DEATH_CHOICE_HEROIC_AURA:
             {
                 if (str > agi)
-                    caster.CastSpell(caster, ItemSpellIds.DeathChoiceHeroicStrength, new CastSpellExtraArgs(aurEff));
+                    caster.SpellFactory.CastSpell(caster, ItemSpellIds.DEATH_CHOICE_HEROIC_STRENGTH, new CastSpellExtraArgs(aurEff));
                 else
-                    caster.CastSpell(caster, ItemSpellIds.DeathChoiceHeroicAgility, new CastSpellExtraArgs(aurEff));
+                    caster.SpellFactory.CastSpell(caster, ItemSpellIds.DEATH_CHOICE_HEROIC_AGILITY, new CastSpellExtraArgs(aurEff));
 
                 break;
             }
-            
         }
     }
 }

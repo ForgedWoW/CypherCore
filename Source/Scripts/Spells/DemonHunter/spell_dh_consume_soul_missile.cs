@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(210047)]
-public class spell_dh_consume_soul_missile : SpellScript, IHasSpellEffects
+public class SpellDhConsumeSoulMissile : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,6 +28,6 @@ public class spell_dh_consume_soul_missile : SpellScript, IHasSpellEffects
             return;
 
         var spellToCast = SpellValue.EffectBasePoints[0];
-        caster.CastSpell(caster, (uint)spellToCast, true);
+        caster.SpellFactory.CastSpell(caster, (uint)spellToCast, true);
     }
 }

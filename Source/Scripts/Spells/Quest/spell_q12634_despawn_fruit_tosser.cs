@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 51840 Despawn Fruit Tosser
-internal class spell_q12634_despawn_fruit_tosser : SpellScript, IHasSpellEffects
+internal class SpellQ12634DespawnFruitTosser : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,24 +22,24 @@ internal class spell_q12634_despawn_fruit_tosser : SpellScript, IHasSpellEffects
 
     private void HandleDummy(int effIndex)
     {
-        var spellId = QuestSpellIds.BananasFallToGround;
+        var spellId = QuestSpellIds.BANANAS_FALL_TO_GROUND;
 
         switch (RandomHelper.URand(0, 3))
         {
             case 1:
-                spellId = QuestSpellIds.OrangeFallsToGround;
+                spellId = QuestSpellIds.ORANGE_FALLS_TO_GROUND;
 
                 break;
             case 2:
-                spellId = QuestSpellIds.PapayaFallsToGround;
+                spellId = QuestSpellIds.PAPAYA_FALLS_TO_GROUND;
 
                 break;
         }
 
         // sometimes, if you're lucky, you get a dwarf
         if (RandomHelper.randChance(5))
-            spellId = QuestSpellIds.SummonAdventurousDwarf;
+            spellId = QuestSpellIds.SUMMON_ADVENTUROUS_DWARF;
 
-        Caster.CastSpell(Caster, spellId, true);
+        Caster.SpellFactory.CastSpell(Caster, spellId, true);
     }
 }

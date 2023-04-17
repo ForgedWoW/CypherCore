@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [Script] // 124273, 124274, 124275 - Light/Moderate/Heavy Stagger - STAGGER_LIGHT / STAGGER_MODERATE / STAGGER_HEAVY
-internal class spell_monk_stagger_debuff_aura : AuraScript, IHasAuraEffects
+internal class SpellMonkStaggerDebuffAura : AuraScript, IHasAuraEffects
 {
     private double _period;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -18,7 +18,7 @@ internal class spell_monk_stagger_debuff_aura : AuraScript, IHasAuraEffects
 
     public override bool Load()
     {
-        _period = (double)Global.SpellMgr.GetSpellInfo(MonkSpells.StaggerDamageAura, CastDifficulty).GetEffect(0).ApplyAuraPeriod;
+        _period = (double)Global.SpellMgr.GetSpellInfo(MonkSpells.STAGGER_DAMAGE_AURA, CastDifficulty).GetEffect(0).ApplyAuraPeriod;
 
         return true;
     }
@@ -50,18 +50,18 @@ internal class spell_monk_stagger_debuff_aura : AuraScript, IHasAuraEffects
             return;
 
         // Remove Damage aura
-        Target.RemoveAura(MonkSpells.StaggerDamageAura);
+        Target.RemoveAura(MonkSpells.STAGGER_DAMAGE_AURA);
     }
 
     private void CastOrChangeTickDamage(double tickDamage)
     {
         var unit = Target;
-        var auraDamage = unit.GetAura(MonkSpells.StaggerDamageAura);
+        var auraDamage = unit.GetAura(MonkSpells.STAGGER_DAMAGE_AURA);
 
         if (auraDamage == null)
         {
-            unit.CastSpell(unit, MonkSpells.StaggerDamageAura, true);
-            auraDamage = unit.GetAura(MonkSpells.StaggerDamageAura);
+            unit.SpellFactory.CastSpell(unit, MonkSpells.STAGGER_DAMAGE_AURA, true);
+            auraDamage = unit.GetAura(MonkSpells.STAGGER_DAMAGE_AURA);
         }
 
         if (auraDamage != null)

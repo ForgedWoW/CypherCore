@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 19512 Apply Salve
-internal class spell_q6124_6129_apply_salve : SpellScript, IHasSpellEffects
+internal class SpellQ61246129ApplySalve : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -38,13 +39,13 @@ internal class spell_q6124_6129_apply_salve : SpellScript, IHasSpellEffects
                 switch (caster.Team)
                 {
                     case TeamFaction.Horde:
-                        if (creatureTarget.Entry == CreatureIds.SicklyGazelle)
-                            newEntry = CreatureIds.CuredGazelle;
+                        if (creatureTarget.Entry == CreatureIds.SICKLY_GAZELLE)
+                            newEntry = CreatureIds.CURED_GAZELLE;
 
                         break;
                     case TeamFaction.Alliance:
-                        if (creatureTarget.Entry == CreatureIds.SicklyDeer)
-                            newEntry = CreatureIds.CuredDeer;
+                        if (creatureTarget.Entry == CreatureIds.SICKLY_DEER)
+                            newEntry = CreatureIds.CURED_DEER;
 
                         break;
                 }

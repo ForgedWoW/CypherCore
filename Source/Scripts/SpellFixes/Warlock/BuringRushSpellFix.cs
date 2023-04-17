@@ -2,8 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Scripting.Interfaces.ISpellManager;
-using Game.Spells;
+using Forged.MapServer.Scripting.Interfaces.ISpellManager;
+using Forged.MapServer.Spells;
 
 namespace Scripts.SpellFixes.Warlock;
 

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Paladin;
 
@@ -14,7 +14,7 @@ namespace Scripts.Spells.Paladin;
 {
     271580, 85804
 })]
-public class spell_pal_proc_from_holy_power_consumption : AuraScript, IAuraCheckProc
+public class SpellPalProcFromHolyPowerConsumption : AuraScript, IAuraCheckProc
 {
     public bool CheckProc(ProcEventInfo eventInfo)
     {

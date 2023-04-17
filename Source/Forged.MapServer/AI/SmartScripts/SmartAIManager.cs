@@ -458,19 +458,19 @@ public class SmartAIManager
             temp.SourceType = sourceType;
             temp.EventId = result.Read<ushort>(2);
             temp.Link = result.Read<ushort>(3);
-            temp.Event.type = (SmartEvents)result.Read<byte>(4);
-            temp.Event.event_phase_mask = result.Read<ushort>(5);
-            temp.Event.event_chance = result.Read<byte>(6);
-            temp.Event.event_flags = (SmartEventFlags)result.Read<ushort>(7);
+            temp.Event.Type = (SmartEvents)result.Read<byte>(4);
+            temp.Event.EventPhaseMask = result.Read<ushort>(5);
+            temp.Event.EventChance = result.Read<byte>(6);
+            temp.Event.EventFlags = (SmartEventFlags)result.Read<ushort>(7);
 
-            temp.Event.raw.Param1 = result.Read<uint>(8);
-            temp.Event.raw.Param2 = result.Read<uint>(9);
-            temp.Event.raw.Param3 = result.Read<uint>(10);
-            temp.Event.raw.Param4 = result.Read<uint>(11);
-            temp.Event.raw.Param5 = result.Read<uint>(12);
-            temp.Event.param_string = result.Read<string>(13);
+            temp.Event.Raw.Param1 = result.Read<uint>(8);
+            temp.Event.Raw.Param2 = result.Read<uint>(9);
+            temp.Event.Raw.Param3 = result.Read<uint>(10);
+            temp.Event.Raw.Param4 = result.Read<uint>(11);
+            temp.Event.Raw.Param5 = result.Read<uint>(12);
+            temp.Event.ParamString = result.Read<string>(13);
 
-            temp.Action.type = (SmartActions)result.Read<byte>(14);
+            temp.Action.Type = (SmartActions)result.Read<byte>(14);
             temp.Action.raw.Param1 = result.Read<uint>(15);
             temp.Action.raw.Param2 = result.Read<uint>(16);
             temp.Action.raw.Param3 = result.Read<uint>(17);
@@ -479,15 +479,15 @@ public class SmartAIManager
             temp.Action.raw.Param6 = result.Read<uint>(20);
             temp.Action.raw.Param7 = result.Read<uint>(21);
 
-            temp.Target.type = (SmartTargets)result.Read<byte>(22);
-            temp.Target.raw.Param1 = result.Read<uint>(23);
-            temp.Target.raw.Param2 = result.Read<uint>(24);
-            temp.Target.raw.Param3 = result.Read<uint>(25);
-            temp.Target.raw.Param4 = result.Read<uint>(26);
-            temp.Target.x = result.Read<float>(27);
-            temp.Target.y = result.Read<float>(28);
-            temp.Target.z = result.Read<float>(29);
-            temp.Target.o = result.Read<float>(30);
+            temp.Target.Type = (SmartTargets)result.Read<byte>(22);
+            temp.Target.Raw.Param1 = result.Read<uint>(23);
+            temp.Target.Raw.Param2 = result.Read<uint>(24);
+            temp.Target.Raw.Param3 = result.Read<uint>(25);
+            temp.Target.Raw.Param4 = result.Read<uint>(26);
+            temp.Target.X = result.Read<float>(27);
+            temp.Target.Y = result.Read<float>(28);
+            temp.Target.Z = result.Read<float>(29);
+            temp.Target.O = result.Read<float>(30);
 
             //check target
             if (!IsTargetValid(temp))
@@ -498,7 +498,7 @@ public class SmartAIManager
                 continue;
 
             // specific check for timed events
-            switch (temp.Event.type)
+            switch (temp.Event.Type)
             {
                 case SmartEvents.Update:
                 case SmartEvents.UpdateOoc:
@@ -510,9 +510,9 @@ public class SmartAIManager
                 case SmartEvents.FriendlyMissingBuff:
                 case SmartEvents.HasAura:
                 case SmartEvents.TargetBuffed:
-                    if (temp.Event.minMaxRepeat is { RepeatMin: 0, RepeatMax: 0 } && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
+                    if (temp.Event.MinMaxRepeat is { RepeatMin: 0, RepeatMax: 0 } && !temp.Event.EventFlags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
                     {
-                        temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
+                        temp.Event.EventFlags |= SmartEventFlags.NotRepeatable;
                         Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat Id.");
                     }
 
@@ -520,18 +520,18 @@ public class SmartAIManager
 
                 case SmartEvents.VictimCasting:
                 case SmartEvents.IsBehindTarget:
-                    if (temp.Event.minMaxRepeat is { Min: 0, Max: 0 } && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
+                    if (temp.Event.MinMaxRepeat is { Min: 0, Max: 0 } && !temp.Event.EventFlags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
                     {
-                        temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
+                        temp.Event.EventFlags |= SmartEventFlags.NotRepeatable;
                         Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat Id.");
                     }
 
                     break;
 
                 case SmartEvents.FriendlyIsCc:
-                    if (temp.Event.friendlyCC is { RepeatMin: 0, RepeatMax: 0 } && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
+                    if (temp.Event.FriendlyCc is { RepeatMin: 0, RepeatMax: 0 } && !temp.Event.EventFlags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
                     {
-                        temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
+                        temp.Event.EventFlags |= SmartEventFlags.NotRepeatable;
                         Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat Id.");
                     }
 
@@ -641,147 +641,147 @@ public class SmartAIManager
 
     private static bool CheckUnusedActionParams(SmartScriptHolder e)
     {
-        var paramsStructSize = e.Action.type switch
+        var paramsStructSize = e.Action.Type switch
         {
             SmartActions.None => 0,
-            SmartActions.Talk => Marshal.SizeOf(typeof(SmartAction.Talk)),
-            SmartActions.SetFaction => Marshal.SizeOf(typeof(SmartAction.Faction)),
-            SmartActions.MorphToEntryOrModel => Marshal.SizeOf(typeof(SmartAction.MorphOrMount)),
-            SmartActions.Sound => Marshal.SizeOf(typeof(SmartAction.Sound)),
-            SmartActions.PlayEmote => Marshal.SizeOf(typeof(SmartAction.Emote)),
-            SmartActions.FailQuest => Marshal.SizeOf(typeof(SmartAction.Quest)),
-            SmartActions.OfferQuest => Marshal.SizeOf(typeof(SmartAction.QuestOffer)),
-            SmartActions.SetReactState => Marshal.SizeOf(typeof(SmartAction.React)),
+            SmartActions.Talk => Marshal.SizeOf(typeof(SmartAction.AiTalk)),
+            SmartActions.SetFaction => Marshal.SizeOf(typeof(SmartAction.AiFaction)),
+            SmartActions.MorphToEntryOrModel => Marshal.SizeOf(typeof(SmartAction.AiMorphOrMount)),
+            SmartActions.Sound => Marshal.SizeOf(typeof(SmartAction.AiSound)),
+            SmartActions.PlayEmote => Marshal.SizeOf(typeof(SmartAction.AiEmote)),
+            SmartActions.FailQuest => Marshal.SizeOf(typeof(SmartAction.AiQuest)),
+            SmartActions.OfferQuest => Marshal.SizeOf(typeof(SmartAction.AiQuestOffer)),
+            SmartActions.SetReactState => Marshal.SizeOf(typeof(SmartAction.AiReact)),
             SmartActions.ActivateGobject => 0,
-            SmartActions.RandomEmote => Marshal.SizeOf(typeof(SmartAction.RandomEmote)),
-            SmartActions.Cast => Marshal.SizeOf(typeof(SmartAction.Cast)),
-            SmartActions.SummonCreature => Marshal.SizeOf(typeof(SmartAction.SummonCreature)),
-            SmartActions.ThreatSinglePct => Marshal.SizeOf(typeof(SmartAction.ThreatPct)),
-            SmartActions.ThreatAllPct => Marshal.SizeOf(typeof(SmartAction.ThreatPct)),
-            SmartActions.CallAreaexploredoreventhappens => Marshal.SizeOf(typeof(SmartAction.Quest)),
-            SmartActions.SetIngamePhaseGroup => Marshal.SizeOf(typeof(SmartAction.IngamePhaseGroup)),
-            SmartActions.SetEmoteState => Marshal.SizeOf(typeof(SmartAction.Emote)),
-            SmartActions.AutoAttack => Marshal.SizeOf(typeof(SmartAction.AutoAttack)),
-            SmartActions.AllowCombatMovement => Marshal.SizeOf(typeof(SmartAction.CombatMove)),
-            SmartActions.SetEventPhase => Marshal.SizeOf(typeof(SmartAction.SetEventPhase)),
-            SmartActions.IncEventPhase => Marshal.SizeOf(typeof(SmartAction.IncEventPhase)),
-            SmartActions.Evade => Marshal.SizeOf(typeof(SmartAction.Evade)),
-            SmartActions.FleeForAssist => Marshal.SizeOf(typeof(SmartAction.FleeAssist)),
-            SmartActions.CallGroupeventhappens => Marshal.SizeOf(typeof(SmartAction.Quest)),
+            SmartActions.RandomEmote => Marshal.SizeOf(typeof(SmartAction.AiRandomEmote)),
+            SmartActions.Cast => Marshal.SizeOf(typeof(SmartAction.AiCast)),
+            SmartActions.SummonCreature => Marshal.SizeOf(typeof(SmartAction.AiSummonCreature)),
+            SmartActions.ThreatSinglePct => Marshal.SizeOf(typeof(SmartAction.AiThreatPct)),
+            SmartActions.ThreatAllPct => Marshal.SizeOf(typeof(SmartAction.AiThreatPct)),
+            SmartActions.CallAreaexploredoreventhappens => Marshal.SizeOf(typeof(SmartAction.AiQuest)),
+            SmartActions.SetIngamePhaseGroup => Marshal.SizeOf(typeof(SmartAction.AiIngamePhaseGroup)),
+            SmartActions.SetEmoteState => Marshal.SizeOf(typeof(SmartAction.AiEmote)),
+            SmartActions.AutoAttack => Marshal.SizeOf(typeof(SmartAction.AiAutoAttack)),
+            SmartActions.AllowCombatMovement => Marshal.SizeOf(typeof(SmartAction.AiCombatMove)),
+            SmartActions.SetEventPhase => Marshal.SizeOf(typeof(SmartAction.AiSetEventPhase)),
+            SmartActions.IncEventPhase => Marshal.SizeOf(typeof(SmartAction.AiIncEventPhase)),
+            SmartActions.Evade => Marshal.SizeOf(typeof(SmartAction.AiEvade)),
+            SmartActions.FleeForAssist => Marshal.SizeOf(typeof(SmartAction.AiFleeAssist)),
+            SmartActions.CallGroupeventhappens => Marshal.SizeOf(typeof(SmartAction.AiQuest)),
             SmartActions.CombatStop => 0,
-            SmartActions.RemoveAurasFromSpell => Marshal.SizeOf(typeof(SmartAction.RemoveAura)),
-            SmartActions.Follow => Marshal.SizeOf(typeof(SmartAction.Follow)),
-            SmartActions.RandomPhase => Marshal.SizeOf(typeof(SmartAction.RandomPhase)),
-            SmartActions.RandomPhaseRange => Marshal.SizeOf(typeof(SmartAction.RandomPhaseRange)),
+            SmartActions.RemoveAurasFromSpell => Marshal.SizeOf(typeof(SmartAction.AiRemoveAura)),
+            SmartActions.Follow => Marshal.SizeOf(typeof(SmartAction.AiFollow)),
+            SmartActions.RandomPhase => Marshal.SizeOf(typeof(SmartAction.AiRandomPhase)),
+            SmartActions.RandomPhaseRange => Marshal.SizeOf(typeof(SmartAction.AiRandomPhaseRange)),
             SmartActions.ResetGobject => 0,
-            SmartActions.CallKilledmonster => Marshal.SizeOf(typeof(SmartAction.KilledMonster)),
-            SmartActions.SetInstData => Marshal.SizeOf(typeof(SmartAction.SetInstanceData)),
-            SmartActions.SetInstData64 => Marshal.SizeOf(typeof(SmartAction.SetInstanceData64)),
-            SmartActions.UpdateTemplate => Marshal.SizeOf(typeof(SmartAction.UpdateTemplate)),
+            SmartActions.CallKilledmonster => Marshal.SizeOf(typeof(SmartAction.AiKilledMonster)),
+            SmartActions.SetInstData => Marshal.SizeOf(typeof(SmartAction.AiSetInstanceData)),
+            SmartActions.SetInstData64 => Marshal.SizeOf(typeof(SmartAction.AiSetInstanceData64)),
+            SmartActions.UpdateTemplate => Marshal.SizeOf(typeof(SmartAction.AiUpdateTemplate)),
             SmartActions.Die => 0,
             SmartActions.SetInCombatWithZone => 0,
-            SmartActions.CallForHelp => Marshal.SizeOf(typeof(SmartAction.CallHelp)),
-            SmartActions.SetSheath => Marshal.SizeOf(typeof(SmartAction.SetSheath)),
-            SmartActions.ForceDespawn => Marshal.SizeOf(typeof(SmartAction.ForceDespawn)),
-            SmartActions.SetInvincibilityHpLevel => Marshal.SizeOf(typeof(SmartAction.InvincHp)),
-            SmartActions.MountToEntryOrModel => Marshal.SizeOf(typeof(SmartAction.MorphOrMount)),
-            SmartActions.SetIngamePhaseId => Marshal.SizeOf(typeof(SmartAction.IngamePhaseId)),
-            SmartActions.SetData => Marshal.SizeOf(typeof(SmartAction.SetData)),
+            SmartActions.CallForHelp => Marshal.SizeOf(typeof(SmartAction.AiCallHelp)),
+            SmartActions.SetSheath => Marshal.SizeOf(typeof(SmartAction.AiSetSheath)),
+            SmartActions.ForceDespawn => Marshal.SizeOf(typeof(SmartAction.AiForceDespawn)),
+            SmartActions.SetInvincibilityHpLevel => Marshal.SizeOf(typeof(SmartAction.AiInvincHp)),
+            SmartActions.MountToEntryOrModel => Marshal.SizeOf(typeof(SmartAction.AiMorphOrMount)),
+            SmartActions.SetIngamePhaseId => Marshal.SizeOf(typeof(SmartAction.AiIngamePhaseId)),
+            SmartActions.SetData => Marshal.SizeOf(typeof(SmartAction.AiSetData)),
             SmartActions.AttackStop => 0,
-            SmartActions.SetVisibility => Marshal.SizeOf(typeof(SmartAction.Visibility)),
-            SmartActions.SetActive => Marshal.SizeOf(typeof(SmartAction.Active)),
+            SmartActions.SetVisibility => Marshal.SizeOf(typeof(SmartAction.AiVisibility)),
+            SmartActions.SetActive => Marshal.SizeOf(typeof(SmartAction.AiActive)),
             SmartActions.AttackStart => 0,
-            SmartActions.SummonGo => Marshal.SizeOf(typeof(SmartAction.SummonGO)),
+            SmartActions.SummonGo => Marshal.SizeOf(typeof(SmartAction.AiSummonGO)),
             SmartActions.KillUnit => 0,
-            SmartActions.ActivateTaxi => Marshal.SizeOf(typeof(SmartAction.Taxi)),
-            SmartActions.WpStart => Marshal.SizeOf(typeof(SmartAction.WpStart)),
-            SmartActions.WpPause => Marshal.SizeOf(typeof(SmartAction.WpPause)),
-            SmartActions.WpStop => Marshal.SizeOf(typeof(SmartAction.WpStop)),
-            SmartActions.AddItem => Marshal.SizeOf(typeof(SmartAction.Item)),
-            SmartActions.RemoveItem => Marshal.SizeOf(typeof(SmartAction.Item)),
-            SmartActions.SetRun => Marshal.SizeOf(typeof(SmartAction.SetRun)),
-            SmartActions.SetDisableGravity => Marshal.SizeOf(typeof(SmartAction.SetDisableGravity)),
-            SmartActions.Teleport => Marshal.SizeOf(typeof(SmartAction.Teleport)),
-            SmartActions.SetCounter => Marshal.SizeOf(typeof(SmartAction.SetCounter)),
-            SmartActions.StoreTargetList => Marshal.SizeOf(typeof(SmartAction.StoreTargets)),
+            SmartActions.ActivateTaxi => Marshal.SizeOf(typeof(SmartAction.AiTaxi)),
+            SmartActions.WpStart => Marshal.SizeOf(typeof(SmartAction.AiWpStart)),
+            SmartActions.WpPause => Marshal.SizeOf(typeof(SmartAction.AiWpPause)),
+            SmartActions.WpStop => Marshal.SizeOf(typeof(SmartAction.AiWpStop)),
+            SmartActions.AddItem => Marshal.SizeOf(typeof(SmartAction.AiItem)),
+            SmartActions.RemoveItem => Marshal.SizeOf(typeof(SmartAction.AiItem)),
+            SmartActions.SetRun => Marshal.SizeOf(typeof(SmartAction.AiSetRun)),
+            SmartActions.SetDisableGravity => Marshal.SizeOf(typeof(SmartAction.AiSetDisableGravity)),
+            SmartActions.Teleport => Marshal.SizeOf(typeof(SmartAction.AiTeleport)),
+            SmartActions.SetCounter => Marshal.SizeOf(typeof(SmartAction.AiSetCounter)),
+            SmartActions.StoreTargetList => Marshal.SizeOf(typeof(SmartAction.AiStoreTargets)),
             SmartActions.WpResume => 0,
             SmartActions.SetOrientation => 0,
-            SmartActions.CreateTimedEvent => Marshal.SizeOf(typeof(SmartAction.TimeEvent)),
-            SmartActions.Playmovie => Marshal.SizeOf(typeof(SmartAction.Movie)),
-            SmartActions.MoveToPos => Marshal.SizeOf(typeof(SmartAction.MoveToPos)),
-            SmartActions.EnableTempGobj => Marshal.SizeOf(typeof(SmartAction.EnableTempGO)),
-            SmartActions.Equip => Marshal.SizeOf(typeof(SmartAction.Equip)),
+            SmartActions.CreateTimedEvent => Marshal.SizeOf(typeof(SmartAction.AiTimeEvent)),
+            SmartActions.Playmovie => Marshal.SizeOf(typeof(SmartAction.AiMovie)),
+            SmartActions.MoveToPos => Marshal.SizeOf(typeof(SmartAction.AiMoveToPos)),
+            SmartActions.EnableTempGobj => Marshal.SizeOf(typeof(SmartAction.AiEnableTempGO)),
+            SmartActions.Equip => Marshal.SizeOf(typeof(SmartAction.AiEquip)),
             SmartActions.CloseGossip => 0,
-            SmartActions.TriggerTimedEvent => Marshal.SizeOf(typeof(SmartAction.TimeEvent)),
-            SmartActions.RemoveTimedEvent => Marshal.SizeOf(typeof(SmartAction.TimeEvent)),
+            SmartActions.TriggerTimedEvent => Marshal.SizeOf(typeof(SmartAction.AiTimeEvent)),
+            SmartActions.RemoveTimedEvent => Marshal.SizeOf(typeof(SmartAction.AiTimeEvent)),
             SmartActions.CallScriptReset => 0,
-            SmartActions.SetRangedMovement => Marshal.SizeOf(typeof(SmartAction.SetRangedMovement)),
-            SmartActions.CallTimedActionlist => Marshal.SizeOf(typeof(SmartAction.TimedActionList)),
-            SmartActions.SetNpcFlag => Marshal.SizeOf(typeof(SmartAction.Flag)),
-            SmartActions.AddNpcFlag => Marshal.SizeOf(typeof(SmartAction.Flag)),
-            SmartActions.RemoveNpcFlag => Marshal.SizeOf(typeof(SmartAction.Flag)),
-            SmartActions.SimpleTalk => Marshal.SizeOf(typeof(SmartAction.SimpleTalk)),
-            SmartActions.SelfCast => Marshal.SizeOf(typeof(SmartAction.Cast)),
-            SmartActions.CrossCast => Marshal.SizeOf(typeof(SmartAction.CrossCast)),
-            SmartActions.CallRandomTimedActionlist => Marshal.SizeOf(typeof(SmartAction.RandTimedActionList)),
-            SmartActions.CallRandomRangeTimedActionlist => Marshal.SizeOf(typeof(SmartAction.RandRangeTimedActionList)),
-            SmartActions.RandomMove => Marshal.SizeOf(typeof(SmartAction.MoveRandom)),
-            SmartActions.SetUnitFieldBytes1 => Marshal.SizeOf(typeof(SmartAction.SetunitByte)),
-            SmartActions.RemoveUnitFieldBytes1 => Marshal.SizeOf(typeof(SmartAction.DelunitByte)),
-            SmartActions.InterruptSpell => Marshal.SizeOf(typeof(SmartAction.InterruptSpellCasting)),
-            SmartActions.AddDynamicFlag => Marshal.SizeOf(typeof(SmartAction.Flag)),
-            SmartActions.RemoveDynamicFlag => Marshal.SizeOf(typeof(SmartAction.Flag)),
-            SmartActions.JumpToPos => Marshal.SizeOf(typeof(SmartAction.Jump)),
-            SmartActions.SendGossipMenu => Marshal.SizeOf(typeof(SmartAction.SendGossipMenu)),
-            SmartActions.GoSetLootState => Marshal.SizeOf(typeof(SmartAction.SetGoLootState)),
-            SmartActions.SendTargetToTarget => Marshal.SizeOf(typeof(SmartAction.SendTargetToTarget)),
+            SmartActions.SetRangedMovement => Marshal.SizeOf(typeof(SmartAction.AiSetRangedMovement)),
+            SmartActions.CallTimedActionlist => Marshal.SizeOf(typeof(SmartAction.AiTimedActionList)),
+            SmartActions.SetNpcFlag => Marshal.SizeOf(typeof(SmartAction.AiFlag)),
+            SmartActions.AddNpcFlag => Marshal.SizeOf(typeof(SmartAction.AiFlag)),
+            SmartActions.RemoveNpcFlag => Marshal.SizeOf(typeof(SmartAction.AiFlag)),
+            SmartActions.SimpleTalk => Marshal.SizeOf(typeof(SmartAction.AiSimpleTalk)),
+            SmartActions.SelfCast => Marshal.SizeOf(typeof(SmartAction.AiCast)),
+            SmartActions.CrossCast => Marshal.SizeOf(typeof(SmartAction.AiCrossCast)),
+            SmartActions.CallRandomTimedActionlist => Marshal.SizeOf(typeof(SmartAction.AiRandTimedActionList)),
+            SmartActions.CallRandomRangeTimedActionlist => Marshal.SizeOf(typeof(SmartAction.AiRandRangeTimedActionList)),
+            SmartActions.RandomMove => Marshal.SizeOf(typeof(SmartAction.AiMoveRandom)),
+            SmartActions.SetUnitFieldBytes1 => Marshal.SizeOf(typeof(SmartAction.AiSetunitByte)),
+            SmartActions.RemoveUnitFieldBytes1 => Marshal.SizeOf(typeof(SmartAction.AiDelunitByte)),
+            SmartActions.InterruptSpell => Marshal.SizeOf(typeof(SmartAction.AiInterruptSpellCasting)),
+            SmartActions.AddDynamicFlag => Marshal.SizeOf(typeof(SmartAction.AiFlag)),
+            SmartActions.RemoveDynamicFlag => Marshal.SizeOf(typeof(SmartAction.AiFlag)),
+            SmartActions.JumpToPos => Marshal.SizeOf(typeof(SmartAction.AiJump)),
+            SmartActions.SendGossipMenu => Marshal.SizeOf(typeof(SmartAction.AiSendGossipMenu)),
+            SmartActions.GoSetLootState => Marshal.SizeOf(typeof(SmartAction.AiSetGoLootState)),
+            SmartActions.SendTargetToTarget => Marshal.SizeOf(typeof(SmartAction.AiSendTargetToTarget)),
             SmartActions.SetHomePos => 0,
-            SmartActions.SetHealthRegen => Marshal.SizeOf(typeof(SmartAction.SetHealthRegen)),
-            SmartActions.SetRoot => Marshal.SizeOf(typeof(SmartAction.SetRoot)),
-            SmartActions.SummonCreatureGroup => Marshal.SizeOf(typeof(SmartAction.CreatureGroup)),
-            SmartActions.SetPower => Marshal.SizeOf(typeof(SmartAction.Power)),
-            SmartActions.AddPower => Marshal.SizeOf(typeof(SmartAction.Power)),
-            SmartActions.RemovePower => Marshal.SizeOf(typeof(SmartAction.Power)),
-            SmartActions.GameEventStop => Marshal.SizeOf(typeof(SmartAction.GameEventStop)),
-            SmartActions.GameEventStart => Marshal.SizeOf(typeof(SmartAction.GameEventStart)),
-            SmartActions.StartClosestWaypoint => Marshal.SizeOf(typeof(SmartAction.ClosestWaypointFromList)),
-            SmartActions.MoveOffset => Marshal.SizeOf(typeof(SmartAction.MoveOffset)),
-            SmartActions.RandomSound => Marshal.SizeOf(typeof(SmartAction.RandomSound)),
-            SmartActions.SetCorpseDelay => Marshal.SizeOf(typeof(SmartAction.CorpseDelay)),
-            SmartActions.DisableEvade => Marshal.SizeOf(typeof(SmartAction.DisableEvade)),
-            SmartActions.GoSetGoState => Marshal.SizeOf(typeof(SmartAction.GoState)),
-            SmartActions.AddThreat => Marshal.SizeOf(typeof(SmartAction.Threat)),
-            SmartActions.LoadEquipment => Marshal.SizeOf(typeof(SmartAction.LoadEquipment)),
-            SmartActions.TriggerRandomTimedEvent => Marshal.SizeOf(typeof(SmartAction.RandomTimedEvent)),
-            SmartActions.PauseMovement => Marshal.SizeOf(typeof(SmartAction.PauseMovement)),
-            SmartActions.PlayAnimkit => Marshal.SizeOf(typeof(SmartAction.AnimKit)),
-            SmartActions.ScenePlay => Marshal.SizeOf(typeof(SmartAction.Scene)),
-            SmartActions.SceneCancel => Marshal.SizeOf(typeof(SmartAction.Scene)),
-            SmartActions.SpawnSpawngroup => Marshal.SizeOf(typeof(SmartAction.GroupSpawn)),
-            SmartActions.DespawnSpawngroup => Marshal.SizeOf(typeof(SmartAction.GroupSpawn)),
-            SmartActions.RespawnBySpawnId => Marshal.SizeOf(typeof(SmartAction.RespawnData)),
-            SmartActions.InvokerCast => Marshal.SizeOf(typeof(SmartAction.Cast)),
-            SmartActions.PlayCinematic => Marshal.SizeOf(typeof(SmartAction.Cinematic)),
-            SmartActions.SetMovementSpeed => Marshal.SizeOf(typeof(SmartAction.MovementSpeed)),
-            SmartActions.PlaySpellVisualKit => Marshal.SizeOf(typeof(SmartAction.SpellVisualKit)),
-            SmartActions.OverrideLight => Marshal.SizeOf(typeof(SmartAction.OverrideLight)),
-            SmartActions.OverrideWeather => Marshal.SizeOf(typeof(SmartAction.OverrideWeather)),
+            SmartActions.SetHealthRegen => Marshal.SizeOf(typeof(SmartAction.AiSetHealthRegen)),
+            SmartActions.SetRoot => Marshal.SizeOf(typeof(SmartAction.AiSetRoot)),
+            SmartActions.SummonCreatureGroup => Marshal.SizeOf(typeof(SmartAction.AiCreatureGroup)),
+            SmartActions.SetPower => Marshal.SizeOf(typeof(SmartAction.AiPower)),
+            SmartActions.AddPower => Marshal.SizeOf(typeof(SmartAction.AiPower)),
+            SmartActions.RemovePower => Marshal.SizeOf(typeof(SmartAction.AiPower)),
+            SmartActions.GameEventStop => Marshal.SizeOf(typeof(SmartAction.AiGameEventStop)),
+            SmartActions.GameEventStart => Marshal.SizeOf(typeof(SmartAction.AiGameEventStart)),
+            SmartActions.StartClosestWaypoint => Marshal.SizeOf(typeof(SmartAction.AiClosestWaypointFromList)),
+            SmartActions.MoveOffset => Marshal.SizeOf(typeof(SmartAction.AiMoveOffset)),
+            SmartActions.RandomSound => Marshal.SizeOf(typeof(SmartAction.AiRandomSound)),
+            SmartActions.SetCorpseDelay => Marshal.SizeOf(typeof(SmartAction.AiCorpseDelay)),
+            SmartActions.DisableEvade => Marshal.SizeOf(typeof(SmartAction.AiDisableEvade)),
+            SmartActions.GoSetGoState => Marshal.SizeOf(typeof(SmartAction.AiGoState)),
+            SmartActions.AddThreat => Marshal.SizeOf(typeof(SmartAction.AiThreat)),
+            SmartActions.LoadEquipment => Marshal.SizeOf(typeof(SmartAction.AiLoadEquipment)),
+            SmartActions.TriggerRandomTimedEvent => Marshal.SizeOf(typeof(SmartAction.AiRandomTimedEvent)),
+            SmartActions.PauseMovement => Marshal.SizeOf(typeof(SmartAction.AiPauseMovement)),
+            SmartActions.PlayAnimkit => Marshal.SizeOf(typeof(SmartAction.AiAnimKit)),
+            SmartActions.ScenePlay => Marshal.SizeOf(typeof(SmartAction.AiScene)),
+            SmartActions.SceneCancel => Marshal.SizeOf(typeof(SmartAction.AiScene)),
+            SmartActions.SpawnSpawngroup => Marshal.SizeOf(typeof(SmartAction.AiGroupSpawn)),
+            SmartActions.DespawnSpawngroup => Marshal.SizeOf(typeof(SmartAction.AiGroupSpawn)),
+            SmartActions.RespawnBySpawnId => Marshal.SizeOf(typeof(SmartAction.AiRespawnData)),
+            SmartActions.InvokerCast => Marshal.SizeOf(typeof(SmartAction.AiCast)),
+            SmartActions.PlayCinematic => Marshal.SizeOf(typeof(SmartAction.AiCinematic)),
+            SmartActions.SetMovementSpeed => Marshal.SizeOf(typeof(SmartAction.AiMovementSpeed)),
+            SmartActions.PlaySpellVisualKit => Marshal.SizeOf(typeof(SmartAction.AiSpellVisualKit)),
+            SmartActions.OverrideLight => Marshal.SizeOf(typeof(SmartAction.AiOverrideLight)),
+            SmartActions.OverrideWeather => Marshal.SizeOf(typeof(SmartAction.AiOverrideWeather)),
             SmartActions.SetAIAnimKit => 0,
-            SmartActions.SetHover => Marshal.SizeOf(typeof(SmartAction.SetHover)),
-            SmartActions.SetHealthPct => Marshal.SizeOf(typeof(SmartAction.SetHealthPct)),
-            SmartActions.CreateConversation => Marshal.SizeOf(typeof(SmartAction.Conversation)),
-            SmartActions.SetImmunePC => Marshal.SizeOf(typeof(SmartAction.SetImmunePc)),
-            SmartActions.SetImmuneNPC => Marshal.SizeOf(typeof(SmartAction.SetImmuneNPC)),
-            SmartActions.SetUninteractible => Marshal.SizeOf(typeof(SmartAction.SetUninteractible)),
-            SmartActions.ActivateGameobject => Marshal.SizeOf(typeof(SmartAction.ActivateGameObject)),
-            SmartActions.AddToStoredTargetList => Marshal.SizeOf(typeof(SmartAction.AddToStoredTargets)),
-            SmartActions.BecomePersonalCloneForPlayer => Marshal.SizeOf(typeof(SmartAction.BecomePersonalClone)),
-            SmartActions.TriggerGameEvent => Marshal.SizeOf(typeof(SmartAction.TriggerGameEvent)),
-            SmartActions.DoAction => Marshal.SizeOf(typeof(SmartAction.DoAction)),
-            _ => Marshal.SizeOf(typeof(SmartAction.Raw)),
+            SmartActions.SetHover => Marshal.SizeOf(typeof(SmartAction.AiSetHover)),
+            SmartActions.SetHealthPct => Marshal.SizeOf(typeof(SmartAction.AiSetHealthPct)),
+            SmartActions.CreateConversation => Marshal.SizeOf(typeof(SmartAction.AiConversation)),
+            SmartActions.SetImmunePC => Marshal.SizeOf(typeof(SmartAction.AiSetImmunePc)),
+            SmartActions.SetImmuneNPC => Marshal.SizeOf(typeof(SmartAction.AiSetImmuneNPC)),
+            SmartActions.SetUninteractible => Marshal.SizeOf(typeof(SmartAction.AiSetUninteractible)),
+            SmartActions.ActivateGameobject => Marshal.SizeOf(typeof(SmartAction.AiActivateGameObject)),
+            SmartActions.AddToStoredTargetList => Marshal.SizeOf(typeof(SmartAction.AiAddToStoredTargets)),
+            SmartActions.BecomePersonalCloneForPlayer => Marshal.SizeOf(typeof(SmartAction.AiBecomePersonalClone)),
+            SmartActions.TriggerGameEvent => Marshal.SizeOf(typeof(SmartAction.AiTriggerGameEvent)),
+            SmartActions.DoAction => Marshal.SizeOf(typeof(SmartAction.AiDoAction)),
+            _ => Marshal.SizeOf(typeof(SmartAction.AiRaw)),
         };
 
-        var rawCount = Marshal.SizeOf(typeof(SmartAction.Raw)) / sizeof(uint);
+        var rawCount = Marshal.SizeOf(typeof(SmartAction.AiRaw)) / sizeof(uint);
         var paramsCount = paramsStructSize / sizeof(uint);
 
         for (var index = paramsCount; index < rawCount; index++)
@@ -806,103 +806,103 @@ public class SmartAIManager
 
     private static bool CheckUnusedEventParams(SmartScriptHolder e)
     {
-        var paramsStructSize = e.Event.type switch
+        var paramsStructSize = e.Event.Type switch
         {
-            SmartEvents.UpdateIc => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
-            SmartEvents.UpdateOoc => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
-            SmartEvents.HealthPct => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
-            SmartEvents.ManaPct => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
+            SmartEvents.UpdateIc => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
+            SmartEvents.UpdateOoc => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
+            SmartEvents.HealthPct => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
+            SmartEvents.ManaPct => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
             SmartEvents.Aggro => 0,
-            SmartEvents.Kill => Marshal.SizeOf(typeof(SmartEvent.Kill)),
+            SmartEvents.Kill => Marshal.SizeOf(typeof(SmartEvent.SmartEventKill)),
             SmartEvents.Death => 0,
             SmartEvents.Evade => 0,
-            SmartEvents.SpellHit => Marshal.SizeOf(typeof(SmartEvent.SpellHit)),
-            SmartEvents.Range => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
-            SmartEvents.OocLos => Marshal.SizeOf(typeof(SmartEvent.Los)),
-            SmartEvents.Respawn => Marshal.SizeOf(typeof(SmartEvent.Respawn)),
-            SmartEvents.VictimCasting => Marshal.SizeOf(typeof(SmartEvent.TargetCasting)),
-            SmartEvents.FriendlyIsCc => Marshal.SizeOf(typeof(SmartEvent.FriendlyCc)),
-            SmartEvents.FriendlyMissingBuff => Marshal.SizeOf(typeof(SmartEvent.MissingBuff)),
-            SmartEvents.SummonedUnit => Marshal.SizeOf(typeof(SmartEvent.Summoned)),
-            SmartEvents.AcceptedQuest => Marshal.SizeOf(typeof(SmartEvent.Quest)),
-            SmartEvents.RewardQuest => Marshal.SizeOf(typeof(SmartEvent.Quest)),
+            SmartEvents.SpellHit => Marshal.SizeOf(typeof(SmartEvent.SmartEventSpellHit)),
+            SmartEvents.Range => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
+            SmartEvents.OocLos => Marshal.SizeOf(typeof(SmartEvent.SmartEventLos)),
+            SmartEvents.Respawn => Marshal.SizeOf(typeof(SmartEvent.SmartEventRespawn)),
+            SmartEvents.VictimCasting => Marshal.SizeOf(typeof(SmartEvent.SmartEventTargetCasting)),
+            SmartEvents.FriendlyIsCc => Marshal.SizeOf(typeof(SmartEvent.SmartEventFriendlyCc)),
+            SmartEvents.FriendlyMissingBuff => Marshal.SizeOf(typeof(SmartEvent.SmartEventMissingBuff)),
+            SmartEvents.SummonedUnit => Marshal.SizeOf(typeof(SmartEvent.SmartEventSummoned)),
+            SmartEvents.AcceptedQuest => Marshal.SizeOf(typeof(SmartEvent.SmartEventQuest)),
+            SmartEvents.RewardQuest => Marshal.SizeOf(typeof(SmartEvent.SmartEventQuest)),
             SmartEvents.ReachedHome => 0,
-            SmartEvents.ReceiveEmote => Marshal.SizeOf(typeof(SmartEvent.Emote)),
-            SmartEvents.HasAura => Marshal.SizeOf(typeof(SmartEvent.Aura)),
-            SmartEvents.TargetBuffed => Marshal.SizeOf(typeof(SmartEvent.Aura)),
+            SmartEvents.ReceiveEmote => Marshal.SizeOf(typeof(SmartEvent.SmartEventEmote)),
+            SmartEvents.HasAura => Marshal.SizeOf(typeof(SmartEvent.SmartEventAura)),
+            SmartEvents.TargetBuffed => Marshal.SizeOf(typeof(SmartEvent.SmartEventAura)),
             SmartEvents.Reset => 0,
-            SmartEvents.IcLos => Marshal.SizeOf(typeof(SmartEvent.Los)),
-            SmartEvents.PassengerBoarded => Marshal.SizeOf(typeof(SmartEvent.MinMax)),
-            SmartEvents.PassengerRemoved => Marshal.SizeOf(typeof(SmartEvent.MinMax)),
-            SmartEvents.Charmed => Marshal.SizeOf(typeof(SmartEvent.Charm)),
-            SmartEvents.SpellHitTarget => Marshal.SizeOf(typeof(SmartEvent.SpellHit)),
-            SmartEvents.Damaged => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
-            SmartEvents.DamagedTarget => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
-            SmartEvents.Movementinform => Marshal.SizeOf(typeof(SmartEvent.MovementInform)),
-            SmartEvents.SummonDespawned => Marshal.SizeOf(typeof(SmartEvent.Summoned)),
+            SmartEvents.IcLos => Marshal.SizeOf(typeof(SmartEvent.SmartEventLos)),
+            SmartEvents.PassengerBoarded => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMax)),
+            SmartEvents.PassengerRemoved => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMax)),
+            SmartEvents.Charmed => Marshal.SizeOf(typeof(SmartEvent.SmartEventCharm)),
+            SmartEvents.SpellHitTarget => Marshal.SizeOf(typeof(SmartEvent.SmartEventSpellHit)),
+            SmartEvents.Damaged => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
+            SmartEvents.DamagedTarget => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
+            SmartEvents.Movementinform => Marshal.SizeOf(typeof(SmartEvent.SmartEventMovementInform)),
+            SmartEvents.SummonDespawned => Marshal.SizeOf(typeof(SmartEvent.SmartEventSummoned)),
             SmartEvents.CorpseRemoved => 0,
             SmartEvents.AiInit => 0,
-            SmartEvents.DataSet => Marshal.SizeOf(typeof(SmartEvent.DataSet)),
-            SmartEvents.WaypointReached => Marshal.SizeOf(typeof(SmartEvent.Waypoint)),
+            SmartEvents.DataSet => Marshal.SizeOf(typeof(SmartEvent.SmartEventDataSet)),
+            SmartEvents.WaypointReached => Marshal.SizeOf(typeof(SmartEvent.SmartEventWaypoint)),
             SmartEvents.TransportAddplayer => 0,
-            SmartEvents.TransportAddcreature => Marshal.SizeOf(typeof(SmartEvent.TransportAddCreature)),
+            SmartEvents.TransportAddcreature => Marshal.SizeOf(typeof(SmartEvent.SmartEventTransportAddCreature)),
             SmartEvents.TransportRemovePlayer => 0,
-            SmartEvents.TransportRelocate => Marshal.SizeOf(typeof(SmartEvent.TransportRelocate)),
-            SmartEvents.InstancePlayerEnter => Marshal.SizeOf(typeof(SmartEvent.InstancePlayerEnter)),
-            SmartEvents.AreatriggerOntrigger => Marshal.SizeOf(typeof(SmartEvent.Areatrigger)),
+            SmartEvents.TransportRelocate => Marshal.SizeOf(typeof(SmartEvent.SmartEventTransportRelocate)),
+            SmartEvents.InstancePlayerEnter => Marshal.SizeOf(typeof(SmartEvent.SmartEventInstancePlayerEnter)),
+            SmartEvents.AreatriggerOntrigger => Marshal.SizeOf(typeof(SmartEvent.SmartEventAreatrigger)),
             SmartEvents.QuestAccepted => 0,
             SmartEvents.QuestObjCompletion => 0,
             SmartEvents.QuestCompletion => 0,
             SmartEvents.QuestRewarded => 0,
             SmartEvents.QuestFail => 0,
-            SmartEvents.TextOver => Marshal.SizeOf(typeof(SmartEvent.TextOver)),
-            SmartEvents.ReceiveHeal => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
+            SmartEvents.TextOver => Marshal.SizeOf(typeof(SmartEvent.SmartEventTextOver)),
+            SmartEvents.ReceiveHeal => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
             SmartEvents.JustSummoned => 0,
-            SmartEvents.WaypointPaused => Marshal.SizeOf(typeof(SmartEvent.Waypoint)),
-            SmartEvents.WaypointResumed => Marshal.SizeOf(typeof(SmartEvent.Waypoint)),
-            SmartEvents.WaypointStopped => Marshal.SizeOf(typeof(SmartEvent.Waypoint)),
-            SmartEvents.WaypointEnded => Marshal.SizeOf(typeof(SmartEvent.Waypoint)),
-            SmartEvents.TimedEventTriggered => Marshal.SizeOf(typeof(SmartEvent.TimedEvent)),
-            SmartEvents.Update => Marshal.SizeOf(typeof(SmartEvent.MinMaxRepeat)),
+            SmartEvents.WaypointPaused => Marshal.SizeOf(typeof(SmartEvent.SmartEventWaypoint)),
+            SmartEvents.WaypointResumed => Marshal.SizeOf(typeof(SmartEvent.SmartEventWaypoint)),
+            SmartEvents.WaypointStopped => Marshal.SizeOf(typeof(SmartEvent.SmartEventWaypoint)),
+            SmartEvents.WaypointEnded => Marshal.SizeOf(typeof(SmartEvent.SmartEventWaypoint)),
+            SmartEvents.TimedEventTriggered => Marshal.SizeOf(typeof(SmartEvent.SmartEventTimedEvent)),
+            SmartEvents.Update => Marshal.SizeOf(typeof(SmartEvent.SmartEventMinMaxRepeat)),
             SmartEvents.Link => 0,
-            SmartEvents.GossipSelect => Marshal.SizeOf(typeof(SmartEvent.Gossip)),
+            SmartEvents.GossipSelect => Marshal.SizeOf(typeof(SmartEvent.SmartEventGossip)),
             SmartEvents.JustCreated => 0,
-            SmartEvents.GossipHello => Marshal.SizeOf(typeof(SmartEvent.GossipHello)),
+            SmartEvents.GossipHello => Marshal.SizeOf(typeof(SmartEvent.SmartEventGossipHello)),
             SmartEvents.FollowCompleted => 0,
-            SmartEvents.GameEventStart => Marshal.SizeOf(typeof(SmartEvent.GameEvent)),
-            SmartEvents.GameEventEnd => Marshal.SizeOf(typeof(SmartEvent.GameEvent)),
-            SmartEvents.GoLootStateChanged => Marshal.SizeOf(typeof(SmartEvent.GoLootStateChanged)),
-            SmartEvents.GoEventInform => Marshal.SizeOf(typeof(SmartEvent.EventInform)),
-            SmartEvents.ActionDone => Marshal.SizeOf(typeof(SmartEvent.DoAction)),
+            SmartEvents.GameEventStart => Marshal.SizeOf(typeof(SmartEvent.SmartEventGameEvent)),
+            SmartEvents.GameEventEnd => Marshal.SizeOf(typeof(SmartEvent.SmartEventGameEvent)),
+            SmartEvents.GoLootStateChanged => Marshal.SizeOf(typeof(SmartEvent.SmartEventGoLootStateChanged)),
+            SmartEvents.GoEventInform => Marshal.SizeOf(typeof(SmartEvent.SmartEventEventInform)),
+            SmartEvents.ActionDone => Marshal.SizeOf(typeof(SmartEvent.SmartEventDoAction)),
             SmartEvents.OnSpellclick => 0,
-            SmartEvents.FriendlyHealthPCT => Marshal.SizeOf(typeof(SmartEvent.FriendlyHealthPct)),
-            SmartEvents.DistanceCreature => Marshal.SizeOf(typeof(SmartEvent.Distance)),
-            SmartEvents.DistanceGameobject => Marshal.SizeOf(typeof(SmartEvent.Distance)),
-            SmartEvents.CounterSet => Marshal.SizeOf(typeof(SmartEvent.Counter)),
+            SmartEvents.FriendlyHealthPCT => Marshal.SizeOf(typeof(SmartEvent.SmartEventFriendlyHealthPct)),
+            SmartEvents.DistanceCreature => Marshal.SizeOf(typeof(SmartEvent.SmartEventDistance)),
+            SmartEvents.DistanceGameobject => Marshal.SizeOf(typeof(SmartEvent.SmartEventDistance)),
+            SmartEvents.CounterSet => Marshal.SizeOf(typeof(SmartEvent.SmartEventCounter)),
             SmartEvents.SceneStart => 0,
             SmartEvents.SceneTrigger => 0,
             SmartEvents.SceneCancel => 0,
             SmartEvents.SceneComplete => 0,
-            SmartEvents.SummonedUnitDies => Marshal.SizeOf(typeof(SmartEvent.Summoned)),
-            SmartEvents.OnSpellCast => Marshal.SizeOf(typeof(SmartEvent.SpellCast)),
-            SmartEvents.OnSpellFailed => Marshal.SizeOf(typeof(SmartEvent.SpellCast)),
-            SmartEvents.OnSpellStart => Marshal.SizeOf(typeof(SmartEvent.SpellCast)),
+            SmartEvents.SummonedUnitDies => Marshal.SizeOf(typeof(SmartEvent.SmartEventSummoned)),
+            SmartEvents.OnSpellCast => Marshal.SizeOf(typeof(SmartEvent.SmartEventSpellCast)),
+            SmartEvents.OnSpellFailed => Marshal.SizeOf(typeof(SmartEvent.SmartEventSpellCast)),
+            SmartEvents.OnSpellStart => Marshal.SizeOf(typeof(SmartEvent.SmartEventSpellCast)),
             SmartEvents.OnDespawn => 0,
-            _ => Marshal.SizeOf(typeof(SmartEvent.Raw)),
+            _ => Marshal.SizeOf(typeof(SmartEvent.SmartEventRaw)),
         };
 
-        var rawCount = Marshal.SizeOf(typeof(SmartEvent.Raw)) / sizeof(uint);
+        var rawCount = Marshal.SizeOf(typeof(SmartEvent.SmartEventRaw)) / sizeof(uint);
         var paramsCount = paramsStructSize / sizeof(uint);
 
         for (var index = paramsCount; index < rawCount; index++)
         {
             uint value = index switch
             {
-                0 => e.Event.raw.Param1,
-                1 => e.Event.raw.Param2,
-                2 => e.Event.raw.Param3,
-                3 => e.Event.raw.Param4,
-                4 => e.Event.raw.Param5,
+                0 => e.Event.Raw.Param1,
+                1 => e.Event.Raw.Param2,
+                2 => e.Event.Raw.Param3,
+                3 => e.Event.Raw.Param4,
+                4 => e.Event.Raw.Param5,
                 _ => 0
             };
 
@@ -915,53 +915,53 @@ public class SmartAIManager
 
     private static bool CheckUnusedTargetParams(SmartScriptHolder e)
     {
-        var paramsStructSize = e.Target.type switch
+        var paramsStructSize = e.Target.Type switch
         {
             SmartTargets.None => 0,
             SmartTargets.Self => 0,
             SmartTargets.Victim => 0,
-            SmartTargets.HostileSecondAggro => Marshal.SizeOf(typeof(SmartTarget.HostilRandom)),
-            SmartTargets.HostileLastAggro => Marshal.SizeOf(typeof(SmartTarget.HostilRandom)),
-            SmartTargets.HostileRandom => Marshal.SizeOf(typeof(SmartTarget.HostilRandom)),
-            SmartTargets.HostileRandomNotTop => Marshal.SizeOf(typeof(SmartTarget.HostilRandom)),
+            SmartTargets.HostileSecondAggro => Marshal.SizeOf(typeof(SmartTarget.SmartTargetHostilRandom)),
+            SmartTargets.HostileLastAggro => Marshal.SizeOf(typeof(SmartTarget.SmartTargetHostilRandom)),
+            SmartTargets.HostileRandom => Marshal.SizeOf(typeof(SmartTarget.SmartTargetHostilRandom)),
+            SmartTargets.HostileRandomNotTop => Marshal.SizeOf(typeof(SmartTarget.SmartTargetHostilRandom)),
             SmartTargets.ActionInvoker => 0,
             SmartTargets.Position => 0, //Uses X,Y,Z,O
-            SmartTargets.CreatureRange => Marshal.SizeOf(typeof(SmartTarget.UnitRange)),
-            SmartTargets.CreatureGuid => Marshal.SizeOf(typeof(SmartTarget.UnitGUID)),
-            SmartTargets.CreatureDistance => Marshal.SizeOf(typeof(SmartTarget.UnitDistance)),
-            SmartTargets.Stored => Marshal.SizeOf(typeof(SmartTarget.Stored)),
-            SmartTargets.GameobjectRange => Marshal.SizeOf(typeof(SmartTarget.GoRange)),
-            SmartTargets.GameobjectGuid => Marshal.SizeOf(typeof(SmartTarget.GoGUID)),
-            SmartTargets.GameobjectDistance => Marshal.SizeOf(typeof(SmartTarget.GoDistance)),
+            SmartTargets.CreatureRange => Marshal.SizeOf(typeof(SmartTarget.SmartTargetUnitRange)),
+            SmartTargets.CreatureGuid => Marshal.SizeOf(typeof(SmartTarget.SmartTargetUnitGUID)),
+            SmartTargets.CreatureDistance => Marshal.SizeOf(typeof(SmartTarget.SmartTargetUnitDistance)),
+            SmartTargets.Stored => Marshal.SizeOf(typeof(SmartTarget.SmartTargetStored)),
+            SmartTargets.GameobjectRange => Marshal.SizeOf(typeof(SmartTarget.SmartTargetGoRange)),
+            SmartTargets.GameobjectGuid => Marshal.SizeOf(typeof(SmartTarget.SmartTargetGoGUID)),
+            SmartTargets.GameobjectDistance => Marshal.SizeOf(typeof(SmartTarget.SmartTargetGoDistance)),
             SmartTargets.InvokerParty => 0,
-            SmartTargets.PlayerRange => Marshal.SizeOf(typeof(SmartTarget.PlayerRange)),
-            SmartTargets.PlayerDistance => Marshal.SizeOf(typeof(SmartTarget.PlayerDistance)),
-            SmartTargets.ClosestCreature => Marshal.SizeOf(typeof(SmartTarget.UnitClosest)),
-            SmartTargets.ClosestGameobject => Marshal.SizeOf(typeof(SmartTarget.GoClosest)),
-            SmartTargets.ClosestPlayer => Marshal.SizeOf(typeof(SmartTarget.PlayerDistance)),
+            SmartTargets.PlayerRange => Marshal.SizeOf(typeof(SmartTarget.SmartTargetPlayerRange)),
+            SmartTargets.PlayerDistance => Marshal.SizeOf(typeof(SmartTarget.SmartTargetPlayerDistance)),
+            SmartTargets.ClosestCreature => Marshal.SizeOf(typeof(SmartTarget.SmartTargetUnitClosest)),
+            SmartTargets.ClosestGameobject => Marshal.SizeOf(typeof(SmartTarget.SmartTargetGoClosest)),
+            SmartTargets.ClosestPlayer => Marshal.SizeOf(typeof(SmartTarget.SmartTargetPlayerDistance)),
             SmartTargets.ActionInvokerVehicle => 0,
-            SmartTargets.OwnerOrSummoner => Marshal.SizeOf(typeof(SmartTarget.Owner)),
-            SmartTargets.ThreatList => Marshal.SizeOf(typeof(SmartTarget.ThreatList)),
-            SmartTargets.ClosestEnemy => Marshal.SizeOf(typeof(SmartTarget.ClosestAttackable)),
-            SmartTargets.ClosestFriendly => Marshal.SizeOf(typeof(SmartTarget.ClosestFriendly)),
+            SmartTargets.OwnerOrSummoner => Marshal.SizeOf(typeof(SmartTarget.SmartTargetOwner)),
+            SmartTargets.ThreatList => Marshal.SizeOf(typeof(SmartTarget.SmartTargetThreatList)),
+            SmartTargets.ClosestEnemy => Marshal.SizeOf(typeof(SmartTarget.SmartTargetClosestAttackable)),
+            SmartTargets.ClosestFriendly => Marshal.SizeOf(typeof(SmartTarget.SmartTargetClosestFriendly)),
             SmartTargets.LootRecipients => 0,
-            SmartTargets.Farthest => Marshal.SizeOf(typeof(SmartTarget.Farthest)),
-            SmartTargets.VehiclePassenger => Marshal.SizeOf(typeof(SmartTarget.Vehicle)),
-            SmartTargets.ClosestUnspawnedGameobject => Marshal.SizeOf(typeof(SmartTarget.GoClosest)),
-            _ => Marshal.SizeOf(typeof(SmartTarget.Raw)),
+            SmartTargets.Farthest => Marshal.SizeOf(typeof(SmartTarget.SmartTargetFarthest)),
+            SmartTargets.VehiclePassenger => Marshal.SizeOf(typeof(SmartTarget.SmartTargetVehicle)),
+            SmartTargets.ClosestUnspawnedGameobject => Marshal.SizeOf(typeof(SmartTarget.SmartTargetGoClosest)),
+            _ => Marshal.SizeOf(typeof(SmartTarget.SmartTargetRaw)),
         };
 
-        var rawCount = Marshal.SizeOf(typeof(SmartTarget.Raw)) / sizeof(uint);
+        var rawCount = Marshal.SizeOf(typeof(SmartTarget.SmartTargetRaw)) / sizeof(uint);
         var paramsCount = paramsStructSize / sizeof(uint);
 
         for (var index = paramsCount; index < rawCount; index++)
         {
             uint value = index switch
             {
-                0 => e.Target.raw.Param1,
-                1 => e.Target.raw.Param2,
-                2 => e.Target.raw.Param3,
-                3 => e.Target.raw.Param4,
+                0 => e.Target.Raw.Param1,
+                1 => e.Target.Raw.Param2,
+                2 => e.Target.Raw.Param3,
+                3 => e.Target.Raw.Param4,
                 _ => 0
             };
 
@@ -1100,7 +1100,7 @@ public class SmartAIManager
 
     private bool IsEventValid(SmartScriptHolder e)
     {
-        if (e.Event.type >= SmartEvents.End)
+        if (e.Event.Type >= SmartEvents.End)
         {
             Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid event type ({2}), skipped.", e.EntryOrGuid, e.EventId, e.GetEventType());
 
@@ -1108,30 +1108,30 @@ public class SmartAIManager
         }
 
         // in SMART_SCRIPT_TYPE_TIMED_ACTIONLIST all event types are overriden by core
-        if (e.GetScriptType() != SmartScriptType.TimedActionlist && !Convert.ToBoolean(GetEventMask(e.Event.type) & GetTypeMask(e.GetScriptType())))
+        if (e.GetScriptType() != SmartScriptType.TimedActionlist && !Convert.ToBoolean(GetEventMask(e.Event.Type) & GetTypeMask(e.GetScriptType())))
         {
             Log.Logger.Error("SmartAIMgr: EntryOrGuid {0}, event type {1} can not be used for Script type {2}", e.EntryOrGuid, e.GetEventType(), e.GetScriptType());
 
             return false;
         }
 
-        if (e.Action.type is <= 0 or >= SmartActions.End)
+        if (e.Action.Type is <= 0 or >= SmartActions.End)
         {
             Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid action type ({2}), skipped.", e.EntryOrGuid, e.EventId, e.GetActionType());
 
             return false;
         }
 
-        if (e.Event.event_phase_mask > (uint)SmartEventPhaseBits.All)
+        if (e.Event.EventPhaseMask > (uint)SmartEventPhaseBits.All)
         {
-            Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid phase mask ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.event_phase_mask);
+            Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid phase mask ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.EventPhaseMask);
 
             return false;
         }
 
-        if (e.Event.event_flags > SmartEventFlags.All)
+        if (e.Event.EventFlags > SmartEventFlags.All)
         {
-            Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid event flags ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.event_flags);
+            Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid event flags ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.EventFlags);
 
             return false;
         }
@@ -1145,17 +1145,17 @@ public class SmartAIManager
 
         if (e.GetScriptType() == SmartScriptType.TimedActionlist)
         {
-            e.Event.type = SmartEvents.UpdateOoc; //force default OOC, can change when calling the script!
+            e.Event.Type = SmartEvents.UpdateOoc; //force default OOC, can change when calling the script!
 
-            if (!IsMinMaxValid(e, e.Event.minMaxRepeat.Min, e.Event.minMaxRepeat.Max))
+            if (!IsMinMaxValid(e, e.Event.MinMaxRepeat.Min, e.Event.MinMaxRepeat.Max))
                 return false;
 
-            if (!IsMinMaxValid(e, e.Event.minMaxRepeat.RepeatMin, e.Event.minMaxRepeat.RepeatMax))
+            if (!IsMinMaxValid(e, e.Event.MinMaxRepeat.RepeatMin, e.Event.MinMaxRepeat.RepeatMax))
                 return false;
         }
         else
         {
-            switch (e.Event.type)
+            switch (e.Event.Type)
             {
                 case SmartEvents.Update:
                 case SmartEvents.UpdateIc:
@@ -1166,36 +1166,36 @@ public class SmartAIManager
                 case SmartEvents.Damaged:
                 case SmartEvents.DamagedTarget:
                 case SmartEvents.ReceiveHeal:
-                    if (!IsMinMaxValid(e, e.Event.minMaxRepeat.Min, e.Event.minMaxRepeat.Max))
+                    if (!IsMinMaxValid(e, e.Event.MinMaxRepeat.Min, e.Event.MinMaxRepeat.Max))
                         return false;
 
-                    if (!IsMinMaxValid(e, e.Event.minMaxRepeat.RepeatMin, e.Event.minMaxRepeat.RepeatMax))
+                    if (!IsMinMaxValid(e, e.Event.MinMaxRepeat.RepeatMin, e.Event.MinMaxRepeat.RepeatMax))
                         return false;
 
                     break;
 
                 case SmartEvents.SpellHit:
                 case SmartEvents.SpellHitTarget:
-                    if (e.Event.spellHit.Spell != 0)
+                    if (e.Event.SpellHit.Spell != 0)
                     {
-                        var spellInfo = _spellManager.GetSpellInfo(e.Event.spellHit.Spell);
+                        var spellInfo = _spellManager.GetSpellInfo(e.Event.SpellHit.Spell);
 
                         if (spellInfo == null)
                         {
-                            Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Spell entry {e.Event.spellHit.Spell}, skipped.");
+                            Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Spell entry {e.Event.SpellHit.Spell}, skipped.");
 
                             return false;
                         }
 
-                        if (e.Event.spellHit.School != 0 && ((SpellSchoolMask)e.Event.spellHit.School & spellInfo.SchoolMask) != spellInfo.SchoolMask)
+                        if (e.Event.SpellHit.School != 0 && ((SpellSchoolMask)e.Event.SpellHit.School & spellInfo.SchoolMask) != spellInfo.SchoolMask)
                         {
-                            Log.Logger.Error($"SmartAIMgr: {e} uses Spell entry {e.Event.spellHit.Spell} with invalid school mask, skipped.");
+                            Log.Logger.Error($"SmartAIMgr: {e} uses Spell entry {e.Event.SpellHit.Spell} with invalid school mask, skipped.");
 
                             return false;
                         }
                     }
 
-                    if (!IsMinMaxValid(e, e.Event.spellHit.CooldownMin, e.Event.spellHit.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.SpellHit.CooldownMin, e.Event.SpellHit.CooldownMax))
                         return false;
 
                     break;
@@ -1204,41 +1204,41 @@ public class SmartAIManager
                 case SmartEvents.OnSpellFailed:
                 case SmartEvents.OnSpellStart:
                 {
-                    if (!IsSpellValid(e, e.Event.spellCast.Spell))
+                    if (!IsSpellValid(e, e.Event.SpellCast.Spell))
                         return false;
 
-                    if (!IsMinMaxValid(e, e.Event.spellCast.CooldownMin, e.Event.spellCast.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.SpellCast.CooldownMin, e.Event.SpellCast.CooldownMax))
                         return false;
 
                     break;
                 }
                 case SmartEvents.OocLos:
                 case SmartEvents.IcLos:
-                    if (!IsMinMaxValid(e, e.Event.los.CooldownMin, e.Event.los.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.Los.CooldownMin, e.Event.Los.CooldownMax))
                         return false;
 
-                    if (e.Event.los.HostilityMode >= (uint)LOSHostilityMode.End)
+                    if (e.Event.Los.HostilityMode >= (uint)LOSHostilityMode.End)
                     {
-                        Log.Logger.Error($"SmartAIMgr: {e} uses hostilityMode with invalid value {e.Event.los.HostilityMode} (max allowed value {LOSHostilityMode.End - 1}), skipped.");
+                        Log.Logger.Error($"SmartAIMgr: {e} uses hostilityMode with invalid value {e.Event.Los.HostilityMode} (max allowed value {LOSHostilityMode.End - 1}), skipped.");
 
                         return false;
                     }
 
-                    TC_SAI_IS_BOOLEAN_VALID(e, e.Event.los.PlayerOnly);
+                    TC_SAI_IS_BOOLEAN_VALID(e, e.Event.Los.PlayerOnly);
 
                     break;
 
                 case SmartEvents.Respawn:
-                    if (e.Event.respawn.Type == (uint)SmartRespawnCondition.Map && _cliDB.MapStorage.LookupByKey(e.Event.respawn.Map) == null)
+                    if (e.Event.Respawn.Type == (uint)SmartRespawnCondition.Map && _cliDB.MapStorage.LookupByKey(e.Event.Respawn.Map) == null)
                     {
-                        Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Event.respawn.Map}, skipped.");
+                        Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Event.Respawn.Map}, skipped.");
 
                         return false;
                     }
 
-                    if (e.Event.respawn.Type == (uint)SmartRespawnCondition.Area && !_cliDB.AreaTableStorage.ContainsKey(e.Event.respawn.Area))
+                    if (e.Event.Respawn.Type == (uint)SmartRespawnCondition.Area && !_cliDB.AreaTableStorage.ContainsKey(e.Event.Respawn.Area))
                     {
-                        Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Area entry {e.Event.respawn.Area}, skipped.");
+                        Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Area entry {e.Event.Respawn.Area}, skipped.");
 
                         return false;
                     }
@@ -1246,51 +1246,51 @@ public class SmartAIManager
                     break;
 
                 case SmartEvents.FriendlyIsCc:
-                    if (!IsMinMaxValid(e, e.Event.friendlyCC.RepeatMin, e.Event.friendlyCC.RepeatMax))
+                    if (!IsMinMaxValid(e, e.Event.FriendlyCc.RepeatMin, e.Event.FriendlyCc.RepeatMax))
                         return false;
 
                     break;
 
                 case SmartEvents.FriendlyMissingBuff:
                 {
-                    if (!IsSpellValid(e, e.Event.missingBuff.Spell))
+                    if (!IsSpellValid(e, e.Event.MissingBuff.Spell))
                         return false;
 
-                    if (!NotNULL(e, e.Event.missingBuff.Radius))
+                    if (!NotNULL(e, e.Event.MissingBuff.Radius))
                         return false;
 
-                    if (!IsMinMaxValid(e, e.Event.missingBuff.RepeatMin, e.Event.missingBuff.RepeatMax))
+                    if (!IsMinMaxValid(e, e.Event.MissingBuff.RepeatMin, e.Event.MissingBuff.RepeatMax))
                         return false;
 
                     break;
                 }
                 case SmartEvents.Kill:
-                    if (!IsMinMaxValid(e, e.Event.kill.CooldownMin, e.Event.kill.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.Kill.CooldownMin, e.Event.Kill.CooldownMax))
                         return false;
 
-                    if (e.Event.kill.Creature != 0 && !IsCreatureValid(e, e.Event.kill.Creature))
+                    if (e.Event.Kill.Creature != 0 && !IsCreatureValid(e, e.Event.Kill.Creature))
                         return false;
 
-                    TC_SAI_IS_BOOLEAN_VALID(e, e.Event.kill.PlayerOnly);
+                    TC_SAI_IS_BOOLEAN_VALID(e, e.Event.Kill.PlayerOnly);
 
                     break;
 
                 case SmartEvents.VictimCasting:
-                    if (e.Event.targetCasting.SpellId > 0 && !_spellManager.HasSpellInfo(e.Event.targetCasting.SpellId))
+                    if (e.Event.TargetCasting.SpellId > 0 && !_spellManager.HasSpellInfo(e.Event.TargetCasting.SpellId))
                     {
-                        Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent Spell entry {e.Event.spellHit.Spell}, skipped.");
+                        Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent Spell entry {e.Event.SpellHit.Spell}, skipped.");
 
                         return false;
                     }
 
-                    if (!IsMinMaxValid(e, e.Event.minMax.RepeatMin, e.Event.minMax.RepeatMax))
+                    if (!IsMinMaxValid(e, e.Event.MinMax.RepeatMin, e.Event.MinMax.RepeatMax))
                         return false;
 
                     break;
 
                 case SmartEvents.PassengerBoarded:
                 case SmartEvents.PassengerRemoved:
-                    if (!IsMinMaxValid(e, e.Event.minMax.RepeatMin, e.Event.minMax.RepeatMax))
+                    if (!IsMinMaxValid(e, e.Event.MinMax.RepeatMin, e.Event.MinMax.RepeatMax))
                         return false;
 
                     break;
@@ -1298,30 +1298,30 @@ public class SmartAIManager
                 case SmartEvents.SummonDespawned:
                 case SmartEvents.SummonedUnit:
                 case SmartEvents.SummonedUnitDies:
-                    if (e.Event.summoned.Creature != 0 && !IsCreatureValid(e, e.Event.summoned.Creature))
+                    if (e.Event.Summoned.Creature != 0 && !IsCreatureValid(e, e.Event.Summoned.Creature))
                         return false;
 
-                    if (!IsMinMaxValid(e, e.Event.summoned.CooldownMin, e.Event.summoned.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.Summoned.CooldownMin, e.Event.Summoned.CooldownMax))
                         return false;
 
                     break;
 
                 case SmartEvents.AcceptedQuest:
                 case SmartEvents.RewardQuest:
-                    if (e.Event.quest.QuestId != 0 && !IsQuestValid(e, e.Event.quest.QuestId))
+                    if (e.Event.Quest.QuestId != 0 && !IsQuestValid(e, e.Event.Quest.QuestId))
                         return false;
 
-                    if (!IsMinMaxValid(e, e.Event.quest.CooldownMin, e.Event.quest.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.Quest.CooldownMin, e.Event.Quest.CooldownMax))
                         return false;
 
                     break;
 
                 case SmartEvents.ReceiveEmote:
                 {
-                    if (e.Event.emote.EmoteId != 0 && !IsTextEmoteValid(e, e.Event.emote.EmoteId))
+                    if (e.Event.Emote.EmoteId != 0 && !IsTextEmoteValid(e, e.Event.Emote.EmoteId))
                         return false;
 
-                    if (!IsMinMaxValid(e, e.Event.emote.CooldownMin, e.Event.emote.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.Emote.CooldownMin, e.Event.Emote.CooldownMax))
                         return false;
 
                     break;
@@ -1329,26 +1329,26 @@ public class SmartAIManager
                 case SmartEvents.HasAura:
                 case SmartEvents.TargetBuffed:
                 {
-                    if (!IsSpellValid(e, e.Event.aura.Spell))
+                    if (!IsSpellValid(e, e.Event.Aura.Spell))
                         return false;
 
-                    if (!IsMinMaxValid(e, e.Event.aura.RepeatMin, e.Event.aura.RepeatMax))
+                    if (!IsMinMaxValid(e, e.Event.Aura.RepeatMin, e.Event.Aura.RepeatMax))
                         return false;
 
                     break;
                 }
                 case SmartEvents.TransportAddcreature:
                 {
-                    if (e.Event.transportAddCreature.Creature != 0 && !IsCreatureValid(e, e.Event.transportAddCreature.Creature))
+                    if (e.Event.TransportAddCreature.Creature != 0 && !IsCreatureValid(e, e.Event.TransportAddCreature.Creature))
                         return false;
 
                     break;
                 }
                 case SmartEvents.Movementinform:
                 {
-                    if (MotionMaster.IsInvalidMovementGeneratorType((MovementGeneratorType)e.Event.movementInform.Type))
+                    if (MotionMaster.IsInvalidMovementGeneratorType((MovementGeneratorType)e.Event.MovementInform.Type))
                     {
-                        Log.Logger.Error($"SmartAIMgr: {e} uses invalid Motion type {e.Event.movementInform.Type}, skipped.");
+                        Log.Logger.Error($"SmartAIMgr: {e} uses invalid Motion type {e.Event.MovementInform.Type}, skipped.");
 
                         return false;
                     }
@@ -1357,28 +1357,28 @@ public class SmartAIManager
                 }
                 case SmartEvents.DataSet:
                 {
-                    if (!IsMinMaxValid(e, e.Event.dataSet.CooldownMin, e.Event.dataSet.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.DataSet.CooldownMin, e.Event.DataSet.CooldownMax))
                         return false;
 
                     break;
                 }
                 case SmartEvents.AreatriggerOntrigger:
                 {
-                    if (e.Event.areatrigger.ID != 0 && (e.GetScriptType() == SmartScriptType.AreaTriggerEntity || e.GetScriptType() == SmartScriptType.AreaTriggerEntityServerside))
+                    if (e.Event.Areatrigger.ID != 0 && (e.GetScriptType() == SmartScriptType.AreaTriggerEntity || e.GetScriptType() == SmartScriptType.AreaTriggerEntityServerside))
                     {
                         Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, skipped.");
 
                         return false;
                     }
 
-                    if (e.Event.areatrigger.ID != 0 && !IsAreaTriggerValid(e, e.Event.areatrigger.ID))
+                    if (e.Event.Areatrigger.ID != 0 && !IsAreaTriggerValid(e, e.Event.Areatrigger.ID))
                         return false;
 
                     break;
                 }
                 case SmartEvents.TextOver:
                 {
-                    if (!IsTextValid(e, e.Event.textOver.TextGroupID))
+                    if (!IsTextValid(e, e.Event.TextOver.TextGroupID))
                         return false;
 
                     break;
@@ -1388,16 +1388,16 @@ public class SmartAIManager
                 {
                     var events = _eventManager.GetEventMap();
 
-                    if (e.Event.gameEvent.GameEventId >= events.Length || !events[e.Event.gameEvent.GameEventId].IsValid())
+                    if (e.Event.GameEvent.GameEventId >= events.Length || !events[e.Event.GameEvent.GameEventId].IsValid())
                         return false;
 
                     break;
                 }
                 case SmartEvents.FriendlyHealthPCT:
-                    if (!IsMinMaxValid(e, e.Event.friendlyHealthPct.RepeatMin, e.Event.friendlyHealthPct.RepeatMax))
+                    if (!IsMinMaxValid(e, e.Event.FriendlyHealthPct.RepeatMin, e.Event.FriendlyHealthPct.RepeatMax))
                         return false;
 
-                    if (e.Event.friendlyHealthPct.MaxHpPct > 100 || e.Event.friendlyHealthPct.MinHpPct > 100)
+                    if (e.Event.FriendlyHealthPct.MaxHpPct > 100 || e.Event.FriendlyHealthPct.MinHpPct > 100)
                     {
                         Log.Logger.Error($"SmartAIMgr: {e} has pct value above 100, skipped.");
 
@@ -1416,7 +1416,7 @@ public class SmartAIManager
                             break;
 
                         case SmartTargets.ActionInvoker:
-                            if (!NotNULL(e, e.Event.friendlyHealthPct.Radius))
+                            if (!NotNULL(e, e.Event.FriendlyHealthPct.Radius))
                                 return false;
 
                             break;
@@ -1430,30 +1430,30 @@ public class SmartAIManager
                     break;
 
                 case SmartEvents.DistanceCreature:
-                    if (e.Event.distance is { GUID: 0, Entry: 0 })
+                    if (e.Event.Distance is { GUID: 0, Entry: 0 })
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE did not provide creature guid or entry, skipped.");
 
                         return false;
                     }
 
-                    if (e.Event.distance.GUID != 0 && e.Event.distance.Entry != 0)
+                    if (e.Event.Distance.GUID != 0 && e.Event.Distance.Entry != 0)
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE provided both an entry and guid, skipped.");
 
                         return false;
                     }
 
-                    if (e.Event.distance.GUID != 0 && _gameObjectManager.GetCreatureData(e.Event.distance.GUID) == null)
+                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.GetCreatureData(e.Event.Distance.GUID) == null)
                     {
-                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid {0}, skipped.", e.Event.distance.GUID);
+                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid {0}, skipped.", e.Event.Distance.GUID);
 
                         return false;
                     }
 
-                    if (e.Event.distance.Entry != 0 && _gameObjectManager.GetCreatureTemplate(e.Event.distance.Entry) == null)
+                    if (e.Event.Distance.Entry != 0 && _gameObjectManager.GetCreatureTemplate(e.Event.Distance.Entry) == null)
                     {
-                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry {0}, skipped.", e.Event.distance.Entry);
+                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry {0}, skipped.", e.Event.Distance.Entry);
 
                         return false;
                     }
@@ -1461,30 +1461,30 @@ public class SmartAIManager
                     break;
 
                 case SmartEvents.DistanceGameobject:
-                    if (e.Event.distance is { GUID: 0, Entry: 0 })
+                    if (e.Event.Distance is { GUID: 0, Entry: 0 })
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT did not provide gameobject guid or entry, skipped.");
 
                         return false;
                     }
 
-                    if (e.Event.distance.GUID != 0 && e.Event.distance.Entry != 0)
+                    if (e.Event.Distance.GUID != 0 && e.Event.Distance.Entry != 0)
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT provided both an entry and guid, skipped.");
 
                         return false;
                     }
 
-                    if (e.Event.distance.GUID != 0 && _gameObjectManager.GetGameObjectData(e.Event.distance.GUID) == null)
+                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.GetGameObjectData(e.Event.Distance.GUID) == null)
                     {
-                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid {0}, skipped.", e.Event.distance.GUID);
+                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid {0}, skipped.", e.Event.Distance.GUID);
 
                         return false;
                     }
 
-                    if (e.Event.distance.Entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Event.distance.Entry) == null)
+                    if (e.Event.Distance.Entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Event.Distance.Entry) == null)
                     {
-                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry {0}, skipped.", e.Event.distance.Entry);
+                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry {0}, skipped.", e.Event.Distance.Entry);
 
                         return false;
                     }
@@ -1492,19 +1492,19 @@ public class SmartAIManager
                     break;
 
                 case SmartEvents.CounterSet:
-                    if (!IsMinMaxValid(e, e.Event.counter.CooldownMin, e.Event.counter.CooldownMax))
+                    if (!IsMinMaxValid(e, e.Event.Counter.CooldownMin, e.Event.Counter.CooldownMax))
                         return false;
 
-                    if (e.Event.counter.ID == 0)
+                    if (e.Event.Counter.ID == 0)
                     {
-                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid counter id {0}, skipped.", e.Event.counter.ID);
+                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid counter id {0}, skipped.", e.Event.Counter.ID);
 
                         return false;
                     }
 
-                    if (e.Event.counter.Value == 0)
+                    if (e.Event.Counter.Value == 0)
                     {
-                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid value {0}, skipped.", e.Event.counter.Value);
+                        Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid value {0}, skipped.", e.Event.Counter.Value);
 
                         return false;
                     }
@@ -1512,7 +1512,7 @@ public class SmartAIManager
                     break;
 
                 case SmartEvents.Reset:
-                    if (e.Action.type == SmartActions.CallScriptReset)
+                    if (e.Action.Type == SmartActions.CallScriptReset)
                     {
                         // There might be SMART_TARGET_* cases where this should be allowed, they will be handled if needed
                         Log.Logger.Error($"SmartAIMgr: {e} uses event SMART_EVENT_RESET and action SMART_ACTION_CALL_SCRIPT_RESET, skipped.");
@@ -1523,14 +1523,14 @@ public class SmartAIManager
                     break;
 
                 case SmartEvents.Charmed:
-                    TC_SAI_IS_BOOLEAN_VALID(e, e.Event.charm.OnRemove);
+                    TC_SAI_IS_BOOLEAN_VALID(e, e.Event.Charm.OnRemove);
 
                     break;
 
                 case SmartEvents.QuestObjCompletion:
-                    if (_gameObjectManager.GetQuestObjective(e.Event.questObjective.ID) == null)
+                    if (_gameObjectManager.GetQuestObjective(e.Event.QuestObjective.ID) == null)
                     {
-                        Log.Logger.Error($"SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id {e.Event.questObjective.ID}, skipped.");
+                        Log.Logger.Error($"SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id {e.Event.QuestObjective.ID}, skipped.");
 
                         return false;
                     }
@@ -1602,24 +1602,24 @@ public class SmartAIManager
         {
             case SmartActions.Talk:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.talk.UseTalkTarget);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.Talk.UseTalkTarget);
 
-                if (!IsTextValid(e, e.Action.talk.TextGroupId))
+                if (!IsTextValid(e, e.Action.Talk.TextGroupId))
                     return false;
 
                 break;
             }
             case SmartActions.SimpleTalk:
             {
-                if (!IsTextValid(e, e.Action.simpleTalk.TextGroupId))
+                if (!IsTextValid(e, e.Action.SimpleTalk.TextGroupId))
                     return false;
 
                 break;
             }
             case SmartActions.SetFaction:
-                if (e.Action.faction.FactionId != 0 && _cliDB.FactionTemplateStorage.LookupByKey(e.Action.faction.FactionId) == null)
+                if (e.Action.Faction.FactionId != 0 && _cliDB.FactionTemplateStorage.LookupByKey(e.Action.Faction.FactionId) == null)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Faction {e.Action.faction.FactionId}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Faction {e.Action.Faction.FactionId}, skipped.");
 
                     return false;
                 }
@@ -1628,26 +1628,26 @@ public class SmartAIManager
 
             case SmartActions.MorphToEntryOrModel:
             case SmartActions.MountToEntryOrModel:
-                if (e.Action.morphOrMount.Creature != 0 || e.Action.morphOrMount.Model != 0)
+                if (e.Action.MorphOrMount.Creature != 0 || e.Action.MorphOrMount.Model != 0)
                 {
-                    if (e.Action.morphOrMount.Creature > 0 && _gameObjectManager.GetCreatureTemplate(e.Action.morphOrMount.Creature) == null)
+                    if (e.Action.MorphOrMount.Creature > 0 && _gameObjectManager.GetCreatureTemplate(e.Action.MorphOrMount.Creature) == null)
                     {
-                        Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Action.morphOrMount.Creature}, skipped.");
+                        Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Action.MorphOrMount.Creature}, skipped.");
 
                         return false;
                     }
 
-                    if (e.Action.morphOrMount.Model != 0)
+                    if (e.Action.MorphOrMount.Model != 0)
                     {
-                        if (e.Action.morphOrMount.Creature != 0)
+                        if (e.Action.MorphOrMount.Creature != 0)
                         {
                             Log.Logger.Error($"SmartAIMgr: {e} has ModelID set with also set CreatureId, skipped.");
 
                             return false;
                         }
-                        else if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(e.Action.morphOrMount.Model))
+                        else if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(e.Action.MorphOrMount.Model))
                         {
-                            Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Model id {e.Action.morphOrMount.Model}, skipped.");
+                            Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Model id {e.Action.MorphOrMount.Model}, skipped.");
 
                             return false;
                         }
@@ -1657,27 +1657,27 @@ public class SmartAIManager
                 break;
 
             case SmartActions.Sound:
-                if (!IsSoundValid(e, e.Action.sound.SoundId))
+                if (!IsSoundValid(e, e.Action.Sound.SoundId))
                     return false;
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.sound.OnlySelf);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.Sound.OnlySelf);
 
                 break;
 
             case SmartActions.SetEmoteState:
             case SmartActions.PlayEmote:
-                if (!IsEmoteValid(e, e.Action.emote.EmoteId))
+                if (!IsEmoteValid(e, e.Action.Emote.EmoteId))
                     return false;
 
                 break;
 
             case SmartActions.PlayAnimkit:
-                if (e.Action.animKit.Kit != 0 && !IsAnimKitValid(e, e.Action.animKit.Kit))
+                if (e.Action.AnimKit.Kit != 0 && !IsAnimKitValid(e, e.Action.AnimKit.Kit))
                     return false;
 
-                if (e.Action.animKit.Type > 3)
+                if (e.Action.AnimKit.Type > 3)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid AnimKit type {e.Action.animKit.Type}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid AnimKit type {e.Action.AnimKit.Type}, skipped.");
 
                     return false;
                 }
@@ -1685,30 +1685,30 @@ public class SmartAIManager
                 break;
 
             case SmartActions.PlaySpellVisualKit:
-                if (e.Action.spellVisualKit.SpellVisualKitId != 0 && !IsSpellVisualKitValid(e, e.Action.spellVisualKit.SpellVisualKitId))
+                if (e.Action.SpellVisualKit.SpellVisualKitId != 0 && !IsSpellVisualKitValid(e, e.Action.SpellVisualKit.SpellVisualKitId))
                     return false;
 
                 break;
 
             case SmartActions.OfferQuest:
-                if (!IsQuestValid(e, e.Action.questOffer.QuestId))
+                if (!IsQuestValid(e, e.Action.QuestOffer.QuestId))
                     return false;
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.questOffer.DirectAdd);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.QuestOffer.DirectAdd);
 
                 break;
 
             case SmartActions.FailQuest:
-                if (!IsQuestValid(e, e.Action.quest.QuestId))
+                if (!IsQuestValid(e, e.Action.Quest.QuestId))
                     return false;
 
                 break;
 
             case SmartActions.ActivateTaxi:
             {
-                if (!_cliDB.TaxiPathStorage.ContainsKey(e.Action.taxi.ID))
+                if (!_cliDB.TaxiPathStorage.ContainsKey(e.Action.Taxi.ID))
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid Taxi path ID {e.Action.taxi.ID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid Taxi path ID {e.Action.Taxi.ID}, skipped.");
 
                     return false;
                 }
@@ -1716,75 +1716,75 @@ public class SmartAIManager
                 break;
             }
             case SmartActions.RandomEmote:
-                if (e.Action.randomEmote.Emote1 != 0 && !IsEmoteValid(e, e.Action.randomEmote.Emote1))
+                if (e.Action.RandomEmote.Emote1 != 0 && !IsEmoteValid(e, e.Action.RandomEmote.Emote1))
                     return false;
 
-                if (e.Action.randomEmote.Emote2 != 0 && !IsEmoteValid(e, e.Action.randomEmote.Emote2))
+                if (e.Action.RandomEmote.Emote2 != 0 && !IsEmoteValid(e, e.Action.RandomEmote.Emote2))
                     return false;
 
-                if (e.Action.randomEmote.Emote3 != 0 && !IsEmoteValid(e, e.Action.randomEmote.Emote3))
+                if (e.Action.RandomEmote.Emote3 != 0 && !IsEmoteValid(e, e.Action.RandomEmote.Emote3))
                     return false;
 
-                if (e.Action.randomEmote.Emote4 != 0 && !IsEmoteValid(e, e.Action.randomEmote.Emote4))
+                if (e.Action.RandomEmote.Emote4 != 0 && !IsEmoteValid(e, e.Action.RandomEmote.Emote4))
                     return false;
 
-                if (e.Action.randomEmote.Emote5 != 0 && !IsEmoteValid(e, e.Action.randomEmote.Emote5))
+                if (e.Action.RandomEmote.Emote5 != 0 && !IsEmoteValid(e, e.Action.RandomEmote.Emote5))
                     return false;
 
-                if (e.Action.randomEmote.Emote6 != 0 && !IsEmoteValid(e, e.Action.randomEmote.Emote6))
+                if (e.Action.RandomEmote.Emote6 != 0 && !IsEmoteValid(e, e.Action.RandomEmote.Emote6))
                     return false;
 
                 break;
 
             case SmartActions.RandomSound:
-                if (e.Action.randomSound.Sound1 != 0 && !IsSoundValid(e, e.Action.randomSound.Sound1))
+                if (e.Action.RandomSound.Sound1 != 0 && !IsSoundValid(e, e.Action.RandomSound.Sound1))
                     return false;
 
-                if (e.Action.randomSound.Sound2 != 0 && !IsSoundValid(e, e.Action.randomSound.Sound2))
+                if (e.Action.RandomSound.Sound2 != 0 && !IsSoundValid(e, e.Action.RandomSound.Sound2))
                     return false;
 
-                if (e.Action.randomSound.Sound3 != 0 && !IsSoundValid(e, e.Action.randomSound.Sound3))
+                if (e.Action.RandomSound.Sound3 != 0 && !IsSoundValid(e, e.Action.RandomSound.Sound3))
                     return false;
 
-                if (e.Action.randomSound.Sound4 != 0 && !IsSoundValid(e, e.Action.randomSound.Sound4))
+                if (e.Action.RandomSound.Sound4 != 0 && !IsSoundValid(e, e.Action.RandomSound.Sound4))
                     return false;
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.randomSound.OnlySelf);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.RandomSound.OnlySelf);
 
                 break;
 
             case SmartActions.Cast:
             {
-                if (!IsSpellValid(e, e.Action.cast.Spell))
+                if (!IsSpellValid(e, e.Action.Cast.Spell))
                     return false;
 
-                var spellInfo = _spellManager.GetSpellInfo(e.Action.cast.Spell);
+                var spellInfo = _spellManager.GetSpellInfo(e.Action.Cast.Spell);
 
                 foreach (var spellEffectInfo in spellInfo.Effects)
                     if (spellEffectInfo.IsEffect(SpellEffectName.KillCredit) || spellEffectInfo.IsEffect(SpellEffectName.KillCredit2))
                         if (spellEffectInfo.TargetA.Target == Targets.UnitCaster)
-                            Log.Logger.Error($"SmartAIMgr: {e} Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: {e.Action.cast.Spell} targetA: {spellEffectInfo.TargetA.Target} - targetB: {spellEffectInfo.TargetB.Target}) has invalid target for this Action");
+                            Log.Logger.Error($"SmartAIMgr: {e} Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: {e.Action.Cast.Spell} targetA: {spellEffectInfo.TargetA.Target} - targetB: {spellEffectInfo.TargetB.Target}) has invalid target for this Action");
 
                 break;
             }
             case SmartActions.CrossCast:
             {
-                if (!IsSpellValid(e, e.Action.crossCast.Spell))
+                if (!IsSpellValid(e, e.Action.CrossCast.Spell))
                     return false;
 
-                var targetType = (SmartTargets)e.Action.crossCast.TargetType;
+                var targetType = (SmartTargets)e.Action.CrossCast.TargetType;
 
                 if (targetType is SmartTargets.CreatureGuid or SmartTargets.GameobjectGuid)
                 {
-                    if (e.Action.crossCast.TargetParam2 != 0)
+                    if (e.Action.CrossCast.TargetParam2 != 0)
                     {
-                        if (targetType == SmartTargets.CreatureGuid && !IsCreatureValid(e, e.Action.crossCast.TargetParam2))
+                        if (targetType == SmartTargets.CreatureGuid && !IsCreatureValid(e, e.Action.CrossCast.TargetParam2))
                             return false;
-                        else if (targetType == SmartTargets.GameobjectGuid && !IsGameObjectValid(e, e.Action.crossCast.TargetParam2))
+                        else if (targetType == SmartTargets.GameobjectGuid && !IsGameObjectValid(e, e.Action.CrossCast.TargetParam2))
                             return false;
                     }
 
-                    ulong guid = e.Action.crossCast.TargetParam1;
+                    ulong guid = e.Action.CrossCast.TargetParam1;
                     var spawnType = targetType == SmartTargets.CreatureGuid ? SpawnObjectType.Creature : SpawnObjectType.GameObject;
                     var data = _gameObjectManager.GetSpawnData(spawnType, guid);
 
@@ -1794,9 +1794,9 @@ public class SmartAIManager
 
                         return false;
                     }
-                    else if (e.Action.crossCast.TargetParam2 != 0 && e.Action.crossCast.TargetParam2 != data.Id)
+                    else if (e.Action.CrossCast.TargetParam2 != 0 && e.Action.CrossCast.TargetParam2 != data.Id)
                     {
-                        Log.Logger.Error($"SmartAIMgr: {e} specifies invalid entry {e.Action.crossCast.TargetParam2} (expected {data.Id}) for CasterTargetType guid ({spawnType},{guid})");
+                        Log.Logger.Error($"SmartAIMgr: {e} specifies invalid entry {e.Action.CrossCast.TargetParam2} (expected {data.Id}) for CasterTargetType guid ({spawnType},{guid})");
 
                         return false;
                     }
@@ -1805,40 +1805,40 @@ public class SmartAIManager
                 break;
             }
             case SmartActions.InvokerCast:
-                if (e.GetScriptType() != SmartScriptType.TimedActionlist && e.GetEventType() != SmartEvents.Link && !EventHasInvoker(e.Event.type))
+                if (e.GetScriptType() != SmartScriptType.TimedActionlist && e.GetEventType() != SmartEvents.Link && !EventHasInvoker(e.Event.Type))
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} has invoker cast action, but event does not provide any invoker!");
 
                     return false;
                 }
 
-                if (!IsSpellValid(e, e.Action.cast.Spell))
+                if (!IsSpellValid(e, e.Action.Cast.Spell))
                     return false;
 
                 break;
 
             case SmartActions.SelfCast:
-                if (!IsSpellValid(e, e.Action.cast.Spell))
+                if (!IsSpellValid(e, e.Action.Cast.Spell))
                     return false;
 
                 break;
 
             case SmartActions.CallAreaexploredoreventhappens:
             case SmartActions.CallGroupeventhappens:
-                var qid = _gameObjectManager.GetQuestTemplate(e.Action.quest.QuestId);
+                var qid = _gameObjectManager.GetQuestTemplate(e.Action.Quest.QuestId);
 
                 if (qid != null)
                 {
                     if (!qid.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
                     {
-                        Log.Logger.Error($"SmartAIMgr: {e} SpecialFlags for QuestId entry {e.Action.quest.QuestId} does not include FLAGS_EXPLORATION_OR_EVENT(2), skipped.");
+                        Log.Logger.Error($"SmartAIMgr: {e} SpecialFlags for QuestId entry {e.Action.Quest.QuestId} does not include FLAGS_EXPLORATION_OR_EVENT(2), skipped.");
 
                         return false;
                     }
                 }
                 else
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent QuestId entry {e.Action.quest.QuestId}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent QuestId entry {e.Action.Quest.QuestId}, skipped.");
 
                     return false;
                 }
@@ -1846,9 +1846,9 @@ public class SmartAIManager
                 break;
 
             case SmartActions.SetEventPhase:
-                if (e.Action.setEventPhase.Phase >= (uint)SmartPhase.Max)
+                if (e.Action.SetEventPhase.Phase >= (uint)SmartPhase.Max)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} attempts to set phase {e.Action.setEventPhase.Phase}. Phase mask cannot be used past phase {SmartPhase.Max - 1}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} attempts to set phase {e.Action.SetEventPhase.Phase}. Phase mask cannot be used past phase {SmartPhase.Max - 1}, skipped.");
 
                     return false;
                 }
@@ -1856,13 +1856,13 @@ public class SmartAIManager
                 break;
 
             case SmartActions.IncEventPhase:
-                if (e.Action.incEventPhase is { Inc: 0, Dec: 0 })
+                if (e.Action.IncEventPhase is { Inc: 0, Dec: 0 })
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} is incrementing phase by 0, skipped.");
 
                     return false;
                 }
-                else if (e.Action.incEventPhase.Inc > (uint)SmartPhase.Max || e.Action.incEventPhase.Dec > (uint)SmartPhase.Max)
+                else if (e.Action.IncEventPhase.Inc > (uint)SmartPhase.Max || e.Action.IncEventPhase.Dec > (uint)SmartPhase.Max)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} attempts to increment phase by too large value, skipped.");
 
@@ -1872,21 +1872,21 @@ public class SmartAIManager
                 break;
 
             case SmartActions.RemoveAurasFromSpell:
-                if (e.Action.removeAura.Spell != 0 && !IsSpellValid(e, e.Action.removeAura.Spell))
+                if (e.Action.RemoveAura.Spell != 0 && !IsSpellValid(e, e.Action.RemoveAura.Spell))
                     return false;
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.removeAura.OnlyOwnedAuras);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.RemoveAura.OnlyOwnedAuras);
 
                 break;
 
             case SmartActions.RandomPhase:
             {
-                if (e.Action.randomPhase.Phase1 >= (uint)SmartPhase.Max ||
-                    e.Action.randomPhase.Phase2 >= (uint)SmartPhase.Max ||
-                    e.Action.randomPhase.Phase3 >= (uint)SmartPhase.Max ||
-                    e.Action.randomPhase.Phase4 >= (uint)SmartPhase.Max ||
-                    e.Action.randomPhase.Phase5 >= (uint)SmartPhase.Max ||
-                    e.Action.randomPhase.Phase6 >= (uint)SmartPhase.Max)
+                if (e.Action.RandomPhase.Phase1 >= (uint)SmartPhase.Max ||
+                    e.Action.RandomPhase.Phase2 >= (uint)SmartPhase.Max ||
+                    e.Action.RandomPhase.Phase3 >= (uint)SmartPhase.Max ||
+                    e.Action.RandomPhase.Phase4 >= (uint)SmartPhase.Max ||
+                    e.Action.RandomPhase.Phase5 >= (uint)SmartPhase.Max ||
+                    e.Action.RandomPhase.Phase6 >= (uint)SmartPhase.Max)
                 {
                     Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} attempts to set invalid phase, skipped.");
 
@@ -1897,36 +1897,36 @@ public class SmartAIManager
             }
             case SmartActions.RandomPhaseRange: //PhaseMin, PhaseMax
             {
-                if (e.Action.randomPhaseRange.PhaseMin >= (uint)SmartPhase.Max ||
-                    e.Action.randomPhaseRange.PhaseMax >= (uint)SmartPhase.Max)
+                if (e.Action.RandomPhaseRange.PhaseMin >= (uint)SmartPhase.Max ||
+                    e.Action.RandomPhaseRange.PhaseMax >= (uint)SmartPhase.Max)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} attempts to set invalid phase, skipped.");
 
                     return false;
                 }
 
-                if (!IsMinMaxValid(e, e.Action.randomPhaseRange.PhaseMin, e.Action.randomPhaseRange.PhaseMax))
+                if (!IsMinMaxValid(e, e.Action.RandomPhaseRange.PhaseMin, e.Action.RandomPhaseRange.PhaseMax))
                     return false;
 
                 break;
             }
             case SmartActions.SummonCreature:
-                if (!IsCreatureValid(e, e.Action.summonCreature.Creature))
+                if (!IsCreatureValid(e, e.Action.SummonCreature.Creature))
                     return false;
 
-                if (e.Action.summonCreature.Type is < (uint)TempSummonType.TimedOrDeadDespawn or > (uint)TempSummonType.ManualDespawn)
+                if (e.Action.SummonCreature.Type is < (uint)TempSummonType.TimedOrDeadDespawn or > (uint)TempSummonType.ManualDespawn)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.summonCreature.Type}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.SummonCreature.Type}, skipped.");
 
                     return false;
                 }
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.summonCreature.AttackInvoker);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SummonCreature.AttackInvoker);
 
                 break;
 
             case SmartActions.CallKilledmonster:
-                if (!IsCreatureValid(e, e.Action.killedMonster.Creature))
+                if (!IsCreatureValid(e, e.Action.KilledMonster.Creature))
                     return false;
 
                 if (e.GetTargetType() == SmartTargets.Position)
@@ -1939,17 +1939,17 @@ public class SmartAIManager
                 break;
 
             case SmartActions.UpdateTemplate:
-                if (e.Action.updateTemplate.Creature != 0 && !IsCreatureValid(e, e.Action.updateTemplate.Creature))
+                if (e.Action.UpdateTemplate.Creature != 0 && !IsCreatureValid(e, e.Action.UpdateTemplate.Creature))
                     return false;
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.updateTemplate.UpdateLevel);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.UpdateTemplate.UpdateLevel);
 
                 break;
 
             case SmartActions.SetSheath:
-                if (e.Action.setSheath.Sheath != 0 && e.Action.setSheath.Sheath >= (uint)SheathState.Max)
+                if (e.Action.SetSheath.Sheath != 0 && e.Action.SetSheath.Sheath >= (uint)SheathState.Max)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses incorrect Sheath state {e.Action.setSheath.Sheath}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses incorrect Sheath state {e.Action.SetSheath.Sheath}, skipped.");
 
                     return false;
                 }
@@ -1958,9 +1958,9 @@ public class SmartAIManager
 
             case SmartActions.SetReactState:
             {
-                if (e.Action.react.State > (uint)ReactStates.Aggressive)
+                if (e.Action.React.State > (uint)ReactStates.Aggressive)
                 {
-                    Log.Logger.Error("SmartAIMgr: Creature {0} Event {1} Action {2} uses invalid React State {3}, skipped.", e.EntryOrGuid, e.EventId, e.GetActionType(), e.Action.react.State);
+                    Log.Logger.Error("SmartAIMgr: Creature {0} Event {1} Action {2} uses invalid React State {3}, skipped.", e.EntryOrGuid, e.EventId, e.GetActionType(), e.Action.React.State);
 
                     return false;
                 }
@@ -1968,33 +1968,33 @@ public class SmartAIManager
                 break;
             }
             case SmartActions.SummonGo:
-                if (!IsGameObjectValid(e, e.Action.summonGO.Entry))
+                if (!IsGameObjectValid(e, e.Action.SummonGO.Entry))
                     return false;
 
                 break;
 
             case SmartActions.RemoveItem:
-                if (!IsItemValid(e, e.Action.item.Entry))
+                if (!IsItemValid(e, e.Action.Item.Entry))
                     return false;
 
-                if (!NotNULL(e, e.Action.item.Count))
+                if (!NotNULL(e, e.Action.Item.Count))
                     return false;
 
                 break;
 
             case SmartActions.AddItem:
-                if (!IsItemValid(e, e.Action.item.Entry))
+                if (!IsItemValid(e, e.Action.Item.Entry))
                     return false;
 
-                if (!NotNULL(e, e.Action.item.Count))
+                if (!NotNULL(e, e.Action.Item.Count))
                     return false;
 
                 break;
 
             case SmartActions.Teleport:
-                if (!_cliDB.MapStorage.ContainsKey(e.Action.teleport.MapID))
+                if (!_cliDB.MapStorage.ContainsKey(e.Action.Teleport.MapID))
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Action.teleport.MapID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Action.Teleport.MapID}, skipped.");
 
                     return false;
                 }
@@ -2002,45 +2002,45 @@ public class SmartAIManager
                 break;
 
             case SmartActions.WpStop:
-                if (e.Action.wpStop.QuestId != 0 && !IsQuestValid(e, e.Action.wpStop.QuestId))
+                if (e.Action.WpStop.QuestId != 0 && !IsQuestValid(e, e.Action.WpStop.QuestId))
                     return false;
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.wpStop.Fail);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.WpStop.Fail);
 
                 break;
 
             case SmartActions.WpStart:
             {
-                var path = GetPath(e.Action.wpStart.PathID);
+                var path = GetPath(e.Action.WpStart.PathID);
 
                 if (path == null || path.Nodes.Empty())
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent WaypointPath id {e.Action.wpStart.PathID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent WaypointPath id {e.Action.WpStart.PathID}, skipped.");
 
                     return false;
                 }
 
-                if (e.Action.wpStart.QuestId != 0 && !IsQuestValid(e, e.Action.wpStart.QuestId))
+                if (e.Action.WpStart.QuestId != 0 && !IsQuestValid(e, e.Action.WpStart.QuestId))
                     return false;
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.wpStart.Run);
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.wpStart.Repeat);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.WpStart.Run);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.WpStart.Repeat);
 
                 break;
             }
             case SmartActions.CreateTimedEvent:
             {
-                if (!IsMinMaxValid(e, e.Action.timeEvent.Min, e.Action.timeEvent.Max))
+                if (!IsMinMaxValid(e, e.Action.TimeEvent.Min, e.Action.TimeEvent.Max))
                     return false;
 
-                if (!IsMinMaxValid(e, e.Action.timeEvent.RepeatMin, e.Action.timeEvent.RepeatMax))
+                if (!IsMinMaxValid(e, e.Action.TimeEvent.RepeatMin, e.Action.TimeEvent.RepeatMax))
                     return false;
 
                 break;
             }
             case SmartActions.CallRandomRangeTimedActionlist:
             {
-                if (!IsMinMaxValid(e, e.Action.randRangeTimedActionList.IDMin, e.Action.randRangeTimedActionList.IDMax))
+                if (!IsMinMaxValid(e, e.Action.RandRangeTimedActionList.IDMin, e.Action.RandRangeTimedActionList.IDMax))
                     return false;
 
                 break;
@@ -2048,9 +2048,9 @@ public class SmartAIManager
             case SmartActions.SetPower:
             case SmartActions.AddPower:
             case SmartActions.RemovePower:
-                if (e.Action.power.PowerType > (int)PowerType.Max)
+                if (e.Action.Power.PowerType > (int)PowerType.Max)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Power {e.Action.power.PowerType}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Power {e.Action.Power.PowerType}, skipped.");
 
                     return false;
                 }
@@ -2059,13 +2059,13 @@ public class SmartAIManager
 
             case SmartActions.GameEventStop:
             {
-                var eventId = e.Action.gameEventStop.ID;
+                var eventId = e.Action.GameEventStop.ID;
 
                 var events = _eventManager.GetEventMap();
 
                 if (eventId < 1 || eventId >= events.Length)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStop.ID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.GameEventStop.ID}, skipped.");
 
                     return false;
                 }
@@ -2074,7 +2074,7 @@ public class SmartAIManager
 
                 if (!eventData.IsValid())
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStop.ID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.GameEventStop.ID}, skipped.");
 
                     return false;
                 }
@@ -2083,13 +2083,13 @@ public class SmartAIManager
             }
             case SmartActions.GameEventStart:
             {
-                var eventId = e.Action.gameEventStart.ID;
+                var eventId = e.Action.GameEventStart.ID;
 
                 var events = _eventManager.GetEventMap();
 
                 if (eventId < 1 || eventId >= events.Length)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStart.ID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.GameEventStart.ID}, skipped.");
 
                     return false;
                 }
@@ -2098,7 +2098,7 @@ public class SmartAIManager
 
                 if (!eventData.IsValid())
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStart.ID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.GameEventStart.ID}, skipped.");
 
                     return false;
                 }
@@ -2109,7 +2109,7 @@ public class SmartAIManager
             {
                 if (e.GetScriptType() == SmartScriptType.Creature)
                 {
-                    var equipId = (sbyte)e.Action.equip.Entry;
+                    var equipId = (sbyte)e.Action.Equip.Entry;
 
                     if (equipId != 0 && _gameObjectManager.GetEquipmentInfo((uint)e.EntryOrGuid, equipId) == null)
                     {
@@ -2123,15 +2123,15 @@ public class SmartAIManager
             }
             case SmartActions.SetInstData:
             {
-                if (e.Action.setInstanceData.Type > 1)
+                if (e.Action.SetInstanceData.Type > 1)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid data type {e.Action.setInstanceData.Type} (value range 0-1), skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid data type {e.Action.SetInstanceData.Type} (value range 0-1), skipped.");
 
                     return false;
                 }
-                else if (e.Action.setInstanceData is { Type: 1, Data: > (int)EncounterState.ToBeDecided })
+                else if (e.Action.SetInstanceData is { Type: 1, Data: > (int)EncounterState.ToBeDecided })
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.setInstanceData.Data} (value range 0-5), skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.SetInstanceData.Data} (value range 0-5), skipped.");
 
                     return false;
                 }
@@ -2140,8 +2140,8 @@ public class SmartAIManager
             }
             case SmartActions.SetIngamePhaseId:
             {
-                var phaseId = e.Action.ingamePhaseId.ID;
-                var apply = e.Action.ingamePhaseId.Apply;
+                var phaseId = e.Action.IngamePhaseId.ID;
+                var apply = e.Action.IngamePhaseId.Apply;
 
                 if (apply != 0 && apply != 1)
                 {
@@ -2161,8 +2161,8 @@ public class SmartAIManager
             }
             case SmartActions.SetIngamePhaseGroup:
             {
-                var phaseGroup = e.Action.ingamePhaseGroup.GroupId;
-                var apply = e.Action.ingamePhaseGroup.Apply;
+                var phaseGroup = e.Action.IngamePhaseGroup.GroupId;
+                var apply = e.Action.IngamePhaseGroup.Apply;
 
                 if (apply != 0 && apply != 1)
                 {
@@ -2182,9 +2182,9 @@ public class SmartAIManager
             }
             case SmartActions.ScenePlay:
             {
-                if (_gameObjectManager.GetSceneTemplate(e.Action.scene.SceneId) == null)
+                if (_gameObjectManager.GetSceneTemplate(e.Action.Scene.SceneId) == null)
                 {
-                    Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId {0} but scene don't exist, skipped", e.Action.scene.SceneId);
+                    Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId {0} but scene don't exist, skipped", e.Action.Scene.SceneId);
 
                     return false;
                 }
@@ -2193,9 +2193,9 @@ public class SmartAIManager
             }
             case SmartActions.SceneCancel:
             {
-                if (_gameObjectManager.GetSceneTemplate(e.Action.scene.SceneId) == null)
+                if (_gameObjectManager.GetSceneTemplate(e.Action.Scene.SceneId) == null)
                 {
-                    Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId {0} but scene don't exist, skipped", e.Action.scene.SceneId);
+                    Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId {0} but scene don't exist, skipped", e.Action.Scene.SceneId);
 
                     return false;
                 }
@@ -2204,9 +2204,9 @@ public class SmartAIManager
             }
             case SmartActions.RespawnBySpawnId:
             {
-                if (_gameObjectManager.GetSpawnData((SpawnObjectType)e.Action.respawnData.SpawnType, e.Action.respawnData.SpawnId) == null)
+                if (_gameObjectManager.GetSpawnData((SpawnObjectType)e.Action.RespawnData.SpawnType, e.Action.RespawnData.SpawnId) == null)
                 {
-                    Log.Logger.Error($"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} specifies invalid spawn data ({e.Action.respawnData.SpawnType},{e.Action.respawnData.SpawnId})");
+                    Log.Logger.Error($"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} specifies invalid spawn data ({e.Action.RespawnData.SpawnType},{e.Action.RespawnData.SpawnId})");
 
                     return false;
                 }
@@ -2215,7 +2215,7 @@ public class SmartAIManager
             }
             case SmartActions.EnableTempGobj:
             {
-                if (e.Action.enableTempGO.Duration == 0)
+                if (e.Action.EnableTempGO.Duration == 0)
                 {
                     Log.Logger.Error($"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} does not specify duration");
 
@@ -2226,9 +2226,9 @@ public class SmartAIManager
             }
             case SmartActions.PlayCinematic:
             {
-                if (!_cliDB.CinematicSequencesStorage.ContainsKey(e.Action.cinematic.Entry))
+                if (!_cliDB.CinematicSequencesStorage.ContainsKey(e.Action.Cinematic.Entry))
                 {
-                    Log.Logger.Error($"SmartAIMgr: SMART_ACTION_PLAY_CINEMATIC {e} uses invalid entry {e.Action.cinematic.Entry}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: SMART_ACTION_PLAY_CINEMATIC {e} uses invalid entry {e.Action.Cinematic.Entry}, skipped.");
 
                     return false;
                 }
@@ -2237,27 +2237,27 @@ public class SmartAIManager
             }
             case SmartActions.PauseMovement:
             {
-                if (e.Action.pauseMovement.PauseTimer == 0)
+                if (e.Action.PauseMovement.PauseTimer == 0)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} does not specify pause duration");
 
                     return false;
                 }
 
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.pauseMovement.Force);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.PauseMovement.Force);
 
                 break;
             }
             case SmartActions.SetMovementSpeed:
             {
-                if (e.Action.movementSpeed.MovementType >= (int)MovementGeneratorType.Max)
+                if (e.Action.MovementSpeed.MovementType >= (int)MovementGeneratorType.Max)
                 {
-                    Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid movementType {e.Action.movementSpeed.MovementType}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid movementType {e.Action.MovementSpeed.MovementType}, skipped.");
 
                     return false;
                 }
 
-                if (e.Action.movementSpeed is { SpeedInteger: 0, SpeedFraction: 0 })
+                if (e.Action.MovementSpeed is { SpeedInteger: 0, SpeedFraction: 0 })
                 {
                     Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses speed 0, skipped.");
 
@@ -2268,30 +2268,30 @@ public class SmartAIManager
             }
             case SmartActions.OverrideLight:
             {
-                if (!_cliDB.AreaTableStorage.TryGetValue(e.Action.overrideLight.ZoneId, out var areaEntry))
+                if (!_cliDB.AreaTableStorage.TryGetValue(e.Action.OverrideLight.ZoneId, out var areaEntry))
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideLight.ZoneId}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.OverrideLight.ZoneId}, skipped.");
 
                     return false;
                 }
 
                 if (areaEntry.ParentAreaID != 0)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses subzone (ID: {e.Action.overrideLight.ZoneId}) instead of zone, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses subzone (ID: {e.Action.OverrideLight.ZoneId}) instead of zone, skipped.");
 
                     return false;
                 }
 
-                if (!_cliDB.LightStorage.ContainsKey(e.Action.overrideLight.AreaLightId))
+                if (!_cliDB.LightStorage.ContainsKey(e.Action.OverrideLight.AreaLightId))
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent areaLightId {e.Action.overrideLight.AreaLightId}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent areaLightId {e.Action.OverrideLight.AreaLightId}, skipped.");
 
                     return false;
                 }
 
-                if (e.Action.overrideLight.OverrideLightId != 0 && !_cliDB.LightStorage.ContainsKey(e.Action.overrideLight.OverrideLightId))
+                if (e.Action.OverrideLight.OverrideLightId != 0 && !_cliDB.LightStorage.ContainsKey(e.Action.OverrideLight.OverrideLightId))
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent overrideLightId {e.Action.overrideLight.OverrideLightId}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent overrideLightId {e.Action.OverrideLight.OverrideLightId}, skipped.");
 
                     return false;
                 }
@@ -2300,16 +2300,16 @@ public class SmartAIManager
             }
             case SmartActions.OverrideWeather:
             {
-                if (!_cliDB.AreaTableStorage.TryGetValue(e.Action.overrideWeather.ZoneId, out var areaEntry))
+                if (!_cliDB.AreaTableStorage.TryGetValue(e.Action.OverrideWeather.ZoneId, out var areaEntry))
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideWeather.ZoneId}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.OverrideWeather.ZoneId}, skipped.");
 
                     return false;
                 }
 
                 if (areaEntry.ParentAreaID != 0)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses subzone (ID: {e.Action.overrideWeather.ZoneId}) instead of zone, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses subzone (ID: {e.Action.OverrideWeather.ZoneId}) instead of zone, skipped.");
 
                     return false;
                 }
@@ -2324,9 +2324,9 @@ public class SmartAIManager
             }
             case SmartActions.SetHealthPct:
             {
-                if (e.Action.setHealthPct.Percent is > 100 or 0)
+                if (e.Action.SetHealthPct.Percent is > 100 or 0)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} is trying to set invalid HP percent {e.Action.setHealthPct.Percent}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} is trying to set invalid HP percent {e.Action.SetHealthPct.Percent}, skipped.");
 
                     return false;
                 }
@@ -2335,119 +2335,119 @@ public class SmartAIManager
             }
             case SmartActions.AutoAttack:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.autoAttack.Attack);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.AutoAttack.Attack);
 
                 break;
             }
             case SmartActions.AllowCombatMovement:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.combatMove.Move);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.CombatMove.Move);
 
                 break;
             }
             case SmartActions.CallForHelp:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.callHelp.WithEmote);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.CallHelp.WithEmote);
 
                 break;
             }
             case SmartActions.SetVisibility:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.visibility.State);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.Visibility.State);
 
                 break;
             }
             case SmartActions.SetActive:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.active.State);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.Active.State);
 
                 break;
             }
             case SmartActions.SetRun:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setRun.Run);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetRun.Run);
 
                 break;
             }
             case SmartActions.SetDisableGravity:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setDisableGravity.Disable);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetDisableGravity.Disable);
 
                 break;
             }
             case SmartActions.SetCounter:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setCounter.Reset);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetCounter.Reset);
 
                 break;
             }
             case SmartActions.CallTimedActionlist:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.timedActionList.AllowOverride);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.TimedActionList.AllowOverride);
 
                 break;
             }
             case SmartActions.InterruptSpell:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.interruptSpellCasting.WithDelayed);
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.interruptSpellCasting.WithInstant);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.InterruptSpellCasting.WithDelayed);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.InterruptSpellCasting.WithInstant);
 
                 break;
             }
             case SmartActions.FleeForAssist:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.fleeAssist.WithEmote);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.FleeAssist.WithEmote);
 
                 break;
             }
             case SmartActions.MoveToPos:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.moveToPos.Transport);
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.moveToPos.DisablePathfinding);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.MoveToPos.Transport);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.MoveToPos.DisablePathfinding);
 
                 break;
             }
             case SmartActions.SetRoot:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setRoot.Root);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetRoot.Root);
 
                 break;
             }
             case SmartActions.DisableEvade:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.disableEvade.Disable);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.DisableEvade.Disable);
 
                 break;
             }
             case SmartActions.LoadEquipment:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.loadEquipment.Force);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.LoadEquipment.Force);
 
                 break;
             }
             case SmartActions.SetHover:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setHover.Enable);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetHover.Enable);
 
                 break;
             }
             case SmartActions.Evade:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.evade.ToRespawnPosition);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.Evade.ToRespawnPosition);
 
                 break;
             }
             case SmartActions.SetHealthRegen:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setHealthRegen.RegenHealth);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetHealthRegen.RegenHealth);
 
                 break;
             }
             case SmartActions.CreateConversation:
             {
-                if (_conversationDataStorage.GetConversationTemplate(e.Action.conversation.ID) == null)
+                if (_conversationDataStorage.GetConversationTemplate(e.Action.Conversation.ID) == null)
                 {
-                    Log.Logger.Error($"SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid entry {e.Action.conversation.ID}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid entry {e.Action.Conversation.ID}, skipped.");
 
                     return false;
                 }
@@ -2456,30 +2456,30 @@ public class SmartAIManager
             }
             case SmartActions.SetImmunePC:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setImmunePC.ImmunePc);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetImmunePc.ImmunePc);
 
                 break;
             }
             case SmartActions.SetImmuneNPC:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setImmuneNPC.ImmuneNPC);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetImmuneNPC.ImmuneNPC);
 
                 break;
             }
             case SmartActions.SetUninteractible:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.setUninteractible.Uninteractible);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.SetUninteractible.Uninteractible);
 
                 break;
             }
             case SmartActions.ActivateGameobject:
             {
-                if (!NotNULL(e, e.Action.activateGameObject.GameObjectAction))
+                if (!NotNULL(e, e.Action.ActivateGameObject.GameObjectAction))
                     return false;
 
-                if (e.Action.activateGameObject.GameObjectAction >= (uint)GameObjectActions.Max)
+                if (e.Action.ActivateGameObject.GameObjectAction >= (uint)GameObjectActions.Max)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} has gameObjectAction parameter out of range (max allowed {(uint)GameObjectActions.Max - 1}, current value {e.Action.activateGameObject.GameObjectAction}), skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} has gameObjectAction parameter out of range (max allowed {(uint)GameObjectActions.Max - 1}, current value {e.Action.ActivateGameObject.GameObjectAction}), skipped.");
 
                     return false;
                 }
@@ -2537,9 +2537,9 @@ public class SmartAIManager
 
             case SmartActions.BecomePersonalCloneForPlayer:
             {
-                if (e.Action.becomePersonalClone.Type is < (uint)TempSummonType.TimedOrDeadDespawn or > (uint)TempSummonType.ManualDespawn)
+                if (e.Action.BecomePersonalClone.Type is < (uint)TempSummonType.TimedOrDeadDespawn or > (uint)TempSummonType.ManualDespawn)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.becomePersonalClone.Type}, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.BecomePersonalClone.Type}, skipped.");
 
                     return false;
                 }
@@ -2548,7 +2548,7 @@ public class SmartAIManager
             }
             case SmartActions.TriggerGameEvent:
             {
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.triggerGameEvent.UseSaiTargetAsGameEventSource);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Action.TriggerGameEvent.UseSaiTargetAsGameEventSource);
 
                 break;
             }
@@ -2662,17 +2662,17 @@ public class SmartAIManager
 
     private bool IsTargetValid(SmartScriptHolder e)
     {
-        if (Math.Abs(e.Target.o) > 2 * MathFunctions.PI)
-            Log.Logger.Error($"SmartAIMgr: {e} has abs(`target.o` = {e.Target.o}) > 2*PI (orientation is expressed in radians)");
+        if (Math.Abs(e.Target.O) > 2 * MathFunctions.PI)
+            Log.Logger.Error($"SmartAIMgr: {e} has abs(`target.o` = {e.Target.O}) > 2*PI (orientation is expressed in radians)");
 
         switch (e.GetTargetType())
         {
             case SmartTargets.CreatureDistance:
             case SmartTargets.CreatureRange:
             {
-                if (e.Target.unitDistance.Creature != 0 && _gameObjectManager.GetCreatureTemplate(e.Target.unitDistance.Creature) == null)
+                if (e.Target.UnitDistance.Creature != 0 && _gameObjectManager.GetCreatureTemplate(e.Target.UnitDistance.Creature) == null)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Target.unitDistance.Creature} as target_param1, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Target.UnitDistance.Creature} as target_param1, skipped.");
 
                     return false;
                 }
@@ -2682,9 +2682,9 @@ public class SmartAIManager
             case SmartTargets.GameobjectDistance:
             case SmartTargets.GameobjectRange:
             {
-                if (e.Target.goDistance.Entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Target.goDistance.Entry) == null)
+                if (e.Target.GoDistance.Entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Target.GoDistance.Entry) == null)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {e.Target.goDistance.Entry} as target_param1, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {e.Target.GoDistance.Entry} as target_param1, skipped.");
 
                     return false;
                 }
@@ -2693,10 +2693,10 @@ public class SmartAIManager
             }
             case SmartTargets.CreatureGuid:
             {
-                if (e.Target.unitGUID.Entry != 0 && !IsCreatureValid(e, e.Target.unitGUID.Entry))
+                if (e.Target.UnitGUID.Entry != 0 && !IsCreatureValid(e, e.Target.UnitGUID.Entry))
                     return false;
 
-                ulong guid = e.Target.unitGUID.DBGuid;
+                ulong guid = e.Target.UnitGUID.DBGuid;
                 var data = _gameObjectManager.GetCreatureData(guid);
 
                 if (data == null)
@@ -2705,9 +2705,9 @@ public class SmartAIManager
 
                     return false;
                 }
-                else if (e.Target.unitGUID.Entry != 0 && e.Target.unitGUID.Entry != data.Id)
+                else if (e.Target.UnitGUID.Entry != 0 && e.Target.UnitGUID.Entry != data.Id)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} using invalid creature entry {e.Target.unitGUID.Entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} using invalid creature entry {e.Target.UnitGUID.Entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
 
                     return false;
                 }
@@ -2716,10 +2716,10 @@ public class SmartAIManager
             }
             case SmartTargets.GameobjectGuid:
             {
-                if (e.Target.goGUID.Entry != 0 && !IsGameObjectValid(e, e.Target.goGUID.Entry))
+                if (e.Target.GoGUID.Entry != 0 && !IsGameObjectValid(e, e.Target.GoGUID.Entry))
                     return false;
 
-                ulong guid = e.Target.goGUID.DBGuid;
+                ulong guid = e.Target.GoGUID.DBGuid;
                 var data = _gameObjectManager.GetGameObjectData(guid);
 
                 if (data == null)
@@ -2728,9 +2728,9 @@ public class SmartAIManager
 
                     return false;
                 }
-                else if (e.Target.goGUID.Entry != 0 && e.Target.goGUID.Entry != data.Id)
+                else if (e.Target.GoGUID.Entry != 0 && e.Target.GoGUID.Entry != data.Id)
                 {
-                    Log.Logger.Error($"SmartAIMgr: {e} using invalid gameobject entry {e.Target.goGUID.Entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} using invalid gameobject entry {e.Target.GoGUID.Entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
 
                     return false;
                 }
@@ -2740,7 +2740,7 @@ public class SmartAIManager
             case SmartTargets.PlayerDistance:
             case SmartTargets.ClosestPlayer:
             {
-                if (e.Target.playerDistance.Dist == 0)
+                if (e.Target.PlayerDistance.Dist == 0)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} has maxDist 0 as target_param1, skipped.");
 
@@ -2752,7 +2752,7 @@ public class SmartAIManager
             case SmartTargets.ActionInvoker:
             case SmartTargets.ActionInvokerVehicle:
             case SmartTargets.InvokerParty:
-                if (e.GetScriptType() != SmartScriptType.TimedActionlist && e.GetEventType() != SmartEvents.Link && !EventHasInvoker(e.Event.type))
+                if (e.GetScriptType() != SmartScriptType.TimedActionlist && e.GetEventType() != SmartEvents.Link && !EventHasInvoker(e.Event.Type))
                 {
                     Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.GetEventType()} Action {e.GetActionType()} has invoker target, but event does not provide any invoker!");
 
@@ -2765,33 +2765,33 @@ public class SmartAIManager
             case SmartTargets.HostileLastAggro:
             case SmartTargets.HostileRandom:
             case SmartTargets.HostileRandomNotTop:
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.hostilRandom.PlayerOnly);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.HostilRandom.PlayerOnly);
 
                 break;
 
             case SmartTargets.Farthest:
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.farthest.PlayerOnly);
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.farthest.IsInLos);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.Farthest.PlayerOnly);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.Farthest.IsInLos);
 
                 break;
 
             case SmartTargets.ClosestCreature:
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.unitClosest.Dead);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.UnitClosest.Dead);
 
                 break;
 
             case SmartTargets.ClosestEnemy:
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.closestAttackable.PlayerOnly);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.ClosestAttackable.PlayerOnly);
 
                 break;
 
             case SmartTargets.ClosestFriendly:
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.closestFriendly.PlayerOnly);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.ClosestFriendly.PlayerOnly);
 
                 break;
 
             case SmartTargets.OwnerOrSummoner:
-                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.owner.UseCharmerOrOwner);
+                TC_SAI_IS_BOOLEAN_VALID(e, e.Target.Owner.UseCharmerOrOwner);
 
                 break;
 
@@ -2840,7 +2840,7 @@ public class SmartAIManager
         uint entry;
 
         if (e.GetEventType() == SmartEvents.TextOver)
-            entry = e.Event.textOver.CreatureEntry;
+            entry = e.Event.TextOver.CreatureEntry;
         else
             switch (e.GetTargetType())
             {

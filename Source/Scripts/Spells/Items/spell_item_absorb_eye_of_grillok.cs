@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 38554 - Absorb Eye of Grillok (31463: Zezzak's Shard)
-internal class spell_item_absorb_eye_of_grillok : AuraScript, IHasAuraEffects
+internal class SpellItemAbsorbEyeOfGrillok : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,7 +29,7 @@ internal class spell_item_absorb_eye_of_grillok : AuraScript, IHasAuraEffects
             !Target.IsTypeId(TypeId.Unit))
             return;
 
-        Caster.CastSpell(Caster, ItemSpellIds.EyeOfGrillok, new CastSpellExtraArgs(aurEff));
+        Caster.SpellFactory.CastSpell(Caster, ItemSpellIds.EYE_OF_GRILLOK, new CastSpellExtraArgs(aurEff));
         Target.AsCreature.DespawnOrUnsummon();
     }
 }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(209400)]
-public class spell_dh_razor_spikes : AuraScript, IAuraCheckProc
+public class SpellDhRazorSpikes : AuraScript, IAuraCheckProc
 {
     public bool CheckProc(ProcEventInfo eventInfo)
     {
@@ -31,7 +31,7 @@ public class spell_dh_razor_spikes : AuraScript, IAuraCheckProc
                 return false;
 
             if (caster.HasAura(DemonHunterSpells.DEMON_SPIKES_BUFF))
-                caster.Events.AddEventAtOffset(() => { caster.CastSpell(target, DemonHunterSpells.RAZOR_SPIKES_SLOW, true); }, TimeSpan.FromMilliseconds(750));
+                caster.Events.AddEventAtOffset(() => { caster.SpellFactory.CastSpell(target, DemonHunterSpells.RAZOR_SPIKES_SLOW, true); }, TimeSpan.FromMilliseconds(750));
 
             return true;
         }

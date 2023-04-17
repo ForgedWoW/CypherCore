@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(194153)]
-public class spell_druid_lunar_strike : SpellScript, IHasSpellEffects
+public class SpellDruidLunarStrike : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,44 +32,44 @@ public class spell_druid_lunar_strike : SpellScript, IHasSpellEffects
         if (currentTarget != explTarget)
             HitDamage = HitDamage * SpellInfo.GetEffect(2).BasePoints / 100;
 
-        if (Caster.HasAura(Spells.NATURES_BALANCE))
+        if (Caster.HasAura(Spells.NaturesBalance))
         {
-            var moonfireDOT = currentTarget.GetAura(MoonfireSpells.MOONFIRE_DAMAGE, Caster.GUID);
+            var moonfireDot = currentTarget.GetAura(MoonfireSpells.MOONFIRE_DAMAGE, Caster.GUID);
 
-            if (moonfireDOT != null)
+            if (moonfireDot != null)
             {
-                var duration = moonfireDOT.Duration;
+                var duration = moonfireDot.Duration;
                 var newDuration = duration + 6 * Time.IN_MILLISECONDS;
 
-                if (newDuration > moonfireDOT.MaxDuration)
-                    moonfireDOT.SetMaxDuration(newDuration);
+                if (newDuration > moonfireDot.MaxDuration)
+                    moonfireDot.SetMaxDuration(newDuration);
 
-                moonfireDOT.SetDuration(newDuration);
+                moonfireDot.SetDuration(newDuration);
             }
         }
 
-        if (Caster && RandomHelper.randChance(20) && Caster.HasAura(DruidSpells.ECLIPSE))
-            Caster.CastSpell(null, DruidSpells.SOLAR_EMPOWEREMENT, true);
+        if (Caster && RandomHelper.randChance(20) && Caster.HasAura(DruidSpells.Eclipse))
+            Caster.SpellFactory.CastSpell(null, DruidSpells.SolarEmpowerement, true);
     }
 
     private void HandleHit(int effIndex)
     {
-        var WarriorOfElune = Caster.GetAura(Spells.WARRIOR_OF_ELUNE);
+        var warriorOfElune = Caster.GetAura(Spells.WarriorOfElune);
 
-        if (WarriorOfElune != null)
+        if (warriorOfElune != null)
         {
-            var amount = WarriorOfElune.GetEffect(0).Amount;
-            WarriorOfElune.GetEffect(0).SetAmount(amount - 1);
+            var amount = warriorOfElune.GetEffect(0).Amount;
+            warriorOfElune.GetEffect(0).SetAmount(amount - 1);
 
             if (amount == -102)
-                Caster.RemoveAura(Spells.WARRIOR_OF_ELUNE);
+                Caster.RemoveAura(Spells.WarriorOfElune);
         }
     }
 
     private struct Spells
     {
-        public static readonly uint LUNAR_STRIKE = 194153;
-        public static readonly uint WARRIOR_OF_ELUNE = 202425;
-        public static readonly uint NATURES_BALANCE = 202430;
+        public static readonly uint LunarStrike = 194153;
+        public static readonly uint WarriorOfElune = 202425;
+        public static readonly uint NaturesBalance = 202430;
     }
 }

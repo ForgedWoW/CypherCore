@@ -21,12 +21,12 @@ internal struct DeathKnightSpells
     public const uint ASPHYXIATE = 108194;
     public const uint AVALANCHE = 207142;
     public const uint AVALANCHE_DAMAGE = 207150;
-    public const uint ArmyFleshBeastTransform = 127533;
-    public const uint ArmyGeistTransform = 127534;
-    public const uint ArmyNorthrendSkeletonTransform = 127528;
-    public const uint ArmySkeletonTransform = 127527;
-    public const uint ArmySpikedGhoulTransform = 127525;
-    public const uint ArmySuperZombieTransform = 127526;
+    public const uint ARMY_FLESH_BEAST_TRANSFORM = 127533;
+    public const uint ARMY_GEIST_TRANSFORM = 127534;
+    public const uint ARMY_NORTHREND_SKELETON_TRANSFORM = 127528;
+    public const uint ARMY_SKELETON_TRANSFORM = 127527;
+    public const uint ARMY_SPIKED_GHOUL_TRANSFORM = 127525;
+    public const uint ARMY_SUPER_ZOMBIE_TRANSFORM = 127526;
     public const uint BLOOD_BOIL_TRIGGERED = 65658;
     public const uint BLOOD_CHARGE = 114851;
     public const uint BLOOD_GORGED_HEAL = 50454;
@@ -42,10 +42,10 @@ internal struct DeathKnightSpells
     public const uint BONE_SHIELD = 195181;
     public const uint BOOD_TAP = 45529;
     public const uint BREATH_OF_SINDRAGOSA = 152279;
-    public const uint Blood = 137008;
-    public const uint BloodPlague = 55078;
-    public const uint BloodShieldAbsorb = 77535;
-    public const uint BloodShieldMastery = 77513;
+    public const uint BLOOD = 137008;
+    public const uint BLOOD_PLAGUE = 55078;
+    public const uint BLOOD_SHIELD_ABSORB = 77535;
+    public const uint BLOOD_SHIELD_MASTERY = 77513;
     public const uint CASTIGATOR = 207305;
     public const uint CHAINS_OF_ICE = 45524;
     public const uint CHAINS_OF_ICE_ROOT = 53534;
@@ -57,7 +57,7 @@ internal struct DeathKnightSpells
     public const uint CORPSE_EXPLOSION_TRIGGERED = 43999;
     public const uint CORPSE_EXPLOSION_VISUAL = 51270;
     public const uint CRIMSOM_SCOURGE = 81136;
-    public const uint CorpseExplosionTriggered = 43999;
+    public const uint CORPSE_EXPLOSION_TRIGGERED = 43999;
     public const uint DARK_INFUSION_AURA = 93426;
     public const uint DARK_INFUSION_STACKS = 91342;
     public const uint DARK_SIMULACRUM = 77606;
@@ -83,12 +83,12 @@ internal struct DeathKnightSpells
     public const uint DEFILE_MASTERY = 218100;
     public const uint DESECRATED_GROUND = 118009;
     public const uint DESECRATED_GROUND_IMMUNE = 115018;
-    public const uint DeathGripDummy = 243912;
-    public const uint DeathGripJump = 49575;
-    public const uint DeathGripTaunt = 51399;
-    public const uint DeathStrikeEnabler = 89832; //Server Side
-    public const uint DeathStrikeHeal = 45470;
-    public const uint DeathStrikeOffhand = 66188;
+    public const uint DEATH_GRIP_DUMMY = 243912;
+    public const uint DEATH_GRIP_JUMP = 49575;
+    public const uint DEATH_GRIP_TAUNT = 51399;
+    public const uint DEATH_STRIKE_ENABLER = 89832; //Server Side
+    public const uint DEATH_STRIKE_HEAL = 45470;
+    public const uint DEATH_STRIKE_OFFHAND = 66188;
     public const uint ENHANCED_DEATH_COIL = 157343;
     public const uint EPIDEMIC = 207317;
     public const uint EPIDEMIC_DAMAGE = 212739;
@@ -119,9 +119,9 @@ internal struct DeathKnightSpells
     public const uint GRIP_OF_THE_DEAD = 273952;
     public const uint GRIP_OF_THE_DEAD_PERIODIC = 273980;
     public const uint GRIP_OF_THE_DEAD_SLOW = 273977;
-    public const uint GlyphOfFoulMenagerie = 58642;
-    public const uint GlyphOfTheGeist = 58640;
-    public const uint GlyphOfTheSkeleton = 146652;
+    public const uint GLYPH_OF_FOUL_MENAGERIE = 58642;
+    public const uint GLYPH_OF_THE_GEIST = 58640;
+    public const uint GLYPH_OF_THE_SKELETON = 146652;
     public const uint HEART_STRIKE = 206930;
     public const uint HOWLING_BLAST = 49184;
     public const uint HOWLING_BLAST_AREA_DAMAGE = 237680;
@@ -138,11 +138,11 @@ internal struct DeathKnightSpells
     public const uint INFECTED_CLAWS = 207272;
     public const uint KILLING_MACHINE = 51124;
     public const uint MASTER_OF_GHOULS = 52143;
-    public const uint MarkOfBloodHeal = 206945;
+    public const uint MARK_OF_BLOOD_HEAL = 206945;
     public const uint NECROSIS = 207346;
     public const uint NECROSIS_EFFECT = 216974;
     public const uint NORTHREND_WINDS = 204088;
-    public const uint NecrosisEffect = 216974;
+    public const uint NECROSIS_EFFECT = 216974;
     public const uint OBLITERATION = 281238;
     public const uint OSSUARY_MOD_MAX_POWER = 219786;
     public const uint OSSUARY_MOD_POWER_COST = 219788;
@@ -165,10 +165,10 @@ internal struct DeathKnightSpells
     public const uint RUNIC_CORRUPTION_REGEN = 51460;
     public const uint RUNIC_EMPOWERMENT = 81229;
     public const uint RUNIC_POWER_ENERGIZE = 49088;
-    public const uint RaiseDeadSummon = 52150;
-    public const uint RecentlyUsedDeathStrike = 180612;
-    public const uint RunicPowerEnergize = 49088;
-    public const uint RunicReturn = 61258;
+    public const uint RAISE_DEAD_SUMMON = 52150;
+    public const uint RECENTLY_USED_DEATH_STRIKE = 180612;
+    public const uint RUNIC_POWER_ENERGIZE = 49088;
+    public const uint RUNIC_RETURN = 61258;
     public const uint SCARLET_FEVER = 81132;
     public const uint SCENT_OF_BLOOD = 49509;
     public const uint SCENT_OF_BLOOD_AURA = 50421;
@@ -182,31 +182,31 @@ internal struct DeathKnightSpells
     public const uint SOUL_REAPER_HASTE = 114868;
     public const uint SOUL_REAPER_MOD_HASTE = 69410;
     public const uint SUMMON_DEFILE = 169018;
-    public const uint SludgeBelcher = 207313;
-    public const uint SludgeBelcherSummon = 212027;
-    public const uint T15_DPS_4P_BONUS = 138347;
+    public const uint SLUDGE_BELCHER = 207313;
+    public const uint SLUDGE_BELCHER_SUMMON = 212027;
+    public const uint T15_DPS_4_P_BONUS = 138347;
     public const uint TIGHTENING_GRASP = 206970;
     public const uint TIGHTENING_GRASP_SLOW = 143375;
-    public const uint TighteningGrasp = 206970;
-    public const uint TighteningGraspSlow = 143375;
+    public const uint TIGHTENING_GRASP = 206970;
+    public const uint TIGHTENING_GRASP_SLOW = 143375;
     public const uint UNHOLY_FRENZY = 207289;
     public const uint UNHOLY_FRENZY_BUFF = 207290;
     public const uint UNHOLY_PRESENCE = 48265;
     public const uint UNHOLY_VIGOR = 196263;
-    public const uint Unholy = 137007;
-    public const uint UnholyVigor = 196263;
+    public const uint UNHOLY = 137007;
+    public const uint UNHOLY_VIGOR = 196263;
     public const uint VAMPIRIC_BLOOD = 55233;
     public const uint VIRULENT_ERUPTION = 191685;
     public const uint VIRULENT_PLAGUE = 191587;
     public const uint VORACIOUS = 273953;
     public const uint VORACIOUS_MOD_LEECH = 274009;
-    public const uint VolatileShielding = 207188;
-    public const uint VolatileShieldingDamage = 207194;
+    public const uint VOLATILE_SHIELDING = 207188;
+    public const uint VOLATILE_SHIELDING_DAMAGE = 207194;
     public const uint WEAKENED_BLOWS = 115798;
     public const uint WILL_OF_THE_NECROPOLIS = 206967;
-    public const uint spell_dk_raise_dead = 46584;
-    public const uint spell_dk_raise_dead_GHOUL = 52150;
-    public const uint spell_dk_soul_reaper = 343294;
+    public const uint SPELL_DK_RAISE_DEAD = 46584;
+    public const uint SPELL_DK_RAISE_DEAD_GHOUL = 52150;
+    public const uint SPELL_DK_SOUL_REAPER = 343294;
 
     public const uint DEATH_COIL = 47541;
     public const uint HARBINGER_OF_THE_DOOM = 276023;
@@ -247,7 +247,7 @@ internal struct DeathKnightSpells
         ArmyFleshBeastTransform, ArmyGeistTransform, ArmyNorthrendSkeletonTransform, ArmySkeletonTransform, ArmySpikedGhoulTransform, ArmySuperZombieTransform
     };
 
-    internal struct DKNPCS
+    internal struct Dknpcs
     {
         public const uint GARGOYLE = 27829;
         public const uint AOTD_GHOUL = 24207;

@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
-public class npc_defias_bloodwizard : ScriptedAI
+public class NPCDefiasBloodwizard : ScriptedAI
 {
     public uint BloodboltTimer;
     public uint BloodWashTimer;
     public uint RagezoneTimer;
 
-    public npc_defias_bloodwizard(Creature creature) : base(creature) { }
+    public NPCDefiasBloodwizard(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -26,7 +26,7 @@ public class npc_defias_bloodwizard : ScriptedAI
     {
         if (BloodboltTimer <= diff)
         {
-            DoCastVictim(boss_vanessa_vancleef.Spells.BLOODBOLT);
+            DoCastVictim(BossVanessaVancleef.Spells.BLOODBOLT);
             BloodboltTimer = RandomHelper.URand(6400, 8000);
         }
         else
@@ -36,10 +36,10 @@ public class npc_defias_bloodwizard : ScriptedAI
 
         if (BloodWashTimer <= diff)
         {
-            var Enforcer = Me.FindNearestCreature(DMCreatures.NPC_DEFIAS_SHADOWGUARD, 100.0f, true);
+            var enforcer = Me.FindNearestCreature(DmCreatures.NPC_DEFIAS_SHADOWGUARD, 100.0f, true);
 
-            if (Enforcer != null)
-                DoCast(Enforcer, boss_vanessa_vancleef.Spells.BLOODWASH);
+            if (enforcer != null)
+                DoCast(enforcer, BossVanessaVancleef.Spells.BLOODWASH);
 
             BloodWashTimer = RandomHelper.URand(15000, 21000);
         }
@@ -50,7 +50,7 @@ public class npc_defias_bloodwizard : ScriptedAI
 
         if (RagezoneTimer <= diff)
         {
-            DoCastVictim(boss_vanessa_vancleef.Spells.RAGEZONE);
+            DoCastVictim(BossVanessaVancleef.Spells.RAGEZONE);
             RagezoneTimer = RandomHelper.URand(11000, 15000);
         }
         else

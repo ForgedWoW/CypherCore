@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_flame_patch : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
+public class AtMageFlamePatch : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
-    public int timeInterval;
+    public int TimeInterval;
 
     public void OnCreate()
     {
-        timeInterval = 1000;
+        TimeInterval = 1000;
     }
 
     public void OnUpdate(uint diff)
@@ -27,13 +27,13 @@ public class at_mage_flame_patch : AreaTriggerScript, IAreaTriggerOnCreate, IAre
         if (caster.TypeId != TypeId.Player)
             return;
 
-        timeInterval += (int)diff;
+        TimeInterval += (int)diff;
 
-        if (timeInterval < 1000)
+        if (TimeInterval < 1000)
             return;
 
-        caster.CastSpell(At.Location, MageSpells.FLAME_PATCH_AOE_DMG, true);
+        caster.SpellFactory.CastSpell(At.Location, MageSpells.FLAME_PATCH_AOE_DMG, true);
 
-        timeInterval -= 1000;
+        TimeInterval -= 1000;
     }
 }

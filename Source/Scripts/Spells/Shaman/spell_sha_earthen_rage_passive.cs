@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 170374 - Earthen Rage (Passive)
 [SpellScript(170374)]
-public class spell_sha_earthen_rage_passive : AuraScript, IAuraCheckProc, IHasAuraEffects
+public class SpellShaEarthenRagePassive : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     private ObjectGuid _procTargetGuid;
 
@@ -38,6 +39,6 @@ public class spell_sha_earthen_rage_passive : AuraScript, IAuraCheckProc, IHasAu
     {
         PreventDefaultAction();
         _procTargetGuid = eventInfo.ProcTarget.GUID;
-        eventInfo.Actor.CastSpell(eventInfo.Actor, ShamanSpells.EarthenRagePeriodic, true);
+        eventInfo.Actor.SpellFactory.CastSpell(eventInfo.Actor, ShamanSpells.EarthenRagePeriodic, true);
     }
 }

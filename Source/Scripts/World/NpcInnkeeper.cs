@@ -1,46 +1,47 @@
 // Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.World.NpcInnkeeper;
 
 internal struct SpellIds
 {
-    public const uint TrickOrTreated = 24755;
-    public const uint Treat = 24715;
+    public const uint TRICK_OR_TREATED = 24755;
+    public const uint TREAT = 24715;
 }
 
 internal struct Gossip
 {
-    public const uint MenuId = 9733;
-    public const uint MenuEventId = 342;
+    public const uint MENU_ID = 9733;
+    public const uint MENU_EVENT_ID = 342;
 }
 
 [Script]
-internal class npc_innkeeper : ScriptedAI
+internal class NPCInnkeeper : ScriptedAI
 {
-    public npc_innkeeper(Creature creature) : base(creature) { }
+    public NPCInnkeeper(Creature creature) : base(creature) { }
 
     public override bool OnGossipHello(Player player)
     {
-        player.InitGossipMenu(Gossip.MenuId);
+        player.InitGossipMenu(Gossip.MENU_ID);
 
         if (Global.GameEventMgr.IsHolidayActive(HolidayIds.HallowsEnd) &&
-            !player.HasAura(SpellIds.TrickOrTreated))
-            player.AddGossipItem(Gossip.MenuEventId, 0, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
+            !player.HasAura(SpellIds.TRICK_OR_TREATED))
+            player.AddGossipItem(Gossip.MENU_EVENT_ID, 0, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
 
         if (Me.IsQuestGiver)
             player.PrepareQuestMenu(Me.GUID);
 
         if (Me.IsVendor)
-            player.AddGossipItem(Gossip.MenuId, 2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_TRADE);
+            player.AddGossipItem(Gossip.MENU_ID, 2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_TRADE);
 
         if (Me.IsInnkeeper)
-            player.AddGossipItem(Gossip.MenuId, 1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INN);
+            player.AddGossipItem(Gossip.MENU_ID, 1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INN);
 
         player.TalkedToCreature(Me.Entry, Me.GUID);
         player.SendGossipMenu(player.GetGossipTextId(Me), Me.GUID);
@@ -55,13 +56,13 @@ internal class npc_innkeeper : ScriptedAI
 
         if (action == GossipAction.GOSSIP_ACTION_INFO_DEF + 1 &&
             Global.GameEventMgr.IsHolidayActive(HolidayIds.HallowsEnd) &&
-            !player.HasAura(SpellIds.TrickOrTreated))
+            !player.HasAura(SpellIds.TRICK_OR_TREATED))
         {
-            player.CastSpell(player, SpellIds.TrickOrTreated, true);
+            player.SpellFactory.CastSpell(player, SpellIds.TRICK_OR_TREATED, true);
 
             if (RandomHelper.IRand(0, 1) != 0)
             {
-                player.CastSpell(player, SpellIds.Treat, true);
+                player.SpellFactory.CastSpell(player, SpellIds.TREAT, true);
             }
             else
             {
@@ -127,7 +128,7 @@ internal class npc_innkeeper : ScriptedAI
                         break; // Hallow's End Candy
                 }
 
-                player.CastSpell(player, trickspell, true);
+                player.SpellFactory.CastSpell(player, trickspell, true);
             }
 
             player.CloseGossipMenu();

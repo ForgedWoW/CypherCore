@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(190925)]
-public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast, ISpellOnCast
+public class SpellHunHarpoon : SpellScript, IHasSpellEffects, ISpellAfterCast, ISpellOnCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -19,7 +20,7 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 
         if (player != null)
             if (player.HasSpell(HunterSpells.POSTHAST))
-                player.CastSpell(player, HunterSpells.POSTHAST_SPEED, true);
+                player.SpellFactory.CastSpell(player, HunterSpells.POSTHAST_SPEED, true);
     }
 
     public override void Register()
@@ -35,7 +36,7 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
         if (player == null || target == null)
             return;
 
-        player.CastSpell(target, HunterSpells.HARPOON_ROOT, true);
+        player.SpellFactory.CastSpell(target, HunterSpells.HARPOON_ROOT, true);
     }
 
     private void HandleDummy(int effIndex)
@@ -48,10 +49,10 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 
         var pTarget = target.Location;
 
-        float speedXY;
+        float speedXy;
         float speedZ;
         speedZ = 1.8f;
-        speedXY = player.Location.GetExactDist2d(pTarget) * 10.0f / speedZ;
-        player.MotionMaster.MoveJump(pTarget, speedXY, speedZ, EventId.Jump);
+        speedXy = player.Location.GetExactDist2d(pTarget) * 10.0f / speedZ;
+        player.MotionMaster.MoveJump(pTarget, speedXy, speedZ, EventId.Jump);
     }
 }

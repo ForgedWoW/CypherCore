@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(348)] // 348 - Immolate
-internal class spell_warl_immolate : SpellScript, IHasSpellEffects
+internal class SpellWarlImmolate : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,6 +22,6 @@ internal class spell_warl_immolate : SpellScript, IHasSpellEffects
 
     private void HandleOnEffectHit(int effIndex)
     {
-        Caster.CastSpell(HitUnit, WarlockSpells.IMMOLATE_DOT, Spell);
+        Caster.SpellFactory.CastSpell(HitUnit, WarlockSpells.IMMOLATE_DOT, Spell);
     }
 }

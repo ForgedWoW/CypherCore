@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
-[Script("spell_q55_sacred_cleansing", SpellEffectName.Dummy, 1u, CreatureIds.Morbent, CreatureIds.WeakenedMorbent, true, 0)]
-[Script("spell_q10255_administer_antidote", SpellEffectName.Dummy, 0u, CreatureIds.Helboar, CreatureIds.Dreadtusk, true, 0)]
-[Script("spell_q11515_fel_siphon_dummy", SpellEffectName.Dummy, 0u, CreatureIds.FelbloodInitiate, CreatureIds.EmaciatedFelblood, true, 0)]
-internal class spell_generic_quest_update_entry : SpellScript, IHasSpellEffects
+[Script("spell_q55_sacred_cleansing", SpellEffectName.Dummy, 1u, CreatureIds.MORBENT, CreatureIds.WEAKENED_MORBENT, true, 0)]
+[Script("spell_q10255_administer_antidote", SpellEffectName.Dummy, 0u, CreatureIds.HELBOAR, CreatureIds.DREADTUSK, true, 0)]
+[Script("spell_q11515_fel_siphon_dummy", SpellEffectName.Dummy, 0u, CreatureIds.FELBLOOD_INITIATE, CreatureIds.EMACIATED_FELBLOOD, true, 0)]
+internal class SpellGenericQuestUpdateEntry : SpellScript, IHasSpellEffects
 {
     private readonly uint _despawnTime;
     private readonly byte _effIndex;
@@ -22,9 +23,7 @@ internal class spell_generic_quest_update_entry : SpellScript, IHasSpellEffects
 
     private readonly SpellEffectName _spellEffect;
 
-    public List<ISpellEffect> SpellEffects { get; } = new();
-
-    public spell_generic_quest_update_entry(SpellEffectName spellEffect, uint effIndex, uint originalEntry, uint newEntry, bool shouldAttack, uint despawnTime)
+    public SpellGenericQuestUpdateEntry(SpellEffectName spellEffect, uint effIndex, uint originalEntry, uint newEntry, bool shouldAttack, uint despawnTime)
     {
         _spellEffect = spellEffect;
         _effIndex = (byte)effIndex;
@@ -33,6 +32,8 @@ internal class spell_generic_quest_update_entry : SpellScript, IHasSpellEffects
         _shouldAttack = shouldAttack;
         _despawnTime = despawnTime;
     }
+
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
     public override void Register()
     {

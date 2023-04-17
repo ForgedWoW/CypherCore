@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(209651)]
-public class spell_dh_shattered_souls_missile : SpellScript, IHasSpellEffects
+public class SpellDhShatteredSoulsMissile : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -32,6 +33,6 @@ public class spell_dh_shattered_souls_missile : SpellScript, IHasSpellEffects
         var dest = HitDest;
 
         if (dest != null)
-            caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), (uint)spellToCast, true);
+            caster.SpellFactory.CastSpell(new Position(dest.X, dest.Y, dest.Z), (uint)spellToCast, true);
     }
 }

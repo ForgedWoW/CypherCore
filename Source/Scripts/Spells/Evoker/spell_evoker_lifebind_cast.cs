@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -22,7 +22,7 @@ namespace Scripts.Spells.Evoker;
              EvokerSpells.SPIRITBLOOM_CHARGED,
              EvokerSpells.RED_CAUTERIZING_FLAME,
              EvokerSpells.PANACEA_HEAL)]
-internal class spell_evoker_lifebind_cast : SpellScript, ISpellAfterCast
+internal class SpellEvokerLifebindCast : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -46,9 +46,9 @@ internal class spell_evoker_lifebind_cast : SpellScript, ISpellAfterCast
                 args.AddSpellMod(SpellValueMod.BasePoint0, heal);
 
                 if (ExplTargetUnit == caster)
-                    caster.CastSpell(otherTarget, EvokerSpells.LIFEBIND_HEAL, args);
+                    caster.SpellFactory.CastSpell(otherTarget, EvokerSpells.LIFEBIND_HEAL, args);
                 else if (ExplTargetUnit == otherTarget)
-                    caster.CastSpell(caster, EvokerSpells.LIFEBIND_HEAL, args);
+                    caster.SpellFactory.CastSpell(caster, EvokerSpells.LIFEBIND_HEAL, args);
             }
         });
     }

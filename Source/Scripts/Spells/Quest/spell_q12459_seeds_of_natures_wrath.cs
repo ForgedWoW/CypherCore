@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 49587 Seeds of Nature's Wrath
-internal class spell_q12459_seeds_of_natures_wrath : SpellScript, IHasSpellEffects
+internal class SpellQ12459SeedsOfNaturesWrath : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -28,16 +29,16 @@ internal class spell_q12459_seeds_of_natures_wrath : SpellScript, IHasSpellEffec
 
             switch (creatureTarget.Entry)
             {
-                case CreatureIds.ReanimatedFrostwyrm:
-                    uiNewEntry = CreatureIds.WeakReanimatedFrostwyrm;
+                case CreatureIds.REANIMATED_FROSTWYRM:
+                    uiNewEntry = CreatureIds.WEAK_REANIMATED_FROSTWYRM;
 
                     break;
-                case CreatureIds.Turgid:
-                    uiNewEntry = CreatureIds.WeakTurgid;
+                case CreatureIds.TURGID:
+                    uiNewEntry = CreatureIds.WEAK_TURGID;
 
                     break;
-                case CreatureIds.Deathgaze:
-                    uiNewEntry = CreatureIds.WeakDeathgaze;
+                case CreatureIds.DEATHGAZE:
+                    uiNewEntry = CreatureIds.WEAK_DEATHGAZE;
 
                     break;
             }

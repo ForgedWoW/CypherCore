@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(27243)] // 27243 - Seed of Corruption
-internal class spell_warl_seed_of_corruption_dummy : AuraScript, IHasAuraEffects
+internal class SpellWarlSeedOfCorruptionDummy : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -59,6 +59,6 @@ internal class spell_warl_seed_of_corruption_dummy : AuraScript, IHasAuraEffects
         if (!caster)
             return;
 
-        caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_DAMAGE, true);
+        caster.SpellFactory.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_DAMAGE, true);
     }
 }

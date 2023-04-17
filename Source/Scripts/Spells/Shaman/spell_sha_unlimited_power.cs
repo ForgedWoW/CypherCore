@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 260895 - Unlimited Power
 [SpellScript(260895)]
-internal class spell_sha_unlimited_power : AuraScript, IHasAuraEffects
+internal class SpellShaUnlimitedPower : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,11 +25,11 @@ internal class spell_sha_unlimited_power : AuraScript, IHasAuraEffects
     private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
     {
         var caster = procInfo.Actor;
-        var aura = caster.GetAura(ShamanSpells.UnlimitedPowerBuff);
+        var aura = caster.GetAura(ShamanSpells.UNLIMITED_POWER_BUFF);
 
         if (aura != null)
             aura.SetStackAmount((byte)(aura.StackAmount + 1));
         else
-            caster.CastSpell(caster, ShamanSpells.UnlimitedPowerBuff, procInfo.ProcSpell);
+            caster.SpellFactory.CastSpell(caster, ShamanSpells.UNLIMITED_POWER_BUFF, procInfo.ProcSpell);
     }
 }

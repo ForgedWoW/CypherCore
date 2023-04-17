@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
 [Script] // 53480 - Roar of Sacrifice
-internal class spell_hun_roar_of_sacrifice : AuraScript, IHasAuraEffects
+internal class SpellHunRoarOfSacrifice : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -43,6 +44,6 @@ internal class spell_hun_roar_of_sacrifice : AuraScript, IHasAuraEffects
 
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount));
-        eventInfo.Actor.CastSpell(Caster, HunterSpells.RoarOfSacrificeTriggered, args);
+        eventInfo.Actor.SpellFactory.CastSpell(Caster, HunterSpells.RoarOfSacrificeTriggered, args);
     }
 }

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Create Healthstone (Soulwell) - 34130
 [SpellScript(34130)]
-public class spell_warl_create_healthstone_soulwell : SpellScript, IHasSpellEffects
+public class SpellWarlCreateHealthstoneSoulwell : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,6 +22,6 @@ public class spell_warl_create_healthstone_soulwell : SpellScript, IHasSpellEffe
 
     private void HandleScriptEffect(int effIndex)
     {
-        Caster.CastSpell(Caster, 23517, true);
+        Caster.SpellFactory.CastSpell(Caster, 23517, true);
     }
 }

@@ -2,25 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.MotherSmolderweb;
 
 internal struct SpellIds
 {
-    public const uint Crystalize = 16104;
-    public const uint Mothersmilk = 16468;
-    public const uint SummonSpireSpiderling = 16103;
+    public const uint CRYSTALIZE = 16104;
+    public const uint MOTHERSMILK = 16468;
+    public const uint SUMMON_SPIRE_SPIDERLING = 16103;
 }
 
 [Script]
-internal class boss_mother_smolderweb : BossAI
+internal class BossMotherSmolderweb : BossAI
 {
-    public boss_mother_smolderweb(Creature creature) : base(creature, DataTypes.MotherSmolderweb) { }
+    public BossMotherSmolderweb(Creature creature) : base(creature, DataTypes.MOTHER_SMOLDERWEB) { }
 
     public override void Reset()
     {
@@ -34,14 +35,14 @@ internal class boss_mother_smolderweb : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCast(Me, SpellIds.Crystalize);
+                               DoCast(Me, SpellIds.CRYSTALIZE);
                                task.Repeat(TimeSpan.FromSeconds(15));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCast(Me, SpellIds.Mothersmilk);
+                               DoCast(Me, SpellIds.MOTHERSMILK);
                                task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(12500));
                            });
     }
@@ -51,10 +52,10 @@ internal class boss_mother_smolderweb : BossAI
         _JustDied();
     }
 
-    public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+    public override void DamageTaken(Unit doneBy, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (Me.Health <= damage)
-            DoCast(Me, SpellIds.SummonSpireSpiderling, new CastSpellExtraArgs(true));
+            DoCast(Me, SpellIds.SUMMON_SPIRE_SPIDERLING, new CastSpellExtraArgs(true));
     }
 
     public override void UpdateAI(uint diff)

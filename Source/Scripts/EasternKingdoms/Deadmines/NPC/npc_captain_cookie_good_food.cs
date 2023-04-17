@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_captain_cookie;
+using static Scripts.EasternKingdoms.Deadmines.Bosses.BossCaptainCookie;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
@@ -14,11 +16,11 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 {
     48006, 48294, 48296, 48297, 48300, 48301
 })]
-public class npc_captain_cookie_good_food : ScriptedAI
+public class NPCCaptainCookieGoodFood : ScriptedAI
 {
     private readonly InstanceScript _pInstance;
 
-    public npc_captain_cookie_good_food(Creature pCreature) : base(pCreature)
+    public NPCCaptainCookieGoodFood(Creature pCreature) : base(pCreature)
     {
         _pInstance = pCreature.InstanceScript;
     }
@@ -33,7 +35,7 @@ public class npc_captain_cookie_good_food : ScriptedAI
         if (_pInstance == null)
             return;
 
-        if (_pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
+        if (_pInstance.GetBossState(DmData.DATA_COOKIE) != EncounterState.InProgress)
             Me.DespawnOrUnsummon();
     }
 
@@ -44,10 +46,10 @@ public class npc_captain_cookie_good_food : ScriptedAI
         if (pInstance == null)
             return true;
 
-        if (pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
+        if (pInstance.GetBossState(DmData.DATA_COOKIE) != EncounterState.InProgress)
             return true;
 
-        player.CastSpell(player, (player.Map.IsHeroic ? eSpell.SETIATED_H : eSpell.SETIATED), true);
+        player.SpellFactory.CastSpell(player, (player.Map.IsHeroic ? ESpell.SETIATED_H : ESpell.SETIATED), true);
 
         Me.DespawnOrUnsummon();
 

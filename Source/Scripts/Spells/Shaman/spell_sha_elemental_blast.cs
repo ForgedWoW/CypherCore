@@ -2,18 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 120588 - Elemental Blast Overload
 [SpellScript(120588)]
-internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpellEffects
+internal class SpellShaElementalBlast : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
-    private readonly uint[] BuffSpells =
+    private readonly uint[] _buffSpells =
     {
         ShamanSpells.ElementalBlastCrit, ShamanSpells.ElementalBlastHaste, ShamanSpells.ElementalBlastMastery
     };
@@ -24,9 +25,9 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
     public void AfterCast()
     {
         var caster = Caster;
-        var spellId = BuffSpells.SelectRandomElementByWeight(buffSpellId => { return !caster.HasAura(buffSpellId) ? 1.0f : 0.0f; });
+        var spellId = _buffSpells.SelectRandomElementByWeight(buffSpellId => { return !caster.HasAura(buffSpellId) ? 1.0f : 0.0f; });
 
-        Caster.CastSpell(Caster, spellId, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        Caster.SpellFactory.CastSpell(Caster, spellId, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
     }
 
     public override void Register()
@@ -36,12 +37,12 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
 
     private void HandleEnergize(int effIndex)
     {
-        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, SpellInfo.Id == ShamanSpells.ElementalBlast ? 9 : 10);
+        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MAELSTROM_CONTROLLER, SpellInfo.Id == ShamanSpells.ElementalBlast ? 9 : 10);
 
         if (energizeAmount != null)
             Caster
-                .CastSpell(Caster,
-                           ShamanSpells.ElementalBlastEnergize,
+                .SpellFactory.CastSpell(Caster,
+                           ShamanSpells.ELEMENTAL_BLAST_ENERGIZE,
                            new CastSpellExtraArgs(energizeAmount)
                                .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
     }

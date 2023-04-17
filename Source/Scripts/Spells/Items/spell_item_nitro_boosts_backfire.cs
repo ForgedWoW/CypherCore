@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_nitro_boosts_backfire : AuraScript, IHasAuraEffects
+internal class SpellItemNitroBoostsBackfire : AuraScript, IHasAuraEffects
 {
-    private double lastZ = MapConst.InvalidHeight;
+    private double _lastZ = MapConst.InvalidHeight;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
@@ -24,7 +25,7 @@ internal class spell_item_nitro_boosts_backfire : AuraScript, IHasAuraEffects
 
     private void HandleApply(AuraEffect effect, AuraEffectHandleModes mode)
     {
-        lastZ = Target.Location.Z;
+        _lastZ = Target.Location.Z;
     }
 
     private void HandlePeriodicDummy(AuraEffect effect)
@@ -32,16 +33,16 @@ internal class spell_item_nitro_boosts_backfire : AuraScript, IHasAuraEffects
         PreventDefaultAction();
         var curZ = Target.Location.Z;
 
-        if (curZ < lastZ)
+        if (curZ < _lastZ)
         {
             if (RandomHelper.randChance(80)) // we don't have enough sniffs to verify this, guesstimate
-                Target.CastSpell(Target, ItemSpellIds.NitroBoostsParachute, new CastSpellExtraArgs(effect));
+                Target.SpellFactory.CastSpell(Target, ItemSpellIds.NITRO_BOOSTS_PARACHUTE, new CastSpellExtraArgs(effect));
 
             Aura.Remove();
         }
         else
         {
-            lastZ = curZ;
+            _lastZ = curZ;
         }
     }
 }

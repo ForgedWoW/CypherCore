@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
+internal class SpellItemSocretharsStone : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,11 +32,11 @@ internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
         switch (caster.Area)
         {
             case 3900:
-                caster.CastSpell(caster, ItemSpellIds.SocretharToSeat, true);
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.SOCRETHAR_TO_SEAT, true);
 
                 break;
             case 3742:
-                caster.CastSpell(caster, ItemSpellIds.SocretharFromSeat, true);
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.SOCRETHAR_FROM_SEAT, true);
 
                 break;
             default:

@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
@@ -13,7 +13,7 @@ namespace Scripts.Spells.Shaman;
 {
     285452, 188196, 77472
 })]
-public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalculateMultiplier
+public class AuraShaPrimordialWave : SpellScript, ISpellAfterCast, ISpellCalculateMultiplier
 {
     public void AfterCast()
     {
@@ -25,7 +25,7 @@ public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalc
         if (Spell.IsTriggered && !player.HasAura(ShamanSpells.LAVA_SURGE_CAST_TIME))
             return;
 
-        if (!player.HasAura(ShamanSpells.PrimordialWaveAura))
+        if (!player.HasAura(ShamanSpells.PRIMORDIAL_WAVE_AURA))
             return;
 
         var spec = player.GetPrimarySpecialization();
@@ -39,23 +39,23 @@ public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalc
             player.GetEnemiesWithinRangeWithOwnedAura(targets, 100.0f, ShamanSpells.FlameShock);
             procSpell = ShamanSpells.LavaBurst;
         }
-        else if (spec == TalentSpecialization.ShamanEnhancement && spellId == ShamanSpells.LightningBolt)
+        else if (spec == TalentSpecialization.ShamanEnhancement && spellId == ShamanSpells.LIGHTNING_BOLT)
         {
             player.GetEnemiesWithinRangeWithOwnedAura(targets, 100.0f, ShamanSpells.FlameShock);
-            procSpell = ShamanSpells.LightningBolt;
+            procSpell = ShamanSpells.LIGHTNING_BOLT;
         }
-        else if (spec == TalentSpecialization.ShamanRestoration && spellId == ShamanSpells.HealingWave)
+        else if (spec == TalentSpecialization.ShamanRestoration && spellId == ShamanSpells.HEALING_WAVE)
         {
-            player.GetAlliesWithinRangeWithOwnedAura(targets, 100.0f, ShamanSpells.Riptide);
-            procSpell = ShamanSpells.Riptide;
+            player.GetAlliesWithinRangeWithOwnedAura(targets, 100.0f, ShamanSpells.RIPTIDE);
+            procSpell = ShamanSpells.RIPTIDE;
         }
 
         if (procSpell != 0)
         {
             foreach (var target in targets)
-                player.CastSpell(target, procSpell, true);
+                player.SpellFactory.CastSpell(target, procSpell, true);
 
-            player.RemoveAura(ShamanSpells.PrimordialWaveAura);
+            player.RemoveAura(ShamanSpells.PRIMORDIAL_WAVE_AURA);
         }
     }
 
@@ -63,7 +63,7 @@ public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalc
     {
         var player = Caster.AsPlayer;
 
-        if (player == null || !player.HasAura(ShamanSpells.PrimordialWaveAura))
+        if (player == null || !player.HasAura(ShamanSpells.PRIMORDIAL_WAVE_AURA))
             return multiplier;
 
         var spec = player.GetPrimarySpecialization();
@@ -71,19 +71,19 @@ public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalc
 
         if (spec == TalentSpecialization.ShamanElemental && spellId == ShamanSpells.LavaBurst)
         {
-            var primordialWave = SpellManager.Instance.GetSpellInfo(ShamanSpells.PrimordialWave);
+            var primordialWave = SpellManager.Instance.GetSpellInfo(ShamanSpells.PRIMORDIAL_WAVE);
             var pct = primordialWave.GetEffect(2).BasePoints * 0.01f;
             multiplier *= 1f + pct;
         }
-        else if (spec == TalentSpecialization.ShamanEnhancement && spellId == ShamanSpells.LightningBolt)
+        else if (spec == TalentSpecialization.ShamanEnhancement && spellId == ShamanSpells.LIGHTNING_BOLT)
         {
-            var primordialWave = SpellManager.Instance.GetSpellInfo(ShamanSpells.PrimordialWave);
+            var primordialWave = SpellManager.Instance.GetSpellInfo(ShamanSpells.PRIMORDIAL_WAVE);
             var pct = primordialWave.GetEffect(3).BasePoints * 0.01f;
             multiplier *= 1f + pct;
         }
-        else if (spec == TalentSpecialization.ShamanRestoration && spellId == ShamanSpells.HealingWave)
+        else if (spec == TalentSpecialization.ShamanRestoration && spellId == ShamanSpells.HEALING_WAVE)
         {
-            var primordialWave = SpellManager.Instance.GetSpellInfo(ShamanSpells.PrimordialWave);
+            var primordialWave = SpellManager.Instance.GetSpellInfo(ShamanSpells.PRIMORDIAL_WAVE);
             var pct = primordialWave.GetEffect(1).BasePoints * 0.01f;
             multiplier *= 1f + pct;
         }

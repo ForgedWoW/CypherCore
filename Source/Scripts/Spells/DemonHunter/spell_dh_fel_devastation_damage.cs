@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(212105)]
-public class spell_dh_fel_devastation_damage : SpellScript, IHasSpellEffects
+public class SpellDhFelDevastationDamage : SpellScript, IHasSpellEffects
 {
-    private bool firstHit = true;
+    private bool _firstHit = true;
     public List<ISpellEffect> SpellEffects { get; } = new();
 
     public override void Register()
@@ -26,10 +27,10 @@ public class spell_dh_fel_devastation_damage : SpellScript, IHasSpellEffects
         if (caster == null)
             return;
 
-        if (firstHit)
+        if (_firstHit)
         {
-            firstHit = false;
-            caster.CastSpell(caster, DemonHunterSpells.FEL_DEVASTATION_HEAL, true);
+            _firstHit = false;
+            caster.SpellFactory.CastSpell(caster, DemonHunterSpells.FEL_DEVASTATION_HEAL, true);
         }
     }
 }

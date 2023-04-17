@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
@@ -11,7 +11,7 @@ namespace Scripts.Spells.DemonHunter;
 {
     162794, 201427
 })]
-public class spell_demon_hunter_chaos_strike : SpellScript, ISpellBeforeCast
+public class SpellDemonHunterChaosStrike : SpellScript, ISpellBeforeCast
 {
     public void BeforeCast()
     {
@@ -24,6 +24,6 @@ public class spell_demon_hunter_chaos_strike : SpellScript, ISpellBeforeCast
         // Chaos Strike and Annihilation have a mainhand and an offhand spell, but the crit chance should be the same.
         var criticalChances = caster.GetUnitCriticalChanceAgainst(WeaponAttackType.BaseAttack, target);
         caster.VariableStorage.Set("Spells.ChaosStrikeCrit", RandomHelper.randChance(criticalChances));
-        caster.CastSpell(DemonHunterSpells.CHAOS_STRIKE_PROC, true);
+        caster.SpellFactory.CastSpell(DemonHunterSpells.CHAOS_STRIKE_PROC, true);
     }
 }

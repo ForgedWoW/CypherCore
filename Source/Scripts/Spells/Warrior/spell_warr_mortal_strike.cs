@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
 [Script] // 12294 - Mortal Strike 7.1.5
-internal class spell_warr_mortal_strike : SpellScript, IHasSpellEffects
+internal class SpellWarrMortalStrike : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,6 +25,6 @@ internal class spell_warr_mortal_strike : SpellScript, IHasSpellEffects
         var target = HitUnit;
 
         if (target)
-            Caster.CastSpell(target, WarriorSpells.MORTAL_WOUNDS, true);
+            Caster.SpellFactory.CastSpell(target, WarriorSpells.MORTAL_WOUNDS, true);
     }
 }

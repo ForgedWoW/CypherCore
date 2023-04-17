@@ -2,24 +2,25 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.Thebeast;
 
 internal struct SpellIds
 {
-    public const uint Flamebreak = 16785;
-    public const uint Immolate = 20294;
-    public const uint Terrifyingroar = 14100;
+    public const uint FLAMEBREAK = 16785;
+    public const uint IMMOLATE = 20294;
+    public const uint TERRIFYINGROAR = 14100;
 }
 
 [Script]
-internal class boss_thebeast : BossAI
+internal class BossThebeast : BossAI
 {
-    public boss_thebeast(Creature creature) : base(creature, DataTypes.TheBeast) { }
+    public BossThebeast(Creature creature) : base(creature, DataTypes.THE_BEAST) { }
 
     public override void Reset()
     {
@@ -33,7 +34,7 @@ internal class boss_thebeast : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Flamebreak);
+                               DoCastVictim(SpellIds.FLAMEBREAK);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
 
@@ -43,7 +44,7 @@ internal class boss_thebeast : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Immolate);
+                                   DoCast(target, SpellIds.IMMOLATE);
 
                                task.Repeat(TimeSpan.FromSeconds(8));
                            });
@@ -51,7 +52,7 @@ internal class boss_thebeast : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(23),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Terrifyingroar);
+                               DoCastVictim(SpellIds.TERRIFYINGROAR);
                                task.Repeat(TimeSpan.FromSeconds(20));
                            });
     }

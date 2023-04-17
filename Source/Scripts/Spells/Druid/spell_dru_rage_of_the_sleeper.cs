@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(200851)]
-public class spell_dru_rage_of_the_sleeper : AuraScript, IHasAuraEffects
+public class SpellDruRageOfTheSleeper : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -22,12 +22,12 @@ public class spell_dru_rage_of_the_sleeper : AuraScript, IHasAuraEffects
     }
 
 
-    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalculateAmount(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         amount.Value = -1;
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -36,7 +36,7 @@ public class spell_dru_rage_of_the_sleeper : AuraScript, IHasAuraEffects
             var target = caster.Victim;
 
             if (target != null)
-                caster.CastSpell(target, 219432, true);
+                caster.SpellFactory.CastSpell(target, 219432, true);
         }
     }
 }

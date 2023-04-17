@@ -2,42 +2,44 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Golemagg;
 
 internal struct SpellIds
 {
     // Golemagg
-    public const uint Magmasplash = 13879;
-    public const uint Pyroblast = 20228;
-    public const uint Earthquake = 19798;
-    public const uint Enrage = 19953;
-    public const uint GolemaggTrust = 20553;
+    public const uint MAGMASPLASH = 13879;
+    public const uint PYROBLAST = 20228;
+    public const uint EARTHQUAKE = 19798;
+    public const uint ENRAGE = 19953;
+    public const uint GOLEMAGG_TRUST = 20553;
 
     // Core Rager
-    public const uint Mangle = 19820;
+    public const uint MANGLE = 19820;
 }
 
 internal struct TextIds
 {
-    public const uint EmoteLowhp = 0;
+    public const uint EMOTE_LOWHP = 0;
 }
 
 [Script]
-internal class boss_golemagg : BossAI
+internal class BossGolemagg : BossAI
 {
-    public boss_golemagg(Creature creature) : base(creature, DataTypes.GolemaggTheIncinerator) { }
+    public BossGolemagg(Creature creature) : base(creature, DataTypes.GOLEMAGG_THE_INCINERATOR) { }
 
     public override void Reset()
     {
         base.Reset();
-        DoCast(Me, SpellIds.Magmasplash, new CastSpellExtraArgs(true));
+        DoCast(Me, SpellIds.MAGMASPLASH, new CastSpellExtraArgs(true));
     }
 
     public override void JustEngagedWith(Unit victim)
@@ -50,7 +52,7 @@ internal class boss_golemagg : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (target)
-                                   DoCast(target, SpellIds.Pyroblast);
+                                   DoCast(target, SpellIds.PYROBLAST);
 
                                task.Repeat(TimeSpan.FromSeconds(7));
                            });
@@ -59,15 +61,15 @@ internal class boss_golemagg : BossAI
     public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (!HealthBelowPct(10) ||
-            Me.HasAura(SpellIds.Enrage))
+            Me.HasAura(SpellIds.ENRAGE))
             return;
 
-        DoCast(Me, SpellIds.Enrage, new CastSpellExtraArgs(true));
+        DoCast(Me, SpellIds.ENRAGE, new CastSpellExtraArgs(true));
 
         Scheduler.Schedule(TimeSpan.FromSeconds(3),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Earthquake);
+                               DoCastVictim(SpellIds.EARTHQUAKE);
                                task.Repeat(TimeSpan.FromSeconds(3));
                            });
     }
@@ -82,11 +84,11 @@ internal class boss_golemagg : BossAI
 }
 
 [Script]
-internal class npc_core_rager : ScriptedAI
+internal class NPCCoreRager : ScriptedAI
 {
     private readonly InstanceScript _instance;
 
-    public npc_core_rager(Creature creature) : base(creature)
+    public NPCCoreRager(Creature creature) : base(creature)
     {
         _instance = creature.InstanceScript;
     }
@@ -101,7 +103,7 @@ internal class npc_core_rager : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(7),
                            task => // These times are probably wrong
                            {
-                               DoCastVictim(SpellIds.Mangle);
+                               DoCastVictim(SpellIds.MANGLE);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
     }
@@ -112,13 +114,13 @@ internal class npc_core_rager : ScriptedAI
             _instance == null)
             return;
 
-        var pGolemagg = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.GolemaggTheIncinerator));
+        var pGolemagg = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.GOLEMAGG_THE_INCINERATOR));
 
         if (pGolemagg)
             if (pGolemagg.IsAlive)
             {
-                Me.AddAura(SpellIds.GolemaggTrust, Me);
-                Talk(TextIds.EmoteLowhp);
+                Me.AddAura(SpellIds.GOLEMAGG_TRUST, Me);
+                Talk(TextIds.EMOTE_LOWHP);
                 Me.SetFullHealth();
             }
     }

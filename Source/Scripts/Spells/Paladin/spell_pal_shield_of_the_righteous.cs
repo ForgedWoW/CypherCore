@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 // Shield of the Righteous - 53600
 [SpellScript(53600)]
-public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
+public class SpellPalShieldOfTheRighteous : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -35,7 +35,7 @@ public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
             double mastery = player.ActivePlayerData.Mastery;
 
             var reduction = ((-25 - mastery / 2.0f) * 120.0f) / 100.0f; //damage reduction is increased by 20%
-            player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, (int)reduction);
+            player.SpellFactory.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, (int)reduction);
 
             aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
 
@@ -51,7 +51,7 @@ public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
             if (aur != null)
                 previousDuration = aur.Duration;
 
-            player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, true);
+            player.SpellFactory.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, true);
 
             aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
 
@@ -81,10 +81,10 @@ public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
                     player.SpellHistory.ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
             }
 
-            var spellInfoAR = Global.SpellMgr.GetSpellInfo(PaladinSpells.AvengingWrath, Difficulty.None);
+            var spellInfoAr = Global.SpellMgr.GetSpellInfo(PaladinSpells.AVENGING_WRATH, Difficulty.None);
 
-            if (spellInfoAR != null)
-                player.SpellHistory.ModifySpellCooldown(spellInfoAR.Id, cooldownReduction, false);
+            if (spellInfoAr != null)
+                player.SpellHistory.ModifySpellCooldown(spellInfoAr.Id, cooldownReduction, false);
         }
     }
 }

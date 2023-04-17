@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // 51533 - Feral Spirit
 [SpellScript(51533)]
-public class spell_sha_feral_spirit : SpellScript, IHasSpellEffects
+public class SpellShaFeralSpirit : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,6 +24,6 @@ public class spell_sha_feral_spirit : SpellScript, IHasSpellEffects
     {
         var caster = Caster;
 
-        caster.CastSpell(HitUnit, ShamanSpells.FERAL_SPIRIT_SUMMON, true);
+        caster.SpellFactory.CastSpell(HitUnit, ShamanSpells.FERAL_SPIRIT_SUMMON, true);
     }
 }

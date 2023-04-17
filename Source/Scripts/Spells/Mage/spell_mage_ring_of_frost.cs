@@ -2,16 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 136511 - Ring of Frost
-internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
+internal class SpellMageRingOfFrost : AuraScript, IHasAuraEffects
 {
     private ObjectGuid _ringOfFrostGUID;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -28,13 +31,13 @@ internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
         var ringOfFrost = GetRingOfFrostMinion();
 
         if (ringOfFrost)
-            Target.CastSpell(ringOfFrost.Location, MageSpells.RingOfFrostFreeze, new CastSpellExtraArgs(true));
+            Target.SpellFactory.CastSpell(ringOfFrost.Location, MageSpells.RingOfFrostFreeze, new CastSpellExtraArgs(true));
     }
 
     private void Apply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         List<TempSummon> minions = new();
-        Target.GetAllMinionsByEntry(minions, (uint)Global.SpellMgr.GetSpellInfo(MageSpells.RingOfFrostSummon, CastDifficulty).GetEffect(0).MiscValue);
+        Target.GetAllMinionsByEntry(minions, (uint)Global.SpellMgr.GetSpellInfo(MageSpells.RING_OF_FROST_SUMMON, CastDifficulty).GetEffect(0).MiscValue);
 
         // Get the last summoned RoF, save it and despawn older ones
         foreach (var summon in minions)

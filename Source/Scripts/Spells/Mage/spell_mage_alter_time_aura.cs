@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 342246 - Alter Time Aura
-internal class spell_mage_alter_time_aura : AuraScript, IHasAuraEffects
+internal class SpellMageAlterTimeAura : AuraScript, IHasAuraEffects
 {
     private long _health;
     private Position _pos;
@@ -41,13 +41,13 @@ internal class spell_mage_alter_time_aura : AuraScript, IHasAuraEffects
             unit.SetHealth(_health);
             unit.NearTeleportTo(_pos);
 
-            if (unit.HasAura(MageSpells.MasterOfTime))
+            if (unit.HasAura(MageSpells.MASTER_OF_TIME))
             {
-                var blink = Global.SpellMgr.GetSpellInfo(MageSpells.Blink, Difficulty.None);
+                var blink = Global.SpellMgr.GetSpellInfo(MageSpells.BLINK, Difficulty.None);
                 unit.SpellHistory.ResetCharges(blink.ChargeCategoryId);
             }
 
-            unit.CastSpell(unit, MageSpells.AlterTimeVisual);
+            unit.SpellFactory.CastSpell(unit, MageSpells.ALTER_TIME_VISUAL);
         }
     }
 }

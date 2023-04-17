@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_captain_cookie;
+using static Scripts.EasternKingdoms.Deadmines.Bosses.BossCaptainCookie;
 
 namespace Scripts.EasternKingdoms.Deadmines.Spells;
 
 [SpellScript(89732)]
-public class spell_captain_cookie_nauseated : SpellScript, IHasSpellEffects
+public class SpellCaptainCookieNauseated : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -19,8 +20,8 @@ public class spell_captain_cookie_nauseated : SpellScript, IHasSpellEffects
         if (!Caster || !HitUnit)
             return;
 
-        HitUnit.RemoveAuraFromStack(eSpell.SETIATED);
-        HitUnit.RemoveAuraFromStack(eSpell.SETIATED_H);
+        HitUnit.RemoveAuraFromStack(ESpell.SETIATED);
+        HitUnit.RemoveAuraFromStack(ESpell.SETIATED_H);
     }
 
     public override void Register()

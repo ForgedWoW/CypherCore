@@ -2,43 +2,45 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.World.NpcGuard;
 
 internal struct SpellIds
 {
-    public const uint BanishedShattrathA = 36642;
-    public const uint BanishedShattrathS = 36671;
-    public const uint BanishTeleport = 36643;
-    public const uint Exile = 39533;
+    public const uint BANISHED_SHATTRATH_A = 36642;
+    public const uint BANISHED_SHATTRATH_S = 36671;
+    public const uint BANISH_TELEPORT = 36643;
+    public const uint EXILE = 39533;
 }
 
 internal struct TextIds
 {
-    public const uint SayGuardSilAggro = 0;
+    public const uint SAY_GUARD_SIL_AGGRO = 0;
 }
 
 internal struct CreatureIds
 {
-    public const uint CenarionHoldInfantry = 15184;
-    public const uint StormwindCityGuard = 68;
-    public const uint StormwindCityPatroller = 1976;
-    public const uint OrgrimmarGrunt = 3296;
-    public const uint AldorVindicator = 18549;
+    public const uint CENARION_HOLD_INFANTRY = 15184;
+    public const uint STORMWIND_CITY_GUARD = 68;
+    public const uint STORMWIND_CITY_PATROLLER = 1976;
+    public const uint ORGRIMMAR_GRUNT = 3296;
+    public const uint ALDOR_VINDICATOR = 18549;
 }
 
 [Script]
-internal class npc_guard_generic : GuardAI
+internal class NPCGuardGeneric : GuardAI
 {
     private readonly TaskScheduler _combatScheduler;
 
-    public npc_guard_generic(Creature creature) : base(creature)
+    public NPCGuardGeneric(Creature creature) : base(creature)
     {
         Scheduler.SetValidator(() => !Me.HasUnitState(UnitState.Casting) && !Me.IsInEvadeMode && Me.IsAlive);
         _combatScheduler = new TaskScheduler();
@@ -67,9 +69,9 @@ internal class npc_guard_generic : GuardAI
     {
         switch (Me.Entry)
         {
-            case CreatureIds.StormwindCityGuard:
-            case CreatureIds.StormwindCityPatroller:
-            case CreatureIds.OrgrimmarGrunt:
+            case CreatureIds.STORMWIND_CITY_GUARD:
+            case CreatureIds.STORMWIND_CITY_PATROLLER:
+            case CreatureIds.ORGRIMMAR_GRUNT:
                 break;
             default:
                 return;
@@ -83,8 +85,8 @@ internal class npc_guard_generic : GuardAI
 
     public override void JustEngagedWith(Unit who)
     {
-        if (Me.Entry == CreatureIds.CenarionHoldInfantry)
-            Talk(TextIds.SayGuardSilAggro, who);
+        if (Me.Entry == CreatureIds.CENARION_HOLD_INFANTRY)
+            Talk(TextIds.SAY_GUARD_SIL_AGGRO, who);
 
         _combatScheduler.Schedule(TimeSpan.FromSeconds(1),
                                   task =>
@@ -187,15 +189,14 @@ internal class npc_guard_generic : GuardAI
                 Me.HandleEmoteCommand(Emote.OneshotPoint);
 
                 break;
-            
         }
     }
 }
 
 [Script]
-internal class npc_guard_shattrath_faction : GuardAI
+internal class NPCGuardShattrathFaction : GuardAI
 {
-    public npc_guard_shattrath_faction(Creature creature) : base(creature)
+    public NPCGuardShattrathFaction(Creature creature) : base(creature)
     {
         Scheduler.SetValidator(() => !Me.HasUnitState(UnitState.Casting));
     }
@@ -227,7 +228,7 @@ internal class npc_guard_shattrath_faction : GuardAI
 
                                if (temp && temp.IsTypeId(TypeId.Player))
                                {
-                                   DoCast(temp, Me.Entry == CreatureIds.AldorVindicator ? SpellIds.BanishedShattrathS : SpellIds.BanishedShattrathA);
+                                   DoCast(temp, Me.Entry == CreatureIds.ALDOR_VINDICATOR ? SpellIds.BANISHED_SHATTRATH_S : SpellIds.BANISHED_SHATTRATH_A);
                                    var playerGUID = temp.GUID;
 
                                    task.Schedule(TimeSpan.FromSeconds(9),
@@ -237,8 +238,8 @@ internal class npc_guard_shattrath_faction : GuardAI
 
                                                      if (temp)
                                                      {
-                                                         temp.CastSpell(temp, SpellIds.Exile, true);
-                                                         temp.CastSpell(temp, SpellIds.BanishTeleport, true);
+                                                         temp.SpellFactory.CastSpell(temp, SpellIds.EXILE, true);
+                                                         temp.SpellFactory.CastSpell(temp, SpellIds.BANISH_TELEPORT, true);
                                                      }
 
                                                      ScheduleVanish();

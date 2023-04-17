@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
 [Script] // 46968 - Shockwave
-internal class spell_warr_shockwave : SpellScript, ISpellAfterCast, IHasSpellEffects
+internal class SpellWarrShockwave : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
     private uint _targetCount;
 
@@ -35,7 +36,7 @@ internal class spell_warr_shockwave : SpellScript, ISpellAfterCast, IHasSpellEff
 
     private void HandleStun(int effIndex)
     {
-        Caster.CastSpell(HitUnit, WarriorSpells.SHOCKWAVE_STUN, true);
+        Caster.SpellFactory.CastSpell(HitUnit, WarriorSpells.SHOCKWAVE_STUN, true);
         ++_targetCount;
     }
 }

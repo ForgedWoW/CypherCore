@@ -33,7 +33,7 @@
     <Import Project="..\..\default.props" />
 
     <ItemGroup>
-        <ProjectReference Include="..\Game\Game.csproj" />
+        <ProjectReference Include="..\Forged.MapServer\Forged.MapServer.csproj" />
     </ItemGroup>
 
 </Project>

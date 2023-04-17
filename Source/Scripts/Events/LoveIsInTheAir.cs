@@ -2,54 +2,57 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.m_Events.LoveIsInTheAir;
 
 internal struct SpellIds
 {
     //Romantic Picnic
-    public const uint BasketCheck = 45119;  // Holiday - Valentine - Romantic Picnic Near Basket Check
-    public const uint MealPeriodic = 45103; // Holiday - Valentine - Romantic Picnic Meal Periodic - Effect Dummy
+    public const uint BASKET_CHECK = 45119;  // Holiday - Valentine - Romantic Picnic Near Basket Check
+    public const uint MEAL_PERIODIC = 45103; // Holiday - Valentine - Romantic Picnic Meal Periodic - Effect Dummy
 
-    public const uint MealEatVisual = 45120; // Holiday - Valentine - Romantic Picnic Meal Eat Visual
+    public const uint MEAL_EAT_VISUAL = 45120; // Holiday - Valentine - Romantic Picnic Meal Eat Visual
 
     //public const uint MealParticle = 45114; // Holiday - Valentine - Romantic Picnic Meal Particle - Unused
-    public const uint DrinkVisual = 45121;          // Holiday - Valentine - Romantic Picnic Drink Visual
-    public const uint RomanticPicnicAchiev = 45123; // Romantic Picnic Periodic = 5000
+    public const uint DRINK_VISUAL = 45121;          // Holiday - Valentine - Romantic Picnic Drink Visual
+    public const uint ROMANTIC_PICNIC_ACHIEV = 45123; // Romantic Picnic Periodic = 5000
 
     //CreateHeartCandy
-    public const uint CreateHeartCandy1 = 26668;
-    public const uint CreateHeartCandy2 = 26670;
-    public const uint CreateHeartCandy3 = 26671;
-    public const uint CreateHeartCandy4 = 26672;
-    public const uint CreateHeartCandy5 = 26673;
-    public const uint CreateHeartCandy6 = 26674;
-    public const uint CreateHeartCandy7 = 26675;
-    public const uint CreateHeartCandy8 = 26676;
+    public const uint CREATE_HEART_CANDY1 = 26668;
+    public const uint CREATE_HEART_CANDY2 = 26670;
+    public const uint CREATE_HEART_CANDY3 = 26671;
+    public const uint CREATE_HEART_CANDY4 = 26672;
+    public const uint CREATE_HEART_CANDY5 = 26673;
+    public const uint CREATE_HEART_CANDY6 = 26674;
+    public const uint CREATE_HEART_CANDY7 = 26675;
+    public const uint CREATE_HEART_CANDY8 = 26676;
 
     //SomethingStinks
-    public const uint HeavilyPerfumed = 71507;
+    public const uint HEAVILY_PERFUMED = 71507;
 
     //PilferingPerfume
-    public const uint ServiceUniform = 71450;
+    public const uint SERVICE_UNIFORM = 71450;
 }
 
 internal struct ModelIds
 {
     //PilferingPerfume
-    public const uint GoblinMale = 31002;
-    public const uint GoblinFemale = 31003;
+    public const uint GOBLIN_MALE = 31002;
+    public const uint GOBLIN_FEMALE = 31003;
 }
 
 [Script] // 45102 Romantic Picnic
-internal class spell_love_is_in_the_air_romantic_picnic : AuraScript, IHasAuraEffects
+internal class SpellLoveIsInTheAirRomanticPicnic : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -64,7 +67,7 @@ internal class spell_love_is_in_the_air_romantic_picnic : AuraScript, IHasAuraEf
     {
         var target = Target;
         target.SetStandState(UnitStandStateType.Sit);
-        target.CastSpell(target, SpellIds.MealPeriodic);
+        target.SpellFactory.CastSpell(target, SpellIds.MEAL_PERIODIC);
     }
 
     private void OnPeriodic(AuraEffect aurEff)
@@ -75,14 +78,14 @@ internal class spell_love_is_in_the_air_romantic_picnic : AuraScript, IHasAuraEf
         // If our player is no longer sit, Remove all Auras
         if (target.StandState != UnitStandStateType.Sit)
         {
-            target.RemoveAura(SpellIds.RomanticPicnicAchiev);
+            target.RemoveAura(SpellIds.ROMANTIC_PICNIC_ACHIEV);
             target.RemoveAura(Aura);
 
             return;
         }
 
-        target.CastSpell(target, SpellIds.BasketCheck); // unknown use, it targets Romantic Basket
-        target.CastSpell(target, RandomHelper.RAND(SpellIds.MealEatVisual, SpellIds.DrinkVisual));
+        target.SpellFactory.CastSpell(target, SpellIds.BASKET_CHECK); // unknown use, it targets Romantic Basket
+        target.SpellFactory.CastSpell(target, RandomHelper.RAND(SpellIds.MEAL_EAT_VISUAL, SpellIds.DRINK_VISUAL));
 
         var foundSomeone = false;
         // For nearby players, check if they have the same aura. If so, cast Romantic Picnic (45123)
@@ -96,25 +99,25 @@ internal class spell_love_is_in_the_air_romantic_picnic : AuraScript, IHasAuraEf
             if (target != playerFound &&
                 playerFound.HasAura(Id))
             {
-                playerFound.CastSpell(playerFound, SpellIds.RomanticPicnicAchiev, true);
-                target.CastSpell(target, SpellIds.RomanticPicnicAchiev, true);
+                playerFound.SpellFactory.CastSpell(playerFound, SpellIds.ROMANTIC_PICNIC_ACHIEV, true);
+                target.SpellFactory.CastSpell(target, SpellIds.ROMANTIC_PICNIC_ACHIEV, true);
                 foundSomeone = true;
 
                 break;
             }
 
         if (!foundSomeone &&
-            target.HasAura(SpellIds.RomanticPicnicAchiev))
-            target.RemoveAura(SpellIds.RomanticPicnicAchiev);
+            target.HasAura(SpellIds.ROMANTIC_PICNIC_ACHIEV))
+            target.RemoveAura(SpellIds.ROMANTIC_PICNIC_ACHIEV);
     }
 }
 
 [Script] // 26678 - Create Heart Candy
-internal class spell_love_is_in_the_air_create_heart_candy : SpellScript, IHasSpellEffects
+internal class SpellLoveIsInTheAirCreateHeartCandy : SpellScript, IHasSpellEffects
 {
-    private readonly uint[] CreateHeartCandySpells =
+    private readonly uint[] _createHeartCandySpells =
     {
-        SpellIds.CreateHeartCandy1, SpellIds.CreateHeartCandy2, SpellIds.CreateHeartCandy3, SpellIds.CreateHeartCandy4, SpellIds.CreateHeartCandy5, SpellIds.CreateHeartCandy6, SpellIds.CreateHeartCandy7, SpellIds.CreateHeartCandy8
+        SpellIds.CREATE_HEART_CANDY1, SpellIds.CREATE_HEART_CANDY2, SpellIds.CREATE_HEART_CANDY3, SpellIds.CREATE_HEART_CANDY4, SpellIds.CREATE_HEART_CANDY5, SpellIds.CREATE_HEART_CANDY6, SpellIds.CREATE_HEART_CANDY7, SpellIds.CREATE_HEART_CANDY8
     };
 
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -130,12 +133,12 @@ internal class spell_love_is_in_the_air_create_heart_candy : SpellScript, IHasSp
         PreventHitDefaultEffect(effIndex);
         var target = HitPlayer;
 
-        target?.CastSpell(target, CreateHeartCandySpells.SelectRandom(), true);
+        target?.SpellFactory.CastSpell(target, _createHeartCandySpells.SelectRandom(), true);
     }
 }
 
 [Script] // 70192 - Fragrant Air Analysis
-internal class spell_love_is_in_the_air_fragrant_air_analysis : SpellScript, IHasSpellEffects
+internal class SpellLoveIsInTheAirFragrantAirAnalysis : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -152,7 +155,7 @@ internal class spell_love_is_in_the_air_fragrant_air_analysis : SpellScript, IHa
 }
 
 [Script] // 71507 - Heavily Perfumed
-internal class spell_love_is_in_the_air_heavily_perfumed : AuraScript, IHasAuraEffects
+internal class SpellLoveIsInTheAirHeavilyPerfumed : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -164,12 +167,12 @@ internal class spell_love_is_in_the_air_heavily_perfumed : AuraScript, IHasAuraE
 
     private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.CastSpell(Target, (uint)GetEffectInfo(0).CalcValue());
+        Target.SpellFactory.CastSpell(Target, (uint)GetEffectInfo(0).CalcValue());
     }
 }
 
 [Script] // 71508 - Recently Analyzed
-internal class spell_love_is_in_the_air_recently_analyzed : AuraScript, IHasAuraEffects
+internal class SpellLoveIsInTheAirRecentlyAnalyzed : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -177,17 +180,17 @@ internal class spell_love_is_in_the_air_recently_analyzed : AuraScript, IHasAura
     public override void Register()
     {
         if (TargetApplication != null && TargetApplication.RemoveMode == AuraRemoveMode.Expire)
-            Target.CastSpell(Target, SpellIds.HeavilyPerfumed);
+            Target.SpellFactory.CastSpell(Target, SpellIds.HEAVILY_PERFUMED);
     }
 
     private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.CastSpell(Target, SpellIds.HeavilyPerfumed);
+        Target.SpellFactory.CastSpell(Target, SpellIds.HEAVILY_PERFUMED);
     }
 }
 
 [Script] // 69438 - Sample Satisfaction
-internal class spell_love_is_in_the_air_sample_satisfaction : AuraScript, IHasAuraEffects
+internal class SpellLoveIsInTheAirSampleSatisfaction : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -204,7 +207,7 @@ internal class spell_love_is_in_the_air_sample_satisfaction : AuraScript, IHasAu
 }
 
 [Script] // 71450 - Crown Parcel Service Uniform
-internal class spell_love_is_in_the_air_service_uniform : AuraScript, IHasAuraEffects
+internal class SpellLoveIsInTheAirServiceUniform : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -222,9 +225,9 @@ internal class spell_love_is_in_the_air_service_uniform : AuraScript, IHasAuraEf
         if (target.IsPlayer)
         {
             if (target.NativeGender == Gender.Male)
-                target.SetDisplayId(ModelIds.GoblinMale);
+                target.SetDisplayId(ModelIds.GOBLIN_MALE);
             else
-                target.SetDisplayId(ModelIds.GoblinFemale);
+                target.SetDisplayId(ModelIds.GOBLIN_FEMALE);
         }
     }
 
@@ -236,7 +239,7 @@ internal class spell_love_is_in_the_air_service_uniform : AuraScript, IHasAuraEf
 
 // 71522 - Crown Chemical Co. Supplies
 [Script] // 71539 - Crown Chemical Co. Supplies
-internal class spell_love_is_in_the_air_cancel_service_uniform : SpellScript, IHasSpellEffects
+internal class SpellLoveIsInTheAirCancelServiceUniform : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -248,13 +251,13 @@ internal class spell_love_is_in_the_air_cancel_service_uniform : SpellScript, IH
 
     private void HandleScript(int effIndex)
     {
-        HitUnit.RemoveAura(SpellIds.ServiceUniform);
+        HitUnit.RemoveAura(SpellIds.SERVICE_UNIFORM);
     }
 }
 
 // 68529 - Perfume Immune
 [Script] // 68530 - Cologne Immune
-internal class spell_love_is_in_the_air_perfume_cologne_immune : SpellScript, IHasSpellEffects
+internal class SpellLoveIsInTheAirPerfumeCologneImmune : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

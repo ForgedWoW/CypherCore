@@ -2,19 +2,20 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 
 namespace Scripts.Spells.Monk;
 
 public class DamageUnitCheck : ICheck<WorldObject>
 {
-    private readonly Unit m_source;
-    private float m_range;
+    private readonly Unit _mSource;
+    private float _mRange;
 
     public DamageUnitCheck(Unit source, float range)
     {
-        m_source = source;
-        m_range = range;
+        _mSource = source;
+        _mRange = range;
     }
 
     public bool Invoke(WorldObject @object)
@@ -24,9 +25,9 @@ public class DamageUnitCheck : ICheck<WorldObject>
         if (unit == null)
             return true;
 
-        if (m_source.IsValidAttackTarget(unit) && unit.IsTargetableForAttack() && m_source.IsWithinDistInMap(unit, m_range))
+        if (_mSource.IsValidAttackTarget(unit) && unit.IsTargetableForAttack() && _mSource.IsWithinDistInMap(unit, _mRange))
         {
-            m_range = m_source.GetDistance(unit);
+            _mRange = _mSource.GetDistance(unit);
 
             return false;
         }

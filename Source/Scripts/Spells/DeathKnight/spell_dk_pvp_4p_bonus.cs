@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 61257 - Runic Power Back on Snare/Root
-internal class spell_dk_pvp_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellDkPVP4PBonus : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -34,6 +34,6 @@ internal class spell_dk_pvp_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffec
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.ActionTarget.CastSpell((Unit)null, DeathKnightSpells.RunicReturn, true);
+        eventInfo.ActionTarget.SpellFactory.CastSpell((Unit)null, DeathKnightSpells.RUNIC_RETURN, true);
     }
 }

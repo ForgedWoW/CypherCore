@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 69961 - Glyph of Scourge Strike
-internal class spell_dk_glyph_of_scourge_strike_script : SpellScript, IHasSpellEffects
+internal class SpellDkGlyphOfScourgeStrikeScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

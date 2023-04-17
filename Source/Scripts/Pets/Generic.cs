@@ -2,13 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Pets
 {
@@ -17,62 +20,62 @@ namespace Scripts.Pets
         internal struct SpellIds
         {
             //Mojo
-            public const uint FeelingFroggy = 43906;
-            public const uint SeductionVisual = 43919;
+            public const uint FEELING_FROGGY = 43906;
+            public const uint SEDUCTION_VISUAL = 43919;
 
             //SoulTrader
-            public const uint EtherealOnSummon = 50052;
-            public const uint EtherealPetRemoveAura = 50055;
+            public const uint ETHEREAL_ON_SUMMON = 50052;
+            public const uint ETHEREAL_PET_REMOVE_AURA = 50055;
 
             // LichPet
-            public const uint LichPetAura = 69732;
-            public const uint LichPetAuraOnkill = 69731;
-            public const uint LichPetEmote = 70049;
+            public const uint LICH_PET_AURA = 69732;
+            public const uint LICH_PET_AURA_ONKILL = 69731;
+            public const uint LICH_PET_EMOTE = 70049;
         }
 
         internal struct CreatureIds
         {
             // LichPet
-            public const uint LichPet = 36979;
+            public const uint LICH_PET = 36979;
         }
 
         internal struct TextIds
         {
             //Mojo
-            public const uint SayMojo = 0;
+            public const uint SAY_MOJO = 0;
 
             //SoulTrader
-            public const uint SaySoulTraderInto = 0;
+            public const uint SAY_SOUL_TRADER_INTO = 0;
         }
 
         [Script]
-        internal class npc_pet_gen_soul_trader : ScriptedAI
+        internal class NPCPetGenSoulTrader : ScriptedAI
         {
-            public npc_pet_gen_soul_trader(Creature creature) : base(creature) { }
+            public NPCPetGenSoulTrader(Creature creature) : base(creature) { }
 
             public override void OnDespawn()
             {
                 var owner = Me.OwnerUnit;
 
                 if (owner != null)
-                    DoCast(owner, SpellIds.EtherealPetRemoveAura);
+                    DoCast(owner, SpellIds.ETHEREAL_PET_REMOVE_AURA);
             }
 
             public override void JustAppeared()
             {
-                Talk(TextIds.SaySoulTraderInto);
+                Talk(TextIds.SAY_SOUL_TRADER_INTO);
 
                 var owner = Me.OwnerUnit;
 
                 if (owner != null)
-                    DoCast(owner, SpellIds.EtherealOnSummon);
+                    DoCast(owner, SpellIds.ETHEREAL_ON_SUMMON);
 
                 base.JustAppeared();
             }
         }
 
         [Script] // 69735 - Lich Pet OnSummon
-        internal class spell_gen_lich_pet_onsummon : SpellScript, IHasSpellEffects
+        internal class SpellGenLichPetOnsummon : SpellScript, IHasSpellEffects
         {
             public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -85,12 +88,12 @@ namespace Scripts.Pets
             private void HandleScriptEffect(int effIndex)
             {
                 var target = HitUnit;
-                target.CastSpell(target, SpellIds.LichPetAura, true);
+                target.SpellFactory.CastSpell(target, SpellIds.LICH_PET_AURA, true);
             }
         }
 
         [Script] // 69736 - Lich Pet Aura Remove
-        internal class spell_gen_lich_pet_aura_remove : SpellScript, IHasSpellEffects
+        internal class SpellGenLichPetAuraRemove : SpellScript, IHasSpellEffects
         {
             public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -102,12 +105,12 @@ namespace Scripts.Pets
 
             private void HandleScriptEffect(int effIndex)
             {
-                HitUnit.RemoveAura(SpellIds.LichPetAura);
+                HitUnit.RemoveAura(SpellIds.LICH_PET_AURA);
             }
         }
 
         [Script] // 69732 - Lich Pet Aura
-        internal class spell_gen_lich_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEffects
+        internal class SpellGenLichPetAura : AuraScript, IAuraCheckProc, IHasAuraEffects
         {
             public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -127,16 +130,16 @@ namespace Scripts.Pets
                 PreventDefaultAction();
 
                 List<TempSummon> minionList = new();
-                OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.LichPet);
+                OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.LICH_PET);
 
                 foreach (Creature minion in minionList)
                     if (minion.IsAIEnabled)
-                        minion.AI.DoCastSelf(SpellIds.LichPetAuraOnkill);
+                        minion.AI.DoCastSelf(SpellIds.LICH_PET_AURA_ONKILL);
             }
         }
 
         [Script] // 70050 - [DND] Lich Pet
-        internal class spell_pet_gen_lich_pet_periodic_emote : AuraScript, IHasAuraEffects
+        internal class SpellPetGenLichPetPeriodicEmote : AuraScript, IHasAuraEffects
         {
             public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -156,12 +159,12 @@ namespace Scripts.Pets
                 // However, for some reason Emote is not played if creature is idle and only if creature is moving or is already rooted.
                 // For now it's scripted manually in script below to play Emote always.
                 if (RandomHelper.randChance(50))
-                    Target.CastSpell(Target, SpellIds.LichPetEmote, true);
+                    Target.SpellFactory.CastSpell(Target, SpellIds.LICH_PET_EMOTE, true);
             }
         }
 
         [Script] // 70049 - [DND] Lich Pet
-        internal class spell_pet_gen_lich_pet_emote : AuraScript, IHasAuraEffects
+        internal class SpellPetGenLichPetEmote : AuraScript, IHasAuraEffects
         {
             public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -177,7 +180,7 @@ namespace Scripts.Pets
         }
 
         [Script] // 69682 - Lil' K.T. Focus
-        internal class spell_pet_gen_lich_pet_focus : SpellScript, IHasSpellEffects
+        internal class SpellPetGenLichPetFocus : SpellScript, IHasSpellEffects
         {
             public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -189,7 +192,7 @@ namespace Scripts.Pets
 
             private void HandleScript(int effIndex)
             {
-                Caster.CastSpell(HitUnit, (uint)EffectValue);
+                Caster.SpellFactory.CastSpell(HitUnit, (uint)EffectValue);
             }
         }
     }

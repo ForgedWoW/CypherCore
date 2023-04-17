@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 53099, 57896, 58418, 58420, 59064, 59065, 59439, 60900, 60940
-internal class spell_quest_portal_with_condition : SpellScript, IHasSpellEffects
+internal class SpellQuestPortalWithCondition : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,6 +32,6 @@ internal class spell_quest_portal_with_condition : SpellScript, IHasSpellEffects
 
         // This probably should be a way to throw error in SpellCastResult
         if (target.IsActiveQuest(questId))
-            target.CastSpell(target, spellId, true);
+            target.SpellFactory.CastSpell(target, spellId, true);
     }
 }

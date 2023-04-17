@@ -2,10 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
@@ -14,7 +16,7 @@ namespace Scripts.Spells.Paladin;
 {
     114852, 114871
 })] // 114871 - Holy Prism (Heal)
-internal class spell_pal_holy_prism_selector : SpellScript, IHasSpellEffects
+internal class SpellPalHolyPrismSelector : SpellScript, IHasSpellEffects
 {
     private List<WorldObject> _sharedTargets = new();
     private ObjectGuid _targetGUID;
@@ -23,9 +25,9 @@ internal class spell_pal_holy_prism_selector : SpellScript, IHasSpellEffects
 
     public override void Register()
     {
-        if (ScriptSpellId == PaladinSpells.HolyPrismTargetEnemy)
+        if (ScriptSpellId == PaladinSpells.HOLY_PRISM_TARGET_ENEMY)
             SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaAlly));
-        else if (ScriptSpellId == PaladinSpells.HolyPrismTargetAlly)
+        else if (ScriptSpellId == PaladinSpells.HOLY_PRISM_TARGET_ALLY)
             SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaEnemy));
 
         SpellEffects.Add(new ObjectAreaTargetSelectHandler(ShareTargets, 2, Targets.UnitDestAreaEntry));
@@ -45,7 +47,7 @@ internal class spell_pal_holy_prism_selector : SpellScript, IHasSpellEffects
 
         if (targets.Count > maxTargets)
         {
-            if (SpellInfo.Id == PaladinSpells.HolyPrismTargetAlly)
+            if (SpellInfo.Id == PaladinSpells.HOLY_PRISM_TARGET_ALLY)
             {
                 targets.Sort(new HealthPctOrderPred());
                 targets.Resize(maxTargets);
@@ -69,6 +71,6 @@ internal class spell_pal_holy_prism_selector : SpellScript, IHasSpellEffects
     {
         var initialTarget = Global.ObjAccessor.GetUnit(Caster, _targetGUID);
 
-        initialTarget?.CastSpell(HitUnit, PaladinSpells.HolyPrismTargetBeamVisual, true);
+        initialTarget?.SpellFactory.CastSpell(HitUnit, PaladinSpells.HOLY_PRISM_TARGET_BEAM_VISUAL, true);
     }
 }

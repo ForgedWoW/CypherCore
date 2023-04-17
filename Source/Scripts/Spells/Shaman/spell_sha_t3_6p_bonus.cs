@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 28823 - Totemic Power
 [SpellScript(28823)]
-internal class spell_sha_t3_6p_bonus : AuraScript, IHasAuraEffects
+internal class SpellShaT36PBonus : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -36,27 +37,27 @@ internal class spell_sha_t3_6p_bonus : AuraScript, IHasAuraEffects
             case PlayerClass.Priest:
             case PlayerClass.Shaman:
             case PlayerClass.Druid:
-                spellId = ShamanSpells.TotemicPowerMp5;
+                spellId = ShamanSpells.TOTEMIC_POWER_MP5;
 
                 break;
             case PlayerClass.Mage:
             case PlayerClass.Warlock:
-                spellId = ShamanSpells.TotemicPowerSpellPower;
+                spellId = ShamanSpells.TOTEMIC_POWER_SPELL_POWER;
 
                 break;
             case PlayerClass.Hunter:
             case PlayerClass.Rogue:
-                spellId = ShamanSpells.TotemicPowerAttackPower;
+                spellId = ShamanSpells.TOTEMIC_POWER_ATTACK_POWER;
 
                 break;
             case PlayerClass.Warrior:
-                spellId = ShamanSpells.TotemicPowerArmor;
+                spellId = ShamanSpells.TOTEMIC_POWER_ARMOR;
 
                 break;
             default:
                 return;
         }
 
-        caster.CastSpell(target, spellId, new CastSpellExtraArgs(aurEff));
+        caster.SpellFactory.CastSpell(target, spellId, new CastSpellExtraArgs(aurEff));
     }
 }

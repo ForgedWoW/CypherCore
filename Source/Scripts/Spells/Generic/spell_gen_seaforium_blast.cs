@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
+internal class SpellGenSeaforiumBlast : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -36,7 +37,7 @@ internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
 
             if (go)
                 if (go.Template.type == GameObjectTypes.DestructibleBuilding)
-                    owner.CastSpell(null, GenericSpellIds.PlantChargesCreditAchievement, true);
+                    owner.SpellFactory.CastSpell(null, GenericSpellIds.PLANT_CHARGES_CREDIT_ACHIEVEMENT, true);
         }
     }
 }

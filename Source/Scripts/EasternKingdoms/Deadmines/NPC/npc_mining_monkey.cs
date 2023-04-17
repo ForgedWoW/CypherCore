@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
@@ -14,13 +15,13 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 {
     48278, 48440, 48441, 48442
 })]
-public class npc_mining_monkey : ScriptedAI
+public class NPCMiningMonkey : ScriptedAI
 {
     public InstanceScript Instance;
     public uint Phase;
     public uint UiTimer;
 
-    public npc_mining_monkey(Creature creature) : base(creature)
+    public NPCMiningMonkey(Creature creature) : base(creature)
     {
         Instance = creature.InstanceScript;
     }
@@ -71,7 +72,7 @@ public class npc_mining_monkey : ScriptedAI
 
                         if (UiTimer <= diff)
                         {
-                            Me.CastSpell(victim, IsHeroic() ? DMSpells.THROW_H : DMSpells.THROW);
+                            Me.SpellFactory.CastSpell(victim, IsHeroic() ? DmSpells.THROW_H : DmSpells.THROW);
                             UiTimer = 2000;
                         }
                         else

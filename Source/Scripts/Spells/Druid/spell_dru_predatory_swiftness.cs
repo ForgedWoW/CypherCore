@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(16974)]
-public class spell_dru_predatory_swiftness : SpellScript, ISpellCheckCast, ISpellOnHit
+public class SpellDruPredatorySwiftness : SpellScript, ISpellCheckCast, ISpellOnHit
 {
     private int _cp;
 
@@ -42,7 +42,7 @@ public class spell_dru_predatory_swiftness : SpellScript, ISpellCheckCast, ISpel
         var player = Caster.AsPlayer;
 
         if (player != null)
-            if (player.HasAura(PredatorySwiftnessSpells.PREDATORY_SWIFTNESS) && RandomHelper.randChance(20 * _cp))
-                player.CastSpell(player, PredatorySwiftnessSpells.PREDATORY_SWIFTNESS_AURA, true);
+            if (player.HasAura(PredatorySwiftnessSpells.PredatorySwiftness) && RandomHelper.randChance(20 * _cp))
+                player.SpellFactory.CastSpell(player, PredatorySwiftnessSpells.PredatorySwiftnessAura, true);
     }
 }

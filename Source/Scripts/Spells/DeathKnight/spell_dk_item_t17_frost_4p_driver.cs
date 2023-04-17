@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(167655)]
-public class spell_dk_item_t17_frost_4p_driver : AuraScript, IHasAuraEffects
+public class SpellDkItemT17Frost4PDriver : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,31 +20,31 @@ public class spell_dk_item_t17_frost_4p_driver : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
     }
 
-    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo p_EventInfo)
+    private void OnProc(AuraEffect unnamedParameter, ProcEventInfo pEventInfo)
     {
         PreventDefaultAction();
 
-        var l_Caster = Caster;
+        var lCaster = Caster;
 
-        if (l_Caster == null)
+        if (lCaster == null)
             return;
 
-        var l_ProcSpell = p_EventInfo.DamageInfo.SpellInfo;
+        var lProcSpell = pEventInfo.DamageInfo.SpellInfo;
 
-        if (l_ProcSpell == null)
+        if (lProcSpell == null)
             return;
 
-        var l_Target = p_EventInfo.ActionTarget;
+        var lTarget = pEventInfo.ActionTarget;
 
-        if (l_Target == null || l_Target == l_Caster)
+        if (lTarget == null || lTarget == lCaster)
             return;
 
         /// While Pillar of Frost is active, your special attacks trap a soul in your rune weapon.
-        l_Caster.CastSpell(l_Target, eSpells.FrozenRuneblade, true);
+        lCaster.SpellFactory.CastSpell(lTarget, ESpells.FROZEN_RUNEBLADE, true);
     }
 
-    private struct eSpells
+    private struct ESpells
     {
-        public const uint FrozenRuneblade = 170202;
+        public const uint FROZEN_RUNEBLADE = 170202;
     }
 }

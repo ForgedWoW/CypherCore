@@ -1,23 +1,23 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_helix_gearbreaker;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using static Scripts.EasternKingdoms.Deadmines.Bosses.BossHelixGearbreaker;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(47314)]
-public class npc_sticky_bomb : NullCreatureAI
+public class NPCStickyBomb : NullCreatureAI
 {
     private readonly InstanceScript _instance;
 
     private uint _phase;
     private uint _uiTimer;
 
-    public npc_sticky_bomb(Creature pCreature) : base(pCreature)
+    public NPCStickyBomb(Creature pCreature) : base(pCreature)
     {
         _instance = pCreature.InstanceScript;
     }
@@ -30,7 +30,7 @@ public class npc_sticky_bomb : NullCreatureAI
         if (!Me)
             return;
 
-        DoCast(Me, eSpels.CHEST_BOMB);
+        DoCast(Me, ESpels.CHEST_BOMB);
     }
 
     public override void UpdateAI(uint uiDiff)
@@ -43,31 +43,31 @@ public class npc_sticky_bomb : NullCreatureAI
             switch (_phase)
             {
                 case 1:
-                    DoCast(Me, eSpels.ARMING_VISUAL_YELLOW);
+                    DoCast(Me, ESpels.ARMING_VISUAL_YELLOW);
                     _uiTimer = 700;
 
                     break;
 
                 case 2:
-                    DoCast(Me, eSpels.ARMING_VISUAL_ORANGE);
+                    DoCast(Me, ESpels.ARMING_VISUAL_ORANGE);
                     _uiTimer = 600;
 
                     break;
 
                 case 3:
-                    DoCast(Me, eSpels.ARMING_VISUAL_RED);
+                    DoCast(Me, ESpels.ARMING_VISUAL_RED);
                     _uiTimer = 500;
 
                     break;
 
                 case 4:
-                    DoCast(Me, eSpels.BOMB_ARMED_STATE);
+                    DoCast(Me, ESpels.BOMB_ARMED_STATE);
                     _uiTimer = 400;
 
                     break;
 
                 case 5:
-                    DoCast(Me, Me.Map.IsHeroic ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
+                    DoCast(Me, Me.Map.IsHeroic ? ESpels.STICKY_BOMB_EXPLODE_H : ESpels.STICKY_BOMB_EXPLODE);
                     _uiTimer = 300;
 
                     break;

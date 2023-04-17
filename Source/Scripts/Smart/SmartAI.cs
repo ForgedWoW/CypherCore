@@ -1,16 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Quest;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Scripting.Interfaces.IAreaTriggerEntity;
+using Forged.MapServer.Scripting.Interfaces.IQuest;
+using Forged.MapServer.Scripting.Interfaces.IScene;
 using Framework.Constants;
-using Game;
-using Game.AI;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Scripting.Interfaces.IAreaTriggerEntity;
-using Game.Scripting.Interfaces.IQuest;
-using Game.Scripting.Interfaces.IScene;
+using Serilog;
 
 namespace Scripts.Smart;
 
@@ -121,7 +125,6 @@ internal class SmartQuest : ScriptObjectAutoAddDBBound, IQuestOnQuestStatusChang
 
                 break;
             case QuestStatus.None:
-            
         }
     }
 }

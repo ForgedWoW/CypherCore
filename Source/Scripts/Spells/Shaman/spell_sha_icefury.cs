@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 210714 - Icefury
 [SpellScript(210714)]
-internal class spell_sha_icefury : AuraScript, IHasAuraEffects
+internal class SpellShaIcefury : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,6 +27,6 @@ internal class spell_sha_icefury : AuraScript, IHasAuraEffects
     {
         var caster = Caster;
 
-        caster?.CastSpell(caster, ShamanSpells.FrostShockEnergize, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+        caster?.SpellFactory.CastSpell(caster, ShamanSpells.FROST_SHOCK_ENERGIZE, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
     }
 }

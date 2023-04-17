@@ -3,47 +3,50 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Shazzrah;
 
 internal struct SpellIds
 {
-    public const uint ArcaneExplosion = 19712;
-    public const uint ShazzrahCurse = 19713;
-    public const uint MagicGrounding = 19714;
-    public const uint Counterspell = 19715;
-    public const uint ShazzrahGateDummy = 23138; // Teleports to and attacks a random Target.
-    public const uint ShazzrahGate = 23139;
+    public const uint ARCANE_EXPLOSION = 19712;
+    public const uint SHAZZRAH_CURSE = 19713;
+    public const uint MAGIC_GROUNDING = 19714;
+    public const uint COUNTERSPELL = 19715;
+    public const uint SHAZZRAH_GATE_DUMMY = 23138; // Teleports to and attacks a random Target.
+    public const uint SHAZZRAH_GATE = 23139;
 }
 
 internal struct EventIds
 {
-    public const uint ArcaneExplosion = 1;
-    public const uint ArcaneExplosionTriggered = 2;
-    public const uint ShazzrahCurse = 3;
-    public const uint MagicGrounding = 4;
-    public const uint Counterspell = 5;
-    public const uint ShazzrahGate = 6;
+    public const uint ARCANE_EXPLOSION = 1;
+    public const uint ARCANE_EXPLOSION_TRIGGERED = 2;
+    public const uint SHAZZRAH_CURSE = 3;
+    public const uint MAGIC_GROUNDING = 4;
+    public const uint COUNTERSPELL = 5;
+    public const uint SHAZZRAH_GATE = 6;
 }
 
 [Script]
-internal class boss_shazzrah : BossAI
+internal class BossShazzrah : BossAI
 {
-    public boss_shazzrah(Creature creature) : base(creature, DataTypes.Shazzrah) { }
+    public BossShazzrah(Creature creature) : base(creature, DataTypes.SHAZZRAH) { }
 
     public override void JustEngagedWith(Unit target)
     {
         base.JustEngagedWith(target);
-        Events.ScheduleEvent(EventIds.ArcaneExplosion, TimeSpan.FromSeconds(6));
-        Events.ScheduleEvent(EventIds.ShazzrahCurse, TimeSpan.FromSeconds(10));
-        Events.ScheduleEvent(EventIds.MagicGrounding, TimeSpan.FromSeconds(24));
-        Events.ScheduleEvent(EventIds.Counterspell, TimeSpan.FromSeconds(15));
-        Events.ScheduleEvent(EventIds.ShazzrahGate, TimeSpan.FromSeconds(45));
+        Events.ScheduleEvent(EventIds.ARCANE_EXPLOSION, TimeSpan.FromSeconds(6));
+        Events.ScheduleEvent(EventIds.SHAZZRAH_CURSE, TimeSpan.FromSeconds(10));
+        Events.ScheduleEvent(EventIds.MAGIC_GROUNDING, TimeSpan.FromSeconds(24));
+        Events.ScheduleEvent(EventIds.COUNTERSPELL, TimeSpan.FromSeconds(15));
+        Events.ScheduleEvent(EventIds.SHAZZRAH_GATE, TimeSpan.FromSeconds(45));
     }
 
     public override void UpdateAI(uint diff)
@@ -60,44 +63,43 @@ internal class boss_shazzrah : BossAI
         {
             switch (eventId)
             {
-                case EventIds.ArcaneExplosion:
-                    DoCastVictim(SpellIds.ArcaneExplosion);
-                    Events.ScheduleEvent(EventIds.ArcaneExplosion, TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(7));
+                case EventIds.ARCANE_EXPLOSION:
+                    DoCastVictim(SpellIds.ARCANE_EXPLOSION);
+                    Events.ScheduleEvent(EventIds.ARCANE_EXPLOSION, TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(7));
 
                     break;
                 // Triggered subsequent to using "Gate of Shazzrah".
-                case EventIds.ArcaneExplosionTriggered:
-                    DoCastVictim(SpellIds.ArcaneExplosion);
+                case EventIds.ARCANE_EXPLOSION_TRIGGERED:
+                    DoCastVictim(SpellIds.ARCANE_EXPLOSION);
 
                     break;
-                case EventIds.ShazzrahCurse:
-                    var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.ShazzrahCurse);
+                case EventIds.SHAZZRAH_CURSE:
+                    var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.SHAZZRAH_CURSE);
 
                     if (target)
-                        DoCast(target, SpellIds.ShazzrahCurse);
+                        DoCast(target, SpellIds.SHAZZRAH_CURSE);
 
-                    Events.ScheduleEvent(EventIds.ShazzrahCurse, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(30));
-
-                    break;
-                case EventIds.MagicGrounding:
-                    DoCast(Me, SpellIds.MagicGrounding);
-                    Events.ScheduleEvent(EventIds.MagicGrounding, TimeSpan.FromSeconds(35));
+                    Events.ScheduleEvent(EventIds.SHAZZRAH_CURSE, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(30));
 
                     break;
-                case EventIds.Counterspell:
-                    DoCastVictim(SpellIds.Counterspell);
-                    Events.ScheduleEvent(EventIds.Counterspell, TimeSpan.FromSeconds(16), TimeSpan.FromSeconds(20));
+                case EventIds.MAGIC_GROUNDING:
+                    DoCast(Me, SpellIds.MAGIC_GROUNDING);
+                    Events.ScheduleEvent(EventIds.MAGIC_GROUNDING, TimeSpan.FromSeconds(35));
 
                     break;
-                case EventIds.ShazzrahGate:
+                case EventIds.COUNTERSPELL:
+                    DoCastVictim(SpellIds.COUNTERSPELL);
+                    Events.ScheduleEvent(EventIds.COUNTERSPELL, TimeSpan.FromSeconds(16), TimeSpan.FromSeconds(20));
+
+                    break;
+                case EventIds.SHAZZRAH_GATE:
                     ResetThreatList();
-                    DoCastAOE(SpellIds.ShazzrahGateDummy);
-                    Events.ScheduleEvent(EventIds.ArcaneExplosionTriggered, TimeSpan.FromSeconds(2));
-                    Events.RescheduleEvent(EventIds.ArcaneExplosion, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6));
-                    Events.ScheduleEvent(EventIds.ShazzrahGate, TimeSpan.FromSeconds(45));
+                    DoCastAOE(SpellIds.SHAZZRAH_GATE_DUMMY);
+                    Events.ScheduleEvent(EventIds.ARCANE_EXPLOSION_TRIGGERED, TimeSpan.FromSeconds(2));
+                    Events.RescheduleEvent(EventIds.ARCANE_EXPLOSION, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6));
+                    Events.ScheduleEvent(EventIds.SHAZZRAH_GATE, TimeSpan.FromSeconds(45));
 
                     break;
-                
             }
 
             if (Me.HasUnitState(UnitState.Casting))
@@ -110,7 +112,7 @@ internal class boss_shazzrah : BossAI
 }
 
 [Script] // 23138 - Gate of Shazzrah
-internal class spell_shazzrah_gate_dummy : SpellScript, IHasSpellEffects
+internal class SpellShazzrahGateDummy : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -137,7 +139,7 @@ internal class spell_shazzrah_gate_dummy : SpellScript, IHasSpellEffects
 
         if (target)
         {
-            target.CastSpell(Caster, SpellIds.ShazzrahGate, true);
+            target.SpellFactory.CastSpell(Caster, SpellIds.SHAZZRAH_GATE, true);
             var creature = Caster.AsCreature;
 
             if (creature)

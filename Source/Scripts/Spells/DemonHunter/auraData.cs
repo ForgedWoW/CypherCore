@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
 
 namespace Scripts.Spells.DemonHunter;
 
-public class auraData
+public class AuraData
 {
-    public uint m_id;
-    public ObjectGuid m_casterGuid = new();
+    public uint MID;
+    public ObjectGuid MCasterGuid = new();
 
-    public auraData(uint id, ObjectGuid casterGUID)
+    public AuraData(uint id, ObjectGuid casterGUID)
     {
-        m_id = id;
-        m_casterGuid = casterGUID;
+        MID = id;
+        MCasterGuid = casterGUID;
     }
 }

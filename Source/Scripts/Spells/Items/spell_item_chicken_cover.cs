@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_chicken_cover : SpellScript, IHasSpellEffects
+internal class SpellItemChickenCover : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -30,10 +31,10 @@ internal class spell_item_chicken_cover : SpellScript, IHasSpellEffects
         var target = HitUnit;
 
         if (target)
-            if (!target.HasAura(ItemSpellIds.ChickenNet) &&
-                (caster.GetQuestStatus(QuestIds.ChickenParty) == QuestStatus.Incomplete || caster.GetQuestStatus(QuestIds.FlownTheCoop) == QuestStatus.Incomplete))
+            if (!target.HasAura(ItemSpellIds.CHICKEN_NET) &&
+                (caster.GetQuestStatus(QuestIds.CHICKEN_PARTY) == QuestStatus.Incomplete || caster.GetQuestStatus(QuestIds.FLOWN_THE_COOP) == QuestStatus.Incomplete))
             {
-                caster.CastSpell(caster, ItemSpellIds.CaptureChickenEscape, true);
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.CAPTURE_CHICKEN_ESCAPE, true);
                 target.KillSelf();
             }
     }

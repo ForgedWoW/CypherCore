@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warlock;
 
 // Soul Leech aura - 228974
 [SpellScript(WarlockSpells.SOUL_LEECH)]
-public class spell_warl_soul_leech_aura : AuraScript, IAuraCheckProc
+public class SpellWarlSoulLeechAura : AuraScript, IAuraCheckProc
 {
     public bool CheckProc(ProcEventInfo eventInfo)
     {
@@ -35,7 +35,7 @@ public class spell_warl_soul_leech_aura : AuraScript, IAuraCheckProc
 
         FelSynergy(caster, absorb);
 
-        caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
+        caster.SpellFactory.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
 
         return true;
     }

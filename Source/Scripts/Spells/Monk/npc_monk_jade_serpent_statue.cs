@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Spells.Monk;
 
 [CreatureScript(60849)]
-public class npc_monk_jade_serpent_statue : ScriptedAI
+public class NPCMonkJadeSerpentStatue : ScriptedAI
 {
-    public npc_monk_jade_serpent_statue(Creature c) : base(c) { }
+    public NPCMonkJadeSerpentStatue(Creature c) : base(c) { }
 
     public override void UpdateAI(uint diff)
     {

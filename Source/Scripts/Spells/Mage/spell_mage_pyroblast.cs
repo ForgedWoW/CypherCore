@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(11366)]
-public class spell_mage_pyroblast : SpellScript, IHasSpellEffects
+public class SpellMagePyroblast : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -39,7 +40,7 @@ public class spell_mage_pyroblast : SpellScript, IHasSpellEffects
                         if (caster.HasAura(MageSpells.HEATING_UP))
                             caster.RemoveAura(MageSpells.HEATING_UP);
 
-                        caster.CastSpell(caster, MageSpells.HOT_STREAK, true);
+                        caster.SpellFactory.CastSpell(caster, MageSpells.HOT_STREAK, true);
                     }
             }
         }

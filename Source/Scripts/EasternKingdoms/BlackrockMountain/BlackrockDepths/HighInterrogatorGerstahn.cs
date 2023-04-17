@@ -2,25 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.HighInterrogatorGerstahn;
 
 internal struct SpellIds
 {
-    public const uint Shadowwordpain = 10894;
-    public const uint Manaburn = 10876;
-    public const uint Psychicscream = 8122;
-    public const uint Shadowshield = 22417;
+    public const uint SHADOWWORDPAIN = 10894;
+    public const uint MANABURN = 10876;
+    public const uint PSYCHICSCREAM = 8122;
+    public const uint SHADOWSHIELD = 22417;
 }
 
 [Script]
-internal class boss_high_interrogator_gerstahn : ScriptedAI
+internal class BossHighInterrogatorGerstahn : ScriptedAI
 {
-    public boss_high_interrogator_gerstahn(Creature creature) : base(creature) { }
+    public BossHighInterrogatorGerstahn(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -35,7 +36,7 @@ internal class boss_high_interrogator_gerstahn : ScriptedAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Shadowwordpain);
+                                   DoCast(target, SpellIds.SHADOWWORDPAIN);
 
                                task.Repeat(TimeSpan.FromSeconds(7));
                            });
@@ -46,7 +47,7 @@ internal class boss_high_interrogator_gerstahn : ScriptedAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Manaburn);
+                                   DoCast(target, SpellIds.MANABURN);
 
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
@@ -54,14 +55,14 @@ internal class boss_high_interrogator_gerstahn : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(32),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Psychicscream);
+                               DoCastVictim(SpellIds.PSYCHICSCREAM);
                                task.Repeat(TimeSpan.FromSeconds(30));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               DoCast(Me, SpellIds.Shadowshield);
+                               DoCast(Me, SpellIds.SHADOWSHIELD);
                                task.Repeat(TimeSpan.FromSeconds(25));
                            });
     }

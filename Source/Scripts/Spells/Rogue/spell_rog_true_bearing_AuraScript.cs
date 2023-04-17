@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(193359)]
-public class spell_rog_true_bearing_AuraScript : AuraScript, IHasAuraEffects
+public class SpellRogTrueBearingAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,7 +20,7 @@ public class spell_rog_true_bearing_AuraScript : AuraScript, IHasAuraEffects
     {
         var finishers = new List<uint>()
         {
-            (uint)TrueBearingIDs.BETWEEN_THE_EYES,
+            (uint)TrueBearingIDs.BetweenTheEyes,
             (uint)RogueSpells.ROLL_THE_BONES,
             (uint)RogueSpells.EVISCERATE
         };
@@ -37,7 +37,7 @@ public class spell_rog_true_bearing_AuraScript : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    private void HandleProc(AuraEffect unnamedParameter, ProcEventInfo unnamedParameter2)
     {
         var caster = Caster;
 
@@ -50,15 +50,15 @@ public class spell_rog_true_bearing_AuraScript : AuraScript, IHasAuraEffects
         {
             (uint)RogueSpells.ADRENALINE_RUSH,
             (uint)RogueSpells.SPRINT,
-            (uint)TrueBearingIDs.BETWEEN_THE_EYES,
-            (uint)TrueBearingIDs.VANISH,
-            (uint)TrueBearingIDs.BLIND,
-            (uint)TrueBearingIDs.CLOAK_OF_SHADOWS,
-            (uint)TrueBearingIDs.RIPOSTE,
-            (uint)TrueBearingIDs.GRAPPLING_HOOK,
+            (uint)TrueBearingIDs.BetweenTheEyes,
+            (uint)TrueBearingIDs.Vanish,
+            (uint)TrueBearingIDs.Blind,
+            (uint)TrueBearingIDs.CloakOfShadows,
+            (uint)TrueBearingIDs.Riposte,
+            (uint)TrueBearingIDs.GrapplingHook,
             (uint)RogueSpells.KILLING_SPREE,
-            (uint)TrueBearingIDs.MARKED_FOR_DEATH,
-            (uint)TrueBearingIDs.DEATH_FROM_ABOVE
+            (uint)TrueBearingIDs.MarkedForDeath,
+            (uint)TrueBearingIDs.DeathFromAbove
         };
 
         foreach (var spell in spellIds)

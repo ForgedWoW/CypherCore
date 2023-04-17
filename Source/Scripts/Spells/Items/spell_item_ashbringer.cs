@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_ashbringer : SpellScript, IHasSpellEffects
+internal class SpellItemAshbringer : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,21 +30,21 @@ internal class spell_item_ashbringer : SpellScript, IHasSpellEffects
 
         var player = Caster.AsPlayer;
 
-        var sound_id = RandomHelper.RAND(SoundIds.Ashbringer1,
-                                         SoundIds.Ashbringer2,
-                                         SoundIds.Ashbringer3,
-                                         SoundIds.Ashbringer4,
-                                         SoundIds.Ashbringer5,
-                                         SoundIds.Ashbringer6,
-                                         SoundIds.Ashbringer7,
-                                         SoundIds.Ashbringer8,
-                                         SoundIds.Ashbringer9,
-                                         SoundIds.Ashbringer10,
-                                         SoundIds.Ashbringer11,
-                                         SoundIds.Ashbringer12);
+        var soundID = RandomHelper.RAND(SoundIds.ASHBRINGER1,
+                                         SoundIds.ASHBRINGER2,
+                                         SoundIds.ASHBRINGER3,
+                                         SoundIds.ASHBRINGER4,
+                                         SoundIds.ASHBRINGER5,
+                                         SoundIds.ASHBRINGER6,
+                                         SoundIds.ASHBRINGER7,
+                                         SoundIds.ASHBRINGER8,
+                                         SoundIds.ASHBRINGER9,
+                                         SoundIds.ASHBRINGER10,
+                                         SoundIds.ASHBRINGER11,
+                                         SoundIds.ASHBRINGER12);
 
         // Ashbringers effect (SpellIds.ID 28441) retriggers every 5 seconds, with a chance of making it say one of the above 12 sounds
         if (RandomHelper.URand(0, 60) < 1)
-            player.PlayDirectSound(sound_id, player);
+            player.PlayDirectSound(soundID, player);
     }
 }

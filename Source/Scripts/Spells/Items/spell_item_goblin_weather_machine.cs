@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 46203 - Goblin Weather Machine
-internal class spell_item_goblin_weather_machine : SpellScript, IHasSpellEffects
+internal class SpellItemGoblinWeatherMachine : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,7 +24,7 @@ internal class spell_item_goblin_weather_machine : SpellScript, IHasSpellEffects
     {
         var target = HitUnit;
 
-        var spellId = RandomHelper.RAND(ItemSpellIds.PersonalizedWeather1, ItemSpellIds.PersonalizedWeather2, ItemSpellIds.PersonalizedWeather3, ItemSpellIds.PersonalizedWeather4);
-        target.CastSpell(target, spellId, new CastSpellExtraArgs(Spell));
+        var spellId = RandomHelper.RAND(ItemSpellIds.PERSONALIZED_WEATHER1, ItemSpellIds.PERSONALIZED_WEATHER2, ItemSpellIds.PERSONALIZED_WEATHER3, ItemSpellIds.PERSONALIZED_WEATHER4);
+        target.SpellFactory.CastSpell(target, spellId, new CastSpellExtraArgs(Spell));
     }
 }

@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [Script] // 115069 - Stagger
-internal class spell_monk_stagger : AuraScript, IHasAuraEffects
+internal class SpellMonkStagger : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,17 +25,17 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 
     public static Aura FindExistingStaggerEffect(Unit unit)
     {
-        var auraLight = unit.GetAura(MonkSpells.StaggerLight);
+        var auraLight = unit.GetAura(MonkSpells.STAGGER_LIGHT);
 
         if (auraLight != null)
             return auraLight;
 
-        var auraModerate = unit.GetAura(MonkSpells.StaggerModerate);
+        var auraModerate = unit.GetAura(MonkSpells.STAGGER_MODERATE);
 
         if (auraModerate != null)
             return auraModerate;
 
-        var auraHeavy = unit.GetAura(MonkSpells.StaggerHeavy);
+        var auraHeavy = unit.GetAura(MonkSpells.STAGGER_HEAVY);
 
         if (auraHeavy != null)
             return auraHeavy;
@@ -70,7 +71,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
         var dmgSpellInfo = dmgInfo.SpellInfo;
 
         if (dmgSpellInfo != null)
-            if (dmgSpellInfo.Id == MonkSpells.StaggerDamageAura)
+            if (dmgSpellInfo.Id == MonkSpells.STAGGER_DAMAGE_AURA)
                 return;
 
         var effect = GetEffect(0);
@@ -81,9 +82,9 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
         var target = Target;
         var agility = target.GetStat(Stats.Agility);
         var baseAmount = MathFunctions.CalculatePct(agility, effect.Amount);
-        var K = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, target.Level, -2, 0, target.Class);
+        var k = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, target.Level, -2, 0, target.Class);
 
-        var newAmount = (baseAmount / (baseAmount + K));
+        var newAmount = (baseAmount / (baseAmount + k));
         newAmount *= multiplier;
 
         // Absorb X percentage of the Damage
@@ -133,19 +134,19 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 
     private uint GetStaggerSpellId(Unit unit, double amount)
     {
-        const double StaggerHeavy = 0.6f;
-        const double StaggerModerate = 0.3f;
+        const double staggerHeavy = 0.6f;
+        const double staggerModerate = 0.3f;
 
         var staggerPct = amount / unit.MaxHealth;
 
-        return (staggerPct >= StaggerHeavy)    ? MonkSpells.StaggerHeavy :
-               (staggerPct >= StaggerModerate) ? MonkSpells.StaggerModerate :
-                                                 MonkSpells.StaggerLight;
+        return (staggerPct >= staggerHeavy)    ? MonkSpells.STAGGER_HEAVY :
+               (staggerPct >= staggerModerate) ? MonkSpells.STAGGER_MODERATE :
+                                                 MonkSpells.STAGGER_LIGHT;
     }
 
     private void AddNewStagger(Unit unit, uint staggerSpellId, double staggerAmount)
     {
         // We only set the total stagger amount. The amount per tick will be set by the stagger spell script
-        unit.CastSpell(unit, staggerSpellId, new CastSpellExtraArgs(SpellValueMod.BasePoint1, (int)staggerAmount).SetTriggerFlags(TriggerCastFlags.FullMask));
+        unit.SpellFactory.CastSpell(unit, staggerSpellId, new CastSpellExtraArgs(SpellValueMod.BasePoint1, (int)staggerAmount).SetTriggerFlags(TriggerCastFlags.FullMask));
     }
 }

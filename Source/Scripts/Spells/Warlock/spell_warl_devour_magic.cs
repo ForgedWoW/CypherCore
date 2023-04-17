@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -13,7 +14,7 @@ namespace Scripts.Spells.Warlock;
 {
     67518, 19505
 })] // 67518, 19505 - Devour Magic
-internal class spell_warl_devour_magic : SpellScript, IHasSpellEffects
+internal class SpellWarlDevourMagic : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,13 +30,13 @@ internal class spell_warl_devour_magic : SpellScript, IHasSpellEffects
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
         args.AddSpellMod(SpellValueMod.BasePoint0, GetEffectInfo(1).CalcValue(caster));
 
-        caster.CastSpell(caster, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
+        caster.SpellFactory.CastSpell(caster, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
 
         // Glyph of Felhunter
         var owner = caster.OwnerUnit;
 
         if (owner)
             if (owner.GetAura(WarlockSpells.GLYPH_OF_DEMON_TRAINING) != null)
-                owner.CastSpell(owner, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
+                owner.SpellFactory.CastSpell(owner, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
     }
 }

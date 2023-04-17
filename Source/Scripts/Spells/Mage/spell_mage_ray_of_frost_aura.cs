@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-internal class spell_mage_ray_of_frost_aura : AuraScript, IHasAuraEffects
+internal class SpellMageRayOfFrostAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,13 +27,13 @@ internal class spell_mage_ray_of_frost_aura : AuraScript, IHasAuraEffects
 
         if (caster != null)
             if (aurEff.GetTickNumber() > 1) // First tick should deal base Damage
-                caster.CastSpell(caster, MageSpells.RayOfFrostBonus, true);
+                caster.SpellFactory.CastSpell(caster, MageSpells.RAY_OF_FROST_BONUS, true);
     }
 
     private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         var caster = Caster;
 
-        caster?.RemoveAura(MageSpells.RayOfFrostFingersOfFrost);
+        caster?.RemoveAura(MageSpells.RAY_OF_FROST_FINGERS_OF_FROST);
     }
 }

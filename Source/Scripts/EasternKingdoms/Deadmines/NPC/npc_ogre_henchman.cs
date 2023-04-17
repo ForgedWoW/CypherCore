@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(48230)]
-public class npc_ogre_henchman : ScriptedAI
+public class NPCOgreHenchman : ScriptedAI
 {
     public uint UppercutTimer;
 
-    public npc_ogre_henchman(Creature creature) : base(creature) { }
+    public NPCOgreHenchman(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -24,7 +24,7 @@ public class npc_ogre_henchman : ScriptedAI
     {
         if (UppercutTimer <= diff)
         {
-            DoCastVictim(boss_vanessa_vancleef.Spells.UPPERCUT);
+            DoCastVictim(BossVanessaVancleef.Spells.UPPERCUT);
             UppercutTimer = RandomHelper.URand(8000, 11000);
         }
         else

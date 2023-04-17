@@ -2,26 +2,27 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.MoiraBronzebeard;
 
 internal struct SpellIds
 {
-    public const uint Heal = 10917;
-    public const uint Renew = 10929;
-    public const uint Shield = 10901;
-    public const uint Mindblast = 10947;
-    public const uint Shadowwordpain = 10894;
-    public const uint Smite = 10934;
+    public const uint HEAL = 10917;
+    public const uint RENEW = 10929;
+    public const uint SHIELD = 10901;
+    public const uint MINDBLAST = 10947;
+    public const uint SHADOWWORDPAIN = 10894;
+    public const uint SMITE = 10934;
 }
 
 [Script]
-internal class boss_moira_bronzebeard : ScriptedAI
+internal class BossMoiraBronzebeard : ScriptedAI
 {
-    public boss_moira_bronzebeard(Creature creature) : base(creature) { }
+    public BossMoiraBronzebeard(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -34,21 +35,21 @@ internal class boss_moira_bronzebeard : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(16),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Mindblast);
+                               DoCastVictim(SpellIds.MINDBLAST);
                                task.Repeat(TimeSpan.FromSeconds(14));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Shadowwordpain);
+                               DoCastVictim(SpellIds.SHADOWWORDPAIN);
                                task.Repeat(TimeSpan.FromSeconds(18));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Smite);
+                               DoCastVictim(SpellIds.SMITE);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
     }

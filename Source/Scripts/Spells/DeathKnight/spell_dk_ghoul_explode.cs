@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 47496 - Explode, Ghoul spell for Corpse Explosion
-internal class spell_dk_ghoul_explode : SpellScript, IHasSpellEffects
+internal class SpellDkGhoulExplode : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,6 +32,6 @@ internal class spell_dk_ghoul_explode : SpellScript, IHasSpellEffects
 
         if (unitTarget)
             // Corpse Explosion (Suicide)
-            unitTarget.CastSpell(unitTarget, DeathKnightSpells.CorpseExplosionTriggered, true);
+            unitTarget.SpellFactory.CastSpell(unitTarget, DeathKnightSpells.CorpseExplosionTriggered, true);
     }
 }

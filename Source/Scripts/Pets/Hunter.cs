@@ -2,12 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Combat;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Combat;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.Pets
 {
@@ -15,37 +16,37 @@ namespace Scripts.Pets
     {
         internal struct SpellIds
         {
-            public const uint CripplingPoison = 30981;     // Viper
-            public const uint DeadlyPoisonPassive = 34657; // Venomous Snake
-            public const uint MindNumbingPoison = 25810;   // Viper
+            public const uint CRIPPLING_POISON = 30981;     // Viper
+            public const uint DEADLY_POISON_PASSIVE = 34657; // Venomous Snake
+            public const uint MIND_NUMBING_POISON = 25810;   // Viper
         }
 
         internal struct CreatureIds
         {
-            public const int Viper = 19921;
+            public const int VIPER = 19921;
         }
 
         [Script]
-        internal class npc_pet_hunter_snake_trap : ScriptedAI
+        internal class NPCPetHunterSnakeTrap : ScriptedAI
         {
             private bool _isViper;
             private uint _spellTimer;
 
-            public npc_pet_hunter_snake_trap(Creature creature) : base(creature) { }
+            public NPCPetHunterSnakeTrap(Creature creature) : base(creature) { }
 
             public override void JustEngagedWith(Unit who) { }
 
             public override void JustAppeared()
             {
-                _isViper = Me.Entry == CreatureIds.Viper ? true : false;
+                _isViper = Me.Entry == CreatureIds.VIPER ? true : false;
 
                 Me.SetMaxHealth((uint)(107 * (Me.Level - 40) * 0.025f));
                 // Add delta to make them not all hit the same Time
                 Me.SetBaseAttackTime(WeaponAttackType.BaseAttack, Me.GetBaseAttackTime(WeaponAttackType.BaseAttack) + RandomHelper.URand(0, 6) * Time.IN_MILLISECONDS);
 
                 if (!_isViper &&
-                    !Me.HasAura(SpellIds.DeadlyPoisonPassive))
-                    DoCast(Me, SpellIds.DeadlyPoisonPassive, new CastSpellExtraArgs(true));
+                    !Me.HasAura(SpellIds.DEADLY_POISON_PASSIVE))
+                    DoCast(Me, SpellIds.DEADLY_POISON_PASSIVE, new CastSpellExtraArgs(true));
             }
 
             // Redefined for random Target selection:
@@ -71,7 +72,7 @@ namespace Scripts.Pets
                     var summoner = Me.ToTempSummon().GetSummonerUnit();
                     List<Unit> targets = new();
 
-                    void addTargetIfValid(CombatReference refe)
+                    void AddTargetIfValid(CombatReference refe)
                     {
                         var enemy = refe.GetOther(summoner);
 
@@ -82,11 +83,11 @@ namespace Scripts.Pets
                     }
 
                     foreach (var pair in summoner.GetCombatManager().PvPCombatRefs)
-                        addTargetIfValid(pair.Value);
+                        AddTargetIfValid(pair.Value);
 
                     if (targets.Empty())
                         foreach (var pair in summoner.GetCombatManager().PvECombatRefs)
-                            addTargetIfValid(pair.Value);
+                            AddTargetIfValid(pair.Value);
 
                     foreach (var target in targets)
                         Me.EngageWithTarget(target);
@@ -107,7 +108,7 @@ namespace Scripts.Pets
                     if (_spellTimer <= diff)
                     {
                         if (RandomHelper.URand(0, 2) == 0) // 33% chance to cast
-                            DoCastVictim(RandomHelper.RAND(SpellIds.MindNumbingPoison, SpellIds.CripplingPoison));
+                            DoCastVictim(RandomHelper.RAND(SpellIds.MIND_NUMBING_POISON, SpellIds.CRIPPLING_POISON));
 
                         _spellTimer = 3000;
                     }

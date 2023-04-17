@@ -3,35 +3,35 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(201522)]
-public class spell_dru_denmother : SpellScript, ISpellOnHit
+public class SpellDruDenmother : SpellScript, ISpellOnHit
 {
-    private const int DEN_MOTHER = 201522;
-    private const int DEN_MOTHER_IRONFUR = 201629;
+    private const int DenMother = 201522;
+    private const int DenMotherIronfur = 201629;
 
     public void OnHit()
     {
-        var _player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-        if (_player != null)
-            if (_player.HasAura(DEN_MOTHER))
+        if (player != null)
+            if (player.HasAura(DenMother))
             {
                 var validTargets = new List<Unit>();
                 var groupList = new List<Unit>();
 
-                _player.GetPartyMembers(groupList);
+                player.GetPartyMembers(groupList);
 
                 if (groupList.Count == 0)
                     return;
 
                 foreach (var itr in groupList)
-                    if ((itr.GUID != _player.GUID) && (itr.IsInRange(_player, 0, 50, true)))
+                    if ((itr.GUID != player.GUID) && (itr.IsInRange(player, 0, 50, true)))
                         validTargets.Add(itr.AsUnit);
 
                 if (validTargets.Count == 0)
@@ -40,7 +40,7 @@ public class spell_dru_denmother : SpellScript, ISpellOnHit
                 validTargets.Sort(new HealthPctOrderPred());
                 var lowTarget = validTargets.First();
 
-                _player.CastSpell(lowTarget, 201629, true);
+                player.SpellFactory.CastSpell(lowTarget, 201629, true);
             }
     }
 }

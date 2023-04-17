@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 8063 Deviate Fish
-internal class spell_item_deviate_fish : SpellScript, IHasSpellEffects
+internal class SpellItemDeviateFish : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,7 +28,7 @@ internal class spell_item_deviate_fish : SpellScript, IHasSpellEffects
     private void HandleDummy(int effIndex)
     {
         var caster = Caster;
-        var spellId = RandomHelper.RAND(ItemSpellIds.Sleepy, ItemSpellIds.Invigorate, ItemSpellIds.Shrink, ItemSpellIds.PartyTime, ItemSpellIds.HealthySpirit, ItemSpellIds.Rejuvenation);
-        caster.CastSpell(caster, spellId, true);
+        var spellId = RandomHelper.RAND(ItemSpellIds.SLEEPY, ItemSpellIds.INVIGORATE, ItemSpellIds.SHRINK, ItemSpellIds.PARTY_TIME, ItemSpellIds.HEALTHY_SPIRIT, ItemSpellIds.REJUVENATION);
+        caster.SpellFactory.CastSpell(caster, spellId, true);
     }
 }

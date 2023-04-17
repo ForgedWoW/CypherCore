@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.RED_DRAGONRAGE_EFFECT)]
-internal class spell_evoker_dragonrage : SpellScript, ISpellOnCast
+internal class SpellEvokerDragonrage : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {
@@ -24,6 +24,6 @@ internal class spell_evoker_dragonrage : SpellScript, ISpellOnCast
 
         // cast on targets
         foreach (var target in targetList)
-            caster.CastSpell(target, EvokerSpells.RED_PYRE_MISSILE, true);
+            caster.SpellFactory.CastSpell(target, EvokerSpells.RED_PYRE_MISSILE, true);
     }
 }

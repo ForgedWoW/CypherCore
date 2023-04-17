@@ -1,26 +1,26 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class at_monk_gift_of_the_ox_sphere : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnRemove
+public class AtMonkGiftOfTheOxSphere : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnRemove
 {
     public enum SpellsUsed
     {
-        GIFT_OF_THE_OX_HEAL = 178173,
-        HEALING_SPHERE_COOLDOWN = 224863
+        GiftOfTheOxHeal = 178173,
+        HealingSphereCooldown = 224863
     }
 
-    public uint pickupDelay;
+    public uint PickupDelay;
 
     public void OnCreate()
     {
-        pickupDelay = 1000;
+        PickupDelay = 1000;
     }
 
     public void OnRemove()
@@ -29,8 +29,8 @@ public class at_monk_gift_of_the_ox_sphere : AreaTriggerScript, IAreaTriggerOnCr
         var caster = At.GetCaster();
 
         if (caster != null)
-            if (caster.HasAura(SpellsUsed.HEALING_SPHERE_COOLDOWN))
-                caster.RemoveAura(SpellsUsed.HEALING_SPHERE_COOLDOWN);
+            if (caster.HasAura(SpellsUsed.HealingSphereCooldown))
+                caster.RemoveAura(SpellsUsed.HealingSphereCooldown);
     }
 
     public void OnUnitEnter(Unit unit)
@@ -38,18 +38,18 @@ public class at_monk_gift_of_the_ox_sphere : AreaTriggerScript, IAreaTriggerOnCr
         var caster = At.GetCaster();
 
         if (caster != null)
-            if (unit == caster && pickupDelay == 0)
+            if (unit == caster && PickupDelay == 0)
             {
-                caster.CastSpell(caster, SpellsUsed.GIFT_OF_THE_OX_HEAL, true);
+                caster.SpellFactory.CastSpell(caster, SpellsUsed.GiftOfTheOxHeal, true);
                 At.Remove();
             }
     }
 
     public void OnUpdate(uint diff)
     {
-        if (pickupDelay >= diff)
-            pickupDelay -= diff;
+        if (PickupDelay >= diff)
+            PickupDelay -= diff;
         else
-            pickupDelay = 0;
+            PickupDelay = 0;
     }
 }

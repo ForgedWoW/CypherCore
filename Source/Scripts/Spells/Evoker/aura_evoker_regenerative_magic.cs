@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.BLUE_SOURCE_OF_MAGIC)]
-public class aura_evoker_regenerative_magic : AuraScript, IAuraOnProc
+public class AuraEvokerRegenerativeMagic : AuraScript, IAuraOnProc
 {
     public void OnProc(ProcEventInfo info)
     {
@@ -17,6 +17,6 @@ public class aura_evoker_regenerative_magic : AuraScript, IAuraOnProc
         if (!owner.TryGetAura(EvokerSpells.REGENERATIVE_MAGIC, out var rmAura) || !owner.HealthBelowPct(rmAura.GetEffect(1).Amount))
             return;
 
-        owner.CastSpell(owner, EvokerSpells.REGENERATIVE_MAGIC_HEAL, info.HealInfo.Heal * (rmAura.GetEffect(0).Amount * 0.01));
+        owner.SpellFactory.CastSpell(owner, EvokerSpells.REGENERATIVE_MAGIC_HEAL, info.HealInfo.Heal * (rmAura.GetEffect(0).Amount * 0.01));
     }
 }

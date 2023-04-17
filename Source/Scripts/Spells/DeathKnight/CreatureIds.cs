@@ -5,5 +5,5 @@ namespace Scripts.Spells.DeathKnight;
 
 internal struct CreatureIds
 {
-    public const uint DancingRuneWeapon = 27893;
+    public const uint DANCING_RUNE_WEAPON = 27893;
 }

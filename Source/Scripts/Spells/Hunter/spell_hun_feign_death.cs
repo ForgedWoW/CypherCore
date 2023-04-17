@@ -2,18 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(5384)]
-public class spell_hun_feign_death : AuraScript, IHasAuraEffects
+public class SpellHunFeignDeath : AuraScript, IHasAuraEffects
 {
-    private long health;
-    private int focus;
+    private long _health;
+    private int _focus;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
     public override void Register()
@@ -22,18 +22,18 @@ public class spell_hun_feign_death : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.FeignDeath, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
     }
 
-    private void HandleEffectApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleEffectApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
-        health = Target.Health;
-        focus = Target.GetPower(PowerType.Focus);
+        _health = Target.Health;
+        _focus = Target.GetPower(PowerType.Focus);
     }
 
-    private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleEffectRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
-        if (health != 0 && focus != 0)
+        if (_health != 0 && _focus != 0)
         {
-            Target.SetHealth(health);
-            Target.SetPower(PowerType.Focus, focus);
+            Target.SetHealth(_health);
+            Target.SetPower(PowerType.Focus, _focus);
         }
     }
 }

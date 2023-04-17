@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(51723)]
-public class spell_rog_fan_of_knives_SpellScript : SpellScript, ISpellOnHit, ISpellAfterHit
+public class SpellRogFanOfKnivesSpellScript : SpellScript, ISpellOnHit, ISpellAfterHit
 {
     private bool _hit;
 

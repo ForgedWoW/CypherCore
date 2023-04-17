@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
 [Script] // 212283 - Symbols of Death
-internal class spell_rog_symbols_of_death : SpellScript, IHasSpellEffects
+internal class SpellRogSymbolsOfDeath : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,6 +23,6 @@ internal class spell_rog_symbols_of_death : SpellScript, IHasSpellEffects
     private void HandleEffectHitTarget(int effIndex)
     {
         if (Caster.HasAura(RogueSpells.SymbolsOfDeathRank2))
-            Caster.CastSpell(Caster, RogueSpells.SymbolsOfDeathCritAura, true);
+            Caster.SpellFactory.CastSpell(Caster, RogueSpells.SymbolsOfDeathCritAura, true);
     }
 }

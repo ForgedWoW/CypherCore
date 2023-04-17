@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
@@ -14,7 +14,7 @@ namespace Scripts.Spells.Priest;
 {
     47758, 47757
 })]
-public class spell_pri_penance_triggered : AuraScript, IHasAuraEffects
+public class SpellPriPenanceTriggered : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,7 +25,7 @@ public class spell_pri_penance_triggered : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(RemoveEffect, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
     }
 
-    private void ApplyEffect(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void ApplyEffect(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -33,11 +33,11 @@ public class spell_pri_penance_triggered : AuraScript, IHasAuraEffects
             if (caster.HasAura(PriestSpells.POWER_OF_THE_DARK_SIDE_AURA))
             {
                 caster.RemoveAura(PriestSpells.POWER_OF_THE_DARK_SIDE_AURA);
-                caster.CastSpell(caster, PriestSpells.POWER_OF_THE_DARK_SIDE_MARKER, true);
+                caster.SpellFactory.CastSpell(caster, PriestSpells.POWER_OF_THE_DARK_SIDE_MARKER, true);
             }
     }
 
-    private void RemoveEffect(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void RemoveEffect(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 

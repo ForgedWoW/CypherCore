@@ -2,15 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.AZURE_STRIKE)]
-public class spell_evoker_azure_strike : SpellScript, ISpellOnHit, IHasSpellEffects
+public class SpellEvokerAzureStrike : SpellScript, ISpellOnHit, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -20,7 +22,7 @@ public class spell_evoker_azure_strike : SpellScript, ISpellOnHit, IHasSpellEffe
         {
             var damage = HitDamage;
             var bp0 = (damage + (damage * 0.5f)); // Damage + 50% of damage
-            caster.CastSpell(target, EvokerSpells.AZURE_STRIKE, bp0, true);
+            caster.SpellFactory.CastSpell(target, EvokerSpells.AZURE_STRIKE, bp0, true);
         }
     }
 

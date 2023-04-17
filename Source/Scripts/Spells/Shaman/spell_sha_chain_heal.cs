@@ -3,18 +3,20 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 1064 - Chain Heal
 [SpellScript(1064)]
-public class spell_sha_chain_heal : SpellScript, IHasSpellEffects
+public class SpellShaChainHeal : SpellScript, IHasSpellEffects
 {
     private WorldObject _primaryTarget = null;
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -52,7 +54,7 @@ public class spell_sha_chain_heal : SpellScript, IHasSpellEffects
         var searcher = new WorldObjectListSearcher(caster, chainTargets, check, containerTypeMask);
         Cell.VisitGrid(_primaryTarget, searcher, range);
 
-        chainTargets.RemoveIf(new UnitAuraCheck<WorldObject>(false, ShamanSpells.Riptide, caster.GUID));
+        chainTargets.RemoveIf(new UnitAuraCheck<WorldObject>(false, ShamanSpells.RIPTIDE, caster.GUID));
 
         if (chainTargets.Count == 0)
             return;

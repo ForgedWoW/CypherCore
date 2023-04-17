@@ -2,25 +2,33 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.BattleFields;
+using Forged.MapServer.Chrono;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IBattlefield;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.AI;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IBattlefield;
+using Serilog;
 
 namespace Game.BattleFields;
 
-internal class BattlefieldWG : BattleField
+internal class BattlefieldWg : BattleField
 {
     private readonly List<ObjectGuid>[] _vehicles = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
-    private readonly List<BfWGGameObjectBuilding> BuildingsInZone = new();
-    private readonly List<ObjectGuid> CanonList = new();
+    private readonly List<BfWgGameObjectBuilding> _buildingsInZone = new();
+    private readonly List<ObjectGuid> _canonList = new();
 
-    private readonly List<ObjectGuid>[] DefenderPortalList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
+    private readonly List<ObjectGuid>[] _defenderPortalList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
 
-    private readonly List<WGWorkshop> Workshops = new();
+    private readonly List<WgWorkshop> _workshops = new();
     private bool _isRelicInteractible;
     private uint _tenacityStack;
 
@@ -28,7 +36,7 @@ internal class BattlefieldWG : BattleField
 
     private ObjectGuid _titansRelicGUID;
 
-    public BattlefieldWG(Map map) : base(map) { }
+    public BattlefieldWg(Map map) : base(map) { }
 
     public override bool SetupBattlefield()
     {
@@ -36,7 +44,7 @@ internal class BattlefieldWG : BattleField
         m_BattleId = BattlefieldIds.WG;
         m_ZoneId = (uint)AreaId.Wintergrasp;
 
-        InitStalker(WGNpcs.Stalker, WGConst.WintergraspStalkerPos);
+        InitStalker(WgNpcs.STALKER, WgConst.WintergraspStalkerPos);
 
         m_MaxPlayer = GetDefaultValue("Wintergrasp.PlayerMax", 100);
         m_IsEnabled = GetDefaultValue("Wintergrasp.Enable", false);
@@ -56,23 +64,23 @@ internal class BattlefieldWG : BattleField
 
         for (var team = 0; team < SharedConst.PvpTeamsCount; ++team)
         {
-            DefenderPortalList[team] = new List<ObjectGuid>();
+            _defenderPortalList[team] = new List<ObjectGuid>();
             _vehicles[team] = new List<ObjectGuid>();
         }
 
         // Load from db
         if (Global.WorldStateMgr.GetValue(WorldStates.BattlefieldWgShowTimeNextBattle, m_Map) == 0 &&
-            Global.WorldStateMgr.GetValue(WGConst.ClockWorldState[0], m_Map) == 0)
+            Global.WorldStateMgr.GetValue(WgConst.ClockWorldState[0], m_Map) == 0)
         {
             Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgShowTimeNextBattle, 0, false, m_Map);
             Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgDefender, RandomHelper.IRand(0, 1), false, m_Map);
-            Global.WorldStateMgr.SetValueAndSaveInDb(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_NoWarBattleTime / Time.IN_MILLISECONDS), false, m_Map);
+            Global.WorldStateMgr.SetValueAndSaveInDb(WgConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_NoWarBattleTime / Time.IN_MILLISECONDS), false, m_Map);
         }
 
         m_isActive = Global.WorldStateMgr.GetValue(WorldStates.BattlefieldWgShowTimeNextBattle, m_Map) == 0;
         m_DefenderTeam = (uint)Global.WorldStateMgr.GetValue(WorldStates.BattlefieldWgDefender, m_Map);
 
-        m_Timer = (uint)(Global.WorldStateMgr.GetValue(WGConst.ClockWorldState[0], m_Map) - GameTime.GetGameTime());
+        m_Timer = (uint)(Global.WorldStateMgr.GetValue(WgConst.ClockWorldState[0], m_Map) - GameTime.GetGameTime());
 
         if (m_isActive)
         {
@@ -81,11 +89,11 @@ internal class BattlefieldWG : BattleField
         }
 
         Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgAttacker, (int)GetAttackerTeam(), false, m_Map);
-        Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
+        Global.WorldStateMgr.SetValue(WgConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
 
-        foreach (var gy in WGConst.WGGraveYard)
+        foreach (var gy in WgConst.WgGraveYard)
         {
-            BfGraveyardWG graveyard = new(this);
+            BfGraveyardWg graveyard = new(this);
 
             // When between games, the graveyard is controlled by the defending team
             if (gy.StartControl == TeamIds.Neutral)
@@ -99,58 +107,58 @@ internal class BattlefieldWG : BattleField
 
 
         // Spawn workshop creatures and gameobjects
-        for (byte i = 0; i < WGConst.MaxWorkshops; i++)
+        for (byte i = 0; i < WgConst.MAX_WORKSHOPS; i++)
         {
-            WGWorkshop workshop = new(this, i);
+            WgWorkshop workshop = new(this, i);
 
-            if (i < WGWorkshopIds.Ne)
+            if (i < WgWorkshopIds.NE)
                 workshop.GiveControlTo(GetAttackerTeam(), true);
             else
                 workshop.GiveControlTo(GetDefenderTeam(), true);
 
             // Note: Capture point is added once the gameobject is created.
-            Workshops.Add(workshop);
+            _workshops.Add(workshop);
         }
 
         // Spawn turrets and hide them per default
-        foreach (var turret in WGConst.WGTurret)
+        foreach (var turret in WgConst.WgTurret)
         {
             var towerCannonPos = turret;
-            var creature = SpawnCreature(WGNpcs.TowerCannon, towerCannonPos);
+            var creature = SpawnCreature(WgNpcs.TOWER_CANNON, towerCannonPos);
 
             if (creature)
             {
-                CanonList.Add(creature.GUID);
+                _canonList.Add(creature.GUID);
                 HideNpc(creature);
             }
         }
 
         // Spawn all gameobjects
-        foreach (var build in WGConst.WGGameObjectBuilding)
+        foreach (var build in WgConst.WgGameObjectBuilding)
         {
             var go = SpawnGameObject(build.Entry, build.Pos, build.Rot);
 
             if (go)
             {
-                BfWGGameObjectBuilding b = new(this, build.BuildingType, build.WorldState);
+                BfWgGameObjectBuilding b = new(this, build.BuildingType, build.WorldState);
                 b.Init(go);
 
                 if (!m_IsEnabled &&
-                    go.Entry == WGGameObjects.VaultGate)
+                    go.Entry == WgGameObjects.VAULT_GATE)
                     go.SetDestructibleState(GameObjectDestructibleState.Destroyed);
 
-                BuildingsInZone.Add(b);
+                _buildingsInZone.Add(b);
             }
         }
 
         // Spawning portal defender
-        foreach (var teleporter in WGConst.WGPortalDefenderData)
+        foreach (var teleporter in WgConst.WgPortalDefenderData)
         {
             var go = SpawnGameObject(teleporter.AllianceEntry, teleporter.Pos, teleporter.Rot);
 
             if (go)
             {
-                DefenderPortalList[TeamIds.Alliance].Add(go.GUID);
+                _defenderPortalList[TeamIds.Alliance].Add(go.GUID);
                 go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Alliance ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
             }
 
@@ -158,7 +166,7 @@ internal class BattlefieldWG : BattleField
 
             if (go)
             {
-                DefenderPortalList[TeamIds.Horde].Add(go.GUID);
+                _defenderPortalList[TeamIds.Horde].Add(go.GUID);
                 go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Horde ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
             }
         }
@@ -171,13 +179,13 @@ internal class BattlefieldWG : BattleField
     public override void OnBattleStart()
     {
         // Spawn titan relic
-        var relic = SpawnGameObject(WGGameObjects.TitanSRelic, WGConst.RelicPos, WGConst.RelicRot);
+        var relic = SpawnGameObject(WgGameObjects.TITAN_S_RELIC, WgConst.RelicPos, WgConst.RelicRot);
 
         if (relic)
         {
             // Update faction of relic, only Attacker can click on
             relic. // Update faction of relic, only Attacker can click on
-                Faction = WGConst.WintergraspFaction[GetAttackerTeam()];
+                Faction = WgConst.WintergraspFaction[GetAttackerTeam()];
 
             // Set in use (not allow to click on before last door is broken)
             relic.SetFlag(GameObjectFlags.InUse | GameObjectFlags.NotSelectable);
@@ -192,35 +200,35 @@ internal class BattlefieldWG : BattleField
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgDefender, (int)GetDefenderTeam(), false, m_Map);
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgShowTimeNextBattle, 0, false, m_Map);
         Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgShowTimeBattleEnd, 1, false, m_Map);
-        Global.WorldStateMgr.SetValueAndSaveInDb(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
+        Global.WorldStateMgr.SetValueAndSaveInDb(WgConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
 
         // Update tower visibility and update faction
-        foreach (var guid in CanonList)
+        foreach (var guid in _canonList)
         {
             var creature = GetCreature(guid);
 
             if (creature)
             {
                 ShowNpc(creature, true);
-                creature.Faction = WGConst.WintergraspFaction[GetDefenderTeam()];
+                creature.Faction = WgConst.WintergraspFaction[GetDefenderTeam()];
             }
         }
 
         // Rebuild all wall
-        foreach (var wall in BuildingsInZone)
+        foreach (var wall in _buildingsInZone)
             if (wall != null)
             {
                 wall.Rebuild();
                 wall.UpdateTurretAttack(false);
             }
 
-        SetData(WGData.BrokenTowerAtt, 0);
-        SetData(WGData.BrokenTowerDef, 0);
-        SetData(WGData.DamagedTowerAtt, 0);
-        SetData(WGData.DamagedTowerDef, 0);
+        SetData(WgData.BROKEN_TOWER_ATT, 0);
+        SetData(WgData.BROKEN_TOWER_DEF, 0);
+        SetData(WgData.DAMAGED_TOWER_ATT, 0);
+        SetData(WgData.DAMAGED_TOWER_DEF, 0);
 
         // Update graveyard (in no war Time all graveyard is to deffender, in war Time, depend of base)
-        foreach (var workShop in Workshops)
+        foreach (var workShop in _workshops)
             workShop?.UpdateGraveyardAndWorkshop();
 
         for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
@@ -241,27 +249,27 @@ internal class BattlefieldWG : BattleField
         // Initialize vehicle counter
         UpdateCounterVehicle(true);
         // Send start warning to all players
-        SendWarning(WintergraspText.StartBattle);
+        SendWarning(WintergraspText.START_BATTLE);
     }
 
     public void UpdateCounterVehicle(bool init)
     {
         if (init)
         {
-            SetData(WGData.VehicleH, 0);
-            SetData(WGData.VehicleA, 0);
+            SetData(WgData.VEHICLE_H, 0);
+            SetData(WgData.VEHICLE_A, 0);
         }
 
-        SetData(WGData.MaxVehicleH, 0);
-        SetData(WGData.MaxVehicleA, 0);
+        SetData(WgData.MAX_VEHICLE_H, 0);
+        SetData(WgData.MAX_VEHICLE_A, 0);
 
-        foreach (var workshop in Workshops)
+        foreach (var workshop in _workshops)
             if (workshop.GetTeamControl() == TeamIds.Alliance)
-                UpdateData(WGData.MaxVehicleA, 4);
+                UpdateData(WgData.MAX_VEHICLE_A, 4);
             else if (workshop.GetTeamControl() == TeamIds.Horde)
-                UpdateData(WGData.MaxVehicleH, 4);
+                UpdateData(WgData.MAX_VEHICLE_H, 4);
 
-        UpdateVehicleCountWG();
+        UpdateVehicleCountWg();
     }
 
     public override void OnBattleEnd(bool endByTimer)
@@ -278,7 +286,7 @@ internal class BattlefieldWG : BattleField
         _titansRelicGUID.Clear();
 
         // change collision wall State closed
-        foreach (var building in BuildingsInZone)
+        foreach (var building in _buildingsInZone)
             building.RebuildGate();
 
         // update win statistics
@@ -298,24 +306,24 @@ internal class BattlefieldWG : BattleField
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgDefender, (int)GetDefenderTeam(), false, m_Map);
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgShowTimeNextBattle, 1, false, m_Map);
         Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgShowTimeBattleEnd, 0, false, m_Map);
-        Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
+        Global.WorldStateMgr.SetValue(WgConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
 
         // Remove turret
-        foreach (var guid in CanonList)
+        foreach (var guid in _canonList)
         {
             var creature = GetCreature(guid);
 
             if (creature)
             {
                 if (!endByTimer)
-                    creature.Faction = WGConst.WintergraspFaction[GetDefenderTeam()];
+                    creature.Faction = WgConst.WintergraspFaction[GetDefenderTeam()];
 
                 HideNpc(creature);
             }
         }
 
         // Update all graveyard, control is to defender when no wartime
-        for (byte i = 0; i < WGGraveyardId.Horde; i++)
+        for (byte i = 0; i < WgGraveyardId.HORDE; i++)
         {
             var graveyard = GetGraveyardById(i);
 
@@ -323,7 +331,7 @@ internal class BattlefieldWG : BattleField
         }
 
         // Update portals
-        foreach (var guid in DefenderPortalList[GetDefenderTeam()])
+        foreach (var guid in _defenderPortalList[GetDefenderTeam()])
         {
             var portal = GetGameObject(guid);
 
@@ -331,7 +339,7 @@ internal class BattlefieldWG : BattleField
                 portal.SetRespawnTime((int)BattlegroundConst.RespawnImmediately);
         }
 
-        foreach (var guid in DefenderPortalList[GetAttackerTeam()])
+        foreach (var guid in _defenderPortalList[GetAttackerTeam()])
         {
             var portal = GetGameObject(guid);
 
@@ -345,18 +353,18 @@ internal class BattlefieldWG : BattleField
 
             if (player)
             {
-                player.CastSpell(player, WGSpells.EssenceOfWintergrasp, true);
-                player.CastSpell(player, WGSpells.VictoryReward, true);
+                player.SpellFactory.CastSpell(player, WgSpells.ESSENCE_OF_WINTERGRASP, true);
+                player.SpellFactory.CastSpell(player, WgSpells.VICTORY_REWARD, true);
                 // Complete victory quests
-                player.AreaExploredOrEventHappens(WintergraspQuests.VictoryAlliance);
-                player.AreaExploredOrEventHappens(WintergraspQuests.VictoryHorde);
+                player.AreaExploredOrEventHappens(WintergraspQuests.VICTORY_ALLIANCE);
+                player.AreaExploredOrEventHappens(WintergraspQuests.VICTORY_HORDE);
                 // Send Wintergrasp victory Achievement
-                DoCompleteOrIncrementAchievement(WGAchievements.WinWg, player);
+                DoCompleteOrIncrementAchievement(WgAchievements.WIN_WG, player);
 
                 // Award Achievement for succeeding in Wintergrasp in 10 minutes or less
                 if (!endByTimer &&
                     GetTimer() <= 10000)
-                    DoCompleteOrIncrementAchievement(WGAchievements.WinWgTimer10, player);
+                    DoCompleteOrIncrementAchievement(WgAchievements.WIN_WG_TIMER10, player);
             }
         }
 
@@ -365,7 +373,7 @@ internal class BattlefieldWG : BattleField
             var player = Global.ObjAccessor.FindPlayer(guid);
 
             if (player)
-                player.CastSpell(player, WGSpells.DefeatReward, true);
+                player.SpellFactory.CastSpell(player, WgSpells.DEFEAT_REWARD, true);
         }
 
         for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
@@ -400,15 +408,15 @@ internal class BattlefieldWG : BattleField
 
                     if (player)
                     {
-                        player.RemoveAurasDueToSpell(m_DefenderTeam == TeamIds.Alliance ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player.GUID);
-                        player.AddAura(m_DefenderTeam == TeamIds.Horde ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player);
+                        player.RemoveAurasDueToSpell(m_DefenderTeam == TeamIds.Alliance ? WgSpells.HORDE_CONTROL_PHASE_SHIFT : WgSpells.ALLIANCE_CONTROL_PHASE_SHIFT, player.GUID);
+                        player.AddAura(m_DefenderTeam == TeamIds.Horde ? WgSpells.HORDE_CONTROL_PHASE_SHIFT : WgSpells.ALLIANCE_CONTROL_PHASE_SHIFT, player);
                     }
                 }
 
         if (!endByTimer) // win alli/horde
-            SendWarning((GetDefenderTeam() == TeamIds.Alliance) ? WintergraspText.FortressCaptureAlliance : WintergraspText.FortressCaptureHorde);
+            SendWarning((GetDefenderTeam() == TeamIds.Alliance) ? WintergraspText.FORTRESS_CAPTURE_ALLIANCE : WintergraspText.FORTRESS_CAPTURE_HORDE);
         else // defend alli/horde
-            SendWarning((GetDefenderTeam() == TeamIds.Alliance) ? WintergraspText.FortressDefendAlliance : WintergraspText.FortressDefendHorde);
+            SendWarning((GetDefenderTeam() == TeamIds.Alliance) ? WintergraspText.FORTRESS_DEFEND_ALLIANCE : WintergraspText.FORTRESS_DEFEND_HORDE);
     }
 
     public override void DoCompleteOrIncrementAchievement(uint achievement, Player player, byte incrementNumber = 1)
@@ -437,7 +445,7 @@ internal class BattlefieldWG : BattleField
 
     public override void OnStartGrouping()
     {
-        SendWarning(WintergraspText.StartGrouping);
+        SendWarning(WintergraspText.START_GROUPING);
     }
 
     public override void OnCreatureCreate(Creature creature)
@@ -445,10 +453,10 @@ internal class BattlefieldWG : BattleField
         // Accessing to db spawned creatures
         switch (creature.Entry)
         {
-            case WGNpcs.DwarvenSpiritGuide:
-            case WGNpcs.TaunkaSpiritGuide:
+            case WgNpcs.DWARVEN_SPIRIT_GUIDE:
+            case WgNpcs.TAUNKA_SPIRIT_GUIDE:
             {
-                var teamIndex = (creature.Entry == WGNpcs.DwarvenSpiritGuide ? TeamIds.Alliance : TeamIds.Horde);
+                var teamIndex = (creature.Entry == WgNpcs.DWARVEN_SPIRIT_GUIDE ? TeamIds.Alliance : TeamIds.Horde);
                 var graveyardId = (byte)GetSpiritGraveyardId(creature.Area);
 
                 m_GraveyardList[graveyardId]?.SetSpirit(creature, teamIndex);
@@ -461,10 +469,10 @@ internal class BattlefieldWG : BattleField
         if (IsWarTime())
             switch (creature.Entry)
             {
-                case WGNpcs.SiegeEngineAlliance:
-                case WGNpcs.SiegeEngineHorde:
-                case WGNpcs.Catapult:
-                case WGNpcs.Demolisher:
+                case WgNpcs.SIEGE_ENGINE_ALLIANCE:
+                case WgNpcs.SIEGE_ENGINE_HORDE:
+                case WgNpcs.CATAPULT:
+                case WgNpcs.DEMOLISHER:
                 {
                     if (!creature.ToTempSummon() ||
                         creature.ToTempSummon().GetSummonerGUID().IsEmpty ||
@@ -480,12 +488,12 @@ internal class BattlefieldWG : BattleField
 
                     if (teamIndex == TeamIds.Horde)
                     {
-                        if (GetData(WGData.VehicleH) < GetData(WGData.MaxVehicleH))
+                        if (GetData(WgData.VEHICLE_H) < GetData(WgData.MAX_VEHICLE_H))
                         {
-                            UpdateData(WGData.VehicleH, 1);
-                            creature.AddAura(WGSpells.HordeFlag, creature);
+                            UpdateData(WgData.VEHICLE_H, 1);
+                            creature.AddAura(WgSpells.HORDE_FLAG, creature);
                             _vehicles[teamIndex].Add(creature.GUID);
-                            UpdateVehicleCountWG();
+                            UpdateVehicleCountWg();
                         }
                         else
                         {
@@ -496,12 +504,12 @@ internal class BattlefieldWG : BattleField
                     }
                     else
                     {
-                        if (GetData(WGData.VehicleA) < GetData(WGData.MaxVehicleA))
+                        if (GetData(WgData.VEHICLE_A) < GetData(WgData.MAX_VEHICLE_A))
                         {
-                            UpdateData(WGData.VehicleA, 1);
-                            creature.AddAura(WGSpells.AllianceFlag, creature);
+                            UpdateData(WgData.VEHICLE_A, 1);
+                            creature.AddAura(WgSpells.ALLIANCE_FLAG, creature);
                             _vehicles[teamIndex].Add(creature.GUID);
-                            UpdateVehicleCountWG();
+                            UpdateVehicleCountWg();
                         }
                         else
                         {
@@ -511,7 +519,7 @@ internal class BattlefieldWG : BattleField
                         }
                     }
 
-                    creature.CastSpell(creator, WGSpells.GrabPassenger, true);
+                    creature.SpellFactory.CastSpell(creator, WgSpells.GRAB_PASSENGER, true);
 
                     break;
                 }
@@ -526,27 +534,27 @@ internal class BattlefieldWG : BattleField
 
         switch (go.Entry)
         {
-            case WGGameObjects.FactoryBannerNe:
-                workshopId = WGWorkshopIds.Ne;
+            case WgGameObjects.FACTORY_BANNER_NE:
+                workshopId = WgWorkshopIds.NE;
 
                 break;
-            case WGGameObjects.FactoryBannerNw:
-                workshopId = WGWorkshopIds.Nw;
+            case WgGameObjects.FACTORY_BANNER_NW:
+                workshopId = WgWorkshopIds.NW;
 
                 break;
-            case WGGameObjects.FactoryBannerSe:
-                workshopId = WGWorkshopIds.Se;
+            case WgGameObjects.FACTORY_BANNER_SE:
+                workshopId = WgWorkshopIds.SE;
 
                 break;
-            case WGGameObjects.FactoryBannerSw:
-                workshopId = WGWorkshopIds.Sw;
+            case WgGameObjects.FACTORY_BANNER_SW:
+                workshopId = WgWorkshopIds.SW;
 
                 break;
             default:
                 return;
         }
 
-        foreach (var workshop in Workshops)
+        foreach (var workshop in _workshops)
             if (workshop.GetId() == workshopId)
             {
                 WintergraspCapturePoint capturePoint = new(this, GetAttackerTeam());
@@ -579,7 +587,7 @@ internal class BattlefieldWG : BattleField
         if (IsWarTime())
             if (unit.IsVehicle)
                 if (FindAndRemoveVehicleFromList(unit))
-                    UpdateVehicleCountWG();
+                    UpdateVehicleCountWg();
     }
 
     public void HandlePromotion(Player playerKiller, Unit unitKilled)
@@ -600,7 +608,7 @@ internal class BattlefieldWG : BattleField
     {
         RemoveAurasFromPlayer(player);
 
-        player.CastSpell(player, WGSpells.Recruit, true);
+        player.SpellFactory.CastSpell(player, WgSpells.RECRUIT, true);
 
         if (player.Zone != m_ZoneId)
         {
@@ -621,13 +629,13 @@ internal class BattlefieldWG : BattleField
 
         if (player.TeamId == GetAttackerTeam())
         {
-            if (GetData(WGData.BrokenTowerAtt) < 3)
-                player.SetAuraStack(WGSpells.TowerControl, player, 3 - GetData(WGData.BrokenTowerAtt));
+            if (GetData(WgData.BROKEN_TOWER_ATT) < 3)
+                player.SetAuraStack(WgSpells.TOWER_CONTROL, player, 3 - GetData(WgData.BROKEN_TOWER_ATT));
         }
         else
         {
-            if (GetData(WGData.BrokenTowerAtt) > 0)
-                player.SetAuraStack(WGSpells.TowerControl, player, GetData(WGData.BrokenTowerAtt));
+            if (GetData(WgData.BROKEN_TOWER_ATT) > 0)
+                player.SetAuraStack(WgSpells.TOWER_CONTROL, player, GetData(WgData.BROKEN_TOWER_ATT));
         }
     }
 
@@ -644,10 +652,10 @@ internal class BattlefieldWG : BattleField
             RemoveAurasFromPlayer(player);
         }
 
-        player.RemoveAura(WGSpells.HordeControlsFactoryPhaseShift);
-        player.RemoveAura(WGSpells.AllianceControlsFactoryPhaseShift);
-        player.RemoveAura(WGSpells.HordeControlPhaseShift);
-        player.RemoveAura(WGSpells.AllianceControlPhaseShift);
+        player.RemoveAura(WgSpells.HORDE_CONTROLS_FACTORY_PHASE_SHIFT);
+        player.RemoveAura(WgSpells.ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
+        player.RemoveAura(WgSpells.HORDE_CONTROL_PHASE_SHIFT);
+        player.RemoveAura(WgSpells.ALLIANCE_CONTROL_PHASE_SHIFT);
         UpdateTenacity();
     }
 
@@ -656,10 +664,10 @@ internal class BattlefieldWG : BattleField
         if (!m_isActive)
             RemoveAurasFromPlayer(player);
 
-        player.RemoveAura(WGSpells.HordeControlsFactoryPhaseShift);
-        player.RemoveAura(WGSpells.AllianceControlsFactoryPhaseShift);
-        player.RemoveAura(WGSpells.HordeControlPhaseShift);
-        player.RemoveAura(WGSpells.AllianceControlPhaseShift);
+        player.RemoveAura(WgSpells.HORDE_CONTROLS_FACTORY_PHASE_SHIFT);
+        player.RemoveAura(WgSpells.ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
+        player.RemoveAura(WgSpells.HORDE_CONTROL_PHASE_SHIFT);
+        player.RemoveAura(WgSpells.ALLIANCE_CONTROL_PHASE_SHIFT);
     }
 
     public override void OnPlayerEnterZone(Player player)
@@ -667,7 +675,7 @@ internal class BattlefieldWG : BattleField
         if (!m_isActive)
             RemoveAurasFromPlayer(player);
 
-        player.AddAura(m_DefenderTeam == TeamIds.Horde ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player);
+        player.AddAura(m_DefenderTeam == TeamIds.Horde ? WgSpells.HORDE_CONTROL_PHASE_SHIFT : WgSpells.ALLIANCE_CONTROL_PHASE_SHIFT, player);
     }
 
     public override uint GetData(uint data)
@@ -687,13 +695,12 @@ internal class BattlefieldWG : BattleField
                     return graveyard.GetControlTeamId();
 
                 break;
-            
         }
 
         return base.GetData(data);
     }
 
-    public void BrokenWallOrTower(uint team, BfWGGameObjectBuilding building)
+    public void BrokenWallOrTower(uint team, BfWgGameObjectBuilding building)
     {
         if (team == GetDefenderTeam())
             foreach (var guid in m_PlayersInWar[GetAttackerTeam()])
@@ -702,7 +709,7 @@ internal class BattlefieldWG : BattleField
 
                 if (player)
                     if (player.GetDistance2d(GetGameObject(building.GetGUID())) < 50.0f)
-                        player.KilledMonsterCredit(WintergraspQuests.CreditDefendSiege);
+                        player.KilledMonsterCredit(WintergraspQuests.CREDIT_DEFEND_SIEGE);
             }
     }
 
@@ -713,8 +720,8 @@ internal class BattlefieldWG : BattleField
         if (team == GetAttackerTeam())
         {
             // Update counter
-            UpdateData(WGData.DamagedTowerAtt, -1);
-            UpdateData(WGData.BrokenTowerAtt, 1);
+            UpdateData(WgData.DAMAGED_TOWER_ATT, -1);
+            UpdateData(WgData.BROKEN_TOWER_ATT, 1);
 
             // Remove buff stack on attackers
             foreach (var guid in m_PlayersInWar[GetAttackerTeam()])
@@ -722,7 +729,7 @@ internal class BattlefieldWG : BattleField
                 var player = Global.ObjAccessor.FindPlayer(guid);
 
                 if (player)
-                    player.RemoveAuraFromStack(WGSpells.TowerControl);
+                    player.RemoveAuraFromStack(WgSpells.TOWER_CONTROL);
             }
 
             // Add buff stack to defenders and give Achievement/quest credit
@@ -732,27 +739,27 @@ internal class BattlefieldWG : BattleField
 
                 if (player)
                 {
-                    player.CastSpell(player, WGSpells.TowerControl, true);
-                    player.KilledMonsterCredit(WintergraspQuests.CreditTowersDestroyed);
-                    DoCompleteOrIncrementAchievement(WGAchievements.WgTowerDestroy, player);
+                    player.SpellFactory.CastSpell(player, WgSpells.TOWER_CONTROL, true);
+                    player.KilledMonsterCredit(WintergraspQuests.CREDIT_TOWERS_DESTROYED);
+                    DoCompleteOrIncrementAchievement(WgAchievements.WG_TOWER_DESTROY, player);
                 }
             }
 
             // If all three south towers are destroyed (ie. all attack towers), remove ten minutes from battle Time
-            if (GetData(WGData.BrokenTowerAtt) == 3)
+            if (GetData(WgData.BROKEN_TOWER_ATT) == 3)
             {
                 if ((int)(m_Timer - 600000) < 0)
                     m_Timer = 0;
                 else
                     m_Timer -= 600000;
 
-                Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
+                Global.WorldStateMgr.SetValue(WgConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
             }
         }
         else // Keep tower
         {
-            UpdateData(WGData.DamagedTowerDef, -1);
-            UpdateData(WGData.BrokenTowerDef, 1);
+            UpdateData(WgData.DAMAGED_TOWER_DEF, -1);
+            UpdateData(WgData.BROKEN_TOWER_DEF, 1);
         }
     }
 
@@ -769,7 +776,7 @@ internal class BattlefieldWG : BattleField
             return;
 
         // On click on titan relic
-        if (go.Entry == WGGameObjects.TitanSRelic)
+        if (go.Entry == WgGameObjects.TITAN_S_RELIC)
         {
             var relic = GetRelic();
 
@@ -780,7 +787,7 @@ internal class BattlefieldWG : BattleField
         }
 
         // if destroy or Damage event, search the wall/tower and update worldstate/send warning message
-        foreach (var building in BuildingsInZone)
+        foreach (var building in _buildingsInZone)
             if (go.GUID == building.GetGUID())
             {
                 var buildingGo = GetGameObject(building.GetGUID());
@@ -802,9 +809,9 @@ internal class BattlefieldWG : BattleField
     public void UpdateDamagedTowerCount(uint team)
     {
         if (team == GetAttackerTeam())
-            UpdateData(WGData.DamagedTowerAtt, 1);
+            UpdateData(WgData.DAMAGED_TOWER_ATT, 1);
         else
-            UpdateData(WGData.DamagedTowerDef, 1);
+            UpdateData(WgData.DAMAGED_TOWER_DEF, 1);
     }
 
     public GameObject GetRelic()
@@ -823,19 +830,19 @@ internal class BattlefieldWG : BattleField
         switch ((AreaId)areaId)
         {
             case AreaId.WintergraspFortress:
-                return WGGraveyardId.Keep;
+                return WgGraveyardId.KEEP;
             case AreaId.TheSunkenRing:
-                return WGGraveyardId.WorkshopNE;
+                return WgGraveyardId.WORKSHOP_NE;
             case AreaId.TheBrokenTemplate:
-                return WGGraveyardId.WorkshopNW;
+                return WgGraveyardId.WORKSHOP_NW;
             case AreaId.WestparkWorkshop:
-                return WGGraveyardId.WorkshopSW;
+                return WgGraveyardId.WORKSHOP_SW;
             case AreaId.EastparkWorkshop:
-                return WGGraveyardId.WorkshopSE;
+                return WgGraveyardId.WORKSHOP_SE;
             case AreaId.Wintergrasp:
-                return WGGraveyardId.Alliance;
+                return WgGraveyardId.ALLIANCE;
             case AreaId.TheChilledQuagmire:
-                return WGGraveyardId.Horde;
+                return WgGraveyardId.HORDE;
             default:
                 Log.Logger.Error("BattlefieldWG.GetSpiritGraveyardId: Unexpected Area Id {0}", areaId);
 
@@ -853,9 +860,9 @@ internal class BattlefieldWG : BattleField
                 _vehicles[i].Remove(vehicle.GUID);
 
                 if (i == TeamIds.Horde)
-                    UpdateData(WGData.VehicleH, -1);
+                    UpdateData(WgData.VEHICLE_H, -1);
                 else
-                    UpdateData(WGData.VehicleA, -1);
+                    UpdateData(WgData.VEHICLE_A, -1);
 
                 return true;
             }
@@ -870,61 +877,61 @@ internal class BattlefieldWG : BattleField
             return;
 
         // Updating rank of player
-        var aur = killer.GetAura(WGSpells.Recruit);
+        var aur = killer.GetAura(WgSpells.RECRUIT);
 
         if (aur != null)
         {
             if (aur.StackAmount >= 5)
             {
-                killer.RemoveAura(WGSpells.Recruit);
-                killer.CastSpell(killer, WGSpells.Corporal, true);
+                killer.RemoveAura(WgSpells.RECRUIT);
+                killer.SpellFactory.CastSpell(killer, WgSpells.CORPORAL, true);
                 var stalker = GetCreature(StalkerGuid);
 
                 if (stalker)
-                    Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RankCorporal, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
+                    Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RANK_CORPORAL, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
             }
             else
             {
-                killer.CastSpell(killer, WGSpells.Recruit, true);
+                killer.SpellFactory.CastSpell(killer, WgSpells.RECRUIT, true);
             }
         }
-        else if ((aur = killer.GetAura(WGSpells.Corporal)) != null)
+        else if ((aur = killer.GetAura(WgSpells.CORPORAL)) != null)
         {
             if (aur.StackAmount >= 5)
             {
-                killer.RemoveAura(WGSpells.Corporal);
-                killer.CastSpell(killer, WGSpells.Lieutenant, true);
+                killer.RemoveAura(WgSpells.CORPORAL);
+                killer.SpellFactory.CastSpell(killer, WgSpells.LIEUTENANT, true);
                 var stalker = GetCreature(StalkerGuid);
 
                 if (stalker)
-                    Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RankFirstLieutenant, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
+                    Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RANK_FIRST_LIEUTENANT, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
             }
             else
             {
-                killer.CastSpell(killer, WGSpells.Corporal, true);
+                killer.SpellFactory.CastSpell(killer, WgSpells.CORPORAL, true);
             }
         }
     }
 
     private void RemoveAurasFromPlayer(Player player)
     {
-        player.RemoveAura(WGSpells.Recruit);
-        player.RemoveAura(WGSpells.Corporal);
-        player.RemoveAura(WGSpells.Lieutenant);
-        player.RemoveAura(WGSpells.TowerControl);
-        player.RemoveAura(WGSpells.SpiritualImmunity);
-        player.RemoveAura(WGSpells.Tenacity);
-        player.RemoveAura(WGSpells.EssenceOfWintergrasp);
-        player.RemoveAura(WGSpells.WintergraspRestrictedFlightArea);
+        player.RemoveAura(WgSpells.RECRUIT);
+        player.RemoveAura(WgSpells.CORPORAL);
+        player.RemoveAura(WgSpells.LIEUTENANT);
+        player.RemoveAura(WgSpells.TOWER_CONTROL);
+        player.RemoveAura(WgSpells.SPIRITUAL_IMMUNITY);
+        player.RemoveAura(WgSpells.TENACITY);
+        player.RemoveAura(WgSpells.ESSENCE_OF_WINTERGRASP);
+        player.RemoveAura(WgSpells.WINTERGRASP_RESTRICTED_FLIGHT_AREA);
     }
 
     // Update vehicle Count WorldState to player
-    private void UpdateVehicleCountWG()
+    private void UpdateVehicleCountWg()
     {
-        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgVehicleH, (int)GetData(WGData.VehicleH), false, m_Map);
-        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgMaxVehicleH, (int)GetData(WGData.MaxVehicleH), false, m_Map);
-        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgVehicleA, (int)GetData(WGData.VehicleA), false, m_Map);
-        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgMaxVehicleA, (int)GetData(WGData.MaxVehicleA), false, m_Map);
+        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgVehicleH, (int)GetData(WgData.VEHICLE_H), false, m_Map);
+        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgMaxVehicleH, (int)GetData(WgData.MAX_VEHICLE_H), false, m_Map);
+        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgVehicleA, (int)GetData(WgData.VEHICLE_A), false, m_Map);
+        Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgMaxVehicleA, (int)GetData(WgData.MAX_VEHICLE_A), false, m_Map);
     }
 
     private void UpdateTenacity()
@@ -956,7 +963,7 @@ internal class BattlefieldWG : BattleField
 
                 if (player)
                     if (player.Level >= m_MinLevel)
-                        player.RemoveAura(WGSpells.Tenacity);
+                        player.RemoveAura(WgSpells.TENACITY);
             }
 
             foreach (var guid in _vehicles[_tenacityTeam])
@@ -964,7 +971,7 @@ internal class BattlefieldWG : BattleField
                 var creature = GetCreature(guid);
 
                 if (creature)
-                    creature.RemoveAura(WGSpells.TenacityVehicle);
+                    creature.RemoveAura(WgSpells.TENACITY_VEHICLE);
             }
         }
 
@@ -979,23 +986,23 @@ internal class BattlefieldWG : BattleField
             if (newStack > 20)
                 newStack = 20;
 
-            var buff_honor = WGSpells.GreatestHonor;
+            var buffHonor = WgSpells.GREATEST_HONOR;
 
             if (newStack < 15)
-                buff_honor = WGSpells.GreaterHonor;
+                buffHonor = WgSpells.GREATER_HONOR;
 
             if (newStack < 10)
-                buff_honor = WGSpells.GreatHonor;
+                buffHonor = WgSpells.GREAT_HONOR;
 
             if (newStack < 5)
-                buff_honor = 0;
+                buffHonor = 0;
 
             foreach (var guid in m_PlayersInWar[_tenacityTeam])
             {
                 var player = Global.ObjAccessor.FindPlayer(guid);
 
                 if (player)
-                    player.SetAuraStack(WGSpells.Tenacity, player, (uint)newStack);
+                    player.SetAuraStack(WgSpells.TENACITY, player, (uint)newStack);
             }
 
             foreach (var guid in _vehicles[_tenacityTeam])
@@ -1003,17 +1010,17 @@ internal class BattlefieldWG : BattleField
                 var creature = GetCreature(guid);
 
                 if (creature)
-                    creature.SetAuraStack(WGSpells.TenacityVehicle, creature, (uint)newStack);
+                    creature.SetAuraStack(WgSpells.TENACITY_VEHICLE, creature, (uint)newStack);
             }
 
-            if (buff_honor != 0)
+            if (buffHonor != 0)
             {
                 foreach (var guid in m_PlayersInWar[_tenacityTeam])
                 {
                     var player = Global.ObjAccessor.FindPlayer(guid);
 
                     if (player)
-                        player.CastSpell(player, buff_honor, true);
+                        player.SpellFactory.CastSpell(player, buffHonor, true);
                 }
 
                 foreach (var guid in _vehicles[_tenacityTeam])
@@ -1021,7 +1028,7 @@ internal class BattlefieldWG : BattleField
                     var creature = GetCreature(guid);
 
                     if (creature)
-                        creature.CastSpell(creature, buff_honor, true);
+                        creature.SpellFactory.CastSpell(creature, buffHonor, true);
                 }
             }
         }
@@ -1044,47 +1051,47 @@ internal class BattlefieldWG : BattleField
     }
 }
 
-internal class BfWGGameObjectBuilding
+internal class BfWgGameObjectBuilding
 {
     // Creature associations
-    private readonly List<ObjectGuid>[] _CreatureBottomList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
-    private readonly List<ObjectGuid>[] _CreatureTopList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
+    private readonly List<ObjectGuid>[] _creatureBottomList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
+    private readonly List<ObjectGuid>[] _creatureTopList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
 
     // GameObject associations
-    private readonly List<ObjectGuid>[] _GameObjectList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
-    private readonly List<ObjectGuid> _TowerCannonBottomList = new();
-    private readonly List<ObjectGuid> _TurretTopList = new();
+    private readonly List<ObjectGuid>[] _gameObjectList = new List<ObjectGuid>[SharedConst.PvpTeamsCount];
+    private readonly List<ObjectGuid> _towerCannonBottomList = new();
+    private readonly List<ObjectGuid> _turretTopList = new();
 
-    private readonly WGGameObjectBuildingType _type;
+    private readonly WgGameObjectBuildingType _type;
 
     // WG object
-    private readonly BattlefieldWG _wg;
+    private readonly BattlefieldWg _wg;
 
     private readonly uint _worldState;
 
     // Linked gameobject
     private ObjectGuid _buildGUID;
 
-    private WGGameObjectState _state;
+    private WgGameObjectState _state;
 
     private StaticWintergraspTowerInfo _staticTowerInfo;
 
     // the team that controls this point
     private uint _teamControl;
 
-    public BfWGGameObjectBuilding(BattlefieldWG WG, WGGameObjectBuildingType type, uint worldState)
+    public BfWgGameObjectBuilding(BattlefieldWg wg, WgGameObjectBuildingType type, uint worldState)
     {
-        _wg = WG;
+        _wg = wg;
         _teamControl = TeamIds.Neutral;
         _type = type;
         _worldState = worldState;
-        _state = WGGameObjectState.None;
+        _state = WgGameObjectState.None;
 
         for (var i = 0; i < 2; ++i)
         {
-            _GameObjectList[i] = new List<ObjectGuid>();
-            _CreatureBottomList[i] = new List<ObjectGuid>();
-            _CreatureTopList[i] = new List<ObjectGuid>();
+            _gameObjectList[i] = new List<ObjectGuid>();
+            _creatureBottomList[i] = new List<ObjectGuid>();
+            _creatureTopList[i] = new List<ObjectGuid>();
         }
     }
 
@@ -1092,14 +1099,14 @@ internal class BfWGGameObjectBuilding
     {
         switch (_type)
         {
-            case WGGameObjectBuildingType.KeepTower:
-            case WGGameObjectBuildingType.DoorLast:
-            case WGGameObjectBuildingType.Door:
-            case WGGameObjectBuildingType.Wall:
+            case WgGameObjectBuildingType.KeepTower:
+            case WgGameObjectBuildingType.DoorLast:
+            case WgGameObjectBuildingType.Door:
+            case WgGameObjectBuildingType.Wall:
                 _teamControl = _wg.GetDefenderTeam(); // Objects that are part of the keep should be the defender's
 
                 break;
-            case WGGameObjectBuildingType.Tower:
+            case WgGameObjectBuildingType.Tower:
                 _teamControl = _wg.GetAttackerTeam(); // The towers in the south should be the Attacker's
 
                 break;
@@ -1118,21 +1125,21 @@ internal class BfWGGameObjectBuilding
             {
                 build.SetDestructibleState(GameObjectDestructibleState.Rebuilding, null, true);
 
-                if (build.Entry == WGGameObjects.VaultGate)
+                if (build.Entry == WgGameObjects.VAULT_GATE)
                 {
-                    var go = build.FindNearestGameObject(WGGameObjects.KeepCollisionWall, 50.0f);
+                    var go = build.FindNearestGameObject(WgGameObjects.KEEP_COLLISION_WALL, 50.0f);
 
                     if (go)
                         go.SetGoState(GameObjectState.Active);
                 }
 
                 // Update worldstate
-                _state = WGGameObjectState.AllianceIntact - ((int)_teamControl * 3);
+                _state = WgGameObjectState.AllianceIntact - ((int)_teamControl * 3);
                 Global.WorldStateMgr.SetValueAndSaveInDb((int)_worldState, (int)_state, false, _wg.GetMap());
             }
 
             UpdateCreatureAndGo();
-            build.Faction = WGConst.WintergraspFaction[_teamControl];
+            build.Faction = WgConst.WintergraspFaction[_teamControl];
         }
     }
 
@@ -1142,9 +1149,9 @@ internal class BfWGGameObjectBuilding
 
         if (build != null)
             if (build.IsDestructibleBuilding &&
-                build.Entry == WGGameObjects.VaultGate)
+                build.Entry == WgGameObjects.VAULT_GATE)
             {
-                var go = build.FindNearestGameObject(WGGameObjects.KeepCollisionWall, 50.0f);
+                var go = build.FindNearestGameObject(WgGameObjects.KEEP_COLLISION_WALL, 50.0f);
 
                 go?.SetGoState(GameObjectState.Ready); //not GO_STATE_ACTIVE
             }
@@ -1154,14 +1161,14 @@ internal class BfWGGameObjectBuilding
     public void Damaged()
     {
         // Update worldstate
-        _state = WGGameObjectState.AllianceDamage - ((int)_teamControl * 3);
+        _state = WgGameObjectState.AllianceDamage - ((int)_teamControl * 3);
         Global.WorldStateMgr.SetValueAndSaveInDb((int)_worldState, (int)_state, false, _wg.GetMap());
 
         // Send warning message
         if (_staticTowerInfo != null) // tower Damage + Name
             _wg.SendWarning(_staticTowerInfo.DamagedTextId);
 
-        foreach (var guid in _CreatureTopList[_wg.GetAttackerTeam()])
+        foreach (var guid in _creatureTopList[_wg.GetAttackerTeam()])
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1169,7 +1176,7 @@ internal class BfWGGameObjectBuilding
                 _wg.HideNpc(creature);
         }
 
-        foreach (var guid in _TurretTopList)
+        foreach (var guid in _turretTopList)
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1177,9 +1184,9 @@ internal class BfWGGameObjectBuilding
                 _wg.HideNpc(creature);
         }
 
-        if (_type == WGGameObjectBuildingType.KeepTower)
+        if (_type == WgGameObjectBuildingType.KeepTower)
             _wg.UpdateDamagedTowerCount(_wg.GetDefenderTeam());
-        else if (_type == WGGameObjectBuildingType.Tower)
+        else if (_type == WgGameObjectBuildingType.Tower)
             _wg.UpdateDamagedTowerCount(_wg.GetAttackerTeam());
     }
 
@@ -1187,7 +1194,7 @@ internal class BfWGGameObjectBuilding
     public void Destroyed()
     {
         // Update worldstate
-        _state = WGGameObjectState.AllianceDestroy - ((int)_teamControl * 3);
+        _state = WgGameObjectState.AllianceDestroy - ((int)_teamControl * 3);
         Global.WorldStateMgr.SetValueAndSaveInDb((int)_worldState, (int)_state, false, _wg.GetMap());
 
         // Warn players
@@ -1197,17 +1204,17 @@ internal class BfWGGameObjectBuilding
         switch (_type)
         {
             // Inform the global wintergrasp script of the destruction of this object
-            case WGGameObjectBuildingType.Tower:
-            case WGGameObjectBuildingType.KeepTower:
+            case WgGameObjectBuildingType.Tower:
+            case WgGameObjectBuildingType.KeepTower:
                 _wg.UpdatedDestroyedTowerCount(_teamControl);
 
                 break;
-            case WGGameObjectBuildingType.DoorLast:
+            case WgGameObjectBuildingType.DoorLast:
                 var build = _wg.GetGameObject(_buildGUID);
 
                 if (build)
                 {
-                    var go = build.FindNearestGameObject(WGGameObjects.KeepCollisionWall, 50.0f);
+                    var go = build.FindNearestGameObject(WgGameObjects.KEEP_COLLISION_WALL, 50.0f);
 
                     if (go)
                         go.SetGoState(GameObjectState.Active);
@@ -1236,14 +1243,14 @@ internal class BfWGGameObjectBuilding
 
         switch (_type)
         {
-            case WGGameObjectBuildingType.KeepTower:
-            case WGGameObjectBuildingType.DoorLast:
-            case WGGameObjectBuildingType.Door:
-            case WGGameObjectBuildingType.Wall:
+            case WgGameObjectBuildingType.KeepTower:
+            case WgGameObjectBuildingType.DoorLast:
+            case WgGameObjectBuildingType.Door:
+            case WgGameObjectBuildingType.Wall:
                 _teamControl = _wg.GetDefenderTeam(); // Objects that are part of the keep should be the defender's
 
                 break;
-            case WGGameObjectBuildingType.Tower:
+            case WgGameObjectBuildingType.Tower:
                 _teamControl = _wg.GetAttackerTeam(); // The towers in the south should be the Attacker's
 
                 break;
@@ -1253,26 +1260,25 @@ internal class BfWGGameObjectBuilding
                 break;
         }
 
-        _state = (WGGameObjectState)Global.WorldStateMgr.GetValue((int)_worldState, _wg.GetMap());
+        _state = (WgGameObjectState)Global.WorldStateMgr.GetValue((int)_worldState, _wg.GetMap());
 
-        if (_state == WGGameObjectState.None)
+        if (_state == WgGameObjectState.None)
         {
             // set to default State based on Type
             switch (_teamControl)
             {
                 case TeamIds.Alliance:
-                    _state = WGGameObjectState.AllianceIntact;
+                    _state = WgGameObjectState.AllianceIntact;
 
                     break;
                 case TeamIds.Horde:
-                    _state = WGGameObjectState.HordeIntact;
+                    _state = WgGameObjectState.HordeIntact;
 
                     break;
                 case TeamIds.Neutral:
-                    _state = WGGameObjectState.NeutralIntact;
+                    _state = WgGameObjectState.NeutralIntact;
 
                     break;
-                
             }
 
             Global.WorldStateMgr.SetValueAndSaveInDb((int)_worldState, (int)_state, false, _wg.GetMap());
@@ -1280,21 +1286,21 @@ internal class BfWGGameObjectBuilding
 
         switch (_state)
         {
-            case WGGameObjectState.NeutralIntact:
-            case WGGameObjectState.AllianceIntact:
-            case WGGameObjectState.HordeIntact:
+            case WgGameObjectState.NeutralIntact:
+            case WgGameObjectState.AllianceIntact:
+            case WgGameObjectState.HordeIntact:
                 go.SetDestructibleState(GameObjectDestructibleState.Rebuilding, null, true);
 
                 break;
-            case WGGameObjectState.NeutralDestroy:
-            case WGGameObjectState.AllianceDestroy:
-            case WGGameObjectState.HordeDestroy:
+            case WgGameObjectState.NeutralDestroy:
+            case WgGameObjectState.AllianceDestroy:
+            case WgGameObjectState.HordeDestroy:
                 go.SetDestructibleState(GameObjectDestructibleState.Destroyed);
 
                 break;
-            case WGGameObjectState.NeutralDamage:
-            case WGGameObjectState.AllianceDamage:
-            case WGGameObjectState.HordeDamage:
+            case WgGameObjectState.NeutralDamage:
+            case WgGameObjectState.AllianceDamage:
+            case WgGameObjectState.HordeDamage:
                 go.SetDestructibleState(GameObjectDestructibleState.Damaged);
 
                 break;
@@ -1304,31 +1310,31 @@ internal class BfWGGameObjectBuilding
 
         switch (go.Entry)
         {
-            case WGGameObjects.FortressTower1:
+            case WgGameObjects.FORTRESS_TOWER1:
                 towerId = 0;
 
                 break;
-            case WGGameObjects.FortressTower2:
+            case WgGameObjects.FORTRESS_TOWER2:
                 towerId = 1;
 
                 break;
-            case WGGameObjects.FortressTower3:
+            case WgGameObjects.FORTRESS_TOWER3:
                 towerId = 2;
 
                 break;
-            case WGGameObjects.FortressTower4:
+            case WgGameObjects.FORTRESS_TOWER4:
                 towerId = 3;
 
                 break;
-            case WGGameObjects.ShadowsightTower:
+            case WgGameObjects.SHADOWSIGHT_TOWER:
                 towerId = 4;
 
                 break;
-            case WGGameObjects.WinterSEdgeTower:
+            case WgGameObjects.WINTER_S_EDGE_TOWER:
                 towerId = 5;
 
                 break;
-            case WGGameObjects.FlamewatchTower:
+            case WgGameObjects.FLAMEWATCH_TOWER:
                 towerId = 6;
 
                 break;
@@ -1337,60 +1343,60 @@ internal class BfWGGameObjectBuilding
         if (towerId > 3) // Attacker towers
         {
             // Spawn associate gameobjects
-            foreach (var gobData in WGConst.AttackTowers[towerId - 4].GameObject)
+            foreach (var gobData in WgConst.AttackTowers[towerId - 4].GameObject)
             {
                 var goHorde = _wg.SpawnGameObject(gobData.HordeEntry, gobData.Pos, gobData.Rot);
 
                 if (goHorde)
-                    _GameObjectList[TeamIds.Horde].Add(goHorde.GUID);
+                    _gameObjectList[TeamIds.Horde].Add(goHorde.GUID);
 
                 var goAlliance = _wg.SpawnGameObject(gobData.AllianceEntry, gobData.Pos, gobData.Rot);
 
                 if (goAlliance)
-                    _GameObjectList[TeamIds.Alliance].Add(goAlliance.GUID);
+                    _gameObjectList[TeamIds.Alliance].Add(goAlliance.GUID);
             }
 
             // Spawn associate npc bottom
-            foreach (var creatureData in WGConst.AttackTowers[towerId - 4].CreatureBottom)
+            foreach (var creatureData in WgConst.AttackTowers[towerId - 4].CreatureBottom)
             {
                 var creature = _wg.SpawnCreature(creatureData.HordeEntry, creatureData.Pos);
 
                 if (creature)
-                    _CreatureBottomList[TeamIds.Horde].Add(creature.GUID);
+                    _creatureBottomList[TeamIds.Horde].Add(creature.GUID);
 
                 creature = _wg.SpawnCreature(creatureData.AllianceEntry, creatureData.Pos);
 
                 if (creature)
-                    _CreatureBottomList[TeamIds.Alliance].Add(creature.GUID);
+                    _creatureBottomList[TeamIds.Alliance].Add(creature.GUID);
             }
         }
 
         if (towerId >= 0)
         {
-            _staticTowerInfo = WGConst.TowerData[towerId];
+            _staticTowerInfo = WgConst.TowerData[towerId];
 
             // Spawn Turret bottom
-            foreach (var turretPos in WGConst.TowerCannon[towerId].TowerCannonBottom)
+            foreach (var turretPos in WgConst.TowerCannon[towerId].TowerCannonBottom)
             {
-                var turret = _wg.SpawnCreature(WGNpcs.TowerCannon, turretPos);
+                var turret = _wg.SpawnCreature(WgNpcs.TOWER_CANNON, turretPos);
 
                 if (turret)
                 {
-                    _TowerCannonBottomList.Add(turret.GUID);
+                    _towerCannonBottomList.Add(turret.GUID);
 
                     switch (go.Entry)
                     {
-                        case WGGameObjects.FortressTower1:
-                        case WGGameObjects.FortressTower2:
-                        case WGGameObjects.FortressTower3:
-                        case WGGameObjects.FortressTower4:
-                            turret.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
+                        case WgGameObjects.FORTRESS_TOWER1:
+                        case WgGameObjects.FORTRESS_TOWER2:
+                        case WgGameObjects.FORTRESS_TOWER3:
+                        case WgGameObjects.FORTRESS_TOWER4:
+                            turret.Faction = WgConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
                             break;
-                        case WGGameObjects.ShadowsightTower:
-                        case WGGameObjects.WinterSEdgeTower:
-                        case WGGameObjects.FlamewatchTower:
-                            turret.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
+                        case WgGameObjects.SHADOWSIGHT_TOWER:
+                        case WgGameObjects.WINTER_S_EDGE_TOWER:
+                        case WgGameObjects.FLAMEWATCH_TOWER:
+                            turret.Faction = WgConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
                             break;
                     }
@@ -1400,27 +1406,27 @@ internal class BfWGGameObjectBuilding
             }
 
             // Spawn Turret top
-            foreach (var towerCannonPos in WGConst.TowerCannon[towerId].TurretTop)
+            foreach (var towerCannonPos in WgConst.TowerCannon[towerId].TurretTop)
             {
-                var turret = _wg.SpawnCreature(WGNpcs.TowerCannon, towerCannonPos);
+                var turret = _wg.SpawnCreature(WgNpcs.TOWER_CANNON, towerCannonPos);
 
                 if (turret)
                 {
-                    _TurretTopList.Add(turret.GUID);
+                    _turretTopList.Add(turret.GUID);
 
                     switch (go.Entry)
                     {
-                        case WGGameObjects.FortressTower1:
-                        case WGGameObjects.FortressTower2:
-                        case WGGameObjects.FortressTower3:
-                        case WGGameObjects.FortressTower4:
-                            turret.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
+                        case WgGameObjects.FORTRESS_TOWER1:
+                        case WgGameObjects.FORTRESS_TOWER2:
+                        case WgGameObjects.FORTRESS_TOWER3:
+                        case WgGameObjects.FORTRESS_TOWER4:
+                            turret.Faction = WgConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
                             break;
-                        case WGGameObjects.ShadowsightTower:
-                        case WGGameObjects.WinterSEdgeTower:
-                        case WGGameObjects.FlamewatchTower:
-                            turret.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
+                        case WgGameObjects.SHADOWSIGHT_TOWER:
+                        case WgGameObjects.WINTER_S_EDGE_TOWER:
+                        case WgGameObjects.FLAMEWATCH_TOWER:
+                            turret.Faction = WgConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
                             break;
                     }
@@ -1435,7 +1441,7 @@ internal class BfWGGameObjectBuilding
 
     public void UpdateTurretAttack(bool disable)
     {
-        foreach (var guid in _TowerCannonBottomList)
+        foreach (var guid in _towerCannonBottomList)
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1452,20 +1458,20 @@ internal class BfWGGameObjectBuilding
 
                     switch (build.Entry)
                     {
-                        case WGGameObjects.FortressTower1:
-                        case WGGameObjects.FortressTower2:
-                        case WGGameObjects.FortressTower3:
-                        case WGGameObjects.FortressTower4:
+                        case WgGameObjects.FORTRESS_TOWER1:
+                        case WgGameObjects.FORTRESS_TOWER2:
+                        case WgGameObjects.FORTRESS_TOWER3:
+                        case WgGameObjects.FORTRESS_TOWER4:
                         {
-                            creature.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
+                            creature.Faction = WgConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
                             break;
                         }
-                        case WGGameObjects.ShadowsightTower:
-                        case WGGameObjects.WinterSEdgeTower:
-                        case WGGameObjects.FlamewatchTower:
+                        case WgGameObjects.SHADOWSIGHT_TOWER:
+                        case WgGameObjects.WINTER_S_EDGE_TOWER:
+                        case WgGameObjects.FLAMEWATCH_TOWER:
                         {
-                            creature.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
+                            creature.Faction = WgConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
                             break;
                         }
@@ -1474,7 +1480,7 @@ internal class BfWGGameObjectBuilding
             }
         }
 
-        foreach (var guid in _TurretTopList)
+        foreach (var guid in _turretTopList)
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1491,20 +1497,20 @@ internal class BfWGGameObjectBuilding
 
                     switch (build.Entry)
                     {
-                        case WGGameObjects.FortressTower1:
-                        case WGGameObjects.FortressTower2:
-                        case WGGameObjects.FortressTower3:
-                        case WGGameObjects.FortressTower4:
+                        case WgGameObjects.FORTRESS_TOWER1:
+                        case WgGameObjects.FORTRESS_TOWER2:
+                        case WgGameObjects.FORTRESS_TOWER3:
+                        case WgGameObjects.FORTRESS_TOWER4:
                         {
-                            creature.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
+                            creature.Faction = WgConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
                             break;
                         }
-                        case WGGameObjects.ShadowsightTower:
-                        case WGGameObjects.WinterSEdgeTower:
-                        case WGGameObjects.FlamewatchTower:
+                        case WgGameObjects.SHADOWSIGHT_TOWER:
+                        case WgGameObjects.WINTER_S_EDGE_TOWER:
+                        case WgGameObjects.FLAMEWATCH_TOWER:
                         {
-                            creature.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
+                            creature.Faction = WgConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
                             break;
                         }
@@ -1521,7 +1527,7 @@ internal class BfWGGameObjectBuilding
 
     private void UpdateCreatureAndGo()
     {
-        foreach (var guid in _CreatureTopList[_wg.GetDefenderTeam()])
+        foreach (var guid in _creatureTopList[_wg.GetDefenderTeam()])
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1529,7 +1535,7 @@ internal class BfWGGameObjectBuilding
                 _wg.HideNpc(creature);
         }
 
-        foreach (var guid in _CreatureTopList[_wg.GetAttackerTeam()])
+        foreach (var guid in _creatureTopList[_wg.GetAttackerTeam()])
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1537,7 +1543,7 @@ internal class BfWGGameObjectBuilding
                 _wg.ShowNpc(creature, true);
         }
 
-        foreach (var guid in _CreatureBottomList[_wg.GetDefenderTeam()])
+        foreach (var guid in _creatureBottomList[_wg.GetDefenderTeam()])
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1545,7 +1551,7 @@ internal class BfWGGameObjectBuilding
                 _wg.HideNpc(creature);
         }
 
-        foreach (var guid in _CreatureBottomList[_wg.GetAttackerTeam()])
+        foreach (var guid in _creatureBottomList[_wg.GetAttackerTeam()])
         {
             var creature = _wg.GetCreature(guid);
 
@@ -1553,7 +1559,7 @@ internal class BfWGGameObjectBuilding
                 _wg.ShowNpc(creature, true);
         }
 
-        foreach (var guid in _GameObjectList[_wg.GetDefenderTeam()])
+        foreach (var guid in _gameObjectList[_wg.GetDefenderTeam()])
         {
             var obj = _wg.GetGameObject(guid);
 
@@ -1561,7 +1567,7 @@ internal class BfWGGameObjectBuilding
                 obj.SetRespawnTime(Time.DAY);
         }
 
-        foreach (var guid in _GameObjectList[_wg.GetAttackerTeam()])
+        foreach (var guid in _gameObjectList[_wg.GetAttackerTeam()])
         {
             var obj = _wg.GetGameObject(guid);
 
@@ -1571,22 +1577,22 @@ internal class BfWGGameObjectBuilding
     }
 }
 
-internal class WGWorkshop
+internal class WgWorkshop
 {
     private readonly StaticWintergraspWorkshopInfo _staticInfo;
 
-    private readonly BattlefieldWG _wg; // Pointer to wintergrasp
+    private readonly BattlefieldWg _wg; // Pointer to wintergrasp
 
     //ObjectGuid _buildGUID;
-    private WGGameObjectState _state; // For worldstate
+    private WgGameObjectState _state; // For worldstate
     private uint _teamControl;        // Team witch control the workshop
 
-    public WGWorkshop(BattlefieldWG wg, byte type)
+    public WgWorkshop(BattlefieldWg wg, byte type)
     {
         _wg = wg;
-        _state = WGGameObjectState.None;
+        _state = WgGameObjectState.None;
         _teamControl = TeamIds.Neutral;
-        _staticInfo = WGConst.WorkshopData[type];
+        _staticInfo = WgConst.WorkshopData[type];
     }
 
     public byte GetId()
@@ -1609,7 +1615,7 @@ internal class WGWorkshop
             case TeamIds.Alliance:
             {
                 // Updating worldstate
-                _state = WGGameObjectState.AllianceIntact;
+                _state = WgGameObjectState.AllianceIntact;
                 Global.WorldStateMgr.SetValueAndSaveInDb(_staticInfo.WorldStateId, (int)_state, false, _wg.GetMap());
 
                 // Warning message
@@ -1617,7 +1623,7 @@ internal class WGWorkshop
                     _wg.SendWarning(_staticInfo.AllianceCaptureTextId); // workshop taken - alliance
 
                 // Found associate graveyard and update it
-                if (_staticInfo.WorkshopId < WGWorkshopIds.KeepWest)
+                if (_staticInfo.WorkshopId < WgWorkshopIds.KEEP_WEST)
                 {
                     var gy = _wg.GetGraveyardById(_staticInfo.WorkshopId);
 
@@ -1631,7 +1637,7 @@ internal class WGWorkshop
             case TeamIds.Horde:
             {
                 // Update worldstate
-                _state = WGGameObjectState.HordeIntact;
+                _state = WgGameObjectState.HordeIntact;
                 Global.WorldStateMgr.SetValueAndSaveInDb(_staticInfo.WorldStateId, (int)_state, false, _wg.GetMap());
 
                 // Warning message
@@ -1639,7 +1645,7 @@ internal class WGWorkshop
                     _wg.SendWarning(_staticInfo.HordeCaptureTextId); // workshop taken - horde
 
                 // Update graveyard control
-                if (_staticInfo.WorkshopId < WGWorkshopIds.KeepWest)
+                if (_staticInfo.WorkshopId < WgWorkshopIds.KEEP_WEST)
                 {
                     var gy = _wg.GetGraveyardById(_staticInfo.WorkshopId);
 
@@ -1658,7 +1664,7 @@ internal class WGWorkshop
 
     public void UpdateGraveyardAndWorkshop()
     {
-        if (_staticInfo.WorkshopId < WGWorkshopIds.Ne)
+        if (_staticInfo.WorkshopId < WgWorkshopIds.NE)
             GiveControlTo(_wg.GetAttackerTeam(), true);
         else
             GiveControlTo(_wg.GetDefenderTeam(), true);
@@ -1672,23 +1678,23 @@ internal class WGWorkshop
 
 internal class WintergraspCapturePoint : BfCapturePoint
 {
-    protected WGWorkshop _Workshop;
+    protected WgWorkshop Workshop;
 
-    public WintergraspCapturePoint(BattlefieldWG battlefield, uint teamInControl)
+    public WintergraspCapturePoint(BattlefieldWg battlefield, uint teamInControl)
         : base(battlefield)
     {
         m_Bf = battlefield;
         m_team = teamInControl;
     }
 
-    public void LinkToWorkshop(WGWorkshop workshop)
+    public void LinkToWorkshop(WgWorkshop workshop)
     {
-        _Workshop = workshop;
+        Workshop = workshop;
     }
 
     public override void ChangeTeam(uint oldteam)
     {
-        _Workshop.GiveControlTo(m_team, false);
+        Workshop.GiveControlTo(m_team, false);
     }
 
     private uint GetTeam()
@@ -1697,43 +1703,43 @@ internal class WintergraspCapturePoint : BfCapturePoint
     }
 }
 
-internal class BfGraveyardWG : BfGraveyard
+internal class BfGraveyardWg : BfGraveyard
 {
-    protected int _GossipTextId;
+    protected int GossipTextId;
 
-    public BfGraveyardWG(BattlefieldWG battlefield)
+    public BfGraveyardWg(BattlefieldWg battlefield)
         : base(battlefield)
     {
         m_Bf = battlefield;
-        _GossipTextId = 0;
+        GossipTextId = 0;
     }
 
     public void SetTextId(int textid)
     {
-        _GossipTextId = textid;
+        GossipTextId = textid;
     }
 
     private int GetTextId()
     {
-        return _GossipTextId;
+        return GossipTextId;
     }
 }
 
 [Script]
-internal class Battlefield_wintergrasp : ScriptObjectAutoAddDBBound, IBattlefieldGetBattlefield
+internal class BattlefieldWintergrasp : ScriptObjectAutoAddDBBound, IBattlefieldGetBattlefield
 {
-    public Battlefield_wintergrasp() : base("battlefield_wg") { }
+    public BattlefieldWintergrasp() : base("battlefield_wg") { }
 
     public BattleField GetBattlefield(Map map)
     {
-        return new BattlefieldWG(map);
+        return new BattlefieldWg(map);
     }
 }
 
 [Script]
-internal class npc_wg_give_promotion_credit : ScriptedAI
+internal class NPCWgGivePromotionCredit : ScriptedAI
 {
-    public npc_wg_give_promotion_credit(Creature creature) : base(creature) { }
+    public NPCWgGivePromotionCredit(Creature creature) : base(creature) { }
 
     public override void JustDied(Unit killer)
     {
@@ -1741,7 +1747,7 @@ internal class npc_wg_give_promotion_credit : ScriptedAI
             !killer.IsPlayer)
             return;
 
-        var wintergrasp = (BattlefieldWG)Global.BattleFieldMgr.GetBattlefieldByBattleId(killer.Map, BattlefieldIds.WG);
+        var wintergrasp = (BattlefieldWg)Global.BattleFieldMgr.GetBattlefieldByBattleId(killer.Map, BattlefieldIds.WG);
 
         if (wintergrasp == null)
             return;

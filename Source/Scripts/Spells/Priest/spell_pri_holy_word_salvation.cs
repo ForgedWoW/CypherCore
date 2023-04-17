@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(265202)]
-public class spell_pri_holy_word_salvation : SpellScript, ISpellAfterCast
+public class SpellPriHolyWordSalvation : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -22,7 +22,7 @@ public class spell_pri_holy_word_salvation : SpellScript, ISpellAfterCast
         foreach (var friendPlayers in friendlyList)
             if (friendPlayers.IsFriendlyTo(caster))
             {
-                caster.CastSpell(friendPlayers, PriestSpells.RENEW, true);
+                caster.SpellFactory.CastSpell(friendPlayers, PriestSpells.RENEW, true);
 
                 var prayer = friendPlayers.GetAura(PriestSpells.PRAYER_OF_MENDING_AURA);
 

@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class dh_shattered_souls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
+public class DhShatteredSouls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
 {
-    public dh_shattered_souls() : base("dh_shattered_souls") { }
+    public DhShatteredSouls() : base("dh_shattered_souls") { }
 
     public void OnCreatureKill(Player player, Creature victim)
     {
@@ -23,22 +24,22 @@ public class dh_shattered_souls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
 
         if (victim.CreatureType == CreatureType.Demon && RandomHelper.randChance(30))
         {
-            player.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
-            victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON, true);     //at
-            player.CastSpell(ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true); //buff
+            player.SpellFactory.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
+            victim.SpellFactory.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON, true);     //at
+            player.SpellFactory.CastSpell(ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true); //buff
         }
 
         if (victim.CreatureType != CreatureType.Demon && RandomHelper.randChance(30))
         {
-            victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
-            player.CastSpell(fragmentPos, ShatteredSoulsSpells.SHATTERED_SOULS, true); //10665
+            victim.SpellFactory.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
+            player.SpellFactory.CastSpell(fragmentPos, ShatteredSoulsSpells.SHATTERED_SOULS, true); //10665
         }
 
         if (player.HasAura(DemonHunterSpells.FEED_THE_DEMON))
             player.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
 
         if (player.HasAura(ShatteredSoulsSpells.PAINBRINGER))
-            player.CastSpell(player, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
+            player.SpellFactory.CastSpell(player, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
 
         var soulBarrier = player.GetAuraEffect(DemonHunterSpells.SOUL_BARRIER, 0);
 

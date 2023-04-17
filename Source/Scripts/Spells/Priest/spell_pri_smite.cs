@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(585)]
-public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
+public class SpellPriSmite : SpellScript, IHasSpellEffects, ISpellAfterCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

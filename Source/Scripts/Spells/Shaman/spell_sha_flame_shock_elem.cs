@@ -3,18 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 //188389
 [SpellScript(188389)]
-public class spell_sha_flame_shock_elem : AuraScript, IHasAuraEffects
+public class SpellShaFlameShockElem : AuraScript, IHasAuraEffects
 {
-    private int m_ExtraSpellCost;
+    private int _mExtraSpellCost;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
     public override bool Load()
@@ -24,7 +24,7 @@ public class spell_sha_flame_shock_elem : AuraScript, IHasAuraEffects
         if (caster == null)
             return false;
 
-        m_ExtraSpellCost = Math.Min(caster.GetPower(PowerType.Maelstrom), 20);
+        _mExtraSpellCost = Math.Min(caster.GetPower(PowerType.Maelstrom), 20);
 
         return true;
     }
@@ -35,28 +35,28 @@ public class spell_sha_flame_shock_elem : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 1, AuraType.PeriodicDamage));
     }
 
-    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
-        var m_newDuration = Duration + (Duration * (m_ExtraSpellCost / 20));
-        SetDuration(m_newDuration);
+        var mNewDuration = Duration + (Duration * (_mExtraSpellCost / 20));
+        SetDuration(mNewDuration);
 
         var caster = Caster;
 
         if (caster != null)
         {
-            var m_newMael = caster.GetPower(PowerType.Maelstrom) - m_ExtraSpellCost;
+            var mNewMael = caster.GetPower(PowerType.Maelstrom) - _mExtraSpellCost;
 
-            if (m_newMael < 0)
-                m_newMael = 0;
+            if (mNewMael < 0)
+                mNewMael = 0;
 
             var mael = caster.GetPower(PowerType.Maelstrom);
 
             if (mael > 0)
-                caster.SetPower(PowerType.Maelstrom, m_newMael);
+                caster.SetPower(PowerType.Maelstrom, mNewMael);
         }
     }
 
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 
@@ -65,7 +65,7 @@ public class spell_sha_flame_shock_elem : AuraScript, IHasAuraEffects
 
         if (caster.HasAura(ShamanSpells.LAVA_SURGE) && RandomHelper.randChance(15))
         {
-            caster.CastSpell(ShamanSpells.LAVA_SURGE_CAST_TIME);
+            caster.SpellFactory.CastSpell(ShamanSpells.LAVA_SURGE_CAST_TIME);
             caster.SpellHistory.ResetCooldown(ShamanSpells.LAVA_BURST, true);
         }
     }

@@ -155,10 +155,10 @@ internal struct PriestSpells
     public const uint RENEW = 139;
     public const uint RENEWED_HOPE = 197469;
     public const uint RENEWED_HOPE_EFFECT = 197470;
-    public const uint SET_2P_S12_HEAL = 33333;
-    public const uint SET_2P_S12_SHADOW = 92711;
-    public const uint SET_4P_S12_HEAL = 131566;
-    public const uint SET_4P_S12_SHADOW = 131556;
+    public const uint SET_2_P_S12_HEAL = 33333;
+    public const uint SET_2_P_S12_SHADOW = 92711;
+    public const uint SET_4_P_S12_HEAL = 131566;
+    public const uint SET_4_P_S12_SHADOW = 131556;
     public const uint SHADOWFORM = 165767;
     public const uint SHADOWFORM_STANCE = 232698;
     public const uint SHADOWFORM_VISUAL_WITHOUT_GLYPH = 107903;
@@ -198,7 +198,7 @@ internal struct PriestSpells
     public const uint SURGE_OF_DARKNESS = 87160;
     public const uint SURGE_OF_LIGHT = 114255;
     public const uint SURRENDER_TO_MADNESS = 193223;
-    public const uint T9_HEALING_2P = 67201;
+    public const uint T9_HEALING_2_P = 67201;
     public const uint THE_PENITENT_AURA = 200347;
     public const uint TRAIL_OF_LIGHT = 200128;
     public const uint TRAIL_OF_LIGHT_HEALING_EFFECT = 234946;

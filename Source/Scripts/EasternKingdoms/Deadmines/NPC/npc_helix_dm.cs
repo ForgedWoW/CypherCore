@@ -3,17 +3,20 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(49674)]
-public class npc_helix_dm : BossAI
+public class NPCHelixDm : BossAI
 {
     public static readonly Position[] NightmareSpidersSpawn =
     {
@@ -22,31 +25,31 @@ public class npc_helix_dm : BossAI
 
     public uint FlagResetTimer;
 
-    public npc_helix_dm(Creature creature) : base(creature, DMData.DATA_NIGHTMARE_HELIX) { }
+    public NPCHelixDm(Creature creature) : base(creature, DmData.DATA_NIGHTMARE_HELIX) { }
 
     public override void Reset()
     {
         _Reset();
         FlagResetTimer = 15000;
-        Instance.SetData(DMData.DATA_NIGHTMARE_HELIX, (uint)EncounterState.NotStarted);
+        Instance.SetData(DmData.DATA_NIGHTMARE_HELIX, (uint)EncounterState.NotStarted);
     }
 
     public override void JustEnteredCombat(Unit who)
     {
         base.JustEnteredCombat(who);
-        Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
-        Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(2000));
+        Events.ScheduleEvent(BossVanessaVancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
+        Events.ScheduleEvent(BossVanessaVancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(2000));
 
-        Me.SummonCreature(DMCreatures.NPC_MAIN_SPIDER, NightmareSpidersSpawn[3], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+        Me.SummonCreature(DmCreatures.NPC_MAIN_SPIDER, NightmareSpidersSpawn[3], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
     }
 
     public override void JustSummoned(Creature summoned)
     {
         switch (summoned.Entry)
         {
-            case DMCreatures.NPC_NIGHTMARE_SPIDER:
-            case DMCreatures.NPC_MAIN_SPIDER:
-            case DMCreatures.NPC_CHATTERING_HORROR:
+            case DmCreatures.NPC_NIGHTMARE_SPIDER:
+            case DmCreatures.NPC_MAIN_SPIDER:
+            case DmCreatures.NPC_CHATTERING_HORROR:
             {
                 summoned.AI.AttackStart(Me.Victim);
 
@@ -66,15 +69,15 @@ public class npc_helix_dm : BossAI
         Cell.VisitGrid(Me, searcher, 150f);
 
         foreach (var item in players)
-            item.AddAura(boss_vanessa_vancleef.Spells.EFFECT_1, item);
+            item.AddAura(BossVanessaVancleef.Spells.EFFECT_1, item);
 
-        Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_14, null, true);
+        Me.TextEmote(BossVanessaVancleef.VANESSA_NIGHTMARE_14, null, true);
 
-        var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+        var vanessa = Me.FindNearestCreature(DmCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
-        if (Vanessa != null)
+        if (vanessa != null)
         {
-            var pAI = (npc_vanessa_nightmare)Vanessa.AI;
+            var pAI = (NPCVanessaNightmare)vanessa.AI;
 
             if (pAI != null)
                 pAI.NightmarePass();
@@ -86,7 +89,7 @@ public class npc_helix_dm : BossAI
     public void SummonSpiders()
     {
         for (byte i = 0; i < 3; ++i)
-            Me.SummonCreature(DMCreatures.NPC_NIGHTMARE_SPIDER, NightmareSpidersSpawn[i], TempSummonType.ManualDespawn);
+            Me.SummonCreature(DmCreatures.NPC_NIGHTMARE_SPIDER, NightmareSpidersSpawn[i], TempSummonType.ManualDespawn);
     }
 
     public override void UpdateAI(uint diff)
@@ -103,14 +106,14 @@ public class npc_helix_dm : BossAI
         while ((eventId = Events.ExecuteEvent()) != 0)
             switch (eventId)
             {
-                case boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE:
-                    DoCastVictim(boss_vanessa_vancleef.Spells.SPIRIT_STRIKE);
-                    Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
+                case BossVanessaVancleef.BossEvents.EVENT_SPIRIT_STRIKE:
+                    DoCastVictim(BossVanessaVancleef.Spells.SPIRIT_STRIKE);
+                    Events.ScheduleEvent(BossVanessaVancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
 
                     break;
-                case boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS:
+                case BossVanessaVancleef.BossEvents.EVENT_SPIDERS:
                     SummonSpiders();
-                    Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(RandomHelper.URand(3000, 4000)));
+                    Events.ScheduleEvent(BossVanessaVancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(RandomHelper.URand(3000, 4000)));
 
                     break;
             }

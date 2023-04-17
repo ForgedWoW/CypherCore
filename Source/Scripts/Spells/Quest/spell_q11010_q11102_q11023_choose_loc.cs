@@ -2,16 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 40056 Knockdown Fel Cannon: Choose Loc
-internal class spell_q11010_q11102_q11023_choose_loc : SpellScript, IHasSpellEffects
+internal class SpellQ11010Q11102Q11023ChooseLoc : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -34,6 +37,6 @@ internal class spell_q11010_q11102_q11023_choose_loc : SpellScript, IHasSpellEff
             if (player.HasAuraType(AuraType.Fly) ||
                 player.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed))
                 // Summom Fel Cannon (bunny version) at found player
-                caster.SummonCreature(CreatureIds.FelCannon2, player.Location.X, player.Location.Y, player.Location.Z);
+                caster.SummonCreature(CreatureIds.FEL_CANNON2, player.Location.X, player.Location.Y, player.Location.Z);
     }
 }

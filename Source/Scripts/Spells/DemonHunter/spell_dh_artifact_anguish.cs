@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(202443)]
-public class spell_dh_artifact_anguish : AuraScript, IHasAuraEffects
+public class SpellDhArtifactAnguish : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,7 +21,7 @@ public class spell_dh_artifact_anguish : AuraScript, IHasAuraEffects
     }
 
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
         var target = OwnerAsUnit;
@@ -28,6 +29,6 @@ public class spell_dh_artifact_anguish : AuraScript, IHasAuraEffects
         if (caster == null || target == null)
             return;
 
-        caster.CastSpell(target, DemonHunterSpells.ANGUISH_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, StackAmount));
+        caster.SpellFactory.CastSpell(target, DemonHunterSpells.ANGUISH_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, StackAmount));
     }
 }

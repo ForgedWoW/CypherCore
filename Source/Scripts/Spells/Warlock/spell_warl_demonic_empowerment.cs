@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Demonic Empowerment - 193396
 [SpellScript(193396)]
-public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISpellOnCast
+public class SpellWarlDemonicEmpowerment : SpellScript, IHasSpellEffects, ISpellOnCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,10 +24,10 @@ public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISp
             return;
 
         if (caster.HasAura(WarlockSpells.SHADOWY_INSPIRATION))
-            caster.CastSpell(caster, WarlockSpells.SHADOWY_INSPIRATION_EFFECT, true);
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.SHADOWY_INSPIRATION_EFFECT, true);
 
         if (caster.HasAura(WarlockSpells.POWER_TRIP) && caster.IsInCombat && RandomHelper.randChance(50))
-            caster.CastSpell(caster, WarlockSpells.POWER_TRIP_ENERGIZE, true);
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.POWER_TRIP_ENERGIZE, true);
     }
 
     public override void Register()

@@ -2,22 +2,22 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Linq;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(315496)]
-public class spell_rog_slice_and_dice : SpellScript, ISpellAfterHit
+public class SpellRogSliceAndDice : SpellScript, ISpellAfterHit
 {
     public void AfterHit()
     {
-        var _player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-        if (_player != null)
+        if (player != null)
         {
-            var sliceAndDice = _player.GetAura(RogueSpells.SLICE_AND_DICE);
+            var sliceAndDice = player.GetAura(RogueSpells.SLICE_AND_DICE);
 
             if (sliceAndDice != null)
             {

@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 29166 - Innervate
-internal class spell_dru_innervate : SpellScript, ISpellCheckCast, ISpellOnHit
+internal class SpellDruInnervate : SpellScript, ISpellCheckCast, ISpellOnHit
 {
     public SpellCastResult CheckCast()
     {
@@ -38,7 +38,7 @@ internal class spell_dru_innervate : SpellScript, ISpellCheckCast, ISpellOnHit
             var innervateR2 = caster.GetAuraEffect(DruidSpellIds.InnervateRank2, 0);
 
             if (innervateR2 != null)
-                caster.CastSpell(caster,
+                caster.SpellFactory.CastSpell(caster,
                                  DruidSpellIds.Innervate,
                                  new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
                                      .SetTriggeringSpell(Spell)

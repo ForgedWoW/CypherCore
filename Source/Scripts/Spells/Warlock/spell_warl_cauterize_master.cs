@@ -3,15 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Cauterize Master - 119905
 [SpellScript(119905)]
-public class spell_warl_cauterize_master : SpellScript, ISpellCheckCast, IHasSpellEffects
+public class SpellWarlCauterizeMaster : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -45,7 +46,7 @@ public class spell_warl_cauterize_master : SpellScript, ISpellCheckCast, IHasSpe
         /*if (pet->GetEntry() != PET_ENTRY_IMP)
             return;*/
 
-        pet.CastSpell(caster, WarlockSpells.IMP_CAUTERIZE_MASTER, true);
+        pet.SpellFactory.CastSpell(caster, WarlockSpells.IMP_CAUTERIZE_MASTER, true);
         caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(30));
     }
 }

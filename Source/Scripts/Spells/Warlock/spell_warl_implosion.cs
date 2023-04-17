@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 196277 - Implosion
 [SpellScript(WarlockSpells.IMPLOSION)]
-public class spell_warl_implosion : SpellScript, IHasSpellEffects
+public class SpellWarlImplosion : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -33,14 +34,14 @@ public class spell_warl_implosion : SpellScript, IHasSpellEffects
                 imp.InterruptNonMeleeSpells(false);
                 imp.VariableStorage.Set("controlled", true);
                 imp.VariableStorage.Set("ForceUpdateTimers", true);
-                imp.CastSpell(target, WarlockSpells.IMPLOSION_JUMP, true);
+                imp.SpellFactory.CastSpell(target, WarlockSpells.IMPLOSION_JUMP, true);
                 imp.MotionMaster.MoveJump(target.Location, 300.0f, 1.0f, EventId.Jump);
                 imp.SendUpdateToPlayer(caster.AsPlayer);
                 var casterGuid = caster.GUID;
 
                 imp.Events.AddEventAtOffset(() =>
                                             {
-                                                imp.CastSpell(imp, WarlockSpells.IMPLOSION_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, (int)GetEffectInfo(1).Amplitude).SetOriginalCaster(casterGuid).SetTriggerFlags(TriggerCastFlags.FullMask));
+                                                imp.SpellFactory.CastSpell(imp, WarlockSpells.IMPLOSION_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, (int)GetEffectInfo(1).Amplitude).SetOriginalCaster(casterGuid).SetTriggerFlags(TriggerCastFlags.FullMask));
                                                 imp.DisappearAndDie();
                                             },
                                             TimeSpan.FromMilliseconds(500));

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_two_forms : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellGenTwoForms : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -47,6 +48,6 @@ internal class spell_gen_two_forms : SpellScript, ISpellCheckCast, IHasSpellEffe
         if (target.HasAuraType(AuraType.WorgenAlteredForm))
             target.RemoveAurasByType(AuraType.WorgenAlteredForm);
         else // Basepoints 1 for this aura control whether to trigger transform transition animation or not.
-            target.CastSpell(target, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, 1));
+            target.SpellFactory.CastSpell(target, GenericSpellIds.ALTERED_FORM, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, 1));
     }
 }

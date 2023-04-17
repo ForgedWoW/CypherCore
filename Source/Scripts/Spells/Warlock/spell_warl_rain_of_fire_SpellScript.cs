@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(5740)]
-internal class spell_warl_rain_of_fire_SpellScript : SpellScript, ISpellOnCast
+internal class SpellWarlRainOfFireSpellScript : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {
@@ -26,7 +26,7 @@ internal class spell_warl_rain_of_fire_SpellScript : SpellScript, ISpellOnCast
         if (caster.TryGetAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA, out var ror))
         {
             caster.RemoveAura(ror);
-            caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, true);
+            caster.SpellFactory.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, true);
         }
     }
 

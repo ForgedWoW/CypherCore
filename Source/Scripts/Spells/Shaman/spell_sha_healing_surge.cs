@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // 188070 Healing Surge
 [SpellScript(188070)]
-public class spell_sha_healing_surge : SpellScript, IHasSpellEffects, ISpellCalculateCastTime
+public class SpellShaHealingSurge : SpellScript, IHasSpellEffects, ISpellCalculateCastTime
 {
     private int _takenPower = 0;
     public List<ISpellEffect> SpellEffects { get; } = new();

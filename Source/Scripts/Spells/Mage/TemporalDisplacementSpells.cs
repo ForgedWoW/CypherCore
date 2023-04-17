@@ -5,10 +5,10 @@ namespace Scripts.Spells.Mage;
 
 public struct TemporalDisplacementSpells
 {
-    public static uint TEMPORAL_DISPLACEMENT = 80354;
-    public static uint INSANITY = 95809;
-    public static uint SHADOW_WORD_DEATH = 32409;
-    public static uint EXHAUSTION = 57723;
-    public static uint SATED = 57724;
-    public static uint PET_NETHERWINDS_FATIGUED = 160455;
+    public static uint TemporalDisplacement = 80354;
+    public static uint Insanity = 95809;
+    public static uint ShadowWordDeath = 32409;
+    public static uint Exhaustion = 57723;
+    public static uint Sated = 57724;
+    public static uint PetNetherwindsFatigued = 160455;
 }

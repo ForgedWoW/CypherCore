@@ -2,23 +2,24 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.Magmus;
 
 internal struct SpellIds
 {
     //Magmus
-    public const uint Fieryburst = 13900;
-    public const uint Warstomp = 24375;
+    public const uint FIERYBURST = 13900;
+    public const uint WARSTOMP = 24375;
 
     //IronhandGuardian
-    public const uint Goutofflame = 15529;
+    public const uint GOUTOFFLAME = 15529;
 }
 
 internal enum Phases
@@ -28,11 +29,11 @@ internal enum Phases
 }
 
 [Script]
-internal class boss_magmus : ScriptedAI
+internal class BossMagmus : ScriptedAI
 {
-    private Phases phase;
+    private Phases _phase;
 
-    public boss_magmus(Creature creature) : base(creature) { }
+    public BossMagmus(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -43,14 +44,14 @@ internal class boss_magmus : ScriptedAI
     {
         var instance = Me.InstanceScript;
 
-        instance?.SetData(DataTypes.TypeIronHall, (uint)EncounterState.InProgress);
+        instance?.SetData(DataTypes.TYPE_IRON_HALL, (uint)EncounterState.InProgress);
 
-        phase = Phases.One;
+        _phase = Phases.One;
 
         Scheduler.Schedule(TimeSpan.FromSeconds(5),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Fieryburst);
+                               DoCastVictim(SpellIds.FIERYBURST);
                                task.Repeat(TimeSpan.FromSeconds(6));
                            });
     }
@@ -58,14 +59,14 @@ internal class boss_magmus : ScriptedAI
     public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (Me.HealthBelowPctDamaged(50, damage) &&
-            phase == Phases.One)
+            _phase == Phases.One)
         {
-            phase = Phases.Two;
+            _phase = Phases.Two;
 
             Scheduler.Schedule(TimeSpan.FromSeconds(0),
                                task =>
                                {
-                                   DoCastVictim(SpellIds.Warstomp);
+                                   DoCastVictim(SpellIds.WARSTOMP);
                                    task.Repeat(TimeSpan.FromSeconds(8));
                                });
         }
@@ -85,19 +86,19 @@ internal class boss_magmus : ScriptedAI
 
         if (instance != null)
         {
-            instance.HandleGameObject(instance.GetGuidData(DataTypes.DataThroneDoor), true);
-            instance.SetData(DataTypes.TypeIronHall, (uint)EncounterState.Done);
+            instance.HandleGameObject(instance.GetGuidData(DataTypes.DATA_THRONE_DOOR), true);
+            instance.SetData(DataTypes.TYPE_IRON_HALL, (uint)EncounterState.Done);
         }
     }
 }
 
 [Script]
-internal class npc_ironhand_guardian : ScriptedAI
+internal class NPCIronhandGuardian : ScriptedAI
 {
     private readonly InstanceScript _instance;
     private bool _active;
 
-    public npc_ironhand_guardian(Creature creature) : base(creature)
+    public NPCIronhandGuardian(Creature creature) : base(creature)
     {
         _instance = Me.InstanceScript;
         _active = false;
@@ -112,7 +113,7 @@ internal class npc_ironhand_guardian : ScriptedAI
     {
         if (!_active)
         {
-            if (_instance.GetData(DataTypes.TypeIronHall) == (uint)EncounterState.NotStarted)
+            if (_instance.GetData(DataTypes.TYPE_IRON_HALL) == (uint)EncounterState.NotStarted)
                 return;
 
             // Once the boss is engaged, the guardians will stay activated until the next instance reset
@@ -120,7 +121,7 @@ internal class npc_ironhand_guardian : ScriptedAI
                                TimeSpan.FromSeconds(10),
                                task =>
                                {
-                                   DoCastAOE(SpellIds.Goutofflame);
+                                   DoCastAOE(SpellIds.GOUTOFFLAME);
                                    task.Repeat(TimeSpan.FromSeconds(16), TimeSpan.FromSeconds(21));
                                });
 

@@ -2,24 +2,25 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.QuartermasterZigris;
 
 internal struct SpellIds
 {
-    public const uint Shoot = 16496;
-    public const uint Stunbomb = 16497;
-    public const uint HealingPotion = 15504;
-    public const uint Hookednet = 15609;
+    public const uint SHOOT = 16496;
+    public const uint STUNBOMB = 16497;
+    public const uint HEALING_POTION = 15504;
+    public const uint HOOKEDNET = 15609;
 }
 
 [Script]
-internal class quartermaster_zigris : BossAI
+internal class QuartermasterZigris : BossAI
 {
-    public quartermaster_zigris(Creature creature) : base(creature, DataTypes.QuartermasterZigris) { }
+    public QuartermasterZigris(Creature creature) : base(creature, DataTypes.QUARTERMASTER_ZIGRIS) { }
 
     public override void Reset()
     {
@@ -33,14 +34,14 @@ internal class quartermaster_zigris : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(1),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Shoot);
+                               DoCastVictim(SpellIds.SHOOT);
                                task.Repeat(TimeSpan.FromMilliseconds(500));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(16),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Stunbomb);
+                               DoCastVictim(SpellIds.STUNBOMB);
                                task.Repeat(TimeSpan.FromSeconds(14));
                            });
     }

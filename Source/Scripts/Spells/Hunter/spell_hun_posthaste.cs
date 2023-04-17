@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [Script] // 781 - Disengage
-internal class spell_hun_posthaste : SpellScript, ISpellAfterCast
+internal class SpellHunPosthaste : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
-        if (Caster.HasAura(HunterSpells.PosthasteTalent))
+        if (Caster.HasAura(HunterSpells.POSTHASTE_TALENT))
         {
             Caster.RemoveMovementImpairingAuras(true);
-            Caster.CastSpell(Caster, HunterSpells.PosthasteIncreaseSpeed, Spell);
+            Caster.SpellFactory.CastSpell(Caster, HunterSpells.POSTHASTE_INCREASE_SPEED, Spell);
         }
     }
 }

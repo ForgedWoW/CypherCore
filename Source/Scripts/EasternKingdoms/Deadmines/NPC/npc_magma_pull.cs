@@ -3,30 +3,35 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(49454)]
-public class npc_magma_pull : ScriptedAI
+public class NPCMagmaPull : ScriptedAI
 {
     public static readonly Position VanessaNightmare1 = new(-230.717f, -563.0139f, 51.31293f, 1.047198f);
     public static readonly Position GlubtokNightmare1 = new(-229.3403f, -560.3629f, 51.31293f, 5.742133f);
 
-    public InstanceScript instance;
+    public InstanceScript Instance;
     public bool Pullplayers;
     public bool Csummon;
     public Player PlayerGUID;
     public uint PongTimer;
 
-    public npc_magma_pull(Creature creature) : base(creature)
+    public NPCMagmaPull(Creature creature) : base(creature)
     {
-        instance = creature.InstanceScript;
+        Instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -54,11 +59,11 @@ public class npc_magma_pull : ScriptedAI
 
                 foreach (var item in players)
                 {
-                    item.AddAura(boss_vanessa_vancleef.Spells.EFFECT_1, item);
+                    item.AddAura(BossVanessaVancleef.Spells.EFFECT_1, item);
                     item.NearTeleportTo(-205.7569f, -579.0972f, 42.98623f, 2.3f);
                 }
 
-                Me.Whisper(boss_vanessa_vancleef.VANESSA_NIGHTMARE_6, PlayerGUID, true);
+                Me.Whisper(BossVanessaVancleef.VANESSA_NIGHTMARE_6, PlayerGUID, true);
                 Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
 
                 if (!Me.FindNearestPlayer(50))
@@ -67,8 +72,8 @@ public class npc_magma_pull : ScriptedAI
 
             if (Csummon)
             {
-                Me.SummonCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, VanessaNightmare1, TempSummonType.ManualDespawn);
-                Me.SummonCreature(DMCreatures.NPC_GLUBTOK_NIGHTMARE, GlubtokNightmare1, TempSummonType.ManualDespawn);
+                Me.SummonCreature(DmCreatures.NPC_VANESSA_NIGHTMARE, VanessaNightmare1, TempSummonType.ManualDespawn);
+                Me.SummonCreature(DmCreatures.NPC_GLUBTOK_NIGHTMARE, GlubtokNightmare1, TempSummonType.ManualDespawn);
                 Csummon = false;
             }
         }

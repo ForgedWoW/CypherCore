@@ -3,15 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(34861)]
-public class spell_pri_holy_word_sanctify : SpellScript, IHasSpellEffects, ISpellOnCast
+public class SpellPriHolyWordSanctify : SpellScript, IHasSpellEffects, ISpellOnCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

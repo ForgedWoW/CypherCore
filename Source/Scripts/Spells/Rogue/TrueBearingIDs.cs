@@ -5,12 +5,12 @@ namespace Scripts.Spells.Rogue;
 
 public enum TrueBearingIDs
 {
-    BETWEEN_THE_EYES = 199804,
-    VANISH = 1856,
-    BLIND = 2094,
-    CLOAK_OF_SHADOWS = 31224,
-    RIPOSTE = 199754,
-    GRAPPLING_HOOK = 195457,
-    MARKED_FOR_DEATH = 137619,
-    DEATH_FROM_ABOVE = 152150
+    BetweenTheEyes = 199804,
+    Vanish = 1856,
+    Blind = 2094,
+    CloakOfShadows = 31224,
+    Riposte = 199754,
+    GrapplingHook = 195457,
+    MarkedForDeath = 137619,
+    DeathFromAbove = 152150
 }

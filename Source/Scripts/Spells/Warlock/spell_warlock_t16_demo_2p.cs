@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 145072 - Item - Warlock T16 2P Bonus
 [SpellScript(145072)]
-internal class spell_warlock_t16_demo_2p : AuraScript, IHasAuraEffects
+internal class SpellWarlockT16Demo2P : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -59,6 +59,6 @@ internal class spell_warlock_t16_demo_2p : AuraScript, IHasAuraEffects
             return;
 
         var caster = OwnerAsUnit;
-        caster.CastSpell(caster, triggeredSpellId, true);
+        caster.SpellFactory.CastSpell(caster, triggeredSpellId, true);
     }
 }

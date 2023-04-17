@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 70723 - Item - Druid T10 Balance 4P Bonus
-internal class spell_dru_t10_balance_4p_bonus : AuraScript, IHasAuraEffects
+internal class SpellDruT10Balance4PBonus : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -40,6 +41,6 @@ internal class spell_dru_t10_balance_4p_bonus : AuraScript, IHasAuraEffects
 
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-        caster.CastSpell(target, DruidSpellIds.Languish, args);
+        caster.SpellFactory.CastSpell(target, DruidSpellIds.Languish, args);
     }
 }

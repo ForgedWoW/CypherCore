@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 70769 Divine Storm!
-internal class spell_gen_divine_storm_cd_reset : SpellScript, IHasSpellEffects
+internal class SpellGenDivineStormCdReset : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,6 +27,6 @@ internal class spell_gen_divine_storm_cd_reset : SpellScript, IHasSpellEffects
 
     private void HandleScript(int effIndex)
     {
-        Caster.SpellHistory.ResetCooldown(GenericSpellIds.DivineStorm, true);
+        Caster.SpellHistory.ResetCooldown(GenericSpellIds.DIVINE_STORM, true);
     }
 }

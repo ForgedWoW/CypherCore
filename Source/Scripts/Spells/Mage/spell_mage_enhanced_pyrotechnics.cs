@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(157642)]
-public class spell_mage_enhanced_pyrotechnics : AuraScript
+public class SpellMageEnhancedPyrotechnics : AuraScript
 {
     private bool HandleProc(ProcEventInfo eventInfo)
     {

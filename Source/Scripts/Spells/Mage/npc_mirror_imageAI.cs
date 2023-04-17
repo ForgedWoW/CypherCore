@@ -2,17 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Spells.Mage;
 
 [CreatureScript(31216)]
-public class npc_mirror_imageAI : CasterAI
+public class NPCMirrorImageAI : CasterAI
 {
-    public npc_mirror_imageAI(Creature creature) : base(creature) { }
+    public NPCMirrorImageAI(Creature creature) : base(creature) { }
 
     public override void IsSummonedBy(WorldObject owner)
     {
@@ -31,7 +33,7 @@ public class npc_mirror_imageAI : CasterAI
         Me.SetHealth(owner.AsUnit.Health);
         Me.ReactState = ReactStates.Defensive;
 
-        Me.CastSpell(owner, eSpells.INHERIT_MASTER_THREAT, true);
+        Me.SpellFactory.CastSpell(owner, ESpells.INHERIT_MASTER_THREAT, true);
 
         // here mirror image casts on summoner spell (not present in client dbc) 49866
         // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
@@ -58,19 +60,18 @@ public class npc_mirror_imageAI : CasterAI
         if (ownerPlayer == null)
             return;
 
-        var spellId = eSpells.FROSTBOLT;
+        var spellId = ESpells.FROSTBOLT;
 
         switch (ownerPlayer.GetPrimarySpecialization())
         {
             case TalentSpecialization.MageArcane:
-                spellId = eSpells.ARCANE_BLAST;
+                spellId = ESpells.ARCANE_BLAST;
 
                 break;
             case TalentSpecialization.MageFire:
-                spellId = eSpells.FIREBALL;
+                spellId = ESpells.FIREBALL;
 
                 break;
-            
         }
 
         Events.ScheduleEvent(spellId, TimeSpan.Zero); ///< Schedule cast
@@ -79,7 +80,7 @@ public class npc_mirror_imageAI : CasterAI
             MotionMaster.Clear();
     }
 
-    public override void EnterEvadeMode(EvadeReason UnnamedParameter)
+    public override void EnterEvadeMode(EvadeReason unnamedParameter)
     {
         if (Me.IsInEvadeMode || !Me.IsAlive)
             return;
@@ -101,8 +102,8 @@ public class npc_mirror_imageAI : CasterAI
 
         if (owner != null)
         {
-            owner.CastSpell(Me, eSpells.INITIALIZE_IMAGES, true);
-            owner.CastSpell(Me, eSpells.CLONE_CASTER, true);
+            owner.SpellFactory.CastSpell(Me, ESpells.INITIALIZE_IMAGES, true);
+            owner.SpellFactory.CastSpell(Me, ESpells.CLONE_CASTER, true);
         }
     }
 
@@ -117,11 +118,11 @@ public class npc_mirror_imageAI : CasterAI
     {
         Events.Update(diff);
 
-        var l_Victim = Me.Victim;
+        var lVictim = Me.Victim;
 
-        if (l_Victim != null)
+        if (lVictim != null)
         {
-            if (CanAIAttack(l_Victim))
+            if (CanAIAttack(lVictim))
             {
                 /// If not already casting, cast! ("I'm a cast machine")
                 if (!Me.HasUnitState(UnitState.Casting))
@@ -169,7 +170,7 @@ public class npc_mirror_imageAI : CasterAI
         }
     }
 
-    public struct eSpells
+    public struct ESpells
     {
         public const uint FROSTBOLT = 59638;
         public const uint FIREBALL = 133;

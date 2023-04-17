@@ -3,24 +3,24 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_absorb0_hitlimit1 : AuraScript, IHasAuraEffects
+internal class SpellGenAbsorb0Hitlimit1 : AuraScript, IHasAuraEffects
 {
-    private double limit;
+    private double _limit;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
     public override bool Load()
     {
         // Max Absorb stored in 1 dummy effect
-        limit = SpellInfo.GetEffect(1).CalcValue();
+        _limit = SpellInfo.GetEffect(1).CalcValue();
 
         return true;
     }
@@ -32,6 +32,6 @@ internal class spell_gen_absorb0_hitlimit1 : AuraScript, IHasAuraEffects
 
     private double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
     {
-        return Math.Min(limit, absorbAmount);
+        return Math.Min(_limit, absorbAmount);
     }
 }

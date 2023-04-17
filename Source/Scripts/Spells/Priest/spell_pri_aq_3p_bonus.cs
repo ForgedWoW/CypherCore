@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 26169 - Oracle Healing Bonus
-internal class spell_pri_aq_3p_bonus : AuraScript, IHasAuraEffects
+internal class SpellPriAq3PBonus : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -37,6 +38,6 @@ internal class spell_pri_aq_3p_bonus : AuraScript, IHasAuraEffects
 
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(healInfo.Heal, 10));
-        caster.CastSpell(caster, PriestSpells.ORACULAR_HEAL, args);
+        caster.SpellFactory.CastSpell(caster, PriestSpells.ORACULAR_HEAL, args);
     }
 }

@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_darkness : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnCreate
+public class AtDhDarkness : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnCreate
 {
-    private bool entered;
+    private bool _entered;
 
     public void OnCreate()
     {
@@ -26,12 +26,12 @@ public class at_dh_darkness : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaT
 
         if (caster.IsFriendlyTo(unit) && !unit.HasAura(DemonHunterSpells.DARKNESS_ABSORB))
         {
-            entered = true;
+            _entered = true;
 
-            if (entered)
+            if (_entered)
             {
-                caster.CastSpell(unit, DemonHunterSpells.DARKNESS_ABSORB, true);
-                entered = false;
+                caster.SpellFactory.CastSpell(unit, DemonHunterSpells.DARKNESS_ABSORB, true);
+                _entered = false;
             }
         }
     }

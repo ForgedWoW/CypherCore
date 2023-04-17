@@ -1,34 +1,35 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(49550)]
-public class npc_rope_away : ScriptedAI
+public class NPCRopeAway : ScriptedAI
 {
-    private bool RunAway;
-    private byte Phase;
-    private uint MoveTimer;
+    private bool _runAway;
+    private byte _phase;
+    private uint _moveTimer;
 
-    public npc_rope_away(Creature creature) : base(creature)
+    public NPCRopeAway(Creature creature) : base(creature)
     {
         Me.SetNpcFlag(NPCFlags.SpellClick);
     }
 
     public override void Reset()
     {
-        Phase = 0;
-        MoveTimer = 500;
-        RunAway = false;
+        _phase = 0;
+        _moveTimer = 500;
+        _runAway = false;
         Me.SetSpeed(UnitMoveType.Flight, 3.0f);
     }
 
-    public override void MovementInform(MovementGeneratorType UnnamedParameter, uint id)
+    public override void MovementInform(MovementGeneratorType unnamedParameter, uint id)
     {
         if (id == 1)
         {
@@ -39,37 +40,37 @@ public class npc_rope_away : ScriptedAI
         }
     }
 
-    public override void PassengerBoarded(Unit who, sbyte UnnamedParameter, bool apply)
+    public override void PassengerBoarded(Unit who, sbyte unnamedParameter, bool apply)
     {
         if (who.TypeId == TypeId.Player)
             if (apply)
-                RunAway = true;
+                _runAway = true;
     }
 
     public override void UpdateAI(uint diff)
     {
-        if (RunAway)
+        if (_runAway)
         {
-            if (MoveTimer <= diff)
-                switch (Phase)
+            if (_moveTimer <= diff)
+                switch (_phase)
                 {
                     case 0:
                         Me.MotionMaster.MovePoint(0, -77.97f, -877.09f, 49.44f);
-                        MoveTimer = 2500;
-                        Phase++;
+                        _moveTimer = 2500;
+                        _phase++;
 
                         break;
                     case 1:
                         Me.MotionMaster.MovePoint(1, -64.02f, -839.84f, 41.22f);
-                        MoveTimer = 3000;
-                        Phase++;
+                        _moveTimer = 3000;
+                        _phase++;
 
                         break;
                     case 2:
                         break;
                 }
             else
-                MoveTimer -= diff;
+                _moveTimer -= diff;
         }
     }
 }

@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(119996)]
-public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpellCheckCast
+public class SpellMonkTranscendenceTransfer : SpellScript, ISpellOnCast, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {
@@ -18,7 +18,7 @@ public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpe
         if (caster == null)
             return SpellCastResult.Error;
 
-        Unit spirit = spell_monk_transcendence.GetSpirit(caster);
+        Unit spirit = SpellMonkTranscendence.GetSpirit(caster);
 
         if (spirit == null)
         {
@@ -40,7 +40,7 @@ public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpe
         if (caster == null)
             return;
 
-        Unit spirit = spell_monk_transcendence.GetSpirit(caster);
+        Unit spirit = SpellMonkTranscendence.GetSpirit(caster);
 
         if (spirit == null)
             return;

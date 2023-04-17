@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(194249)]
-public class spell_pri_voidform : AuraScript, IHasAuraEffects
+public class SpellPriVoidform : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -21,7 +22,7 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real));
     }
 
-    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -49,28 +50,27 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
         switch (tick)
         {
             case 0:
-                caster.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES, true);
+                caster.SpellFactory.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES, true);
 
                 break;
             case 3:
-                caster.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES + 1, true);
+                caster.SpellFactory.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES + 1, true);
 
                 break;
             case 6:
-                caster.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES + 2, true);
+                caster.SpellFactory.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES + 2, true);
 
                 break;
             case 9:
-                caster.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES + 3, true);
+                caster.SpellFactory.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES + 3, true);
 
                 break;
-            
         }
 
-        caster.CastSpell(caster, PriestSpells.VOIDFORM_BUFFS, true);
+        caster.SpellFactory.CastSpell(caster, PriestSpells.VOIDFORM_BUFFS, true);
     }
 
-    private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes UnnamedParameter)
+    private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes unnamedParameter)
     {
         var caster = Caster;
 
@@ -90,6 +90,6 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
             mod.AddSpellMod(SpellValueMod.BasePoint1, aEff.Amount);
 
         mod.TriggerFlags = TriggerCastFlags.FullMask;
-        caster.CastSpell(caster, PriestSpells.LINGERING_INSANITY, mod);
+        caster.SpellFactory.CastSpell(caster, PriestSpells.LINGERING_INSANITY, mod);
     }
 }

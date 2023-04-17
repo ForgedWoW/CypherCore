@@ -2,26 +2,28 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.DragonIsles.RubyLifePools;
 
 internal struct SpellIds
 {
     // Flashfrost Chillweaver
-    public const uint IceShield = 372749;
+    public const uint ICE_SHIELD = 372749;
 
     // Primal Juggernaut
-    public const uint Excavate = 373497;
+    public const uint EXCAVATE = 373497;
 };
 
 // 371652 - Executed
-internal class spell_ruby_life_pools_executed : AuraScript, IHasAuraEffects
+internal class SpellRubyLifePoolsExecuted : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -40,7 +42,7 @@ internal class spell_ruby_life_pools_executed : AuraScript, IHasAuraEffects
 }
 
 // 384933 - Ice Shield
-internal class spell_ruby_life_pools_ice_shield : AuraScript, IHasAuraEffects
+internal class SpellRubyLifePoolsIceShield : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -51,13 +53,13 @@ internal class spell_ruby_life_pools_ice_shield : AuraScript, IHasAuraEffects
 
     private void HandleEffectPeriodic(AuraEffect aurEff)
     {
-        var iceShield = Target?.GetAura(SpellIds.IceShield);
+        var iceShield = Target?.GetAura(SpellIds.ICE_SHIELD);
         iceShield?.RefreshDuration();
     }
 }
 
 // 372793 - Excavate
-internal class spell_ruby_life_pools_excavate : AuraScript, IHasAuraEffects
+internal class SpellRubyLifePoolsExcavate : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -68,12 +70,12 @@ internal class spell_ruby_life_pools_excavate : AuraScript, IHasAuraEffects
 
     private void HandleEffectPeriodic(AuraEffect aurEff)
     {
-        Caster?.CastSpell(Target, SpellIds.Excavate, true);
+        Caster?.SpellFactory.CastSpell(Target, SpellIds.EXCAVATE, true);
     }
 }
 
 // 395029 - Storm Infusion
-internal class spell_ruby_life_pools_storm_infusion : SpellScript, IHasSpellEffects
+internal class SpellRubyLifePoolsStormInfusion : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

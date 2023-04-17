@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
@@ -18,7 +18,7 @@ namespace Scripts.Spells.Evoker;
              EvokerSpells.RED_FIRE_BREATH,
              EvokerSpells.GREEN_SPIRITBLOOM,
              EvokerSpells.GREEN_SPIRITBLOOM_2)]
-public class spell_evoker_source_of_magic_trigger : SpellScript, ISpellOnEpowerSpellEnd
+public class SpellEvokerSourceOfMagicTrigger : SpellScript, ISpellOnEpowerSpellEnd
 {
     public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
     {
@@ -36,7 +36,7 @@ public class spell_evoker_source_of_magic_trigger : SpellScript, ISpellOnEpowerS
                 return;
 
             var amount = SpellManager.Instance.GetSpellInfo(EvokerSpells.BLUE_SOURCE_OF_MAGIC_ENERGIZE).GetEffect(0).BasePoints * (stage.Stage + 1);
-            Caster.CastSpell(target, EvokerSpells.BLUE_SOURCE_OF_MAGIC_ENERGIZE, amount, true);
+            Caster.SpellFactory.CastSpell(target, EvokerSpells.BLUE_SOURCE_OF_MAGIC_ENERGIZE, amount, true);
         }
     }
 }

@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 
 namespace Scripts.Spells.Monk;
 
 public class HealUnitCheck : ICheck<WorldObject>
 {
-    private readonly Unit m_source;
+    private readonly Unit _mSource;
 
     public HealUnitCheck(Unit source)
     {
-        m_source = source;
+        _mSource = source;
     }
 
     public bool Invoke(WorldObject @object)
@@ -22,7 +23,7 @@ public class HealUnitCheck : ICheck<WorldObject>
         if (unit == null)
             return true;
 
-        if (m_source.IsFriendlyTo(unit))
+        if (_mSource.IsFriendlyTo(unit))
             return false;
 
         return true;

@@ -3,16 +3,17 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 28719 - Healing Touch
-internal class spell_dru_t3_8p_bonus : AuraScript, IHasAuraEffects
+internal class SpellDruT38PBonus : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -40,6 +41,6 @@ internal class spell_dru_t3_8p_bonus : AuraScript, IHasAuraEffects
         var amount = MathFunctions.CalculatePct(spellPowerCost.Amount, aurEff.Amount);
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-        caster.CastSpell((Unit)null, DruidSpellIds.Exhilarate, args);
+        caster.SpellFactory.CastSpell((Unit)null, DruidSpellIds.Exhilarate, args);
     }
 }

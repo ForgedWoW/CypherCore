@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 // Beacon of Faith - 156910
 [SpellScript(156910)]
-public class spell_pal_beacon_of_faith : SpellScript, ISpellCheckCast
+public class SpellPalBeaconOfFaith : SpellScript, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {
@@ -18,7 +18,7 @@ public class spell_pal_beacon_of_faith : SpellScript, ISpellCheckCast
         if (target == null)
             return SpellCastResult.DontReport;
 
-        if (target.HasAura(PaladinSpells.BeaconOfLight))
+        if (target.HasAura(PaladinSpells.BEACON_OF_LIGHT))
             return SpellCastResult.BadTargets;
 
         return SpellCastResult.SpellCastOk;

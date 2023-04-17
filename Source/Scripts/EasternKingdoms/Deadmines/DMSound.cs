@@ -3,7 +3,7 @@
 
 namespace Scripts.EasternKingdoms.Deadmines;
 
-public static class DMSound
+public static class DmSound
 {
     public const uint SOUND_CANNONFIRE = 1400;
     public const uint SOUND_DESTROYDOOR = 3079;

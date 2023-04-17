@@ -3,61 +3,65 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.World.EmeraldDragons;
 
 internal struct CreatureIds
 {
-    public const uint DragonYsondre = 14887;
-    public const uint DragonLethon = 14888;
-    public const uint DragonEmeriss = 14889;
-    public const uint DragonTaerar = 14890;
-    public const uint DreamFog = 15224;
+    public const uint DRAGON_YSONDRE = 14887;
+    public const uint DRAGON_LETHON = 14888;
+    public const uint DRAGON_EMERISS = 14889;
+    public const uint DRAGON_TAERAR = 14890;
+    public const uint DREAM_FOG = 15224;
 
     //Ysondre
-    public const uint DementedDruid = 15260;
+    public const uint DEMENTED_DRUID = 15260;
 
     //Lethon
-    public const uint SpiritShade = 15261;
+    public const uint SPIRIT_SHADE = 15261;
 }
 
 internal struct SpellIds
 {
-    public const uint TailSweep = 15847;       // Tail Sweep - Slap Everything Behind Dragon (2 Seconds Interval)
-    public const uint SummonPlayer = 24776;    // Teleport Highest Threat Player In Front Of Dragon If Wandering Off
-    public const uint DreamFog = 24777;        // Auraspell For Dream Fog Npc (15224)
-    public const uint Sleep = 24778;           // Sleep Triggerspell (Used For Dream Fog)
-    public const uint SeepingFogLeft = 24813;  // Dream Fog - Summon Left
-    public const uint SeepingFogRight = 24814; // Dream Fog - Summon Right
-    public const uint NoxiousBreath = 24818;
-    public const uint MarkOfNature = 25040;     // Mark Of Nature Trigger (Applied On Target Death - 15 Minutes Of Being Suspectible To Aura Of Nature)
-    public const uint MarkOfNatureAura = 25041; // Mark Of Nature (Passive Marker-Test; Ticks Every 10 Seconds From Boss; Triggers Spellid 25042 (Scripted)
-    public const uint AuraOfNature = 25043;     // Stun For 2 Minutes (Used When public const uint MarkOfNature Exists On The Target)
+    public const uint TAIL_SWEEP = 15847;       // Tail Sweep - Slap Everything Behind Dragon (2 Seconds Interval)
+    public const uint SUMMON_PLAYER = 24776;    // Teleport Highest Threat Player In Front Of Dragon If Wandering Off
+    public const uint DREAM_FOG = 24777;        // Auraspell For Dream Fog Npc (15224)
+    public const uint SLEEP = 24778;           // Sleep Triggerspell (Used For Dream Fog)
+    public const uint SEEPING_FOG_LEFT = 24813;  // Dream Fog - Summon Left
+    public const uint SEEPING_FOG_RIGHT = 24814; // Dream Fog - Summon Right
+    public const uint NOXIOUS_BREATH = 24818;
+    public const uint MARK_OF_NATURE = 25040;     // Mark Of Nature Trigger (Applied On Target Death - 15 Minutes Of Being Suspectible To Aura Of Nature)
+    public const uint MARK_OF_NATURE_AURA = 25041; // Mark Of Nature (Passive Marker-Test; Ticks Every 10 Seconds From Boss; Triggers Spellid 25042 (Scripted)
+    public const uint AURA_OF_NATURE = 25043;     // Stun For 2 Minutes (Used When public const uint MarkOfNature Exists On The Target)
 
     //Ysondre
-    public const uint LightningWave = 24819;
-    public const uint SummonDruidSpirits = 24795;
+    public const uint LIGHTNING_WAVE = 24819;
+    public const uint SUMMON_DRUID_SPIRITS = 24795;
 
     //Lethon
-    public const uint DrawSpirit = 24811;
-    public const uint ShadowBoltWhirl = 24834;
-    public const uint DarkOffering = 24804;
+    public const uint DRAW_SPIRIT = 24811;
+    public const uint SHADOW_BOLT_WHIRL = 24834;
+    public const uint DARK_OFFERING = 24804;
 
     //Emeriss
-    public const uint PutridMushroom = 24904;
-    public const uint CorruptionOfEarth = 24910;
-    public const uint VolatileInfection = 24928;
+    public const uint PUTRID_MUSHROOM = 24904;
+    public const uint CORRUPTION_OF_EARTH = 24910;
+    public const uint VOLATILE_INFECTION = 24928;
 
     //Taerar
-    public const uint BellowingRoar = 22686;
-    public const uint Shade = 24313;
-    public const uint ArcaneBlast = 24857;
+    public const uint BELLOWING_ROAR = 22686;
+    public const uint SHADE = 24313;
+    public const uint ARCANE_BLAST = 24857;
 
     public static uint[] TaerarShadeSpells = new uint[]
     {
@@ -68,38 +72,38 @@ internal struct SpellIds
 internal struct TextIds
 {
     //Ysondre
-    public const uint SayYsondreAggro = 0;
-    public const uint SayYsondreSummonDruids = 1;
+    public const uint SAY_YSONDRE_AGGRO = 0;
+    public const uint SAY_YSONDRE_SUMMON_DRUIDS = 1;
 
     //Lethon
-    public const uint SayLethonAggro = 0;
-    public const uint SayLethonDrawSpirit = 1;
+    public const uint SAY_LETHON_AGGRO = 0;
+    public const uint SAY_LETHON_DRAW_SPIRIT = 1;
 
     //Emeriss
-    public const uint SayEmerissAggro = 0;
-    public const uint SayEmerissCastCorruption = 1;
+    public const uint SAY_EMERISS_AGGRO = 0;
+    public const uint SAY_EMERISS_CAST_CORRUPTION = 1;
 
     //Taerar
-    public const uint SayTaerarAggro = 0;
-    public const uint SayTaerarSummonShades = 1;
+    public const uint SAY_TAERAR_AGGRO = 0;
+    public const uint SAY_TAERAR_SUMMON_SHADES = 1;
 }
 
-internal class emerald_dragonAI : WorldBossAI
+internal class EmeraldDragonAI : WorldBossAI
 {
-    public emerald_dragonAI(Creature creature) : base(creature) { }
+    public EmeraldDragonAI(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
         base.Reset();
         Me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
         Me.ReactState = ReactStates.Aggressive;
-        DoCast(Me, SpellIds.MarkOfNatureAura, new CastSpellExtraArgs(true));
+        DoCast(Me, SpellIds.MARK_OF_NATURE_AURA, new CastSpellExtraArgs(true));
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4),
                            task =>
                            {
                                // Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
-                               DoCast(Me, SpellIds.TailSweep);
+                               DoCast(Me, SpellIds.TAIL_SWEEP);
                                task.Repeat(TimeSpan.FromSeconds(2));
                            });
 
@@ -108,7 +112,7 @@ internal class emerald_dragonAI : WorldBossAI
                            task =>
                            {
                                // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
-                               DoCast(Me, SpellIds.NoxiousBreath);
+                               DoCast(Me, SpellIds.NOXIOUS_BREATH);
                                task.Repeat();
                            });
 
@@ -118,8 +122,8 @@ internal class emerald_dragonAI : WorldBossAI
                            {
                                // Seeping Fog appears only as "pairs", and only ONE pair at any given Time!
                                // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random Time" (30 seconds at max)
-                               DoCast(Me, SpellIds.SeepingFogLeft, new CastSpellExtraArgs(true));
-                               DoCast(Me, SpellIds.SeepingFogRight, new CastSpellExtraArgs(true));
+                               DoCast(Me, SpellIds.SEEPING_FOG_LEFT, new CastSpellExtraArgs(true));
+                               DoCast(Me, SpellIds.SEEPING_FOG_RIGHT, new CastSpellExtraArgs(true));
                                task.Repeat(TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(2.5));
                            });
     }
@@ -128,7 +132,7 @@ internal class emerald_dragonAI : WorldBossAI
     public override void KilledUnit(Unit who)
     {
         if (who.IsTypeId(TypeId.Player))
-            who.CastSpell(who, SpellIds.MarkOfNature, true);
+            who.SpellFactory.CastSpell(who, SpellIds.MARK_OF_NATURE, true);
     }
 
     public override void UpdateAI(uint diff)
@@ -144,18 +148,18 @@ internal class emerald_dragonAI : WorldBossAI
         var target = SelectTarget(SelectTargetMethod.MaxThreat, 0, -50.0f, true);
 
         if (target)
-            DoCast(target, SpellIds.SummonPlayer);
+            DoCast(target, SpellIds.SUMMON_PLAYER);
 
         DoMeleeAttackIfReady();
     }
 }
 
 [Script]
-internal class npc_dream_fog : ScriptedAI
+internal class NPCDreamFog : ScriptedAI
 {
     private uint _roamTimer;
 
-    public npc_dream_fog(Creature creature) : base(creature)
+    public NPCDreamFog(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -205,11 +209,11 @@ internal class npc_dream_fog : ScriptedAI
 }
 
 [Script]
-internal class boss_ysondre : emerald_dragonAI
+internal class BossYsondre : EmeraldDragonAI
 {
     private byte _stage;
 
-    public boss_ysondre(Creature creature) : base(creature)
+    public BossYsondre(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -222,14 +226,14 @@ internal class boss_ysondre : emerald_dragonAI
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.LightningWave);
+                               DoCastVictim(SpellIds.LIGHTNING_WAVE);
                                task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
                            });
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayYsondreAggro);
+        Talk(TextIds.SAY_YSONDRE_AGGRO);
         base.JustEngagedWith(who);
     }
 
@@ -238,10 +242,10 @@ internal class boss_ysondre : emerald_dragonAI
     {
         if (!HealthAbovePct(100 - 25 * _stage))
         {
-            Talk(TextIds.SayYsondreSummonDruids);
+            Talk(TextIds.SAY_YSONDRE_SUMMON_DRUIDS);
 
             for (byte i = 0; i < 10; ++i)
-                DoCast(Me, SpellIds.SummonDruidSpirits, new CastSpellExtraArgs(true));
+                DoCast(Me, SpellIds.SUMMON_DRUID_SPIRITS, new CastSpellExtraArgs(true));
 
             ++_stage;
         }
@@ -254,11 +258,11 @@ internal class boss_ysondre : emerald_dragonAI
 }
 
 [Script]
-internal class boss_lethon : emerald_dragonAI
+internal class BossLethon : EmeraldDragonAI
 {
     private byte _stage;
 
-    public boss_lethon(Creature creature) : base(creature)
+    public BossLethon(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -271,14 +275,14 @@ internal class boss_lethon : emerald_dragonAI
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               Me.CastSpell((Unit)null, SpellIds.ShadowBoltWhirl, false);
+                               Me.SpellFactory.CastSpell((Unit)null, SpellIds.SHADOW_BOLT_WHIRL, false);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30));
                            });
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayLethonAggro);
+        Talk(TextIds.SAY_LETHON_AGGRO);
         base.JustEngagedWith(who);
     }
 
@@ -286,19 +290,19 @@ internal class boss_lethon : emerald_dragonAI
     {
         if (!HealthAbovePct(100 - 25 * _stage))
         {
-            Talk(TextIds.SayLethonDrawSpirit);
-            DoCast(Me, SpellIds.DrawSpirit);
+            Talk(TextIds.SAY_LETHON_DRAW_SPIRIT);
+            DoCast(Me, SpellIds.DRAW_SPIRIT);
             ++_stage;
         }
     }
 
     public override void SpellHitTarget(WorldObject target, SpellInfo spellInfo)
     {
-        if (spellInfo.Id == SpellIds.DrawSpirit &&
+        if (spellInfo.Id == SpellIds.DRAW_SPIRIT &&
             target.IsPlayer)
         {
             Position targetPos = target.Location;
-            Me.SummonCreature(CreatureIds.SpiritShade, targetPos, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(50));
+            Me.SummonCreature(CreatureIds.SPIRIT_SHADE, targetPos, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(50));
         }
     }
 
@@ -309,11 +313,11 @@ internal class boss_lethon : emerald_dragonAI
 }
 
 [Script]
-internal class npc_spirit_shade : PassiveAI
+internal class NPCSpiritShade : PassiveAI
 {
     private ObjectGuid _summonerGuid;
 
-    public npc_spirit_shade(Creature creature) : base(creature) { }
+    public NPCSpiritShade(Creature creature) : base(creature) { }
 
     public override void IsSummonedBy(WorldObject summoner)
     {
@@ -331,18 +335,18 @@ internal class npc_spirit_shade : PassiveAI
         if (moveType == MovementGeneratorType.Follow &&
             data == _summonerGuid.Counter)
         {
-            Me.CastSpell((Unit)null, SpellIds.DarkOffering, false);
+            Me.SpellFactory.CastSpell((Unit)null, SpellIds.DARK_OFFERING, false);
             Me.DespawnOrUnsummon(TimeSpan.FromSeconds(1));
         }
     }
 }
 
 [Script]
-internal class boss_emeriss : emerald_dragonAI
+internal class BossEmeriss : EmeraldDragonAI
 {
     private byte _stage;
 
-    public boss_emeriss(Creature creature) : base(creature)
+    public BossEmeriss(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -355,7 +359,7 @@ internal class boss_emeriss : emerald_dragonAI
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.VolatileInfection);
+                               DoCastVictim(SpellIds.VOLATILE_INFECTION);
                                task.Repeat(TimeSpan.FromSeconds(120));
                            });
     }
@@ -363,14 +367,14 @@ internal class boss_emeriss : emerald_dragonAI
     public override void KilledUnit(Unit who)
     {
         if (who.IsTypeId(TypeId.Player))
-            DoCast(who, SpellIds.PutridMushroom, new CastSpellExtraArgs(true));
+            DoCast(who, SpellIds.PUTRID_MUSHROOM, new CastSpellExtraArgs(true));
 
         base.KilledUnit(who);
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayEmerissAggro);
+        Talk(TextIds.SAY_EMERISS_AGGRO);
         base.JustEngagedWith(who);
     }
 
@@ -378,8 +382,8 @@ internal class boss_emeriss : emerald_dragonAI
     {
         if (!HealthAbovePct(100 - 25 * _stage))
         {
-            Talk(TextIds.SayEmerissCastCorruption);
-            DoCast(Me, SpellIds.CorruptionOfEarth, new CastSpellExtraArgs(true));
+            Talk(TextIds.SAY_EMERISS_CAST_CORRUPTION);
+            DoCast(Me, SpellIds.CORRUPTION_OF_EARTH, new CastSpellExtraArgs(true));
             ++_stage;
         }
     }
@@ -391,21 +395,21 @@ internal class boss_emeriss : emerald_dragonAI
 }
 
 [Script]
-internal class boss_taerar : emerald_dragonAI
+internal class BossTaerar : EmeraldDragonAI
 {
     private bool _banished;      // used for shades activation testing
     private uint _banishedTimer; // counter for banishment timeout
     private byte _shades;        // keep track of how many shades are dead
     private byte _stage;         // check which "shade phase" we're at (75-50-25 percentage counters)
 
-    public boss_taerar(Creature creature) : base(creature)
+    public BossTaerar(Creature creature) : base(creature)
     {
         Initialize();
     }
 
     public override void Reset()
     {
-        Me.RemoveAura(SpellIds.Shade);
+        Me.RemoveAura(SpellIds.SHADE);
 
         Initialize();
         base.Reset();
@@ -413,21 +417,21 @@ internal class boss_taerar : emerald_dragonAI
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCast(SpellIds.ArcaneBlast);
+                               DoCast(SpellIds.ARCANE_BLAST);
                                task.Repeat(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(12));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(30),
                            task =>
                            {
-                               DoCast(SpellIds.BellowingRoar);
+                               DoCast(SpellIds.BELLOWING_ROAR);
                                task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
                            });
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayTaerarAggro);
+        Talk(TextIds.SAY_TAERAR_AGGRO);
         base.JustEngagedWith(who);
     }
 
@@ -449,14 +453,14 @@ internal class boss_taerar : emerald_dragonAI
             Me.InterruptNonMeleeSpells(false);
             DoStopAttack();
 
-            Talk(TextIds.SayTaerarSummonShades);
+            Talk(TextIds.SAY_TAERAR_SUMMON_SHADES);
 
             foreach (var spell in SpellIds.TaerarShadeSpells)
                 DoCastVictim(spell, new CastSpellExtraArgs(true));
 
             _shades += (byte)SpellIds.TaerarShadeSpells.Length;
 
-            DoCast(SpellIds.Shade);
+            DoCast(SpellIds.SHADE);
             Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
             Me.ReactState = ReactStates.Passive;
 
@@ -478,7 +482,7 @@ internal class boss_taerar : emerald_dragonAI
                 _banished = false;
 
                 Me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-                Me.RemoveAura(SpellIds.Shade);
+                Me.RemoveAura(SpellIds.SHADE);
                 Me.ReactState = ReactStates.Aggressive;
             }
             // _banishtimer has not expired, and we still have active shades:
@@ -506,7 +510,7 @@ internal class boss_taerar : emerald_dragonAI
 }
 
 [Script] // 24778 - Sleep
-internal class spell_dream_fog_sleep_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellDreamFogSleepSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -522,7 +526,7 @@ internal class spell_dream_fog_sleep_SpellScript : SpellScript, IHasSpellEffects
             var unit = obj.AsUnit;
 
             if (unit)
-                return unit.HasAura(SpellIds.Sleep);
+                return unit.HasAura(SpellIds.SLEEP);
 
             return true;
         });
@@ -530,7 +534,7 @@ internal class spell_dream_fog_sleep_SpellScript : SpellScript, IHasSpellEffects
 }
 
 [Script] // 25042 - Triggerspell - Mark of Nature
-internal class spell_mark_of_nature_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellMarkOfNatureSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -549,7 +553,7 @@ internal class spell_mark_of_nature_SpellScript : SpellScript, IHasSpellEffects
             var unit = obj.AsUnit;
 
             if (unit)
-                return !(unit.HasAura(SpellIds.MarkOfNature) && !unit.HasAura(SpellIds.AuraOfNature));
+                return !(unit.HasAura(SpellIds.MARK_OF_NATURE) && !unit.HasAura(SpellIds.AURA_OF_NATURE));
 
             return true;
         });
@@ -558,6 +562,6 @@ internal class spell_mark_of_nature_SpellScript : SpellScript, IHasSpellEffects
     private void HandleEffect(int effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        HitUnit.CastSpell(HitUnit, SpellIds.AuraOfNature, true);
+        HitUnit.SpellFactory.CastSpell(HitUnit, SpellIds.AURA_OF_NATURE, true);
     }
 }

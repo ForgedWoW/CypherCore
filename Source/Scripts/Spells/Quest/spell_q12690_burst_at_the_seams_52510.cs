@@ -3,15 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 52510 - Burst at the Seams
-internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEffects
+internal class SpellQ12690BurstAtTheSeams52510 : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -39,19 +40,19 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
                 var player = charmer.AsPlayer;
 
                 if (player != null)
-                    if (player.GetQuestStatus(Misc.QuestFuelForTheFire) == QuestStatus.Incomplete)
+                    if (player.GetQuestStatus(Misc.QUEST_FUEL_FOR_THE_FIRE) == QuestStatus.Incomplete)
                     {
-                        creature.CastSpell(creature, QuestSpellIds.BurstAtTheSeamsBone, true);
-                        creature.CastSpell(creature, QuestSpellIds.ExplodeAbominationMeat, true);
-                        creature.CastSpell(creature, QuestSpellIds.ExplodeAbominationBloodyMeat, true);
-                        creature.CastSpell(creature, QuestSpellIds.BurstAtTheSeams52508, true);
-                        creature.CastSpell(creature, QuestSpellIds.BurstAtTheSeams59580, true);
+                        creature.SpellFactory.CastSpell(creature, QuestSpellIds.BURST_AT_THE_SEAMS_BONE, true);
+                        creature.SpellFactory.CastSpell(creature, QuestSpellIds.EXPLODE_ABOMINATION_MEAT, true);
+                        creature.SpellFactory.CastSpell(creature, QuestSpellIds.EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+                        creature.SpellFactory.CastSpell(creature, QuestSpellIds.BURST_AT_THE_SEAMS52508, true);
+                        creature.SpellFactory.CastSpell(creature, QuestSpellIds.BURST_AT_THE_SEAMS59580, true);
 
-                        player.CastSpell(player, QuestSpellIds.DrakkariSkullcrusherCredit, true);
-                        var count = player.GetReqKillOrCastCurrentCount(Misc.QuestFuelForTheFire, (int)CreatureIds.DrakkariChieftaink);
+                        player.SpellFactory.CastSpell(player, QuestSpellIds.DRAKKARI_SKULLCRUSHER_CREDIT, true);
+                        var count = player.GetReqKillOrCastCurrentCount(Misc.QUEST_FUEL_FOR_THE_FIRE, (int)CreatureIds.DRAKKARI_CHIEFTAINK);
 
                         if ((count % 20) == 0)
-                            player.CastSpell(player, QuestSpellIds.SummonDrakkariChieftain, true);
+                            player.SpellFactory.CastSpell(player, QuestSpellIds.SUMMON_DRAKKARI_CHIEFTAIN, true);
                     }
             }
         }

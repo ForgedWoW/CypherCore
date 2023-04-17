@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 [Script] // 710 - Banish
-internal class spell_warl_banish : SpellScript, ISpellBeforeHit
+internal class SpellWarlBanish : SpellScript, ISpellBeforeHit
 {
     public void BeforeHit(SpellMissInfo missInfo)
     {

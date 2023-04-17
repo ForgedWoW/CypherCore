@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Mage;
 
@@ -9,7 +9,7 @@ namespace Scripts.Spells.Mage;
 {
     157997, 157980
 })]
-public class spell_mage_nova_talent : SpellScript
+public class SpellMageNovaTalent : SpellScript
 {
     public void OnHit()
     {

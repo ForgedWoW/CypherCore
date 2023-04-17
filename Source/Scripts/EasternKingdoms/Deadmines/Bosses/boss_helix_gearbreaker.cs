@@ -3,17 +3,20 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Deadmines.Bosses;
 
 [CreatureScript(47296)]
-public class boss_helix_gearbreaker : BossAI
+public class BossHelixGearbreaker : BossAI
 {
     public const string CHEST_BOMB = "Helix attaches a bomb to $N's chest.";
 
@@ -29,7 +32,7 @@ public class boss_helix_gearbreaker : BossAI
 
     private Creature _oaf;
 
-    public boss_helix_gearbreaker(Creature pCreature) : base(pCreature, DMData.DATA_HELIX) { }
+    public BossHelixGearbreaker(Creature pCreature) : base(pCreature, DmData.DATA_HELIX) { }
 
     public override void Reset()
     {
@@ -54,12 +57,12 @@ public class boss_helix_gearbreaker : BossAI
         Talk(5);
         Me.SetInCombatWithZone();
         Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
-        Events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+        Events.ScheduleEvent(HelOafEvents.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
         if (IsHeroic())
         {
             SummonCrew();
-            Events.ScheduleEvent(HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(0));
+            Events.ScheduleEvent(HelOafEvents.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(0));
         }
     }
 
@@ -69,18 +72,18 @@ public class boss_helix_gearbreaker : BossAI
 
         if (_oaf == null)
         {
-            _oaf = Me.FindNearestCreature(DMCreatures.NPC_OAF, 30.0f);
+            _oaf = Me.FindNearestCreature(DmCreatures.NPC_OAF, 30.0f);
 
             if (_oaf != null && _oaf.IsAlive)
             {
-                Me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
+                Me.SpellFactory.CastSpell(_oaf, ESpels.RIDE_VEHICLE_HARDCODED);
             }
             else
             {
-                _oaf = Me.SummonCreature(DMCreatures.NPC_OAF, Me.HomePosition);
+                _oaf = Me.SummonCreature(DmCreatures.NPC_OAF, Me.HomePosition);
 
                 if (_oaf != null && _oaf.IsAlive)
-                    Me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
+                    Me.SpellFactory.CastSpell(_oaf, ESpels.RIDE_VEHICLE_HARDCODED);
             }
         }
     }
@@ -93,7 +96,7 @@ public class boss_helix_gearbreaker : BossAI
     public void SummonCrew()
     {
         for (byte i = 0; i < 4; ++i)
-            Me.SummonCreature(DMCreatures.NPC_HELIX_CREW, CrewSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+            Me.SummonCreature(DmCreatures.NPC_HELIX_CREW, CrewSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
     }
 
     public override void JustDied(Unit killer)
@@ -114,16 +117,16 @@ public class boss_helix_gearbreaker : BossAI
 
         base.JustReachedHome();
         Talk(1);
-        Instance.SetBossState(DMData.DATA_HELIX, EncounterState.Fail);
+        Instance.SetBossState(DmData.DATA_HELIX, EncounterState.Fail);
     }
 
     public void OafDead()
     {
-        Events.ScheduleEvent(HelOaf_Events.EVENT_NO_OAF, TimeSpan.FromMilliseconds(100));
-        Events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+        Events.ScheduleEvent(HelOafEvents.EVENT_NO_OAF, TimeSpan.FromMilliseconds(100));
+        Events.ScheduleEvent(HelOafEvents.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
         if (IsHeroic())
-            Events.ScheduleEvent(HelOaf_Events.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(5000));
+            Events.ScheduleEvent(HelOafEvents.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(5000));
     }
 
     public override void UpdateAI(uint uiDiff)
@@ -143,50 +146,50 @@ public class boss_helix_gearbreaker : BossAI
         while ((eventId = Events.ExecuteEvent()) != 0)
             switch (eventId)
             {
-                case HelOaf_Events.EVENT_THROW_BOMB:
+                case HelOafEvents.EVENT_THROW_BOMB:
                     var target = SelectTarget(SelectTargetMethod.Random, 0, 150, true);
 
                     if (target != null)
-                        Me.CastSpell(target, eSpels.THROW_BOMB, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle | TriggerCastFlags.IgnoreCasterAurastate));
+                        Me.SpellFactory.CastSpell(target, ESpels.THROW_BOMB, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle | TriggerCastFlags.IgnoreCasterAurastate));
 
-                    Events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+                    Events.ScheduleEvent(HelOafEvents.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
                     break;
-                case HelOaf_Events.EVENT_CHEST_BOMB:
+                case HelOafEvents.EVENT_CHEST_BOMB:
                     var target1 = SelectTarget(SelectTargetMethod.Random, 0, 150, true);
 
                     if (target1 != null)
                     {
                         Me.TextEmote(CHEST_BOMB, target1, true);
-                        Me.AddAura(eSpels.CHEST_BOMB, target1);
+                        Me.AddAura(ESpels.CHEST_BOMB, target1);
                     }
 
-                    Events.ScheduleEvent(HelOaf_Events.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(11000));
+                    Events.ScheduleEvent(HelOafEvents.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(11000));
 
                     break;
-                case HelOaf_Events.EVENT_NO_OAF:
+                case HelOafEvents.EVENT_NO_OAF:
                     Me.RemoveUnitFlag(UnitFlags.Uninteractible);
-                    Me.RemoveAura(eSpels.OAFQUARD);
+                    Me.RemoveAura(ESpels.OAFQUARD);
                     Talk(2);
-                    Events.RescheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+                    Events.RescheduleEvent(HelOafEvents.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
                     break;
-                case HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF:
+                case HelOafEvents.EVENT_ACHIEVEVEMENT_BUFF:
                     var players = new List<Unit>();
                     var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
                     var searcher = new PlayerListSearcher(Me, players, checker);
                     Cell.VisitGrid(Me, searcher, 150f);
 
                     foreach (var item in players)
-                        Me.CastSpell(item, eSpels.HELIX_RIDE, true);
+                        Me.SpellFactory.CastSpell(item, ESpels.HELIX_RIDE, true);
 
-                    Events.ScheduleEvent(HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(60000));
+                    Events.ScheduleEvent(HelOafEvents.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(60000));
 
                     break;
             }
     }
 
-    public struct eSpels
+    public struct ESpels
     {
         // Helix
         public const uint OAFQUARD = 90546;
@@ -211,7 +214,7 @@ public class boss_helix_gearbreaker : BossAI
         public const uint CHEST_BOMB = 88352; // Unused
     }
 
-    public struct HelOaf_Events
+    public struct HelOafEvents
     {
         // Helix Events
         public const uint EVENT_CHEST_BOMB = 1;

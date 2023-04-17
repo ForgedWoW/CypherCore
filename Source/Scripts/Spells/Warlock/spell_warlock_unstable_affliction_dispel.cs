@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 233490 - Unstable Affliction dispel
 [SpellScript(233490)]
-public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffects, IAuraOnDispel
+public class SpellWarlockUnstableAfflictionDispel : AuraScript, IHasAuraEffects, IAuraOnDispel
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -32,7 +33,7 @@ public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffe
             var args = new CastSpellExtraArgs();
             args.AddSpellMod(SpellValueMod.BasePoint0, (int)damage);
             args.SetTriggerFlags(TriggerCastFlags.FullMask);
-            caster.CastSpell(dispeller, WarlockSpells.UNSTABLE_AFFLICTION_DISPEL, args);
+            caster.SpellFactory.CastSpell(dispeller, WarlockSpells.UNSTABLE_AFFLICTION_DISPEL, args);
         }
     }
 
@@ -41,7 +42,7 @@ public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffe
         AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
     }
 
-    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
         var target = OwnerAsUnit;
@@ -55,7 +56,7 @@ public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffe
                 if (caster.VariableStorage.Exist("_uaLockout"))
                     return;
 
-                caster.CastSpell(caster, WarlockSpells.UNSTABLE_AFFLICTION_ENERGIZE, true);
+                caster.SpellFactory.CastSpell(caster, WarlockSpells.UNSTABLE_AFFLICTION_ENERGIZE, true);
 
                 caster.VariableStorage.Set("_uaLockout", 0);
 
@@ -66,6 +67,6 @@ public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffe
         // When Unstable Affliction expires, it has a 6% chance to reapply itself.
         if (TargetApplication != null && TargetApplication.RemoveMode == AuraRemoveMode.Expire)
             if (RandomHelper.randChance(caster.GetAuraEffectAmount(WarlockSpells.FATAL_ECHOES, 0)))
-                caster.Events.AddEventAtOffset(() => { caster.CastSpell(target, SpellInfo.Id, true); }, TimeSpan.FromMilliseconds(100));
+                caster.Events.AddEventAtOffset(() => { caster.SpellFactory.CastSpell(target, SpellInfo.Id, true); }, TimeSpan.FromMilliseconds(100));
     }
 }

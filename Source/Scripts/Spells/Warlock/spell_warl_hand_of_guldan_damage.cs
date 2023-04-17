@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Hand of Guldan damage - 86040
 [SpellScript(86040)]
-internal class spell_warl_hand_of_guldan_damage : SpellScript, IHasSpellEffects
+internal class SpellWarlHandOfGuldanDamage : SpellScript, IHasSpellEffects
 {
     private int _soulshards = 1;
 
@@ -52,7 +53,7 @@ internal class spell_warl_hand_of_guldan_damage : SpellScript, IHasSpellEffects
                 HitDamage = dmg * _soulshards;
 
                 if (caster.HasAura(WarlockSpells.HAND_OF_DOOM))
-                    caster.CastSpell(target, WarlockSpells.DOOM, true);
+                    caster.SpellFactory.CastSpell(target, WarlockSpells.DOOM, true);
             }
         }
     }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 // Justicar's Vengeance - 215661
 [SpellScript(215661)]
-public class spell_pal_justicars_vengeance : SpellScript, ISpellOnHit
+public class SpellPalJusticarsVengeance : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -29,11 +29,11 @@ public class spell_pal_justicars_vengeance : SpellScript, ISpellOnHit
             EffectValue = damage;
         }
 
-        if (caster.HasAura(PaladinSpells.DivinePurposeTriggerred))
-            caster.RemoveAura(PaladinSpells.DivinePurposeTriggerred);
+        if (caster.HasAura(PaladinSpells.DIVINE_PURPOSE_TRIGGERRED))
+            caster.RemoveAura(PaladinSpells.DIVINE_PURPOSE_TRIGGERRED);
 
         if (caster.HasAura(PaladinSpells.FIST_OF_JUSTICE_RETRI))
-            if (caster.SpellHistory.HasCooldown(PaladinSpells.HammerOfJustice))
-                caster.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-10 * Time.IN_MILLISECONDS));
+            if (caster.SpellHistory.HasCooldown(PaladinSpells.HAMMER_OF_JUSTICE))
+                caster.SpellHistory.ModifyCooldown(PaladinSpells.HAMMER_OF_JUSTICE, TimeSpan.FromSeconds(-10 * Time.IN_MILLISECONDS));
     }
 }

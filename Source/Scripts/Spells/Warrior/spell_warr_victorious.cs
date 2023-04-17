@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -16,7 +16,7 @@ namespace Scripts.Spells.Warrior;
 {
     32216, 82368
 })]
-public class spell_warr_victorious : AuraScript, IHasAuraEffects
+public class SpellWarrVictorious : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,7 +26,7 @@ public class spell_warr_victorious : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    private void HandleEffectProc(AuraEffect unnamedParameter, ProcEventInfo unnamedParameter2)
     {
         PreventDefaultAction();
         Target.RemoveAura(Id);

@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 4658 - AreaTrigger Create Properties
-internal class areatrigger_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
+internal class AreatriggerMageBlizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
     private TimeSpan _tickTimer;
 
@@ -26,7 +26,7 @@ internal class areatrigger_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCrea
         {
             var caster = At.GetCaster();
 
-            caster?.CastSpell(At.Location, MageSpells.BlizzardDamage, new CastSpellExtraArgs());
+            caster?.SpellFactory.CastSpell(At.Location, MageSpells.BLIZZARD_DAMAGE, new CastSpellExtraArgs());
 
             _tickTimer += TimeSpan.FromMilliseconds(1000);
         }

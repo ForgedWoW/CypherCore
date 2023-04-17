@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(116670)]
-public class spell_monk_vivify : SpellScript, IHasSpellEffects, ISpellAfterCast, ISpellBeforeCast
+public class SpellMonkVivify : SpellScript, IHasSpellEffects, ISpellAfterCast, ISpellBeforeCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,7 +24,7 @@ public class spell_monk_vivify : SpellScript, IHasSpellEffects, ISpellAfterCast,
             return;
 
         if (caster.HasAura(MonkSpells.LIFECYCLES))
-            caster.CastSpell(caster, MonkSpells.LIFECYCLES_ENVELOPING_MIST, true);
+            caster.SpellFactory.CastSpell(caster, MonkSpells.LIFECYCLES_ENVELOPING_MIST, true);
     }
 
     public override void Register()

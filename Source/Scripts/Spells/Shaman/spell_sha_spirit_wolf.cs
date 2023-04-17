@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 260878 - Spirit Wolf
 [SpellScript(260878)]
-internal class spell_sha_spirit_wolf : AuraScript, IHasAuraEffects
+internal class SpellShaSpiritWolf : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,14 +27,14 @@ internal class spell_sha_spirit_wolf : AuraScript, IHasAuraEffects
     {
         var target = Target;
 
-        if (target.HasAura(ShamanSpells.SpiritWolfTalent) &&
+        if (target.HasAura(ShamanSpells.SPIRIT_WOLF_TALENT) &&
             target.HasAura(ShamanSpells.GhostWolf))
-            target.CastSpell(target, ShamanSpells.SpiritWolfPeriodic, new CastSpellExtraArgs(aurEff));
+            target.SpellFactory.CastSpell(target, ShamanSpells.SPIRIT_WOLF_PERIODIC, new CastSpellExtraArgs(aurEff));
     }
 
     private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.RemoveAura(ShamanSpells.SpiritWolfPeriodic);
-        Target.RemoveAura(ShamanSpells.SpiritWolfAura);
+        Target.RemoveAura(ShamanSpells.SPIRIT_WOLF_PERIODIC);
+        Target.RemoveAura(ShamanSpells.SPIRIT_WOLF_AURA);
     }
 }

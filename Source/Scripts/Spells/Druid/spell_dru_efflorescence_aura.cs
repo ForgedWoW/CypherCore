@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(81262)]
-public class spell_dru_efflorescence_aura : AuraScript, IHasAuraEffects
+public class SpellDruEfflorescenceAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -19,18 +19,18 @@ public class spell_dru_efflorescence_aura : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandleHeal, 0, AuraType.PeriodicDummy));
     }
 
-    private void HandleHeal(AuraEffect UnnamedParameter)
+    private void HandleHeal(AuraEffect unnamedParameter)
     {
         if (Caster && Caster.OwnerUnit)
         {
-            Caster.OwnerUnit.CastSpell(Caster.Location, EfflorescenceSpells.EFFLORESCENCE_HEAL);
+            Caster.OwnerUnit.SpellFactory.CastSpell(Caster.Location, EfflorescenceSpells.EfflorescenceHeal);
 
             var playerList = Caster.GetPlayerListInGrid(11.2f);
 
             foreach (var targets in playerList)
-                if (Caster.OwnerUnit.HasAura(DruidSpells.SPRING_BLOSSOMS))
-                    if (!targets.HasAura(DruidSpells.SPRING_BLOSSOMS_HEAL))
-                        Caster.OwnerUnit.CastSpell(targets, DruidSpells.SPRING_BLOSSOMS_HEAL, true);
+                if (Caster.OwnerUnit.HasAura(DruidSpells.SpringBlossoms))
+                    if (!targets.HasAura(DruidSpells.SpringBlossomsHeal))
+                        Caster.OwnerUnit.SpellFactory.CastSpell(targets, DruidSpells.SpringBlossomsHeal, true);
         }
     }
 }

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(124081)]
-public class spell_monk_zen_pulse : SpellScript, IHasSpellEffects
+public class SpellMonkZenPulse : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -20,6 +21,6 @@ public class spell_monk_zen_pulse : SpellScript, IHasSpellEffects
 
     private void OnHit(int effIndex)
     {
-        Caster.CastSpell(Caster, MonkSpells.ZEN_PULSE_HEAL, true);
+        Caster.SpellFactory.CastSpell(Caster, MonkSpells.ZEN_PULSE_HEAL, true);
     }
 }

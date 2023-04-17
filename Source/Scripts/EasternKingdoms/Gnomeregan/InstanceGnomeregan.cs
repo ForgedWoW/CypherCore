@@ -1,83 +1,87 @@
 // Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IMap;
 
 namespace Scripts.EasternKingdoms.Gnomeregan;
 
-internal struct GNOGameObjectIds
+internal struct GnoGameObjectIds
 {
-    public const uint CaveInLeft = 146085;
-    public const uint CaveInRight = 146086;
-    public const uint RedRocket = 103820;
+    public const uint CAVE_IN_LEFT = 146085;
+    public const uint CAVE_IN_RIGHT = 146086;
+    public const uint RED_ROCKET = 103820;
 }
 
-internal struct GNOCreatureIds
+internal struct GnoCreatureIds
 {
-    public const uint BlastmasterEmiShortfuse = 7998;
-    public const uint CaverndeepAmbusher = 6207;
-    public const uint Grubbis = 7361;
-    public const uint ViciousFallout = 7079;
-    public const uint Chomper = 6215;
-    public const uint Electrocutioner = 6235;
-    public const uint CrowdPummeler = 6229;
-    public const uint Mekgineer = 7800;
+    public const uint BLASTMASTER_EMI_SHORTFUSE = 7998;
+    public const uint CAVERNDEEP_AMBUSHER = 6207;
+    public const uint GRUBBIS = 7361;
+    public const uint VICIOUS_FALLOUT = 7079;
+    public const uint CHOMPER = 6215;
+    public const uint ELECTROCUTIONER = 6235;
+    public const uint CROWD_PUMMELER = 6229;
+    public const uint MEKGINEER = 7800;
 }
 
 internal struct DataTypes
 {
-    public const uint BlastmasterEvent = 0;
-    public const uint ViciousFallout = 1;
-    public const uint Electrocutioner = 2;
-    public const uint CrowdPummeler = 3;
-    public const uint Thermaplugg = 4;
+    public const uint BLASTMASTER_EVENT = 0;
+    public const uint VICIOUS_FALLOUT = 1;
+    public const uint ELECTROCUTIONER = 2;
+    public const uint CROWD_PUMMELER = 3;
+    public const uint THERMAPLUGG = 4;
 
-    public const uint MaxEncounter = 5;
+    public const uint MAX_ENCOUNTER = 5;
 
     // Additional Objects
-    public const uint GoCaveInLeft = 6;
-    public const uint GoCaveInRight = 7;
-    public const uint NpcBastmasterEmiShortfuse = 8;
+    public const uint GO_CAVE_IN_LEFT = 6;
+    public const uint GO_CAVE_IN_RIGHT = 7;
+    public const uint NPC_BASTMASTER_EMI_SHORTFUSE = 8;
 }
 
 internal struct DataTypes64
 {
-    public const uint GoCaveInLeft = 0;
-    public const uint GoCaveInRight = 1;
-    public const uint NpcBastmasterEmiShortfuse = 2;
+    public const uint GO_CAVE_IN_LEFT = 0;
+    public const uint GO_CAVE_IN_RIGHT = 1;
+    public const uint NPC_BASTMASTER_EMI_SHORTFUSE = 2;
 }
 
-internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceScript
+internal class InstanceGnomeregan : InstanceMapScript, IInstanceMapGetInstanceScript
 {
-    public instance_gnomeregan() : base(nameof(instance_gnomeregan), 90) { }
+    public InstanceGnomeregan() : base(nameof(InstanceGnomeregan), 90) { }
 
     public InstanceScript GetInstanceScript(InstanceMap map)
     {
-        return new instance_gnomeregan_InstanceMapScript(map);
+        return new InstanceGnomereganInstanceMapScript(map);
     }
 
-    private class instance_gnomeregan_InstanceMapScript : InstanceScript
+    private class InstanceGnomereganInstanceMapScript : InstanceScript
     {
-        private ObjectGuid uiBlastmasterEmiShortfuseGUID;
-        private ObjectGuid uiCaveInLeftGUID;
-        private ObjectGuid uiCaveInRightGUID;
+        private ObjectGuid _uiBlastmasterEmiShortfuseGUID;
+        private ObjectGuid _uiCaveInLeftGUID;
+        private ObjectGuid _uiCaveInRightGUID;
 
-        public instance_gnomeregan_InstanceMapScript(InstanceMap map) : base(map)
+        public InstanceGnomereganInstanceMapScript(InstanceMap map) : base(map)
         {
             SetHeaders("GNO");
-            SetBossNumber(DataTypes.MaxEncounter);
+            SetBossNumber(DataTypes.MAX_ENCOUNTER);
         }
 
         public override void OnCreatureCreate(Creature creature)
         {
             switch (creature.Entry)
             {
-                case GNOCreatureIds.BlastmasterEmiShortfuse:
-                    uiBlastmasterEmiShortfuseGUID = creature.GUID;
+                case GnoCreatureIds.BLASTMASTER_EMI_SHORTFUSE:
+                    _uiBlastmasterEmiShortfuseGUID = creature.GUID;
 
                     break;
             }
@@ -87,12 +91,12 @@ internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceS
         {
             switch (go.Entry)
             {
-                case DataTypes64.GoCaveInLeft:
-                    uiCaveInLeftGUID = go.GUID;
+                case DataTypes64.GO_CAVE_IN_LEFT:
+                    _uiCaveInLeftGUID = go.GUID;
 
                     break;
-                case DataTypes64.GoCaveInRight:
-                    uiCaveInRightGUID = go.GUID;
+                case DataTypes64.GO_CAVE_IN_RIGHT:
+                    _uiCaveInRightGUID = go.GUID;
 
                     break;
             }
@@ -105,20 +109,20 @@ internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceS
             if (creature)
                 switch (creature.Entry)
                 {
-                    case GNOCreatureIds.ViciousFallout:
-                        SetBossState(DataTypes.ViciousFallout, EncounterState.Done);
+                    case GnoCreatureIds.VICIOUS_FALLOUT:
+                        SetBossState(DataTypes.VICIOUS_FALLOUT, EncounterState.Done);
 
                         break;
-                    case GNOCreatureIds.Electrocutioner:
-                        SetBossState(DataTypes.Electrocutioner, EncounterState.Done);
+                    case GnoCreatureIds.ELECTROCUTIONER:
+                        SetBossState(DataTypes.ELECTROCUTIONER, EncounterState.Done);
 
                         break;
-                    case GNOCreatureIds.CrowdPummeler:
-                        SetBossState(DataTypes.CrowdPummeler, EncounterState.Done);
+                    case GnoCreatureIds.CROWD_PUMMELER:
+                        SetBossState(DataTypes.CROWD_PUMMELER, EncounterState.Done);
 
                         break;
-                    case GNOCreatureIds.Mekgineer:
-                        SetBossState(DataTypes.Thermaplugg, EncounterState.Done);
+                    case GnoCreatureIds.MEKGINEER:
+                        SetBossState(DataTypes.THERMAPLUGG, EncounterState.Done);
 
                         break;
                 }
@@ -128,9 +132,9 @@ internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceS
         {
             switch (uiType)
             {
-                case DataTypes64.GoCaveInLeft:              return uiCaveInLeftGUID;
-                case DataTypes64.GoCaveInRight:             return uiCaveInRightGUID;
-                case DataTypes64.NpcBastmasterEmiShortfuse: return uiBlastmasterEmiShortfuseGUID;
+                case DataTypes64.GO_CAVE_IN_LEFT:              return _uiCaveInLeftGUID;
+                case DataTypes64.GO_CAVE_IN_RIGHT:             return _uiCaveInRightGUID;
+                case DataTypes64.NPC_BASTMASTER_EMI_SHORTFUSE: return _uiBlastmasterEmiShortfuseGUID;
             }
 
             return ObjectGuid.Empty;

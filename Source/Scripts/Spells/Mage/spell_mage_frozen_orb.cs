@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(84721)]
-public class spell_mage_frozen_orb : SpellScript, IHasSpellEffects
+public class SpellMageFrozenOrb : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,7 +27,7 @@ public class spell_mage_frozen_orb : SpellScript, IHasSpellEffects
         if (caster == null || target == null)
             return;
 
-        caster.CastSpell(target, MageSpells.CHILLED, true);
+        caster.SpellFactory.CastSpell(target, MageSpells.CHILLED, true);
 
         // Fingers of Frost
         if (caster.HasSpell(MageSpells.FINGERS_OF_FROST))
@@ -46,8 +47,8 @@ public class spell_mage_frozen_orb : SpellScript, IHasSpellEffects
 
             if (RandomHelper.randChance(fingersFrostChance))
             {
-                caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
-                caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
+                caster.SpellFactory.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
+                caster.SpellFactory.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
             }
         }
     }

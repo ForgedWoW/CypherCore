@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
@@ -13,11 +14,11 @@ namespace Scripts.Pets
     {
         // Dreadstalker - 98035
         [CreatureScript(98035)]
-        public class npc_warlock_dreadstalker : PetAI
+        public class NPCWarlockDreadstalker : PetAI
         {
-            public bool firstTick = true;
+            public bool FirstTick = true;
 
-            public npc_warlock_dreadstalker(Creature creature) : base(creature)
+            public NPCWarlockDreadstalker(Creature creature) : base(creature)
             {
                 if (!Me.TryGetOwner(out Player owner))
                     return;
@@ -36,9 +37,9 @@ namespace Scripts.Pets
                 }
             }
 
-            public override void UpdateAI(uint UnnamedParameter)
+            public override void UpdateAI(uint unnamedParameter)
             {
-                if (firstTick)
+                if (FirstTick)
                 {
                     var owner = Me.OwnerUnit;
 
@@ -49,12 +50,12 @@ namespace Scripts.Pets
                     var target = owner.AsPlayer.SelectedUnit;
 
                     if (target)
-                        Me.CastSpell(target, WarlockSpells.DREADSTALKER_CHARGE, true);
+                        Me.SpellFactory.CastSpell(target, WarlockSpells.DREADSTALKER_CHARGE, true);
 
-                    firstTick = false;
+                    FirstTick = false;
                 }
 
-                base.UpdateAI(UnnamedParameter);
+                base.UpdateAI(unnamedParameter);
             }
         }
     }

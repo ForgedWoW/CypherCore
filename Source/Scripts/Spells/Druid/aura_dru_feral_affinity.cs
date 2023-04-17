@@ -2,24 +2,24 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(202157)]
-public class aura_dru_feral_affinity : AuraScript, IHasAuraEffects
+public class AuraDruFeralAffinity : AuraScript, IHasAuraEffects
 {
-    private readonly List<uint> LearnedSpells = new()
+    private readonly List<uint> _learnedSpells = new()
     {
-        (uint)DruidSpells.FELINE_SWIFTNESS,
-        (uint)DruidSpells.SHRED,
-        (uint)DruidSpells.RAKE,
-        (uint)DruidSpells.RIP,
-        (uint)DruidSpells.FEROCIOUS_BITE,
-        (uint)DruidSpells.SWIPE_CAT
+        (uint)DruidSpells.FelineSwiftness,
+        (uint)DruidSpells.Shred,
+        (uint)DruidSpells.Rake,
+        (uint)DruidSpells.Rip,
+        (uint)DruidSpells.FerociousBite,
+        (uint)DruidSpells.SwipeCat
     };
 
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -30,21 +30,21 @@ public class aura_dru_feral_affinity : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
     }
 
-    private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void AfterApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var target = Target.AsPlayer;
 
         if (target != null)
-            foreach (var spellId in LearnedSpells)
+            foreach (var spellId in _learnedSpells)
                 target.LearnSpell(spellId, false);
     }
 
-    private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void AfterRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var target = Target.AsPlayer;
 
         if (target != null)
-            foreach (var spellId in LearnedSpells)
+            foreach (var spellId in _learnedSpells)
                 target.RemoveSpell(spellId);
     }
 }

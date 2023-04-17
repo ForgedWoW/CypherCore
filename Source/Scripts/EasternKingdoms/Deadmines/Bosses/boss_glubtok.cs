@@ -2,20 +2,21 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Movement;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Deadmines.Bosses;
 
 [CreatureScript(47162)]
-public class boss_glubtok : BossAI
+public class BossGlubtok : BossAI
 {
     public static readonly Position Phase2Pos = new(-193.368f, -441.828f, 53.5931f, 1.692970f);
     private readonly Creature _platter;
@@ -25,7 +26,7 @@ public class boss_glubtok : BossAI
     private bool _transitionDone;
     private bool _lastElement;
 
-    public boss_glubtok(Creature creature) : base(creature, DMData.DATA_GLUBTOK)
+    public BossGlubtok(Creature creature) : base(creature, DmData.DATA_GLUBTOK)
     {
         Me.SetCanDualWield(true);
         //me.DisableMovementFlagUpdate(true);
@@ -174,7 +175,7 @@ public class boss_glubtok : BossAI
 
             if (dummy != null)
             {
-                dummy.CastSpell(Me, spellID, true);
+                dummy.SpellFactory.CastSpell(Me, spellID, true);
                 dummy.ClearUnitState(UnitState.Casting);
                 var init = new MoveSplineInit(dummy);
                 init.Path().Add(pos1);
@@ -328,8 +329,8 @@ public class boss_glubtok : BossAI
 
                     if (target == null)
                     {
-                        target.CastSpell(target, indicatorSpellID, true);
-                        Me.CastSpell(target, targetSpellID);
+                        target.SpellFactory.CastSpell(target, indicatorSpellID, true);
+                        Me.SpellFactory.CastSpell(target, targetSpellID);
                     }
 
                     break;

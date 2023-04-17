@@ -3,17 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 40463 - Shaman Tier 6 Trinket
 [SpellScript(40463)]
-internal class spell_sha_item_t6_trinket : AuraScript, IHasAuraEffects
+internal class SpellShaItemT6Trinket : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -37,19 +37,19 @@ internal class spell_sha_item_t6_trinket : AuraScript, IHasAuraEffects
         // Lesser Healing Wave
         if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000080u))
         {
-            spellId = ShamanSpells.EnergySurge;
+            spellId = ShamanSpells.ENERGY_SURGE;
             chance = 10;
         }
         // Lightning Bolt
         else if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000001u))
         {
-            spellId = ShamanSpells.EnergySurge;
+            spellId = ShamanSpells.ENERGY_SURGE;
             chance = 15;
         }
         // Stormstrike
         else if (spellInfo.SpellFamilyFlags[1].HasAnyFlag(0x00000010u))
         {
-            spellId = ShamanSpells.PowerSurge;
+            spellId = ShamanSpells.POWER_SURGE;
             chance = 50;
         }
         else
@@ -58,6 +58,6 @@ internal class spell_sha_item_t6_trinket : AuraScript, IHasAuraEffects
         }
 
         if (RandomHelper.randChance(chance))
-            eventInfo.Actor.CastSpell((Unit)null, spellId, true);
+            eventInfo.Actor.SpellFactory.CastSpell((Unit)null, spellId, true);
     }
 }

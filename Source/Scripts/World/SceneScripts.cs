@@ -1,27 +1,27 @@
 // Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IScene;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IScene;
 
 namespace Scripts.World.SceneScripts;
 
 internal struct SpellIds
 {
-    public const uint DeathwingSimulator = 201184;
+    public const uint DEATHWING_SIMULATOR = 201184;
 }
 
 [Script]
-internal class scene_deathwing_simulator : ScriptObjectAutoAddDBBound, ISceneOnSceneTrigger
+internal class SceneDeathwingSimulator : ScriptObjectAutoAddDBBound, ISceneOnSceneTrigger
 {
-    public scene_deathwing_simulator() : base("scene_deathwing_simulator") { }
+    public SceneDeathwingSimulator() : base("scene_deathwing_simulator") { }
 
     // Called when a player receive trigger from scene
     public void OnSceneTriggerEvent(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate, string triggerName)
     {
         if (triggerName == "Burn Player")
-            player.CastSpell(player, SpellIds.DeathwingSimulator, true); // Deathwing Simulator Burn player
+            player.SpellFactory.CastSpell(player, SpellIds.DEATHWING_SIMULATOR, true); // Deathwing Simulator Burn player
     }
 }

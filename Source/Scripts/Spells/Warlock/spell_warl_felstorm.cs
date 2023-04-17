@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Felstorm - 119914
 [SpellScript(119914)]
-public class spell_warl_felstorm : SpellScript, ISpellAfterHit, ISpellCheckCast
+public class SpellWarlFelstorm : SpellScript, ISpellAfterHit, ISpellCheckCast
 {
     public void AfterHit()
     {

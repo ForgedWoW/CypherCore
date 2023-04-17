@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 51505 - Lava burst
 [SpellScript(51505)]
-internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEffects
+internal class SpellShaLavaBurst : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -44,6 +45,6 @@ internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEff
 
         if (caster)
             if (caster.HasAura(ShamanSpells.PathOfFlamesTalent))
-                caster.CastSpell(HitUnit, ShamanSpells.PathOfFlamesSpread, new CastSpellExtraArgs(Spell));
+                caster.SpellFactory.CastSpell(HitUnit, ShamanSpells.PathOfFlamesSpread, new CastSpellExtraArgs(Spell));
     }
 }

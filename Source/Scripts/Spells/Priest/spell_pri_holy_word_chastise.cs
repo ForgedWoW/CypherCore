@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(88625)]
-public class spell_pri_holy_word_chastise : SpellScript, IHasSpellEffects
+public class SpellPriHolyWordChastise : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,6 +28,6 @@ public class spell_pri_holy_word_chastise : SpellScript, IHasSpellEffects
             return;
 
         if (caster.HasAura(PriestSpells.CENSURE))
-            caster.CastSpell(target, PriestSpells.HOLY_WORD_CHASTISE_STUN, true);
+            caster.SpellFactory.CastSpell(target, PriestSpells.HOLY_WORD_CHASTISE_STUN, true);
     }
 }

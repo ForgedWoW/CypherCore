@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(47482)]
-public class spell_dk_ghoul_leap : SpellScript, ISpellAfterHit
+public class SpellDkGhoulLeap : SpellScript, ISpellAfterHit
 {
     public void AfterHit()
     {
@@ -23,9 +23,9 @@ public class spell_dk_ghoul_leap : SpellScript, ISpellAfterHit
         if (owner != null)
         {
             if (caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION))
-                caster.CastSpell(target, DeathKnightSpells.DT_GHOUL_LEAP, true);
+                caster.SpellFactory.CastSpell(target, DeathKnightSpells.DT_GHOUL_LEAP, true);
             else
-                caster.CastSpell(target, DeathKnightSpells.GHOUL_LEAP, true);
+                caster.SpellFactory.CastSpell(target, DeathKnightSpells.GHOUL_LEAP, true);
         }
     }
 }

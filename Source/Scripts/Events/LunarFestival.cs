@@ -4,109 +4,113 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.m_Events.LunarFestival;
 
 internal struct SpellIds
 {
     //Fireworks
-    public const uint RocketBlue = 26344;
-    public const uint RocketGreen = 26345;
-    public const uint RocketPurple = 26346;
-    public const uint RocketRed = 26347;
-    public const uint RocketWhite = 26348;
-    public const uint RocketYellow = 26349;
-    public const uint RocketBigBlue = 26351;
-    public const uint RocketBigGreen = 26352;
-    public const uint RocketBigPurple = 26353;
-    public const uint RocketBigRed = 26354;
-    public const uint RocketBigWhite = 26355;
-    public const uint RocketBigYellow = 26356;
-    public const uint LunarFortune = 26522;
+    public const uint ROCKET_BLUE = 26344;
+    public const uint ROCKET_GREEN = 26345;
+    public const uint ROCKET_PURPLE = 26346;
+    public const uint ROCKET_RED = 26347;
+    public const uint ROCKET_WHITE = 26348;
+    public const uint ROCKET_YELLOW = 26349;
+    public const uint ROCKET_BIG_BLUE = 26351;
+    public const uint ROCKET_BIG_GREEN = 26352;
+    public const uint ROCKET_BIG_PURPLE = 26353;
+    public const uint ROCKET_BIG_RED = 26354;
+    public const uint ROCKET_BIG_WHITE = 26355;
+    public const uint ROCKET_BIG_YELLOW = 26356;
+    public const uint LUNAR_FORTUNE = 26522;
 
     //Omen
-    public const uint OmenCleave = 15284;
-    public const uint OmenStarfall = 26540;
-    public const uint OmenSummonSpotlight = 26392;
-    public const uint EluneCandle = 26374;
+    public const uint OMEN_CLEAVE = 15284;
+    public const uint OMEN_STARFALL = 26540;
+    public const uint OMEN_SUMMON_SPOTLIGHT = 26392;
+    public const uint ELUNE_CANDLE = 26374;
 
     //EluneCandle
-    public const uint EluneCandleOmenHead = 26622;
-    public const uint EluneCandleOmenChest = 26624;
-    public const uint EluneCandleOmenHandR = 26625;
-    public const uint EluneCandleOmenHandL = 26649;
-    public const uint EluneCandleNormal = 26636;
+    public const uint ELUNE_CANDLE_OMEN_HEAD = 26622;
+    public const uint ELUNE_CANDLE_OMEN_CHEST = 26624;
+    public const uint ELUNE_CANDLE_OMEN_HAND_R = 26625;
+    public const uint ELUNE_CANDLE_OMEN_HAND_L = 26649;
+    public const uint ELUNE_CANDLE_NORMAL = 26636;
 }
 
 internal struct CreatureIds
 {
     //Fireworks
-    public const uint Omen = 15467;
-    public const uint MinionOfOmen = 15466;
-    public const uint FireworkBlue = 15879;
-    public const uint FireworkGreen = 15880;
-    public const uint FireworkPurple = 15881;
-    public const uint FireworkRed = 15882;
-    public const uint FireworkYellow = 15883;
-    public const uint FireworkWhite = 15884;
-    public const uint FireworkBigBlue = 15885;
-    public const uint FireworkBigGreen = 15886;
-    public const uint FireworkBigPurple = 15887;
-    public const uint FireworkBigRed = 15888;
-    public const uint FireworkBigYellow = 15889;
-    public const uint FireworkBigWhite = 15890;
+    public const uint OMEN = 15467;
+    public const uint MINION_OF_OMEN = 15466;
+    public const uint FIREWORK_BLUE = 15879;
+    public const uint FIREWORK_GREEN = 15880;
+    public const uint FIREWORK_PURPLE = 15881;
+    public const uint FIREWORK_RED = 15882;
+    public const uint FIREWORK_YELLOW = 15883;
+    public const uint FIREWORK_WHITE = 15884;
+    public const uint FIREWORK_BIG_BLUE = 15885;
+    public const uint FIREWORK_BIG_GREEN = 15886;
+    public const uint FIREWORK_BIG_PURPLE = 15887;
+    public const uint FIREWORK_BIG_RED = 15888;
+    public const uint FIREWORK_BIG_YELLOW = 15889;
+    public const uint FIREWORK_BIG_WHITE = 15890;
 
-    public const uint ClusterBlue = 15872;
-    public const uint ClusterRed = 15873;
-    public const uint ClusterGreen = 15874;
-    public const uint ClusterPurple = 15875;
-    public const uint ClusterWhite = 15876;
-    public const uint ClusterYellow = 15877;
-    public const uint ClusterBigBlue = 15911;
-    public const uint ClusterBigGreen = 15912;
-    public const uint ClusterBigPurple = 15913;
-    public const uint ClusterBigRed = 15914;
-    public const uint ClusterBigWhite = 15915;
-    public const uint ClusterBigYellow = 15916;
-    public const uint ClusterElune = 15918;
+    public const uint CLUSTER_BLUE = 15872;
+    public const uint CLUSTER_RED = 15873;
+    public const uint CLUSTER_GREEN = 15874;
+    public const uint CLUSTER_PURPLE = 15875;
+    public const uint CLUSTER_WHITE = 15876;
+    public const uint CLUSTER_YELLOW = 15877;
+    public const uint CLUSTER_BIG_BLUE = 15911;
+    public const uint CLUSTER_BIG_GREEN = 15912;
+    public const uint CLUSTER_BIG_PURPLE = 15913;
+    public const uint CLUSTER_BIG_RED = 15914;
+    public const uint CLUSTER_BIG_WHITE = 15915;
+    public const uint CLUSTER_BIG_YELLOW = 15916;
+    public const uint CLUSTER_ELUNE = 15918;
 }
 
 internal struct GameObjectIds
 {
     //Fireworks
-    public const uint FireworkLauncher1 = 180771;
-    public const uint FireworkLauncher2 = 180868;
-    public const uint FireworkLauncher3 = 180850;
-    public const uint ClusterLauncher1 = 180772;
-    public const uint ClusterLauncher2 = 180859;
-    public const uint ClusterLauncher3 = 180869;
-    public const uint ClusterLauncher4 = 180874;
+    public const uint FIREWORK_LAUNCHER1 = 180771;
+    public const uint FIREWORK_LAUNCHER2 = 180868;
+    public const uint FIREWORK_LAUNCHER3 = 180850;
+    public const uint CLUSTER_LAUNCHER1 = 180772;
+    public const uint CLUSTER_LAUNCHER2 = 180859;
+    public const uint CLUSTER_LAUNCHER3 = 180869;
+    public const uint CLUSTER_LAUNCHER4 = 180874;
 
     //Omen
-    public const uint EluneTrap1 = 180876;
-    public const uint EluneTrap2 = 180877;
+    public const uint ELUNE_TRAP1 = 180876;
+    public const uint ELUNE_TRAP2 = 180877;
 }
 
 internal struct MiscConst
 {
     //Fireworks
-    public const uint AnimGoLaunchFirework = 3;
-    public const uint ZoneMoonglade = 493;
+    public const uint ANIM_GO_LAUNCH_FIREWORK = 3;
+    public const uint ZONE_MOONGLADE = 493;
 
     //Omen
     public static Position OmenSummonPos = new(7558.993f, -2839.999f, 450.0214f, 4.46f);
 }
 
 [Script]
-internal class npc_firework : ScriptedAI
+internal class NPCFirework : ScriptedAI
 {
-    public npc_firework(Creature creature) : base(creature) { }
+    public NPCFirework(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -114,7 +118,7 @@ internal class npc_firework : ScriptedAI
 
         if (launcher)
         {
-            launcher.SendCustomAnim(MiscConst.AnimGoLaunchFirework);
+            launcher.SendCustomAnim(MiscConst.ANIM_GO_LAUNCH_FIREWORK);
             Me.Location.Orientation = launcher.Location.Orientation + MathF.PI / 2;
         }
         else
@@ -122,11 +126,11 @@ internal class npc_firework : ScriptedAI
             return;
         }
 
-        if (isCluster())
+        if (IsCluster())
         {
             // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
-            if (Me.Zone == MiscConst.ZoneMoonglade)
-                if (!Me.FindNearestCreature(CreatureIds.Omen, 100.0f) &&
+            if (Me.Zone == MiscConst.ZONE_MOONGLADE)
+                if (!Me.FindNearestCreature(CreatureIds.OMEN, 100.0f) &&
                     Me.GetDistance2d(MiscConst.OmenSummonPos.X, MiscConst.OmenSummonPos.Y) <= 100.0f)
                     switch (RandomHelper.URand(0, 9))
                     {
@@ -134,20 +138,20 @@ internal class npc_firework : ScriptedAI
                         case 1:
                         case 2:
                         case 3:
-                            Creature minion = Me.SummonCreature(CreatureIds.MinionOfOmen, Me.Location.X + RandomHelper.FRand(-5.0f, 5.0f), Me.Location.Y + RandomHelper.FRand(-5.0f, 5.0f), Me.Location.Z, 0.0f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(20));
+                            Creature minion = Me.SummonCreature(CreatureIds.MINION_OF_OMEN, Me.Location.X + RandomHelper.FRand(-5.0f, 5.0f), Me.Location.Y + RandomHelper.FRand(-5.0f, 5.0f), Me.Location.Z, 0.0f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(20));
 
                             if (minion)
                                 minion.AI.AttackStart(Me.SelectNearestPlayer(20.0f));
 
                             break;
                         case 9:
-                            Me.SummonCreature(CreatureIds.Omen, MiscConst.OmenSummonPos);
+                            Me.SummonCreature(CreatureIds.OMEN, MiscConst.OmenSummonPos);
 
                             break;
                     }
 
-            if (Me.Entry == CreatureIds.ClusterElune)
-                DoCast(SpellIds.LunarFortune);
+            if (Me.Entry == CreatureIds.CLUSTER_ELUNE)
+                DoCast(SpellIds.LUNAR_FORTUNE);
 
             var displacement = 0.7f;
 
@@ -155,42 +159,42 @@ internal class npc_firework : ScriptedAI
                 Me.SummonGameObject(GetFireworkGameObjectId(), Me.Location.X + (i % 2 == 0 ? displacement : -displacement), Me.Location.Y + (i > 1 ? displacement : -displacement), Me.Location.Z + 4.0f, Me.Location.Orientation, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(Me.Location.Orientation, 0.0f, 0.0f)), TimeSpan.FromSeconds(1));
         }
         else
-            //me.CastSpell(me, GetFireworkSpell(me.GetEntry()), true);
+            //me.SpellFactory.CastSpell(me, GetFireworkSpell(me.GetEntry()), true);
         {
-            Me.CastSpell(Me.Location, GetFireworkSpell(Me.Entry), new CastSpellExtraArgs(true));
+            Me.SpellFactory.CastSpell(Me.Location, GetFireworkSpell(Me.Entry), new CastSpellExtraArgs(true));
         }
     }
 
-    private bool isCluster()
+    private bool IsCluster()
     {
         switch (Me.Entry)
         {
-            case CreatureIds.FireworkBlue:
-            case CreatureIds.FireworkGreen:
-            case CreatureIds.FireworkPurple:
-            case CreatureIds.FireworkRed:
-            case CreatureIds.FireworkYellow:
-            case CreatureIds.FireworkWhite:
-            case CreatureIds.FireworkBigBlue:
-            case CreatureIds.FireworkBigGreen:
-            case CreatureIds.FireworkBigPurple:
-            case CreatureIds.FireworkBigRed:
-            case CreatureIds.FireworkBigYellow:
-            case CreatureIds.FireworkBigWhite:
+            case CreatureIds.FIREWORK_BLUE:
+            case CreatureIds.FIREWORK_GREEN:
+            case CreatureIds.FIREWORK_PURPLE:
+            case CreatureIds.FIREWORK_RED:
+            case CreatureIds.FIREWORK_YELLOW:
+            case CreatureIds.FIREWORK_WHITE:
+            case CreatureIds.FIREWORK_BIG_BLUE:
+            case CreatureIds.FIREWORK_BIG_GREEN:
+            case CreatureIds.FIREWORK_BIG_PURPLE:
+            case CreatureIds.FIREWORK_BIG_RED:
+            case CreatureIds.FIREWORK_BIG_YELLOW:
+            case CreatureIds.FIREWORK_BIG_WHITE:
                 return false;
-            case CreatureIds.ClusterBlue:
-            case CreatureIds.ClusterGreen:
-            case CreatureIds.ClusterPurple:
-            case CreatureIds.ClusterRed:
-            case CreatureIds.ClusterYellow:
-            case CreatureIds.ClusterWhite:
-            case CreatureIds.ClusterBigBlue:
-            case CreatureIds.ClusterBigGreen:
-            case CreatureIds.ClusterBigPurple:
-            case CreatureIds.ClusterBigRed:
-            case CreatureIds.ClusterBigYellow:
-            case CreatureIds.ClusterBigWhite:
-            case CreatureIds.ClusterElune:
+            case CreatureIds.CLUSTER_BLUE:
+            case CreatureIds.CLUSTER_GREEN:
+            case CreatureIds.CLUSTER_PURPLE:
+            case CreatureIds.CLUSTER_RED:
+            case CreatureIds.CLUSTER_YELLOW:
+            case CreatureIds.CLUSTER_WHITE:
+            case CreatureIds.CLUSTER_BIG_BLUE:
+            case CreatureIds.CLUSTER_BIG_GREEN:
+            case CreatureIds.CLUSTER_BIG_PURPLE:
+            case CreatureIds.CLUSTER_BIG_RED:
+            case CreatureIds.CLUSTER_BIG_YELLOW:
+            case CreatureIds.CLUSTER_BIG_WHITE:
+            case CreatureIds.CLUSTER_ELUNE:
             default:
                 return true;
         }
@@ -200,12 +204,12 @@ internal class npc_firework : ScriptedAI
     {
         GameObject launcher = null;
 
-        if (isCluster())
+        if (IsCluster())
         {
-            var launcher1 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher1, 0.5f);
-            var launcher2 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher2, 0.5f);
-            var launcher3 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher3, 0.5f);
-            var launcher4 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher4, 0.5f);
+            var launcher1 = GetClosestGameObjectWithEntry(Me, GameObjectIds.CLUSTER_LAUNCHER1, 0.5f);
+            var launcher2 = GetClosestGameObjectWithEntry(Me, GameObjectIds.CLUSTER_LAUNCHER2, 0.5f);
+            var launcher3 = GetClosestGameObjectWithEntry(Me, GameObjectIds.CLUSTER_LAUNCHER3, 0.5f);
+            var launcher4 = GetClosestGameObjectWithEntry(Me, GameObjectIds.CLUSTER_LAUNCHER4, 0.5f);
 
             if (launcher1)
                 launcher = launcher1;
@@ -218,9 +222,9 @@ internal class npc_firework : ScriptedAI
         }
         else
         {
-            var launcher1 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FireworkLauncher1, 0.5f);
-            var launcher2 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FireworkLauncher2, 0.5f);
-            var launcher3 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FireworkLauncher3, 0.5f);
+            var launcher1 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FIREWORK_LAUNCHER1, 0.5f);
+            var launcher2 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FIREWORK_LAUNCHER2, 0.5f);
+            var launcher3 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FIREWORK_LAUNCHER3, 0.5f);
 
             if (launcher1)
                 launcher = launcher1;
@@ -237,30 +241,30 @@ internal class npc_firework : ScriptedAI
     {
         switch (entry)
         {
-            case CreatureIds.FireworkBlue:
-                return SpellIds.RocketBlue;
-            case CreatureIds.FireworkGreen:
-                return SpellIds.RocketGreen;
-            case CreatureIds.FireworkPurple:
-                return SpellIds.RocketPurple;
-            case CreatureIds.FireworkRed:
-                return SpellIds.RocketRed;
-            case CreatureIds.FireworkYellow:
-                return SpellIds.RocketYellow;
-            case CreatureIds.FireworkWhite:
-                return SpellIds.RocketWhite;
-            case CreatureIds.FireworkBigBlue:
-                return SpellIds.RocketBigBlue;
-            case CreatureIds.FireworkBigGreen:
-                return SpellIds.RocketBigGreen;
-            case CreatureIds.FireworkBigPurple:
-                return SpellIds.RocketBigPurple;
-            case CreatureIds.FireworkBigRed:
-                return SpellIds.RocketBigRed;
-            case CreatureIds.FireworkBigYellow:
-                return SpellIds.RocketBigYellow;
-            case CreatureIds.FireworkBigWhite:
-                return SpellIds.RocketBigWhite;
+            case CreatureIds.FIREWORK_BLUE:
+                return SpellIds.ROCKET_BLUE;
+            case CreatureIds.FIREWORK_GREEN:
+                return SpellIds.ROCKET_GREEN;
+            case CreatureIds.FIREWORK_PURPLE:
+                return SpellIds.ROCKET_PURPLE;
+            case CreatureIds.FIREWORK_RED:
+                return SpellIds.ROCKET_RED;
+            case CreatureIds.FIREWORK_YELLOW:
+                return SpellIds.ROCKET_YELLOW;
+            case CreatureIds.FIREWORK_WHITE:
+                return SpellIds.ROCKET_WHITE;
+            case CreatureIds.FIREWORK_BIG_BLUE:
+                return SpellIds.ROCKET_BIG_BLUE;
+            case CreatureIds.FIREWORK_BIG_GREEN:
+                return SpellIds.ROCKET_BIG_GREEN;
+            case CreatureIds.FIREWORK_BIG_PURPLE:
+                return SpellIds.ROCKET_BIG_PURPLE;
+            case CreatureIds.FIREWORK_BIG_RED:
+                return SpellIds.ROCKET_BIG_RED;
+            case CreatureIds.FIREWORK_BIG_YELLOW:
+                return SpellIds.ROCKET_BIG_YELLOW;
+            case CreatureIds.FIREWORK_BIG_WHITE:
+                return SpellIds.ROCKET_BIG_WHITE;
             default:
                 return 0;
         }
@@ -272,56 +276,56 @@ internal class npc_firework : ScriptedAI
 
         switch (Me.Entry)
         {
-            case CreatureIds.ClusterBlue:
-                spellId = GetFireworkSpell(CreatureIds.FireworkBlue);
+            case CreatureIds.CLUSTER_BLUE:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_BLUE);
 
                 break;
-            case CreatureIds.ClusterGreen:
-                spellId = GetFireworkSpell(CreatureIds.FireworkGreen);
+            case CreatureIds.CLUSTER_GREEN:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_GREEN);
 
                 break;
-            case CreatureIds.ClusterPurple:
-                spellId = GetFireworkSpell(CreatureIds.FireworkPurple);
+            case CreatureIds.CLUSTER_PURPLE:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_PURPLE);
 
                 break;
-            case CreatureIds.ClusterRed:
-                spellId = GetFireworkSpell(CreatureIds.FireworkRed);
+            case CreatureIds.CLUSTER_RED:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_RED);
 
                 break;
-            case CreatureIds.ClusterYellow:
-                spellId = GetFireworkSpell(CreatureIds.FireworkYellow);
+            case CreatureIds.CLUSTER_YELLOW:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_YELLOW);
 
                 break;
-            case CreatureIds.ClusterWhite:
-                spellId = GetFireworkSpell(CreatureIds.FireworkWhite);
+            case CreatureIds.CLUSTER_WHITE:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_WHITE);
 
                 break;
-            case CreatureIds.ClusterBigBlue:
-                spellId = GetFireworkSpell(CreatureIds.FireworkBigBlue);
+            case CreatureIds.CLUSTER_BIG_BLUE:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_BIG_BLUE);
 
                 break;
-            case CreatureIds.ClusterBigGreen:
-                spellId = GetFireworkSpell(CreatureIds.FireworkBigGreen);
+            case CreatureIds.CLUSTER_BIG_GREEN:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_BIG_GREEN);
 
                 break;
-            case CreatureIds.ClusterBigPurple:
-                spellId = GetFireworkSpell(CreatureIds.FireworkBigPurple);
+            case CreatureIds.CLUSTER_BIG_PURPLE:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_BIG_PURPLE);
 
                 break;
-            case CreatureIds.ClusterBigRed:
-                spellId = GetFireworkSpell(CreatureIds.FireworkBigRed);
+            case CreatureIds.CLUSTER_BIG_RED:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_BIG_RED);
 
                 break;
-            case CreatureIds.ClusterBigYellow:
-                spellId = GetFireworkSpell(CreatureIds.FireworkBigYellow);
+            case CreatureIds.CLUSTER_BIG_YELLOW:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_BIG_YELLOW);
 
                 break;
-            case CreatureIds.ClusterBigWhite:
-                spellId = GetFireworkSpell(CreatureIds.FireworkBigWhite);
+            case CreatureIds.CLUSTER_BIG_WHITE:
+                spellId = GetFireworkSpell(CreatureIds.FIREWORK_BIG_WHITE);
 
                 break;
-            case CreatureIds.ClusterElune:
-                spellId = GetFireworkSpell(RandomHelper.URand(CreatureIds.FireworkBlue, CreatureIds.FireworkWhite));
+            case CreatureIds.CLUSTER_ELUNE:
+                spellId = GetFireworkSpell(RandomHelper.URand(CreatureIds.FIREWORK_BLUE, CreatureIds.FIREWORK_WHITE));
 
                 break;
         }
@@ -337,9 +341,9 @@ internal class npc_firework : ScriptedAI
 }
 
 [Script]
-internal class npc_omen : ScriptedAI
+internal class NPCOmen : ScriptedAI
 {
-    public npc_omen(Creature creature) : base(creature)
+    public NPCOmen(Creature creature) : base(creature)
     {
         Me.SetImmuneToPC(true);
         Me.MotionMaster.MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
@@ -369,7 +373,7 @@ internal class npc_omen : ScriptedAI
                            TimeSpan.FromSeconds(5),
                            task =>
                            {
-                               DoCastVictim(SpellIds.OmenCleave);
+                               DoCastVictim(SpellIds.OMEN_CLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
                            });
 
@@ -381,7 +385,7 @@ internal class npc_omen : ScriptedAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (target)
-                                   DoCast(target, SpellIds.OmenStarfall);
+                                   DoCast(target, SpellIds.OMEN_STARFALL);
 
                                task.Repeat(TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(16));
                            });
@@ -389,15 +393,15 @@ internal class npc_omen : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        DoCast(SpellIds.OmenSummonSpotlight);
+        DoCast(SpellIds.OMEN_SUMMON_SPOTLIGHT);
     }
 
     public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
     {
-        if (spellInfo.Id == SpellIds.EluneCandle)
+        if (spellInfo.Id == SpellIds.ELUNE_CANDLE)
         {
-            if (Me.HasAura(SpellIds.OmenStarfall))
-                Me.RemoveAura(SpellIds.OmenStarfall);
+            if (Me.HasAura(SpellIds.OMEN_STARFALL))
+                Me.RemoveAura(SpellIds.OMEN_STARFALL);
 
             Scheduler.RescheduleGroup(1, TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(16));
         }
@@ -415,9 +419,9 @@ internal class npc_omen : ScriptedAI
 }
 
 [Script]
-internal class npc_giant_spotlight : ScriptedAI
+internal class NPCGiantSpotlight : ScriptedAI
 {
-    public npc_giant_spotlight(Creature creature) : base(creature) { }
+    public NPCGiantSpotlight(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -426,17 +430,17 @@ internal class npc_giant_spotlight : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromMinutes(5),
                            task =>
                            {
-                               var trap = Me.FindNearestGameObject(GameObjectIds.EluneTrap1, 5.0f);
+                               var trap = Me.FindNearestGameObject(GameObjectIds.ELUNE_TRAP1, 5.0f);
 
                                if (trap)
                                    trap.RemoveFromWorld();
 
-                               trap = Me.FindNearestGameObject(GameObjectIds.EluneTrap2, 5.0f);
+                               trap = Me.FindNearestGameObject(GameObjectIds.ELUNE_TRAP2, 5.0f);
 
                                if (trap)
                                    trap.RemoveFromWorld();
 
-                               var omen = Me.FindNearestCreature(CreatureIds.Omen, 5.0f, false);
+                               var omen = Me.FindNearestCreature(CreatureIds.OMEN, 5.0f, false);
 
                                if (omen)
                                    omen.DespawnOrUnsummon();
@@ -452,7 +456,7 @@ internal class npc_giant_spotlight : ScriptedAI
 }
 
 [Script] // 26374 - Elune's Candle
-internal class spell_lunar_festival_elune_candle : SpellScript, IHasSpellEffects
+internal class SpellLunarFestivalEluneCandle : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -466,29 +470,29 @@ internal class spell_lunar_festival_elune_candle : SpellScript, IHasSpellEffects
     {
         uint spellId = 0;
 
-        if (HitUnit.Entry == CreatureIds.Omen)
+        if (HitUnit.Entry == CreatureIds.OMEN)
             switch (RandomHelper.URand(0, 3))
             {
                 case 0:
-                    spellId = SpellIds.EluneCandleOmenHead;
+                    spellId = SpellIds.ELUNE_CANDLE_OMEN_HEAD;
 
                     break;
                 case 1:
-                    spellId = SpellIds.EluneCandleOmenChest;
+                    spellId = SpellIds.ELUNE_CANDLE_OMEN_CHEST;
 
                     break;
                 case 2:
-                    spellId = SpellIds.EluneCandleOmenHandR;
+                    spellId = SpellIds.ELUNE_CANDLE_OMEN_HAND_R;
 
                     break;
                 case 3:
-                    spellId = SpellIds.EluneCandleOmenHandL;
+                    spellId = SpellIds.ELUNE_CANDLE_OMEN_HAND_L;
 
                     break;
             }
         else
-            spellId = SpellIds.EluneCandleNormal;
+            spellId = SpellIds.ELUNE_CANDLE_NORMAL;
 
-        Caster.CastSpell(HitUnit, spellId, true);
+        Caster.SpellFactory.CastSpell(HitUnit, spellId, true);
     }
 }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(343294)]
-public class spell_dk_soul_reaper : AuraScript, IHasAuraEffects
+public class SpellDkSoulReaper : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -19,9 +19,9 @@ public class spell_dk_soul_reaper : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
     }
 
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
         if (Caster && Target && Target.IsDead)
-            Caster.CastSpell(DeathKnightSpells.SOUL_REAPER_MOD_HASTE, true);
+            Caster.SpellFactory.CastSpell(DeathKnightSpells.SOUL_REAPER_MOD_HASTE, true);
     }
 }

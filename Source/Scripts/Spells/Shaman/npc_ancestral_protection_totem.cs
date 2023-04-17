@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Shaman;
 
 [CreatureScript(78001)]
 //104818 - Ancestral Protection Totem
-public class npc_ancestral_protection_totem : ScriptedAI
+public class NPCAncestralProtectionTotem : ScriptedAI
 {
-    public npc_ancestral_protection_totem(Creature creature) : base(creature) { }
+    public NPCAncestralProtectionTotem(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
-        Me.CastSpell(Me, TotemSpells.TOTEM_ANCESTRAL_PROTECTION_AT, true);
+        Me.SpellFactory.CastSpell(Me, TotemSpells.TOTEM_ANCESTRAL_PROTECTION_AT, true);
     }
 }

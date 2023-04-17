@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 28702 - Netherbloom
-internal class spell_gen_netherbloom : SpellScript, IHasSpellEffects
+internal class SpellGenNetherbloom : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -35,10 +36,10 @@ internal class spell_gen_netherbloom : SpellScript, IHasSpellEffects
 
             // don't overwrite an existing aura
             for (byte i = 0; i < 5; ++i)
-                if (target.HasAura(GenericSpellIds.NetherBloomPollen1 + i))
+                if (target.HasAura(GenericSpellIds.NETHER_BLOOM_POLLEN1 + i))
                     return;
 
-            target.CastSpell(target, GenericSpellIds.NetherBloomPollen1 + RandomHelper.URand(0, 4), true);
+            target.SpellFactory.CastSpell(target, GenericSpellIds.NETHER_BLOOM_POLLEN1 + RandomHelper.URand(0, 4), true);
         }
     }
 }

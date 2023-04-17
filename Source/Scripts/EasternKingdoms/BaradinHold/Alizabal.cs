@@ -2,59 +2,63 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BaradinHold.Alizabal;
 
 internal struct SpellIds
 {
-    public const uint BladeDance = 105784;
-    public const uint BladeDanceDummy = 105828;
-    public const uint SeethingHate = 105067;
-    public const uint Skewer = 104936;
-    public const uint Berserk = 47008;
+    public const uint BLADE_DANCE = 105784;
+    public const uint BLADE_DANCE_DUMMY = 105828;
+    public const uint SEETHING_HATE = 105067;
+    public const uint SKEWER = 104936;
+    public const uint BERSERK = 47008;
 }
 
 internal struct TextIds
 {
-    public const uint SayIntro = 1;
-    public const uint SayAggro = 2;
-    public const uint SayHate = 3;
-    public const uint SaySkewer = 4;
-    public const uint SaySkewerAnnounce = 5;
-    public const uint SayBladeStorm = 6;
-    public const uint SaySlay = 10;
-    public const uint SayDeath = 12;
+    public const uint SAY_INTRO = 1;
+    public const uint SAY_AGGRO = 2;
+    public const uint SAY_HATE = 3;
+    public const uint SAY_SKEWER = 4;
+    public const uint SAY_SKEWER_ANNOUNCE = 5;
+    public const uint SAY_BLADE_STORM = 6;
+    public const uint SAY_SLAY = 10;
+    public const uint SAY_DEATH = 12;
 }
 
 internal struct ActionIds
 {
-    public const int Intro = 1;
+    public const int INTRO = 1;
 }
 
 internal struct PointIds
 {
-    public const uint Storm = 1;
+    public const uint STORM = 1;
 }
 
 internal struct EventIds
 {
-    public const uint RandomCast = 1;
-    public const uint StopStorm = 2;
-    public const uint MoveStorm = 3;
-    public const uint CastStorm = 4;
+    public const uint RANDOM_CAST = 1;
+    public const uint STOP_STORM = 2;
+    public const uint MOVE_STORM = 3;
+    public const uint CAST_STORM = 4;
 }
 
 [Script]
-internal class at_alizabal_intro : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
+internal class AtAlizabalIntro : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
 {
-    public at_alizabal_intro() : base("at_alizabal_intro") { }
+    public AtAlizabalIntro() : base("at_alizabal_intro") { }
 
     public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
     {
@@ -62,10 +66,10 @@ internal class at_alizabal_intro : ScriptObjectAutoAddDBBound, IAreaTriggerOnTri
 
         if (instance != null)
         {
-            var alizabal = ObjectAccessor.GetCreature(player, instance.GetGuidData(DataTypes.Alizabal));
+            var alizabal = ObjectAccessor.GetCreature(player, instance.GetGuidData(DataTypes.ALIZABAL));
 
             if (alizabal)
-                alizabal.AI.DoAction(ActionIds.Intro);
+                alizabal.AI.DoAction(ActionIds.INTRO);
         }
 
         return true;
@@ -73,13 +77,13 @@ internal class at_alizabal_intro : ScriptObjectAutoAddDBBound, IAreaTriggerOnTri
 }
 
 [Script]
-internal class boss_alizabal : BossAI
+internal class BossAlizabal : BossAI
 {
     private bool _hate;
     private bool _intro;
     private bool _skewer;
 
-    public boss_alizabal(Creature creature) : base(creature, DataTypes.Alizabal) { }
+    public BossAlizabal(Creature creature) : base(creature, DataTypes.ALIZABAL) { }
 
     public override void Reset()
     {
@@ -91,22 +95,22 @@ internal class boss_alizabal : BossAI
     public override void JustEngagedWith(Unit who)
     {
         base.JustEngagedWith(who);
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
         Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
-        Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(10));
+        Events.ScheduleEvent(EventIds.RANDOM_CAST, TimeSpan.FromSeconds(10));
     }
 
     public override void JustDied(Unit killer)
     {
         _JustDied();
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
         Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
     }
 
     public override void KilledUnit(Unit who)
     {
         if (who.IsPlayer)
-            Talk(TextIds.SaySlay);
+            Talk(TextIds.SAY_SLAY);
     }
 
     public override void EnterEvadeMode(EvadeReason why)
@@ -120,10 +124,10 @@ internal class boss_alizabal : BossAI
     {
         switch (action)
         {
-            case ActionIds.Intro:
+            case ActionIds.INTRO:
                 if (!_intro)
                 {
-                    Talk(TextIds.SayIntro);
+                    Talk(TextIds.SAY_INTRO);
                     _intro = true;
                 }
 
@@ -135,8 +139,8 @@ internal class boss_alizabal : BossAI
     {
         switch (pointId)
         {
-            case PointIds.Storm:
-                Events.ScheduleEvent(EventIds.CastStorm, TimeSpan.FromMilliseconds(1));
+            case PointIds.STORM:
+                Events.ScheduleEvent(EventIds.CAST_STORM, TimeSpan.FromMilliseconds(1));
 
                 break;
         }
@@ -153,7 +157,7 @@ internal class boss_alizabal : BossAI
         {
             switch (eventId)
             {
-                case EventIds.RandomCast:
+                case EventIds.RANDOM_CAST:
                 {
                     switch (RandomHelper.URand(0, 1))
                     {
@@ -164,13 +168,13 @@ internal class boss_alizabal : BossAI
 
                                 if (target)
                                 {
-                                    DoCast(target, SpellIds.Skewer, new CastSpellExtraArgs(true));
-                                    Talk(TextIds.SaySkewer);
-                                    Talk(TextIds.SaySkewerAnnounce, target);
+                                    DoCast(target, SpellIds.SKEWER, new CastSpellExtraArgs(true));
+                                    Talk(TextIds.SAY_SKEWER);
+                                    Talk(TextIds.SAY_SKEWER_ANNOUNCE, target);
                                 }
 
                                 _skewer = true;
-                                Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+                                Events.ScheduleEvent(EventIds.RANDOM_CAST, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
                             }
                             else if (!_hate)
                             {
@@ -178,21 +182,21 @@ internal class boss_alizabal : BossAI
 
                                 if (target)
                                 {
-                                    DoCast(target, SpellIds.SeethingHate, new CastSpellExtraArgs(true));
-                                    Talk(TextIds.SayHate);
+                                    DoCast(target, SpellIds.SEETHING_HATE, new CastSpellExtraArgs(true));
+                                    Talk(TextIds.SAY_HATE);
                                 }
 
                                 _hate = true;
-                                Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+                                Events.ScheduleEvent(EventIds.RANDOM_CAST, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
                             }
                             else if (_hate && _skewer)
                             {
-                                Talk(TextIds.SayBladeStorm);
-                                DoCastAOE(SpellIds.BladeDanceDummy);
-                                DoCastAOE(SpellIds.BladeDance);
-                                Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(21));
-                                Events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
-                                Events.ScheduleEvent(EventIds.StopStorm, TimeSpan.FromSeconds(13));
+                                Talk(TextIds.SAY_BLADE_STORM);
+                                DoCastAOE(SpellIds.BLADE_DANCE_DUMMY);
+                                DoCastAOE(SpellIds.BLADE_DANCE);
+                                Events.ScheduleEvent(EventIds.RANDOM_CAST, TimeSpan.FromSeconds(21));
+                                Events.ScheduleEvent(EventIds.MOVE_STORM, TimeSpan.FromMilliseconds(4050));
+                                Events.ScheduleEvent(EventIds.STOP_STORM, TimeSpan.FromSeconds(13));
                             }
 
                             break;
@@ -203,12 +207,12 @@ internal class boss_alizabal : BossAI
 
                                 if (target)
                                 {
-                                    DoCast(target, SpellIds.SeethingHate, new CastSpellExtraArgs(true));
-                                    Talk(TextIds.SayHate);
+                                    DoCast(target, SpellIds.SEETHING_HATE, new CastSpellExtraArgs(true));
+                                    Talk(TextIds.SAY_HATE);
                                 }
 
                                 _hate = true;
-                                Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+                                Events.ScheduleEvent(EventIds.RANDOM_CAST, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
                             }
                             else if (!_skewer)
                             {
@@ -216,22 +220,22 @@ internal class boss_alizabal : BossAI
 
                                 if (target)
                                 {
-                                    DoCast(target, SpellIds.Skewer, new CastSpellExtraArgs(true));
-                                    Talk(TextIds.SaySkewer);
-                                    Talk(TextIds.SaySkewerAnnounce, target);
+                                    DoCast(target, SpellIds.SKEWER, new CastSpellExtraArgs(true));
+                                    Talk(TextIds.SAY_SKEWER);
+                                    Talk(TextIds.SAY_SKEWER_ANNOUNCE, target);
                                 }
 
                                 _skewer = true;
-                                Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+                                Events.ScheduleEvent(EventIds.RANDOM_CAST, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
                             }
                             else if (_hate && _skewer)
                             {
-                                Talk(TextIds.SayBladeStorm);
-                                DoCastAOE(SpellIds.BladeDanceDummy);
-                                DoCastAOE(SpellIds.BladeDance);
-                                Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(21));
-                                Events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
-                                Events.ScheduleEvent(EventIds.StopStorm, TimeSpan.FromSeconds(13));
+                                Talk(TextIds.SAY_BLADE_STORM);
+                                DoCastAOE(SpellIds.BLADE_DANCE_DUMMY);
+                                DoCastAOE(SpellIds.BLADE_DANCE);
+                                Events.ScheduleEvent(EventIds.RANDOM_CAST, TimeSpan.FromSeconds(21));
+                                Events.ScheduleEvent(EventIds.MOVE_STORM, TimeSpan.FromMilliseconds(4050));
+                                Events.ScheduleEvent(EventIds.STOP_STORM, TimeSpan.FromSeconds(13));
                             }
 
                             break;
@@ -239,22 +243,22 @@ internal class boss_alizabal : BossAI
 
                     break;
                 }
-                case EventIds.MoveStorm:
+                case EventIds.MOVE_STORM:
                 {
                     Me.SetSpeedRate(UnitMoveType.Run, 4.0f);
                     Me.SetSpeedRate(UnitMoveType.Walk, 4.0f);
                     var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(Me));
 
                     if (target)
-                        Me.MotionMaster.MovePoint(PointIds.Storm, target.Location.X, target.Location.Y, target.Location.Z);
+                        Me.MotionMaster.MovePoint(PointIds.STORM, target.Location.X, target.Location.Y, target.Location.Z);
 
-                    Events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
+                    Events.ScheduleEvent(EventIds.MOVE_STORM, TimeSpan.FromMilliseconds(4050));
 
                     break;
                 }
-                case EventIds.StopStorm:
-                    Me.RemoveAura(SpellIds.BladeDance);
-                    Me.RemoveAura(SpellIds.BladeDanceDummy);
+                case EventIds.STOP_STORM:
+                    Me.RemoveAura(SpellIds.BLADE_DANCE);
+                    Me.RemoveAura(SpellIds.BLADE_DANCE_DUMMY);
                     Me.SetSpeedRate(UnitMoveType.Walk, 1.0f);
                     Me.SetSpeedRate(UnitMoveType.Run, 1.14f);
                     Me.MotionMaster.MoveChase(Me.Victim);
@@ -262,8 +266,8 @@ internal class boss_alizabal : BossAI
                     _skewer = false;
 
                     break;
-                case EventIds.CastStorm:
-                    DoCastAOE(SpellIds.BladeDance);
+                case EventIds.CAST_STORM:
+                    DoCastAOE(SpellIds.BLADE_DANCE);
 
                     break;
             }

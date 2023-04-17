@@ -2,12 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(274837)]
-public class spell_feral_frenzy : SpellScript
+public class SpellFeralFrenzy : SpellScript
 {
     private byte _strikes;
 
@@ -35,7 +35,7 @@ public class spell_feral_frenzy : SpellScript
                                                      }
                                                      else if (_strikes == 5)
                                                      {
-                                                         caster.CastSpell(target, DruidSpells.FERAL_FRENZY_BLEED, true);
+                                                         caster.SpellFactory.CastSpell(target, DruidSpells.FeralFrenzyBleed, true);
                                                          var bleedDamage = 100 / 10 + caster.UnitData.AttackPower;
                                                      }
                                                  }

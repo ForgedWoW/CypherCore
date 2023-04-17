@@ -2,18 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Shaman;
 
 //192077 - Wind Rush Totem
 //97285 - NPC ID
 [CreatureScript(97285)]
-public class npc_wind_rush_totem : ScriptedAI
+public class NPCWindRushTotem : ScriptedAI
 {
-    public npc_wind_rush_totem(Creature creature) : base(creature) { }
+    public NPCWindRushTotem(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -21,7 +21,7 @@ public class npc_wind_rush_totem : ScriptedAI
 
         Me.Events.AddRepeatEventAtOffset(() =>
                                          {
-                                             Me.CastSpell(Me, TotemSpells.TOTEM_WIND_RUSH_EFFECT, true);
+                                             Me.SpellFactory.CastSpell(Me, TotemSpells.TOTEM_WIND_RUSH_EFFECT, true);
 
                                              return time;
                                          },

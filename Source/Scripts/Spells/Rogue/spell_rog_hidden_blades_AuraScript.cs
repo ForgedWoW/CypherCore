@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(270061)]
-public class spell_rog_hidden_blades_AuraScript : AuraScript, IHasAuraEffects
+public class SpellRogHiddenBladesAuraScript : AuraScript, IHasAuraEffects
 {
     private byte _stacks;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -20,7 +20,7 @@ public class spell_rog_hidden_blades_AuraScript : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
     }
 
-    private void HandleEffectPeriodic(AuraEffect UnnamedParameter)
+    private void HandleEffectPeriodic(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 

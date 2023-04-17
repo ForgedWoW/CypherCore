@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 // 248033 - Awakening
 [SpellScript(248033)]
-internal class spell_pal_awakening : AuraScript, IHasAuraEffects
+internal class SpellPalAwakening : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -37,7 +38,7 @@ internal class spell_pal_awakening : AuraScript, IHasAuraEffects
         if (durationEffect != null)
             extraDuration = TimeSpan.FromSeconds(durationEffect.Amount);
 
-        var avengingWrath = Target.GetAura(PaladinSpells.AvengingWrath);
+        var avengingWrath = Target.GetAura(PaladinSpells.AVENGING_WRATH);
 
         if (avengingWrath != null)
         {
@@ -47,8 +48,8 @@ internal class spell_pal_awakening : AuraScript, IHasAuraEffects
         else
         {
             Target
-                .CastSpell(Target,
-                           PaladinSpells.AvengingWrath,
+                .SpellFactory.CastSpell(Target,
+                           PaladinSpells.AVENGING_WRATH,
                            new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress | TriggerCastFlags.IgnoreSpellAndCategoryCD)
                                .SetTriggeringSpell(eventInfo.ProcSpell)
                                .AddSpellMod(SpellValueMod.Duration, (int)extraDuration.TotalMilliseconds));

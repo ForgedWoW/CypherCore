@@ -3,27 +3,30 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BaradinHold.PitLordArgaloth;
 
 internal struct SpellIds
 {
-    public const uint MeteorSlash = 88942;
-    public const uint ConsumingDarkness = 88954;
-    public const uint FelFirestorm = 88972;
-    public const uint Berserk = 47008;
+    public const uint METEOR_SLASH = 88942;
+    public const uint CONSUMING_DARKNESS = 88954;
+    public const uint FEL_FIRESTORM = 88972;
+    public const uint BERSERK = 47008;
 }
 
 [Script]
-internal class boss_pit_lord_argaloth : BossAI
+internal class BossPitLordArgaloth : BossAI
 {
-    private boss_pit_lord_argaloth(Creature creature) : base(creature, DataTypes.Argaloth) { }
+    private BossPitLordArgaloth(Creature creature) : base(creature, DataTypes.ARGALOTH) { }
 
     public override void JustEngagedWith(Unit who)
     {
@@ -34,7 +37,7 @@ internal class boss_pit_lord_argaloth : BossAI
                            TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastAOE(SpellIds.MeteorSlash);
+                               DoCastAOE(SpellIds.METEOR_SLASH);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
                            });
 
@@ -42,11 +45,11 @@ internal class boss_pit_lord_argaloth : BossAI
                            TimeSpan.FromSeconds(25),
                            task =>
                            {
-                               DoCastAOE(SpellIds.ConsumingDarkness, new CastSpellExtraArgs(true));
+                               DoCastAOE(SpellIds.CONSUMING_DARKNESS, new CastSpellExtraArgs(true));
                                task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(25));
                            });
 
-        Scheduler.Schedule(TimeSpan.FromMinutes(5), task => { DoCast(Me, SpellIds.Berserk, new CastSpellExtraArgs(true)); });
+        Scheduler.Schedule(TimeSpan.FromMinutes(5), task => { DoCast(Me, SpellIds.BERSERK, new CastSpellExtraArgs(true)); });
     }
 
     public override void EnterEvadeMode(EvadeReason why)
@@ -59,7 +62,7 @@ internal class boss_pit_lord_argaloth : BossAI
     {
         if (Me.HealthBelowPctDamaged(33, damage) ||
             Me.HealthBelowPctDamaged(66, damage))
-            DoCastAOE(SpellIds.FelFirestorm);
+            DoCastAOE(SpellIds.FEL_FIRESTORM);
     }
 
     public override void JustDied(Unit killer)
@@ -78,7 +81,7 @@ internal class boss_pit_lord_argaloth : BossAI
 }
 
 [Script] // 88954 / 95173 - Consuming Darkness
-internal class spell_argaloth_consuming_darkness_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellArgalothConsumingDarknessSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -94,7 +97,7 @@ internal class spell_argaloth_consuming_darkness_SpellScript : SpellScript, IHas
 }
 
 [Script] // 88942 / 95172 - Meteor Slash
-internal class spell_argaloth_meteor_slash_SpellScript : SpellScript, ISpellOnHit, IHasSpellEffects
+internal class SpellArgalothMeteorSlashSpellScript : SpellScript, ISpellOnHit, IHasSpellEffects
 {
     private int _targetCount;
     public List<ISpellEffect> SpellEffects { get; } = new();

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(55342)]
-public class spell_mage_mirror_image_summon : SpellScript, IHasSpellEffects
+public class SpellMageMirrorImageSummon : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,9 +25,9 @@ public class spell_mage_mirror_image_summon : SpellScript, IHasSpellEffects
 
         if (caster != null)
         {
-            caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_LEFT, true);
-            caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_FRONT, true);
-            caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_RIGHT, true);
+            caster.SpellFactory.CastSpell(caster, MageSpells.MIRROR_IMAGE_LEFT, true);
+            caster.SpellFactory.CastSpell(caster, MageSpells.MIRROR_IMAGE_FRONT, true);
+            caster.SpellFactory.CastSpell(caster, MageSpells.MIRROR_IMAGE_RIGHT, true);
         }
     }
 }

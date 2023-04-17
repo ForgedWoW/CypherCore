@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(203975)]
-public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
+public class SpellDruidEarthwardenTriggered : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +23,7 @@ public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
     }
 
-    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalculateAmount(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         amount.Value = -1;
     }
@@ -32,10 +32,10 @@ public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
     {
         if (dmgInfo.DamageType == DamageEffectType.Direct)
         {
-            var earthwarden = Global.SpellMgr.AssertSpellInfo(Spells.EARTHWARDEN, Difficulty.None);
+            var earthwarden = Global.SpellMgr.AssertSpellInfo(Spells.Earthwarden, Difficulty.None);
 
             absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, earthwarden.GetEffect(0).BasePoints);
-            Caster.RemoveAura(Spells.EARTHWARDEN_TRIGGERED);
+            Caster.RemoveAura(Spells.EarthwardenTriggered);
         }
 
         return absorbAmount;
@@ -43,7 +43,7 @@ public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
 
     private struct Spells
     {
-        public static readonly uint EARTHWARDEN = 203974;
-        public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
+        public static readonly uint Earthwarden = 203974;
+        public static readonly uint EarthwardenTriggered = 203975;
     }
 }

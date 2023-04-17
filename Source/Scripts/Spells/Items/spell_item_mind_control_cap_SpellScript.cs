@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 13180 - Gnomish Mind Control Cap
-internal class spell_item_mind_control_cap_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellItemMindControlCapSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -36,9 +37,9 @@ internal class spell_item_mind_control_cap_SpellScript : SpellScript, IHasSpellE
         if (target)
         {
             if (RandomHelper.randChance(95))
-                caster.CastSpell(target, RandomHelper.randChance(32) ? ItemSpellIds.Dullard : ItemSpellIds.GnomishMindControlCap, new CastSpellExtraArgs(CastItem));
+                caster.SpellFactory.CastSpell(target, RandomHelper.randChance(32) ? ItemSpellIds.DULLARD : ItemSpellIds.GNOMISH_MIND_CONTROL_CAP, new CastSpellExtraArgs(CastItem));
             else
-                target.CastSpell(caster, ItemSpellIds.GnomishMindControlCap, true); // backfire - 5% chance
+                target.SpellFactory.CastSpell(caster, ItemSpellIds.GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
         }
     }
 }

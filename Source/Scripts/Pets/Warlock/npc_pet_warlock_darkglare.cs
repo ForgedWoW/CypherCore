@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
@@ -14,9 +15,9 @@ namespace Scripts.Pets
     {
         // Darkglare - 103673
         [CreatureScript(103673)]
-        public class npc_pet_warlock_darkglare : SmartAI
+        public class NPCPetWarlockDarkglare : SmartAI
         {
-            public npc_pet_warlock_darkglare(Creature creature) : base(creature)
+            public NPCPetWarlockDarkglare(Creature creature) : base(creature)
             {
                 if (!Me.TryGetOwner(out Player owner))
                     return;
@@ -38,7 +39,7 @@ namespace Scripts.Pets
                 }
             }
 
-            public override void UpdateAI(uint UnnamedParameter)
+            public override void UpdateAI(uint unnamedParameter)
             {
                 var owner = Me.OwnerUnit;
 
@@ -50,7 +51,7 @@ namespace Scripts.Pets
                 if (target != null)
                 {
                     target.RemoveAura(WarlockSpells.DOOM, owner.GUID);
-                    Me.CastSpell(target, WarlockSpells.EYE_LASER, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(owner.GUID));
+                    Me.SpellFactory.CastSpell(target, WarlockSpells.EYE_LASER, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(owner.GUID));
                 }
             }
         }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(253593)]
-public class aura_inexorable_assault : AuraScript, IHasAuraEffects
+public class AuraInexorableAssault : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,9 +20,9 @@ public class aura_inexorable_assault : AuraScript, IHasAuraEffects
     }
 
 
-    private void OnPeriodic(AuraEffect UnnamedParameter)
+    private void OnPeriodic(AuraEffect unnamedParameter)
     {
         if (Caster)
-            Caster.CastSpell(null, DeathKnightSpells.INEXORABLE_ASSAULT_STACK, true);
+            Caster.SpellFactory.CastSpell(null, DeathKnightSpells.INEXORABLE_ASSAULT_STACK, true);
     }
 }

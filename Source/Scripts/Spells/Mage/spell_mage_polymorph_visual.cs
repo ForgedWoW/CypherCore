@@ -2,21 +2,22 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 32826 - Polymorph (Visual)
-internal class spell_mage_polymorph_visual : SpellScript, IHasSpellEffects
+internal class SpellMagePolymorphVisual : SpellScript, IHasSpellEffects
 {
-    private const uint NPC_AUROSALIA = 18744;
+    private const uint NPCAurosalia = 18744;
 
-    private readonly uint[] PolymorhForms =
+    private readonly uint[] _polymorhForms =
     {
-        MageSpells.SquirrelForm, MageSpells.GiraffeForm, MageSpells.SerpentForm, MageSpells.DradonhawkForm, MageSpells.WorgenForm, MageSpells.SheepForm
+        MageSpells.SquirrelForm, MageSpells.GiraffeForm, MageSpells.SerpentForm, MageSpells.DRADONHAWK_FORM, MageSpells.WorgenForm, MageSpells.SheepForm
     };
 
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -30,10 +31,10 @@ internal class spell_mage_polymorph_visual : SpellScript, IHasSpellEffects
 
     private void HandleDummy(int effIndex)
     {
-        Unit target = Caster.FindNearestCreature(NPC_AUROSALIA, 30.0f);
+        Unit target = Caster.FindNearestCreature(NPCAurosalia, 30.0f);
 
         if (target)
             if (target.IsTypeId(TypeId.Unit))
-                target.CastSpell(target, PolymorhForms[RandomHelper.IRand(0, 5)], true);
+                target.SpellFactory.CastSpell(target, _polymorhForms[RandomHelper.IRand(0, 5)], true);
     }
 }

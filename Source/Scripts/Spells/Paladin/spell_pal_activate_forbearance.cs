@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
@@ -13,14 +13,14 @@ namespace Scripts.Spells.Paladin;
 {
     1022, 633, 204018
 })]
-public class spell_pal_activate_forbearance : SpellScript, ISpellOnHit, ISpellCheckCast
+public class SpellPalActivateForbearance : SpellScript, ISpellOnHit, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {
         var target = ExplTargetUnit;
 
         if (target != null)
-            if (target.HasAura(PaladinSpells.Forbearance))
+            if (target.HasAura(PaladinSpells.FORBEARANCE))
                 return SpellCastResult.TargetAurastate;
 
         return SpellCastResult.SpellCastOk;
@@ -36,7 +36,7 @@ public class spell_pal_activate_forbearance : SpellScript, ISpellOnHit, ISpellCh
             var target = HitUnit;
 
             if (target != null)
-                player.CastSpell(target, PaladinSpells.Forbearance, true);
+                player.SpellFactory.CastSpell(target, PaladinSpells.FORBEARANCE, true);
         }
     }
 }

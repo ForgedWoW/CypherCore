@@ -1,20 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[CreatureScript(EvokerNPCs.CYCLE_OF_LIFE)]
-public class npc_evoker_cycle_of_life : ScriptedAI
+[CreatureScript(EvokerNpCs.CYCLE_OF_LIFE)]
+public class NPCEvokerCycleOfLife : ScriptedAI
 {
     Aura _cycleOfLife;
 
-    public npc_evoker_cycle_of_life(Creature creature) : base(creature) { }
+    public NPCEvokerCycleOfLife(Creature creature) : base(creature) { }
 
     public override void JustSummoned(Creature summon)
     {
@@ -31,7 +32,7 @@ public class npc_evoker_cycle_of_life : ScriptedAI
     {
         CastSpellExtraArgs args = new(true);
         args.SpellValueOverrides[SpellValueMod.BasePoint0] = _cycleOfLife.AuraEffects[0].Amount;
-        Me.CastSpell(Me.HomePosition, EvokerSpells.CYCLE_OF_LIFE_HEAL, args);
+        Me.SpellFactory.CastSpell(Me.HomePosition, EvokerSpells.CYCLE_OF_LIFE_HEAL, args);
         base.OnDespawn();
     }
 }

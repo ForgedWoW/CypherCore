@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Evoker;
 
@@ -11,7 +11,7 @@ namespace Scripts.Spells.Evoker;
 ///     spell has 7 ticks in total. 1 on create. 5 within the 12s duration. 1 on remove. added _hits in cast all 6 manage to happen in OnUpdates
 /// </summary>
 [AreaTriggerScript(EvokerAreaTriggers.RED_FIRE_STORM)]
-public class at_evoker_firestorm : AreaTriggerScript, IAreaTriggerOverrideCreateProperties,
+public class AtEvokerFirestorm : AreaTriggerScript, IAreaTriggerOverrideCreateProperties,
                                    IAreaTriggerOnUpdate, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
     uint _timer = 0;
@@ -20,7 +20,7 @@ public class at_evoker_firestorm : AreaTriggerScript, IAreaTriggerOverrideCreate
 
     public void OnCreate()
     {
-        At.GetCaster().CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
+        At.GetCaster().SpellFactory.CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
         _hits--;
     }
 
@@ -33,7 +33,7 @@ public class at_evoker_firestorm : AreaTriggerScript, IAreaTriggerOverrideCreate
     public void OnRemove()
     {
         if (_hits > 0)
-            At.GetCaster().CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
+            At.GetCaster().SpellFactory.CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
     }
 
     public void OnUpdate(uint diff)
@@ -46,7 +46,7 @@ public class at_evoker_firestorm : AreaTriggerScript, IAreaTriggerOverrideCreate
 
         if (_timer >= 2000) // tick every 2 seconds
         {
-            At.GetCaster().CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
+            At.GetCaster().SpellFactory.CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
             _hits--;
             _timer -= 2000; // only subtract 2000 to carry over any extra time
         }

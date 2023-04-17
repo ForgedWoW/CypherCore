@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(224239)] // 224239 - Divine Storm
-internal class spell_pal_divine_storm : SpellScript, ISpellOnCast
+internal class SpellPalDivineStorm : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {
-        Caster.SendPlaySpellVisualKit(PaladinSpellVisualKit.DivineStorm, 0, 0);
+        Caster.SendPlaySpellVisualKit(PaladinSpellVisualKit.DIVINE_STORM, 0, 0);
     }
 }

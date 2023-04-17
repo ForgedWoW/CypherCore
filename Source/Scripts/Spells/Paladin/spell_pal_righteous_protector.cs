@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(204074)] // 204074 - Righteous Protector
-internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
+internal class SpellPalRighteousProtector : AuraScript, IHasAuraEffects
 {
     private SpellPowerCost _baseHolyPowerCost;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -40,7 +41,7 @@ internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
     {
         var value = aurEff.Amount * 100 * _baseHolyPowerCost.Amount;
 
-        Target.SpellHistory.ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
-        Target.SpellHistory.ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
+        Target.SpellHistory.ModifyCooldown(PaladinSpells.AVENGING_WRATH, TimeSpan.FromMilliseconds(-value));
+        Target.SpellHistory.ModifyCooldown(PaladinSpells.GUARDIAN_OF_ACIENT_KINGS, TimeSpan.FromMilliseconds(-value));
     }
 }

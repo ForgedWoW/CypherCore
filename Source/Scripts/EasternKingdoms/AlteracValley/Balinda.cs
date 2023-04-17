@@ -3,46 +3,49 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.AlteracValley.Balinda;
 
 internal struct SpellIds
 {
-    public const uint ArcaneExplosion = 46608;
-    public const uint ConeOfCold = 38384;
-    public const uint Fireball = 46988;
-    public const uint Frostbolt = 46987;
-    public const uint SummonWaterElemental = 45067;
-    public const uint Iceblock = 46604;
+    public const uint ARCANE_EXPLOSION = 46608;
+    public const uint CONE_OF_COLD = 38384;
+    public const uint FIREBALL = 46988;
+    public const uint FROSTBOLT = 46987;
+    public const uint SUMMON_WATER_ELEMENTAL = 45067;
+    public const uint ICEBLOCK = 46604;
 }
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SayEvade = 1;
-    public const uint SaySalvation = 2;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_EVADE = 1;
+    public const uint SAY_SALVATION = 2;
 }
 
 internal struct ActionIds
 {
-    public const int BuffYell = -30001; // shared from Battleground
+    public const int BUFF_YELL = -30001; // shared from Battleground
 }
 
 [Script]
-internal class boss_balinda : ScriptedAI
+internal class BossBalinda : ScriptedAI
 {
-    private readonly SummonList summons;
-    private bool HasCastIceblock;
-    private ObjectGuid WaterElementalGUID;
+    private readonly SummonList _summons;
+    private bool _hasCastIceblock;
+    private ObjectGuid _waterElementalGUID;
 
-    public boss_balinda(Creature creature) : base(creature)
+    public BossBalinda(Creature creature) : base(creature)
     {
-        summons = new SummonList(Me);
+        _summons = new SummonList(Me);
         Initialize();
     }
 
@@ -50,47 +53,47 @@ internal class boss_balinda : ScriptedAI
     {
         Initialize();
         Scheduler.CancelAll();
-        summons.DespawnAll();
+        _summons.DespawnAll();
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
 
         Scheduler.Schedule(TimeSpan.FromSeconds(5),
                            TimeSpan.FromSeconds(15),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ArcaneExplosion);
+                               DoCastVictim(SpellIds.ARCANE_EXPLOSION);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ConeOfCold);
+                               DoCastVictim(SpellIds.CONE_OF_COLD);
                                task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(1),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Fireball);
+                               DoCastVictim(SpellIds.FIREBALL);
                                task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(9));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Frostbolt);
+                               DoCastVictim(SpellIds.FROSTBOLT);
                                task.Repeat(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(12));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(3),
                            task =>
                            {
-                               if (summons.Empty())
-                                   DoCast(SpellIds.SummonWaterElemental);
+                               if (_summons.Empty())
+                                   DoCast(SpellIds.SUMMON_WATER_ELEMENTAL);
 
                                task.Repeat(TimeSpan.FromSeconds(50));
                            });
@@ -101,10 +104,10 @@ internal class boss_balinda : ScriptedAI
                                                                           if (Me.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
                                                                           {
                                                                               base.EnterEvadeMode();
-                                                                              Talk(TextIds.SayEvade);
+                                                                              Talk(TextIds.SAY_EVADE);
                                                                           }
 
-                                                                          var elemental = ObjectAccessor.GetCreature(Me, WaterElementalGUID);
+                                                                          var elemental = ObjectAccessor.GetCreature(Me, _waterElementalGUID);
 
                                                                           if (elemental != null)
                                                                               if (elemental.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
@@ -118,33 +121,33 @@ internal class boss_balinda : ScriptedAI
     {
         summoned.AI.AttackStart(SelectTarget(SelectTargetMethod.Random, 0, 50, true));
         summoned.Faction = Me.Faction;
-        WaterElementalGUID = summoned.GUID;
-        summons.Summon(summoned);
+        _waterElementalGUID = summoned.GUID;
+        _summons.Summon(summoned);
     }
 
     public override void SummonedCreatureDespawn(Creature summoned)
     {
-        summons.Despawn(summoned);
+        _summons.Despawn(summoned);
     }
 
     public override void JustDied(Unit killer)
     {
-        summons.DespawnAll();
+        _summons.DespawnAll();
     }
 
     public override void DoAction(int actionId)
     {
-        if (actionId == ActionIds.BuffYell)
-            Talk(TextIds.SayAggro);
+        if (actionId == ActionIds.BUFF_YELL)
+            Talk(TextIds.SAY_AGGRO);
     }
 
     public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (Me.HealthBelowPctDamaged(40, damage) &&
-            !HasCastIceblock)
+            !_hasCastIceblock)
         {
-            DoCast(SpellIds.Iceblock);
-            HasCastIceblock = true;
+            DoCast(SpellIds.ICEBLOCK);
+            _hasCastIceblock = true;
         }
     }
 
@@ -158,7 +161,7 @@ internal class boss_balinda : ScriptedAI
 
     private void Initialize()
     {
-        WaterElementalGUID.Clear();
-        HasCastIceblock = false;
+        _waterElementalGUID.Clear();
+        _hasCastIceblock = false;
     }
 }

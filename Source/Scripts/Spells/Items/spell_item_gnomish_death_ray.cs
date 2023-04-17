@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 13280 Gnomish Death Ray
-internal class spell_item_gnomish_death_ray : SpellScript, IHasSpellEffects
+internal class SpellItemGnomishDeathRay : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,9 +28,9 @@ internal class spell_item_gnomish_death_ray : SpellScript, IHasSpellEffects
         if (target)
         {
             if (RandomHelper.URand(0, 99) < 15)
-                caster.CastSpell(caster, ItemSpellIds.GnomishDeathRaySelf, true); // failure
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.GNOMISH_DEATH_RAY_SELF, true); // failure
             else
-                caster.CastSpell(target, ItemSpellIds.GnomishDeathRayTarget, true);
+                caster.SpellFactory.CastSpell(target, ItemSpellIds.GNOMISH_DEATH_RAY_TARGET, true);
         }
     }
 }

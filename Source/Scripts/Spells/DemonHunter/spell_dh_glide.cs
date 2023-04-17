@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script] // 131347 - Glide
-internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
+internal class SpellDhGlide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 {
     public void BeforeCast()
     {
@@ -18,8 +18,8 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
         if (!caster)
             return;
 
-        caster.CastSpell(caster, DemonHunterSpells.GlideKnockback, true);
-        caster.CastSpell(caster, DemonHunterSpells.GlideDuration, true);
+        caster.SpellFactory.CastSpell(caster, DemonHunterSpells.GlideKnockback, true);
+        caster.SpellFactory.CastSpell(caster, DemonHunterSpells.GlideDuration, true);
 
         caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.VengefulRetreatTrigger, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
         caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FelRush, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));

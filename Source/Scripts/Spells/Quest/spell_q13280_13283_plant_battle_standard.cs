@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 4338 Plant Alliance Battle Standard
-internal class spell_q13280_13283_plant_battle_standard : SpellScript, IHasSpellEffects
+internal class SpellQ1328013283PlantBattleStandard : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,7 +23,7 @@ internal class spell_q13280_13283_plant_battle_standard : SpellScript, IHasSpell
     {
         var caster = Caster;
         var target = HitUnit;
-        var triggeredSpellID = QuestSpellIds.AllianceBattleStandardState;
+        var triggeredSpellID = QuestSpellIds.ALLIANCE_BATTLE_STANDARD_STATE;
 
         caster.HandleEmoteCommand(Emote.OneshotRoar);
 
@@ -31,13 +32,13 @@ internal class spell_q13280_13283_plant_battle_standard : SpellScript, IHasSpell
             var player = caster.VehicleKit1.GetPassenger(0);
 
             if (player)
-                player.AsPlayer.KilledMonsterCredit(CreatureIds.KingOfTheMountaintKc);
+                player.AsPlayer.KilledMonsterCredit(CreatureIds.KING_OF_THE_MOUNTAINT_KC);
         }
 
-        if (SpellInfo.Id == QuestSpellIds.PlantHordeBattleStandard)
-            triggeredSpellID = QuestSpellIds.HordeBattleStandardState;
+        if (SpellInfo.Id == QuestSpellIds.PLANT_HORDE_BATTLE_STANDARD)
+            triggeredSpellID = QuestSpellIds.HORDE_BATTLE_STANDARD_STATE;
 
         target.RemoveAllAuras();
-        target.CastSpell(target, triggeredSpellID, true);
+        target.SpellFactory.CastSpell(target, triggeredSpellID, true);
     }
 }

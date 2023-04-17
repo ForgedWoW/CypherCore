@@ -2,55 +2,60 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Chrono;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Serilog;
 
 namespace Scripts.World.GameObjects;
 
 internal struct SpellIds
 {
     //CatFigurine
-    public const uint SummonGhostSaber = 5968;
+    public const uint SUMMON_GHOST_SABER = 5968;
 
     //EthereumPrison
-    public const uint RepLc = 39456;
-    public const uint RepShat = 39457;
-    public const uint RepCe = 39460;
-    public const uint RepCon = 39474;
-    public const uint RepKt = 39475;
-    public const uint RepSpor = 39476;
+    public const uint REP_LC = 39456;
+    public const uint REP_SHAT = 39457;
+    public const uint REP_CE = 39460;
+    public const uint REP_CON = 39474;
+    public const uint REP_KT = 39475;
+    public const uint REP_SPOR = 39476;
 
     //Southfury
-    public const uint Blackjack = 39865; //Stuns Player
-    public const uint SummonRizzle = 39866;
+    public const uint BLACKJACK = 39865; //Stuns Player
+    public const uint SUMMON_RIZZLE = 39866;
 
     //Felcrystalforge
-    public const uint Create1FlaskOfBeast = 40964;
-    public const uint Create5FlaskOfBeast = 40965;
+    public const uint CREATE1_FLASK_OF_BEAST = 40964;
+    public const uint CREATE5_FLASK_OF_BEAST = 40965;
 
     //Bashircrystalforge
-    public const uint Create1FlaskOfSorcerer = 40968;
-    public const uint Create5FlaskOfSorcerer = 40970;
+    public const uint CREATE1_FLASK_OF_SORCERER = 40968;
+    public const uint CREATE5_FLASK_OF_SORCERER = 40970;
 
     //Jotunheimcage
-    public const uint SummonBladeKnightH = 56207;
-    public const uint SummonBladeKnightNe = 56209;
-    public const uint SummonBladeKnightOrc = 56212;
-    public const uint SummonBladeKnightTroll = 56214;
+    public const uint SUMMON_BLADE_KNIGHT_H = 56207;
+    public const uint SUMMON_BLADE_KNIGHT_NE = 56209;
+    public const uint SUMMON_BLADE_KNIGHT_ORC = 56212;
+    public const uint SUMMON_BLADE_KNIGHT_TROLL = 56214;
 
     //Amberpineouthouse
-    public const uint Indisposed = 53017;
-    public const uint IndisposedIii = 48341;
-    public const uint CreateAmberseeds = 48330;
+    public const uint INDISPOSED = 53017;
+    public const uint INDISPOSED_III = 48341;
+    public const uint CREATE_AMBERSEEDS = 48330;
 
     //Thecleansing
-    public const uint CleansingSoul = 43351;
-    public const uint RecentMeditation = 61720;
+    public const uint CLEANSING_SOUL = 43351;
+    public const uint RECENT_MEDITATION = 61720;
 
     //Midsummerbonfire
-    public const uint StampOutBonfireQuestComplete = 45458;
+    public const uint STAMP_OUT_BONFIRE_QUEST_COMPLETE = 45458;
 
     //MidsummerPoleRibbon
     public static uint[] RibbonPoleSpells =
@@ -59,13 +64,13 @@ internal struct SpellIds
     };
 
     //Toy Train Set
-    public const uint ToyTrainPulse = 61551;
+    public const uint TOY_TRAIN_PULSE = 61551;
 }
 
 internal struct CreatureIds
 {
     //GildedBrazier
-    public const uint Stillblade = 17716;
+    public const uint STILLBLADE = 17716;
 
     //EthereumPrison
     public static uint[] PrisonEntry =
@@ -81,158 +86,158 @@ internal struct CreatureIds
     };
 
     //ResoniteCask
-    public const uint Goggeroc = 11920;
+    public const uint GOGGEROC = 11920;
 
     //Sacredfireoflife
-    public const uint Arikara = 10882;
+    public const uint ARIKARA = 10882;
 
     //Southfury
-    public const uint Rizzle = 23002;
+    public const uint RIZZLE = 23002;
 
     //Bloodfilledorb
-    public const uint Zelemar = 17830;
+    public const uint ZELEMAR = 17830;
 
     //Jotunheimcage
-    public const uint EbonBladePrisonerHuman = 30186;
-    public const uint EbonBladePrisonerNe = 30194;
-    public const uint EbonBladePrisonerTroll = 30196;
-    public const uint EbonBladePrisonerOrc = 30195;
+    public const uint EBON_BLADE_PRISONER_HUMAN = 30186;
+    public const uint EBON_BLADE_PRISONER_NE = 30194;
+    public const uint EBON_BLADE_PRISONER_TROLL = 30196;
+    public const uint EBON_BLADE_PRISONER_ORC = 30195;
 
     //Tadpoles
-    public const uint WinterfinTadpole = 25201;
+    public const uint WINTERFIN_TADPOLE = 25201;
 
     //Amberpineouthouse
-    public const uint OuthouseBunny = 27326;
+    public const uint OUTHOUSE_BUNNY = 27326;
 
     //Missingfriends
-    public const uint CaptiveChild = 22314;
+    public const uint CAPTIVE_CHILD = 22314;
 
     //MidsummerPoleRibbon
-    public const uint PoleRibbonBunny = 17066;
+    public const uint POLE_RIBBON_BUNNY = 17066;
 }
 
 internal struct GameObjectIds
 {
     //Bellhourlyobjects
-    public const uint HordeBell = 175885;
-    public const uint AllianceBell = 176573;
-    public const uint KharazhanBell = 182064;
+    public const uint HORDE_BELL = 175885;
+    public const uint ALLIANCE_BELL = 176573;
+    public const uint KHARAZHAN_BELL = 182064;
 }
 
 internal struct ItemIds
 {
     //Amberpineouthouse
-    public const uint AnderholsSliderCider = 37247;
+    public const uint ANDERHOLS_SLIDER_CIDER = 37247;
 }
 
 internal struct QuestIds
 {
     //GildedBrazier
-    public const uint TheFirstTrial = 9678;
+    public const uint THE_FIRST_TRIAL = 9678;
 
     //Dalarancrystal
-    public const uint LearnLeaveReturn = 12790;
-    public const uint TeleCrystalFlag = 12845;
+    public const uint LEARN_LEAVE_RETURN = 12790;
+    public const uint TELE_CRYSTAL_FLAG = 12845;
 
     //Tadpoles
-    public const uint OhNoesTheTadpoles = 11560;
+    public const uint OH_NOES_THE_TADPOLES = 11560;
 
     //Amberpineouthouse
-    public const uint DoingYourDuty = 12227;
+    public const uint DOING_YOUR_DUTY = 12227;
 
     //Missingfriends
-    public const uint MissingFriends = 10852;
+    public const uint MISSING_FRIENDS = 10852;
 
     //Thecleansing
-    public const uint TheCleansingHorde = 11317;
-    public const uint TheCleansingAlliance = 11322;
+    public const uint THE_CLEANSING_HORDE = 11317;
+    public const uint THE_CLEANSING_ALLIANCE = 11322;
 }
 
 internal struct TextIds
 {
     //Missingfriends
-    public const uint SayFree0 = 0;
+    public const uint SAY_FREE0 = 0;
 }
 
 internal struct GossipConst
 {
     //Dalarancrystal
-    public const string GoTeleToDalaranCrystalFailed = "This Teleport Crystal Cannot Be Used Until The Teleport Crystal In Dalaran Has Been Used At Least Once.";
+    public const string GO_TELE_TO_DALARAN_CRYSTAL_FAILED = "This Teleport Crystal Cannot Be Used Until The Teleport Crystal In Dalaran Has Been Used At Least Once.";
 
     //Felcrystalforge
-    public const uint GossipFelCrystalforgeText = 31000;
-    public const uint GossipFelCrystalforgeItemTextReturn = 31001;
-    public const string GossipFelCrystalforgeItem1 = "Purchase 1 Unstable Flask Of The Beast For The Cost Of 10 Apexis Shards";
-    public const string GossipFelCrystalforgeItem5 = "Purchase 5 Unstable Flask Of The Beast For The Cost Of 50 Apexis Shards";
-    public const string GossipFelCrystalforgeItemReturn = "Use The Fel Crystalforge To Make Another Purchase.";
+    public const uint GOSSIP_FEL_CRYSTALFORGE_TEXT = 31000;
+    public const uint GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN = 31001;
+    public const string GOSSIP_FEL_CRYSTALFORGE_ITEM1 = "Purchase 1 Unstable Flask Of The Beast For The Cost Of 10 Apexis Shards";
+    public const string GOSSIP_FEL_CRYSTALFORGE_ITEM5 = "Purchase 5 Unstable Flask Of The Beast For The Cost Of 50 Apexis Shards";
+    public const string GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN = "Use The Fel Crystalforge To Make Another Purchase.";
 
     //Bashircrystalforge
-    public const uint GossipBashirCrystalforgeText = 31100;
-    public const uint GossipBashirCrystalforgeItemTextReturn = 31101;
-    public const string GossipBashirCrystalforgeItem1 = "Purchase 1 Unstable Flask Of The Sorcerer For The Cost Of 10 Apexis Shards";
-    public const string GossipBashirCrystalforgeItem5 = "Purchase 5 Unstable Flask Of The Sorcerer For The Cost Of 50 Apexis Shards";
-    public const string GossipBashirCrystalforgeItemReturn = "Use The Bashir Crystalforge To Make Another Purchase.";
+    public const uint GOSSIP_BASHIR_CRYSTALFORGE_TEXT = 31100;
+    public const uint GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN = 31101;
+    public const string GOSSIP_BASHIR_CRYSTALFORGE_ITEM1 = "Purchase 1 Unstable Flask Of The Sorcerer For The Cost Of 10 Apexis Shards";
+    public const string GOSSIP_BASHIR_CRYSTALFORGE_ITEM5 = "Purchase 5 Unstable Flask Of The Sorcerer For The Cost Of 50 Apexis Shards";
+    public const string GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN = "Use The Bashir Crystalforge To Make Another Purchase.";
 
     //Amberpineouthouse
-    public const uint GossipOuthouseInuse = 12775;
-    public const uint GossipOuthouseVacant = 12779;
+    public const uint GOSSIP_OUTHOUSE_INUSE = 12775;
+    public const uint GOSSIP_OUTHOUSE_VACANT = 12779;
 
-    public const string GossipUseOuthouse = "Use The Outhouse.";
-    public const string AnderholsSliderCiderNotFound = "Quest Item Anderhol'S Slider Cider Not Found.";
+    public const string GOSSIP_USE_OUTHOUSE = "Use The Outhouse.";
+    public const string ANDERHOLS_SLIDER_CIDER_NOT_FOUND = "Quest Item Anderhol'S Slider Cider Not Found.";
 }
 
 internal struct SoundIds
 {
     //BrewfestMusic
-    public const uint EventBrewfestdwarf01 = 11810;  // 1.35 Min
-    public const uint EventBrewfestdwarf02 = 11812;  // 1.55 Min 
-    public const uint EventBrewfestdwarf03 = 11813;  // 0.23 Min
-    public const uint EventBrewfestgoblin01 = 11811; // 1.08 Min
-    public const uint EventBrewfestgoblin02 = 11814; // 1.33 Min
-    public const uint EventBrewfestgoblin03 = 11815; // 0.28 Min
+    public const uint EVENT_BREWFESTDWARF01 = 11810;  // 1.35 Min
+    public const uint EVENT_BREWFESTDWARF02 = 11812;  // 1.55 Min 
+    public const uint EVENT_BREWFESTDWARF03 = 11813;  // 0.23 Min
+    public const uint EVENT_BREWFESTGOBLIN01 = 11811; // 1.08 Min
+    public const uint EVENT_BREWFESTGOBLIN02 = 11814; // 1.33 Min
+    public const uint EVENT_BREWFESTGOBLIN03 = 11815; // 0.28 Min
 
     //Brewfestmusicevents
-    public const uint EventBmSelectMusic = 1;
-    public const uint EventBmStartMusic = 2;
+    public const uint EVENT_BM_SELECT_MUSIC = 1;
+    public const uint EVENT_BM_START_MUSIC = 2;
 
     //Bells
     //BellHourlySoundFX
-    public const uint BellTollHorde = 6595; // Horde
-    public const uint BellTollTribal = 6675;
-    public const uint BellTollAlliance = 6594; // Alliance
-    public const uint BellTollNightelf = 6674;
-    public const uint BellTolldwarfgnome = 7234;
-    public const uint BellTollKharazhan = 9154; // Kharazhan
+    public const uint BELL_TOLL_HORDE = 6595; // Horde
+    public const uint BELL_TOLL_TRIBAL = 6675;
+    public const uint BELL_TOLL_ALLIANCE = 6594; // Alliance
+    public const uint BELL_TOLL_NIGHTELF = 6674;
+    public const uint BELL_TOLLDWARFGNOME = 7234;
+    public const uint BELL_TOLL_KHARAZHAN = 9154; // Kharazhan
 }
 
 internal struct AreaIds
 {
-    public const uint Silvermoon = 3430; // Horde
-    public const uint Undercity = 1497;
-    public const uint Orgrimmar1 = 1296;
-    public const uint Orgrimmar2 = 14;
-    public const uint Thunderbluff = 1638;
-    public const uint Ironforge1 = 809; // Alliance
-    public const uint Ironforge2 = 1;
-    public const uint Stormwind = 12;
-    public const uint Exodar = 3557;
-    public const uint Darnassus = 1657;
-    public const uint Shattrath = 3703; // General
-    public const uint TeldrassilZone = 141;
-    public const uint KharazhanMapid = 532;
+    public const uint SILVERMOON = 3430; // Horde
+    public const uint UNDERCITY = 1497;
+    public const uint ORGRIMMAR1 = 1296;
+    public const uint ORGRIMMAR2 = 14;
+    public const uint THUNDERBLUFF = 1638;
+    public const uint IRONFORGE1 = 809; // Alliance
+    public const uint IRONFORGE2 = 1;
+    public const uint STORMWIND = 12;
+    public const uint EXODAR = 3557;
+    public const uint DARNASSUS = 1657;
+    public const uint SHATTRATH = 3703; // General
+    public const uint TELDRASSIL_ZONE = 141;
+    public const uint KHARAZHAN_MAPID = 532;
 }
 
 internal struct ZoneIds
 {
-    public const uint Tirisfal = 85;
-    public const uint Undercity = 1497;
-    public const uint DunMorogh = 1;
-    public const uint Ironforge = 1537;
-    public const uint Teldrassil = 141;
-    public const uint Darnassus = 1657;
-    public const uint Ashenvale = 331;
-    public const uint HillsbradFoothills = 267;
-    public const uint Duskwood = 10;
+    public const uint TIRISFAL = 85;
+    public const uint UNDERCITY = 1497;
+    public const uint DUN_MOROGH = 1;
+    public const uint IRONFORGE = 1537;
+    public const uint TELDRASSIL = 141;
+    public const uint DARNASSUS = 1657;
+    public const uint ASHENVALE = 331;
+    public const uint HILLSBRAD_FOOTHILLS = 267;
+    public const uint DUSKWOOD = 10;
 }
 
 internal struct Misc
@@ -247,23 +252,23 @@ internal struct Misc
     public static TimeSpan EventBrewfestgoblin03Time = TimeSpan.FromSeconds(28);
 
     //Bellhourlymisc
-    public const uint GameEventHourlyBells = 73;
+    public const uint GAME_EVENT_HOURLY_BELLS = 73;
 }
 
 [Script]
-internal class go_gilded_brazier : GameObjectAI
+internal class GOGildedBrazier : GameObjectAI
 {
-    public go_gilded_brazier(GameObject go) : base(go) { }
+    public GOGildedBrazier(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
         if (Me.GoType == GameObjectTypes.Goober)
-            if (player.GetQuestStatus(QuestIds.TheFirstTrial) == QuestStatus.Incomplete)
+            if (player.GetQuestStatus(QuestIds.THE_FIRST_TRIAL) == QuestStatus.Incomplete)
             {
-                Creature Stillblade = player.SummonCreature(CreatureIds.Stillblade, 8106.11f, -7542.06f, 151.775f, 3.02598f, TempSummonType.DeadDespawn, TimeSpan.FromMinutes(1));
+                Creature stillblade = player.SummonCreature(CreatureIds.STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TempSummonType.DeadDespawn, TimeSpan.FromMinutes(1));
 
-                if (Stillblade)
-                    Stillblade.AI.AttackStart(player);
+                if (stillblade)
+                    stillblade.AI.AttackStart(player);
             }
 
         return true;
@@ -271,9 +276,9 @@ internal class go_gilded_brazier : GameObjectAI
 }
 
 [Script]
-internal class go_tablet_of_the_seven : GameObjectAI
+internal class GOTabletOfTheSeven : GameObjectAI
 {
-    public go_tablet_of_the_seven(GameObject go) : base(go) { }
+    public GOTabletOfTheSeven(GameObject go) : base(go) { }
 
     /// @todo use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
     public override bool OnGossipHello(Player player)
@@ -282,23 +287,23 @@ internal class go_tablet_of_the_seven : GameObjectAI
             return true;
 
         if (player.GetQuestStatus(4296) == QuestStatus.Incomplete)
-            player.CastSpell(player, 15065, false);
+            player.SpellFactory.CastSpell(player, 15065, false);
 
         return true;
     }
 }
 
 [Script]
-internal class go_ethereum_prison : GameObjectAI
+internal class GOEthereumPrison : GameObjectAI
 {
-    public go_ethereum_prison(GameObject go) : base(go) { }
+    public GOEthereumPrison(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
         Me.UseDoorOrButton();
-        var Random = (int)(RandomHelper.Rand32() % (CreatureIds.PrisonEntry.Length / sizeof(uint)));
+        var random = (int)(RandomHelper.Rand32() % (CreatureIds.PrisonEntry.Length / sizeof(uint)));
 
-        Creature creature = player.SummonCreature(CreatureIds.PrisonEntry[Random], Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+        Creature creature = player.SummonCreature(CreatureIds.PrisonEntry[random], Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
         if (creature)
             if (!creature.IsHostileTo(player))
@@ -312,33 +317,33 @@ internal class go_ethereum_prison : GameObjectAI
                     switch (pFaction.Faction)
                     {
                         case 1011:
-                            spellId = SpellIds.RepLc;
+                            spellId = SpellIds.REP_LC;
 
                             break;
                         case 935:
-                            spellId = SpellIds.RepShat;
+                            spellId = SpellIds.REP_SHAT;
 
                             break;
                         case 942:
-                            spellId = SpellIds.RepCe;
+                            spellId = SpellIds.REP_CE;
 
                             break;
                         case 933:
-                            spellId = SpellIds.RepCon;
+                            spellId = SpellIds.REP_CON;
 
                             break;
                         case 989:
-                            spellId = SpellIds.RepKt;
+                            spellId = SpellIds.REP_KT;
 
                             break;
                         case 970:
-                            spellId = SpellIds.RepSpor;
+                            spellId = SpellIds.REP_SPOR;
 
                             break;
                     }
 
                     if (spellId != 0)
-                        creature.CastSpell(player, spellId, false);
+                        creature.SpellFactory.CastSpell(player, spellId, false);
                     else
                         Log.Logger.Error($"go_ethereum_prison summoned Creature (entry {creature.Entry}) but faction ({creature.Faction}) are not expected by script.");
                 }
@@ -349,79 +354,79 @@ internal class go_ethereum_prison : GameObjectAI
 }
 
 [Script]
-internal class go_ethereum_stasis : GameObjectAI
+internal class GOEthereumStasis : GameObjectAI
 {
-    public go_ethereum_stasis(GameObject go) : base(go) { }
+    public GOEthereumStasis(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
         Me.UseDoorOrButton();
-        var Random = (int)(RandomHelper.Rand32() % CreatureIds.StasisEntry.Length / sizeof(uint));
+        var random = (int)(RandomHelper.Rand32() % CreatureIds.StasisEntry.Length / sizeof(uint));
 
-        player.SummonCreature(CreatureIds.StasisEntry[Random], Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+        player.SummonCreature(CreatureIds.StasisEntry[random], Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
         return false;
     }
 }
 
 [Script]
-internal class go_resonite_cask : GameObjectAI
+internal class GOResoniteCask : GameObjectAI
 {
-    public go_resonite_cask(GameObject go) : base(go) { }
+    public GOResoniteCask(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
         if (Me.GoType == GameObjectTypes.Goober)
-            Me.SummonCreature(CreatureIds.Goggeroc, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5));
+            Me.SummonCreature(CreatureIds.GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5));
 
         return false;
     }
 }
 
 [Script]
-internal class go_southfury_moonstone : GameObjectAI
+internal class GOSouthfuryMoonstone : GameObjectAI
 {
-    public go_southfury_moonstone(GameObject go) : base(go) { }
+    public GOSouthfuryMoonstone(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
         //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
-        //player.CastSpell(player, SpellSummonRizzle, false);
+        //player.SpellFactory.CastSpell(player, SpellSummonRizzle, false);
 
-        Creature creature = player.SummonCreature(CreatureIds.Rizzle, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.DeadDespawn);
+        Creature creature = player.SummonCreature(CreatureIds.RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.DeadDespawn);
 
         if (creature)
-            creature.CastSpell(player, SpellIds.Blackjack, false);
+            creature.SpellFactory.CastSpell(player, SpellIds.BLACKJACK, false);
 
         return false;
     }
 }
 
 [Script]
-internal class go_tele_to_dalaran_crystal : GameObjectAI
+internal class GOTeleToDalaranCrystal : GameObjectAI
 {
-    public go_tele_to_dalaran_crystal(GameObject go) : base(go) { }
+    public GOTeleToDalaranCrystal(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
-        if (player.GetQuestRewardStatus(QuestIds.TeleCrystalFlag))
+        if (player.GetQuestRewardStatus(QuestIds.TELE_CRYSTAL_FLAG))
             return false;
 
-        player.Session.SendNotification(GossipConst.GoTeleToDalaranCrystalFailed);
+        player.Session.SendNotification(GossipConst.GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
 
         return true;
     }
 }
 
 [Script]
-internal class go_tele_to_violet_stand : GameObjectAI
+internal class GOTeleToVioletStand : GameObjectAI
 {
-    public go_tele_to_violet_stand(GameObject go) : base(go) { }
+    public GOTeleToVioletStand(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
-        if (player.GetQuestRewardStatus(QuestIds.LearnLeaveReturn) ||
-            player.GetQuestStatus(QuestIds.LearnLeaveReturn) == QuestStatus.Incomplete)
+        if (player.GetQuestRewardStatus(QuestIds.LEARN_LEAVE_RETURN) ||
+            player.GetQuestStatus(QuestIds.LEARN_LEAVE_RETURN) == QuestStatus.Incomplete)
             return false;
 
         return true;
@@ -429,23 +434,23 @@ internal class go_tele_to_violet_stand : GameObjectAI
 }
 
 [Script]
-internal class go_blood_filled_orb : GameObjectAI
+internal class GOBloodFilledOrb : GameObjectAI
 {
-    public go_blood_filled_orb(GameObject go) : base(go) { }
+    public GOBloodFilledOrb(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
         if (Me.GoType == GameObjectTypes.Goober)
-            player.SummonCreature(CreatureIds.Zelemar, -369.746f, 166.759f, -21.50f, 5.235f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+            player.SummonCreature(CreatureIds.ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
         return true;
     }
 }
 
 [Script]
-internal class go_soulwell : GameObjectAI
+internal class GOSoulwell : GameObjectAI
 {
-    public go_soulwell(GameObject go) : base(go) { }
+    public GOSoulwell(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
@@ -461,24 +466,24 @@ internal class go_soulwell : GameObjectAI
 }
 
 [Script]
-internal class go_amberpine_outhouse : GameObjectAI
+internal class GOAmberpineOuthouse : GameObjectAI
 {
-    public go_amberpine_outhouse(GameObject go) : base(go) { }
+    public GOAmberpineOuthouse(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
-        var status = player.GetQuestStatus(QuestIds.DoingYourDuty);
+        var status = player.GetQuestStatus(QuestIds.DOING_YOUR_DUTY);
 
         if (status == QuestStatus.Incomplete ||
             status == QuestStatus.Complete ||
             status == QuestStatus.Rewarded)
         {
-            player.AddGossipItem(GossipOptionNpc.None, GossipConst.GossipUseOuthouse, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
-            player.SendGossipMenu(GossipConst.GossipOuthouseVacant, Me.GUID);
+            player.AddGossipItem(GossipOptionNpc.None, GossipConst.GOSSIP_USE_OUTHOUSE, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
+            player.SendGossipMenu(GossipConst.GOSSIP_OUTHOUSE_VACANT, Me.GUID);
         }
         else
         {
-            player.SendGossipMenu(GossipConst.GossipOuthouseInuse, Me.GUID);
+            player.SendGossipMenu(GossipConst.GOSSIP_OUTHOUSE_INUSE, Me.GUID);
         }
 
         return true;
@@ -492,25 +497,25 @@ internal class go_amberpine_outhouse : GameObjectAI
         if (action == GossipAction.GOSSIP_ACTION_INFO_DEF + 1)
         {
             player.CloseGossipMenu();
-            var target = ScriptedAI.GetClosestCreatureWithEntry(player, CreatureIds.OuthouseBunny, 3.0f);
+            var target = ScriptedAI.GetClosestCreatureWithEntry(player, CreatureIds.OUTHOUSE_BUNNY, 3.0f);
 
             if (target)
             {
                 target.AI.SetData(1, (uint)player.NativeGender);
-                Me.CastSpell(target, SpellIds.IndisposedIii);
+                Me.SpellFactory.CastSpell(target, SpellIds.INDISPOSED_III);
             }
 
-            Me.CastSpell(player, SpellIds.Indisposed);
+            Me.SpellFactory.CastSpell(player, SpellIds.INDISPOSED);
 
-            if (player.HasItemCount(ItemIds.AnderholsSliderCider))
-                Me.CastSpell(player, SpellIds.CreateAmberseeds);
+            if (player.HasItemCount(ItemIds.ANDERHOLS_SLIDER_CIDER))
+                Me.SpellFactory.CastSpell(player, SpellIds.CREATE_AMBERSEEDS);
 
             return true;
         }
         else
         {
             player.CloseGossipMenu();
-            player.Session.SendNotification(GossipConst.AnderholsSliderCiderNotFound);
+            player.Session.SendNotification(GossipConst.ANDERHOLS_SLIDER_CIDER_NOT_FOUND);
 
             return false;
         }
@@ -518,9 +523,9 @@ internal class go_amberpine_outhouse : GameObjectAI
 }
 
 [Script]
-internal class go_massive_seaforium_charge : GameObjectAI
+internal class GOMassiveSeaforiumCharge : GameObjectAI
 {
-    public go_massive_seaforium_charge(GameObject go) : base(go) { }
+    public GOMassiveSeaforiumCharge(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
@@ -531,24 +536,24 @@ internal class go_massive_seaforium_charge : GameObjectAI
 }
 
 [Script]
-internal class go_veil_skith_cage : GameObjectAI
+internal class GOVeilSkithCage : GameObjectAI
 {
-    public go_veil_skith_cage(GameObject go) : base(go) { }
+    public GOVeilSkithCage(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
         Me.UseDoorOrButton();
 
-        if (player.GetQuestStatus(QuestIds.MissingFriends) == QuestStatus.Incomplete)
+        if (player.GetQuestStatus(QuestIds.MISSING_FRIENDS) == QuestStatus.Incomplete)
         {
-            var childrenList = Me.GetCreatureListWithEntryInGrid(CreatureIds.CaptiveChild, SharedConst.InteractionDistance);
+            var childrenList = Me.GetCreatureListWithEntryInGrid(CreatureIds.CAPTIVE_CHILD, SharedConst.InteractionDistance);
 
             foreach (var creature in childrenList)
             {
-                player.KilledMonsterCredit(CreatureIds.CaptiveChild, creature.GUID);
+                player.KilledMonsterCredit(CreatureIds.CAPTIVE_CHILD, creature.GUID);
                 creature.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
                 creature.MotionMaster.MovePoint(1, Me.Location.X + 5, Me.Location.Y, Me.Location.Z);
-                creature.AI.Talk(TextIds.SayFree0);
+                creature.AI.Talk(TextIds.SAY_FREE0);
                 creature.MotionMaster.Clear();
             }
         }
@@ -558,13 +563,13 @@ internal class go_veil_skith_cage : GameObjectAI
 }
 
 [Script]
-internal class go_midsummer_bonfire : GameObjectAI
+internal class GOMidsummerBonfire : GameObjectAI
 {
-    public go_midsummer_bonfire(GameObject go) : base(go) { }
+    public GOMidsummerBonfire(GameObject go) : base(go) { }
 
     public override bool OnGossipSelect(Player player, uint menuId, uint ssipListId)
     {
-        player.CastSpell(player, SpellIds.StampOutBonfireQuestComplete, true);
+        player.SpellFactory.CastSpell(player, SpellIds.STAMP_OUT_BONFIRE_QUEST_COMPLETE, true);
         player.CloseGossipMenu();
 
         return false;
@@ -572,18 +577,18 @@ internal class go_midsummer_bonfire : GameObjectAI
 }
 
 [Script]
-internal class go_midsummer_ribbon_pole : GameObjectAI
+internal class GOMidsummerRibbonPole : GameObjectAI
 {
-    public go_midsummer_ribbon_pole(GameObject go) : base(go) { }
+    public GOMidsummerRibbonPole(GameObject go) : base(go) { }
 
     public override bool OnGossipHello(Player player)
     {
-        var creature = Me.FindNearestCreature(CreatureIds.PoleRibbonBunny, 10.0f);
+        var creature = Me.FindNearestCreature(CreatureIds.POLE_RIBBON_BUNNY, 10.0f);
 
         if (creature)
         {
             creature.AI.DoAction(0);
-            player.CastSpell(player, SpellIds.RibbonPoleSpells[RandomHelper.IRand(0, 2)], true);
+            player.SpellFactory.CastSpell(player, SpellIds.RibbonPoleSpells[RandomHelper.IRand(0, 2)], true);
         }
 
         return true;
@@ -591,20 +596,20 @@ internal class go_midsummer_ribbon_pole : GameObjectAI
 }
 
 [Script]
-internal class go_brewfest_music : GameObjectAI
+internal class GOBrewfestMusic : GameObjectAI
 {
-    private TimeSpan musicTime = TimeSpan.FromSeconds(1);
-    private uint rnd = 0;
+    private TimeSpan _musicTime = TimeSpan.FromSeconds(1);
+    private uint _rnd = 0;
 
-    public go_brewfest_music(GameObject go) : base(go)
+    public GOBrewfestMusic(GameObject go) : base(go)
     {
         Scheduler.Schedule(TimeSpan.FromSeconds(1),
                            task =>
                            {
                                if (Global.GameEventMgr.IsHolidayActive(HolidayIds.Brewfest)) // Check if Brewfest is active
                                {
-                                   rnd = RandomHelper.URand(0, 2); // Select random music sample
-                                   task.Repeat(musicTime);         // Select new song music after play Time is over
+                                   _rnd = RandomHelper.URand(0, 2); // Select random music sample
+                                   task.Repeat(_musicTime);         // Select new song music after play Time is over
                                }
                            });
 
@@ -615,95 +620,95 @@ internal class go_brewfest_music : GameObjectAI
                                {
                                    switch (Me.Area)
                                    {
-                                       case AreaIds.Silvermoon:
-                                       case AreaIds.Undercity:
-                                       case AreaIds.Orgrimmar1:
-                                       case AreaIds.Orgrimmar2:
-                                       case AreaIds.Thunderbluff:
-                                           switch (rnd)
+                                       case AreaIds.SILVERMOON:
+                                       case AreaIds.UNDERCITY:
+                                       case AreaIds.ORGRIMMAR1:
+                                       case AreaIds.ORGRIMMAR2:
+                                       case AreaIds.THUNDERBLUFF:
+                                           switch (_rnd)
                                            {
                                                case 0:
-                                                   Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin01);
-                                                   musicTime = Misc.EventBrewfestgoblin01Time;
+                                                   Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTGOBLIN01);
+                                                   _musicTime = Misc.EventBrewfestgoblin01Time;
 
                                                    break;
                                                case 1:
-                                                   Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin02);
-                                                   musicTime = Misc.EventBrewfestgoblin02Time;
+                                                   Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTGOBLIN02);
+                                                   _musicTime = Misc.EventBrewfestgoblin02Time;
 
                                                    break;
                                                default:
-                                                   Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin03);
-                                                   musicTime = Misc.EventBrewfestgoblin03Time;
+                                                   Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTGOBLIN03);
+                                                   _musicTime = Misc.EventBrewfestgoblin03Time;
 
                                                    break;
                                            }
 
                                            break;
-                                       case AreaIds.Ironforge1:
-                                       case AreaIds.Ironforge2:
-                                       case AreaIds.Stormwind:
-                                       case AreaIds.Exodar:
-                                       case AreaIds.Darnassus:
-                                           switch (rnd)
+                                       case AreaIds.IRONFORGE1:
+                                       case AreaIds.IRONFORGE2:
+                                       case AreaIds.STORMWIND:
+                                       case AreaIds.EXODAR:
+                                       case AreaIds.DARNASSUS:
+                                           switch (_rnd)
                                            {
                                                case 0:
-                                                   Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf01);
-                                                   musicTime = Misc.EventBrewfestdwarf01Time;
+                                                   Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTDWARF01);
+                                                   _musicTime = Misc.EventBrewfestdwarf01Time;
 
                                                    break;
                                                case 1:
-                                                   Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf02);
-                                                   musicTime = Misc.EventBrewfestdwarf02Time;
+                                                   Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTDWARF02);
+                                                   _musicTime = Misc.EventBrewfestdwarf02Time;
 
                                                    break;
                                                default:
-                                                   Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf03);
-                                                   musicTime = Misc.EventBrewfestdwarf03Time;
+                                                   Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTDWARF03);
+                                                   _musicTime = Misc.EventBrewfestdwarf03Time;
 
                                                    break;
                                            }
 
                                            break;
-                                       case AreaIds.Shattrath:
+                                       case AreaIds.SHATTRATH:
                                            var playersNearby = Me.GetPlayerListInGrid(Me.VisibilityRange);
 
                                            foreach (Player player in playersNearby)
                                                if (player.TeamId == TeamIds.Horde)
-                                                   switch (rnd)
+                                                   switch (_rnd)
                                                    {
                                                        case 0:
-                                                           Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin01);
-                                                           musicTime = Misc.EventBrewfestgoblin01Time;
+                                                           Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTGOBLIN01);
+                                                           _musicTime = Misc.EventBrewfestgoblin01Time;
 
                                                            break;
                                                        case 1:
-                                                           Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin02);
-                                                           musicTime = Misc.EventBrewfestgoblin02Time;
+                                                           Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTGOBLIN02);
+                                                           _musicTime = Misc.EventBrewfestgoblin02Time;
 
                                                            break;
                                                        default:
-                                                           Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin03);
-                                                           musicTime = Misc.EventBrewfestgoblin03Time;
+                                                           Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTGOBLIN03);
+                                                           _musicTime = Misc.EventBrewfestgoblin03Time;
 
                                                            break;
                                                    }
                                                else
-                                                   switch (rnd)
+                                                   switch (_rnd)
                                                    {
                                                        case 0:
-                                                           Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf01);
-                                                           musicTime = Misc.EventBrewfestdwarf01Time;
+                                                           Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTDWARF01);
+                                                           _musicTime = Misc.EventBrewfestdwarf01Time;
 
                                                            break;
                                                        case 1:
-                                                           Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf02);
-                                                           musicTime = Misc.EventBrewfestdwarf02Time;
+                                                           Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTDWARF02);
+                                                           _musicTime = Misc.EventBrewfestdwarf02Time;
 
                                                            break;
                                                        default:
-                                                           Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf03);
-                                                           musicTime = Misc.EventBrewfestdwarf03Time;
+                                                           Me.PlayDirectMusic(SoundIds.EVENT_BREWFESTDWARF03);
+                                                           _musicTime = Misc.EventBrewfestdwarf03Time;
 
                                                            break;
                                                    }
@@ -723,9 +728,9 @@ internal class go_brewfest_music : GameObjectAI
 }
 
 [Script]
-internal class go_midsummer_music : GameObjectAI
+internal class GOMidsummerMusic : GameObjectAI
 {
-    public go_midsummer_music(GameObject go) : base(go)
+    public GOMidsummerMusic(GameObject go) : base(go)
     {
         Scheduler.Schedule(TimeSpan.FromSeconds(1),
                            task =>
@@ -752,9 +757,9 @@ internal class go_midsummer_music : GameObjectAI
 }
 
 [Script]
-internal class go_darkmoon_faire_music : GameObjectAI
+internal class GODarkmoonFaireMusic : GameObjectAI
 {
-    public go_darkmoon_faire_music(GameObject go) : base(go)
+    public GODarkmoonFaireMusic(GameObject go) : base(go)
     {
         Scheduler.Schedule(TimeSpan.FromSeconds(1),
                            task =>
@@ -774,9 +779,9 @@ internal class go_darkmoon_faire_music : GameObjectAI
 }
 
 [Script]
-internal class go_pirate_day_music : GameObjectAI
+internal class GOPirateDayMusic : GameObjectAI
 {
-    public go_pirate_day_music(GameObject go) : base(go)
+    public GOPirateDayMusic(GameObject go) : base(go)
     {
         Scheduler.Schedule(TimeSpan.FromSeconds(1),
                            task =>
@@ -796,11 +801,11 @@ internal class go_pirate_day_music : GameObjectAI
 }
 
 [Script]
-internal class go_bells : GameObjectAI
+internal class GOBells : GameObjectAI
 {
     private uint _soundId;
 
-    public go_bells(GameObject go) : base(go) { }
+    public GOBells(GameObject go) : base(go) { }
 
     public override void InitializeAI()
     {
@@ -808,50 +813,50 @@ internal class go_bells : GameObjectAI
 
         switch (Me.Entry)
         {
-            case GameObjectIds.HordeBell:
+            case GameObjectIds.HORDE_BELL:
             {
                 switch (zoneId)
                 {
-                    case ZoneIds.Tirisfal:
-                    case ZoneIds.Undercity:
-                    case ZoneIds.HillsbradFoothills:
-                    case ZoneIds.Duskwood:
-                        _soundId = SoundIds.BellTollHorde; // undead bell sound
+                    case ZoneIds.TIRISFAL:
+                    case ZoneIds.UNDERCITY:
+                    case ZoneIds.HILLSBRAD_FOOTHILLS:
+                    case ZoneIds.DUSKWOOD:
+                        _soundId = SoundIds.BELL_TOLL_HORDE; // undead bell sound
 
                         break;
                     default:
-                        _soundId = SoundIds.BellTollTribal; // orc drum sound 
+                        _soundId = SoundIds.BELL_TOLL_TRIBAL; // orc drum sound 
 
                         break;
                 }
 
                 break;
             }
-            case GameObjectIds.AllianceBell:
+            case GameObjectIds.ALLIANCE_BELL:
             {
                 switch (zoneId)
                 {
-                    case ZoneIds.Ironforge:
-                    case ZoneIds.DunMorogh:
-                        _soundId = SoundIds.BellTolldwarfgnome; // horn sound
+                    case ZoneIds.IRONFORGE:
+                    case ZoneIds.DUN_MOROGH:
+                        _soundId = SoundIds.BELL_TOLLDWARFGNOME; // horn sound
 
                         break;
-                    case ZoneIds.Darnassus:
-                    case ZoneIds.Teldrassil:
-                    case ZoneIds.Ashenvale:
-                        _soundId = SoundIds.BellTollNightelf; // nightelf bell sound
+                    case ZoneIds.DARNASSUS:
+                    case ZoneIds.TELDRASSIL:
+                    case ZoneIds.ASHENVALE:
+                        _soundId = SoundIds.BELL_TOLL_NIGHTELF; // nightelf bell sound
 
                         break;
                     default:
-                        _soundId = SoundIds.BellTollAlliance; // human bell sound
+                        _soundId = SoundIds.BELL_TOLL_ALLIANCE; // human bell sound
 
                         break;
                 }
 
                 break;
             }
-            case GameObjectIds.KharazhanBell:
-                _soundId = SoundIds.BellTollKharazhan;
+            case GameObjectIds.KHARAZHAN_BELL:
+                _soundId = SoundIds.BELL_TOLL_KHARAZHAN;
 
                 break;
         }
@@ -859,19 +864,19 @@ internal class go_bells : GameObjectAI
 
     public override void OnGameEvent(bool start, ushort eventId)
     {
-        if (eventId == Misc.GameEventHourlyBells && start)
+        if (eventId == Misc.GAME_EVENT_HOURLY_BELLS && start)
         {
             var localTm = Time.UnixTimeToDateTime(GameTime.GetGameTime()).ToLocalTime();
-            var _rings = localTm.Hour % 12;
+            var rings = localTm.Hour % 12;
 
-            if (_rings == 0) // 00:00 and 12:00
-                _rings = 12;
+            if (rings == 0) // 00:00 and 12:00
+                rings = 12;
 
             // Dwarf hourly horn should only play a single Time, each Time the next hour begins.
-            if (_soundId == SoundIds.BellTolldwarfgnome)
-                _rings = 1;
+            if (_soundId == SoundIds.BELL_TOLLDWARFGNOME)
+                rings = 1;
 
-            for (var i = 0; i < _rings; ++i)
+            for (var i = 0; i < rings; ++i)
                 Scheduler.Schedule(TimeSpan.FromSeconds(i * 4 + 1), task => Me.PlayDirectSound(_soundId));
         }
     }

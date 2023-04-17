@@ -2,24 +2,25 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script("spell_gen_eject_passenger_1", 0)]
 [Script("spell_gen_eject_passenger_3", 2)]
-internal class spell_gen_eject_passenger_with_seatId : SpellScript, IHasSpellEffects
+internal class SpellGenEjectPassengerWithSeatId : SpellScript, IHasSpellEffects
 {
     private readonly sbyte _seatId;
 
-    public List<ISpellEffect> SpellEffects { get; } = new();
-
-    public spell_gen_eject_passenger_with_seatId(sbyte seatId)
+    public SpellGenEjectPassengerWithSeatId(sbyte seatId)
     {
         _seatId = seatId;
     }
+
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
     public override void Register()
     {

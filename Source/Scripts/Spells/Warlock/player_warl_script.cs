@@ -2,21 +2,21 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Scripting.Interfaces.IUnit;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.IUnit;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [Script]
-internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower, IPlayerOnDealDamage, IUnitOnDamage
+internal class PlayerWarlScript : ScriptObjectAutoAdd, IPlayerOnModifyPower, IPlayerOnDealDamage, IUnitOnDamage
 {
+    public PlayerWarlScript() : base("player_warl_script") { }
     public PlayerClass PlayerClass { get; } = PlayerClass.Warlock;
-
-    public player_warl_script() : base("player_warl_script") { }
 
     public void OnDamage(Player caster, Unit target, ref double damage, SpellInfo spellProto)
     {
@@ -126,7 +126,7 @@ internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower, I
         if (shardCost > 0 && player.TryGetAura(WarlockSpells.RAIN_OF_CHAOS, out var raidOfChaos))
             for (var i = 0; i < shardCost; i++)
                 if (RandomHelper.randChance(raidOfChaos.GetEffect(0).Amount))
-                    player.CastSpell(WarlockSpells.RAIN_OF_CHAOS_INFERNAL, true);
+                    player.SpellFactory.CastSpell(WarlockSpells.RAIN_OF_CHAOS_INFERNAL, true);
     }
 
     private void PowerOverwhelming(Player player, int shardCost)

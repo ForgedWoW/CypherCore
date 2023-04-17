@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
@@ -11,7 +12,7 @@ namespace Scripts.Spells.Warrior;
 {
     218617, 184707, 184709, 201364, 201363
 })]
-public class spell_warr_rampage : SpellScript, ISpellOnHit, ISpellOnCast
+public class SpellWarrRampage : SpellScript, ISpellOnHit, ISpellOnCast
 {
     public void OnCast()
     {
@@ -25,7 +26,7 @@ public class spell_warr_rampage : SpellScript, ISpellOnHit, ISpellOnCast
         if (enrage != null)
             enrage.RefreshDuration();
         else
-            caster.CastSpell(caster, WarriorSpells.ENRAGE_AURA, true);
+            caster.SpellFactory.CastSpell(caster, WarriorSpells.ENRAGE_AURA, true);
     }
 
     public void OnHit()

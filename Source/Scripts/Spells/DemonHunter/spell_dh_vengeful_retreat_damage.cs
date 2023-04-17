@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(198813)]
-public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, ISpellOnCast
+public class SpellDhVengefulRetreatDamage : SpellScript, IHasSpellEffects, ISpellOnCast
 {
     private bool _targetHit;
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -22,7 +23,7 @@ public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, I
         if (caster != null)
         {
             if (caster.HasAura(DemonHunterSpells.PREPARED) && _targetHit)
-                caster.CastSpell(caster, DemonHunterSpells.PREPARED_FURY, true);
+                caster.SpellFactory.CastSpell(caster, DemonHunterSpells.PREPARED_FURY, true);
 
             var aur = caster.GetAura(DemonHunterSpells.GLIMPSE);
 

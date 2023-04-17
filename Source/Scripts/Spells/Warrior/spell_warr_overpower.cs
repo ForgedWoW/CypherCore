@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
 // 7384 - Overpower
 [SpellScript(7384)]
-public class spell_warr_overpower : SpellScript, IHasSpellEffects
+public class SpellWarrOverpower : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -38,6 +39,6 @@ public class spell_warr_overpower : SpellScript, IHasSpellEffects
 
         if (target != null)
             if (target.IsNonMeleeSpellCast(false, false, true)) // UNIT_STATE_CASTING should not be used here, it's present during a tick for instant casts
-                target.CastSpell(target, spellId, true);
+                target.SpellFactory.CastSpell(target, spellId, true);
     }
 }

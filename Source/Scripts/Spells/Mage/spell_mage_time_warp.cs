@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 80353 - Time Warp
-internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffects
+internal class SpellMageTimeWarp : SpellScript, ISpellAfterHit, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,7 +22,7 @@ internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffe
         var target = HitUnit;
 
         if (target)
-            target.CastSpell(target, MageSpells.TemporalDisplacement, true);
+            target.SpellFactory.CastSpell(target, MageSpells.TEMPORAL_DISPLACEMENT, true);
     }
 
     public override void Register()
@@ -31,9 +32,9 @@ internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffe
 
     private void RemoveInvalidTargets(List<WorldObject> targets)
     {
-        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.TemporalDisplacement));
-        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.HunterInsanity));
-        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.ShamanExhaustion));
-        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.ShamanSated));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.TEMPORAL_DISPLACEMENT));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.HUNTER_INSANITY));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.SHAMAN_EXHAUSTION));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.SHAMAN_SATED));
     }
 }

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_impale_leviroth : SpellScript, IHasSpellEffects
+internal class SpellItemImpaleLeviroth : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,10 +24,10 @@ internal class spell_item_impale_leviroth : SpellScript, IHasSpellEffects
         var target = HitCreature;
 
         if (target)
-            if (target.Entry == CreatureIds.Leviroth &&
+            if (target.Entry == CreatureIds.LEVIROTH &&
                 !target.HealthBelowPct(95))
             {
-                target.CastSpell(target, ItemSpellIds.LevirothSelfImpale, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.LEVIROTH_SELF_IMPALE, true);
                 target.ResetPlayerDamageReq();
             }
     }

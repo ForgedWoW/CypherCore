@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Call Dreadstalkers - 104316
 [SpellScript(104316)]
-public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IHasSpellEffects
+public class SpellWarlockCallDreadstalkers : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -36,7 +37,7 @@ public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IH
         var impsToSummon = caster.GetAuraEffectAmount(WarlockSpells.IMPROVED_DREADSTALKERS, 0);
 
         for (uint i = 0; i < impsToSummon; ++i)
-            caster.CastSpell(target.GetRandomNearPosition(3.0f), WarlockSpells.WILD_IMP_SUMMON, true);
+            caster.SpellFactory.CastSpell(target.GetRandomNearPosition(3.0f), WarlockSpells.WILD_IMP_SUMMON, true);
     }
 
     public override void Register()
@@ -52,7 +53,7 @@ public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IH
             return;
 
         for (var i = 0; i < EffectValue; ++i)
-            caster.CastSpell(caster, WarlockSpells.CALL_DREADSTALKERS_SUMMON, true);
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.CALL_DREADSTALKERS_SUMMON, true);
 
         var player = caster.AsPlayer;
 
@@ -67,7 +68,7 @@ public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IH
             var effect = aura.GetEffect(0);
 
             if (RandomHelper.randChance(effect.BaseAmount))
-                caster.CastSpell(caster, WarlockSpells.CALL_DREADSTALKERS_SUMMON, true);
+                caster.SpellFactory.CastSpell(caster, WarlockSpells.CALL_DREADSTALKERS_SUMMON, true);
         }
     }
 }

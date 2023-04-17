@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_greatmothers_soulcatcher : SpellScript, IHasSpellEffects
+internal class SpellItemGreatmothersSoulcatcher : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,6 +22,6 @@ internal class spell_item_greatmothers_soulcatcher : SpellScript, IHasSpellEffec
     private void HandleDummy(int effIndex)
     {
         if (HitUnit)
-            Caster.CastSpell(Caster, ItemSpellIds.ForceCastSummonGnomeSoul);
+            Caster.SpellFactory.CastSpell(Caster, ItemSpellIds.FORCE_CAST_SUMMON_GNOME_SOUL);
     }
 }

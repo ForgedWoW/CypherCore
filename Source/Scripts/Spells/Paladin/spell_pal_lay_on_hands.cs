@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(633)] // 633 - Lay on Hands
-internal class spell_pal_lay_on_hands : SpellScript, ISpellCheckCast, ISpellAfterHit
+internal class SpellPalLayOnHands : SpellScript, ISpellCheckCast, ISpellAfterHit
 {
     public void AfterHit()
     {
@@ -16,8 +16,8 @@ internal class spell_pal_lay_on_hands : SpellScript, ISpellCheckCast, ISpellAfte
 
         if (target)
         {
-            Caster.CastSpell(target, PaladinSpells.Forbearance, true);
-            Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
+            Caster.SpellFactory.CastSpell(target, PaladinSpells.FORBEARANCE, true);
+            Caster.SpellFactory.CastSpell(target, PaladinSpells.IMMUNE_SHIELD_MARKER, true);
         }
     }
 
@@ -26,7 +26,7 @@ internal class spell_pal_lay_on_hands : SpellScript, ISpellCheckCast, ISpellAfte
         var target = ExplTargetUnit;
 
         if (!target ||
-            target.HasAura(PaladinSpells.Forbearance))
+            target.HasAura(PaladinSpells.FORBEARANCE))
             return SpellCastResult.TargetAurastate;
 
         return SpellCastResult.SpellCastOk;

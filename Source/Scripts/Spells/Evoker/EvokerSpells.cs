@@ -177,7 +177,7 @@ internal struct EvokerSpells
     public const uint VISAGE_AURA = 372014;
 }
 
-internal struct EvokerNPCs
+internal struct EvokerNpCs
 {
     public const uint CYCLE_OF_LIFE = 192459;
     public const uint DREAM_PROJECTION = 192459;

@@ -2,57 +2,61 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.Razorgore;
 
 internal struct SpellIds
 {
     // @todo orb uses the wrong spell, this needs sniffs
-    public const uint Mindcontrol = 42013;
-    public const uint Channel = 45537;
-    public const uint EggDestroy = 19873;
+    public const uint MINDCONTROL = 42013;
+    public const uint CHANNEL = 45537;
+    public const uint EGG_DESTROY = 19873;
 
-    public const uint Cleave = 22540;
-    public const uint Warstomp = 24375;
-    public const uint Fireballvolley = 22425;
-    public const uint Conflagration = 23023;
+    public const uint CLEAVE = 22540;
+    public const uint WARSTOMP = 24375;
+    public const uint FIREBALLVOLLEY = 22425;
+    public const uint CONFLAGRATION = 23023;
 }
 
 internal struct TextIds
 {
-    public const uint SayEggsBroken1 = 0;
-    public const uint SayEggsBroken2 = 1;
-    public const uint SayEggsBroken3 = 2;
-    public const uint SayDeath = 3;
+    public const uint SAY_EGGS_BROKEN1 = 0;
+    public const uint SAY_EGGS_BROKEN2 = 1;
+    public const uint SAY_EGGS_BROKEN3 = 2;
+    public const uint SAY_DEATH = 3;
 }
 
 internal struct CreatureIds
 {
-    public const uint EliteDrachkin = 12422;
-    public const uint EliteWarrior = 12458;
-    public const uint Warrior = 12416;
-    public const uint Mage = 12420;
-    public const uint Warlock = 12459;
+    public const uint ELITE_DRACHKIN = 12422;
+    public const uint ELITE_WARRIOR = 12458;
+    public const uint WARRIOR = 12416;
+    public const uint MAGE = 12420;
+    public const uint WARLOCK = 12459;
 }
 
 internal struct GameObjectIds
 {
-    public const uint Egg = 177807;
+    public const uint EGG = 177807;
 }
 
 [Script]
-internal class boss_razorgore : BossAI
+internal class BossRazorgore : BossAI
 {
-    private bool secondPhase;
+    private bool _secondPhase;
 
-    public boss_razorgore(Creature creature) : base(creature, DataTypes.RazorgoreTheUntamed)
+    public BossRazorgore(Creature creature) : base(creature, DataTypes.RAZORGORE_THE_UNTAMED)
     {
         Initialize();
     }
@@ -62,27 +66,27 @@ internal class boss_razorgore : BossAI
         _Reset();
 
         Initialize();
-        Instance.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.NotStarted);
+        Instance.SetData(BwlMisc.DATA_EGG_EVENT, (uint)EncounterState.NotStarted);
     }
 
     public override void JustDied(Unit killer)
     {
         _JustDied();
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
 
-        Instance.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.NotStarted);
+        Instance.SetData(BwlMisc.DATA_EGG_EVENT, (uint)EncounterState.NotStarted);
     }
 
     public override void DoAction(int action)
     {
-        if (action == BWLMisc.ActionPhaseTwo)
+        if (action == BwlMisc.ACTION_PHASE_TWO)
             DoChangePhase();
     }
 
     public override void DamageTaken(Unit who, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         // @todo this is wrong - razorgore should still take Damage, he should just nuke the whole room and respawn if he dies during P1
-        if (!secondPhase)
+        if (!_secondPhase)
             damage = 0;
     }
 
@@ -96,7 +100,7 @@ internal class boss_razorgore : BossAI
 
     private void Initialize()
     {
-        secondPhase = false;
+        _secondPhase = false;
     }
 
     private void DoChangePhase()
@@ -104,57 +108,57 @@ internal class boss_razorgore : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(15),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Cleave);
+                               DoCastVictim(SpellIds.CLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(35),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Warstomp);
+                               DoCastVictim(SpellIds.WARSTOMP);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(7),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Fireballvolley);
+                               DoCastVictim(SpellIds.FIREBALLVOLLEY);
                                task.Repeat(TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(15));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Conflagration);
+                               DoCastVictim(SpellIds.CONFLAGRATION);
                                task.Repeat(TimeSpan.FromSeconds(30));
                            });
 
-        secondPhase = true;
+        _secondPhase = true;
         Me.RemoveAllAuras();
         Me.SetFullHealth();
     }
 }
 
 [Script]
-internal class go_orb_of_domination : GameObjectAI
+internal class GOOrbOfDomination : GameObjectAI
 {
-    private readonly InstanceScript instance;
+    private readonly InstanceScript _instance;
 
-    public go_orb_of_domination(GameObject go) : base(go)
+    public GOOrbOfDomination(GameObject go) : base(go)
     {
-        instance = go.InstanceScript;
+        _instance = go.InstanceScript;
     }
 
     public override bool OnGossipHello(Player player)
     {
-        if (instance.GetData(BWLMisc.DataEggEvent) != (uint)EncounterState.Done)
+        if (_instance.GetData(BwlMisc.DATA_EGG_EVENT) != (uint)EncounterState.Done)
         {
-            var razorgore = instance.GetCreature(DataTypes.RazorgoreTheUntamed);
+            var razorgore = _instance.GetCreature(DataTypes.RAZORGORE_THE_UNTAMED);
 
             if (razorgore)
             {
                 razorgore.Attack(player, true);
-                player.CastSpell(razorgore, SpellIds.Mindcontrol);
+                player.SpellFactory.CastSpell(razorgore, SpellIds.MINDCONTROL);
             }
         }
 
@@ -163,12 +167,12 @@ internal class go_orb_of_domination : GameObjectAI
 }
 
 [Script] // 19873 - Destroy Egg
-internal class spell_egg_event : SpellScript, ISpellOnHit
+internal class SpellEggEvent : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
         var instance = Caster.InstanceScript;
 
-        instance?.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.Special);
+        instance?.SetData(BwlMisc.DATA_EGG_EVENT, (uint)EncounterState.Special);
     }
 }

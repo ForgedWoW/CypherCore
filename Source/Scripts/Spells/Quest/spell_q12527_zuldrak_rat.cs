@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 50894 - Zul'Drak Rat
-internal class spell_q12527_zuldrak_rat : SpellScript, IHasSpellEffects
+internal class SpellQ12527ZuldrakRat : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -25,7 +26,7 @@ internal class spell_q12527_zuldrak_rat : SpellScript, IHasSpellEffects
         if (GetHitAura() != null &&
             GetHitAura().StackAmount >= SpellInfo.StackAmount)
         {
-            HitUnit.CastSpell((Unit)null, QuestSpellIds.SummonGorgedLurkingBasilisk, true);
+            HitUnit.SpellFactory.CastSpell((Unit)null, QuestSpellIds.SUMMON_GORGED_LURKING_BASILISK, true);
             var basilisk = HitUnit.AsCreature;
 
             if (basilisk)

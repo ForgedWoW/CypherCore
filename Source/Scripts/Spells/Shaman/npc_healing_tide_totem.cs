@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Shaman;
 
 //NPC ID : 59764
 [CreatureScript(59764)]
-public class npc_healing_tide_totem : ScriptedAI
+public class NPCHealingTideTotem : ScriptedAI
 {
-    public npc_healing_tide_totem(Creature creature) : base(creature) { }
+    public NPCHealingTideTotem(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -20,7 +20,7 @@ public class npc_healing_tide_totem : ScriptedAI
 
         Me.Events.AddRepeatEventAtOffset(() =>
                                          {
-                                             Me.CastSpell(Me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
+                                             Me.SpellFactory.CastSpell(Me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
 
                                              return time;
                                          },

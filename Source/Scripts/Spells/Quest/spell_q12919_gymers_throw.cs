@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 55421 - Gymer's Throw
-internal class spell_q12919_gymers_throw : SpellScript, IHasSpellEffects
+internal class SpellQ12919GymersThrow : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,7 +30,7 @@ internal class spell_q12919_gymers_throw : SpellScript, IHasSpellEffects
             if (passenger)
             {
                 passenger.ExitVehicle();
-                caster.CastSpell(passenger, QuestSpellIds.VargulExplosion, true);
+                caster.SpellFactory.CastSpell(passenger, QuestSpellIds.VARGUL_EXPLOSION, true);
             }
         }
     }

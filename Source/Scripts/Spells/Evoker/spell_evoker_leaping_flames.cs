@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.DataStorage;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.RED_FIRE_BREATH, EvokerSpells.RED_FIRE_BREATH_2)]
-internal class spell_evoker_leaping_flames : SpellScript, ISpellOnEpowerSpellEnd
+internal class SpellEvokerLeapingFlames : SpellScript, ISpellOnEpowerSpellEnd
 {
     public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
     {

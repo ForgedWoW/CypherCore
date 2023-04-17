@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(115181)]
-public class spell_monk_breath_of_fire : SpellScript, ISpellAfterHit
+public class SpellMonkBreathOfFire : SpellScript, ISpellAfterHit
 {
     public void AfterHit()
     {
@@ -15,9 +15,9 @@ public class spell_monk_breath_of_fire : SpellScript, ISpellAfterHit
 
         if (caster != null)
         {
-            var _player = caster.AsPlayer;
+            var player = caster.AsPlayer;
 
-            if (_player != null)
+            if (player != null)
             {
                 var target = HitUnit;
 
@@ -25,10 +25,10 @@ public class spell_monk_breath_of_fire : SpellScript, ISpellAfterHit
                 {
                     // if Dizzying Haze is on the target, they will burn for an additionnal damage over 8s
                     if (target.HasAura(MonkSpells.DIZZYING_HAZE))
-                        _player.CastSpell(target, MonkSpells.BREATH_OF_FIRE_DOT, true);
+                        player.SpellFactory.CastSpell(target, MonkSpells.BREATH_OF_FIRE_DOT, true);
 
                     if (target.HasAura(MonkSpells.KEG_SMASH_AURA))
-                        _player.CastSpell(target, MonkSpells.BREATH_OF_FIRE_DOT, true);
+                        player.SpellFactory.CastSpell(target, MonkSpells.BREATH_OF_FIRE_DOT, true);
                 }
             }
         }

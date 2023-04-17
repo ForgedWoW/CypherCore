@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 60041 - Assign Geist Kill Credit to Master
-internal class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : SpellScript, IHasSpellEffects
+internal class SpellQ13264Q13276Q13288Q13289AssignCreditToMaster : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,7 +27,7 @@ internal class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : Spell
         {
             var owner = target.OwnerUnit;
 
-            owner?.CastSpell(owner, (uint)EffectValue, true);
+            owner?.SpellFactory.CastSpell(owner, (uint)EffectValue, true);
         }
     }
 }

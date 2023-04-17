@@ -5,9 +5,9 @@ namespace Scripts.Spells.Druid;
 
 public struct ShapeshiftFormSpells
 {
-    public static uint BEAR_FORM = 5487;
-    public static uint CAT_FORM = 768;
-    public static uint MOONKIN_FORM = 24858;
-    public static uint INCARNATION_TREE_OF_LIFE = 33891;
-    public static uint INCARNATION_KING_OF_JUNGLE = 102543;
+    public static uint BearForm = 5487;
+    public static uint CatForm = 768;
+    public static uint MoonkinForm = 24858;
+    public static uint IncarnationTreeOfLife = 33891;
+    public static uint IncarnationKingOfJungle = 102543;
 }

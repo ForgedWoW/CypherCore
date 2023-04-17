@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script("spell_gen_break_shield")]
 [Script("spell_gen_tournament_counterattack")]
-internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
+internal class SpellGenBreakShield : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -33,13 +34,13 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 
                 switch (SpellInfo.Id)
                 {
-                    case GenericSpellIds.BreakShieldTriggerUnk:
-                    case GenericSpellIds.BreakShieldTriggerCampaingWarhorse:
-                        spellId = GenericSpellIds.BreakShieldDamage10k;
+                    case GenericSpellIds.BREAK_SHIELD_TRIGGER_UNK:
+                    case GenericSpellIds.BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE:
+                        spellId = GenericSpellIds.BREAK_SHIELD_DAMAGE10_K;
 
                         break;
-                    case GenericSpellIds.BreakShieldTriggerFactionMounts:
-                        spellId = GenericSpellIds.BreakShieldDamage2k;
+                    case GenericSpellIds.BREAK_SHIELD_TRIGGER_FACTION_MOUNTS:
+                        spellId = GenericSpellIds.BREAK_SHIELD_DAMAGE2_K;
 
                         break;
                     default:
@@ -49,9 +50,9 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
                 var rider = Caster.Charmer;
 
                 if (rider)
-                    rider.CastSpell(target, spellId, false);
+                    rider.SpellFactory.CastSpell(target, spellId, false);
                 else
-                    Caster.CastSpell(target, spellId, false);
+                    Caster.SpellFactory.CastSpell(target, spellId, false);
 
                 break;
             }
@@ -82,7 +83,6 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 
                 break;
             }
-            
         }
     }
 }

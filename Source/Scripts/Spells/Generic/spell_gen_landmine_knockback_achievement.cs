@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_landmine_knockback_achievement : SpellScript, IHasSpellEffects
+internal class SpellGenLandmineKnockbackAchievement : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -30,7 +31,7 @@ internal class spell_gen_landmine_knockback_achievement : SpellScript, IHasSpell
                 aura.StackAmount < 10)
                 return;
 
-            target.CastSpell(target, GenericSpellIds.LandmineKnockbackAchievement, true);
+            target.SpellFactory.CastSpell(target, GenericSpellIds.LANDMINE_KNOCKBACK_ACHIEVEMENT, true);
         }
     }
 }

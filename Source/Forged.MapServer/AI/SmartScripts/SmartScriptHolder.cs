@@ -63,12 +63,12 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
 
     public SmartActions GetActionType()
     {
-        return Action.type;
+        return Action.Type;
     }
 
     public SmartEvents GetEventType()
     {
-        return Event.type;
+        return Event.Type;
     }
 
     public SmartScriptType GetScriptType()
@@ -78,7 +78,7 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
 
     public SmartTargets GetTargetType()
     {
-        return Target.type;
+        return Target.Type;
     }
 
     public override string ToString()

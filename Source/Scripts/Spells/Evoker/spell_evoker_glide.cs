@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.GLIDE)] // 358733 - Glide (Racial)
-internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
+internal class SpellEvokerGlide : SpellScript, ISpellCheckCast, ISpellOnCast
 {
     public SpellCastResult CheckCast()
     {
@@ -31,7 +31,7 @@ internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
         if (caster == null)
             return;
 
-        caster.CastSpell(caster, EvokerSpells.GLIDE_KNOCKBACK, true);
+        caster.SpellFactory.CastSpell(caster, EvokerSpells.GLIDE_KNOCKBACK, true);
 
         caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.HOVER, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
         caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.SOAR_RACIAL, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));

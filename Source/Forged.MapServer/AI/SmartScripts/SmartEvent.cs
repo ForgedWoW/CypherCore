@@ -9,91 +9,91 @@ namespace Forged.MapServer.AI.SmartScripts;
 [StructLayout(LayoutKind.Explicit)]
 public struct SmartEvent
 {
-    [FieldOffset(0)] public SmartEvents type;
+    [FieldOffset(0)] public SmartEvents Type;
 
-    [FieldOffset(4)] public uint event_phase_mask;
+    [FieldOffset(4)] public uint EventPhaseMask;
 
-    [FieldOffset(8)] public uint event_chance;
+    [FieldOffset(8)] public uint EventChance;
 
-    [FieldOffset(12)] public SmartEventFlags event_flags;
+    [FieldOffset(12)] public SmartEventFlags EventFlags;
 
-    [FieldOffset(16)] public MinMaxRepeat minMaxRepeat;
+    [FieldOffset(16)] public SmartEventMinMaxRepeat MinMaxRepeat;
 
-    [FieldOffset(16)] public Kill kill;
+    [FieldOffset(16)] public SmartEventKill Kill;
 
-    [FieldOffset(16)] public SpellHit spellHit;
+    [FieldOffset(16)] public SmartEventSpellHit SpellHit;
 
-    [FieldOffset(16)] public Los los;
+    [FieldOffset(16)] public SmartEventLos Los;
 
-    [FieldOffset(16)] public Respawn respawn;
+    [FieldOffset(16)] public SmartEventRespawn Respawn;
 
-    [FieldOffset(16)] public MinMax minMax;
+    [FieldOffset(16)] public SmartEventMinMax MinMax;
 
-    [FieldOffset(16)] public TargetCasting targetCasting;
+    [FieldOffset(16)] public SmartEventTargetCasting TargetCasting;
 
-    [FieldOffset(16)] public FriendlyCc friendlyCC;
+    [FieldOffset(16)] public SmartEventFriendlyCc FriendlyCc;
 
-    [FieldOffset(16)] public MissingBuff missingBuff;
+    [FieldOffset(16)] public SmartEventMissingBuff MissingBuff;
 
-    [FieldOffset(16)] public Summoned summoned;
+    [FieldOffset(16)] public SmartEventSummoned Summoned;
 
-    [FieldOffset(16)] public Quest quest;
+    [FieldOffset(16)] public SmartEventQuest Quest;
 
-    [FieldOffset(16)] public QuestObjective questObjective;
+    [FieldOffset(16)] public SmartEventQuestObjective QuestObjective;
 
-    [FieldOffset(16)] public Emote emote;
+    [FieldOffset(16)] public SmartEventEmote Emote;
 
-    [FieldOffset(16)] public Aura aura;
+    [FieldOffset(16)] public SmartEventAura Aura;
 
-    [FieldOffset(16)] public Charm charm;
+    [FieldOffset(16)] public SmartEventCharm Charm;
 
-    [FieldOffset(16)] public MovementInform movementInform;
+    [FieldOffset(16)] public SmartEventMovementInform MovementInform;
 
-    [FieldOffset(16)] public DataSet dataSet;
+    [FieldOffset(16)] public SmartEventDataSet DataSet;
 
-    [FieldOffset(16)] public Waypoint waypoint;
+    [FieldOffset(16)] public SmartEventWaypoint Waypoint;
 
-    [FieldOffset(16)] public TransportAddCreature transportAddCreature;
+    [FieldOffset(16)] public SmartEventTransportAddCreature TransportAddCreature;
 
-    [FieldOffset(16)] public TransportRelocate transportRelocate;
+    [FieldOffset(16)] public SmartEventTransportRelocate TransportRelocate;
 
-    [FieldOffset(16)] public InstancePlayerEnter instancePlayerEnter;
+    [FieldOffset(16)] public SmartEventInstancePlayerEnter InstancePlayerEnter;
 
-    [FieldOffset(16)] public Areatrigger areatrigger;
+    [FieldOffset(16)] public SmartEventAreatrigger Areatrigger;
 
-    [FieldOffset(16)] public TextOver textOver;
+    [FieldOffset(16)] public SmartEventTextOver TextOver;
 
-    [FieldOffset(16)] public TimedEvent timedEvent;
+    [FieldOffset(16)] public SmartEventTimedEvent TimedEvent;
 
-    [FieldOffset(16)] public GossipHello gossipHello;
+    [FieldOffset(16)] public SmartEventGossipHello GossipHello;
 
-    [FieldOffset(16)] public Gossip gossip;
+    [FieldOffset(16)] public SmartEventGossip Gossip;
 
-    [FieldOffset(16)] public GameEvent gameEvent;
+    [FieldOffset(16)] public SmartEventGameEvent GameEvent;
 
-    [FieldOffset(16)] public GoLootStateChanged goLootStateChanged;
+    [FieldOffset(16)] public SmartEventGoLootStateChanged GoLootStateChanged;
 
-    [FieldOffset(16)] public EventInform eventInform;
+    [FieldOffset(16)] public SmartEventEventInform EventInform;
 
-    [FieldOffset(16)] public DoAction doAction;
+    [FieldOffset(16)] public SmartEventDoAction DoAction;
 
-    [FieldOffset(16)] public FriendlyHealthPct friendlyHealthPct;
+    [FieldOffset(16)] public SmartEventFriendlyHealthPct FriendlyHealthPct;
 
-    [FieldOffset(16)] public Distance distance;
+    [FieldOffset(16)] public SmartEventDistance Distance;
 
-    [FieldOffset(16)] public Counter counter;
+    [FieldOffset(16)] public SmartEventCounter Counter;
 
-    [FieldOffset(16)] public SpellCast spellCast;
+    [FieldOffset(16)] public SmartEventSpellCast SpellCast;
 
-    [FieldOffset(16)] public Spell spell;
+    [FieldOffset(16)] public SmartEventSpell Spell;
 
-    [FieldOffset(16)] public Raw raw;
+    [FieldOffset(16)] public SmartEventRaw Raw;
 
-    [FieldOffset(40)] public string param_string;
+    [FieldOffset(40)] public string ParamString;
 
     #region Structs
 
-    public struct MinMaxRepeat
+    public struct SmartEventMinMaxRepeat
     {
         public uint Min;
         public uint Max;
@@ -101,7 +101,7 @@ public struct SmartEvent
         public uint RepeatMax;
     }
 
-    public struct Kill
+    public struct SmartEventKill
     {
         public uint CooldownMin;
         public uint CooldownMax;
@@ -109,7 +109,7 @@ public struct SmartEvent
         public uint Creature;
     }
 
-    public struct SpellHit
+    public struct SmartEventSpellHit
     {
         public uint Spell;
         public uint School;
@@ -117,7 +117,7 @@ public struct SmartEvent
         public uint CooldownMax;
     }
 
-    public struct Los
+    public struct SmartEventLos
     {
         public uint HostilityMode;
         public uint MaxDist;
@@ -126,34 +126,34 @@ public struct SmartEvent
         public uint PlayerOnly;
     }
 
-    public struct Respawn
+    public struct SmartEventRespawn
     {
         public uint Type;
         public uint Map;
         public uint Area;
     }
 
-    public struct MinMax
+    public struct SmartEventMinMax
     {
         public uint RepeatMin;
         public uint RepeatMax;
     }
 
-    public struct TargetCasting
+    public struct SmartEventTargetCasting
     {
         public uint RepeatMin;
         public uint RepeatMax;
         public uint SpellId;
     }
 
-    public struct FriendlyCc
+    public struct SmartEventFriendlyCc
     {
         public uint Radius;
         public uint RepeatMin;
         public uint RepeatMax;
     }
 
-    public struct MissingBuff
+    public struct SmartEventMissingBuff
     {
         public uint Spell;
         public uint Radius;
@@ -161,33 +161,33 @@ public struct SmartEvent
         public uint RepeatMax;
     }
 
-    public struct Summoned
+    public struct SmartEventSummoned
     {
         public uint Creature;
         public uint CooldownMin;
         public uint CooldownMax;
     }
 
-    public struct Quest
+    public struct SmartEventQuest
     {
         public uint QuestId;
         public uint CooldownMin;
         public uint CooldownMax;
     }
 
-    public struct QuestObjective
+    public struct SmartEventQuestObjective
     {
         public uint ID;
     }
 
-    public struct Emote
+    public struct SmartEventEmote
     {
         public uint EmoteId;
         public uint CooldownMin;
         public uint CooldownMax;
     }
 
-    public struct Aura
+    public struct SmartEventAura
     {
         public uint Spell;
         public uint Count;
@@ -195,18 +195,18 @@ public struct SmartEvent
         public uint RepeatMax;
     }
 
-    public struct Charm
+    public struct SmartEventCharm
     {
         public uint OnRemove;
     }
 
-    public struct MovementInform
+    public struct SmartEventMovementInform
     {
         public uint Type;
         public uint ID;
     }
 
-    public struct DataSet
+    public struct SmartEventDataSet
     {
         public uint ID;
         public uint Value;
@@ -214,77 +214,77 @@ public struct SmartEvent
         public uint CooldownMax;
     }
 
-    public struct Waypoint
+    public struct SmartEventWaypoint
     {
         public uint PointID;
         public uint PathID;
     }
 
-    public struct TransportAddCreature
+    public struct SmartEventTransportAddCreature
     {
         public uint Creature;
     }
 
-    public struct TransportRelocate
+    public struct SmartEventTransportRelocate
     {
         public uint PointID;
     }
 
-    public struct InstancePlayerEnter
+    public struct SmartEventInstancePlayerEnter
     {
         public uint Team;
         public uint CooldownMin;
         public uint CooldownMax;
     }
 
-    public struct Areatrigger
+    public struct SmartEventAreatrigger
     {
         public uint ID;
     }
 
-    public struct TextOver
+    public struct SmartEventTextOver
     {
         public uint TextGroupID;
         public uint CreatureEntry;
     }
 
-    public struct TimedEvent
+    public struct SmartEventTimedEvent
     {
         public uint ID;
     }
 
-    public struct GossipHello
+    public struct SmartEventGossipHello
     {
         public uint Filter;
     }
 
-    public struct Gossip
+    public struct SmartEventGossip
     {
         public uint Sender;
         public uint Action;
     }
 
-    public struct GameEvent
+    public struct SmartEventGameEvent
     {
         public uint GameEventId;
     }
 
-    public struct GoLootStateChanged
+    public struct SmartEventGoLootStateChanged
     {
         public uint LootState;
     }
 
-    public struct EventInform
+    public struct SmartEventEventInform
     {
         public uint EventId;
     }
 
-    public struct DoAction
+    public struct SmartEventDoAction
     {
         public uint EventId;
     }
 
-    public struct FriendlyHealthPct
+    public struct SmartEventFriendlyHealthPct
     {
         public uint MinHpPct;
         public uint MaxHpPct;
@@ -293,7 +293,7 @@ public struct SmartEvent
         public uint Radius;
     }
 
-    public struct Distance
+    public struct SmartEventDistance
     {
         public uint GUID;
         public uint Entry;
@@ -301,7 +301,7 @@ public struct SmartEvent
         public uint Repeat;
     }
 
-    public struct Counter
+    public struct SmartEventCounter
     {
         public uint ID;
         public uint Value;
@@ -309,19 +309,19 @@ public struct SmartEvent
         public uint CooldownMax;
     }
 
-    public struct SpellCast
+    public struct SmartEventSpellCast
     {
         public uint Spell;
         public uint CooldownMin;
         public uint CooldownMax;
     }
 
-    public struct Spell
+    public struct SmartEventSpell
     {
         public uint EffIndex;
     }
 
-    public struct Raw
+    public struct SmartEventRaw
     {
         public uint Param1;
         public uint Param2;

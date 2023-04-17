@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using System.Collections.Generic;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Movement;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
 [Script] // 6544 Heroic leap
-internal class spell_warr_heroic_leap : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellWarrHeroicLeap : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -62,6 +62,6 @@ internal class spell_warr_heroic_leap : SpellScript, ISpellCheckCast, IHasSpellE
         var dest = HitDest;
 
         if (dest != null)
-            Caster.CastSpell(dest, WarriorSpells.HEROIC_LEAP_JUMP, new CastSpellExtraArgs(true));
+            Caster.SpellFactory.CastSpell(dest, WarriorSpells.HEROIC_LEAP_JUMP, new CastSpellExtraArgs(true));
     }
 }

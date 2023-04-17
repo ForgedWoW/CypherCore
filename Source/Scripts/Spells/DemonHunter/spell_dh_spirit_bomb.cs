@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(218679)]
-public class spell_dh_spirit_bomb : SpellScript, ISpellOnHit, ISpellCheckCast
+public class SpellDhSpiritBomb : SpellScript, ISpellOnHit, ISpellCheckCast
 {
     readonly uint[] _ids = new uint[]
     {
@@ -49,7 +49,7 @@ public class spell_dh_spirit_bomb : SpellScript, ISpellOnHit, ISpellCheckCast
 
         if (at != null)
         {
-            caster.CastSpell(target, DemonHunterSpells.SPIRIT_BOMB_DAMAGE, true);
+            caster.SpellFactory.CastSpell(target, DemonHunterSpells.SPIRIT_BOMB_DAMAGE, true);
             at.Remove();
 
             return true;

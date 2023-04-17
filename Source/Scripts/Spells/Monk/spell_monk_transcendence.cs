@@ -1,23 +1,26 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(101643)]
-public class spell_monk_transcendence : SpellScript, ISpellOnSummon
+public class SpellMonkTranscendence : SpellScript, ISpellOnSummon
 {
     public const string MONK_TRANSCENDENCE_GUID = "MONK_TRANSCENDENCE_GUID";
 
     public void OnSummon(Creature creature)
     {
         DespawnSpirit(Caster);
-        Caster.CastSpell(creature, MonkSpells.TRANSCENDENCE_CLONE_TARGET, true);
-        creature.CastSpell(creature, MonkSpells.TRANSCENDENCE_VISUAL, true);
+        Caster.SpellFactory.CastSpell(creature, MonkSpells.TRANSCENDENCE_CLONE_TARGET, true);
+        creature.SpellFactory.CastSpell(creature, MonkSpells.TRANSCENDENCE_VISUAL, true);
         creature.SetAIAnimKitId(2223); // Sniff Data
         creature.SetDisableGravity(true);
         creature.SetControlled(true, UnitState.Root);

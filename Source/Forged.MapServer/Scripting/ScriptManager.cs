@@ -661,7 +661,7 @@ public class ScriptManager
             if (script == null)
                 continue;
 
-            script._Init(tmpscript.GetName(), spellId);
+            script._Init(tmpscript.GetName(), spellId, _classFactory);
 
             if (!script._Load(invoker))
                 continue;
@@ -715,7 +715,7 @@ public class ScriptManager
             if (script == null)
                 continue;
 
-            script._Init(tmpscript.GetName(), spellId);
+            script._Init(tmpscript.GetName(), spellId, _classFactory);
 
             if (!script._Load(invoker))
                 continue;

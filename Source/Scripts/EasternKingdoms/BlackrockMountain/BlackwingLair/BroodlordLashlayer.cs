@@ -2,76 +2,79 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.Broodlord;
 
 internal struct SpellIds
 {
-    public const uint Cleave = 26350;
-    public const uint Blastwave = 23331;
-    public const uint Mortalstrike = 24573;
-    public const uint Knockback = 25778;
-    public const uint SuppressionAura = 22247; // Suppression Device Spell
+    public const uint CLEAVE = 26350;
+    public const uint BLASTWAVE = 23331;
+    public const uint MORTALSTRIKE = 24573;
+    public const uint KNOCKBACK = 25778;
+    public const uint SUPPRESSION_AURA = 22247; // Suppression Device Spell
 }
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SayLeash = 1;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_LEASH = 1;
 }
 
 internal struct EventIds
 {
     // Suppression Device Events
-    public const uint SuppressionCast = 1;
-    public const uint SuppressionReset = 2;
+    public const uint SUPPRESSION_CAST = 1;
+    public const uint SUPPRESSION_RESET = 2;
 }
 
 internal struct ActionIds
 {
-    public const int Deactivate = 0;
+    public const int DEACTIVATE = 0;
 }
 
 [Script]
-internal class boss_broodlord : BossAI
+internal class BossBroodlord : BossAI
 {
-    public boss_broodlord(Creature creature) : base(creature, DataTypes.BroodlordLashlayer) { }
+    public BossBroodlord(Creature creature) : base(creature, DataTypes.BROODLORD_LASHLAYER) { }
 
     public override void JustEngagedWith(Unit who)
     {
         base.JustEngagedWith(who);
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
 
         SchedulerProtected.Schedule(TimeSpan.FromSeconds(8),
                                     task =>
                                     {
-                                        DoCastVictim(SpellIds.Cleave);
+                                        DoCastVictim(SpellIds.CLEAVE);
                                         task.Repeat(TimeSpan.FromSeconds(7));
                                     });
 
         SchedulerProtected.Schedule(TimeSpan.FromSeconds(12),
                                     task =>
                                     {
-                                        DoCastVictim(SpellIds.Blastwave);
+                                        DoCastVictim(SpellIds.BLASTWAVE);
                                         task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(16));
                                     });
 
         SchedulerProtected.Schedule(TimeSpan.FromSeconds(20),
                                     task =>
                                     {
-                                        DoCastVictim(SpellIds.Mortalstrike);
+                                        DoCastVictim(SpellIds.MORTALSTRIKE);
                                         task.Repeat(TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
                                     });
 
         SchedulerProtected.Schedule(TimeSpan.FromSeconds(30),
                                     task =>
                                     {
-                                        DoCastVictim(SpellIds.Knockback);
+                                        DoCastVictim(SpellIds.KNOCKBACK);
 
                                         if (GetThreat(Me.Victim) != 0)
                                             ModifyThreatByPercent(Me.Victim, -50);
@@ -84,7 +87,7 @@ internal class boss_broodlord : BossAI
                                     {
                                         if (Me.GetDistance(Me.HomePosition) > 150.0f)
                                         {
-                                            Talk(TextIds.SayLeash);
+                                            Talk(TextIds.SAY_LEASH);
                                             EnterEvadeMode(EvadeReason.Boundary);
                                         }
 
@@ -96,10 +99,10 @@ internal class boss_broodlord : BossAI
     {
         _JustDied();
 
-        var _goList = Me.GetGameObjectListWithEntryInGrid(BWLGameObjectIds.SuppressionDevice, 200.0f);
+        var goList = Me.GetGameObjectListWithEntryInGrid(BwlGameObjectIds.SUPPRESSION_DEVICE, 200.0f);
 
-        foreach (var go in _goList)
-            go.AI.DoAction(ActionIds.Deactivate);
+        foreach (var go in goList)
+            go.AI.DoAction(ActionIds.DEACTIVATE);
     }
 
     public override void UpdateAI(uint diff)
@@ -112,12 +115,12 @@ internal class boss_broodlord : BossAI
 }
 
 [Script]
-internal class go_suppression_device : GameObjectAI
+internal class GOSuppressionDevice : GameObjectAI
 {
     private readonly InstanceScript _instance;
     private bool _active;
 
-    public go_suppression_device(GameObject go) : base(go)
+    public GOSuppressionDevice(GameObject go) : base(go)
     {
         _instance = go.InstanceScript;
         _active = true;
@@ -125,14 +128,14 @@ internal class go_suppression_device : GameObjectAI
 
     public override void InitializeAI()
     {
-        if (_instance.GetBossState(DataTypes.BroodlordLashlayer) == EncounterState.Done)
+        if (_instance.GetBossState(DataTypes.BROODLORD_LASHLAYER) == EncounterState.Done)
         {
             Deactivate();
 
             return;
         }
 
-        Events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5));
+        Events.ScheduleEvent(EventIds.SUPPRESSION_CAST, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5));
     }
 
     public override void UpdateAI(uint diff)
@@ -143,17 +146,17 @@ internal class go_suppression_device : GameObjectAI
         {
             switch (eventId)
             {
-                case EventIds.SuppressionCast:
+                case EventIds.SUPPRESSION_CAST:
                     if (Me.GoState == GameObjectState.Ready)
                     {
-                        Me.CastSpell(null, SpellIds.SuppressionAura, true);
+                        Me.SpellFactory.CastSpell(null, SpellIds.SUPPRESSION_AURA, true);
                         Me.SendCustomAnim(0);
                     }
 
-                    Events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(5));
+                    Events.ScheduleEvent(EventIds.SUPPRESSION_CAST, TimeSpan.FromSeconds(5));
 
                     break;
-                case EventIds.SuppressionReset:
+                case EventIds.SUPPRESSION_RESET:
                     Activate();
 
                     break;
@@ -167,8 +170,8 @@ internal class go_suppression_device : GameObjectAI
         {
             case LootState.Activated:
                 Deactivate();
-                Events.CancelEvent(EventIds.SuppressionCast);
-                Events.ScheduleEvent(EventIds.SuppressionReset, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(120));
+                Events.CancelEvent(EventIds.SUPPRESSION_CAST);
+                Events.ScheduleEvent(EventIds.SUPPRESSION_RESET, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(120));
 
                 break;
             case LootState.JustDeactivated: // This case prevents the Gameobject despawn by Disarm Trap
@@ -180,10 +183,10 @@ internal class go_suppression_device : GameObjectAI
 
     public override void DoAction(int action)
     {
-        if (action == ActionIds.Deactivate)
+        if (action == ActionIds.DEACTIVATE)
         {
             Deactivate();
-            Events.CancelEvent(EventIds.SuppressionReset);
+            Events.CancelEvent(EventIds.SUPPRESSION_RESET);
         }
     }
 
@@ -199,7 +202,7 @@ internal class go_suppression_device : GameObjectAI
 
         Me.SetLootState(LootState.Ready);
         Me.RemoveFlag(GameObjectFlags.NotSelectable);
-        Events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(0));
+        Events.ScheduleEvent(EventIds.SUPPRESSION_CAST, TimeSpan.FromSeconds(0));
     }
 
     private void Deactivate()
@@ -210,6 +213,6 @@ internal class go_suppression_device : GameObjectAI
         _active = false;
         Me.SetGoState(GameObjectState.Active);
         Me.SetFlag(GameObjectFlags.NotSelectable);
-        Events.CancelEvent(EventIds.SuppressionCast);
+        Events.CancelEvent(EventIds.SUPPRESSION_CAST);
     }
 }

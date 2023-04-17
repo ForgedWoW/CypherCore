@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
 // 262161 Warbreaker
 [SpellScript(262161)]
-public class spell_warr_warbreaker : SpellScript, IHasSpellEffects
+public class SpellWarrWarbreaker : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,7 +32,7 @@ public class spell_warr_warbreaker : SpellScript, IHasSpellEffects
             var target = HitUnit;
 
             if (target != null)
-                caster.CastSpell(target, WarriorSpells.COLOSSUS_SMASH_BUFF, true);
+                caster.SpellFactory.CastSpell(target, WarriorSpells.COLOSSUS_SMASH_BUFF, true);
         }
     }
 
@@ -61,7 +62,7 @@ public class spell_warr_warbreaker : SpellScript, IHasSpellEffects
                         }
                 }
 
-                caster.CastSpell(caster, 248622, new CastSpellExtraArgs(SpellValueMod.DurationPct, hastePct)); // In For The Kill
+                caster.SpellFactory.CastSpell(caster, 248622, new CastSpellExtraArgs(SpellValueMod.DurationPct, hastePct)); // In For The Kill
             }
         }
     }

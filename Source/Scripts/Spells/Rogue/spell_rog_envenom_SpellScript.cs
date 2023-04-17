@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Rogue;
 
 [Script] // 32645 - Envenom
-internal class spell_rog_envenom_SpellScript : SpellScript, IHasSpellEffects
+internal class SpellRogEnvenomSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,7 +22,7 @@ internal class spell_rog_envenom_SpellScript : SpellScript, IHasSpellEffects
     private void CalculateDamage(int effIndex)
     {
         var damagePerCombo = HitDamage;
-        var t5 = Caster.GetAuraEffect(RogueSpells.T52pSetBonus, 0);
+        var t5 = Caster.GetAuraEffect(RogueSpells.T52_P_SET_BONUS, 0);
 
         if (t5 != null)
             damagePerCombo += t5.Amount;

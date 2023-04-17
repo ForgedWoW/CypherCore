@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_ethereal_pet_onsummon : SpellScript, IHasSpellEffects
+internal class SpellEtherealPetOnsummon : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,6 +23,6 @@ internal class spell_ethereal_pet_onsummon : SpellScript, IHasSpellEffects
     private void HandleScriptEffect(int effIndex)
     {
         var target = HitUnit;
-        target.CastSpell(target, GenericSpellIds.ProcTriggerOnKillAura, true);
+        target.SpellFactory.CastSpell(target, GenericSpellIds.PROC_TRIGGER_ON_KILL_AURA, true);
     }
 }

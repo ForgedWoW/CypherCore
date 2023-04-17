@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(19577)]
-public class spell_hun_intimidation : SpellScript, IHasSpellEffects
+public class SpellHunIntimidation : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,6 +27,6 @@ public class spell_hun_intimidation : SpellScript, IHasSpellEffects
         if (caster == null || target == null)
             return;
 
-        caster.CastSpell(target, HunterSpells.INTIMIDATION_STUN, true);
+        caster.SpellFactory.CastSpell(target, HunterSpells.INTIMIDATION_STUN, true);
     }
 }

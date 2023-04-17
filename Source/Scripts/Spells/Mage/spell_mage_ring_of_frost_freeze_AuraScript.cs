@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-internal class spell_mage_ring_of_frost_freeze_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellMageRingOfFrostFreezeAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,6 +24,6 @@ internal class spell_mage_ring_of_frost_freeze_AuraScript : AuraScript, IHasAura
     {
         if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
             if (Caster)
-                Caster.CastSpell(Target, MageSpells.RingOfFrostDummy, true);
+                Caster.SpellFactory.CastSpell(Target, MageSpells.RING_OF_FROST_DUMMY, true);
     }
 }

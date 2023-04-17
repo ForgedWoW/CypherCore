@@ -2,16 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Demonwrath damage - 193439
 [SpellScript(193439)]
-public class spell_warl_demonwrath : SpellScript, IHasSpellEffects
+public class SpellWarlDemonwrath : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -79,7 +82,7 @@ public class spell_warl_demonwrath : SpellScript, IHasSpellEffects
 
             if (aurEff != null)
                 if (RandomHelper.randChance(aurEff.BaseAmount))
-                    caster.CastSpell(caster, WarlockSpells.DEMONIC_CALLING_TRIGGER, true);
+                    caster.SpellFactory.CastSpell(caster, WarlockSpells.DEMONIC_CALLING_TRIGGER, true);
         }
     }
 }

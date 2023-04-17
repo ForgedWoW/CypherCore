@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 33060 Make a Wish
-internal class spell_item_make_a_wish : SpellScript, IHasSpellEffects
+internal class SpellItemMakeAWish : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,28 +28,28 @@ internal class spell_item_make_a_wish : SpellScript, IHasSpellEffects
     private void HandleDummy(int effIndex)
     {
         var caster = Caster;
-        var spellId = ItemSpellIds.MrPinchysGift;
+        var spellId = ItemSpellIds.MR_PINCHYS_GIFT;
 
         switch (RandomHelper.URand(1, 5))
         {
             case 1:
-                spellId = ItemSpellIds.MrPinchysBlessing;
+                spellId = ItemSpellIds.MR_PINCHYS_BLESSING;
 
                 break;
             case 2:
-                spellId = ItemSpellIds.SummonMightyMrPinchy;
+                spellId = ItemSpellIds.SUMMON_MIGHTY_MR_PINCHY;
 
                 break;
             case 3:
-                spellId = ItemSpellIds.SummonFuriousMrPinchy;
+                spellId = ItemSpellIds.SUMMON_FURIOUS_MR_PINCHY;
 
                 break;
             case 4:
-                spellId = ItemSpellIds.TinyMagicalCrawdad;
+                spellId = ItemSpellIds.TINY_MAGICAL_CRAWDAD;
 
                 break;
         }
 
-        caster.CastSpell(caster, spellId, true);
+        caster.SpellFactory.CastSpell(caster, spellId, true);
     }
 }

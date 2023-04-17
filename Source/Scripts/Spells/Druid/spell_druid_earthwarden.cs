@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(203974)]
-public class spell_druid_earthwarden : AuraScript, IHasAuraEffects
+public class SpellDruidEarthwarden : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,16 +26,16 @@ public class spell_druid_earthwarden : AuraScript, IHasAuraEffects
     {
         PreventDefaultAction();
 
-        if (!Caster.AsPlayer.SpellHistory.HasCooldown(Spells.EARTHWARDEN))
-            Caster.AddAura(Spells.EARTHWARDEN_TRIGGERED, Caster);
+        if (!Caster.AsPlayer.SpellHistory.HasCooldown(Spells.Earthwarden))
+            Caster.AddAura(Spells.EarthwardenTriggered, Caster);
 
-        Caster.AsPlayer.SpellHistory.AddCooldown(Spells.EARTHWARDEN, 0, TimeSpan.FromMicroseconds(500));
+        Caster.AsPlayer.SpellHistory.AddCooldown(Spells.Earthwarden, 0, TimeSpan.FromMicroseconds(500));
     }
 
     private struct Spells
     {
-        public static readonly uint EARTHWARDEN = 203974;
-        public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
-        public static readonly uint TRASH = 77758;
+        public static readonly uint Earthwarden = 203974;
+        public static readonly uint EarthwardenTriggered = 203975;
+        public static readonly uint Trash = 77758;
     }
 }

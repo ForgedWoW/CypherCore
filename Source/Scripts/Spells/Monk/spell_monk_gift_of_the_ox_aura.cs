@@ -2,32 +2,32 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class spell_monk_gift_of_the_ox_aura : ScriptObjectAutoAdd, IPlayerOnTakeDamage
+public class SpellMonkGiftOfTheOxAura : ScriptObjectAutoAdd, IPlayerOnTakeDamage
 {
     public enum UsedSpells
     {
-        HEALING_SPHERE_COOLDOWN = 224863
+        HealingSphereCooldown = 224863
     }
 
-    public List<uint> spellsToCast = new()
+    public List<uint> SpellsToCast = new()
     {
         MonkSpells.GIFT_OF_THE_OX_AT_RIGHT,
         MonkSpells.GIFT_OF_THE_OX_AT_LEFT
     };
 
+    public SpellMonkGiftOfTheOxAura() : base("spell_monk_gift_of_the_ox_aura") { }
+
     public PlayerClass PlayerClass { get; } = PlayerClass.Monk;
 
-    public spell_monk_gift_of_the_ox_aura() : base("spell_monk_gift_of_the_ox_aura") { }
-
-    public void OnPlayerTakeDamage(Player victim, double damage, SpellSchoolMask UnnamedParameter)
+    public void OnPlayerTakeDamage(Player victim, double damage, SpellSchoolMask unnamedParameter)
     {
         if (damage == 0 || victim == null)
             return;
@@ -35,13 +35,13 @@ public class spell_monk_gift_of_the_ox_aura : ScriptObjectAutoAdd, IPlayerOnTake
         if (!victim.HasAura(MonkSpells.GIFT_OF_THE_OX_AURA))
             return;
 
-        var spellToCast = spellsToCast[RandomHelper.IRand(0, (spellsToCast.Count - 1))];
+        var spellToCast = SpellsToCast[RandomHelper.IRand(0, (SpellsToCast.Count - 1))];
 
         if (RandomHelper.randChance((0.75 * damage / victim.MaxHealth) * (3 - 2 * (victim.HealthPct / 100)) * 100))
-            if (!victim.HasAura(UsedSpells.HEALING_SPHERE_COOLDOWN))
+            if (!victim.HasAura(UsedSpells.HealingSphereCooldown))
             {
-                victim.CastSpell(victim, UsedSpells.HEALING_SPHERE_COOLDOWN, true);
-                victim.CastSpell(victim, spellToCast, true);
+                victim.SpellFactory.CastSpell(victim, UsedSpells.HealingSphereCooldown, true);
+                victim.SpellFactory.CastSpell(victim, spellToCast, true);
             }
     }
 }

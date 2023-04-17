@@ -2,28 +2,30 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.GizrulTheSlavener;
 
 internal struct SpellIds
 {
-    public const uint FatalBite = 16495;
-    public const uint InfectedBite = 16128;
-    public const uint Frenzy = 8269;
+    public const uint FATAL_BITE = 16495;
+    public const uint INFECTED_BITE = 16128;
+    public const uint FRENZY = 8269;
 }
 
 internal struct PathIds
 {
-    public const uint Gizrul = 402450;
+    public const uint GIZRUL = 402450;
 }
 
 [Script]
-internal class boss_gizrul_the_slavener : BossAI
+internal class BossGizrulTheSlavener : BossAI
 {
-    public boss_gizrul_the_slavener(Creature creature) : base(creature, DataTypes.GizrulTheSlavener) { }
+    public BossGizrulTheSlavener(Creature creature) : base(creature, DataTypes.GIZRUL_THE_SLAVENER) { }
 
     public override void Reset()
     {
@@ -32,7 +34,7 @@ internal class boss_gizrul_the_slavener : BossAI
 
     public override void IsSummonedBy(WorldObject summoner)
     {
-        Me.MotionMaster.MovePath(PathIds.Gizrul, false);
+        Me.MotionMaster.MovePath(PathIds.GIZRUL, false);
     }
 
     public override void JustEngagedWith(Unit who)
@@ -43,7 +45,7 @@ internal class boss_gizrul_the_slavener : BossAI
                            TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastVictim(SpellIds.FatalBite);
+                               DoCastVictim(SpellIds.FATAL_BITE);
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
                            });
 
@@ -51,7 +53,7 @@ internal class boss_gizrul_the_slavener : BossAI
                            TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCast(Me, SpellIds.InfectedBite);
+                               DoCast(Me, SpellIds.INFECTED_BITE);
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
                            });
     }

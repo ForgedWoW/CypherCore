@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_gadgetzan_transporter_backfire : SpellScript, IHasSpellEffects
+internal class SpellGenGadgetzanTransporterBackfire : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -25,10 +26,10 @@ internal class spell_gen_gadgetzan_transporter_backfire : SpellScript, IHasSpell
         var r = RandomHelper.IRand(0, 119);
 
         if (r < 20) // Transporter Malfunction - 1/6 polymorph
-            caster.CastSpell(caster, GenericSpellIds.TransporterMalfunctionPolymorph, true);
+            caster.SpellFactory.CastSpell(caster, GenericSpellIds.TRANSPORTER_MALFUNCTION_POLYMORPH, true);
         else if (r < 100) // Evil Twin               - 4/6 evil twin
-            caster.CastSpell(caster, GenericSpellIds.TransporterEviltwin, true);
+            caster.SpellFactory.CastSpell(caster, GenericSpellIds.TRANSPORTER_EVILTWIN, true);
         else // Transporter Malfunction - 1/6 miss the Target
-            caster.CastSpell(caster, GenericSpellIds.TransporterMalfunctionMiss, true);
+            caster.SpellFactory.CastSpell(caster, GenericSpellIds.TRANSPORTER_MALFUNCTION_MISS, true);
     }
 }

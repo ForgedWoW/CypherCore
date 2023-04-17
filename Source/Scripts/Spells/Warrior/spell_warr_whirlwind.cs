@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
 // Whirlwind - 190411
 [SpellScript(190411)]
-public class spell_warr_whirlwind : SpellScript, ISpellAfterCast
+public class SpellWarrWhirlwind : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -22,7 +22,7 @@ public class spell_warr_whirlwind : SpellScript, ISpellAfterCast
 
         if (caster.HasAura(WarriorSpells.MEAT_CLEAVER))
             if (RandomHelper.randChance(10))
-                caster.CastSpell(null, WarriorSpells.ENRAGE_AURA, true);
+                caster.SpellFactory.CastSpell(null, WarriorSpells.ENRAGE_AURA, true);
 
         if (caster.HasAura(WarriorSpells.THIRST_FOR_BATTLE))
         {

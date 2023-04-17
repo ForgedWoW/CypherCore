@@ -5,10 +5,10 @@ namespace Scripts.Spells.Monk;
 
 public enum CracklingJade
 {
-    CRACKLING_JADE_LIGHTNING = 117952,
-    CRACKLING_JADE_LIGHTNING_CHI_PROC_DRIVER = 123332,
-    CRACKLING_JADE_LIGHTNING_KNOCK_BACK_DRIVER = 117959,
-    CRACKLING_JADE_LIGHTNING_KNOCK_BACK = 117962,
-    CRACKLING_JADE_LIGHTNING_TALENT = 125648,
-    CRACKLING_JAD_LIGHTNING_TALENT_SPEED = 125647
+    CracklingJadeLightning = 117952,
+    CracklingJadeLightningChiProcDriver = 123332,
+    CracklingJadeLightningKnockBackDriver = 117959,
+    CracklingJadeLightningKnockBack = 117962,
+    CracklingJadeLightningTalent = 125648,
+    CracklingJadLightningTalentSpeed = 125647
 }

@@ -2,21 +2,23 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.Bosses;
 
 [CreatureScript(47739)]
-public class boss_captain_cookie : BossAI
+public class BossCaptainCookie : BossAI
 {
     public const int POINT_MOVE = 1;
 
     public static readonly uint[] ThrowFoodSpells =
     {
-        eSpell.THROW_FOOD_TARGETING_CORN, eSpell.THROW_FOOD_TARGETING_ROTTEN_CORN, eSpell.THROW_FOOD_TARGETING_MELON, eSpell.THROW_FOOD_TARGETING_ROTTEN_MELON, eSpell.THROW_FOOD_TARGETING_STEAK, eSpell.THROW_FOOD_TARGETING_ROTTEN_STEAK, eSpell.THROW_FOOD_TARGETING_MYSTERY_MEAT, eSpell.THROW_FOOD_TARGETING_ROTTEN_MM, eSpell.THROW_FOOD_TARGETING_LOAF, eSpell.THROW_FOOD_TARGETING_ROTTEN_LOAF, eSpell.THROW_FOOD_TARGETING_BUN, eSpell.THROW_FOOD_TARGETING_ROTTEN_BUN
+        ESpell.THROW_FOOD_TARGETING_CORN, ESpell.THROW_FOOD_TARGETING_ROTTEN_CORN, ESpell.THROW_FOOD_TARGETING_MELON, ESpell.THROW_FOOD_TARGETING_ROTTEN_MELON, ESpell.THROW_FOOD_TARGETING_STEAK, ESpell.THROW_FOOD_TARGETING_ROTTEN_STEAK, ESpell.THROW_FOOD_TARGETING_MYSTERY_MEAT, ESpell.THROW_FOOD_TARGETING_ROTTEN_MM, ESpell.THROW_FOOD_TARGETING_LOAF, ESpell.THROW_FOOD_TARGETING_ROTTEN_LOAF, ESpell.THROW_FOOD_TARGETING_BUN, ESpell.THROW_FOOD_TARGETING_ROTTEN_BUN
     };
 
     public static readonly Position NotePos = new(-74.3611f, -820.014f, 40.3714f, 0.0f);
@@ -29,7 +31,7 @@ public class boss_captain_cookie : BossAI
     public static readonly Position MovePos = new(-71.292213f, -819.792297f, 40.51f, 0.04f);
 
 
-    public boss_captain_cookie(Creature pCreature) : base(pCreature, DMData.DATA_COOKIE)
+    public BossCaptainCookie(Creature pCreature) : base(pCreature, DmData.DATA_COOKIE)
     {
         Me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
         Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Grip, true);
@@ -50,13 +52,13 @@ public class boss_captain_cookie : BossAI
     {
         _Reset();
         Me.ReactState = ReactStates.Aggressive;
-        DoCast(eSpell.WHO_IS_THAT);
+        DoCast(ESpell.WHO_IS_THAT);
         Me.SetUnitFlag(UnitFlags.Uninteractible);
     }
 
     public override void MoveInLineOfSight(Unit who)
     {
-        if (Instance.GetBossState(DMData.DATA_RIPSNARL) != EncounterState.Done)
+        if (Instance.GetBossState(DmData.DATA_RIPSNARL) != EncounterState.Done)
             return;
 
         if (Me.GetDistance(who) > 5.0f)
@@ -67,7 +69,7 @@ public class boss_captain_cookie : BossAI
 
     public override void JustEnteredCombat(Unit who)
     {
-        Me.RemoveAura(eSpell.WHO_IS_THAT);
+        Me.RemoveAura(ESpell.WHO_IS_THAT);
         Me.RemoveUnitFlag(UnitFlags.Uninteractible);
         Me.AttackStop();
         Me.ReactState = ReactStates.Passive;
@@ -75,7 +77,7 @@ public class boss_captain_cookie : BossAI
         Events.ScheduleEvent(BossEvents.EVENT_MOVE, TimeSpan.FromMilliseconds(1000));
 
         DoZoneInCombat();
-        Instance.SetBossState(DMData.DATA_COOKIE, EncounterState.InProgress);
+        Instance.SetBossState(DmData.DATA_COOKIE, EncounterState.InProgress);
     }
 
     public override void MovementInform(MovementGeneratorType type, uint data)
@@ -90,7 +92,7 @@ public class boss_captain_cookie : BossAI
         base.JustDied(killer);
 
         if (IsHeroic())
-            Me.SummonCreature(DMCreatures.NPC_VANESSA_NOTE, NotePos);
+            Me.SummonCreature(DmCreatures.NPC_VANESSA_NOTE, NotePos);
     }
 
     public override void UpdateAI(uint diff)
@@ -113,7 +115,7 @@ public class boss_captain_cookie : BossAI
 
                     break;
                 case BossEvents.EVENT_CAULDRON_1:
-                    Me.CastSpell(CookiesPos[0].X, CookiesPos[0].Y, CookiesPos[0].Z, eSpell.CAULDRON, true);
+                    Me.SpellFactory.CastSpell(CookiesPos[0].X, CookiesPos[0].Y, CookiesPos[0].Z, ESpell.CAULDRON, true);
                     Events.ScheduleEvent(BossEvents.EVENT_CAULDRON_2, TimeSpan.FromMilliseconds(2000));
 
                     break;
@@ -136,7 +138,7 @@ public class boss_captain_cookie : BossAI
             }
     }
 
-    public struct eSpell
+    public struct ESpell
     {
         public const uint WHO_IS_THAT = 89339;
         public const uint SETIATED = 89267;

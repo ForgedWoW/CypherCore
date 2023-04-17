@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(33110)]
-public class spell_pri_prayer_of_mending_heal : SpellScript, IHasSpellEffects
+public class SpellPriPrayerOfMendingHeal : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,7 +25,7 @@ public class spell_pri_prayer_of_mending_heal : SpellScript, IHasSpellEffects
 
         if (caster != null)
         {
-            var aurEff = caster.GetAuraEffect(PriestSpells.T9_HEALING_2P, 0);
+            var aurEff = caster.GetAuraEffect(PriestSpells.T9_HEALING_2_P, 0);
 
             if (aurEff != null)
             {

@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(234299)] // 234299 - Fist of Justice
-internal class spell_pal_fist_of_justice : AuraScript, IHasAuraEffects
+internal class SpellPalFistOfJustice : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -37,6 +37,6 @@ internal class spell_pal_fist_of_justice : AuraScript, IHasAuraEffects
     {
         var value = aurEff.Amount / 10;
 
-        Target.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-value));
+        Target.SpellHistory.ModifyCooldown(PaladinSpells.HAMMER_OF_JUSTICE, TimeSpan.FromSeconds(-value));
     }
 }

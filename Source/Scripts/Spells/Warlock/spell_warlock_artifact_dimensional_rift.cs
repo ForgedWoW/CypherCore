@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
-internal class spell_warlock_artifact_dimensional_rift : SpellScript, IHasSpellEffects
+internal class SpellWarlockArtifactDimensionalRift : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -60,7 +61,7 @@ internal class spell_warlock_artifact_dimensional_rift : SpellScript, IHasSpellE
 
         if (rift != null)
         {
-            rift.CastSpell(rift, spellVisualIds[(int)id], true);
+            rift.SpellFactory.CastSpell(rift, spellVisualIds[(int)id], true);
             rift.SetOwnerGUID(caster.GUID);
             // We cannot really use me->GetVictim() inside of the AI, since the target
             // for portal is locked, it doesn't change no matter what. So we set it like this

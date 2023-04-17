@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.RED_FIRE_BREATH, EvokerSpells.RED_FIRE_BREATH_2)]
-internal class spell_evoker_life_givers_flame_cast : SpellScript, ISpellAfterCast
+internal class SpellEvokerLifeGiversFlameCast : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -34,7 +34,7 @@ internal class spell_evoker_life_givers_flame_cast : SpellScript, ISpellAfterCas
             args.AddSpellMod(SpellValueMod.BasePoint0, aura.GetEffect(0).Amount * (SpellManager.Instance.GetSpellInfo(EvokerSpells.LIFE_GIVERS_FLAME).GetEffect(0).BasePoints * 0.01));
 
             foreach (var target in targetList)
-                caster.CastSpell(target, EvokerSpells.LIFE_GIVERS_FLAME_HEAL, args);
+                caster.SpellFactory.CastSpell(target, EvokerSpells.LIFE_GIVERS_FLAME_HEAL, args);
 
             aura.Remove();
         }

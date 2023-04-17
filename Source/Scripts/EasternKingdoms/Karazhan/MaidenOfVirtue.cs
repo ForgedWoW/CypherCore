@@ -2,61 +2,62 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Karazhan.MaidenOfVirtue;
 
 internal struct SpellIds
 {
-    public const uint Repentance = 29511;
-    public const uint Holyfire = 29522;
-    public const uint Holywrath = 32445;
-    public const uint Holyground = 29523;
-    public const uint Berserk = 26662;
+    public const uint REPENTANCE = 29511;
+    public const uint HOLYFIRE = 29522;
+    public const uint HOLYWRATH = 32445;
+    public const uint HOLYGROUND = 29523;
+    public const uint BERSERK = 26662;
 }
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SaySlay = 1;
-    public const uint SayRepentance = 2;
-    public const uint SayDeath = 3;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_SLAY = 1;
+    public const uint SAY_REPENTANCE = 2;
+    public const uint SAY_DEATH = 3;
 }
 
 [Script]
-internal class boss_maiden_of_virtue : BossAI
+internal class BossMaidenOfVirtue : BossAI
 {
-    public boss_maiden_of_virtue(Creature creature) : base(creature, DataTypes.MaidenOfVirtue) { }
+    public BossMaidenOfVirtue(Creature creature) : base(creature, DataTypes.MAIDEN_OF_VIRTUE) { }
 
-    public override void KilledUnit(Unit Victim)
+    public override void KilledUnit(Unit victim)
     {
         if (RandomHelper.randChance(50))
-            Talk(TextIds.SaySlay);
+            Talk(TextIds.SAY_SLAY);
     }
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
         _JustDied();
     }
 
     public override void JustEngagedWith(Unit who)
     {
         base.JustEngagedWith(who);
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
 
-        DoCastSelf(SpellIds.Holyground, new CastSpellExtraArgs(true));
+        DoCastSelf(SpellIds.HOLYGROUND, new CastSpellExtraArgs(true));
 
         Scheduler.Schedule(TimeSpan.FromSeconds(33),
                            TimeSpan.FromSeconds(45),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Repentance);
-                               Talk(TextIds.SayRepentance);
+                               DoCastVictim(SpellIds.REPENTANCE);
+                               Talk(TextIds.SAY_REPENTANCE);
                                task.Repeat(TimeSpan.FromSeconds(35));
                            });
 
@@ -66,7 +67,7 @@ internal class boss_maiden_of_virtue : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 50, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Holyfire);
+                                   DoCast(target, SpellIds.HOLYFIRE);
 
                                task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(19));
                            });
@@ -78,12 +79,12 @@ internal class boss_maiden_of_virtue : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 80, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Holywrath);
+                                   DoCast(target, SpellIds.HOLYWRATH);
 
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
                            });
 
-        Scheduler.Schedule(TimeSpan.FromMinutes(10), task => { DoCastSelf(SpellIds.Berserk, new CastSpellExtraArgs(true)); });
+        Scheduler.Schedule(TimeSpan.FromMinutes(10), task => { DoCastSelf(SpellIds.BERSERK, new CastSpellExtraArgs(true)); });
     }
 
     public override void UpdateAI(uint diff)

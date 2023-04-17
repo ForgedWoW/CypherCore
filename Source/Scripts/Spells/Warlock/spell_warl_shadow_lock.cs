@@ -3,15 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Shadow Lock - 171140
 [SpellScript(171140)]
-public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEffects
+public class SpellWarlShadowLock : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -46,7 +47,7 @@ public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEff
         /*if (pet->GetEntry() != PET_ENTRY_DOOMGUARD)
             return;*/
 
-        pet.CastSpell(target, WarlockSpells.DOOMGUARD_SHADOW_LOCK, true);
+        pet.SpellFactory.CastSpell(target, WarlockSpells.DOOMGUARD_SHADOW_LOCK, true);
 
         caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
     }

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_vendor_bark_trigger : SpellScript, IHasSpellEffects
+internal class SpellGenVendorBarkTrigger : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,7 +24,7 @@ internal class spell_gen_vendor_bark_trigger : SpellScript, IHasSpellEffects
         var vendor = Caster.AsCreature;
 
         if (vendor)
-            if (vendor.Entry == CreatureIds.AmphitheaterVendor)
-                vendor.AI.Talk(TextIds.SayAmphitheaterVendor);
+            if (vendor.Entry == CreatureIds.AMPHITHEATER_VENDOR)
+                vendor.AI.Talk(TextIds.SAY_AMPHITHEATER_VENDOR);
     }
 }

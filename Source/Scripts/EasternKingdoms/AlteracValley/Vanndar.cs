@@ -2,35 +2,36 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.AlteracValley.Vanndar;
 
 internal struct SpellIds
 {
-    public const uint Avatar = 19135;
-    public const uint Thunderclap = 15588;
-    public const uint Stormbolt = 20685; // not sure
+    public const uint AVATAR = 19135;
+    public const uint THUNDERCLAP = 15588;
+    public const uint STORMBOLT = 20685; // not sure
 }
 
 internal struct TextIds
 {
-    public const uint YellAggro = 0;
+    public const uint YELL_AGGRO = 0;
 
-    public const uint YellEvade = 1;
+    public const uint YELL_EVADE = 1;
 
     //public const uint YellRespawn1                                 = -1810010; // Missing in database
     //public const uint YellRespawn2                                 = -1810011; // Missing in database
-    public const uint YellRandom = 2;
-    public const uint YellSpell = 3;
+    public const uint YELL_RANDOM = 2;
+    public const uint YELL_SPELL = 3;
 }
 
 [Script]
-internal class boss_vanndar : ScriptedAI
+internal class BossVanndar : ScriptedAI
 {
-    public boss_vanndar(Creature creature) : base(creature) { }
+    public BossVanndar(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -42,21 +43,21 @@ internal class boss_vanndar : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(3),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Avatar);
+                               DoCastVictim(SpellIds.AVATAR);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Thunderclap);
+                               DoCastVictim(SpellIds.THUNDERCLAP);
                                task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Stormbolt);
+                               DoCastVictim(SpellIds.STORMBOLT);
                                task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(25));
                            });
 
@@ -64,7 +65,7 @@ internal class boss_vanndar : ScriptedAI
                            TimeSpan.FromSeconds(30),
                            task =>
                            {
-                               Talk(TextIds.YellRandom);
+                               Talk(TextIds.YELL_RANDOM);
                                task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
                            });
 
@@ -74,13 +75,13 @@ internal class boss_vanndar : ScriptedAI
                                                                           if (Me.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
                                                                           {
                                                                               base.EnterEvadeMode();
-                                                                              Talk(TextIds.YellEvade);
+                                                                              Talk(TextIds.YELL_EVADE);
                                                                           }
 
                                                                           task.Repeat();
                                                                       }));
 
-        Talk(TextIds.YellAggro);
+        Talk(TextIds.YELL_AGGRO);
     }
 
     public override void UpdateAI(uint diff)

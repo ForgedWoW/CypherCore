@@ -3,16 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 81749 - Atonement
-public class spell_pri_atonement : AuraScript, IAuraCheckProc, IHasAuraEffects
+public class SpellPriAtonement : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     private readonly List<ObjectGuid> _appliedAtonements = new();
 
@@ -56,7 +58,7 @@ public class spell_pri_atonement : AuraScript, IAuraCheckProc, IHasAuraEffects
             if (target)
             {
                 if (target.Location.GetExactDist(Target.Location) < GetEffectInfo(1).CalcValue())
-                    Target.CastSpell(target, PriestSpells.ATONEMENT_HEAL, args);
+                    Target.SpellFactory.CastSpell(target, PriestSpells.ATONEMENT_HEAL, args);
 
                 return false;
             }

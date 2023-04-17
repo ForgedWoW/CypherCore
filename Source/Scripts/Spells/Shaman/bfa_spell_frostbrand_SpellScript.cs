@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // Frostbrand - 196834
 [SpellScript(196834)]
-public class bfa_spell_frostbrand_SpellScript : SpellScript, ISpellOnHit
+public class BfaSpellFrostbrandSpellScript : SpellScript, ISpellOnHit
 {
     public override bool Load()
     {
@@ -23,6 +23,6 @@ public class bfa_spell_frostbrand_SpellScript : SpellScript, ISpellOnHit
         if (caster == null || target == null)
             return;
 
-        caster.CastSpell(target, ShamanSpells.FROSTBRAND_SLOW, true);
+        caster.SpellFactory.CastSpell(target, ShamanSpells.FROSTBRAND_SLOW, true);
     }
 }

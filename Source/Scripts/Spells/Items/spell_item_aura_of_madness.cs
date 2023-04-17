@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 39446 - Aura of Madness
-internal class spell_item_aura_of_madness : AuraScript, IHasAuraEffects
+internal class SpellItemAuraOfMadness : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -30,63 +31,63 @@ internal class spell_item_aura_of_madness : AuraScript, IHasAuraEffects
             //CLASS_WARRIOR
             new uint[]
             {
-                ItemSpellIds.Sociopath, ItemSpellIds.Delusional, ItemSpellIds.Kleptomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.MartyrComplex
+                ItemSpellIds.SOCIOPATH, ItemSpellIds.DELUSIONAL, ItemSpellIds.KLEPTOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.MARTYR_COMPLEX
             },
             //CLASS_PALADIN
             new uint[]
             {
-                ItemSpellIds.Sociopath, ItemSpellIds.Delusional, ItemSpellIds.Kleptomania, ItemSpellIds.Megalomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.Narcissism, ItemSpellIds.MartyrComplex, ItemSpellIds.Dementia
+                ItemSpellIds.SOCIOPATH, ItemSpellIds.DELUSIONAL, ItemSpellIds.KLEPTOMANIA, ItemSpellIds.MEGALOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.NARCISSISM, ItemSpellIds.MARTYR_COMPLEX, ItemSpellIds.DEMENTIA
             },
             //CLASS_HUNTER
             new uint[]
             {
-                ItemSpellIds.Delusional, ItemSpellIds.Megalomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.Narcissism, ItemSpellIds.MartyrComplex, ItemSpellIds.Dementia
+                ItemSpellIds.DELUSIONAL, ItemSpellIds.MEGALOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.NARCISSISM, ItemSpellIds.MARTYR_COMPLEX, ItemSpellIds.DEMENTIA
             },
             //CLASS_ROGUE
             new uint[]
             {
-                ItemSpellIds.Sociopath, ItemSpellIds.Delusional, ItemSpellIds.Kleptomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.MartyrComplex
+                ItemSpellIds.SOCIOPATH, ItemSpellIds.DELUSIONAL, ItemSpellIds.KLEPTOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.MARTYR_COMPLEX
             },
             //CLASS_PRIEST
             new uint[]
             {
-                ItemSpellIds.Megalomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.Narcissism, ItemSpellIds.MartyrComplex, ItemSpellIds.Dementia
+                ItemSpellIds.MEGALOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.NARCISSISM, ItemSpellIds.MARTYR_COMPLEX, ItemSpellIds.DEMENTIA
             },
             //CLASS_DEATH_KNIGHT
             new uint[]
             {
-                ItemSpellIds.Sociopath, ItemSpellIds.Delusional, ItemSpellIds.Kleptomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.MartyrComplex
+                ItemSpellIds.SOCIOPATH, ItemSpellIds.DELUSIONAL, ItemSpellIds.KLEPTOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.MARTYR_COMPLEX
             },
             //CLASS_SHAMAN
             new uint[]
             {
-                ItemSpellIds.Megalomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.Narcissism, ItemSpellIds.MartyrComplex, ItemSpellIds.Dementia
+                ItemSpellIds.MEGALOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.NARCISSISM, ItemSpellIds.MARTYR_COMPLEX, ItemSpellIds.DEMENTIA
             },
             //CLASS_MAGE
             new uint[]
             {
-                ItemSpellIds.Megalomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.Narcissism, ItemSpellIds.MartyrComplex, ItemSpellIds.Dementia
+                ItemSpellIds.MEGALOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.NARCISSISM, ItemSpellIds.MARTYR_COMPLEX, ItemSpellIds.DEMENTIA
             },
             //CLASS_WARLOCK
             new uint[]
             {
-                ItemSpellIds.Megalomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.Narcissism, ItemSpellIds.MartyrComplex, ItemSpellIds.Dementia
+                ItemSpellIds.MEGALOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.NARCISSISM, ItemSpellIds.MARTYR_COMPLEX, ItemSpellIds.DEMENTIA
             },
             //CLASS_UNK
             Array.Empty<uint>(),
             //CLASS_DRUID
             new uint[]
             {
-                ItemSpellIds.Sociopath, ItemSpellIds.Delusional, ItemSpellIds.Kleptomania, ItemSpellIds.Megalomania, ItemSpellIds.Paranoia, ItemSpellIds.Manic, ItemSpellIds.Narcissism, ItemSpellIds.MartyrComplex, ItemSpellIds.Dementia
+                ItemSpellIds.SOCIOPATH, ItemSpellIds.DELUSIONAL, ItemSpellIds.KLEPTOMANIA, ItemSpellIds.MEGALOMANIA, ItemSpellIds.PARANOIA, ItemSpellIds.MANIC, ItemSpellIds.NARCISSISM, ItemSpellIds.MARTYR_COMPLEX, ItemSpellIds.DEMENTIA
             }
         };
 
         PreventDefaultAction();
         var caster = eventInfo.Actor;
         var spellId = triggeredSpells[(int)caster.Class].SelectRandom();
-        caster.CastSpell(caster, spellId, new CastSpellExtraArgs(aurEff));
+        caster.SpellFactory.CastSpell(caster, spellId, new CastSpellExtraArgs(aurEff));
 
         if (RandomHelper.randChance(10))
-            caster.Say(TextIds.SayMadness);
+            caster.Say(TextIds.SAY_MADNESS);
     }
 }

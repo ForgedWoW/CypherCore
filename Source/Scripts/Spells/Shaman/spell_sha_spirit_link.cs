@@ -2,25 +2,25 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // Spirit link
 [SpellScript(98021)]
-public class spell_sha_spirit_link : SpellScript, ISpellOnHit
+public class SpellShaSpiritLink : SpellScript, ISpellOnHit
 {
-    private readonly SortedDictionary<ObjectGuid, double> targets = new();
-    private double averagePercentage;
+    private readonly SortedDictionary<ObjectGuid, double> _targets = new();
+    private double _averagePercentage;
     public List<ISpellEffect> SpellEffects { get; } = new();
 
     public override bool Load()
     {
-        averagePercentage = 0.0f;
+        _averagePercentage = 0.0f;
 
         return true;
     }
@@ -31,14 +31,14 @@ public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 
         if (target != null)
         {
-            if (!targets.ContainsKey(target.GUID))
+            if (!_targets.ContainsKey(target.GUID))
                 return;
 
             var bp0 = 0.0f;
             var bp1 = 0.0f;
-            var percentage = targets[target.GUID];
+            var percentage = _targets[target.GUID];
             var currentHp = target.CountPctFromMaxHealth((int)percentage);
-            var desiredHp = target.CountPctFromMaxHealth((int)averagePercentage);
+            var desiredHp = target.CountPctFromMaxHealth((int)_averagePercentage);
 
             if (desiredHp > currentHp)
                 bp1 = desiredHp - currentHp;
@@ -48,7 +48,7 @@ public class spell_sha_spirit_link : SpellScript, ISpellOnHit
             var args = new CastSpellExtraArgs();
 
             Caster
-                .CastSpell(target,
+                .SpellFactory.CastSpell(target,
                            98021,
                            new CastSpellExtraArgs(TriggerCastFlags.None)
                                .AddSpellMod(SpellValueMod.BasePoint0, (int)bp0)
@@ -71,12 +71,12 @@ public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 
             if (target != null)
             {
-                targets[target.GUID] = target.HealthPct;
-                averagePercentage += target.HealthPct;
+                _targets[target.GUID] = target.HealthPct;
+                _averagePercentage += target.HealthPct;
                 ++targetCount;
             }
         }
 
-        averagePercentage /= targetCount;
+        _averagePercentage /= targetCount;
     }
 }

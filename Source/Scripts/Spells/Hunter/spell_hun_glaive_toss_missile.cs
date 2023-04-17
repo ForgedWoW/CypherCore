@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
@@ -12,7 +12,7 @@ namespace Scripts.Spells.Hunter;
 {
     120755, 120756
 })]
-public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAfterCast
+public class SpellHunGlaiveTossMissile : SpellScript, ISpellOnHit, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -22,14 +22,14 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 
             if (plr != null)
             {
-                plr.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                plr.SpellFactory.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
             }
             else if (OriginalCaster)
             {
                 var caster = OriginalCaster.AsPlayer;
 
                 if (caster != null)
-                    caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                    caster.SpellFactory.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
             }
         }
         else
@@ -38,14 +38,14 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 
             if (plr != null)
             {
-                plr.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                plr.SpellFactory.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
             }
             else if (OriginalCaster)
             {
                 var caster = OriginalCaster.AsPlayer;
 
                 if (caster != null)
-                    caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                    caster.SpellFactory.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
             }
         }
 
@@ -68,7 +68,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 
                 if (target != null)
                     if (caster == OriginalCaster)
-                        target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_LEFT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
+                        target.SpellFactory.CastSpell(caster, HunterSpells.GLAIVE_TOSS_LEFT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
             }
         }
         else
@@ -81,7 +81,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 
                 if (target != null)
                     if (caster == OriginalCaster)
-                        target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_RIGHT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
+                        target.SpellFactory.CastSpell(caster, HunterSpells.GLAIVE_TOSS_RIGHT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
             }
         }
     }

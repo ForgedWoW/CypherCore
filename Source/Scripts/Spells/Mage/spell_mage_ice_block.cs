@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 45438 - Ice Block
-internal class spell_mage_ice_block : SpellScript, IHasSpellEffects
+internal class SpellMageIceBlock : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,13 +25,13 @@ internal class spell_mage_ice_block : SpellScript, IHasSpellEffects
 
     private void PreventStunWithEverwarmSocks(WorldObject target)
     {
-        if (Caster.HasAura(MageSpells.EverwarmSocks))
+        if (Caster.HasAura(MageSpells.EVERWARM_SOCKS))
             target = null;
     }
 
     private void PreventEverwarmSocks(WorldObject target)
     {
-        if (!Caster.HasAura(MageSpells.EverwarmSocks))
+        if (!Caster.HasAura(MageSpells.EVERWARM_SOCKS))
             target = null;
     }
 }

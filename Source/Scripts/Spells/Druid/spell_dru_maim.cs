@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(22570)]
-public class spell_dru_maim : SpellScript, ISpellAfterCast, ISpellOnTakePower
+public class SpellDruMaim : SpellScript, ISpellAfterCast, ISpellOnTakePower
 {
     private int _usedComboPoints = 0;
 
@@ -20,7 +20,7 @@ public class spell_dru_maim : SpellScript, ISpellAfterCast, ISpellOnTakePower
         if (target == null)
             return;
 
-        Caster.CastSpell(target, MaimSpells.MAIM_STUN, true);
+        Caster.SpellFactory.CastSpell(target, MaimSpells.MAIM_STUN, true);
 
         var maimStun = target.GetAura(MaimSpells.MAIM_STUN, Caster.GUID);
 

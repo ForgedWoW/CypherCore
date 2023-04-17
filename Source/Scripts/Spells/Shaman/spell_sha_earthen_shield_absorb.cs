@@ -2,18 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 //201633 - Earthen Shield
 [SpellScript(201633)]
-public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
+public class SpellShaEarthenShieldAbsorb : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +24,7 @@ public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
     }
 
-    private void CalcAbsorb(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalcAbsorb(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         if (!Caster)
             return;
@@ -31,7 +32,7 @@ public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
         amount.Value = Caster.Health;
     }
 
-    private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
+    private double HandleAbsorb(AuraEffect unnamedParameter, DamageInfo dmgInfo, double absorbAmount)
     {
         var caster = Caster;
 
@@ -49,7 +50,7 @@ public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
             absorbAmount = dmgInfo.Damage;
 
         //201657 - The damager
-        caster.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
+        caster.SpellFactory.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
 
         return absorbAmount;
     }

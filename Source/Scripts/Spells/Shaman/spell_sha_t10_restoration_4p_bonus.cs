@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 70808 - Item - Shaman T10 Restoration 4P Bonus
 [SpellScript(70808)]
-internal class spell_sha_t10_restoration_4p_bonus : AuraScript, IHasAuraEffects
+internal class SpellShaT10Restoration4PBonus : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -32,7 +33,7 @@ internal class spell_sha_t10_restoration_4p_bonus : AuraScript, IHasAuraEffects
             healInfo.Heal == 0)
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(ShamanSpells.ChainedHeal, CastDifficulty);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(ShamanSpells.CHAINED_HEAL, CastDifficulty);
         var amount = (int)MathFunctions.CalculatePct(healInfo.Heal, aurEff.Amount);
         amount /= (int)spellInfo.MaxTicks;
 
@@ -41,6 +42,6 @@ internal class spell_sha_t10_restoration_4p_bonus : AuraScript, IHasAuraEffects
 
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-        caster.CastSpell(target, ShamanSpells.ChainedHeal, args);
+        caster.SpellFactory.CastSpell(target, ShamanSpells.CHAINED_HEAL, args);
     }
 }

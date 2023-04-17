@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOnSpellCast
+public class PlayerScriptMonkEarthFireStorm : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
+    public PlayerScriptMonkEarthFireStorm() : base("playerScript_monk_earth_fire_storm") { }
     public PlayerClass PlayerClass => PlayerClass.Monk;
-
-    public playerScript_monk_earth_fire_storm() : base("playerScript_monk_earth_fire_storm") { }
 
     public void OnSpellCast(Player player, Spell spell, bool re)
     {
@@ -34,7 +34,7 @@ public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOn
                 if (fireSpirit != null)
                 {
                     fireSpirit.SetFacingToObject(target, true);
-                    fireSpirit.CastSpell(target, spellInfo.Id, true);
+                    fireSpirit.SpellFactory.CastSpell(target, spellInfo.Id, true);
                 }
 
                 var earthSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_EARTH_SPIRIT);
@@ -42,34 +42,34 @@ public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOn
                 if (earthSpirit != null)
                 {
                     earthSpirit.SetFacingToObject(target, true);
-                    earthSpirit.CastSpell(target, spellInfo.Id, true);
+                    earthSpirit.SpellFactory.CastSpell(target, spellInfo.Id, true);
                 }
             }
         }
 
         if (player.HasAura(StormEarthAndFireSpells.SEF) && spellInfo.IsPositive)
         {
-            var GetTarget = player.SelectedUnit;
+            var getTarget = player.SelectedUnit;
 
-            if (GetTarget != null)
+            if (getTarget != null)
             {
-                if (!GetTarget.IsFriendlyTo(player))
+                if (!getTarget.IsFriendlyTo(player))
                     return;
 
                 var fireSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_FIRE_SPIRIT);
 
                 if (fireSpirit != null)
                 {
-                    fireSpirit.SetFacingToObject(GetTarget, true);
-                    fireSpirit.CastSpell(GetTarget, spellInfo.Id, true);
+                    fireSpirit.SetFacingToObject(getTarget, true);
+                    fireSpirit.SpellFactory.CastSpell(getTarget, spellInfo.Id, true);
                 }
 
                 var earthSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_EARTH_SPIRIT);
 
                 if (earthSpirit != null)
                 {
-                    earthSpirit.SetFacingToObject(GetTarget, true);
-                    earthSpirit.CastSpell(GetTarget, spellInfo.Id, true);
+                    earthSpirit.SetFacingToObject(getTarget, true);
+                    earthSpirit.SpellFactory.CastSpell(getTarget, spellInfo.Id, true);
                 }
             }
         }

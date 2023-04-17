@@ -2,24 +2,25 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.ShadowHunterVoshgajin;
 
 internal struct SpellIds
 {
-    public const uint Curseofblood = 24673;
-    public const uint Hex = 16708;
-    public const uint Cleave = 20691;
+    public const uint CURSEOFBLOOD = 24673;
+    public const uint HEX = 16708;
+    public const uint CLEAVE = 20691;
 }
 
 [Script]
-internal class boss_shadow_hunter_voshgajin : BossAI
+internal class BossShadowHunterVoshgajin : BossAI
 {
-    public boss_shadow_hunter_voshgajin(Creature creature) : base(creature, DataTypes.ShadowHunterVoshgajin) { }
+    public BossShadowHunterVoshgajin(Creature creature) : base(creature, DataTypes.SHADOW_HUNTER_VOSHGAJIN) { }
 
     public override void Reset()
     {
@@ -34,7 +35,7 @@ internal class boss_shadow_hunter_voshgajin : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Curseofblood);
+                               DoCastVictim(SpellIds.CURSEOFBLOOD);
                                task.Repeat(TimeSpan.FromSeconds(45));
                            });
 
@@ -44,7 +45,7 @@ internal class boss_shadow_hunter_voshgajin : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Hex);
+                                   DoCast(target, SpellIds.HEX);
 
                                task.Repeat(TimeSpan.FromSeconds(15));
                            });
@@ -52,7 +53,7 @@ internal class boss_shadow_hunter_voshgajin : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(14),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Cleave);
+                               DoCastVictim(SpellIds.CLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(7));
                            });
     }

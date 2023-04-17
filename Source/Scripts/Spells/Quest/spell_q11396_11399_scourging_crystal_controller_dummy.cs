@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 43882 - Scourging Crystal Controller Dummy
-internal class spell_q11396_11399_scourging_crystal_controller_dummy : SpellScript, IHasSpellEffects
+internal class SpellQ1139611399ScourgingCrystalControllerDummy : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -25,6 +26,6 @@ internal class spell_q11396_11399_scourging_crystal_controller_dummy : SpellScri
 
         if (target)
             if (target.IsTypeId(TypeId.Unit))
-                target.RemoveAura(QuestSpellIds.ForceShieldArcanePurpleX3);
+                target.RemoveAura(QuestSpellIds.FORCE_SHIELD_ARCANE_PURPLE_X3);
     }
 }

@@ -6,11 +6,11 @@ namespace Scripts.Spells.Generic;
 internal struct Misc
 {
     // FungalDecay
-    public const int AuraDuration = 12600; // found in sniffs, there is no duration entry we can possibly use
+    public const int AURA_DURATION = 12600; // found in sniffs, there is no duration entry we can possibly use
 
     // FreezingCircleMisc
-    public const uint MapIdBloodInTheSnowScenario = 1130;
+    public const uint MAP_ID_BLOOD_IN_THE_SNOW_SCENARIO = 1130;
 
     // Teleporting
-    public const uint AreaVioletCitadelSpire = 4637;
+    public const uint AREA_VIOLET_CITADEL_SPIRE = 4637;
 }

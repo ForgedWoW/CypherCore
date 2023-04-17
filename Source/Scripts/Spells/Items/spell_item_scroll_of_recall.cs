@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 60321 - Scroll of Recall III
-internal class spell_item_scroll_of_recall : SpellScript, IHasSpellEffects
+internal class SpellItemScrollOfRecall : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -30,32 +31,31 @@ internal class spell_item_scroll_of_recall : SpellScript, IHasSpellEffects
 
         switch (SpellInfo.Id)
         {
-            case ItemSpellIds.ScrollOfRecallI: // Scroll of Recall
+            case ItemSpellIds.SCROLL_OF_RECALL_I: // Scroll of Recall
                 maxSafeLevel = 40;
 
                 break;
-            case ItemSpellIds.ScrollOfRecallII: // Scroll of Recall II
+            case ItemSpellIds.SCROLL_OF_RECALL_II: // Scroll of Recall II
                 maxSafeLevel = 70;
 
                 break;
-            case ItemSpellIds.ScrollOfRecallIII: // Scroll of Recal III
+            case ItemSpellIds.SCROLL_OF_RECALL_III: // Scroll of Recal III
                 maxSafeLevel = 80;
 
                 break;
-            
         }
 
         if (caster.Level > maxSafeLevel)
         {
-            caster.CastSpell(caster, ItemSpellIds.Lost, true);
+            caster.SpellFactory.CastSpell(caster, ItemSpellIds.LOST, true);
 
             // ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
-            var spellId = ItemSpellIds.ScrollOfRecallFailAlliance1;
+            var spellId = ItemSpellIds.SCROLL_OF_RECALL_FAIL_ALLIANCE1;
 
             if (Caster.AsPlayer.Team == TeamFaction.Horde)
-                spellId = ItemSpellIds.ScrollOfRecallFailHorde1;
+                spellId = ItemSpellIds.SCROLL_OF_RECALL_FAIL_HORDE1;
 
-            Caster.CastSpell(Caster, spellId + RandomHelper.URand(0, 7), true);
+            Caster.SpellFactory.CastSpell(Caster, spellId + RandomHelper.URand(0, 7), true);
 
             PreventHitDefaultEffect(effIndex);
         }

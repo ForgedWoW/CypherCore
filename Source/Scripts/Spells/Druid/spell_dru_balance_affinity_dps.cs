@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(197488)]
-public class spell_dru_balance_affinity_dps : AuraScript, IHasAuraEffects
+public class SpellDruBalanceAffinityDps : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,7 +20,7 @@ public class spell_dru_balance_affinity_dps : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(LearnSpells, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
     }
 
-    private void LearnSpells(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void LearnSpells(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -31,15 +31,15 @@ public class spell_dru_balance_affinity_dps : AuraScript, IHasAuraEffects
 
         if (player != null)
         {
-            player.AddTemporarySpell(ShapeshiftFormSpells.MOONKIN_FORM);
-            player.AddTemporarySpell(BalanceAffinitySpells.STARSURGE);
-            player.AddTemporarySpell(BalanceAffinitySpells.LUNAR_STRIKE);
-            player.AddTemporarySpell(BalanceAffinitySpells.SOLAR_WRATH);
-            player.AddTemporarySpell(BalanceAffinitySpells.SUNFIRE);
+            player.AddTemporarySpell(ShapeshiftFormSpells.MoonkinForm);
+            player.AddTemporarySpell(BalanceAffinitySpells.Starsurge);
+            player.AddTemporarySpell(BalanceAffinitySpells.LunarStrike);
+            player.AddTemporarySpell(BalanceAffinitySpells.SolarWrath);
+            player.AddTemporarySpell(BalanceAffinitySpells.Sunfire);
         }
     }
 
-    private void UnlearnSpells(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void UnlearnSpells(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -50,11 +50,11 @@ public class spell_dru_balance_affinity_dps : AuraScript, IHasAuraEffects
 
         if (player != null)
         {
-            player.RemoveTemporarySpell(ShapeshiftFormSpells.MOONKIN_FORM);
-            player.RemoveTemporarySpell(BalanceAffinitySpells.STARSURGE);
-            player.RemoveTemporarySpell(BalanceAffinitySpells.LUNAR_STRIKE);
-            player.RemoveTemporarySpell(BalanceAffinitySpells.SOLAR_WRATH);
-            player.RemoveTemporarySpell(BalanceAffinitySpells.SUNFIRE);
+            player.RemoveTemporarySpell(ShapeshiftFormSpells.MoonkinForm);
+            player.RemoveTemporarySpell(BalanceAffinitySpells.Starsurge);
+            player.RemoveTemporarySpell(BalanceAffinitySpells.LunarStrike);
+            player.RemoveTemporarySpell(BalanceAffinitySpells.SolarWrath);
+            player.RemoveTemporarySpell(BalanceAffinitySpells.Sunfire);
         }
     }
 }

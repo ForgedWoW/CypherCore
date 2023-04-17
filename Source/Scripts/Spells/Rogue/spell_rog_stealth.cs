@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [Script] // 1784 - Stealth
-internal class spell_rog_stealth : AuraScript, IHasAuraEffects
+internal class SpellRogStealth : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,19 +28,19 @@ internal class spell_rog_stealth : AuraScript, IHasAuraEffects
 
         // Master of Subtlety
         if (target.HasAura(RogueSpells.MasterOfSubtletyPassive))
-            target.CastSpell(target, RogueSpells.MasterOfSubtletyDamagePercent, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+            target.SpellFactory.CastSpell(target, RogueSpells.MasterOfSubtletyDamagePercent, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
         // Shadow Focus
         if (target.HasAura(RogueSpells.ShadowFocus))
-            target.CastSpell(target, RogueSpells.ShadowFocusEffect, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+            target.SpellFactory.CastSpell(target, RogueSpells.ShadowFocusEffect, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
         // Premeditation
         if (target.HasAura(RogueSpells.PremeditationPassive))
-            target.CastSpell(target, RogueSpells.PremeditationAura, true);
+            target.SpellFactory.CastSpell(target, RogueSpells.PremeditationAura, true);
 
-        target.CastSpell(target, RogueSpells.Sanctuary, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-        target.CastSpell(target, RogueSpells.StealthStealthAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-        target.CastSpell(target, RogueSpells.StealthShapeshiftAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        target.SpellFactory.CastSpell(target, RogueSpells.Sanctuary, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        target.SpellFactory.CastSpell(target, RogueSpells.StealthStealthAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        target.SpellFactory.CastSpell(target, RogueSpells.StealthShapeshiftAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
     }
 
     private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

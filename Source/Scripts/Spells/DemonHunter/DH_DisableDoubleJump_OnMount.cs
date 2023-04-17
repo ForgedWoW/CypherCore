@@ -1,20 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class DH_DisableDoubleJump_OnMount : ScriptObjectAutoAdd, IPlayerOnSpellCast
+public class DhDisableDoubleJumpOnMount : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
+    public DhDisableDoubleJumpOnMount() : base("DH_DisableDoubleJump_OnMount") { }
     public PlayerClass PlayerClass => PlayerClass.DemonHunter;
-
-    public DH_DisableDoubleJump_OnMount() : base("DH_DisableDoubleJump_OnMount") { }
 
     public void OnSpellCast(Player player, Spell spell, bool skipCheck)
     {

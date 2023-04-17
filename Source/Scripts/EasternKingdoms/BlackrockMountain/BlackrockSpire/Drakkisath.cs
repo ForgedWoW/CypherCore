@@ -2,24 +2,25 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.Drakkisath;
 
 internal struct SpellIds
 {
-    public const uint Firenova = 23462;
-    public const uint Cleave = 20691;
-    public const uint Confliguration = 16805;
-    public const uint Thunderclap = 15548; //Not sure if right Id. 23931 would be a harder possibility.
+    public const uint FIRENOVA = 23462;
+    public const uint CLEAVE = 20691;
+    public const uint CONFLIGURATION = 16805;
+    public const uint THUNDERCLAP = 15548; //Not sure if right Id. 23931 would be a harder possibility.
 }
 
 [Script]
-internal class boss_drakkisath : BossAI
+internal class BossDrakkisath : BossAI
 {
-    public boss_drakkisath(Creature creature) : base(creature, DataTypes.GeneralDrakkisath) { }
+    public BossDrakkisath(Creature creature) : base(creature, DataTypes.GENERAL_DRAKKISATH) { }
 
     public override void Reset()
     {
@@ -33,28 +34,28 @@ internal class boss_drakkisath : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Firenova);
+                               DoCastVictim(SpellIds.FIRENOVA);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Cleave);
+                               DoCastVictim(SpellIds.CLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(8));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(15),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Confliguration);
+                               DoCastVictim(SpellIds.CONFLIGURATION);
                                task.Repeat(TimeSpan.FromSeconds(18));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(17),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Thunderclap);
+                               DoCastVictim(SpellIds.THUNDERCLAP);
                                task.Repeat(TimeSpan.FromSeconds(20));
                            });
     }

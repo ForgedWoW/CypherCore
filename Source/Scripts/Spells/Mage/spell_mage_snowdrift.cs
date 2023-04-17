@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(389794)]
-public class spell_mage_snowdrift : AuraScript, IHasAuraEffects
+public class SpellMageSnowdrift : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -42,7 +42,7 @@ public class spell_mage_snowdrift : AuraScript, IHasAuraEffects
         if (aurEff.GetTickNumber() >= 3)
         {
             // Apply Frozen in Ice and stun for 4 sec
-            target.CastSpell(target, MageSpells.FROZEN_IN_ICE, true);
+            target.SpellFactory.CastSpell(target, MageSpells.FROZEN_IN_ICE, true);
             target.RemoveAura(MageSpells.SNOWDRIFT);
         }
     }

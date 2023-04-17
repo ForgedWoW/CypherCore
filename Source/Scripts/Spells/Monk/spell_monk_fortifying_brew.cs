@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(115203)]
-public class spell_monk_fortifying_brew : SpellScript, IHasSpellEffects
+public class SpellMonkFortifyingBrew : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,6 +24,6 @@ public class spell_monk_fortifying_brew : SpellScript, IHasSpellEffects
         var caster = Caster;
 
         if (caster != null && caster.TypeId == TypeId.Player)
-            caster.CastSpell(caster, MonkSpells.FORTIFYING_BREW, true);
+            caster.SpellFactory.CastSpell(caster, MonkSpells.FORTIFYING_BREW, true);
     }
 }

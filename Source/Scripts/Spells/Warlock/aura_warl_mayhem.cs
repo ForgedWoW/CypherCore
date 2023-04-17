@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(WarlockSpells.MAYHEM)]
-public class aura_warl_mayhem : AuraScript, IAuraCheckProc, IAuraOnProc
+public class AuraWarlMayhem : AuraScript, IAuraCheckProc, IAuraOnProc
 {
     public bool CheckProc(ProcEventInfo info)
     {
@@ -22,6 +22,6 @@ public class aura_warl_mayhem : AuraScript, IAuraCheckProc, IAuraOnProc
 
     public void OnProc(ProcEventInfo info)
     {
-        Caster.CastSpell(info.ProcTarget, WarlockSpells.HAVOC, new CastSpellExtraArgs(SpellValueMod.Duration, GetEffectInfo(2).BasePoints * Time.IN_MILLISECONDS).SetIsTriggered(true));
+        Caster.SpellFactory.CastSpell(info.ProcTarget, WarlockSpells.HAVOC, new CastSpellExtraArgs(SpellValueMod.Duration, GetEffectInfo(2).BasePoints * Time.IN_MILLISECONDS).SetIsTriggered(true));
     }
 }

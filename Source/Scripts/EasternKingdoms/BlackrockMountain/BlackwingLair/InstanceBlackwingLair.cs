@@ -3,93 +3,98 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IMap;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair;
 
 internal struct DataTypes
 {
     // Encounter States/Boss GUIDs
-    public const uint RazorgoreTheUntamed = 0;
-    public const uint VaelastrazTheCorrupt = 1;
-    public const uint BroodlordLashlayer = 2;
-    public const uint Firemaw = 3;
-    public const uint Ebonroc = 4;
-    public const uint Flamegor = 5;
-    public const uint Chromaggus = 6;
-    public const uint Nefarian = 7;
+    public const uint RAZORGORE_THE_UNTAMED = 0;
+    public const uint VAELASTRAZ_THE_CORRUPT = 1;
+    public const uint BROODLORD_LASHLAYER = 2;
+    public const uint FIREMAW = 3;
+    public const uint EBONROC = 4;
+    public const uint FLAMEGOR = 5;
+    public const uint CHROMAGGUS = 6;
+    public const uint NEFARIAN = 7;
 
     // Additional Data
-    public const uint LordVictorNefarius = 8;
+    public const uint LORD_VICTOR_NEFARIUS = 8;
 
     // Doors
-    public const uint GoChromaggusDoor = 9;
+    public const uint GO_CHROMAGGUS_DOOR = 9;
 }
 
-internal struct BWLCreatureIds
+internal struct BwlCreatureIds
 {
-    public const uint Razorgore = 12435;
-    public const uint BlackwingDragon = 12422;
-    public const uint BlackwingTaskmaster = 12458;
-    public const uint BlackwingLegionaire = 12416;
-    public const uint BlackwingWarlock = 12459;
-    public const uint Vaelastraz = 13020;
-    public const uint Broodlord = 12017;
-    public const uint Firemaw = 11983;
-    public const uint Ebonroc = 14601;
-    public const uint Flamegor = 11981;
-    public const uint Chromaggus = 14020;
-    public const uint VictorNefarius = 10162;
-    public const uint Nefarian = 11583;
+    public const uint RAZORGORE = 12435;
+    public const uint BLACKWING_DRAGON = 12422;
+    public const uint BLACKWING_TASKMASTER = 12458;
+    public const uint BLACKWING_LEGIONAIRE = 12416;
+    public const uint BLACKWING_WARLOCK = 12459;
+    public const uint VAELASTRAZ = 13020;
+    public const uint BROODLORD = 12017;
+    public const uint FIREMAW = 11983;
+    public const uint EBONROC = 14601;
+    public const uint FLAMEGOR = 11981;
+    public const uint CHROMAGGUS = 14020;
+    public const uint VICTOR_NEFARIUS = 10162;
+    public const uint NEFARIAN = 11583;
 }
 
-internal struct BWLGameObjectIds
+internal struct BwlGameObjectIds
 {
-    public const uint BlackDragonEgg = 177807;
-    public const uint PortcullisRazorgore = 176965;
-    public const uint PortcullisVaelastrasz = 179364;
-    public const uint PortcullisBroodlord = 179365;
-    public const uint PortcullisThreedragons = 179115;
-    public const uint PortcullisChromaggus = 179117; //Door after you kill him, not the one for his room
-    public const uint ChromaggusLever = 179148;
-    public const uint ChromaggusDoor = 179116;
-    public const uint PortcullisNefarian = 176966;
-    public const uint SuppressionDevice = 179784;
+    public const uint BLACK_DRAGON_EGG = 177807;
+    public const uint PORTCULLIS_RAZORGORE = 176965;
+    public const uint PORTCULLIS_VAELASTRASZ = 179364;
+    public const uint PORTCULLIS_BROODLORD = 179365;
+    public const uint PORTCULLIS_THREEDRAGONS = 179115;
+    public const uint PORTCULLIS_CHROMAGGUS = 179117; //Door after you kill him, not the one for his room
+    public const uint CHROMAGGUS_LEVER = 179148;
+    public const uint CHROMAGGUS_DOOR = 179116;
+    public const uint PORTCULLIS_NEFARIAN = 176966;
+    public const uint SUPPRESSION_DEVICE = 179784;
 }
 
 internal struct EventIds
 {
-    public const uint RazorSpawn = 1;
-    public const uint RazorPhaseTwo = 2;
-    public const uint RespawnNefarius = 3;
+    public const uint RAZOR_SPAWN = 1;
+    public const uint RAZOR_PHASE_TWO = 2;
+    public const uint RESPAWN_NEFARIUS = 3;
 }
 
-internal struct BWLMisc
+internal struct BwlMisc
 {
-    public const uint EncounterCount = 8;
+    public const uint ENCOUNTER_COUNT = 8;
 
     // Razorgore Egg Event
-    public const int ActionPhaseTwo = 1;
-    public const uint DataEggEvent = 2;
+    public const int ACTION_PHASE_TWO = 1;
+    public const uint DATA_EGG_EVENT = 2;
 
-    public static DoorData[] doorData =
+    public static DoorData[] DoorData =
     {
-        new(BWLGameObjectIds.PortcullisRazorgore, DataTypes.RazorgoreTheUntamed, DoorType.Passage), new(BWLGameObjectIds.PortcullisVaelastrasz, DataTypes.VaelastrazTheCorrupt, DoorType.Passage), new(BWLGameObjectIds.PortcullisBroodlord, DataTypes.BroodlordLashlayer, DoorType.Passage), new(BWLGameObjectIds.PortcullisThreedragons, DataTypes.Firemaw, DoorType.Passage), new(BWLGameObjectIds.PortcullisThreedragons, DataTypes.Ebonroc, DoorType.Passage), new(BWLGameObjectIds.PortcullisThreedragons, DataTypes.Flamegor, DoorType.Passage), new(BWLGameObjectIds.PortcullisChromaggus, DataTypes.Chromaggus, DoorType.Passage), new(BWLGameObjectIds.PortcullisNefarian, DataTypes.Nefarian, DoorType.Room)
+        new(BwlGameObjectIds.PORTCULLIS_RAZORGORE, DataTypes.RAZORGORE_THE_UNTAMED, DoorType.Passage), new(BwlGameObjectIds.PORTCULLIS_VAELASTRASZ, DataTypes.VAELASTRAZ_THE_CORRUPT, DoorType.Passage), new(BwlGameObjectIds.PORTCULLIS_BROODLORD, DataTypes.BROODLORD_LASHLAYER, DoorType.Passage), new(BwlGameObjectIds.PORTCULLIS_THREEDRAGONS, DataTypes.FIREMAW, DoorType.Passage), new(BwlGameObjectIds.PORTCULLIS_THREEDRAGONS, DataTypes.EBONROC, DoorType.Passage), new(BwlGameObjectIds.PORTCULLIS_THREEDRAGONS, DataTypes.FLAMEGOR, DoorType.Passage), new(BwlGameObjectIds.PORTCULLIS_CHROMAGGUS, DataTypes.CHROMAGGUS, DoorType.Passage), new(BwlGameObjectIds.PORTCULLIS_NEFARIAN, DataTypes.NEFARIAN, DoorType.Room)
     };
 
-    public static ObjectData[] creatureData =
+    public static ObjectData[] CreatureData =
     {
-        new(BWLCreatureIds.Razorgore, DataTypes.RazorgoreTheUntamed), new(BWLCreatureIds.Vaelastraz, DataTypes.VaelastrazTheCorrupt), new(BWLCreatureIds.Broodlord, DataTypes.BroodlordLashlayer), new(BWLCreatureIds.Firemaw, DataTypes.Firemaw), new(BWLCreatureIds.Ebonroc, DataTypes.Ebonroc), new(BWLCreatureIds.Flamegor, DataTypes.Flamegor), new(BWLCreatureIds.Chromaggus, DataTypes.Chromaggus), new(BWLCreatureIds.Nefarian, DataTypes.Nefarian), new(BWLCreatureIds.VictorNefarius, DataTypes.LordVictorNefarius)
+        new(BwlCreatureIds.RAZORGORE, DataTypes.RAZORGORE_THE_UNTAMED), new(BwlCreatureIds.VAELASTRAZ, DataTypes.VAELASTRAZ_THE_CORRUPT), new(BwlCreatureIds.BROODLORD, DataTypes.BROODLORD_LASHLAYER), new(BwlCreatureIds.FIREMAW, DataTypes.FIREMAW), new(BwlCreatureIds.EBONROC, DataTypes.EBONROC), new(BwlCreatureIds.FLAMEGOR, DataTypes.FLAMEGOR), new(BwlCreatureIds.CHROMAGGUS, DataTypes.CHROMAGGUS), new(BwlCreatureIds.NEFARIAN, DataTypes.NEFARIAN), new(BwlCreatureIds.VICTOR_NEFARIUS, DataTypes.LORD_VICTOR_NEFARIUS)
     };
 
-    public static ObjectData[] gameObjectData =
+    public static ObjectData[] GameObjectData =
     {
-        new(BWLGameObjectIds.ChromaggusDoor, DataTypes.GoChromaggusDoor)
+        new(BwlGameObjectIds.CHROMAGGUS_DOOR, DataTypes.GO_CHROMAGGUS_DOOR)
     };
 
     public static Position[] SummonPosition =
@@ -104,39 +109,39 @@ internal struct BWLMisc
 }
 
 [Script]
-internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInstanceScript
+internal class InstanceBlackwingLair : InstanceMapScript, IInstanceMapGetInstanceScript
 {
-    private static readonly DungeonEncounterData[] encounters =
+    private static readonly DungeonEncounterData[] Encounters =
     {
-        new(DataTypes.RazorgoreTheUntamed, 610), new(DataTypes.VaelastrazTheCorrupt, 611), new(DataTypes.BroodlordLashlayer, 612), new(DataTypes.Firemaw, 613), new(DataTypes.Ebonroc, 614), new(DataTypes.Flamegor, 615), new(DataTypes.Chromaggus, 616), new(DataTypes.Nefarian, 617)
+        new(DataTypes.RAZORGORE_THE_UNTAMED, 610), new(DataTypes.VAELASTRAZ_THE_CORRUPT, 611), new(DataTypes.BROODLORD_LASHLAYER, 612), new(DataTypes.FIREMAW, 613), new(DataTypes.EBONROC, 614), new(DataTypes.FLAMEGOR, 615), new(DataTypes.CHROMAGGUS, 616), new(DataTypes.NEFARIAN, 617)
     };
 
-    public instance_blackwing_lair() : base(nameof(instance_blackwing_lair), 469) { }
+    public InstanceBlackwingLair() : base(nameof(InstanceBlackwingLair), 469) { }
 
     public InstanceScript GetInstanceScript(InstanceMap map)
     {
-        return new instance_blackwing_lair_InstanceMapScript(map);
+        return new InstanceBlackwingLairInstanceMapScript(map);
     }
 
-    private class instance_blackwing_lair_InstanceMapScript : InstanceScript
+    private class InstanceBlackwingLairInstanceMapScript : InstanceScript
     {
-        private readonly List<ObjectGuid> EggList = new();
+        private readonly List<ObjectGuid> _eggList = new();
 
         // Razorgore
-        private byte EggCount;
-        private uint EggEvent;
+        private byte _eggCount;
+        private uint _eggEvent;
 
-        public instance_blackwing_lair_InstanceMapScript(InstanceMap map) : base(map)
+        public InstanceBlackwingLairInstanceMapScript(InstanceMap map) : base(map)
         {
             SetHeaders("BWL");
-            SetBossNumber(BWLMisc.EncounterCount);
-            LoadDoorData(BWLMisc.doorData);
-            LoadObjectData(BWLMisc.creatureData, BWLMisc.gameObjectData);
-            LoadDungeonEncounterData(encounters);
+            SetBossNumber(BwlMisc.ENCOUNTER_COUNT);
+            LoadDoorData(BwlMisc.DoorData);
+            LoadObjectData(BwlMisc.CreatureData, BwlMisc.GameObjectData);
+            LoadDungeonEncounterData(Encounters);
 
             // Razorgore
-            EggCount = 0;
-            EggEvent = 0;
+            _eggCount = 0;
+            _eggEvent = 0;
         }
 
         public override void OnCreatureCreate(Creature creature)
@@ -145,11 +150,11 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 
             switch (creature.Entry)
             {
-                case BWLCreatureIds.BlackwingDragon:
-                case BWLCreatureIds.BlackwingTaskmaster:
-                case BWLCreatureIds.BlackwingLegionaire:
-                case BWLCreatureIds.BlackwingWarlock:
-                    var razor = GetCreature(DataTypes.RazorgoreTheUntamed);
+                case BwlCreatureIds.BLACKWING_DRAGON:
+                case BwlCreatureIds.BLACKWING_TASKMASTER:
+                case BwlCreatureIds.BLACKWING_LEGIONAIRE:
+                case BwlCreatureIds.BLACKWING_WARLOCK:
+                    var razor = GetCreature(DataTypes.RAZORGORE_THE_UNTAMED);
 
                     if (razor != null)
                     {
@@ -159,14 +164,13 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
                     }
 
                     break;
-                
             }
         }
 
         public override uint GetGameObjectEntry(ulong spawnId, uint entry)
         {
-            if (entry == BWLGameObjectIds.BlackDragonEgg &&
-                GetBossState(DataTypes.Firemaw) == EncounterState.Done)
+            if (entry == BwlGameObjectIds.BLACK_DRAGON_EGG &&
+                GetBossState(DataTypes.FIREMAW) == EncounterState.Done)
                 return 0;
 
             return entry;
@@ -178,11 +182,10 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 
             switch (go.Entry)
             {
-                case BWLGameObjectIds.BlackDragonEgg:
-                    EggList.Add(go.GUID);
+                case BwlGameObjectIds.BLACK_DRAGON_EGG:
+                    _eggList.Add(go.GUID);
 
                     break;
-                
             }
         }
 
@@ -190,8 +193,8 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
         {
             base.OnGameObjectRemove(go);
 
-            if (go.Entry == BWLGameObjectIds.BlackDragonEgg)
-                EggList.Remove(go.GUID);
+            if (go.Entry == BwlGameObjectIds.BLACK_DRAGON_EGG)
+                _eggList.Remove(go.GUID);
         }
 
         public override bool CheckRequiredBosses(uint bossId, Player player = null)
@@ -201,26 +204,25 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 
             switch (bossId)
             {
-                case DataTypes.BroodlordLashlayer:
-                    if (GetBossState(DataTypes.VaelastrazTheCorrupt) != EncounterState.Done)
+                case DataTypes.BROODLORD_LASHLAYER:
+                    if (GetBossState(DataTypes.VAELASTRAZ_THE_CORRUPT) != EncounterState.Done)
                         return false;
 
                     break;
-                case DataTypes.Firemaw:
-                case DataTypes.Ebonroc:
-                case DataTypes.Flamegor:
-                    if (GetBossState(DataTypes.BroodlordLashlayer) != EncounterState.Done)
+                case DataTypes.FIREMAW:
+                case DataTypes.EBONROC:
+                case DataTypes.FLAMEGOR:
+                    if (GetBossState(DataTypes.BROODLORD_LASHLAYER) != EncounterState.Done)
                         return false;
 
                     break;
-                case DataTypes.Chromaggus:
-                    if (GetBossState(DataTypes.Firemaw) != EncounterState.Done ||
-                        GetBossState(DataTypes.Ebonroc) != EncounterState.Done ||
-                        GetBossState(DataTypes.Flamegor) != EncounterState.Done)
+                case DataTypes.CHROMAGGUS:
+                    if (GetBossState(DataTypes.FIREMAW) != EncounterState.Done ||
+                        GetBossState(DataTypes.EBONROC) != EncounterState.Done ||
+                        GetBossState(DataTypes.FLAMEGOR) != EncounterState.Done)
                         return false;
 
                     break;
-                
             }
 
             return true;
@@ -233,9 +235,9 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 
             switch (type)
             {
-                case DataTypes.RazorgoreTheUntamed:
+                case DataTypes.RAZORGORE_THE_UNTAMED:
                     if (state == EncounterState.Done)
-                        foreach (var guid in EggList)
+                        foreach (var guid in _eggList)
                         {
                             var egg = Instance.GetGameObject(guid);
 
@@ -243,25 +245,24 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
                                 egg.SetLootState(LootState.JustDeactivated);
                         }
 
-                    SetData(BWLMisc.DataEggEvent, (uint)EncounterState.NotStarted);
+                    SetData(BwlMisc.DATA_EGG_EVENT, (uint)EncounterState.NotStarted);
 
                     break;
-                case DataTypes.Nefarian:
+                case DataTypes.NEFARIAN:
                     switch (state)
                     {
                         case EncounterState.NotStarted:
-                            var nefarian = GetCreature(DataTypes.Nefarian);
+                            var nefarian = GetCreature(DataTypes.NEFARIAN);
 
                             if (nefarian)
                                 nefarian.DespawnOrUnsummon();
 
                             break;
                         case EncounterState.Fail:
-                            _events.ScheduleEvent(EventIds.RespawnNefarius, TimeSpan.FromMinutes(15));
-                            SetBossState(DataTypes.Nefarian, EncounterState.NotStarted);
+                            _events.ScheduleEvent(EventIds.RESPAWN_NEFARIUS, TimeSpan.FromMinutes(15));
+                            SetBossState(DataTypes.NEFARIAN, EncounterState.NotStarted);
 
                             break;
-                        
                     }
 
                     break;
@@ -272,39 +273,39 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 
         public override void SetData(uint type, uint data)
         {
-            if (type == BWLMisc.DataEggEvent)
+            if (type == BwlMisc.DATA_EGG_EVENT)
                 switch ((EncounterState)data)
                 {
                     case EncounterState.InProgress:
-                        _events.ScheduleEvent(EventIds.RazorSpawn, TimeSpan.FromSeconds(45));
-                        EggEvent = data;
-                        EggCount = 0;
+                        _events.ScheduleEvent(EventIds.RAZOR_SPAWN, TimeSpan.FromSeconds(45));
+                        _eggEvent = data;
+                        _eggCount = 0;
 
                         break;
                     case EncounterState.NotStarted:
-                        _events.CancelEvent(EventIds.RazorSpawn);
-                        EggEvent = data;
-                        EggCount = 0;
+                        _events.CancelEvent(EventIds.RAZOR_SPAWN);
+                        _eggEvent = data;
+                        _eggCount = 0;
 
                         break;
                     case EncounterState.Special:
-                        if (++EggCount == 15)
+                        if (++_eggCount == 15)
                         {
-                            var razor = GetCreature(DataTypes.RazorgoreTheUntamed);
+                            var razor = GetCreature(DataTypes.RAZORGORE_THE_UNTAMED);
 
                             if (razor)
                             {
-                                SetData(BWLMisc.DataEggEvent, (uint)EncounterState.Done);
+                                SetData(BwlMisc.DATA_EGG_EVENT, (uint)EncounterState.Done);
                                 razor.RemoveAura(42013); // MindControl
                                 DoRemoveAurasDueToSpellOnPlayers(42013, true, true);
                             }
 
-                            _events.ScheduleEvent(EventIds.RazorPhaseTwo, TimeSpan.FromSeconds(1));
-                            _events.CancelEvent(EventIds.RazorSpawn);
+                            _events.ScheduleEvent(EventIds.RAZOR_PHASE_TWO, TimeSpan.FromSeconds(1));
+                            _events.CancelEvent(EventIds.RAZOR_SPAWN);
                         }
 
-                        if (EggEvent == (uint)EncounterState.NotStarted)
-                            SetData(BWLMisc.DataEggEvent, (uint)EncounterState.InProgress);
+                        if (_eggEvent == (uint)EncounterState.NotStarted)
+                            SetData(BwlMisc.DATA_EGG_EVENT, (uint)EncounterState.InProgress);
 
                         break;
                 }
@@ -313,9 +314,9 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
         public override void OnUnitDeath(Unit unit)
         {
             //! Hack, needed because of buggy CreatureAI after charm
-            if (unit.Entry == BWLCreatureIds.Razorgore &&
-                GetBossState(DataTypes.RazorgoreTheUntamed) != EncounterState.Done)
-                SetBossState(DataTypes.RazorgoreTheUntamed, EncounterState.Done);
+            if (unit.Entry == BwlCreatureIds.RAZORGORE &&
+                GetBossState(DataTypes.RAZORGORE_THE_UNTAMED) != EncounterState.Done)
+                SetBossState(DataTypes.RAZORGORE_THE_UNTAMED, EncounterState.Done);
         }
 
         public override void Update(uint diff)
@@ -329,28 +330,28 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
             {
                 switch (eventId)
                 {
-                    case EventIds.RazorSpawn:
+                    case EventIds.RAZOR_SPAWN:
                         for (var i = RandomHelper.URand(2, 5); i > 0; --i)
                         {
-                            Creature summon = Instance.SummonCreature(BWLMisc.Entry[RandomHelper.URand(0, 4)], BWLMisc.SummonPosition[RandomHelper.URand(0, 7)]);
+                            Creature summon = Instance.SummonCreature(BwlMisc.Entry[RandomHelper.URand(0, 4)], BwlMisc.SummonPosition[RandomHelper.URand(0, 7)]);
 
                             if (summon)
                                 summon.AI.DoZoneInCombat();
                         }
 
-                        _events.ScheduleEvent(EventIds.RazorSpawn, TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(17));
+                        _events.ScheduleEvent(EventIds.RAZOR_SPAWN, TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(17));
 
                         break;
-                    case EventIds.RazorPhaseTwo:
-                        _events.CancelEvent(EventIds.RazorSpawn);
-                        var razor = GetCreature(DataTypes.RazorgoreTheUntamed);
+                    case EventIds.RAZOR_PHASE_TWO:
+                        _events.CancelEvent(EventIds.RAZOR_SPAWN);
+                        var razor = GetCreature(DataTypes.RAZORGORE_THE_UNTAMED);
 
                         if (razor)
-                            razor.AI.DoAction(BWLMisc.ActionPhaseTwo);
+                            razor.AI.DoAction(BwlMisc.ACTION_PHASE_TWO);
 
                         break;
-                    case EventIds.RespawnNefarius:
-                        var nefarius = GetCreature(DataTypes.LordVictorNefarius);
+                    case EventIds.RESPAWN_NEFARIUS:
+                        var nefarius = GetCreature(DataTypes.LORD_VICTOR_NEFARIUS);
 
                         if (nefarius)
                         {

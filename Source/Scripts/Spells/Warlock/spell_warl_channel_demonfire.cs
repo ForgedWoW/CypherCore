@@ -2,18 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // Channel Demonfire - 196447
 [SpellScript(196447)]
-public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
+public class SpellWarlChannelDemonfire : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -22,7 +23,7 @@ public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
     }
 
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
         var caster = Caster;
         var rangeInfoSpell = Global.SpellMgr.GetSpellInfo(WarlockSpells.CHANNEL_DEMONFIRE_RANGE);
@@ -39,6 +40,6 @@ public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
             return;
 
         var target = enemies.SelectRandom();
-        caster.CastSpell(target, WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE, true);
+        caster.SpellFactory.CastSpell(target, WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE, true);
     }
 }

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 46584 - Raise Dead
-internal class spell_dk_raise_dead : SpellScript, IHasSpellEffects
+internal class SpellDkRaiseDead : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,11 +23,11 @@ internal class spell_dk_raise_dead : SpellScript, IHasSpellEffects
 
     private void HandleDummy(int effIndex)
     {
-        var spellId = DeathKnightSpells.RaiseDeadSummon;
+        var spellId = DeathKnightSpells.RAISE_DEAD_SUMMON;
 
-        if (Caster.HasAura(DeathKnightSpells.SludgeBelcher))
-            spellId = DeathKnightSpells.SludgeBelcherSummon;
+        if (Caster.HasAura(DeathKnightSpells.SLUDGE_BELCHER))
+            spellId = DeathKnightSpells.SLUDGE_BELCHER_SUMMON;
 
-        Caster.CastSpell((Unit)null, spellId, true);
+        Caster.SpellFactory.CastSpell((Unit)null, spellId, true);
     }
 }

@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Spells.Events;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
-using Game.Spells.Events;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(199921)]
-public class aura_trailblazer : AuraScript, IHasAuraEffects
+public class AuraTrailblazer : AuraScript, IHasAuraEffects
 {
     DelayedCastEvent _event;
     TimeSpan _ts;
@@ -26,7 +27,7 @@ public class aura_trailblazer : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModIncreaseSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
     }
 
-    private void EffectApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void EffectApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         RescheduleBuff();
 
@@ -36,7 +37,7 @@ public class aura_trailblazer : AuraScript, IHasAuraEffects
             player.SetSpeed(UnitMoveType.Run, player.GetSpeedRate(UnitMoveType.Run) + 0.15f);
     }
 
-    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    private void HandleProc(AuraEffect unnamedParameter, ProcEventInfo unnamedParameter2)
     {
         RescheduleBuff();
     }
@@ -65,7 +66,7 @@ public class aura_trailblazer : AuraScript, IHasAuraEffects
         caster.Events.AddEventAtOffset(_event, _ts);
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var player = Target.AsPlayer;
 

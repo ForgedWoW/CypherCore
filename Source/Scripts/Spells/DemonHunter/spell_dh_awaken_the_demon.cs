@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(205598)]
-public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
+public class SpellDhAwakenTheDemon : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -40,7 +40,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
             if (caster.HasAura(DemonHunterSpells.AWAKEN_THE_DEMON_CD))
                 return;
 
-            caster.CastSpell(caster, DemonHunterSpells.AWAKEN_THE_DEMON_CD, true);
+            caster.SpellFactory.CastSpell(caster, DemonHunterSpells.AWAKEN_THE_DEMON_CD, true);
             var aur = caster.GetAura(DemonHunterSpells.METAMORPHOSIS_HAVOC);
 
             if (aur != null)

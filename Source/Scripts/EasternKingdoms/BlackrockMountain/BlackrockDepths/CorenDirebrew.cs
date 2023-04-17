@@ -3,61 +3,70 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.CorenDirebrew;
 
 internal struct SpellIds
 {
-    public const uint MoleMachineEmerge = 50313;
-    public const uint DirebrewDisarmPreCast = 47407;
-    public const uint MoleMachineTargetPicker = 47691;
-    public const uint MoleMachineMinionSummoner = 47690;
-    public const uint DirebrewDisarmGrow = 47409;
-    public const uint DirebrewDisarm = 47310;
-    public const uint ChuckMug = 50276;
-    public const uint PortToCoren = 52850;
-    public const uint SendMugControlAura = 47369;
-    public const uint SendMugTargetPicker = 47370;
-    public const uint SendFirstMug = 47333;
-    public const uint SendSecondMug = 47339;
-    public const uint RequestSecondMug = 47344;
-    public const uint HasDarkBrewmaidensBrew = 47331;
-    public const uint BarreledControlAura = 50278;
-    public const uint Barreled = 47442;
+    public const uint MOLE_MACHINE_EMERGE = 50313;
+    public const uint DIREBREW_DISARM_PRE_CAST = 47407;
+    public const uint MOLE_MACHINE_TARGET_PICKER = 47691;
+    public const uint MOLE_MACHINE_MINION_SUMMONER = 47690;
+    public const uint DIREBREW_DISARM_GROW = 47409;
+    public const uint DIREBREW_DISARM = 47310;
+    public const uint CHUCK_MUG = 50276;
+    public const uint PORT_TO_COREN = 52850;
+    public const uint SEND_MUG_CONTROL_AURA = 47369;
+    public const uint SEND_MUG_TARGET_PICKER = 47370;
+    public const uint SEND_FIRST_MUG = 47333;
+    public const uint SEND_SECOND_MUG = 47339;
+    public const uint REQUEST_SECOND_MUG = 47344;
+    public const uint HAS_DARK_BREWMAIDENS_BREW = 47331;
+    public const uint BARRELED_CONTROL_AURA = 50278;
+    public const uint BARRELED = 47442;
 }
 
 internal struct TextIds
 {
-    public const uint SayIntro = 0;
-    public const uint SayIntro1 = 1;
-    public const uint SayIntro2 = 2;
-    public const uint SayInsult = 3;
-    public const uint SayAntagonist1 = 0;
-    public const uint SayAntagonist2 = 1;
-    public const uint SayAntagonistCombat = 2;
+    public const uint SAY_INTRO = 0;
+    public const uint SAY_INTRO1 = 1;
+    public const uint SAY_INTRO2 = 2;
+    public const uint SAY_INSULT = 3;
+    public const uint SAY_ANTAGONIST1 = 0;
+    public const uint SAY_ANTAGONIST2 = 1;
+    public const uint SAY_ANTAGONIST_COMBAT = 2;
 }
 
 internal struct ActionIds
 {
-    public const int StartFight = -1;
-    public const int AntagonistSay1 = -2;
-    public const int AntagonistSay2 = -3;
-    public const int AntagonistHostile = -4;
+    public const int START_FIGHT = -1;
+    public const int ANTAGONIST_SAY1 = -2;
+    public const int ANTAGONIST_SAY2 = -3;
+    public const int ANTAGONIST_HOSTILE = -4;
 }
 
 internal struct CreatureIds
 {
-    public const uint IlsaDirebrew = 26764;
-    public const uint UrsulaDirebrew = 26822;
-    public const uint Antagonist = 23795;
+    public const uint ILSA_DIREBREW = 26764;
+    public const uint URSULA_DIREBREW = 26822;
+    public const uint ANTAGONIST = 23795;
 }
 
 internal enum DirebrewPhases
@@ -71,12 +80,12 @@ internal enum DirebrewPhases
 
 internal struct MiscConst
 {
-    public const uint GossipId = 11388;
-    public const uint GoMoleMachineTrap = 188509;
-    public const uint GossipOptionFight = 0;
-    public const uint GossipOptionApologize = 1;
-    public const int DataTargetGuid = 1;
-    public const uint MaxAntagonists = 3;
+    public const uint GOSSIP_ID = 11388;
+    public const uint GO_MOLE_MACHINE_TRAP = 188509;
+    public const uint GOSSIP_OPTION_FIGHT = 0;
+    public const uint GOSSIP_OPTION_APOLOGIZE = 1;
+    public const int DATA_TARGET_GUID = 1;
+    public const uint MAX_ANTAGONISTS = 3;
 
     public static Position[] AntagonistPos =
     {
@@ -85,23 +94,23 @@ internal struct MiscConst
 }
 
 [Script]
-internal class boss_coren_direbrew : BossAI
+internal class BossCorenDirebrew : BossAI
 {
-    private DirebrewPhases phase;
+    private DirebrewPhases _phase;
 
-    public boss_coren_direbrew(Creature creature) : base(creature, DataTypes.DataCoren) { }
+    public BossCorenDirebrew(Creature creature) : base(creature, DataTypes.DATA_COREN) { }
 
     public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     {
-        if (menuId != MiscConst.GossipId)
+        if (menuId != MiscConst.GOSSIP_ID)
             return false;
 
-        if (gossipListId == MiscConst.GossipOptionFight)
+        if (gossipListId == MiscConst.GOSSIP_OPTION_FIGHT)
         {
-            Talk(TextIds.SayInsult, player);
-            DoAction(ActionIds.StartFight);
+            Talk(TextIds.SAY_INSULT, player);
+            DoAction(ActionIds.START_FIGHT);
         }
-        else if (gossipListId == MiscConst.GossipOptionApologize)
+        else if (gossipListId == MiscConst.GOSSIP_OPTION_APOLOGIZE)
         {
             player.CloseGossipMenu();
         }
@@ -114,11 +123,11 @@ internal class boss_coren_direbrew : BossAI
         _Reset();
         Me.SetImmuneToPC(true);
         Me.Faction = (uint)FactionTemplates.Friendly;
-        phase = DirebrewPhases.All;
+        _phase = DirebrewPhases.All;
         SchedulerProtected.CancelAll();
 
-        for (byte i = 0; i < MiscConst.MaxAntagonists; ++i)
-            Me.SummonCreature(CreatureIds.Antagonist, MiscConst.AntagonistPos[i], TempSummonType.DeadDespawn);
+        for (byte i = 0; i < MiscConst.MAX_ANTAGONISTS; ++i)
+            Me.SummonCreature(CreatureIds.ANTAGONIST, MiscConst.AntagonistPos[i], TempSummonType.DeadDespawn);
     }
 
     public override void EnterEvadeMode(EvadeReason why)
@@ -130,62 +139,62 @@ internal class boss_coren_direbrew : BossAI
 
     public override void MoveInLineOfSight(Unit who)
     {
-        if (phase != DirebrewPhases.All ||
+        if (_phase != DirebrewPhases.All ||
             !who.IsPlayer)
             return;
 
-        phase = DirebrewPhases.Intro;
+        _phase = DirebrewPhases.Intro;
 
         SchedulerProtected.Schedule(TimeSpan.FromSeconds(6),
                                     introTask1 =>
                                     {
-                                        Talk(TextIds.SayIntro1);
+                                        Talk(TextIds.SAY_INTRO1);
 
                                         introTask1.Schedule(TimeSpan.FromSeconds(4),
                                                             introTask2 =>
                                                             {
-                                                                EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-                                                                Summons.DoAction(ActionIds.AntagonistSay1, pred);
+                                                                EntryCheckPredicate pred = new(CreatureIds.ANTAGONIST);
+                                                                Summons.DoAction(ActionIds.ANTAGONIST_SAY1, pred);
 
                                                                 introTask2.Schedule(TimeSpan.FromSeconds(3),
                                                                                     introlTask3 =>
                                                                                     {
-                                                                                        Talk(TextIds.SayIntro2);
-                                                                                        EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-                                                                                        Summons.DoAction(ActionIds.AntagonistSay2, pred);
+                                                                                        Talk(TextIds.SAY_INTRO2);
+                                                                                        EntryCheckPredicate pred = new(CreatureIds.ANTAGONIST);
+                                                                                        Summons.DoAction(ActionIds.ANTAGONIST_SAY2, pred);
                                                                                     });
                                                             });
                                     });
 
-        Talk(TextIds.SayIntro);
+        Talk(TextIds.SAY_INTRO);
     }
 
     public override void DoAction(int action)
     {
-        if (action == ActionIds.StartFight)
+        if (action == ActionIds.START_FIGHT)
         {
-            phase = DirebrewPhases.One;
+            _phase = DirebrewPhases.One;
             //events.SetPhase(PhaseOne);
             Me.SetImmuneToPC(false);
             Me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
             DoZoneInCombat();
 
-            EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-            Summons.DoAction(ActionIds.AntagonistHostile, pred);
+            EntryCheckPredicate pred = new(CreatureIds.ANTAGONIST);
+            Summons.DoAction(ActionIds.ANTAGONIST_HOSTILE, pred);
 
             SchedulerProtected.Schedule(TimeSpan.FromSeconds(15),
                                         task =>
                                         {
                                             CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
                                             args.AddSpellMod(SpellValueMod.MaxTargets, 1);
-                                            Me.CastSpell((WorldObject)null, SpellIds.MoleMachineTargetPicker, args);
+                                            Me.SpellFactory.CastSpell((WorldObject)null, SpellIds.MOLE_MACHINE_TARGET_PICKER, args);
                                             task.Repeat();
                                         });
 
             SchedulerProtected.Schedule(TimeSpan.FromSeconds(20),
                                         task =>
                                         {
-                                            DoCastSelf(SpellIds.DirebrewDisarmPreCast, new CastSpellExtraArgs(true));
+                                            DoCastSelf(SpellIds.DIREBREW_DISARM_PRE_CAST, new CastSpellExtraArgs(true));
                                             task.Repeat();
                                         });
         }
@@ -194,25 +203,25 @@ internal class boss_coren_direbrew : BossAI
     public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
         if (Me.HealthBelowPctDamaged(66, damage) &&
-            phase == DirebrewPhases.One)
+            _phase == DirebrewPhases.One)
         {
-            phase = DirebrewPhases.Two;
-            SummonSister(CreatureIds.IlsaDirebrew);
+            _phase = DirebrewPhases.Two;
+            SummonSister(CreatureIds.ILSA_DIREBREW);
         }
         else if (Me.HealthBelowPctDamaged(33, damage) &&
-                 phase == DirebrewPhases.Two)
+                 _phase == DirebrewPhases.Two)
         {
-            phase = DirebrewPhases.Three;
-            SummonSister(CreatureIds.UrsulaDirebrew);
+            _phase = DirebrewPhases.Three;
+            SummonSister(CreatureIds.URSULA_DIREBREW);
         }
     }
 
     public override void SummonedCreatureDies(Creature summon, Unit killer)
     {
-        if (summon.Entry == CreatureIds.IlsaDirebrew)
-            SchedulerProtected.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.IlsaDirebrew); });
-        else if (summon.Entry == CreatureIds.UrsulaDirebrew)
-            SchedulerProtected.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.UrsulaDirebrew); });
+        if (summon.Entry == CreatureIds.ILSA_DIREBREW)
+            SchedulerProtected.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.ILSA_DIREBREW); });
+        else if (summon.Entry == CreatureIds.URSULA_DIREBREW)
+            SchedulerProtected.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.URSULA_DIREBREW); });
     }
 
     public override void JustDied(Unit killer)
@@ -234,7 +243,7 @@ internal class boss_coren_direbrew : BossAI
     public override void UpdateAI(uint diff)
     {
         if (!UpdateVictim() &&
-            phase != DirebrewPhases.Intro)
+            _phase != DirebrewPhases.Intro)
             return;
 
         SchedulerProtected.Update(diff, () => DoMeleeAttackIfReady());
@@ -249,21 +258,21 @@ internal class boss_coren_direbrew : BossAI
     }
 }
 
-internal class npc_coren_direbrew_sisters : ScriptedAI
+internal class NPCCorenDirebrewSisters : ScriptedAI
 {
     private ObjectGuid _targetGUID;
 
-    public npc_coren_direbrew_sisters(Creature creature) : base(creature) { }
+    public NPCCorenDirebrewSisters(Creature creature) : base(creature) { }
 
     public override void SetGUID(ObjectGuid guid, int id)
     {
-        if (id == MiscConst.DataTargetGuid)
+        if (id == MiscConst.DATA_TARGET_GUID)
             _targetGUID = guid;
     }
 
     public override ObjectGuid GetGUID(int data)
     {
-        if (data == MiscConst.DataTargetGuid)
+        if (data == MiscConst.DATA_TARGET_GUID)
             return _targetGUID;
 
         return ObjectGuid.Empty;
@@ -271,22 +280,22 @@ internal class npc_coren_direbrew_sisters : ScriptedAI
 
     public override void JustEngagedWith(Unit who)
     {
-        DoCastSelf(SpellIds.PortToCoren);
+        DoCastSelf(SpellIds.PORT_TO_COREN);
 
-        if (Me.Entry == CreatureIds.UrsulaDirebrew)
-            DoCastSelf(SpellIds.BarreledControlAura);
+        if (Me.Entry == CreatureIds.URSULA_DIREBREW)
+            DoCastSelf(SpellIds.BARRELED_CONTROL_AURA);
         else
-            DoCastSelf(SpellIds.SendMugControlAura);
+            DoCastSelf(SpellIds.SEND_MUG_CONTROL_AURA);
 
         SchedulerProtected.SetValidator(() => !Me.HasUnitState(UnitState.Casting));
 
         SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
                                     mugChuck =>
                                     {
-                                        var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, false, true, -(int)SpellIds.HasDarkBrewmaidensBrew);
+                                        var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, false, true, -(int)SpellIds.HAS_DARK_BREWMAIDENS_BREW);
 
                                         if (target)
-                                            DoCast(target, SpellIds.ChuckMug);
+                                            DoCast(target, SpellIds.CHUCK_MUG);
 
                                         mugChuck.Repeat(TimeSpan.FromSeconds(4));
                                     });
@@ -298,11 +307,11 @@ internal class npc_coren_direbrew_sisters : ScriptedAI
     }
 }
 
-internal class npc_direbrew_minion : ScriptedAI
+internal class NPCDirebrewMinion : ScriptedAI
 {
     private readonly InstanceScript _instance;
 
-    public npc_direbrew_minion(Creature creature) : base(creature)
+    public NPCDirebrewMinion(Creature creature) : base(creature)
     {
         _instance = creature.InstanceScript;
     }
@@ -315,49 +324,48 @@ internal class npc_direbrew_minion : ScriptedAI
 
     public override void IsSummonedBy(WorldObject summoner)
     {
-        var coren = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.DataCoren));
+        var coren = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.DATA_COREN));
 
         if (coren)
             coren.AI.JustSummoned(Me);
     }
 }
 
-internal class npc_direbrew_antagonist : ScriptedAI
+internal class NPCDirebrewAntagonist : ScriptedAI
 {
-    public npc_direbrew_antagonist(Creature creature) : base(creature) { }
+    public NPCDirebrewAntagonist(Creature creature) : base(creature) { }
 
     public override void DoAction(int action)
     {
         switch (action)
         {
-            case ActionIds.AntagonistSay1:
-                Talk(TextIds.SayAntagonist1);
+            case ActionIds.ANTAGONIST_SAY1:
+                Talk(TextIds.SAY_ANTAGONIST1);
 
                 break;
-            case ActionIds.AntagonistSay2:
-                Talk(TextIds.SayAntagonist2);
+            case ActionIds.ANTAGONIST_SAY2:
+                Talk(TextIds.SAY_ANTAGONIST2);
 
                 break;
-            case ActionIds.AntagonistHostile:
+            case ActionIds.ANTAGONIST_HOSTILE:
                 Me.SetImmuneToPC(false);
                 Me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
                 DoZoneInCombat();
 
                 break;
-            
         }
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayAntagonistCombat, who);
+        Talk(TextIds.SAY_ANTAGONIST_COMBAT, who);
         base.JustEngagedWith(who);
     }
 }
 
-internal class go_direbrew_mole_machine : GameObjectAI
+internal class GODirebrewMoleMachine : GameObjectAI
 {
-    public go_direbrew_mole_machine(GameObject go) : base(go) { }
+    public GODirebrewMoleMachine(GameObject go) : base(go) { }
 
     public override void Reset()
     {
@@ -367,7 +375,7 @@ internal class go_direbrew_mole_machine : GameObjectAI
                            context =>
                            {
                                Me.UseDoorOrButton(10000);
-                               Me.CastSpell(null, SpellIds.MoleMachineEmerge, true);
+                               Me.SpellFactory.CastSpell(null, SpellIds.MOLE_MACHINE_EMERGE, true);
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4),
@@ -390,7 +398,7 @@ internal class go_direbrew_mole_machine : GameObjectAI
 }
 
 // 47691 - Summon Mole Machine Target Picker
-internal class spell_direbrew_summon_mole_machine_target_picker : SpellScript, IHasSpellEffects
+internal class SpellDirebrewSummonMoleMachineTargetPicker : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -402,12 +410,12 @@ internal class spell_direbrew_summon_mole_machine_target_picker : SpellScript, I
 
     private void HandleScriptEffect(int effIndex)
     {
-        Caster.CastSpell(HitUnit, SpellIds.MoleMachineMinionSummoner, true);
+        Caster.SpellFactory.CastSpell(HitUnit, SpellIds.MOLE_MACHINE_MINION_SUMMONER, true);
     }
 }
 
 // 47370 - Send Mug Target Picker
-internal class spell_send_mug_target_picker : SpellScript, IHasSpellEffects
+internal class SpellSendMugTargetPicker : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -421,12 +429,12 @@ internal class spell_send_mug_target_picker : SpellScript, IHasSpellEffects
     {
         var caster = Caster;
 
-        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, SpellIds.HasDarkBrewmaidensBrew));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, SpellIds.HAS_DARK_BREWMAIDENS_BREW));
 
         if (targets.Count > 1)
             targets.RemoveAll(obj =>
             {
-                if (obj.GUID == caster.AI.GetGUID(MiscConst.DataTargetGuid))
+                if (obj.GUID == caster.AI.GetGUID(MiscConst.DATA_TARGET_GUID))
                     return true;
 
                 return false;
@@ -443,13 +451,13 @@ internal class spell_send_mug_target_picker : SpellScript, IHasSpellEffects
     private void HandleDummy(int effIndex)
     {
         var caster = Caster;
-        caster.AI.SetGUID(HitUnit.GUID, MiscConst.DataTargetGuid);
-        caster.CastSpell(HitUnit, SpellIds.SendFirstMug, true);
+        caster.AI.SetGUID(HitUnit.GUID, MiscConst.DATA_TARGET_GUID);
+        caster.SpellFactory.CastSpell(HitUnit, SpellIds.SEND_FIRST_MUG, true);
     }
 }
 
 // 47344 - Request Second Mug
-internal class spell_request_second_mug : SpellScript, IHasSpellEffects
+internal class SpellRequestSecondMug : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -461,12 +469,12 @@ internal class spell_request_second_mug : SpellScript, IHasSpellEffects
 
     private void HandleScriptEffect(int effIndex)
     {
-        HitUnit.CastSpell(Caster, SpellIds.SendSecondMug, true);
+        HitUnit.SpellFactory.CastSpell(Caster, SpellIds.SEND_SECOND_MUG, true);
     }
 }
 
 // 47369 - Send Mug Control Aura
-internal class spell_send_mug_control_aura : AuraScript, IHasAuraEffects
+internal class SpellSendMugControlAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -478,12 +486,12 @@ internal class spell_send_mug_control_aura : AuraScript, IHasAuraEffects
 
     private void PeriodicTick(AuraEffect aurEff)
     {
-        Target.CastSpell(Target, SpellIds.SendMugTargetPicker, true);
+        Target.SpellFactory.CastSpell(Target, SpellIds.SEND_MUG_TARGET_PICKER, true);
     }
 }
 
 // 50278 - Barreled Control Aura
-internal class spell_barreled_control_aura : AuraScript, IHasAuraEffects
+internal class SpellBarreledControlAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -495,12 +503,12 @@ internal class spell_barreled_control_aura : AuraScript, IHasAuraEffects
     private void PeriodicTick(AuraEffect aurEff)
     {
         PreventDefaultAction();
-        Target.CastSpell(null, SpellIds.Barreled, true);
+        Target.SpellFactory.CastSpell(null, SpellIds.BARRELED, true);
     }
 }
 
 // 47407 - Direbrew's Disarm (precast)
-internal class spell_direbrew_disarm : AuraScript, IHasAuraEffects
+internal class SpellDirebrewDisarm : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -513,7 +521,7 @@ internal class spell_direbrew_disarm : AuraScript, IHasAuraEffects
 
     private void PeriodicTick(AuraEffect aurEff)
     {
-        var aura = Target.GetAura(SpellIds.DirebrewDisarmGrow);
+        var aura = Target.GetAura(SpellIds.DIREBREW_DISARM_GROW);
 
         if (aura != null)
         {
@@ -524,7 +532,7 @@ internal class spell_direbrew_disarm : AuraScript, IHasAuraEffects
 
     private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.CastSpell(Target, SpellIds.DirebrewDisarmGrow, true);
-        Target.CastSpell(Target, SpellIds.DirebrewDisarm);
+        Target.SpellFactory.CastSpell(Target, SpellIds.DIREBREW_DISARM_GROW, true);
+        Target.SpellFactory.CastSpell(Target, SpellIds.DIREBREW_DISARM);
     }
 }

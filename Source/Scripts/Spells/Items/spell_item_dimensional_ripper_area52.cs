@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 36890 - Dimensional Ripper - Area 52
-internal class spell_item_dimensional_ripper_area52 : SpellScript, IHasSpellEffects
+internal class SpellItemDimensionalRipperArea52 : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -36,26 +37,26 @@ internal class spell_item_dimensional_ripper_area52 : SpellScript, IHasSpellEffe
         switch (RandomHelper.URand(0, 3))
         {
             case 0:
-                spellId = ItemSpellIds.TransporterMalfunctionBigger;
+                spellId = ItemSpellIds.TRANSPORTER_MALFUNCTION_BIGGER;
 
                 break;
             case 1:
-                spellId = ItemSpellIds.SoulSplitEvil;
+                spellId = ItemSpellIds.SOUL_SPLIT_EVIL;
 
                 break;
             case 2:
-                spellId = ItemSpellIds.SoulSplitGood;
+                spellId = ItemSpellIds.SOUL_SPLIT_GOOD;
 
                 break;
             case 3:
                 if (caster.AsPlayer.TeamId == TeamIds.Alliance)
-                    spellId = ItemSpellIds.TransformHorde;
+                    spellId = ItemSpellIds.TRANSFORM_HORDE;
                 else
-                    spellId = ItemSpellIds.TransformAlliance;
+                    spellId = ItemSpellIds.TRANSFORM_ALLIANCE;
 
                 break;
         }
 
-        caster.CastSpell(caster, spellId, true);
+        caster.SpellFactory.CastSpell(caster, spellId, true);
     }
 }

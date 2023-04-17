@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(37705)] // 37705 - Healing Discount
-internal class spell_pal_item_healing_discount : AuraScript, IHasAuraEffects
+internal class SpellPalItemHealingDiscount : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,6 +25,6 @@ internal class spell_pal_item_healing_discount : AuraScript, IHasAuraEffects
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         PreventDefaultAction();
-        Target.CastSpell(Target, PaladinSpells.ItemHealingTrance, new CastSpellExtraArgs(aurEff));
+        Target.SpellFactory.CastSpell(Target, PaladinSpells.ITEM_HEALING_TRANCE, new CastSpellExtraArgs(aurEff));
     }
 }

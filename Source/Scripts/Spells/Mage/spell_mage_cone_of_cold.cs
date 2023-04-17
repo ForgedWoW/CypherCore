@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 120 - Cone of Cold
-internal class spell_mage_cone_of_cold : SpellScript, IHasSpellEffects
+internal class SpellMageConeOfCold : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,6 +22,6 @@ internal class spell_mage_cone_of_cold : SpellScript, IHasSpellEffects
 
     private void HandleSlow(int effIndex)
     {
-        Caster.CastSpell(HitUnit, MageSpells.ConeOfColdSlow, true);
+        Caster.SpellFactory.CastSpell(HitUnit, MageSpells.ConeOfColdSlow, true);
     }
 }

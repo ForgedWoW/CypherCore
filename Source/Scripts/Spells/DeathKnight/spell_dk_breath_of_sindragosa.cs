@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(152279)]
-public class spell_dk_breath_of_sindragosa : AuraScript, IHasAuraEffects
+public class SpellDkBreathOfSindragosa : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -19,23 +19,23 @@ public class spell_dk_breath_of_sindragosa : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
     }
 
-    private void OnTick(AuraEffect UnnamedParameter)
+    private void OnTick(AuraEffect unnamedParameter)
     {
-        var l_Caster = Caster;
+        var lCaster = Caster;
 
-        if (l_Caster == null)
+        if (lCaster == null)
             return;
 
-        var l_Player = l_Caster.AsPlayer;
+        var lPlayer = lCaster.AsPlayer;
 
-        if (l_Player == null)
+        if (lPlayer == null)
             return;
 
-        l_Caster.ModifyPower(PowerType.RunicPower, -130);
+        lCaster.ModifyPower(PowerType.RunicPower, -130);
         /*if (l_Caster->ToPlayer())
                 l_Caster->ToPlayer()->SendPowerUpdate(PowerType.RunicPower, l_Caster->GetPower(PowerType.RunicPower));*/
 
-        if (l_Caster.GetPower(PowerType.RunicPower) <= 130)
-            l_Caster.RemoveAura(DeathKnightSpells.BREATH_OF_SINDRAGOSA);
+        if (lCaster.GetPower(PowerType.RunicPower) <= 130)
+            lCaster.RemoveAura(DeathKnightSpells.BREATH_OF_SINDRAGOSA);
     }
 }

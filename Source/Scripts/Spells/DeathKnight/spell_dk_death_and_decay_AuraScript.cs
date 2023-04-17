@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(43265)] // 43265 - Death and Decay
-internal class spell_dk_death_and_decay_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellDkDeathAndDecayAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -29,13 +30,13 @@ internal class spell_dk_death_and_decay_AuraScript : AuraScript, IHasAuraEffects
             var at = caster.GetAreaTrigger(DeathKnightSpells.DEATH_AND_DECAY);
 
             if (at != null)
-                caster.CastSpell(at.Location, DeathKnightSpells.DEATH_AND_DECAY_DAMAGE);
+                caster.SpellFactory.CastSpell(at.Location, DeathKnightSpells.DEATH_AND_DECAY_DAMAGE);
         }
     }
 }
 
 [SpellScript(52212)]
-internal class spell_dk_death_and_decay_damage_procs : SpellScript, ISpellAfterHit
+internal class SpellDkDeathAndDecayDamageProcs : SpellScript, ISpellAfterHit
 {
     public void AfterHit()
     {
@@ -49,6 +50,6 @@ internal class spell_dk_death_and_decay_damage_procs : SpellScript, ISpellAfterH
 
         if (pestilence != null)
             if (RandomHelper.randChance(pestilence.GetEffect(0).Amount))
-                caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, 1));
+                caster.SpellFactory.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, 1));
     }
 }

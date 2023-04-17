@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 57412 - Reckoning Bomb
-internal class spell_q13086_cannons_target : SpellScript, IHasSpellEffects
+internal class SpellQ13086CannonsTarget : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -25,6 +26,6 @@ internal class spell_q13086_cannons_target : SpellScript, IHasSpellEffects
         var pos = ExplTargetDest;
 
         if (pos != null)
-            Caster.CastSpell(pos, (uint)EffectValue, new CastSpellExtraArgs(true));
+            Caster.SpellFactory.CastSpell(pos, (uint)EffectValue, new CastSpellExtraArgs(true));
     }
 }

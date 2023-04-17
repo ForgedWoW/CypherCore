@@ -2,52 +2,53 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.MagistersTerrace.Vexallus;
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SayEnergy = 1;
-    public const uint SayOverload = 2;
-    public const uint SayKill = 3;
-    public const uint EmoteDischargeEnergy = 4;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_ENERGY = 1;
+    public const uint SAY_OVERLOAD = 2;
+    public const uint SAY_KILL = 3;
+    public const uint EMOTE_DISCHARGE_ENERGY = 4;
 }
 
 internal struct SpellIds
 {
-    public const uint ChainLightning = 44318;
-    public const uint Overload = 44353;
-    public const uint ArcaneShock = 44319;
+    public const uint CHAIN_LIGHTNING = 44318;
+    public const uint OVERLOAD = 44353;
+    public const uint ARCANE_SHOCK = 44319;
 
-    public const uint SummonPureEnergy = 44322;   // mod scale -10
-    public const uint HSummonPureEnergy1 = 46154; // mod scale -5
-    public const uint HSummonPureEnergy2 = 46159; // mod scale -5
+    public const uint SUMMON_PURE_ENERGY = 44322;   // mod scale -10
+    public const uint H_SUMMON_PURE_ENERGY1 = 46154; // mod scale -5
+    public const uint H_SUMMON_PURE_ENERGY2 = 46159; // mod scale -5
 
     // NpcPureEnergy
-    public const uint EnergyBolt = 46156;
-    public const uint EnergyFeedback = 44335;
-    public const uint PureEnergyPassive = 44326;
+    public const uint ENERGY_BOLT = 46156;
+    public const uint ENERGY_FEEDBACK = 44335;
+    public const uint PURE_ENERGY_PASSIVE = 44326;
 }
 
 internal struct MiscConst
 {
-    public const uint IntervalModifier = 15;
-    public const uint IntervalSwitch = 6;
+    public const uint INTERVAL_MODIFIER = 15;
+    public const uint INTERVAL_SWITCH = 6;
 }
 
 [Script]
-internal class boss_vexallus : BossAI
+internal class BossVexallus : BossAI
 {
     private bool _enraged;
     private uint _intervalHealthAmount;
 
-    public boss_vexallus(Creature creature) : base(creature, DataTypes.Vexallus)
+    public BossVexallus(Creature creature) : base(creature, DataTypes.VEXALLUS)
     {
         _intervalHealthAmount = 1;
         _enraged = false;
@@ -62,12 +63,12 @@ internal class boss_vexallus : BossAI
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayKill);
+        Talk(TextIds.SAY_KILL);
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
         base.JustEngagedWith(who);
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
@@ -76,7 +77,7 @@ internal class boss_vexallus : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.ChainLightning);
+                                   DoCast(target, SpellIds.CHAIN_LIGHTNING);
 
                                task.Repeat();
                            });
@@ -87,7 +88,7 @@ internal class boss_vexallus : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 20.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.ArcaneShock);
+                                   DoCast(target, SpellIds.ARCANE_SHOCK);
 
                                task.Repeat(TimeSpan.FromSeconds(8));
                            });
@@ -109,10 +110,10 @@ internal class boss_vexallus : BossAI
             return;
 
         // 85%, 70%, 55%, 40%, 25%
-        if (!HealthAbovePct((int)(100 - MiscConst.IntervalModifier * _intervalHealthAmount)))
+        if (!HealthAbovePct((int)(100 - MiscConst.INTERVAL_MODIFIER * _intervalHealthAmount)))
         {
             // increase amount, unless we're at 10%, then we switch and return
-            if (_intervalHealthAmount == MiscConst.IntervalSwitch)
+            if (_intervalHealthAmount == MiscConst.INTERVAL_SWITCH)
             {
                 _enraged = true;
                 Scheduler.CancelAll();
@@ -120,7 +121,7 @@ internal class boss_vexallus : BossAI
                 Scheduler.Schedule(TimeSpan.FromSeconds(1.2),
                                    task =>
                                    {
-                                       DoCastVictim(SpellIds.Overload);
+                                       DoCastVictim(SpellIds.OVERLOAD);
                                        task.Repeat(TimeSpan.FromSeconds(2));
                                    });
 
@@ -131,17 +132,17 @@ internal class boss_vexallus : BossAI
                 ++_intervalHealthAmount;
             }
 
-            Talk(TextIds.SayEnergy);
-            Talk(TextIds.EmoteDischargeEnergy);
+            Talk(TextIds.SAY_ENERGY);
+            Talk(TextIds.EMOTE_DISCHARGE_ENERGY);
 
             if (IsHeroic())
             {
-                DoCast(Me, SpellIds.HSummonPureEnergy1);
-                DoCast(Me, SpellIds.HSummonPureEnergy2);
+                DoCast(Me, SpellIds.H_SUMMON_PURE_ENERGY1);
+                DoCast(Me, SpellIds.H_SUMMON_PURE_ENERGY2);
             }
             else
             {
-                DoCast(Me, SpellIds.SummonPureEnergy);
+                DoCast(Me, SpellIds.SUMMON_PURE_ENERGY);
             }
         }
     }
@@ -156,9 +157,9 @@ internal class boss_vexallus : BossAI
 }
 
 [Script]
-internal class npc_pure_energy : ScriptedAI
+internal class NPCPureEnergy : ScriptedAI
 {
-    public npc_pure_energy(Creature creature) : base(creature)
+    public NPCPureEnergy(Creature creature) : base(creature)
     {
         Me.SetDisplayFromModel(1);
     }
@@ -166,8 +167,8 @@ internal class npc_pure_energy : ScriptedAI
     public override void JustDied(Unit killer)
     {
         if (killer)
-            killer.CastSpell(killer, SpellIds.EnergyFeedback, true);
+            killer.SpellFactory.CastSpell(killer, SpellIds.ENERGY_FEEDBACK, true);
 
-        Me.RemoveAura(SpellIds.PureEnergyPassive);
+        Me.RemoveAura(SpellIds.PURE_ENERGY_PASSIVE);
     }
 }

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 51640 - Taunt Flag Targeting
-internal class spell_item_taunt_flag_targeting : SpellScript, IHasSpellEffects
+internal class SpellItemTauntFlagTargeting : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -39,8 +40,8 @@ internal class spell_item_taunt_flag_targeting : SpellScript, IHasSpellEffects
     {
         // we *really* want the unit implementation here
         // it sends a packet like seen on sniff
-        Caster.TextEmote(TextIds.EmotePlantsFlag, HitUnit, false);
+        Caster.TextEmote(TextIds.EMOTE_PLANTS_FLAG, HitUnit, false);
 
-        Caster.CastSpell(HitUnit, ItemSpellIds.TauntFlag, true);
+        Caster.SpellFactory.CastSpell(HitUnit, ItemSpellIds.TAUNT_FLAG, true);
     }
 }

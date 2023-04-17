@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(79684)]
-public class spell_mage_clearcasting : AuraScript, IAuraCheckProc, IHasAuraEffects
+public class SpellMageClearcasting : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -52,14 +52,14 @@ public class spell_mage_clearcasting : AuraScript, IAuraCheckProc, IHasAuraEffec
         AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    private void HandleProc(AuraEffect unnamedParameter, ProcEventInfo eventInfo)
     {
         var actor = eventInfo.Actor;
-        actor.CastSpell(actor, MageSpells.CLEARCASTING_BUFF, true);
+        actor.SpellFactory.CastSpell(actor, MageSpells.CLEARCASTING_BUFF, true);
 
         if (actor.HasAura(MageSpells.ARCANE_EMPOWERMENT))
-            actor.CastSpell(actor, MageSpells.CLEARCASTING_PVP_STACK_EFFECT, true);
+            actor.SpellFactory.CastSpell(actor, MageSpells.CLEARCASTING_PVP_STACK_EFFECT, true);
         else
-            actor.CastSpell(actor, MageSpells.CLEARCASTING_EFFECT, true);
+            actor.SpellFactory.CastSpell(actor, MageSpells.CLEARCASTING_EFFECT, true);
     }
 }

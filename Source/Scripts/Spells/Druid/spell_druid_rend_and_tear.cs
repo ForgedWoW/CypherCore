@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(204053)]
-public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
+public class SpellDruidRendAndTear : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,7 +26,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectCalcSpellModHandler(HandleEffectCalcSpellMod, 2, AuraType.AddFlatModifier));
     }
 
-    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalculateAmount(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         amount.Value = -1;
     }
@@ -41,10 +42,10 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 
         if (caster.ShapeshiftForm == ShapeShiftForm.BearForm)
         {
-            var trashDOT = attacker.GetAura(Spells.TRASH_DOT, caster.GUID);
+            var trashDot = attacker.GetAura(Spells.TrashDot, caster.GUID);
 
-            if (trashDOT != null)
-                absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, trashDOT.StackAmount * SpellInfo.GetEffect(1).BasePoints);
+            if (trashDot != null)
+                absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, trashDot.StackAmount * SpellInfo.GetEffect(1).BasePoints);
         }
 
         return absorbAmount;
@@ -60,7 +61,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 
     private struct Spells
     {
-        public static readonly uint REND_AND_TEAR = 204053;
-        public static readonly uint TRASH_DOT = 192090;
+        public static readonly uint RendAndTear = 204053;
+        public static readonly uint TrashDot = 192090;
     }
 }

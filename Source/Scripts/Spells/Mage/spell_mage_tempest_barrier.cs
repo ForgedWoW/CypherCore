@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(382289)]
-public class spell_mage_tempest_barrier : SpellScript, ISpellOnCast
+public class SpellMageTempestBarrier : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {
@@ -16,6 +16,6 @@ public class spell_mage_tempest_barrier : SpellScript, ISpellOnCast
         if (Caster.TryGetAura(MageSpells.TEMPEST_BARRIER, out var tempestBarrier))
             absorb = MathFunctions.ApplyPct(Caster.Health, tempestBarrier.GetEffect(0).Amount);
 
-        Caster.CastSpell(Caster, 382290, absorb, false);
+        Caster.SpellFactory.CastSpell(Caster, 382290, absorb, false);
     }
 }

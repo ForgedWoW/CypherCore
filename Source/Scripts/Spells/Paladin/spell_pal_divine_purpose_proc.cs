@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
@@ -14,7 +14,7 @@ namespace Scripts.Spells.Paladin;
 {
     202273, 215661, 210191, 53385, 85256, 20473, 85222
 })]
-public class spell_pal_divine_purpose_proc : SpellScript, ISpellAfterCast
+public class SpellPalDivinePurposeProc : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -32,7 +32,7 @@ public class spell_pal_divine_purpose_proc : SpellScript, ISpellAfterCast
                     {
                         if (RandomHelper.randChance(20))
                             if (activateSpell == (uint)PaladinSpells.JUSTICARS_VENGEANCE || activateSpell == (uint)PaladinSpells.WORD_OF_GLORY || activateSpell == (uint)PaladinSpells.DIVINE_STORM || activateSpell == (uint)PaladinSpells.TEMPLARS_VERDICT)
-                                player.CastSpell(player, PaladinSpells.DivinePurposeTriggerred);
+                                player.SpellFactory.CastSpell(player, PaladinSpells.DIVINE_PURPOSE_TRIGGERRED);
 
                         break;
                     }
@@ -40,17 +40,17 @@ public class spell_pal_divine_purpose_proc : SpellScript, ISpellAfterCast
                     {
                         if (RandomHelper.randChance(15))
                         {
-                            if (activateSpell == (uint)PaladinSpells.HolyShock)
+                            if (activateSpell == (uint)PaladinSpells.HOLY_SHOCK)
                             {
-                                player.CastSpell(player, PaladinSpells.DIVINE_PURPOSE_HOLY_AURA_1);
+                                player.SpellFactory.CastSpell(player, PaladinSpells.DIVINE_PURPOSE_HOLY_AURA_1);
 
-                                if (player.SpellHistory.HasCooldown(PaladinSpells.HolyShock))
-                                    player.SpellHistory.ResetCooldown(PaladinSpells.HolyShock, true);
+                                if (player.SpellHistory.HasCooldown(PaladinSpells.HOLY_SHOCK))
+                                    player.SpellHistory.ResetCooldown(PaladinSpells.HOLY_SHOCK, true);
                             }
 
                             if (activateSpell == (uint)PaladinSpells.LIGHT_OF_DAWN)
                             {
-                                player.CastSpell(player, PaladinSpells.DIVINE_PURPOSE_HOLY_AURA_2);
+                                player.SpellFactory.CastSpell(player, PaladinSpells.DIVINE_PURPOSE_HOLY_AURA_2);
 
                                 if (player.SpellHistory.HasCooldown(PaladinSpells.LIGHT_OF_DAWN))
                                     player.SpellHistory.ResetCooldown(PaladinSpells.LIGHT_OF_DAWN, true);

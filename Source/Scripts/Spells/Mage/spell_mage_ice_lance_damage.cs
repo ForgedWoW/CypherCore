@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(228598)] // 228598 - Ice Lance
-internal class spell_mage_ice_lance_damage : SpellScript, IHasSpellEffects, ISpellCalculateMultiplier
+internal class SpellMageIceLanceDamage : SpellScript, IHasSpellEffects, ISpellCalculateMultiplier
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 

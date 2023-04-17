@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // 212619 - Call Felhunter
 [SpellScript(212619)]
-public class spell_warlock_call_felhunter : SpellScript, ISpellCheckCast
+public class SpellWarlockCallFelhunter : SpellScript, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {

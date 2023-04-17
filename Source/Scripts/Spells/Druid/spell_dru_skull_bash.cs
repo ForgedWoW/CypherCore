@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 106839 - Skull Bash
-internal class spell_dru_skull_bash : SpellScript, IHasSpellEffects
+internal class SpellDruSkullBash : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,7 +22,7 @@ internal class spell_dru_skull_bash : SpellScript, IHasSpellEffects
 
     private void HandleDummy(int effIndex)
     {
-        Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashCharge, true);
-        Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashInterrupt, true);
+        Caster.SpellFactory.CastSpell(HitUnit, DruidSpellIds.SkullBashCharge, true);
+        Caster.SpellFactory.CastSpell(HitUnit, DruidSpellIds.SkullBashInterrupt, true);
     }
 }

@@ -10,7 +10,7 @@ public class AreaTriggerScriptAttribute : ScriptAttribute
 {
     public uint[] AreaTriggerIds { get; private set; }
 
-    public AreaTriggerScriptAttribute(params uint[] areaTriggerId) : base("", new object[0])
+    public AreaTriggerScriptAttribute(params uint[] areaTriggerId) : base("", Array.Empty<object>())
     {
         AreaTriggerIds = areaTriggerId;
     }

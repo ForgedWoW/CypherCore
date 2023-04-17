@@ -2,39 +2,42 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IItem;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IItem;
-using Game.Spells;
 
 namespace Scripts.World.ItemScripts;
 
 internal struct SpellIds
 {
     //Onlyforflight
-    public const uint ArcaneCharges = 45072;
+    public const uint ARCANE_CHARGES = 45072;
 
     //Petrovclusterbombs
-    public const uint PetrovBomb = 42406;
+    public const uint PETROV_BOMB = 42406;
 }
 
 internal struct CreatureIds
 {
     //Pilefakefur
-    public const uint NesingwaryTrapper = 25835;
+    public const uint NESINGWARY_TRAPPER = 25835;
 
     //Theemissary
-    public const uint Leviroth = 26452;
+    public const uint LEVIROTH = 26452;
 
     //Capturedfrog
-    public const uint VanirasSentryTotem = 40187;
+    public const uint VANIRAS_SENTRY_TOTEM = 40187;
 }
 
 internal struct GameObjectIds
 {
     //Pilefakefur
-    public const uint HighQualityFur = 187983;
+    public const uint HIGH_QUALITY_FUR = 187983;
 
     public static uint[] CaribouTraps =
     {
@@ -45,26 +48,26 @@ internal struct GameObjectIds
 internal struct QuestIds
 {
     //Helpthemselves
-    public const uint CannotHelpThemselves = 11876;
+    public const uint CANNOT_HELP_THEMSELVES = 11876;
 
     //Theemissary
-    public const uint TheEmissary = 11626;
+    public const uint THE_EMISSARY = 11626;
 
     //Capturedfrog
-    public const uint ThePerfectSpies = 25444;
+    public const uint THE_PERFECT_SPIES = 25444;
 }
 
 internal struct Misc
 {
     //Petrovclusterbombs
-    public const uint AreaIdShatteredStraits = 4064;
-    public const uint ZoneIdHowling = 495;
+    public const uint AREA_ID_SHATTERED_STRAITS = 4064;
+    public const uint ZONE_ID_HOWLING = 495;
 }
 
 [Script]
-internal class item_only_for_flight : ScriptObjectAutoAddDBBound, IItemOnUse
+internal class ItemOnlyForFlight : ScriptObjectAutoAddDBBound, IItemOnUse
 {
-    public item_only_for_flight() : base("item_only_for_flight") { }
+    public ItemOnlyForFlight() : base("item_only_for_flight") { }
 
     public bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId)
     {
@@ -85,7 +88,7 @@ internal class item_only_for_flight : ScriptObjectAutoAddDBBound, IItemOnUse
 
                 break;
             case 34475:
-                var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.ArcaneCharges, player.Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.ARCANE_CHARGES, player.Map.DifficultyID);
 
                 if (spellInfo != null)
                     Spell.SendCastResult(player, spellInfo, default, castId, SpellCastResult.NotOnGround);
@@ -106,9 +109,9 @@ internal class item_only_for_flight : ScriptObjectAutoAddDBBound, IItemOnUse
 }
 
 [Script]
-internal class item_gor_dreks_ointment : ScriptObjectAutoAddDBBound, IItemOnUse
+internal class ItemGorDreksOintment : ScriptObjectAutoAddDBBound, IItemOnUse
 {
-    public item_gor_dreks_ointment() : base("item_gor_dreks_ointment") { }
+    public ItemGorDreksOintment() : base("item_gor_dreks_ointment") { }
 
     public bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId)
     {
@@ -125,9 +128,9 @@ internal class item_gor_dreks_ointment : ScriptObjectAutoAddDBBound, IItemOnUse
 }
 
 [Script]
-internal class item_mysterious_egg : ScriptObjectAutoAddDBBound, IItemOnExpire
+internal class ItemMysteriousEgg : ScriptObjectAutoAddDBBound, IItemOnExpire
 {
-    public item_mysterious_egg() : base("item_mysterious_egg") { }
+    public ItemMysteriousEgg() : base("item_mysterious_egg") { }
 
     public bool OnExpire(Player player, ItemTemplate pItemProto)
     {
@@ -142,9 +145,9 @@ internal class item_mysterious_egg : ScriptObjectAutoAddDBBound, IItemOnExpire
 }
 
 [Script]
-internal class item_disgusting_jar : ScriptObjectAutoAddDBBound, IItemOnExpire
+internal class ItemDisgustingJar : ScriptObjectAutoAddDBBound, IItemOnExpire
 {
-    public item_disgusting_jar() : base("item_disgusting_jar") { }
+    public ItemDisgustingJar() : base("item_disgusting_jar") { }
 
     public bool OnExpire(Player player, ItemTemplate pItemProto)
     {
@@ -159,19 +162,19 @@ internal class item_disgusting_jar : ScriptObjectAutoAddDBBound, IItemOnExpire
 }
 
 [Script]
-internal class item_petrov_cluster_bombs : ScriptObjectAutoAddDBBound, IItemOnUse
+internal class ItemPetrovClusterBombs : ScriptObjectAutoAddDBBound, IItemOnUse
 {
-    public item_petrov_cluster_bombs() : base("item_petrov_cluster_bombs") { }
+    public ItemPetrovClusterBombs() : base("item_petrov_cluster_bombs") { }
 
     public bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId)
     {
-        if (player.Zone != Misc.ZoneIdHowling)
+        if (player.Zone != Misc.ZONE_ID_HOWLING)
             return false;
 
         if (player.Transport == null ||
-            player.Area != Misc.AreaIdShatteredStraits)
+            player.Area != Misc.AREA_ID_SHATTERED_STRAITS)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.PetrovBomb, Difficulty.None);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.PETROV_BOMB, Difficulty.None);
 
             if (spellInfo != null)
                 Spell.SendCastResult(player, spellInfo, default, castId, SpellCastResult.NotHere);
@@ -184,15 +187,15 @@ internal class item_petrov_cluster_bombs : ScriptObjectAutoAddDBBound, IItemOnUs
 }
 
 [Script]
-internal class item_captured_frog : ScriptObjectAutoAddDBBound, IItemOnUse
+internal class ItemCapturedFrog : ScriptObjectAutoAddDBBound, IItemOnUse
 {
-    public item_captured_frog() : base("item_captured_frog") { }
+    public ItemCapturedFrog() : base("item_captured_frog") { }
 
     public bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId)
     {
-        if (player.GetQuestStatus(QuestIds.ThePerfectSpies) == QuestStatus.Incomplete)
+        if (player.GetQuestStatus(QuestIds.THE_PERFECT_SPIES) == QuestStatus.Incomplete)
         {
-            if (player.FindNearestCreature(CreatureIds.VanirasSentryTotem, 10.0f))
+            if (player.FindNearestCreature(CreatureIds.VANIRAS_SENTRY_TOTEM, 10.0f))
                 return false;
             else
                 player.SendEquipError(InventoryResult.OutOfRange, item, null);
@@ -208,9 +211,9 @@ internal class item_captured_frog : ScriptObjectAutoAddDBBound, IItemOnUse
 
 [Script] // Only used currently for
 // 19169: Nightfall
-internal class item_generic_limit_chance_above_60 : ScriptObjectAutoAddDBBound, IItemOnCastItemCombatSpell
+internal class ItemGenericLimitChanceAbove60 : ScriptObjectAutoAddDBBound, IItemOnCastItemCombatSpell
 {
-    public item_generic_limit_chance_above_60() : base("item_generic_limit_chance_above_60") { }
+    public ItemGenericLimitChanceAbove60() : base("item_generic_limit_chance_above_60") { }
 
     public bool OnCastItemCombatSpell(Player player, Unit victim, SpellInfo spellInfo, Item item)
     {

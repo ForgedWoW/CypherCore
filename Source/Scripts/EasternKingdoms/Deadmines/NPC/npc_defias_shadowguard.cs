@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
@@ -13,7 +13,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 {
     48505, 49852
 })]
-public class npc_defias_shadowguard : ScriptedAI
+public class NPCDefiasShadowguard : ScriptedAI
 {
     public uint SinisterTimer;
     public uint WhirlingBladesTimer;
@@ -21,7 +21,7 @@ public class npc_defias_shadowguard : ScriptedAI
 
     public bool Below;
 
-    public npc_defias_shadowguard(Creature creature) : base(creature) { }
+    public NPCDefiasShadowguard(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -38,7 +38,7 @@ public class npc_defias_shadowguard : ScriptedAI
     {
         if (SinisterTimer <= diff)
         {
-            DoCastVictim(boss_vanessa_vancleef.Spells.SINISTER);
+            DoCastVictim(BossVanessaVancleef.Spells.SINISTER);
             SinisterTimer = RandomHelper.URand(5000, 7000);
         }
         else
@@ -48,7 +48,7 @@ public class npc_defias_shadowguard : ScriptedAI
 
         if (WhirlingBladesTimer <= diff)
         {
-            DoCast(Me, boss_vanessa_vancleef.Spells.BLADES);
+            DoCast(Me, BossVanessaVancleef.Spells.BLADES);
             WhirlingBladesTimer = RandomHelper.URand(6400, 8200);
         }
         else
@@ -58,7 +58,7 @@ public class npc_defias_shadowguard : ScriptedAI
 
         if (HealthBelowPct(35) && !Below)
         {
-            DoCast(Me, boss_vanessa_vancleef.Spells.EVASION);
+            DoCast(Me, BossVanessaVancleef.Spells.EVASION);
             Below = true;
         }
 
@@ -67,7 +67,7 @@ public class npc_defias_shadowguard : ScriptedAI
             var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
             if (target != null)
-                DoCast(target, boss_vanessa_vancleef.Spells.SHADOWSTEP);
+                DoCast(target, BossVanessaVancleef.Spells.SHADOWSTEP);
 
             ShadowstepTimer = RandomHelper.URand(6400, 8200);
         }

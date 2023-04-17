@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 45284 - Lightning Bolt Overload
 [SpellScript(45284)]
-internal class spell_sha_lightning_bolt_overload : SpellScript, IHasSpellEffects
+internal class SpellShaLightningBoltOverload : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -23,12 +24,12 @@ internal class spell_sha_lightning_bolt_overload : SpellScript, IHasSpellEffects
 
     private void HandleScript(int effIndex)
     {
-        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, 1);
+        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MAELSTROM_CONTROLLER, 1);
 
         if (energizeAmount != null)
             Caster
-                .CastSpell(Caster,
-                           ShamanSpells.LightningBoltOverloadEnergize,
+                .SpellFactory.CastSpell(Caster,
+                           ShamanSpells.LIGHTNING_BOLT_OVERLOAD_ENERGIZE,
                            new CastSpellExtraArgs(energizeAmount)
                                .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
     }

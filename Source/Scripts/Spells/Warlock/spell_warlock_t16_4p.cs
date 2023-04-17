@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 145091 - Item - Warlock T16 4P Bonus
 [SpellScript(145091)]
-public class spell_warlock_t16_4p : AuraScript, IHasAuraEffects
+public class SpellWarlockT164P : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -27,7 +27,7 @@ public class spell_warlock_t16_4p : AuraScript, IHasAuraEffects
         // "When a Burning Ember fills up, your critical strike chance is increased by 15% for 5 seconds"
         var caster = OwnerAsUnit.AsPlayer;
 
-        if (caster == null || caster.HasAura(WarlockSpells.T16_4P_INTERNAL_CD))
+        if (caster == null || caster.HasAura(WarlockSpells.T16_4_P_INTERNAL_CD))
             return;
 
         // allow only in Destruction
@@ -40,14 +40,14 @@ public class spell_warlock_t16_4p : AuraScript, IHasAuraEffects
 
         if (currentPower > oldPower)
         {
-            caster.CastSpell(caster, WarlockSpells.T16_4P_TRIGGERED, true);
-            caster.CastSpell(caster, WarlockSpells.T16_4P_INTERNAL_CD, true);
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.T16_4_P_TRIGGERED, true);
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.T16_4_P_INTERNAL_CD, true);
         }
 
         aurEffConst.SetAmount(currentPower);
     }
 
-    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    private void OnProc(AuraEffect unnamedParameter, ProcEventInfo eventInfo)
     {
         if (eventInfo.DamageInfo != null)
             return;
@@ -59,6 +59,6 @@ public class spell_warlock_t16_4p : AuraScript, IHasAuraEffects
             return;
 
         // "Shadow Bolt and Touch of Chaos have a 8% chance to also cast Hand of Gul'dan at the target"
-        caster.CastSpell(victim, WarlockSpells.HAND_OF_GULDAN, true);
+        caster.SpellFactory.CastSpell(victim, WarlockSpells.HAND_OF_GULDAN, true);
     }
 }

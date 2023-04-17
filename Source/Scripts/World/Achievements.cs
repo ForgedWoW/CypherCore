@@ -1,47 +1,48 @@
 // Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAchievement;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAchievement;
 
 namespace Scripts.World.Achievements;
 
 internal struct AreaIds
 {
     //Tilted
-    public const uint AreaArgentTournamentFields = 4658;
-    public const uint AreaRingOfAspirants = 4670;
-    public const uint AreaRingOfArgentValiants = 4671;
-    public const uint AreaRingOfAllianceValiants = 4672;
-    public const uint AreaRingOfHordeValiants = 4673;
-    public const uint AreaRingOfChampions = 4669;
+    public const uint AREA_ARGENT_TOURNAMENT_FIELDS = 4658;
+    public const uint AREA_RING_OF_ASPIRANTS = 4670;
+    public const uint AREA_RING_OF_ARGENT_VALIANTS = 4671;
+    public const uint AREA_RING_OF_ALLIANCE_VALIANTS = 4672;
+    public const uint AREA_RING_OF_HORDE_VALIANTS = 4673;
+    public const uint AREA_RING_OF_CHAMPIONS = 4669;
 }
 
 internal struct AuraIds
 {
     //Flirt With Disaster
-    public const uint AuraPerfumeForever = 70235;
-    public const uint AuraPerfumeEnchantress = 70234;
-    public const uint AuraPerfumeVictory = 70233;
+    public const uint AURA_PERFUME_FOREVER = 70235;
+    public const uint AURA_PERFUME_ENCHANTRESS = 70234;
+    public const uint AURA_PERFUME_VICTORY = 70233;
 }
 
 internal struct VehicleIds
 {
     //BgSA Artillery
-    public const uint AntiPersonnalCannon = 27894;
+    public const uint ANTI_PERSONNAL_CANNON = 27894;
 }
 
 [Script("achievement_arena_2v2_kills", ArenaTypes.Team2v2)]
 [Script("achievement_arena_3v3_kills", ArenaTypes.Team3v3)]
 [Script("achievement_arena_5v5_kills", ArenaTypes.Team5v5)]
-internal class achievement_arena_kills : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
+internal class AchievementArenaKills : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
 {
     private readonly ArenaTypes _arenaType;
 
-    public achievement_arena_kills(string name, ArenaTypes arenaType) : base(name)
+    public AchievementArenaKills(string name, ArenaTypes arenaType) : base(name)
     {
         _arenaType = arenaType;
     }
@@ -57,39 +58,39 @@ internal class achievement_arena_kills : ScriptObjectAutoAddDBBound, IAchievemen
 }
 
 [Script]
-internal class achievement_tilted : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
+internal class AchievementTilted : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
 {
-    public achievement_tilted() : base("achievement_tilted") { }
+    public AchievementTilted() : base("achievement_tilted") { }
 
     public bool OnCheck(Player player, Unit target)
     {
         if (!player)
             return false;
 
-        var checkArea = player.Area == AreaIds.AreaArgentTournamentFields ||
-                        player.Area == AreaIds.AreaRingOfAspirants ||
-                        player.Area == AreaIds.AreaRingOfArgentValiants ||
-                        player.Area == AreaIds.AreaRingOfAllianceValiants ||
-                        player.Area == AreaIds.AreaRingOfHordeValiants ||
-                        player.Area == AreaIds.AreaRingOfChampions;
+        var checkArea = player.Area == AreaIds.AREA_ARGENT_TOURNAMENT_FIELDS ||
+                        player.Area == AreaIds.AREA_RING_OF_ASPIRANTS ||
+                        player.Area == AreaIds.AREA_RING_OF_ARGENT_VALIANTS ||
+                        player.Area == AreaIds.AREA_RING_OF_ALLIANCE_VALIANTS ||
+                        player.Area == AreaIds.AREA_RING_OF_HORDE_VALIANTS ||
+                        player.Area == AreaIds.AREA_RING_OF_CHAMPIONS;
 
         return checkArea && player.Duel != null && player.Duel.IsMounted;
     }
 }
 
 [Script]
-internal class achievement_flirt_with_disaster_perf_check : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
+internal class AchievementFlirtWithDisasterPerfCheck : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
 {
-    public achievement_flirt_with_disaster_perf_check() : base("achievement_flirt_with_disaster_perf_check") { }
+    public AchievementFlirtWithDisasterPerfCheck() : base("achievement_flirt_with_disaster_perf_check") { }
 
     public bool OnCheck(Player player, Unit target)
     {
         if (!player)
             return false;
 
-        if (player.HasAura(AuraIds.AuraPerfumeForever) ||
-            player.HasAura(AuraIds.AuraPerfumeEnchantress) ||
-            player.HasAura(AuraIds.AuraPerfumeVictory))
+        if (player.HasAura(AuraIds.AURA_PERFUME_FOREVER) ||
+            player.HasAura(AuraIds.AURA_PERFUME_ENCHANTRESS) ||
+            player.HasAura(AuraIds.AURA_PERFUME_VICTORY))
             return true;
 
         return false;
@@ -97,9 +98,9 @@ internal class achievement_flirt_with_disaster_perf_check : ScriptObjectAutoAddD
 }
 
 [Script]
-internal class achievement_killed_exp_or_honor_target : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
+internal class AchievementKilledExpOrHonorTarget : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
 {
-    public achievement_killed_exp_or_honor_target() : base("achievement_killed_exp_or_honor_target") { }
+    public AchievementKilledExpOrHonorTarget() : base("achievement_killed_exp_or_honor_target") { }
 
     public bool OnCheck(Player player, Unit target)
     {
@@ -108,9 +109,9 @@ internal class achievement_killed_exp_or_honor_target : ScriptObjectAutoAddDBBou
 }
 
 [Script] // 7433 - Newbie
-internal class achievement_newbie : ScriptObjectAutoAddDBBound, IAchievementOnCompleted
+internal class AchievementNewbie : ScriptObjectAutoAddDBBound, IAchievementOnCompleted
 {
-    public achievement_newbie() : base("achievement_newbie") { }
+    public AchievementNewbie() : base("achievement_newbie") { }
 
     public void OnCompleted(Player player, AchievementRecord achievement)
     {
@@ -120,9 +121,9 @@ internal class achievement_newbie : ScriptObjectAutoAddDBBound, IAchievementOnCo
 }
 
 [Script] // 6566 - Just a Pup
-internal class achievement_just_a_pup : ScriptObjectAutoAddDBBound, IAchievementOnCompleted
+internal class AchievementJustAPup : ScriptObjectAutoAddDBBound, IAchievementOnCompleted
 {
-    public achievement_just_a_pup() : base("achievement_just_a_pup") { }
+    public AchievementJustAPup() : base("achievement_just_a_pup") { }
 
     public void OnCompleted(Player player, AchievementRecord achievement)
     {

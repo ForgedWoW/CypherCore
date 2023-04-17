@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
@@ -14,11 +17,11 @@ namespace Scripts.Pets
     namespace Warlock
     {
         [CreatureScript(89)]
-        public class npc_warlock_infernal : SmartAI
+        public class NPCWarlockInfernal : SmartAI
         {
-            public Position spawnPos = new();
+            public Position SpawnPos = new();
 
-            public npc_warlock_infernal(Creature creature) : base(creature)
+            public NPCWarlockInfernal(Creature creature) : base(creature)
             {
                 if (!Me.TryGetOwner(out Player owner))
                     return;
@@ -39,7 +42,7 @@ namespace Scripts.Pets
 
             public override void Reset()
             {
-                spawnPos = Me.Location;
+                SpawnPos = Me.Location;
 
                 // if we leave default State (ASSIST) it will passively be controlled by warlock
                 Me.
@@ -73,20 +76,20 @@ namespace Scripts.Pets
                         };
 
                         for (uint i = 0; i < 3; ++i)
-                            player.CastSpell(Me, WarlockSpells.LORD_OF_THE_FLAMES_SUMMON, true);
+                            player.SpellFactory.CastSpell(Me, WarlockSpells.LORD_OF_THE_FLAMES_SUMMON, true);
 
-                        player.CastSpell(player, WarlockSpells.LORD_OF_THE_FLAMES_CD, true);
+                        player.SpellFactory.CastSpell(player, WarlockSpells.LORD_OF_THE_FLAMES_CD, true);
                     }
                 }
             }
 
-            public override void UpdateAI(uint UnnamedParameter)
+            public override void UpdateAI(uint unnamedParameter)
             {
                 if (!Me.HasAura(WarlockSpells.IMMOLATION))
                     DoCast(WarlockSpells.IMMOLATION);
 
                 //DoMeleeAttackIfReady();
-                base.UpdateAI(UnnamedParameter);
+                base.UpdateAI(unnamedParameter);
             }
 
             public override void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra)

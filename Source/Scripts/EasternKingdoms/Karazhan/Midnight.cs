@@ -3,43 +3,46 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Karazhan.Midnight;
 
 internal struct SpellIds
 {
     // Attumen
-    public const uint Shadowcleave = 29832;
-    public const uint IntangiblePresence = 29833;
-    public const uint SpawnSmoke = 10389;
-    public const uint Charge = 29847;
+    public const uint SHADOWCLEAVE = 29832;
+    public const uint INTANGIBLE_PRESENCE = 29833;
+    public const uint SPAWN_SMOKE = 10389;
+    public const uint CHARGE = 29847;
 
     // Midnight
-    public const uint Knockdown = 29711;
-    public const uint SummonAttumen = 29714;
-    public const uint Mount = 29770;
-    public const uint SummonAttumenMounted = 29799;
+    public const uint KNOCKDOWN = 29711;
+    public const uint SUMMON_ATTUMEN = 29714;
+    public const uint MOUNT = 29770;
+    public const uint SUMMON_ATTUMEN_MOUNTED = 29799;
 }
 
 internal struct TextIds
 {
-    public const uint SayKill = 0;
-    public const uint SayRandom = 1;
-    public const uint SayDisarmed = 2;
-    public const uint SayMidnightKill = 3;
-    public const uint SayAppear = 4;
-    public const uint SayMount = 5;
+    public const uint SAY_KILL = 0;
+    public const uint SAY_RANDOM = 1;
+    public const uint SAY_DISARMED = 2;
+    public const uint SAY_MIDNIGHT_KILL = 3;
+    public const uint SAY_APPEAR = 4;
+    public const uint SAY_MOUNT = 5;
 
-    public const uint SayDeath = 3;
+    public const uint SAY_DEATH = 3;
 
     // Midnight
-    public const uint EmoteCallAttumen = 0;
-    public const uint EmoteMountUp = 1;
+    public const uint EMOTE_CALL_ATTUMEN = 0;
+    public const uint EMOTE_MOUNT_UP = 1;
 }
 
 internal enum Phases
@@ -50,12 +53,12 @@ internal enum Phases
 }
 
 [Script]
-internal class boss_attumen : BossAI
+internal class BossAttumen : BossAI
 {
     private ObjectGuid _midnightGUID;
     private Phases _phase;
 
-    public boss_attumen(Creature creature) : base(creature, DataTypes.Attumen)
+    public BossAttumen(Creature creature) : base(creature, DataTypes.ATTUMEN)
     {
         Initialize();
     }
@@ -82,7 +85,7 @@ internal class boss_attumen : BossAI
                            TimeSpan.FromSeconds(25),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Shadowcleave);
+                               DoCastVictim(SpellIds.SHADOWCLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
                            });
 
@@ -93,7 +96,7 @@ internal class boss_attumen : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (target)
-                                   DoCast(target, SpellIds.IntangiblePresence);
+                                   DoCast(target, SpellIds.INTANGIBLE_PRESENCE);
 
                                task.Repeat(TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(45));
                            });
@@ -102,7 +105,7 @@ internal class boss_attumen : BossAI
                            TimeSpan.FromSeconds(60),
                            task =>
                            {
-                               Talk(TextIds.SayRandom);
+                               Talk(TextIds.SAY_RANDOM);
                                task.Repeat(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60));
                            });
     }
@@ -122,18 +125,18 @@ internal class boss_attumen : BossAI
             var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
             if (midnight)
-                midnight.AI.DoCastAOE(SpellIds.Mount, new CastSpellExtraArgs(true));
+                midnight.AI.DoCastAOE(SpellIds.MOUNT, new CastSpellExtraArgs(true));
         }
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SayKill);
+        Talk(TextIds.SAY_KILL);
     }
 
     public override void JustSummoned(Creature summon)
     {
-        if (summon.Entry == CreatureIds.AttumenMounted)
+        if (summon.Entry == CreatureIds.ATTUMEN_MOUNTED)
         {
             var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
@@ -145,7 +148,7 @@ internal class boss_attumen : BossAI
                     summon.SetHealth(Me.Health);
 
                 summon.AI.DoZoneInCombat();
-                summon.AI.SetGUID(_midnightGUID, (int)CreatureIds.Midnight);
+                summon.AI.SetGUID(_midnightGUID, (int)CreatureIds.MIDNIGHT);
             }
         }
 
@@ -154,13 +157,13 @@ internal class boss_attumen : BossAI
 
     public override void IsSummonedBy(WorldObject summoner)
     {
-        if (summoner.Entry == CreatureIds.Midnight)
+        if (summoner.Entry == CreatureIds.MIDNIGHT)
             _phase = Phases.AttumenEngages;
 
-        if (summoner.Entry == CreatureIds.AttumenUnmounted)
+        if (summoner.Entry == CreatureIds.ATTUMEN_UNMOUNTED)
         {
             _phase = Phases.Mounted;
-            DoCastSelf(SpellIds.SpawnSmoke);
+            DoCastSelf(SpellIds.SPAWN_SMOKE);
 
             Scheduler.Schedule(TimeSpan.FromSeconds(10),
                                TimeSpan.FromSeconds(25),
@@ -184,7 +187,7 @@ internal class boss_attumen : BossAI
                                    if (!targetList.Empty())
                                        target = targetList.SelectRandom();
 
-                                   DoCast(target, SpellIds.Charge);
+                                   DoCast(target, SpellIds.CHARGE);
                                    task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(25));
                                });
 
@@ -192,7 +195,7 @@ internal class boss_attumen : BossAI
                                TimeSpan.FromSeconds(35),
                                task =>
                                {
-                                   DoCastVictim(SpellIds.Knockdown);
+                                   DoCastVictim(SpellIds.KNOCKDOWN);
                                    task.Repeat(TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
                                });
         }
@@ -200,7 +203,7 @@ internal class boss_attumen : BossAI
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
         var midnight = Global.ObjAccessor.GetUnit(Me, _midnightGUID);
 
         if (midnight)
@@ -211,7 +214,7 @@ internal class boss_attumen : BossAI
 
     public override void SetGUID(ObjectGuid guid, int id)
     {
-        if (id == CreatureIds.Midnight)
+        if (id == CreatureIds.MIDNIGHT)
             _midnightGUID = guid;
     }
 
@@ -227,9 +230,9 @@ internal class boss_attumen : BossAI
     public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
     {
         if (spellInfo.Mechanic == Mechanics.Disarm)
-            Talk(TextIds.SayDisarmed);
+            Talk(TextIds.SAY_DISARMED);
 
-        if (spellInfo.Id == SpellIds.Mount)
+        if (spellInfo.Id == SpellIds.MOUNT)
         {
             var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
@@ -242,13 +245,13 @@ internal class boss_attumen : BossAI
                 midnight.RemoveAllAttackers();
                 midnight.ReactState = ReactStates.Passive;
                 midnight.MotionMaster.MoveFollow(Me, 2.0f, 0.0f);
-                midnight.AI.Talk(TextIds.EmoteMountUp);
+                midnight.AI.Talk(TextIds.EMOTE_MOUNT_UP);
 
                 Me.AttackStop();
                 Me.RemoveAllAttackers();
                 Me.ReactState = ReactStates.Passive;
                 Me.MotionMaster.MoveFollow(midnight, 2.0f, 0.0f);
-                Talk(TextIds.SayMount);
+                Talk(TextIds.SAY_MOUNT);
 
                 Scheduler.Schedule(TimeSpan.FromSeconds(1),
                                    task =>
@@ -259,7 +262,7 @@ internal class boss_attumen : BossAI
                                        {
                                            if (Me.IsWithinDist2d(midnight.Location, 5.0f))
                                            {
-                                               DoCastAOE(SpellIds.SummonAttumenMounted);
+                                               DoCastAOE(SpellIds.SUMMON_ATTUMEN_MOUNTED);
                                                Me.SetVisible(false);
                                                Me.MotionMaster.Clear();
                                                midnight.SetVisible(false);
@@ -284,12 +287,12 @@ internal class boss_attumen : BossAI
 }
 
 [Script]
-internal class boss_midnight : BossAI
+internal class BossMidnight : BossAI
 {
     private ObjectGuid _attumenGUID;
     private Phases _phase;
 
-    public boss_midnight(Creature creature) : base(creature, DataTypes.Attumen)
+    public BossMidnight(Creature creature) : base(creature, DataTypes.ATTUMEN)
     {
         Initialize();
     }
@@ -312,25 +315,25 @@ internal class boss_midnight : BossAI
             Me.HealthBelowPctDamaged(95, damage))
         {
             _phase = Phases.AttumenEngages;
-            Talk(TextIds.EmoteCallAttumen);
-            DoCastAOE(SpellIds.SummonAttumen);
+            Talk(TextIds.EMOTE_CALL_ATTUMEN);
+            DoCastAOE(SpellIds.SUMMON_ATTUMEN);
         }
         else if (_phase == Phases.AttumenEngages &&
                  Me.HealthBelowPctDamaged(25, damage))
         {
             _phase = Phases.Mounted;
-            DoCastAOE(SpellIds.Mount, new CastSpellExtraArgs(true));
+            DoCastAOE(SpellIds.MOUNT, new CastSpellExtraArgs(true));
         }
     }
 
     public override void JustSummoned(Creature summon)
     {
-        if (summon.Entry == CreatureIds.AttumenUnmounted)
+        if (summon.Entry == CreatureIds.ATTUMEN_UNMOUNTED)
         {
             _attumenGUID = summon.GUID;
-            summon.AI.SetGUID(Me.GUID, (int)CreatureIds.Midnight);
+            summon.AI.SetGUID(Me.GUID, (int)CreatureIds.MIDNIGHT);
             summon.AI.AttackStart(Me.Victim);
-            summon.AI.Talk(TextIds.SayAppear);
+            summon.AI.Talk(TextIds.SAY_APPEAR);
         }
 
         base.JustSummoned(summon);
@@ -344,7 +347,7 @@ internal class boss_midnight : BossAI
                            TimeSpan.FromSeconds(25),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Knockdown);
+                               DoCastVictim(SpellIds.KNOCKDOWN);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
                            });
     }
@@ -361,7 +364,7 @@ internal class boss_midnight : BossAI
             var unit = Global.ObjAccessor.GetUnit(Me, _attumenGUID);
 
             if (unit)
-                Talk(TextIds.SayMidnightKill, unit);
+                Talk(TextIds.SAY_MIDNIGHT_KILL, unit);
         }
     }
 

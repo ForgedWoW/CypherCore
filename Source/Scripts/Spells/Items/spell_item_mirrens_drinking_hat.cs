@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 29830 - Mirren's Drinking Hat
-internal class spell_item_mirrens_drinking_hat : SpellScript, IHasSpellEffects
+internal class SpellItemMirrensDrinkingHat : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -28,16 +29,16 @@ internal class spell_item_mirrens_drinking_hat : SpellScript, IHasSpellEffects
             case 1:
             case 2:
             case 3:
-                spellId = ItemSpellIds.LochModanLager;
+                spellId = ItemSpellIds.LOCH_MODAN_LAGER;
 
                 break;
             case 4:
             case 5:
-                spellId = ItemSpellIds.StouthammerLite;
+                spellId = ItemSpellIds.STOUTHAMMER_LITE;
 
                 break;
             case 6:
-                spellId = ItemSpellIds.AeriePeakPaleAle;
+                spellId = ItemSpellIds.AERIE_PEAK_PALE_ALE;
 
                 break;
             default:
@@ -45,6 +46,6 @@ internal class spell_item_mirrens_drinking_hat : SpellScript, IHasSpellEffects
         }
 
         var caster = Caster;
-        caster.CastSpell(caster, spellId, new CastSpellExtraArgs(Spell));
+        caster.SpellFactory.CastSpell(caster, spellId, new CastSpellExtraArgs(Spell));
     }
 }

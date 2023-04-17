@@ -2,19 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IUnit;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IUnit;
 
 namespace Scripts.Spells.Evoker;
 
 [Script]
-internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal, IUnitOnDamage
+internal class PlayerEvokerScript : ScriptObjectAutoAdd, IUnitOnHeal, IUnitOnDamage
 {
+    public PlayerEvokerScript() : base("player_evoker_script") { }
     public PlayerClass PlayerClass { get; } = PlayerClass.Evoker;
-
-    public player_evoker_script() : base("player_evoker_script") { }
 
     public void OnDamage(Unit attacker, Unit victim, ref double damage)
     {

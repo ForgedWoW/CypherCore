@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(755)] // 755 - Health Funnel
-internal class spell_warl_health_funnel : AuraScript, IHasAuraEffects
+internal class SpellWarlHealthFunnel : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -32,9 +32,9 @@ internal class spell_warl_health_funnel : AuraScript, IHasAuraEffects
         var target = Target;
 
         if (caster.HasAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_R2))
-            target.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R2, true);
+            target.SpellFactory.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R2, true);
         else if (caster.HasAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_R1))
-            target.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
+            target.SpellFactory.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
     }
 
     private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)

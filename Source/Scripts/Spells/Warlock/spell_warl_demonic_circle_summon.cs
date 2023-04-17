@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(48018)] // 48018 - Demonic Circle: Summon
-internal class spell_warl_demonic_circle_summon : AuraScript, IHasAuraEffects
+internal class SpellWarlDemonicCircleSummon : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -45,7 +45,7 @@ internal class spell_warl_demonic_circle_summon : AuraScript, IHasAuraEffects
             if (Target.IsWithinDist(circle, spellInfo.GetMaxRange(true)))
             {
                 if (!Target.HasAura(WarlockSpells.DEMONIC_CIRCLE_ALLOW_CAST))
-                    Target.CastSpell(Target, WarlockSpells.DEMONIC_CIRCLE_ALLOW_CAST, true);
+                    Target.SpellFactory.CastSpell(Target, WarlockSpells.DEMONIC_CIRCLE_ALLOW_CAST, true);
             }
             else
             {

@@ -1,18 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Shaman;
 
 //AT ID : 6336
 //Spell ID : 207495
 [Script]
-public class at_sha_ancestral_protection_totem : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
+public class AtShaAncestralProtectionTotem : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
-    public int timeInterval;
+    public int TimeInterval;
 
     public void OnCreate()
     {
@@ -27,7 +28,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerScript, IAreaTrigger
 
             if (caster.IsFriendlyTo(target) || target == caster.OwnerUnit)
                 if (!target.IsTotem)
-                    caster.CastSpell(target, SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA, true);
+                    caster.SpellFactory.CastSpell(target, SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA, true);
         }
     }
 
@@ -60,7 +61,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerScript, IAreaTrigger
             if (unit.IsTotem)
                 return;
             else
-                caster.CastSpell(unit, SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA, true);
+                caster.SpellFactory.CastSpell(unit, SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA, true);
         }
     }
 

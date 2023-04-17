@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 // Light's Hammer - 122773
 [SpellScript(122773)]
-public class spell_pal_lights_hammer : SpellScript, ISpellAfterCast
+public class SpellPalLightsHammer : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -19,11 +19,11 @@ public class spell_pal_lights_hammer : SpellScript, ISpellAfterCast
         if (caster != null)
         {
             var tempList = new List<Creature>();
-            var LightsHammerlist = new List<Creature>();
+            var lightsHammerlist = new List<Creature>();
 
-            LightsHammerlist = caster.GetCreatureListWithEntryInGrid(PaladinNPCs.NPC_PALADIN_LIGHTS_HAMMER, 200.0f);
+            lightsHammerlist = caster.GetCreatureListWithEntryInGrid(PaladinNpCs.NPC_PALADIN_LIGHTS_HAMMER, 200.0f);
 
-            tempList = new List<Creature>(LightsHammerlist);
+            tempList = new List<Creature>(lightsHammerlist);
 
             for (var i = tempList.GetEnumerator(); i.MoveNext();)
             {
@@ -32,11 +32,11 @@ public class spell_pal_lights_hammer : SpellScript, ISpellAfterCast
                 if (owner != null && owner.GUID == caster.GUID && i.Current.IsSummon)
                     continue;
 
-                LightsHammerlist.Remove(i.Current);
+                lightsHammerlist.Remove(i.Current);
             }
 
-            foreach (var item in LightsHammerlist)
-                item.CastSpell(item, PaladinSpells.LightHammerPeriodic, true);
+            foreach (var item in lightsHammerlist)
+                item.SpellFactory.CastSpell(item, PaladinSpells.LIGHT_HAMMER_PERIODIC, true);
         }
     }
 }

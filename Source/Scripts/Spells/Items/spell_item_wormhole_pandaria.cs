@@ -2,18 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 126755 - Wormhole: Pandaria
-internal class spell_item_wormhole_pandaria : SpellScript, IHasSpellEffects
+internal class SpellItemWormholePandaria : SpellScript, IHasSpellEffects
 {
-    private readonly uint[] WormholeTargetLocations =
+    private readonly uint[] _wormholeTargetLocations =
     {
-        ItemSpellIds.Wormholepandariaisleofreckoning, ItemSpellIds.Wormholepandariakunlaiunderwater, ItemSpellIds.Wormholepandariasravess, ItemSpellIds.Wormholepandariarikkitunvillage, ItemSpellIds.Wormholepandariazanvesstree, ItemSpellIds.Wormholepandariaanglerswharf, ItemSpellIds.Wormholepandariacranestatue, ItemSpellIds.Wormholepandariaemperorsomen, ItemSpellIds.Wormholepandariawhitepetallake
+        ItemSpellIds.WORMHOLEPANDARIAISLEOFRECKONING, ItemSpellIds.WORMHOLEPANDARIAKUNLAIUNDERWATER, ItemSpellIds.WORMHOLEPANDARIASRAVESS, ItemSpellIds.WORMHOLEPANDARIARIKKITUNVILLAGE, ItemSpellIds.WORMHOLEPANDARIAZANVESSTREE, ItemSpellIds.WORMHOLEPANDARIAANGLERSWHARF, ItemSpellIds.WORMHOLEPANDARIACRANESTATUE, ItemSpellIds.WORMHOLEPANDARIAEMPERORSOMEN, ItemSpellIds.WORMHOLEPANDARIAWHITEPETALLAKE
     };
 
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -27,7 +28,7 @@ internal class spell_item_wormhole_pandaria : SpellScript, IHasSpellEffects
     private void HandleTeleport(int effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        var spellId = WormholeTargetLocations.SelectRandom();
-        Caster.CastSpell(HitUnit, spellId, true);
+        var spellId = _wormholeTargetLocations.SelectRandom();
+        Caster.SpellFactory.CastSpell(HitUnit, spellId, true);
     }
 }

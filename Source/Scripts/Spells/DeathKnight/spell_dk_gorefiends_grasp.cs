@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(108199)]
-public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
+public class SpellDkGorefiendsGrasp : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,9 +23,9 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
 
     private void HandleScript(int effIndex)
     {
-        var _player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-        if (_player != null)
+        if (player != null)
         {
             var target = HitUnit;
 
@@ -33,20 +34,20 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
                 var tempList = new List<Unit>();
                 var gripList = new List<Unit>();
 
-                _player.GetAttackableUnitListInRange(tempList, 20.0f);
+                player.GetAttackableUnitListInRange(tempList, 20.0f);
 
                 foreach (var itr in tempList)
                 {
-                    if (itr.GUID == _player.GUID)
+                    if (itr.GUID == player.GUID)
                         continue;
 
-                    if (!_player.IsValidAttackTarget(itr))
+                    if (!player.IsValidAttackTarget(itr))
                         continue;
 
                     if (itr.IsImmunedToSpell(SpellInfo, Caster))
                         continue;
 
-                    if (!itr.IsWithinLOSInMap(_player))
+                    if (!itr.IsWithinLOSInMap(player))
                         continue;
 
                     gripList.Add(itr);
@@ -54,8 +55,8 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
 
                 foreach (var itr in gripList)
                 {
-                    itr.CastSpell(target, DeathKnightSpells.DEATH_GRIP_ONLY_JUMP, true);
-                    itr.CastSpell(target, DeathKnightSpells.GOREFIENDS_GRASP_GRIP_VISUAL, true);
+                    itr.SpellFactory.CastSpell(target, DeathKnightSpells.DEATH_GRIP_ONLY_JUMP, true);
+                    itr.SpellFactory.CastSpell(target, DeathKnightSpells.GOREFIENDS_GRASP_GRIP_VISUAL, true);
                 }
             }
         }

@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 
 namespace Scripts.Spells.DeathKnight;
 
 /// Blood Shield - 77535
 [SpellScript(77535)]
-public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
+public class SpellDkBloodShield : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -21,34 +21,34 @@ public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectAbsorbHandler(AfterAbsorb, 0));
     }
 
-    private double AfterAbsorb(AuraEffect p_AurEff, DamageInfo UnnamedParameter, double p_AbsorbAmount)
+    private double AfterAbsorb(AuraEffect pAurEff, DamageInfo unnamedParameter, double pAbsorbAmount)
     {
-        var l_Target = Target;
+        var lTarget = Target;
 
-        if (l_Target != null)
+        if (lTarget != null)
         {
             /// While Vampiric Blood is active, your Blood Shield cannot be reduced below 3% of your maximum health.
-            var l_AurEff = l_Target.GetAuraEffect(eSpells.T17Blood4P, 0);
+            var lAurEff = lTarget.GetAuraEffect(ESpells.T17_BLOOD4_P, 0);
 
-            if (l_AurEff != null)
+            if (lAurEff != null)
             {
-                var l_FutureAbsorb = Convert.ToInt32(p_AurEff.Amount - p_AbsorbAmount);
-                var l_MinimaAbsorb = Convert.ToInt32(l_Target.CountPctFromMaxHealth(l_AurEff.Amount));
+                var lFutureAbsorb = Convert.ToInt32(pAurEff.Amount - pAbsorbAmount);
+                var lMinimaAbsorb = Convert.ToInt32(lTarget.CountPctFromMaxHealth(lAurEff.Amount));
 
                 /// We need to add some absorb amount to correct the absorb amount after that, and set it to 3% of max health
-                if (l_FutureAbsorb < l_MinimaAbsorb)
+                if (lFutureAbsorb < lMinimaAbsorb)
                 {
-                    var l_AddedAbsorb = l_MinimaAbsorb - l_FutureAbsorb;
-                    p_AurEff.ChangeAmount(p_AurEff.Amount + l_AddedAbsorb);
+                    var lAddedAbsorb = lMinimaAbsorb - lFutureAbsorb;
+                    pAurEff.ChangeAmount(pAurEff.Amount + lAddedAbsorb);
                 }
             }
         }
 
-        return p_AbsorbAmount;
+        return pAbsorbAmount;
     }
 
-    private struct eSpells
+    private struct ESpells
     {
-        public const uint T17Blood4P = 165571;
+        public const uint T17_BLOOD4_P = 165571;
     }
 }

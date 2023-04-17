@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(223817)] // 223817 - Divine Purpose
-internal class spell_pal_divine_purpose : AuraScript, IHasAuraEffects
+internal class SpellPalDivinePurpose : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -38,8 +39,8 @@ internal class spell_pal_divine_purpose : AuraScript, IHasAuraEffects
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         eventInfo.Actor
-                 .CastSpell(eventInfo.Actor,
-                            PaladinSpells.DivinePurposeTriggerred,
+                 .SpellFactory.CastSpell(eventInfo.Actor,
+                            PaladinSpells.DIVINE_PURPOSE_TRIGGERRED,
                             new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(eventInfo.ProcSpell));
     }
 }

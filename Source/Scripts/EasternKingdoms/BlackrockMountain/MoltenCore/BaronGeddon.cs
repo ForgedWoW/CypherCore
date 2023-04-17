@@ -3,33 +3,36 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.BaronGeddon;
 
 internal struct SpellIds
 {
-    public const uint Inferno = 19695;
-    public const uint InfernoDmg = 19698;
-    public const uint IgniteMana = 19659;
-    public const uint LivingBomb = 20475;
-    public const uint Armageddon = 20478;
+    public const uint INFERNO = 19695;
+    public const uint INFERNO_DMG = 19698;
+    public const uint IGNITE_MANA = 19659;
+    public const uint LIVING_BOMB = 20475;
+    public const uint ARMAGEDDON = 20478;
 }
 
 internal struct TextIds
 {
-    public const uint EmoteService = 0;
+    public const uint EMOTE_SERVICE = 0;
 }
 
 [Script]
-internal class boss_baron_geddon : BossAI
+internal class BossBaronGeddon : BossAI
 {
-    public boss_baron_geddon(Creature creature) : base(creature, DataTypes.BaronGeddon) { }
+    public BossBaronGeddon(Creature creature) : base(creature, DataTypes.BARON_GEDDON) { }
 
     public override void JustEngagedWith(Unit victim)
     {
@@ -38,17 +41,17 @@ internal class boss_baron_geddon : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(45),
                            task =>
                            {
-                               DoCast(Me, SpellIds.Inferno);
+                               DoCast(Me, SpellIds.INFERNO);
                                task.Repeat(TimeSpan.FromSeconds(45));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(30),
                            task =>
                            {
-                               var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.IgniteMana);
+                               var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.IGNITE_MANA);
 
                                if (target)
-                                   DoCast(target, SpellIds.IgniteMana);
+                                   DoCast(target, SpellIds.IGNITE_MANA);
 
                                task.Repeat(TimeSpan.FromSeconds(30));
                            });
@@ -59,7 +62,7 @@ internal class boss_baron_geddon : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.LivingBomb);
+                                   DoCast(target, SpellIds.LIVING_BOMB);
 
                                task.Repeat(TimeSpan.FromSeconds(35));
                            });
@@ -76,8 +79,8 @@ internal class boss_baron_geddon : BossAI
         if (!HealthAbovePct(2))
         {
             Me.InterruptNonMeleeSpells(true);
-            DoCast(Me, SpellIds.Armageddon);
-            Talk(TextIds.EmoteService);
+            DoCast(Me, SpellIds.ARMAGEDDON);
+            Talk(TextIds.EMOTE_SERVICE);
 
             return;
         }
@@ -90,7 +93,7 @@ internal class boss_baron_geddon : BossAI
 }
 
 [Script] // 19695 - Inferno
-internal class spell_baron_geddon_inferno : AuraScript, IHasAuraEffects
+internal class SpellBaronGeddonInferno : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -111,6 +114,6 @@ internal class spell_baron_geddon_inferno : AuraScript, IHasAuraEffects
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
         args.TriggeringAura = aurEff;
         args.AddSpellMod(SpellValueMod.BasePoint0, damageForTick[aurEff.GetTickNumber() - 1]);
-        Target.CastSpell((WorldObject)null, SpellIds.InfernoDmg, args);
+        Target.SpellFactory.CastSpell((WorldObject)null, SpellIds.INFERNO_DMG, args);
     }
 }

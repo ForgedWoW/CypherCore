@@ -3,32 +3,33 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Sulfuron;
 
 internal struct SpellIds
 {
     // Sulfuron Harbringer
-    public const uint DarkStrike = 19777;
-    public const uint DemoralizingShout = 19778;
-    public const uint Inspire = 19779;
-    public const uint Knockdown = 19780;
-    public const uint Flamespear = 19781;
+    public const uint DARK_STRIKE = 19777;
+    public const uint DEMORALIZING_SHOUT = 19778;
+    public const uint INSPIRE = 19779;
+    public const uint KNOCKDOWN = 19780;
+    public const uint FLAMESPEAR = 19781;
 
     // Adds
-    public const uint Heal = 19775;
-    public const uint Shadowwordpain = 19776;
-    public const uint Immolate = 20294;
+    public const uint HEAL = 19775;
+    public const uint SHADOWWORDPAIN = 19776;
+    public const uint IMMOLATE = 20294;
 }
 
 [Script]
-internal class boss_sulfuron : BossAI
+internal class BossSulfuron : BossAI
 {
-    public boss_sulfuron(Creature creature) : base(creature, DataTypes.SulfuronHarbinger) { }
+    public BossSulfuron(Creature creature) : base(creature, DataTypes.SULFURON_HARBINGER) { }
 
     public override void JustEngagedWith(Unit victim)
     {
@@ -37,33 +38,33 @@ internal class boss_sulfuron : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCast(Me, SpellIds.DarkStrike);
+                               DoCast(Me, SpellIds.DARK_STRIKE);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(18));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(15),
                            task =>
                            {
-                               DoCastVictim(SpellIds.DemoralizingShout);
+                               DoCastVictim(SpellIds.DEMORALIZING_SHOUT);
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(13),
                            task =>
                            {
-                               var healers = DoFindFriendlyMissingBuff(45.0f, SpellIds.Inspire);
+                               var healers = DoFindFriendlyMissingBuff(45.0f, SpellIds.INSPIRE);
 
                                if (!healers.Empty())
-                                   DoCast(healers.SelectRandom(), SpellIds.Inspire);
+                                   DoCast(healers.SelectRandom(), SpellIds.INSPIRE);
 
-                               DoCast(Me, SpellIds.Inspire);
+                               DoCast(Me, SpellIds.INSPIRE);
                                task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(26));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Knockdown);
+                               DoCastVictim(SpellIds.KNOCKDOWN);
                                task.Repeat(TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(15));
                            });
 
@@ -73,7 +74,7 @@ internal class boss_sulfuron : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
                                if (target)
-                                   DoCast(target, SpellIds.Flamespear);
+                                   DoCast(target, SpellIds.FLAMESPEAR);
 
                                task.Repeat(TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(16));
                            });
@@ -89,9 +90,9 @@ internal class boss_sulfuron : BossAI
 }
 
 [Script]
-internal class npc_flamewaker_priest : ScriptedAI
+internal class NPCFlamewakerPriest : ScriptedAI
 {
-    public npc_flamewaker_priest(Creature creature) : base(creature) { }
+    public NPCFlamewakerPriest(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -114,7 +115,7 @@ internal class npc_flamewaker_priest : ScriptedAI
                                var target = DoSelectLowestHpFriendly(60.0f, 1);
 
                                if (target)
-                                   DoCast(target, SpellIds.Heal);
+                                   DoCast(target, SpellIds.HEAL);
 
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
                            });
@@ -122,10 +123,10 @@ internal class npc_flamewaker_priest : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            task =>
                            {
-                               var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.Shadowwordpain);
+                               var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.SHADOWWORDPAIN);
 
                                if (target)
-                                   DoCast(target, SpellIds.Shadowwordpain);
+                                   DoCast(target, SpellIds.SHADOWWORDPAIN);
 
                                task.Repeat(TimeSpan.FromSeconds(18), TimeSpan.FromSeconds(26));
                            });
@@ -133,10 +134,10 @@ internal class npc_flamewaker_priest : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.Immolate);
+                               var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.IMMOLATE);
 
                                if (target)
-                                   DoCast(target, SpellIds.Immolate);
+                                   DoCast(target, SpellIds.IMMOLATE);
 
                                task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
                            });

@@ -2,36 +2,38 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.OverlordWyrmthalak;
 
 internal struct SpellIds
 {
-    public const uint Blastwave = 11130;
-    public const uint Shout = 23511;
-    public const uint Cleave = 20691;
-    public const uint Knockaway = 20686;
+    public const uint BLASTWAVE = 11130;
+    public const uint SHOUT = 23511;
+    public const uint CLEAVE = 20691;
+    public const uint KNOCKAWAY = 20686;
 }
 
 internal struct MiscConst
 {
-    public const uint NpcSpirestoneWarlord = 9216;
-    public const uint NpcSmolderthornBerserker = 9268;
+    public const uint NPC_SPIRESTONE_WARLORD = 9216;
+    public const uint NPC_SMOLDERTHORN_BERSERKER = 9268;
 
     public static Position SummonLocation = new(-39.355f, -513.456f, 88.472f, 4.679f);
     public static Position SummonLocation2 = new(-49.875f, -511.896f, 88.195f, 4.613f);
 }
 
 [Script]
-internal class boss_overlord_wyrmthalak : BossAI
+internal class BossOverlordWyrmthalak : BossAI
 {
-    private bool Summoned;
+    private bool _summoned;
 
-    public boss_overlord_wyrmthalak(Creature creature) : base(creature, DataTypes.OverlordWyrmthalak)
+    public BossOverlordWyrmthalak(Creature creature) : base(creature, DataTypes.OVERLORD_WYRMTHALAK)
     {
         Initialize();
     }
@@ -49,28 +51,28 @@ internal class boss_overlord_wyrmthalak : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Blastwave);
+                               DoCastVictim(SpellIds.BLASTWAVE);
                                task.Repeat(TimeSpan.FromSeconds(20));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Shout);
+                               DoCastVictim(SpellIds.SHOUT);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Cleave);
+                               DoCastVictim(SpellIds.CLEAVE);
                                task.Repeat(TimeSpan.FromSeconds(7));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Knockaway);
+                               DoCastVictim(SpellIds.KNOCKAWAY);
                                task.Repeat(TimeSpan.FromSeconds(14));
                            });
     }
@@ -85,24 +87,24 @@ internal class boss_overlord_wyrmthalak : BossAI
         if (!UpdateVictim())
             return;
 
-        if (!Summoned &&
+        if (!_summoned &&
             HealthBelowPct(51))
         {
             var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
             if (target)
             {
-                Creature warlord = Me.SummonCreature(MiscConst.NpcSpirestoneWarlord, MiscConst.SummonLocation, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+                Creature warlord = Me.SummonCreature(MiscConst.NPC_SPIRESTONE_WARLORD, MiscConst.SummonLocation, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
                 if (warlord)
                     warlord.AI.AttackStart(target);
 
-                Creature berserker = Me.SummonCreature(MiscConst.NpcSmolderthornBerserker, MiscConst.SummonLocation2, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+                Creature berserker = Me.SummonCreature(MiscConst.NPC_SMOLDERTHORN_BERSERKER, MiscConst.SummonLocation2, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
                 if (berserker)
                     berserker.AI.AttackStart(target);
 
-                Summoned = true;
+                _summoned = true;
             }
         }
 
@@ -111,6 +113,6 @@ internal class boss_overlord_wyrmthalak : BossAI
 
     private void Initialize()
     {
-        Summoned = false;
+        _summoned = false;
     }
 }

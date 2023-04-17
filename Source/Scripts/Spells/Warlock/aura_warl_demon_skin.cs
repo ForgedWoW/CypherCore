@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(WarlockSpells.DEMON_SKIN)]
-internal class aura_warl_demon_skin : AuraScript, IHasAuraEffects
+internal class AuraWarlDemonSkin : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -31,6 +31,6 @@ internal class aura_warl_demon_skin : AuraScript, IHasAuraEffects
 
         var threshold = (caster.MaxHealth * GetEffect(1).BaseAmount) / 100.0f;
         absorb = Math.Min(absorb, threshold);
-        caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
+        caster.SpellFactory.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
     }
 }

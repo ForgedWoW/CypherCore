@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_steal_essence_visual : AuraScript, IHasAuraEffects
+internal class SpellStealEssenceVisual : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,10 +25,10 @@ internal class spell_steal_essence_visual : AuraScript, IHasAuraEffects
 
         if (caster != null)
         {
-            caster.CastSpell(caster, GenericSpellIds.CreateToken, true);
+            caster.SpellFactory.CastSpell(caster, GenericSpellIds.CREATE_TOKEN, true);
             var soulTrader = caster.AsCreature;
 
-            soulTrader?.AI.Talk(TextIds.SayCreateToken);
+            soulTrader?.AI.Talk(TextIds.SAY_CREATE_TOKEN);
         }
     }
 }

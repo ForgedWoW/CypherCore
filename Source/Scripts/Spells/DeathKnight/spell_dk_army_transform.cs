@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 127517 - Army Transform
-internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellDkArmyTransform : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -37,6 +38,6 @@ internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpell
 
     private void HandleDummy(int effIndex)
     {
-        Caster.CastSpell(Caster, DeathKnightSpells.ArmyTransforms.SelectRandom(), true);
+        Caster.SpellFactory.CastSpell(Caster, DeathKnightSpells.ArmyTransforms.SelectRandom(), true);
     }
 }

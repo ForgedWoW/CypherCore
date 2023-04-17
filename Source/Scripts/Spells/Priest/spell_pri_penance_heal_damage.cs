@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
@@ -12,7 +13,7 @@ namespace Scripts.Spells.Priest;
 {
     47750, 47666
 })]
-public class spell_pri_penance_heal_damage : SpellScript, IHasSpellEffects
+public class SpellPriPenanceHealDamage : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -30,7 +31,7 @@ public class spell_pri_penance_heal_damage : SpellScript, IHasSpellEffects
     {
         if (Caster.GetAuraEffect(PriestSpells.CONTRITION, 0) != null)
             foreach (var auApp in Caster.GetAppliedAurasQuery().HasSpellId(PriestSpells.ATONEMENT_AURA).GetResults())
-                Caster.CastSpell(auApp.Target, PriestSpells.CONTRITION_HEAL, true);
+                Caster.SpellFactory.CastSpell(auApp.Target, PriestSpells.CONTRITION_HEAL, true);
 
         var powerOfTheDarkSide = Caster.GetAuraEffect(PriestSpells.POWER_OF_THE_DARK_SIDE_MARKER, 0);
 

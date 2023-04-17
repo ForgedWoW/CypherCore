@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
 // Intercept (As of Legion) - 198304
 [SpellScript(198304)]
-public class spell_warr_intercept : SpellScript, ISpellCheckCast, IHasSpellEffects
+public class SpellWarrIntercept : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -42,16 +43,16 @@ public class spell_warr_intercept : SpellScript, ISpellCheckCast, IHasSpellEffec
 
         if (target.IsFriendlyTo(caster))
         {
-            caster.CastSpell(target, WarriorSpells.INTERVENE_TRIGGER, true);
+            caster.SpellFactory.CastSpell(target, WarriorSpells.INTERVENE_TRIGGER, true);
         }
         else
         {
-            caster.CastSpell(target, WarriorSpells.CHARGE_EFFECT, true);
+            caster.SpellFactory.CastSpell(target, WarriorSpells.CHARGE_EFFECT, true);
 
             if (caster.HasAura(WarriorSpells.WARBRINGER))
-                caster.CastSpell(target, WarriorSpells.WARBRINGER_ROOT, true);
+                caster.SpellFactory.CastSpell(target, WarriorSpells.WARBRINGER_ROOT, true);
             else
-                caster.CastSpell(target, WarriorSpells.INTERCEPT_STUN, true);
+                caster.SpellFactory.CastSpell(target, WarriorSpells.INTERCEPT_STUN, true);
         }
     }
 }

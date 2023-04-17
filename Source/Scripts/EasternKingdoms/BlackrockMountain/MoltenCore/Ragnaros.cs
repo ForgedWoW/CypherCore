@@ -2,62 +2,64 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore;
 
 internal struct SpellIds
 {
-    public const uint HandOfRagnaros = 19780;
-    public const uint WrathOfRagnaros = 20566;
-    public const uint LavaBurst = 21158;
-    public const uint MagmaBlast = 20565;       // Ranged attack
-    public const uint SonsOfFlameDummy = 21108; // Server side effect
-    public const uint Ragsubmerge = 21107;      // Stealth aura
-    public const uint Ragemerge = 20568;
-    public const uint MeltWeapon = 21388;
-    public const uint ElementalFire = 20564;
-    public const uint Erruption = 17731;
+    public const uint HAND_OF_RAGNAROS = 19780;
+    public const uint WRATH_OF_RAGNAROS = 20566;
+    public const uint LAVA_BURST = 21158;
+    public const uint MAGMA_BLAST = 20565;       // Ranged attack
+    public const uint SONS_OF_FLAME_DUMMY = 21108; // Server side effect
+    public const uint RAGSUBMERGE = 21107;      // Stealth aura
+    public const uint RAGEMERGE = 20568;
+    public const uint MELT_WEAPON = 21388;
+    public const uint ELEMENTAL_FIRE = 20564;
+    public const uint ERRUPTION = 17731;
 }
 
 internal struct TextIds
 {
-    public const uint SaySummonMaj = 0;
-    public const uint SayArrival1Rag = 1;
-    public const uint SayArrival2Maj = 2;
-    public const uint SayArrival3Rag = 3;
-    public const uint SayArrival5Rag = 4;
-    public const uint SayReinforcements1 = 5;
-    public const uint SayReinforcements2 = 6;
-    public const uint SayHand = 7;
-    public const uint SayWrath = 8;
-    public const uint SayKill = 9;
-    public const uint SayMagmaburst = 10;
+    public const uint SAY_SUMMON_MAJ = 0;
+    public const uint SAY_ARRIVAL1_RAG = 1;
+    public const uint SAY_ARRIVAL2_MAJ = 2;
+    public const uint SAY_ARRIVAL3_RAG = 3;
+    public const uint SAY_ARRIVAL5_RAG = 4;
+    public const uint SAY_REINFORCEMENTS1 = 5;
+    public const uint SAY_REINFORCEMENTS2 = 6;
+    public const uint SAY_HAND = 7;
+    public const uint SAY_WRATH = 8;
+    public const uint SAY_KILL = 9;
+    public const uint SAY_MAGMABURST = 10;
 }
 
 internal struct EventIds
 {
-    public const uint Eruption = 1;
-    public const uint WrathOfRagnaros = 2;
-    public const uint HandOfRagnaros = 3;
-    public const uint LavaBurst = 4;
-    public const uint ElementalFire = 5;
-    public const uint MagmaBlast = 6;
-    public const uint Submerge = 7;
+    public const uint ERUPTION = 1;
+    public const uint WRATH_OF_RAGNAROS = 2;
+    public const uint HAND_OF_RAGNAROS = 3;
+    public const uint LAVA_BURST = 4;
+    public const uint ELEMENTAL_FIRE = 5;
+    public const uint MAGMA_BLAST = 6;
+    public const uint SUBMERGE = 7;
 
-    public const uint Intro1 = 8;
-    public const uint Intro2 = 9;
-    public const uint Intro3 = 10;
-    public const uint Intro4 = 11;
-    public const uint Intro5 = 12;
+    public const uint INTRO1 = 8;
+    public const uint INTRO2 = 9;
+    public const uint INTRO3 = 10;
+    public const uint INTRO4 = 11;
+    public const uint INTRO5 = 12;
 }
 
 [Script]
-internal class boss_ragnaros : BossAI
+internal class BossRagnaros : BossAI
 {
     private uint _emergeTimer;
     private bool _hasSubmergedOnce;
@@ -65,7 +67,7 @@ internal class boss_ragnaros : BossAI
     private byte _introState;
     private bool _isBanished;
 
-    public boss_ragnaros(Creature creature) : base(creature, DataTypes.Ragnaros)
+    public BossRagnaros(Creature creature) : base(creature, DataTypes.RAGNAROS)
     {
         Initialize();
         _introState = 0;
@@ -84,19 +86,19 @@ internal class boss_ragnaros : BossAI
     public override void JustEngagedWith(Unit victim)
     {
         base.JustEngagedWith(victim);
-        Events.ScheduleEvent(EventIds.Eruption, TimeSpan.FromSeconds(15));
-        Events.ScheduleEvent(EventIds.WrathOfRagnaros, TimeSpan.FromSeconds(30));
-        Events.ScheduleEvent(EventIds.HandOfRagnaros, TimeSpan.FromSeconds(25));
-        Events.ScheduleEvent(EventIds.LavaBurst, TimeSpan.FromSeconds(10));
-        Events.ScheduleEvent(EventIds.ElementalFire, TimeSpan.FromSeconds(3));
-        Events.ScheduleEvent(EventIds.MagmaBlast, TimeSpan.FromSeconds(2));
-        Events.ScheduleEvent(EventIds.Submerge, TimeSpan.FromMinutes(3));
+        Events.ScheduleEvent(EventIds.ERUPTION, TimeSpan.FromSeconds(15));
+        Events.ScheduleEvent(EventIds.WRATH_OF_RAGNAROS, TimeSpan.FromSeconds(30));
+        Events.ScheduleEvent(EventIds.HAND_OF_RAGNAROS, TimeSpan.FromSeconds(25));
+        Events.ScheduleEvent(EventIds.LAVA_BURST, TimeSpan.FromSeconds(10));
+        Events.ScheduleEvent(EventIds.ELEMENTAL_FIRE, TimeSpan.FromSeconds(3));
+        Events.ScheduleEvent(EventIds.MAGMA_BLAST, TimeSpan.FromSeconds(2));
+        Events.ScheduleEvent(EventIds.SUBMERGE, TimeSpan.FromMinutes(3));
     }
 
     public override void KilledUnit(Unit victim)
     {
         if (RandomHelper.URand(0, 99) < 25)
-            Talk(TextIds.SayKill);
+            Talk(TextIds.SAY_KILL);
     }
 
     public override void UpdateAI(uint diff)
@@ -106,11 +108,11 @@ internal class boss_ragnaros : BossAI
             if (_introState == 0)
             {
                 Me.HandleEmoteCommand(Emote.OneshotEmerge);
-                Events.ScheduleEvent(EventIds.Intro1, TimeSpan.FromSeconds(4));
-                Events.ScheduleEvent(EventIds.Intro2, TimeSpan.FromSeconds(23));
-                Events.ScheduleEvent(EventIds.Intro3, TimeSpan.FromSeconds(42));
-                Events.ScheduleEvent(EventIds.Intro4, TimeSpan.FromSeconds(43));
-                Events.ScheduleEvent(EventIds.Intro5, TimeSpan.FromSeconds(53));
+                Events.ScheduleEvent(EventIds.INTRO1, TimeSpan.FromSeconds(4));
+                Events.ScheduleEvent(EventIds.INTRO2, TimeSpan.FromSeconds(23));
+                Events.ScheduleEvent(EventIds.INTRO3, TimeSpan.FromSeconds(42));
+                Events.ScheduleEvent(EventIds.INTRO4, TimeSpan.FromSeconds(43));
+                Events.ScheduleEvent(EventIds.INTRO5, TimeSpan.FromSeconds(53));
                 _introState = 1;
             }
 
@@ -120,40 +122,39 @@ internal class boss_ragnaros : BossAI
             {
                 switch (eventId)
                 {
-                    case EventIds.Intro1:
-                        Talk(TextIds.SayArrival1Rag);
+                    case EventIds.INTRO1:
+                        Talk(TextIds.SAY_ARRIVAL1_RAG);
 
                         break;
-                    case EventIds.Intro2:
-                        Talk(TextIds.SayArrival3Rag);
+                    case EventIds.INTRO2:
+                        Talk(TextIds.SAY_ARRIVAL3_RAG);
 
                         break;
-                    case EventIds.Intro3:
+                    case EventIds.INTRO3:
                         Me.HandleEmoteCommand(Emote.OneshotAttack1h);
 
                         break;
-                    case EventIds.Intro4:
-                        Talk(TextIds.SayArrival5Rag);
-                        var executus = ObjectAccessor.GetCreature(Me, Instance.GetGuidData(DataTypes.MajordomoExecutus));
+                    case EventIds.INTRO4:
+                        Talk(TextIds.SAY_ARRIVAL5_RAG);
+                        var executus = ObjectAccessor.GetCreature(Me, Instance.GetGuidData(DataTypes.MAJORDOMO_EXECUTUS));
 
                         if (executus)
                             Unit.Kill(Me, executus);
 
                         break;
-                    case EventIds.Intro5:
+                    case EventIds.INTRO5:
                         Me.ReactState = ReactStates.Aggressive;
                         Me.RemoveUnitFlag(UnitFlags.NonAttackable);
                         Me.SetImmuneToPC(false);
                         _introState = 2;
 
                         break;
-                    
                 }
             });
         }
         else
         {
-            if (_isBanished && ((_emergeTimer <= diff) || (Instance.GetData(MCMiscConst.DataRagnarosAdds)) > 8))
+            if (_isBanished && ((_emergeTimer <= diff) || (Instance.GetData(McMiscConst.DATA_RAGNAROS_ADDS)) > 8))
             {
                 //Become unbanished again
                 Me. //Become unbanished again
@@ -168,7 +169,7 @@ internal class boss_ragnaros : BossAI
                 if (target)
                     AttackStart(target);
 
-                Instance.SetData(MCMiscConst.DataRagnarosAdds, 0);
+                Instance.SetData(McMiscConst.DATA_RAGNAROS_ADDS, 0);
 
                 //DoCast(me, SpellRagemerge); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
                 _isBanished = false;
@@ -191,56 +192,56 @@ internal class boss_ragnaros : BossAI
             {
                 switch (eventId)
                 {
-                    case EventIds.Eruption:
-                        DoCastVictim(SpellIds.Erruption);
-                        Events.ScheduleEvent(EventIds.Eruption, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(45));
+                    case EventIds.ERUPTION:
+                        DoCastVictim(SpellIds.ERRUPTION);
+                        Events.ScheduleEvent(EventIds.ERUPTION, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(45));
 
                         break;
-                    case EventIds.WrathOfRagnaros:
-                        DoCastVictim(SpellIds.WrathOfRagnaros);
+                    case EventIds.WRATH_OF_RAGNAROS:
+                        DoCastVictim(SpellIds.WRATH_OF_RAGNAROS);
 
                         if (RandomHelper.URand(0, 1) != 0)
-                            Talk(TextIds.SayWrath);
+                            Talk(TextIds.SAY_WRATH);
 
-                        Events.ScheduleEvent(EventIds.WrathOfRagnaros, TimeSpan.FromSeconds(25));
+                        Events.ScheduleEvent(EventIds.WRATH_OF_RAGNAROS, TimeSpan.FromSeconds(25));
 
                         break;
-                    case EventIds.HandOfRagnaros:
-                        DoCast(Me, SpellIds.HandOfRagnaros);
+                    case EventIds.HAND_OF_RAGNAROS:
+                        DoCast(Me, SpellIds.HAND_OF_RAGNAROS);
 
                         if (RandomHelper.URand(0, 1) != 0)
-                            Talk(TextIds.SayHand);
+                            Talk(TextIds.SAY_HAND);
 
-                        Events.ScheduleEvent(EventIds.HandOfRagnaros, TimeSpan.FromSeconds(20));
-
-                        break;
-                    case EventIds.LavaBurst:
-                        DoCastVictim(SpellIds.LavaBurst);
-                        Events.ScheduleEvent(EventIds.LavaBurst, TimeSpan.FromSeconds(10));
+                        Events.ScheduleEvent(EventIds.HAND_OF_RAGNAROS, TimeSpan.FromSeconds(20));
 
                         break;
-                    case EventIds.ElementalFire:
-                        DoCastVictim(SpellIds.ElementalFire);
-                        Events.ScheduleEvent(EventIds.ElementalFire, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(14));
+                    case EventIds.LAVA_BURST:
+                        DoCastVictim(SpellIds.LAVA_BURST);
+                        Events.ScheduleEvent(EventIds.LAVA_BURST, TimeSpan.FromSeconds(10));
 
                         break;
-                    case EventIds.MagmaBlast:
+                    case EventIds.ELEMENTAL_FIRE:
+                        DoCastVictim(SpellIds.ELEMENTAL_FIRE);
+                        Events.ScheduleEvent(EventIds.ELEMENTAL_FIRE, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(14));
+
+                        break;
+                    case EventIds.MAGMA_BLAST:
                         if (!Me.IsWithinMeleeRange(Me.Victim))
                         {
-                            DoCastVictim(SpellIds.MagmaBlast);
+                            DoCastVictim(SpellIds.MAGMA_BLAST);
 
                             if (!_hasYelledMagmaBurst)
                             {
                                 //Say our dialog
-                                Talk(TextIds.SayMagmaburst);
+                                Talk(TextIds.SAY_MAGMABURST);
                                 _hasYelledMagmaBurst = true;
                             }
                         }
 
-                        Events.ScheduleEvent(EventIds.MagmaBlast, TimeSpan.FromMilliseconds(2500));
+                        Events.ScheduleEvent(EventIds.MAGMA_BLAST, TimeSpan.FromMilliseconds(2500));
 
                         break;
-                    case EventIds.Submerge:
+                    case EventIds.SUBMERGE:
                     {
                         if (!_isBanished)
                         {
@@ -261,11 +262,11 @@ internal class boss_ragnaros : BossAI
                             Me.SetUnitFlag(UnitFlags.Uninteractible);
                             Me.EmoteState = Emote.StateSubmerged;
                             Me.HandleEmoteCommand(Emote.OneshotSubmerge);
-                            Instance.SetData(MCMiscConst.DataRagnarosAdds, 0);
+                            Instance.SetData(McMiscConst.DATA_RAGNAROS_ADDS, 0);
 
                             if (!_hasSubmergedOnce)
                             {
-                                Talk(TextIds.SayReinforcements1);
+                                Talk(TextIds.SAY_REINFORCEMENTS1);
 
                                 // summon 8 elementals
                                 for (byte i = 0; i < 8; ++i)
@@ -287,7 +288,7 @@ internal class boss_ragnaros : BossAI
                             }
                             else
                             {
-                                Talk(TextIds.SayReinforcements2);
+                                Talk(TextIds.SAY_REINFORCEMENTS2);
 
                                 for (byte i = 0; i < 8; ++i)
                                 {
@@ -307,11 +308,10 @@ internal class boss_ragnaros : BossAI
                             }
                         }
 
-                        Events.ScheduleEvent(EventIds.Submerge, TimeSpan.FromMinutes(3));
+                        Events.ScheduleEvent(EventIds.SUBMERGE, TimeSpan.FromMinutes(3));
 
                         break;
                     }
-                    
                 }
             });
 
@@ -330,18 +330,18 @@ internal class boss_ragnaros : BossAI
 }
 
 [Script]
-internal class npc_son_of_flame : ScriptedAI //didnt work correctly in Eai for me...
+internal class NPCSonOfFlame : ScriptedAI //didnt work correctly in Eai for me...
 {
-    private readonly InstanceScript instance;
+    private readonly InstanceScript _instance;
 
-    public npc_son_of_flame(Creature creature) : base(creature)
+    public NPCSonOfFlame(Creature creature) : base(creature)
     {
-        instance = Me.InstanceScript;
+        _instance = Me.InstanceScript;
     }
 
     public override void JustDied(Unit killer)
     {
-        instance.SetData(MCMiscConst.DataRagnarosAdds, 1);
+        _instance.SetData(McMiscConst.DATA_RAGNAROS_ADDS, 1);
     }
 
     public override void UpdateAI(uint diff)

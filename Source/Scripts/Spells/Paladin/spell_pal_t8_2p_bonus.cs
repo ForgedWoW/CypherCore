@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(64890)] // 64890 - Item - Paladin T8 Holy 2P Bonus
-internal class spell_pal_t8_2p_bonus : AuraScript, IHasAuraEffects
+internal class SpellPalT82PBonus : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -34,12 +35,12 @@ internal class spell_pal_t8_2p_bonus : AuraScript, IHasAuraEffects
         var caster = eventInfo.Actor;
         var target = eventInfo.ProcTarget;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HolyMending, CastDifficulty);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HOLY_MENDING, CastDifficulty);
         var amount = (int)MathFunctions.CalculatePct(healInfo.Heal, aurEff.Amount);
         amount /= (int)spellInfo.MaxTicks;
 
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-        caster.CastSpell(target, PaladinSpells.HolyMending, args);
+        caster.SpellFactory.CastSpell(target, PaladinSpells.HOLY_MENDING, args);
     }
 }

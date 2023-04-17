@@ -3,17 +3,20 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 205247 - Soul Effigy aura
 [SpellScript(205247)]
-public class spell_warlock_soul_effigy_aura : AuraScript, IHasAuraEffects
+public class SpellWarlockSoulEffigyAura : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -48,7 +51,7 @@ public class spell_warlock_soul_effigy_aura : AuraScript, IHasAuraEffects
 
         if (target != null)
         {
-            caster.CastSpell(target, WarlockSpells.SOUL_EFFIGY_VISUAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GUID));
+            caster.SpellFactory.CastSpell(target, WarlockSpells.SOUL_EFFIGY_VISUAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GUID));
             var targetGuid = target.GUID;
             var ownerGuid = owner.GUID;
 
@@ -63,7 +66,7 @@ public class spell_warlock_soul_effigy_aura : AuraScript, IHasAuraEffects
                                            return;
 
                                        var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
-                                       caster.CastSpell(target, WarlockSpells.SOUL_EFFIGY_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, 0).SetTriggerFlags(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GUID));
+                                       caster.SpellFactory.CastSpell(target, WarlockSpells.SOUL_EFFIGY_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, 0).SetTriggerFlags(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GUID));
                                    },
                                    TimeSpan.FromMilliseconds(750));
         }

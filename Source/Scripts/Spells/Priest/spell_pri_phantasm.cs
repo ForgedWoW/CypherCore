@@ -2,20 +2,20 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(47569)]
-public class spell_pri_phantasm : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellPriPhantasm : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-    public bool CheckProc(ProcEventInfo UnnamedParameter)
+    public bool CheckProc(ProcEventInfo unnamedParameter)
     {
         return RandomHelper.randChance(GetEffect(0).Amount);
     }
@@ -25,7 +25,7 @@ public class spell_pri_phantasm : AuraScript, IHasAuraEffects, IAuraCheckProc
         AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    private void HandleEffectProc(AuraEffect unnamedParameter, ProcEventInfo unnamedParameter2)
     {
         PreventDefaultAction();
         Target.RemoveMovementImpairingAuras(false);

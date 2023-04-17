@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(107428)]
-public class spell_monk_rising_sun_kick : SpellScript, IHasSpellEffects
+public class SpellMonkRisingSunKick : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,11 +32,11 @@ public class spell_monk_rising_sun_kick : SpellScript, IHasSpellEffects
             caster.AsPlayer.SpellHistory.ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
 
         if (caster.GetPrimarySpecialization() == TalentSpecialization.MonkBattledancer)
-            caster.CastSpell(target, MonkSpells.MORTAL_WOUNDS, true);
+            caster.SpellFactory.CastSpell(target, MonkSpells.MORTAL_WOUNDS, true);
 
         if (caster.GetPrimarySpecialization() == TalentSpecialization.MonkMistweaver && caster.HasAura(MonkSpells.RISING_MIST))
         {
-            caster.CastSpell(MonkSpells.RISING_MIST_HEAL, true);
+            caster.SpellFactory.CastSpell(MonkSpells.RISING_MIST_HEAL, true);
 
             var reneWingMist = caster.GetAura(MonkSpells.RENEWING_MIST_HOT);
 
@@ -53,10 +54,10 @@ public class spell_monk_rising_sun_kick : SpellScript, IHasSpellEffects
                 essenceFont.RefreshDuration(true);
         }
 
-        var u_li = new List<Unit>();
-        caster.GetFriendlyUnitListInRange(u_li, 100.0f);
+        var uLi = new List<Unit>();
+        caster.GetFriendlyUnitListInRange(uLi, 100.0f);
 
-        foreach (var targets in u_li)
+        foreach (var targets in uLi)
         {
             var relatedAuras = targets.GetAura(MonkSpells.RENEWING_MIST_HOT);
 

@@ -2,16 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_cannibalize : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellGenCannibalize : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -19,16 +21,16 @@ internal class spell_gen_cannibalize : SpellScript, ISpellCheckCast, IHasSpellEf
     public SpellCastResult CheckCast()
     {
         var caster = Caster;
-        var max_range = SpellInfo.GetMaxRange(false);
+        var maxRange = SpellInfo.GetMaxRange(false);
         // search for nearby enemy corpse in range
-        var check = new AnyDeadUnitSpellTargetInRangeCheck<Unit>(caster, max_range, SpellInfo, SpellTargetCheckTypes.Enemy, SpellTargetObjectTypes.CorpseEnemy);
+        var check = new AnyDeadUnitSpellTargetInRangeCheck<Unit>(caster, maxRange, SpellInfo, SpellTargetCheckTypes.Enemy, SpellTargetObjectTypes.CorpseEnemy);
         var searcher = new UnitSearcher(caster, check, GridType.Grid);
-        Cell.VisitGrid(caster, searcher, max_range);
+        Cell.VisitGrid(caster, searcher, maxRange);
 
         if (!searcher.GetTarget())
         {
             searcher.GridType = GridType.World;
-            Cell.VisitGrid(caster, searcher, max_range);
+            Cell.VisitGrid(caster, searcher, maxRange);
         }
 
         if (!searcher.GetTarget())
@@ -44,6 +46,6 @@ internal class spell_gen_cannibalize : SpellScript, ISpellCheckCast, IHasSpellEf
 
     private void HandleDummy(int effIndex)
     {
-        Caster.CastSpell(Caster, GenericSpellIds.CannibalizeTriggered, false);
+        Caster.SpellFactory.CastSpell(Caster, GenericSpellIds.CANNIBALIZE_TRIGGERED, false);
     }
 }

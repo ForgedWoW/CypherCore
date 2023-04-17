@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script("spell_gen_sunreaver_disguise")]
 [Script("spell_gen_silver_covenant_disguise")]
-internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
+internal class SpellGenDalaranDisguise : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -31,18 +32,17 @@ internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
 
             switch (spellId)
             {
-                case GenericSpellIds.SunreaverTrigger:
-                    spellId = gender == Gender.Female ? GenericSpellIds.SunreaverFemale : GenericSpellIds.SunreaverMale;
+                case GenericSpellIds.SUNREAVER_TRIGGER:
+                    spellId = gender == Gender.Female ? GenericSpellIds.SUNREAVER_FEMALE : GenericSpellIds.SUNREAVER_MALE;
 
                     break;
-                case GenericSpellIds.SilverCovenantTrigger:
-                    spellId = gender == Gender.Female ? GenericSpellIds.SilverCovenantFemale : GenericSpellIds.SilverCovenantMale;
+                case GenericSpellIds.SILVER_COVENANT_TRIGGER:
+                    spellId = gender == Gender.Female ? GenericSpellIds.SILVER_COVENANT_FEMALE : GenericSpellIds.SILVER_COVENANT_MALE;
 
                     break;
-                
             }
 
-            Caster.CastSpell(player, spellId, true);
+            Caster.SpellFactory.CastSpell(player, spellId, true);
         }
     }
 }

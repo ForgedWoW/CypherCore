@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(54149)] // 54149 - Infusion of Light
-internal class spell_pal_infusion_of_light : AuraScript, IHasAuraEffects
+internal class SpellPalInfusionOfLight : AuraScript, IHasAuraEffects
 {
     private static readonly FlagArray128 HolyLightSpellClassMask = new(0, 0, 0x400);
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -40,8 +41,8 @@ internal class spell_pal_infusion_of_light : AuraScript, IHasAuraEffects
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         eventInfo.Actor
-                 .CastSpell(eventInfo.Actor,
-                            PaladinSpells.InfusionOfLightEnergize,
+                 .SpellFactory.CastSpell(eventInfo.Actor,
+                            PaladinSpells.INFUSION_OF_LIGHT_ENERGIZE,
                             new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetTriggeringSpell(eventInfo.ProcSpell));
     }
 }

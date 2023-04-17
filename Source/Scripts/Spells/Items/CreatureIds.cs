@@ -6,20 +6,20 @@ namespace Scripts.Spells.Items;
 internal struct CreatureIds
 {
     //Shadowsfate
-    public const uint Sindragosa = 36853;
+    public const uint SINDRAGOSA = 36853;
 
     //Giftoftheharvester
-    public const uint Ghoul = 28845;
-    public const uint MaxGhouls = 5;
+    public const uint GHOUL = 28845;
+    public const uint MAX_GHOULS = 5;
 
     //Sinkholes
-    public const uint SouthSinkhole = 25664;
-    public const uint NortheastSinkhole = 25665;
-    public const uint NorthwestSinkhole = 25666;
+    public const uint SOUTH_SINKHOLE = 25664;
+    public const uint NORTHEAST_SINKHOLE = 25665;
+    public const uint NORTHWEST_SINKHOLE = 25666;
 
     //Demonbroiledsurprise
-    public const uint AbyssalFlamebringer = 19973;
+    public const uint ABYSSAL_FLAMEBRINGER = 19973;
 
     //Impaleleviroth
-    public const uint Leviroth = 26452;
+    public const uint LEVIROTH = 26452;
 }

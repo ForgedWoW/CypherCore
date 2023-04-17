@@ -2,25 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 47788 - Guardian Spirit
-internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
+internal class SpellPriGuardianSpirit : AuraScript, IHasAuraEffects
 {
-    private uint healPct;
+    private uint _healPct;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
     public override bool Load()
     {
-        healPct = (uint)GetEffectInfo(1).CalcValue();
+        _healPct = (uint)GetEffectInfo(1).CalcValue();
 
         return true;
     }
@@ -44,12 +45,12 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
         if (dmgInfo.Damage < target.Health)
             return absorbAmount;
 
-        var healAmount = (int)target.CountPctFromMaxHealth((int)healPct);
+        var healAmount = (int)target.CountPctFromMaxHealth((int)_healPct);
         // Remove the aura now, we don't want 40% healing bonus
         Remove(AuraRemoveMode.EnemySpell);
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
         args.AddSpellMod(SpellValueMod.BasePoint0, healAmount);
-        target.CastSpell(target, PriestSpells.GUARDIAN_SPIRIT_HEAL, args);
+        target.SpellFactory.CastSpell(target, PriestSpells.GUARDIAN_SPIRIT_HEAL, args);
 
         return dmgInfo.Damage;
     }

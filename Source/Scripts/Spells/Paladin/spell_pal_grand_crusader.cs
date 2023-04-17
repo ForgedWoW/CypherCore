@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(85043)] // -85043 - Grand Crusader
-internal class spell_pal_grand_crusader : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellPalGrandCrusader : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,6 +28,6 @@ internal class spell_pal_grand_crusader : AuraScript, IAuraCheckProc, IHasAuraEf
 
     private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
-        Target.SpellHistory.ResetCooldown(PaladinSpells.AvengersShield, true);
+        Target.SpellHistory.ResetCooldown(PaladinSpells.AVENGERS_SHIELD, true);
     }
 }

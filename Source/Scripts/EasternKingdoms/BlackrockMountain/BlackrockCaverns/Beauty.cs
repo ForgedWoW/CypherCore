@@ -2,33 +2,34 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockCaverns.Beauty;
 
 internal struct SpellIds
 {
-    public const uint TerrifyingRoar = 76028; // Not yet Implemented
-    public const uint BerserkerCharge = 76030;
-    public const uint MagmaSpit = 76031;
-    public const uint Flamebreak = 76032;
-    public const uint Berserk = 82395; // Not yet Implemented
+    public const uint TERRIFYING_ROAR = 76028; // Not yet Implemented
+    public const uint BERSERKER_CHARGE = 76030;
+    public const uint MAGMA_SPIT = 76031;
+    public const uint FLAMEBREAK = 76032;
+    public const uint BERSERK = 82395; // Not yet Implemented
 }
 
 internal struct SoundIds
 {
-    public const uint Aggro = 18559;
-    public const uint Death = 18563;
+    public const uint AGGRO = 18559;
+    public const uint DEATH = 18563;
 }
 
 [Script]
-internal class boss_beauty : BossAI
+internal class BossBeauty : BossAI
 {
-    public boss_beauty(Creature creature) : base(creature, DataTypes.Beauty) { }
+    public BossBeauty(Creature creature) : base(creature, DataTypes.BEAUTY) { }
 
     public override void Reset()
     {
@@ -43,7 +44,7 @@ internal class boss_beauty : BossAI
                            TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCast(SelectTarget(SelectTargetMethod.Random, 0, 100, true), SpellIds.MagmaSpit, new CastSpellExtraArgs(true));
+                               DoCast(SelectTarget(SelectTargetMethod.Random, 0, 100, true), SpellIds.MAGMA_SPIT, new CastSpellExtraArgs(true));
                                task.Repeat();
                            });
 
@@ -51,7 +52,7 @@ internal class boss_beauty : BossAI
                            TimeSpan.FromSeconds(19),
                            task =>
                            {
-                               DoCast(SelectTarget(SelectTargetMethod.Random, 0, 100, true), SpellIds.BerserkerCharge, new CastSpellExtraArgs(true));
+                               DoCast(SelectTarget(SelectTargetMethod.Random, 0, 100, true), SpellIds.BERSERKER_CHARGE, new CastSpellExtraArgs(true));
                                task.Repeat();
                            });
 
@@ -59,17 +60,17 @@ internal class boss_beauty : BossAI
                            TimeSpan.FromSeconds(22),
                            task =>
                            {
-                               DoCast(Me, SpellIds.Flamebreak);
+                               DoCast(Me, SpellIds.FLAMEBREAK);
                                task.Repeat();
                            });
 
-        DoPlaySoundToSet(Me, SoundIds.Aggro);
+        DoPlaySoundToSet(Me, SoundIds.AGGRO);
     }
 
     public override void JustDied(Unit killer)
     {
         _JustDied();
-        DoPlaySoundToSet(Me, SoundIds.Death);
+        DoPlaySoundToSet(Me, SoundIds.DEATH);
     }
 
     public override void UpdateAI(uint diff)

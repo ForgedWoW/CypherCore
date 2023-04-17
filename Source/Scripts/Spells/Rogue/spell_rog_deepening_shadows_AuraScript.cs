@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(185314)]
-public class spell_rog_deepening_shadows_AuraScript : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellRogDeepeningShadowsAuraScript : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     private int _cp;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -38,7 +38,7 @@ public class spell_rog_deepening_shadows_AuraScript : AuraScript, IHasAuraEffect
         AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    private void HandleProc(AuraEffect unnamedParameter, ProcEventInfo unnamedParameter2)
     {
         var caster = Caster;
 

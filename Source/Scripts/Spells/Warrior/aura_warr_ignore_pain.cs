@@ -3,20 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
 //190456 - Ignore Pain
 [SpellScript(190456)]
-public class aura_warr_ignore_pain : AuraScript, IHasAuraEffects
+public class AuraWarrIgnorePain : AuraScript, IHasAuraEffects
 {
-    private int m_ExtraSpellCost;
+    private int _mExtraSpellCost;
 
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,7 +26,7 @@ public class aura_warr_ignore_pain : AuraScript, IHasAuraEffects
         var caster = Caster;
         // In this phase the initial 20 Rage cost is removed already
         // We just check for bonus.
-        m_ExtraSpellCost = Math.Min(caster.GetPower(PowerType.Rage), 400);
+        _mExtraSpellCost = Math.Min(caster.GetPower(PowerType.Rage), 400);
 
         return true;
     }
@@ -36,25 +37,25 @@ public class aura_warr_ignore_pain : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectAbsorbHandler(OnAbsorb, 0));
     }
 
-    private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    private void CalcAmount(AuraEffect unnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         var caster = Caster;
 
         if (caster != null)
         {
-            amount.Value = (22.3f * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack)) * ((m_ExtraSpellCost + 200) / 600.0f);
-            var m_newRage = caster.GetPower(PowerType.Rage) - m_ExtraSpellCost;
+            amount.Value = (22.3f * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack)) * ((_mExtraSpellCost + 200) / 600.0f);
+            var mNewRage = caster.GetPower(PowerType.Rage) - _mExtraSpellCost;
 
-            if (m_newRage < 0)
-                m_newRage = 0;
+            if (mNewRage < 0)
+                mNewRage = 0;
 
-            caster.SetPower(PowerType.Rage, m_newRage);
+            caster.SetPower(PowerType.Rage, mNewRage);
             /*if (Player* player = caster->ToPlayer())
                 player->SendPowerUpdate(PowerType.Rage, m_newRage);*/
         }
     }
 
-    private double OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double UnnamedParameter2)
+    private double OnAbsorb(AuraEffect unnamedParameter, DamageInfo dmgInfo, double unnamedParameter2)
     {
         var caster = Caster;
 
@@ -67,6 +68,6 @@ public class aura_warr_ignore_pain : AuraScript, IHasAuraEffects
             caster.SendSpellNonMeleeDamageLog(spell);
         }
 
-        return UnnamedParameter2;
+        return unnamedParameter2;
     }
 }

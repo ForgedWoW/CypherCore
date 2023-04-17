@@ -2,53 +2,52 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class spell_dk_runic_empowerment : ScriptObjectAutoAdd, IPlayerOnModifyPower
+public class SpellDkRunicEmpowerment : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
+    public SpellDkRunicEmpowerment() : base("spell_dk_runic_empowerment") { }
     public PlayerClass PlayerClass { get; } = PlayerClass.Deathknight;
 
-    public spell_dk_runic_empowerment() : base("spell_dk_runic_empowerment") { }
-
-    public void OnModifyPower(Player p_Player, PowerType p_Power, int p_OldValue, ref int p_NewValue, bool p_Regen)
+    public void OnModifyPower(Player pPlayer, PowerType pPower, int pOldValue, ref int pNewValue, bool pRegen)
     {
-        if (p_Player.Class != PlayerClass.Deathknight || p_Power != PowerType.RunicPower || p_Regen || p_NewValue > p_OldValue)
+        if (pPlayer.Class != PlayerClass.Deathknight || pPower != PowerType.RunicPower || pRegen || pNewValue > pOldValue)
             return;
 
-        var l_RunicEmpowerment = p_Player.GetAuraEffect(eSpells.RunicEmpowerment, 0);
+        var lRunicEmpowerment = pPlayer.GetAuraEffect(ESpells.RUNIC_EMPOWERMENT, 0);
 
-        if (l_RunicEmpowerment != null)
+        if (lRunicEmpowerment != null)
         {
             /// 1.00% chance per Runic Power spent
-            var l_Chance = (l_RunicEmpowerment.Amount / 100.0f);
+            var lChance = (lRunicEmpowerment.Amount / 100.0f);
 
-            if (RandomHelper.randChance(l_Chance))
+            if (RandomHelper.randChance(lChance))
             {
-                var l_LstRunesUsed = new List<byte>();
+                var lLstRunesUsed = new List<byte>();
 
                 for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
-                    if (p_Player.GetRuneCooldown(i) != 0)
-                        l_LstRunesUsed.Add(i);
+                    if (pPlayer.GetRuneCooldown(i) != 0)
+                        lLstRunesUsed.Add(i);
 
-                if (l_LstRunesUsed.Count == 0)
+                if (lLstRunesUsed.Count == 0)
                     return;
 
-                var l_RuneRandom = l_LstRunesUsed.SelectRandom();
+                var lRuneRandom = lLstRunesUsed.SelectRandom();
 
-                p_Player.SetRuneCooldown(l_RuneRandom, 0);
-                p_Player.ResyncRunes();
+                pPlayer.SetRuneCooldown(lRuneRandom, 0);
+                pPlayer.ResyncRunes();
             }
         }
     }
 
-    public struct eSpells
+    public struct ESpells
     {
-        public const uint RunicEmpowerment = 81229;
+        public const uint RUNIC_EMPOWERMENT = 81229;
     }
 }

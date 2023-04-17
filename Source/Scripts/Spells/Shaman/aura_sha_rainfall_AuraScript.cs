@@ -3,17 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 215864 Rainfall
 [SpellScript(215864)]
-public class aura_sha_rainfall_AuraScript : AuraScript, IHasAuraEffects
+public class AuraShaRainfallAuraScript : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,7 +24,7 @@ public class aura_sha_rainfall_AuraScript : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleHealPeriodic(AuraEffect UnnamedParameter)
+    private void HandleHealPeriodic(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 
@@ -33,11 +33,11 @@ public class aura_sha_rainfall_AuraScript : AuraScript, IHasAuraEffects
             var rainfallTrigger = caster.GetSummonedCreatureByEntry(ShamanNpcs.NPC_RAINFALL);
 
             if (rainfallTrigger != null)
-                caster.CastSpell(rainfallTrigger.Location, ShamanSpells.RAINFALL_HEAL, true);
+                caster.SpellFactory.CastSpell(rainfallTrigger.Location, ShamanSpells.RAINFALL_HEAL, true);
         }
     }
 
-    private void HandleAfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleAfterRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -50,7 +50,7 @@ public class aura_sha_rainfall_AuraScript : AuraScript, IHasAuraEffects
         }
     }
 
-    private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo unnamedParameter)
     {
         SetDuration(Duration + GetEffect(2).BaseAmount * Time.IN_MILLISECONDS, (GetEffect(3).BaseAmount * Time.IN_MILLISECONDS) > 0);
     }

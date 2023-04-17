@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
@@ -12,13 +12,13 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 {
     48447, 48450
 })]
-public class npc_deadmines_bird : ScriptedAI
+public class NPCDeadminesBird : ScriptedAI
 {
     public InstanceScript Instance;
     public uint IiTimerEyePeck;
     public uint UiTimerEyeGouge;
 
-    public npc_deadmines_bird(Creature creature) : base(creature)
+    public NPCDeadminesBird(Creature creature) : base(creature)
     {
         Instance = creature.InstanceScript;
     }
@@ -42,7 +42,7 @@ public class npc_deadmines_bird : ScriptedAI
             var victim = Me.Victim;
 
             if (victim != null)
-                Me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_GOUGE_H : DMSpells.EYE_GOUGE);
+                Me.SpellFactory.CastSpell(victim, IsHeroic() ? DmSpells.EYE_GOUGE_H : DmSpells.EYE_GOUGE);
 
             UiTimerEyeGouge = RandomHelper.URand(9000, 12000);
 
@@ -58,7 +58,7 @@ public class npc_deadmines_bird : ScriptedAI
             var victim = Me.Victim;
 
             if (victim != null)
-                Me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_PECK_H : DMSpells.EYE_PECK);
+                Me.SpellFactory.CastSpell(victim, IsHeroic() ? DmSpells.EYE_PECK_H : DmSpells.EYE_PECK);
 
             IiTimerEyePeck = RandomHelper.URand(16000, 19000);
 

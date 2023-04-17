@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 131474 - Fishing
-internal class spell_gen_fishing : SpellScript, IHasSpellEffects
+internal class SpellGenFishing : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -33,10 +34,10 @@ internal class spell_gen_fishing : SpellScript, IHasSpellEffects
         if (!mainHand ||
             mainHand.Template.Class != ItemClass.Weapon ||
             (ItemSubClassWeapon)mainHand.Template.SubClass != ItemSubClassWeapon.FishingPole)
-            spellId = GenericSpellIds.FishingNoFishingPole;
+            spellId = GenericSpellIds.FISHING_NO_FISHING_POLE;
         else
-            spellId = GenericSpellIds.FishingWithPole;
+            spellId = GenericSpellIds.FISHING_WITH_POLE;
 
-        Caster.CastSpell(Caster, spellId, false);
+        Caster.SpellFactory.CastSpell(Caster, spellId, false);
     }
 }

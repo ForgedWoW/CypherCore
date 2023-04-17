@@ -2,27 +2,27 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(116705)]
-public class spell_monk_spear_hand_strike : SpellScript, ISpellOnHit
+public class SpellMonkSpearHandStrike : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
-        var _player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-        if (_player != null)
+        if (player != null)
         {
             var target = HitUnit;
 
             if (target != null)
-                if (target.IsInFront(_player))
+                if (target.IsInFront(player))
                 {
-                    _player.CastSpell(target, MonkSpells.SPEAR_HAND_STRIKE_SILENCE, true);
-                    _player.SpellHistory.AddCooldown(116705, 0, TimeSpan.FromSeconds(15));
+                    player.SpellFactory.CastSpell(target, MonkSpells.SPEAR_HAND_STRIKE_SILENCE, true);
+                    player.SpellHistory.AddCooldown(116705, 0, TimeSpan.FromSeconds(15));
                 }
         }
     }

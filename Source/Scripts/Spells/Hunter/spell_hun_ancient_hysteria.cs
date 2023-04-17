@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(90355)]
-public class spell_hun_ancient_hysteria : SpellScript, IHasSpellEffects
+public class SpellHunAncientHysteria : SpellScript, IHasSpellEffects
 {
     readonly UnitAuraCheck<WorldObject> _ins = new(true, AncientHysteriaSpells.INSANITY);
     readonly UnitAuraCheck<WorldObject> _dis = new(true, AncientHysteriaSpells.TEMPORAL_DISPLACEMENT);
@@ -38,6 +39,6 @@ public class spell_hun_ancient_hysteria : SpellScript, IHasSpellEffects
         var target = HitUnit;
 
         if (target != null)
-            target.CastSpell(target, AncientHysteriaSpells.INSANITY, true);
+            target.SpellFactory.CastSpell(target, AncientHysteriaSpells.INSANITY, true);
     }
 }

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.GREEN_DREAM_BREATH_CHARGED)]
-internal class spell_evoker_dream_breath_charged : SpellScript, ISpellCalculateBonusCoefficient
+internal class SpellEvokerDreamBreathCharged : SpellScript, ISpellCalculateBonusCoefficient
 {
     public double CalcBonusCoefficient(double bonusCoefficient)
     {
@@ -27,7 +27,6 @@ internal class spell_evoker_dream_breath_charged : SpellScript, ISpellCalculateB
                 multi = 6;
 
                 break;
-            
         }
 
         return bonusCoefficient + (GetEffectInfo(0).BonusCoefficient * multi);

@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.FIELD_OF_DREAMS)]
-public class aura_evoker_field_of_dreams : AuraScript, IAuraCheckProc, IAuraOnProc
+public class AuraEvokerFieldOfDreams : AuraScript, IAuraCheckProc, IAuraOnProc
 {
     public bool CheckProc(ProcEventInfo info)
     {
@@ -20,6 +20,6 @@ public class aura_evoker_field_of_dreams : AuraScript, IAuraCheckProc, IAuraOnPr
     {
         var player = info.HealInfo.Healer.AsPlayer;
         player.SpellHistory.AddCooldown(EvokerSpells.FIELD_OF_DREAMS, 0, TimeSpan.FromMilliseconds(100));
-        player.CastSpell(info.HealInfo.Target, EvokerSpells.GREEN_EMERALD_BLOSSOM, true);
+        player.SpellFactory.CastSpell(info.HealInfo.Target, EvokerSpells.GREEN_EMERALD_BLOSSOM, true);
     }
 }

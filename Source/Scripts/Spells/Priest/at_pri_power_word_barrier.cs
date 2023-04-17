@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Priest;
 
 [Script]
-public class at_pri_power_word_barrier : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
+public class AtPriPowerWordBarrier : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
     public void OnUnitEnter(Unit unit)
     {
@@ -21,7 +21,7 @@ public class at_pri_power_word_barrier : AreaTriggerScript, IAreaTriggerOnUnitEn
             return;
 
         if (caster.IsFriendlyTo(unit))
-            caster.CastSpell(unit, PriestSpells.POWER_WORD_BARRIER_BUFF, true);
+            caster.SpellFactory.CastSpell(unit, PriestSpells.POWER_WORD_BARRIER_BUFF, true);
     }
 
     public void OnUnitExit(Unit unit)

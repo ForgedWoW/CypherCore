@@ -3,19 +3,21 @@
 
 using System;
 using System.Collections.Generic;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Shaman;
 
 //60561
 [CreatureScript(60561)]
-public class npc_earth_grab_totem : ScriptedAI
+public class NPCEarthGrabTotem : ScriptedAI
 {
-    public List<ObjectGuid> alreadyRooted = new();
+    public List<ObjectGuid> AlreadyRooted = new();
 
-    public npc_earth_grab_totem(Creature creature) : base(creature) { }
+    public NPCEarthGrabTotem(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -31,14 +33,14 @@ public class npc_earth_grab_totem : ScriptedAI
                                                  if (target.HasAura(TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT))
                                                      continue;
 
-                                                 if (!alreadyRooted.Contains(target.GUID))
+                                                 if (!AlreadyRooted.Contains(target.GUID))
                                                  {
-                                                     alreadyRooted.Add(target.GUID);
-                                                     Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
+                                                     AlreadyRooted.Add(target.GUID);
+                                                     Me.SpellFactory.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
                                                  }
                                                  else
                                                  {
-                                                     Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
+                                                     Me.SpellFactory.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
                                                  }
                                              }
 

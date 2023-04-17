@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 41213, 43416, 69222, 73076 - Throw Shield
-internal class spell_gen_throw_shield : SpellScript, IHasSpellEffects
+internal class SpellGenThrowShield : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,6 +22,6 @@ internal class spell_gen_throw_shield : SpellScript, IHasSpellEffects
     private void HandleScriptEffect(int effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        Caster.CastSpell(HitUnit, (uint)EffectValue, true);
+        Caster.SpellFactory.CastSpell(HitUnit, (uint)EffectValue, true);
     }
 }

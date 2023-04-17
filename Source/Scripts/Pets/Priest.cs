@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.Pets
 {
@@ -13,17 +14,17 @@ namespace Scripts.Pets
     {
         internal struct SpellIds
         {
-            public const uint GlyphOfShadowFiend = 58228;
-            public const uint ShadowFiendDeath = 57989;
-            public const uint LightWellCharges = 59907;
+            public const uint GLYPH_OF_SHADOW_FIEND = 58228;
+            public const uint SHADOW_FIEND_DEATH = 57989;
+            public const uint LIGHT_WELL_CHARGES = 59907;
         }
 
         [Script]
-        internal class npc_pet_pri_lightwell : PassiveAI
+        internal class NPCPetPriLightwell : PassiveAI
         {
-            public npc_pet_pri_lightwell(Creature creature) : base(creature)
+            public NPCPetPriLightwell(Creature creature) : base(creature)
             {
-                DoCast(creature, SpellIds.LightWellCharges, new CastSpellExtraArgs(false));
+                DoCast(creature, SpellIds.LIGHT_WELL_CHARGES, new CastSpellExtraArgs(false));
             }
 
             public override void EnterEvadeMode(EvadeReason why)
@@ -38,9 +39,9 @@ namespace Scripts.Pets
         }
 
         [Script]
-        internal class npc_pet_pri_shadowfiend : PetAI
+        internal class NPCPetPriShadowfiend : PetAI
         {
-            public npc_pet_pri_shadowfiend(Creature creature) : base(creature) { }
+            public NPCPetPriShadowfiend(Creature creature) : base(creature) { }
 
             public override void IsSummonedBy(WorldObject summoner)
             {
@@ -49,8 +50,8 @@ namespace Scripts.Pets
                 if (unitSummoner == null)
                     return;
 
-                if (unitSummoner.HasAura(SpellIds.GlyphOfShadowFiend))
-                    DoCastAOE(SpellIds.ShadowFiendDeath);
+                if (unitSummoner.HasAura(SpellIds.GLYPH_OF_SHADOW_FIEND))
+                    DoCastAOE(SpellIds.SHADOW_FIEND_DEATH);
             }
         }
     }

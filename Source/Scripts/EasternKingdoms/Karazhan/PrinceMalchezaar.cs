@@ -4,65 +4,68 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Karazhan.PrinceMalchezaar;
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SayAxeToss1 = 1;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_AXE_TOSS1 = 1;
 
-    public const uint SayAxeToss2 = 2;
+    public const uint SAY_AXE_TOSS2 = 2;
 
     //public const uint SaySpecial1                = 3; Not used, needs to be implemented, but I don't know where it should be used.
     //public const uint SaySpecial2                = 4; Not used, needs to be implemented, but I don't know where it should be used.
     //public const uint SaySpecial3                = 5; Not used, needs to be implemented, but I don't know where it should be used.
-    public const uint SaySlay = 6;
-    public const uint SaySummon = 7;
-    public const uint SayDeath = 8;
+    public const uint SAY_SLAY = 6;
+    public const uint SAY_SUMMON = 7;
+    public const uint SAY_DEATH = 8;
 }
 
 internal struct SpellIds
 {
-    public const uint Enfeeble = 30843; //Enfeeble during phase 1 and 2
-    public const uint EnfeebleEffect = 41624;
+    public const uint ENFEEBLE = 30843; //Enfeeble during phase 1 and 2
+    public const uint ENFEEBLE_EFFECT = 41624;
 
-    public const uint Shadownova = 30852;    //Shadownova used during all phases
-    public const uint SwPain = 30854;        //Shadow word pain during phase 1 and 3 (different targeting rules though)
-    public const uint ThrashPassive = 12787; //Extra attack chance during phase 2
-    public const uint SunderArmor = 30901;   //Sunder armor during phase 2
-    public const uint ThrashAura = 12787;    //Passive proc chance for thrash
-    public const uint EquipAxes = 30857;     //Visual for axe equiping
-    public const uint AmplifyDamage = 39095; //Amplifiy during phase 3
-    public const uint Cleave = 30131;        //Same as Nightbane.
-    public const uint Hellfire = 30859;      //Infenals' hellfire aura
+    public const uint SHADOWNOVA = 30852;    //Shadownova used during all phases
+    public const uint SW_PAIN = 30854;        //Shadow word pain during phase 1 and 3 (different targeting rules though)
+    public const uint THRASH_PASSIVE = 12787; //Extra attack chance during phase 2
+    public const uint SUNDER_ARMOR = 30901;   //Sunder armor during phase 2
+    public const uint THRASH_AURA = 12787;    //Passive proc chance for thrash
+    public const uint EQUIP_AXES = 30857;     //Visual for axe equiping
+    public const uint AMPLIFY_DAMAGE = 39095; //Amplifiy during phase 3
+    public const uint CLEAVE = 30131;        //Same as Nightbane.
+    public const uint HELLFIRE = 30859;      //Infenals' hellfire aura
 
-    public const uint InfernalRelay = 30834;
+    public const uint INFERNAL_RELAY = 30834;
 }
 
 internal struct MiscConst
 {
-    public const uint TotalInfernalPoints = 18;
-    public const uint NetherspiteInfernal = 17646; //The netherspite infernal creature
-    public const uint MalchezarsAxe = 17650;       //Malchezar's axes (creatures), summoned during phase 3
+    public const uint TOTAL_INFERNAL_POINTS = 18;
+    public const uint NETHERSPITE_INFERNAL = 17646; //The netherspite infernal creature
+    public const uint MALCHEZARS_AXE = 17650;       //Malchezar's axes (creatures), summoned during phase 3
 
-    public const uint InfernalModelInvisible = 11686; //Infernal Effects
-    public const int EquipIdAxe = 33542;              //Axes info
+    public const uint INFERNAL_MODEL_INVISIBLE = 11686; //Infernal Effects
+    public const int EQUIP_ID_AXE = 33542;              //Axes info
 }
 
 [Script]
-internal class netherspite_infernal : ScriptedAI
+internal class NetherspiteInfernal : ScriptedAI
 {
     public ObjectGuid Malchezaar;
     public Vector2 Point;
 
-    public netherspite_infernal(Creature creature) : base(creature) { }
+    public NetherspiteInfernal(Creature creature) : base(creature) { }
 
     public override void Reset() { }
 
@@ -90,12 +93,12 @@ internal class netherspite_infernal : ScriptedAI
 
     public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
     {
-        if (spellInfo.Id == SpellIds.InfernalRelay)
+        if (spellInfo.Id == SpellIds.INFERNAL_RELAY)
         {
             Me.SetDisplayId(Me.NativeDisplayId);
             Me.SetUnitFlag(UnitFlags.Uninteractible);
 
-            Scheduler.Schedule(TimeSpan.FromSeconds(4), task => DoCast(Me, SpellIds.Hellfire));
+            Scheduler.Schedule(TimeSpan.FromSeconds(4), task => DoCast(Me, SpellIds.HELLFIRE));
 
             Scheduler.Schedule(TimeSpan.FromSeconds(170),
                                task =>
@@ -103,53 +106,53 @@ internal class netherspite_infernal : ScriptedAI
                                    var pMalchezaar = ObjectAccessor.GetCreature(Me, Malchezaar);
 
                                    if (pMalchezaar && pMalchezaar.IsAlive)
-                                       pMalchezaar.GetAI<boss_malchezaar>().Cleanup(Me, Point);
+                                       pMalchezaar.GetAI<BossMalchezaar>().Cleanup(Me, Point);
                                });
         }
     }
 
-    public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+    public override void DamageTaken(Unit doneBy, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     {
-        if (!done_by ||
-            done_by.GUID != Malchezaar)
+        if (!doneBy ||
+            doneBy.GUID != Malchezaar)
             damage = 0;
     }
 }
 
 [Script]
-internal class boss_malchezaar : ScriptedAI
+internal class BossMalchezaar : ScriptedAI
 {
     private static readonly Vector2[] InfernalPoints =
     {
         new(-10922.8f, -1985.2f), new(-10916.2f, -1996.2f), new(-10932.2f, -2008.1f), new(-10948.8f, -2022.1f), new(-10958.7f, -1997.7f), new(-10971.5f, -1997.5f), new(-10990.8f, -1995.1f), new(-10989.8f, -1976.5f), new(-10971.6f, -1973.0f), new(-10955.5f, -1974.0f), new(-10939.6f, -1969.8f), new(-10958.0f, -1952.2f), new(-10941.7f, -1954.8f), new(-10943.1f, -1988.5f), new(-10948.8f, -2005.1f), new(-10984.0f, -2019.3f), new(-10932.8f, -1979.6f), new(-10935.7f, -1996.0f)
     };
 
-    private readonly ObjectGuid[] axes = new ObjectGuid[2];
-    private readonly long[] enfeeble_health = new long[5];
-    private readonly ObjectGuid[] enfeeble_targets = new ObjectGuid[5];
+    private readonly ObjectGuid[] _axes = new ObjectGuid[2];
+    private readonly long[] _enfeebleHealth = new long[5];
+    private readonly ObjectGuid[] _enfeebleTargets = new ObjectGuid[5];
 
-    private readonly List<ObjectGuid> infernals = new();
+    private readonly List<ObjectGuid> _infernals = new();
 
-    private readonly InstanceScript instance;
-    private readonly List<Vector2> positions = new();
+    private readonly InstanceScript _instance;
+    private readonly List<Vector2> _positions = new();
 
-    private uint AmplifyDamageTimer;
-    private uint AxesTargetSwitchTimer;
-    private uint Cleave_Timer;
-    private uint EnfeebleResetTimer;
-    private uint EnfeebleTimer;
-    private uint InfernalTimer;
+    private uint _amplifyDamageTimer;
+    private uint _axesTargetSwitchTimer;
+    private uint _cleaveTimer;
+    private uint _enfeebleResetTimer;
+    private uint _enfeebleTimer;
+    private uint _infernalTimer;
 
-    private uint phase;
-    private uint ShadowNovaTimer;
-    private uint SunderArmorTimer;
-    private uint SWPainTimer;
+    private uint _phase;
+    private uint _shadowNovaTimer;
+    private uint _sunderArmorTimer;
+    private uint _swPainTimer;
 
-    public boss_malchezaar(Creature creature) : base(creature)
+    public BossMalchezaar(Creature creature) : base(creature)
     {
         Initialize();
 
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
@@ -157,41 +160,41 @@ internal class boss_malchezaar : ScriptedAI
         AxesCleanup();
         ClearWeapons();
         InfernalCleanup();
-        positions.Clear();
+        _positions.Clear();
 
         Initialize();
 
-        for (byte i = 0; i < MiscConst.TotalInfernalPoints; ++i)
-            positions.Add(InfernalPoints[i]);
+        for (byte i = 0; i < MiscConst.TOTAL_INFERNAL_POINTS; ++i)
+            _positions.Add(InfernalPoints[i]);
 
-        instance.HandleGameObject(instance.GetGuidData(DataTypes.GoNetherDoor), true);
+        _instance.HandleGameObject(_instance.GetGuidData(DataTypes.GO_NETHER_DOOR), true);
     }
 
     public override void KilledUnit(Unit victim)
     {
-        Talk(TextIds.SaySlay);
+        Talk(TextIds.SAY_SLAY);
     }
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
 
         AxesCleanup();
         ClearWeapons();
         InfernalCleanup();
-        positions.Clear();
+        _positions.Clear();
 
-        for (byte i = 0; i < MiscConst.TotalInfernalPoints; ++i)
-            positions.Add(InfernalPoints[i]);
+        for (byte i = 0; i < MiscConst.TOTAL_INFERNAL_POINTS; ++i)
+            _positions.Add(InfernalPoints[i]);
 
-        instance.HandleGameObject(instance.GetGuidData(DataTypes.GoNetherDoor), true);
+        _instance.HandleGameObject(_instance.GetGuidData(DataTypes.GO_NETHER_DOOR), true);
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
 
-        instance.HandleGameObject(instance.GetGuidData(DataTypes.GoNetherDoor), false); // Open the door leading further in
+        _instance.HandleGameObject(_instance.GetGuidData(DataTypes.GO_NETHER_DOOR), false); // Open the door leading further in
     }
 
     public override void UpdateAI(uint diff)
@@ -199,15 +202,15 @@ internal class boss_malchezaar : ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (EnfeebleResetTimer != 0 &&
-            EnfeebleResetTimer <= diff) // Let's not forget to reset that
+        if (_enfeebleResetTimer != 0 &&
+            _enfeebleResetTimer <= diff) // Let's not forget to reset that
         {
             EnfeebleResetHealth();
-            EnfeebleResetTimer = 0;
+            _enfeebleResetTimer = 0;
         }
         else
         {
-            EnfeebleResetTimer -= diff;
+            _enfeebleResetTimer -= diff;
         }
 
         if (Me.HasUnitState(UnitState.Stunned)) // While shifting to phase 2 malchezaar stuns himself
@@ -217,56 +220,56 @@ internal class boss_malchezaar : ScriptedAI
             Me.Target != Me.Victim.GUID)
             Me.SetTarget(Me.Victim.GUID);
 
-        if (phase == 1)
+        if (_phase == 1)
         {
             if (HealthBelowPct(60))
             {
                 Me.InterruptNonMeleeSpells(false);
 
-                phase = 2;
+                _phase = 2;
 
                 //animation
-                DoCast(Me, SpellIds.EquipAxes);
+                DoCast(Me, SpellIds.EQUIP_AXES);
 
                 //text
-                Talk(TextIds.SayAxeToss1);
+                Talk(TextIds.SAY_AXE_TOSS1);
 
                 //passive thrash aura
-                DoCast(Me, SpellIds.ThrashAura, new CastSpellExtraArgs(true));
+                DoCast(Me, SpellIds.THRASH_AURA, new CastSpellExtraArgs(true));
 
                 //models
-                SetEquipmentSlots(false, MiscConst.EquipIdAxe, MiscConst.EquipIdAxe);
+                SetEquipmentSlots(false, MiscConst.EQUIP_ID_AXE, MiscConst.EQUIP_ID_AXE);
 
                 Me.SetBaseAttackTime(WeaponAttackType.OffAttack, (Me.GetBaseAttackTime(WeaponAttackType.BaseAttack) * 150) / 100);
                 Me.SetCanDualWield(true);
             }
         }
-        else if (phase == 2)
+        else if (_phase == 2)
         {
             if (HealthBelowPct(30))
             {
-                InfernalTimer = 15000;
+                _infernalTimer = 15000;
 
-                phase = 3;
+                _phase = 3;
 
                 ClearWeapons();
 
                 //remove thrash
-                Me.RemoveAura(SpellIds.ThrashAura);
+                Me.RemoveAura(SpellIds.THRASH_AURA);
 
-                Talk(TextIds.SayAxeToss2);
+                Talk(TextIds.SAY_AXE_TOSS2);
 
                 var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                 for (byte i = 0; i < 2; ++i)
                 {
-                    Creature axe = Me.SummonCreature(MiscConst.MalchezarsAxe, Me.Location.X, Me.Location.Y, Me.Location.Z, 0, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(1));
+                    Creature axe = Me.SummonCreature(MiscConst.MALCHEZARS_AXE, Me.Location.X, Me.Location.Y, Me.Location.Z, 0, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(1));
 
                     if (axe)
                     {
                         axe.SetUnitFlag(UnitFlags.Uninteractible);
                         axe.Faction = Me.Faction;
-                        axes[i] = axe.GUID;
+                        _axes[i] = axe.GUID;
 
                         if (target)
                         {
@@ -276,44 +279,44 @@ internal class boss_malchezaar : ScriptedAI
                     }
                 }
 
-                if (ShadowNovaTimer > 35000)
-                    ShadowNovaTimer = EnfeebleTimer + 5000;
+                if (_shadowNovaTimer > 35000)
+                    _shadowNovaTimer = _enfeebleTimer + 5000;
 
                 return;
             }
 
-            if (SunderArmorTimer <= diff)
+            if (_sunderArmorTimer <= diff)
             {
-                DoCastVictim(SpellIds.SunderArmor);
-                SunderArmorTimer = RandomHelper.URand(10000, 18000);
+                DoCastVictim(SpellIds.SUNDER_ARMOR);
+                _sunderArmorTimer = RandomHelper.URand(10000, 18000);
             }
             else
             {
-                SunderArmorTimer -= diff;
+                _sunderArmorTimer -= diff;
             }
 
-            if (Cleave_Timer <= diff)
+            if (_cleaveTimer <= diff)
             {
-                DoCastVictim(SpellIds.Cleave);
-                Cleave_Timer = RandomHelper.URand(6000, 12000);
+                DoCastVictim(SpellIds.CLEAVE);
+                _cleaveTimer = RandomHelper.URand(6000, 12000);
             }
             else
             {
-                Cleave_Timer -= diff;
+                _cleaveTimer -= diff;
             }
         }
         else
         {
-            if (AxesTargetSwitchTimer <= diff)
+            if (_axesTargetSwitchTimer <= diff)
             {
-                AxesTargetSwitchTimer = RandomHelper.URand(7500, 20000);
+                _axesTargetSwitchTimer = RandomHelper.URand(7500, 20000);
 
                 var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                 if (target)
                     for (byte i = 0; i < 2; ++i)
                     {
-                        var axe = Global.ObjAccessor.GetUnit(Me, axes[i]);
+                        var axe = Global.ObjAccessor.GetUnit(Me, _axes[i]);
 
                         if (axe)
                         {
@@ -326,83 +329,83 @@ internal class boss_malchezaar : ScriptedAI
             }
             else
             {
-                AxesTargetSwitchTimer -= diff;
+                _axesTargetSwitchTimer -= diff;
             }
 
-            if (AmplifyDamageTimer <= diff)
+            if (_amplifyDamageTimer <= diff)
             {
                 var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                 if (target)
-                    DoCast(target, SpellIds.AmplifyDamage);
+                    DoCast(target, SpellIds.AMPLIFY_DAMAGE);
 
-                AmplifyDamageTimer = RandomHelper.URand(20000, 30000);
+                _amplifyDamageTimer = RandomHelper.URand(20000, 30000);
             }
             else
             {
-                AmplifyDamageTimer -= diff;
+                _amplifyDamageTimer -= diff;
             }
         }
 
         //Time for global and double timers
-        if (InfernalTimer <= diff)
+        if (_infernalTimer <= diff)
         {
             SummonInfernal(diff);
-            InfernalTimer = phase == 3 ? 14500 : 44500u; // 15 secs in phase 3, 45 otherwise
+            _infernalTimer = _phase == 3 ? 14500 : 44500u; // 15 secs in phase 3, 45 otherwise
         }
         else
         {
-            InfernalTimer -= diff;
+            _infernalTimer -= diff;
         }
 
-        if (ShadowNovaTimer <= diff)
+        if (_shadowNovaTimer <= diff)
         {
-            DoCastVictim(SpellIds.Shadownova);
-            ShadowNovaTimer = phase == 3 ? 31000 : uint.MaxValue;
+            DoCastVictim(SpellIds.SHADOWNOVA);
+            _shadowNovaTimer = _phase == 3 ? 31000 : uint.MaxValue;
         }
         else
         {
-            ShadowNovaTimer -= diff;
+            _shadowNovaTimer -= diff;
         }
 
-        if (phase != 2)
+        if (_phase != 2)
         {
-            if (SWPainTimer <= diff)
+            if (_swPainTimer <= diff)
             {
                 Unit target;
 
-                if (phase == 1)
+                if (_phase == 1)
                     target = Me.Victim; // the tank
                 else                    // anyone but the tank
                     target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
                 if (target)
-                    DoCast(target, SpellIds.SwPain);
+                    DoCast(target, SpellIds.SW_PAIN);
 
-                SWPainTimer = 20000;
+                _swPainTimer = 20000;
             }
             else
             {
-                SWPainTimer -= diff;
+                _swPainTimer -= diff;
             }
         }
 
-        if (phase != 3)
+        if (_phase != 3)
         {
-            if (EnfeebleTimer <= diff)
+            if (_enfeebleTimer <= diff)
             {
                 EnfeebleHealthEffect();
-                EnfeebleTimer = 30000;
-                ShadowNovaTimer = 5000;
-                EnfeebleResetTimer = 9000;
+                _enfeebleTimer = 30000;
+                _shadowNovaTimer = 5000;
+                _enfeebleResetTimer = 9000;
             }
             else
             {
-                EnfeebleTimer -= diff;
+                _enfeebleTimer -= diff;
             }
         }
 
-        if (phase == 2)
+        if (_phase == 2)
             DoMeleeAttacksIfReady();
         else
             DoMeleeAttackIfReady();
@@ -410,41 +413,41 @@ internal class boss_malchezaar : ScriptedAI
 
     public void Cleanup(Creature infernal, Vector2 point)
     {
-        foreach (var guid in infernals)
+        foreach (var guid in _infernals)
             if (guid == infernal.GUID)
             {
-                infernals.Remove(guid);
+                _infernals.Remove(guid);
 
                 break;
             }
 
-        positions.Add(point);
+        _positions.Add(point);
     }
 
     private void Initialize()
     {
-        EnfeebleTimer = 30000;
-        EnfeebleResetTimer = 38000;
-        ShadowNovaTimer = 35500;
-        SWPainTimer = 20000;
-        AmplifyDamageTimer = 5000;
-        Cleave_Timer = 8000;
-        InfernalTimer = 40000;
-        AxesTargetSwitchTimer = RandomHelper.URand(7500, 20000);
-        SunderArmorTimer = RandomHelper.URand(5000, 10000);
-        phase = 1;
+        _enfeebleTimer = 30000;
+        _enfeebleResetTimer = 38000;
+        _shadowNovaTimer = 35500;
+        _swPainTimer = 20000;
+        _amplifyDamageTimer = 5000;
+        _cleaveTimer = 8000;
+        _infernalTimer = 40000;
+        _axesTargetSwitchTimer = RandomHelper.URand(7500, 20000);
+        _sunderArmorTimer = RandomHelper.URand(5000, 10000);
+        _phase = 1;
 
         for (byte i = 0; i < 5; ++i)
         {
-            enfeeble_targets[i].Clear();
-            enfeeble_health[i] = 0;
+            _enfeebleTargets[i].Clear();
+            _enfeebleHealth[i] = 0;
         }
     }
 
     private void InfernalCleanup()
     {
         //Infernal Cleanup
-        foreach (var guid in infernals)
+        foreach (var guid in _infernals)
         {
             var pInfernal = Global.ObjAccessor.GetUnit(Me, guid);
 
@@ -455,19 +458,19 @@ internal class boss_malchezaar : ScriptedAI
             }
         }
 
-        infernals.Clear();
+        _infernals.Clear();
     }
 
     private void AxesCleanup()
     {
         for (byte i = 0; i < 2; ++i)
         {
-            var axe = Global.ObjAccessor.GetUnit(Me, axes[i]);
+            var axe = Global.ObjAccessor.GetUnit(Me, _axes[i]);
 
             if (axe && axe.IsAlive)
                 axe.KillSelf();
 
-            axes[i].Clear();
+            _axes[i].Clear();
         }
     }
 
@@ -479,7 +482,7 @@ internal class boss_malchezaar : ScriptedAI
 
     private void EnfeebleHealthEffect()
     {
-        var info = Global.SpellMgr.GetSpellInfo(SpellIds.EnfeebleEffect, GetDifficulty());
+        var info = Global.SpellMgr.GetSpellInfo(SpellIds.ENFEEBLE_EFFECT, GetDifficulty());
 
         if (info == null)
             return;
@@ -509,12 +512,12 @@ internal class boss_malchezaar : ScriptedAI
         {
             if (target)
             {
-                enfeeble_targets[i] = target.GUID;
-                enfeeble_health[i] = target.Health;
+                _enfeebleTargets[i] = target.GUID;
+                _enfeebleHealth[i] = target.Health;
 
                 CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
                 args.OriginalCaster = Me.GUID;
-                target.CastSpell(target, SpellIds.Enfeeble, args);
+                target.SpellFactory.CastSpell(target, SpellIds.ENFEEBLE, args);
                 target.SetHealth(1);
             }
 
@@ -526,13 +529,13 @@ internal class boss_malchezaar : ScriptedAI
     {
         for (byte i = 0; i < 5; ++i)
         {
-            var target = Global.ObjAccessor.GetUnit(Me, enfeeble_targets[i]);
+            var target = Global.ObjAccessor.GetUnit(Me, _enfeebleTargets[i]);
 
             if (target && target.IsAlive)
-                target.SetHealth(enfeeble_health[i]);
+                target.SetHealth(_enfeebleHealth[i]);
 
-            enfeeble_targets[i].Clear();
-            enfeeble_health[i] = 0;
+            _enfeebleTargets[i].Clear();
+            _enfeebleHealth[i] = 0;
         }
     }
 
@@ -542,33 +545,33 @@ internal class boss_malchezaar : ScriptedAI
         Position pos = null;
 
         if ((Me.Location.MapId != 532) ||
-            positions.Empty())
+            _positions.Empty())
         {
             pos = Me.GetRandomNearPosition(60);
         }
         else
         {
-            point = positions.SelectRandom();
+            point = _positions.SelectRandom();
             pos.Relocate(point.X, point.Y, 275.5f, RandomHelper.FRand(0.0f, (MathF.PI * 2)));
         }
 
-        Creature infernal = Me.SummonCreature(MiscConst.NetherspiteInfernal, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(3));
+        Creature infernal = Me.SummonCreature(MiscConst.NETHERSPITE_INFERNAL, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(3));
 
         if (infernal)
         {
-            infernal.SetDisplayId(MiscConst.InfernalModelInvisible);
+            infernal.SetDisplayId(MiscConst.INFERNAL_MODEL_INVISIBLE);
             infernal.Faction = Me.Faction;
 
             if (point != Vector2.Zero)
-                infernal.GetAI<netherspite_infernal>().Point = point;
+                infernal.GetAI<NetherspiteInfernal>().Point = point;
 
-            infernal.GetAI<netherspite_infernal>().Malchezaar = Me.GUID;
+            infernal.GetAI<NetherspiteInfernal>().Malchezaar = Me.GUID;
 
-            infernals.Add(infernal.GUID);
-            DoCast(infernal, SpellIds.InfernalRelay);
+            _infernals.Add(infernal.GUID);
+            DoCast(infernal, SpellIds.INFERNAL_RELAY);
         }
 
-        Talk(TextIds.SaySummon);
+        Talk(TextIds.SAY_SUMMON);
     }
 
     private void DoMeleeAttacksIfReady()

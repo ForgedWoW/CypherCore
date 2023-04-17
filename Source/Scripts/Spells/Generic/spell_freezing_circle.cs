@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 34779 - Freezing Circle
-internal class spell_freezing_circle : SpellScript, IHasSpellEffects
+internal class SpellFreezingCircle : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,9 +27,9 @@ internal class spell_freezing_circle : SpellScript, IHasSpellEffects
         var map = caster.Map;
 
         if (map.IsDungeon)
-            spellId = map.IsHeroic ? GenericSpellIds.FreezingCirclePitOfSaronHeroic : GenericSpellIds.FreezingCirclePitOfSaronNormal;
+            spellId = map.IsHeroic ? GenericSpellIds.FREEZING_CIRCLE_PIT_OF_SARON_HEROIC : GenericSpellIds.FREEZING_CIRCLE_PIT_OF_SARON_NORMAL;
         else
-            spellId = map.Id == Misc.MapIdBloodInTheSnowScenario ? GenericSpellIds.FreezingCircleScenario : GenericSpellIds.FreezingCircle;
+            spellId = map.Id == Misc.MAP_ID_BLOOD_IN_THE_SNOW_SCENARIO ? GenericSpellIds.FREEZING_CIRCLE_SCENARIO : GenericSpellIds.FREEZING_CIRCLE;
 
         var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
 

@@ -1,17 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
+public class AtMageFrozenOrb : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
-    public uint damageInterval;
-    public bool procDone = false;
+    public uint DamageInterval;
+    public bool ProcDone = false;
 
     public void OnCreate()
     {
@@ -27,7 +28,7 @@ public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, I
 
     public void OnInitialize()
     {
-        damageInterval = 500;
+        DamageInterval = 500;
     }
 
     public void OnUpdate(uint diff)
@@ -37,9 +38,9 @@ public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, I
         if (caster == null || !caster.IsPlayer)
             return;
 
-        if (damageInterval <= diff)
+        if (DamageInterval <= diff)
         {
-            if (!procDone)
+            if (!ProcDone)
                 foreach (var guid in At.InsideUnits)
                 {
                     var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
@@ -48,23 +49,23 @@ public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, I
                         if (caster.IsValidAttackTarget(unit))
                         {
                             if (caster.HasAura(MageSpells.FINGERS_OF_FROST_AURA))
-                                caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
+                                caster.SpellFactory.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
 
-                            caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
+                            caster.SpellFactory.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
 
                             // at->UpdateTimeToTarget(8000); TODO
-                            procDone = true;
+                            ProcDone = true;
 
                             break;
                         }
                 }
 
-            caster.CastSpell(At.Location, MageSpells.FROZEN_ORB_DAMAGE, true);
-            damageInterval = 500;
+            caster.SpellFactory.CastSpell(At.Location, MageSpells.FROZEN_ORB_DAMAGE, true);
+            DamageInterval = 500;
         }
         else
         {
-            damageInterval -= diff;
+            DamageInterval -= diff;
         }
     }
 }

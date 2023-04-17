@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(76613)]
-public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEffects
+public class SpellMasteryIciclesProc : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public static readonly uint[][] Icicles =
     {
@@ -52,9 +53,9 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 
     public bool CheckProc(ProcEventInfo eventInfo)
     {
-        var _spellCanProc = (eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT || eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT_TRIGGER);
+        var spellCanProc = (eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT || eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT_TRIGGER);
 
-        if (_spellCanProc)
+        if (spellCanProc)
             return true;
 
         return false;
@@ -65,7 +66,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
         AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    private void OnProc(AuraEffect unnamedParameter, ProcEventInfo eventInfo)
     {
         var target = eventInfo.DamageInfo.Victim;
         var caster = eventInfo.DamageInfo.Attacker;
@@ -100,13 +101,13 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
             sbyte icicleFreeSlot = -1;       // -1 means no free slot
             sbyte icicleSecondFreeSlot = -1; // -1 means no free slot
 
-            for (sbyte l_I = 0; l_I < 5; ++l_I)
-                if (!player.HasAura(IcicleAuras[l_I]))
+            for (sbyte lI = 0; lI < 5; ++lI)
+                if (!player.HasAura(IcicleAuras[lI]))
                 {
-                    icicleFreeSlot = l_I;
+                    icicleFreeSlot = lI;
 
                     if (icilesAddSecond && icicleFreeSlot != 5)
-                        icicleSecondFreeSlot = (sbyte)(l_I + 1);
+                        icicleSecondFreeSlot = (sbyte)(lI + 1);
 
                     break;
                 }
@@ -140,8 +141,8 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
                         if (RandomHelper.randChance(20))
                             basePoints *= 2;
 
-                    player.CastSpell(target, IcicleHits[smallestIcicle], true);
-                    player.CastSpell(target, MageSpells.ICICLE_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, basePoints));
+                    player.SpellFactory.CastSpell(target, IcicleHits[smallestIcicle], true);
+                    player.SpellFactory.CastSpell(target, MageSpells.ICICLE_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, basePoints));
                     player.RemoveAura(IcicleAuras[smallestIcicle]);
                 }
 
@@ -174,7 +175,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 
                             if (glacialSpikeProc != null)
                                 if (glacialSpikeProc.StackAmount == 5)
-                                    player.CastSpell(player, MageSpells.GLACIAL_SPIKE_PROC, true);
+                                    player.SpellFactory.CastSpell(player, MageSpells.GLACIAL_SPIKE_PROC, true);
                         }
                     }
 
@@ -211,8 +212,8 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
                         if (RandomHelper.randChance(20))
                             basePoints *= 2;
 
-                    player.CastSpell(target, IcicleHits[smallestIcicle], true);
-                    player.CastSpell(target, MageSpells.ICICLE_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, basePoints));
+                    player.SpellFactory.CastSpell(target, IcicleHits[smallestIcicle], true);
+                    player.SpellFactory.CastSpell(target, MageSpells.ICICLE_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, basePoints));
                     player.RemoveAura(IcicleAuras[smallestIcicle]);
                 }
 
@@ -245,7 +246,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 
                             if (glacialSpikeProc != null)
                                 if (glacialSpikeProc.StackAmount == 5)
-                                    player.CastSpell(player, MageSpells.GLACIAL_SPIKE_PROC, true);
+                                    player.SpellFactory.CastSpell(player, MageSpells.GLACIAL_SPIKE_PROC, true);
                         }
                     }
 

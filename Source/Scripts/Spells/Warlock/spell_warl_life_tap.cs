@@ -2,21 +2,22 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Life Tap - 1454
 [SpellScript(1454)]
-public class spell_warl_life_tap : SpellScript, IHasSpellEffects, ISpellCheckCast
+public class SpellWarlLifeTap : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
     public SpellCastResult CheckCast()
     {
-        if (Caster.HealthPct > 15.0f || Caster.HasAura(lifeTap.LIFE_TAP_GLYPH))
+        if (Caster.HealthPct > 15.0f || Caster.HasAura(LifeTap.LIFE_TAP_GLYPH))
             return SpellCastResult.SpellCastOk;
 
         return SpellCastResult.Fizzle;
@@ -34,7 +35,7 @@ public class spell_warl_life_tap : SpellScript, IHasSpellEffects, ISpellCheckCas
         //   GetCaster()->EnergizeBySpell(GetCaster(), LIFE_TAP, int32(GetCaster()->GetMaxHealth() * GetSpellInfo()->GetEffect(uint::0).BasePoints / 100), PowerType.Mana); TODO REWRITE
     }
 
-    public struct lifeTap
+    public struct LifeTap
     {
         public const uint LIFE_TAP = 1454;
         public const uint LIFE_TAP_GLYPH = 63320;

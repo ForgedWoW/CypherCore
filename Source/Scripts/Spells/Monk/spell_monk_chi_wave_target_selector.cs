@@ -3,11 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
@@ -15,14 +17,14 @@ namespace Scripts.Spells.Monk;
 {
     MonkSpells.CHI_WAVE_DAMAGE, MonkSpells.CHI_WAVE_HEAL
 })]
-public class spell_monk_chi_wave_target_selector : SpellScript, IHasSpellEffects
+public class SpellMonkChiWaveTargetSelector : SpellScript, IHasSpellEffects
 {
-    private bool m_shouldHeal;
+    private bool _mShouldHeal;
     public List<ISpellEffect> SpellEffects { get; } = new();
 
     public override bool Load()
     {
-        m_shouldHeal = true; // just for initializing
+        _mShouldHeal = true; // just for initializing
 
         return true;
     }
@@ -44,12 +46,12 @@ public class spell_monk_chi_wave_target_selector : SpellScript, IHasSpellEffects
         {
             targets.RemoveIf(new HealUnitCheck(Caster));
             targets.Sort(new HealthPctOrderPred(false)); // Reverse order due to target is selected via std::list back
-            m_shouldHeal = true;
+            _mShouldHeal = true;
         }
         else if (spellInfo.Id == 132464) // Triggered by heal, so we need damage selector
         {
             targets.RemoveIf(new DamageUnitCheck(Caster, 25.0f));
-            m_shouldHeal = false;
+            _mShouldHeal = false;
         }
 
         if (targets.Count == 0)
@@ -74,9 +76,9 @@ public class spell_monk_chi_wave_target_selector : SpellScript, IHasSpellEffects
 
         var target = HitUnit;
 
-        if (m_shouldHeal)
-            ExplTargetUnit.CastSpell(target, 132464, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GUID));
+        if (_mShouldHeal)
+            ExplTargetUnit.SpellFactory.CastSpell(target, 132464, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GUID));
         else
-            ExplTargetUnit.CastSpell(target, 132467, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GUID));
+            ExplTargetUnit.SpellFactory.CastSpell(target, 132467, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GUID));
     }
 }

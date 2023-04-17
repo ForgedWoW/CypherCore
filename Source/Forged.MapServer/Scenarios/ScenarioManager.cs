@@ -10,6 +10,7 @@ using Forged.MapServer.Maps;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -18,6 +19,7 @@ namespace Forged.MapServer.Scenarios;
 public class ScenarioManager
 {
     private readonly CliDB _cliDB;
+    private readonly ClassFactory _classFactory;
     private readonly IConfiguration _configuration;
     private readonly CriteriaManager _criteriaManager;
     private readonly Dictionary<uint, ScenarioData> _scenarioData = new();
@@ -25,12 +27,13 @@ public class ScenarioManager
     private readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
     private readonly WorldDatabase _worldDatabase;
 
-    public ScenarioManager(WorldDatabase worldDatabase, IConfiguration configuration, CriteriaManager criteriaManager, CliDB cliDB)
+    public ScenarioManager(WorldDatabase worldDatabase, IConfiguration configuration, CriteriaManager criteriaManager, CliDB cliDB, ClassFactory classFactory)
     {
         _worldDatabase = worldDatabase;
         _configuration = configuration;
         _criteriaManager = criteriaManager;
         _cliDB = cliDB;
+        _classFactory = classFactory;
     }
 
     public InstanceScenario CreateInstanceScenario(InstanceMap map, int team)
@@ -49,7 +52,7 @@ public class ScenarioManager
         };
 
         if (_scenarioData.TryGetValue(scenarioID, out var scenarioData))
-            return new InstanceScenario(map, scenarioData);
+            return _classFactory.ResolvePositional<InstanceScenario>(map, scenarioData);
 
         Log.Logger.Error("Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
                          scenarioID,

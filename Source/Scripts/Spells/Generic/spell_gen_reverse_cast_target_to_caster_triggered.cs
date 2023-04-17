@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 83781 - Reverse Cast Ride Vehicle
-internal class spell_gen_reverse_cast_target_to_caster_triggered : SpellScript, IHasSpellEffects
+internal class SpellGenReverseCastTargetToCasterTriggered : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -20,6 +21,6 @@ internal class spell_gen_reverse_cast_target_to_caster_triggered : SpellScript, 
 
     private void HandleScript(int effIndex)
     {
-        HitUnit.CastSpell(Caster, (uint)SpellInfo.GetEffect(effIndex).CalcValue(), true);
+        HitUnit.SpellFactory.CastSpell(Caster, (uint)SpellInfo.GetEffect(effIndex).CalcValue(), true);
     }
 }

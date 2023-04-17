@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
-[SpellScript(MageSpells.ShiftingPowerDamageProc)]
-internal class spell_mage_shifting_power : SpellScript, ISpellOnCast
+[SpellScript(MageSpells.SHIFTING_POWER_DAMAGE_PROC)]
+internal class SpellMageShiftingPower : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {
         var caster = Caster;
 
-        if (caster != null && caster.TryGetAura(MageSpells.ShiftingPower, out var aura))
+        if (caster != null && caster.TryGetAura(MageSpells.SHIFTING_POWER, out var aura))
         {
             //creating a list of all spells in casters spell history
             var spellHistory = caster.SpellHistory;

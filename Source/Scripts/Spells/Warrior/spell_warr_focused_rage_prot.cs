@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior;
 
 //204488 - Focused Rage
 [SpellScript(204488)]
-public class spell_warr_focused_rage_prot : AuraScript, IAuraCheckProc
+public class SpellWarrFocusedRageProt : AuraScript, IAuraCheckProc
 {
     public bool CheckProc(ProcEventInfo eventInfo)
     {
@@ -21,7 +22,7 @@ public class spell_warr_focused_rage_prot : AuraScript, IAuraCheckProc
 }
 
 [SpellScript(204488)]
-public class spell_warr_focused_rage_prot_SpellScript : SpellScript, IHasSpellEffects
+public class SpellWarrFocusedRageProtSpellScript : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -36,6 +37,6 @@ public class spell_warr_focused_rage_prot_SpellScript : SpellScript, IHasSpellEf
 
         if (caster != null)
             if (caster.HasAura(WarriorSpells.VENGEANCE_AURA))
-                caster.CastSpell(caster, WarriorSpells.VENGEANCE_IGNORE_PAIN, true);
+                caster.SpellFactory.CastSpell(caster, WarriorSpells.VENGEANCE_IGNORE_PAIN, true);
     }
 }

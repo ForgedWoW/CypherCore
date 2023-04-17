@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
@@ -10,7 +10,7 @@ namespace Scripts.Spells.Druid;
 {
     190984, 194153
 })]
-public class spell_dru_blessing_of_elune : SpellScript, ISpellOnHit
+public class SpellDruBlessingOfElune : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {

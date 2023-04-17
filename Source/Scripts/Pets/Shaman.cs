@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Pets
 {
@@ -14,18 +14,18 @@ namespace Scripts.Pets
         internal struct SpellIds
         {
             //npc_pet_shaman_earth_elemental
-            public const uint AngeredEarth = 36213;
+            public const uint ANGERED_EARTH = 36213;
 
             //npc_pet_shaman_fire_elemental
-            public const uint FireBlast = 57984;
-            public const uint FireNova = 12470;
-            public const uint FireShield = 13376;
+            public const uint FIRE_BLAST = 57984;
+            public const uint FIRE_NOVA = 12470;
+            public const uint FIRE_SHIELD = 13376;
         }
 
         [Script]
-        internal class npc_pet_shaman_earth_elemental : ScriptedAI
+        internal class NPCPetShamanEarthElemental : ScriptedAI
         {
-            public npc_pet_shaman_earth_elemental(Creature creature) : base(creature) { }
+            public NPCPetShamanEarthElemental(Creature creature) : base(creature) { }
 
             public override void Reset()
             {
@@ -34,7 +34,7 @@ namespace Scripts.Pets
                 Scheduler.Schedule(TimeSpan.FromSeconds(0),
                                    task =>
                                    {
-                                       DoCastVictim(SpellIds.AngeredEarth);
+                                       DoCastVictim(SpellIds.ANGERED_EARTH);
                                        task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20));
                                    });
             }
@@ -51,9 +51,9 @@ namespace Scripts.Pets
         }
 
         [Script]
-        public class npc_pet_shaman_fire_elemental : ScriptedAI
+        public class NPCPetShamanFireElemental : ScriptedAI
         {
-            public npc_pet_shaman_fire_elemental(Creature creature) : base(creature) { }
+            public NPCPetShamanFireElemental(Creature creature) : base(creature) { }
 
             public override void Reset()
             {
@@ -63,7 +63,7 @@ namespace Scripts.Pets
                                    TimeSpan.FromSeconds(20),
                                    task =>
                                    {
-                                       DoCastVictim(SpellIds.FireNova);
+                                       DoCastVictim(SpellIds.FIRE_NOVA);
                                        task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20));
                                    });
 
@@ -71,14 +71,14 @@ namespace Scripts.Pets
                                    TimeSpan.FromSeconds(20),
                                    task =>
                                    {
-                                       DoCastVictim(SpellIds.FireShield);
+                                       DoCastVictim(SpellIds.FIRE_SHIELD);
                                        task.Repeat(TimeSpan.FromSeconds(2));
                                    });
 
                 Scheduler.Schedule(TimeSpan.FromSeconds(0),
                                    task =>
                                    {
-                                       DoCastVictim(SpellIds.FireBlast);
+                                       DoCastVictim(SpellIds.FIRE_BLAST);
                                        task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20));
                                    });
             }

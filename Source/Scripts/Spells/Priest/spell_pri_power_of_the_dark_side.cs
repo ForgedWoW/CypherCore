@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 198069 - Power of the Dark Side
-internal class spell_pri_power_of_the_dark_side : AuraScript, IHasAuraEffects
+internal class SpellPriPowerOfTheDarkSide : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,7 +25,7 @@ internal class spell_pri_power_of_the_dark_side : AuraScript, IHasAuraEffects
     {
         var caster = Caster;
 
-        caster?.CastSpell(caster, PriestSpells.POWER_OF_THE_DARK_SIDE_TINT, true);
+        caster?.SpellFactory.CastSpell(caster, PriestSpells.POWER_OF_THE_DARK_SIDE_TINT, true);
     }
 
     private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

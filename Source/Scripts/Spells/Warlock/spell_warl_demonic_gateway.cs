@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Demonic Gateway - 111771
 [SpellScript(111771)]
-public class spell_warl_demonic_gateway : SpellScript, ISpellCheckCast, IHasSpellEffects
+public class SpellWarlDemonicGateway : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -67,8 +68,8 @@ public class spell_warl_demonic_gateway : SpellScript, ISpellCheckCast, IHasSpel
 
         if (dest != null)
         {
-            caster.CastSpell(caster, WarlockSpells.DEMONIC_GATEWAY_SUMMON_PURPLE, true);
-            caster.CastSpell(dest, WarlockSpells.DEMONIC_GATEWAY_SUMMON_GREEN, true);
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.DEMONIC_GATEWAY_SUMMON_PURPLE, true);
+            caster.SpellFactory.CastSpell(dest, WarlockSpells.DEMONIC_GATEWAY_SUMMON_GREEN, true);
         }
     }
 

@@ -2,19 +2,21 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(207811)]
-public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
+public class SpellDhNetherBondPeriodic : AuraScript, IHasAuraEffects
 {
-    private Unit m_BondUnit;
+    private Unit _mBondUnit;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
     public override void Register()
@@ -23,7 +25,7 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
     }
 
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 
@@ -31,11 +33,11 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
             return;
 
         // Try to get the bonded Unit
-        if (m_BondUnit == null)
-            m_BondUnit = GetBondUnit();
+        if (_mBondUnit == null)
+            _mBondUnit = GetBondUnit();
 
         // If still not found, return
-        if (m_BondUnit == null)
+        if (_mBondUnit == null)
             return;
 
         long casterHealBp = 0;
@@ -44,22 +46,22 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
         long targetDamageBp = 0;
 
         var casterHp = caster.HealthPct;
-        var targetHp = m_BondUnit.HealthPct;
+        var targetHp = _mBondUnit.HealthPct;
         var healthPct = (casterHp + targetHp) / 2.0f;
 
         if (casterHp < targetHp)
         {
             casterHealBp = caster.CountPctFromMaxHealth(healthPct) - caster.Health;
-            targetDamageBp = m_BondUnit.Health - m_BondUnit.CountPctFromMaxHealth(healthPct);
+            targetDamageBp = _mBondUnit.Health - _mBondUnit.CountPctFromMaxHealth(healthPct);
         }
         else
         {
             casterDamageBp = caster.Health - caster.CountPctFromMaxHealth(healthPct);
-            targetHealBp = m_BondUnit.CountPctFromMaxHealth(healthPct) - m_BondUnit.Health;
+            targetHealBp = _mBondUnit.CountPctFromMaxHealth(healthPct) - _mBondUnit.Health;
         }
 
-        caster.CastSpell(caster, DemonHunterSpells.NETHER_BOND_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, casterDamageBp).AddSpellMod(SpellValueMod.BasePoint1, casterHealBp));
-        caster.CastSpell(m_BondUnit, DemonHunterSpells.NETHER_BOND_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, targetDamageBp).AddSpellMod(SpellValueMod.BasePoint1, targetHealBp));
+        caster.SpellFactory.CastSpell(caster, DemonHunterSpells.NETHER_BOND_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, casterDamageBp).AddSpellMod(SpellValueMod.BasePoint1, casterHealBp));
+        caster.SpellFactory.CastSpell(_mBondUnit, DemonHunterSpells.NETHER_BOND_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, targetDamageBp).AddSpellMod(SpellValueMod.BasePoint1, targetHealBp));
     }
 
     private Unit GetBondUnit()
@@ -81,13 +83,13 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
         return null;
     }
 
-    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
         if (caster == null)
             return;
 
-        m_BondUnit = GetBondUnit();
+        _mBondUnit = GetBondUnit();
     }
 }

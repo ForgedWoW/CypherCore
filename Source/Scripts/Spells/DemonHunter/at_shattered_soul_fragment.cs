@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_shattered_soul_fragment : AreaTriggerScript, IAreaTriggerOnUnitEnter
+public class AtShatteredSoulFragment : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
     public void OnUnitEnter(Unit unit)
     {
@@ -20,7 +20,7 @@ public class at_shattered_soul_fragment : AreaTriggerScript, IAreaTriggerOnUnitE
         {
             case 10665:
                 if (At.GetCaster().AsPlayer.GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
-                    At.GetCaster().CastSpell(At.GetCaster(), ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_25_HAVOC, true);
+                    At.GetCaster().SpellFactory.CastSpell(At.GetCaster(), ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_25_HAVOC, true);
 
                 At.Remove();
 
@@ -28,7 +28,7 @@ public class at_shattered_soul_fragment : AreaTriggerScript, IAreaTriggerOnUnitE
 
             case 10666:
                 if (At.GetCaster().AsPlayer.GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
-                    At.GetCaster().CastSpell(At.GetCaster(), ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_25_HAVOC, true);
+                    At.GetCaster().SpellFactory.CastSpell(At.GetCaster(), ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_25_HAVOC, true);
 
                 At.Remove();
 

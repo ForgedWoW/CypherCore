@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(92795)] //! Soul Swap Copy Spells - 92795 - Simply copies spell IDs.
-internal class spell_warl_soul_swap_dot_marker : SpellScript, IHasSpellEffects
+internal class SpellWarlSoulSwapDotMarker : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,11 +28,11 @@ internal class spell_warl_soul_swap_dot_marker : SpellScript, IHasSpellEffects
             !swapVictim)
             return;
 
-        spell_warl_soul_swap_override swapSpellScript = null;
+        SpellWarlSoulSwapOverride swapSpellScript = null;
         var swapOverrideAura = warlock.GetAura(WarlockSpells.SOUL_SWAP_OVERRIDE);
 
         if (swapOverrideAura != null)
-            swapSpellScript = swapOverrideAura.GetScript<spell_warl_soul_swap_override>();
+            swapSpellScript = swapOverrideAura.GetScript<SpellWarlSoulSwapOverride>();
 
         if (swapSpellScript == null)
             return;

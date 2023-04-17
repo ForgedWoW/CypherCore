@@ -1,25 +1,26 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.GameObjects;
 
 [GameObjectScript(19072)]
-public class go_deadmines_tp : GameObjectAI
+public class GODeadminesTp : GameObjectAI
 {
     public const string GOSSIP_BOSS_1 = "Press the button labeled 'Wood and Lumber.'";
     public const string GOSSIP_BOSS_2 = "Press the button labeled 'Metal and Scraps.'";
     public const string GOSSIP_BOSS_3 = "Press the button labeled 'Ship Parts.'";
 
-    public go_deadmines_tp(GameObject go) : base(go) { }
+    public GODeadminesTp(GameObject go) : base(go) { }
 
     public override bool OnGossipSelect(Player player, uint menuId, uint action)
     {
-        if (player.HasAura(DMSharedSpells.NIGHTMARE_ELIXIR))
+        if (player.HasAura(DmSharedSpells.NIGHTMARE_ELIXIR))
             return false;
 
         player.PlayerTalkClass.ClearMenus();
@@ -46,7 +47,7 @@ public class go_deadmines_tp : GameObjectAI
 
     public override bool OnGossipHello(Player player)
     {
-        if (player.HasAura(DMSharedSpells.NIGHTMARE_ELIXIR))
+        if (player.HasAura(DmSharedSpells.NIGHTMARE_ELIXIR))
             return false;
 
         var instance = Me.InstanceScript;
@@ -54,13 +55,13 @@ public class go_deadmines_tp : GameObjectAI
         if (instance == null)
             return false;
 
-        if (instance.GetBossState(DMData.DATA_HELIX) == EncounterState.Done)
+        if (instance.GetBossState(DmData.DATA_HELIX) == EncounterState.Done)
             player.AddGossipItem(GossipOptionNpc.None, GOSSIP_BOSS_1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF);
 
-        if (instance.GetBossState(DMData.DATA_FOEREAPER) == EncounterState.Done)
+        if (instance.GetBossState(DmData.DATA_FOEREAPER) == EncounterState.Done)
             player.AddGossipItem(GossipOptionNpc.None, GOSSIP_BOSS_2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
 
-        if (instance.GetBossState(DMData.DATA_RIPSNARL) == EncounterState.Done)
+        if (instance.GetBossState(DmData.DATA_RIPSNARL) == EncounterState.Done)
             player.AddGossipItem(GossipOptionNpc.None, GOSSIP_BOSS_3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
 
         player.SendGossipMenu(player.GetGossipTextId(Me), Me.GUID);

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(126895)]
-public class spell_monk_zen_pilgrimage_return : SpellScript, IHasSpellEffects
+public class SpellMonkZenPilgrimageReturn : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,11 +25,11 @@ public class spell_monk_zen_pilgrimage_return : SpellScript, IHasSpellEffects
 
         if (caster != null)
         {
-            var _player = caster.AsPlayer;
+            var player = caster.AsPlayer;
 
-            if (_player != null)
+            if (player != null)
                 // _player->TeleportTo(_player->m_recallLoc); After change now iw work
-                _player.RemoveAura(126896);
+                player.RemoveAura(126896);
         }
     }
 }

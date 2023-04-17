@@ -2,28 +2,29 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire;
 
 internal struct SpellIds
 {
-    public const uint Frenzy = 8269;
-    public const uint SummonSpectralAssassin = 27249;
-    public const uint ShadowBoltVolley = 27382;
-    public const uint ShadowWrath = 27286;
+    public const uint FRENZY = 8269;
+    public const uint SUMMON_SPECTRAL_ASSASSIN = 27249;
+    public const uint SHADOW_BOLT_VOLLEY = 27382;
+    public const uint SHADOW_WRATH = 27286;
 }
 
 [Script]
-internal class boss_lord_valthalak : BossAI
+internal class BossLordValthalak : BossAI
 {
-    private bool frenzy15;
-    private bool frenzy40;
+    private bool _frenzy15;
+    private bool _frenzy40;
 
-    public boss_lord_valthalak(Creature creature) : base(creature, DataTypes.LordValthalak)
+    public BossLordValthalak(Creature creature) : base(creature, DataTypes.LORD_VALTHALAK)
     {
         Initialize();
     }
@@ -43,7 +44,7 @@ internal class boss_lord_valthalak : BossAI
                            1,
                            task =>
                            {
-                               DoCast(Me, SpellIds.SummonSpectralAssassin);
+                               DoCast(Me, SpellIds.SUMMON_SPECTRAL_ASSASSIN);
                                task.Repeat(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
                            });
 
@@ -51,14 +52,14 @@ internal class boss_lord_valthalak : BossAI
                            TimeSpan.FromSeconds(18),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ShadowWrath);
+                               DoCastVictim(SpellIds.SHADOW_WRATH);
                                task.Repeat(TimeSpan.FromSeconds(19), TimeSpan.FromSeconds(24));
                            });
     }
 
     public override void JustDied(Unit killer)
     {
-        Instance.SetBossState(DataTypes.LordValthalak, EncounterState.Done);
+        Instance.SetBossState(DataTypes.LORD_VALTHALAK, EncounterState.Done);
     }
 
     public override void UpdateAI(uint diff)
@@ -71,28 +72,28 @@ internal class boss_lord_valthalak : BossAI
         if (Me.HasUnitState(UnitState.Casting))
             return;
 
-        if (!frenzy40)
+        if (!_frenzy40)
             if (HealthBelowPct(40))
             {
-                DoCast(Me, SpellIds.Frenzy);
+                DoCast(Me, SpellIds.FRENZY);
                 Scheduler.CancelGroup(1);
-                frenzy40 = true;
+                _frenzy40 = true;
             }
 
-        if (!frenzy15)
+        if (!_frenzy15)
             if (HealthBelowPct(15))
             {
-                DoCast(Me, SpellIds.Frenzy);
+                DoCast(Me, SpellIds.FRENZY);
 
                 Scheduler.Schedule(TimeSpan.FromSeconds(7),
                                    TimeSpan.FromSeconds(14),
                                    task =>
                                    {
-                                       DoCastVictim(SpellIds.ShadowBoltVolley);
+                                       DoCastVictim(SpellIds.SHADOW_BOLT_VOLLEY);
                                        task.Repeat(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(6));
                                    });
 
-                frenzy15 = true;
+                _frenzy15 = true;
             }
 
         DoMeleeAttackIfReady();
@@ -100,7 +101,7 @@ internal class boss_lord_valthalak : BossAI
 
     private void Initialize()
     {
-        frenzy40 = false;
-        frenzy15 = false;
+        _frenzy40 = false;
+        _frenzy15 = false;
     }
 }

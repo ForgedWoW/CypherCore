@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 49576 - Death Grip Initial
-internal class spell_dk_death_grip_initial : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellDkDeathGripInitial : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -33,10 +34,10 @@ internal class spell_dk_death_grip_initial : SpellScript, ISpellCheckCast, IHasS
 
     private void HandleDummy(int effIndex)
     {
-        Caster.CastSpell(HitUnit, DeathKnightSpells.DeathGripDummy, true);
-        HitUnit.CastSpell(Caster, DeathKnightSpells.DeathGripJump, true);
+        Caster.SpellFactory.CastSpell(HitUnit, DeathKnightSpells.DEATH_GRIP_DUMMY, true);
+        HitUnit.SpellFactory.CastSpell(Caster, DeathKnightSpells.DEATH_GRIP_JUMP, true);
 
-        if (Caster.HasAura(DeathKnightSpells.Blood))
-            Caster.CastSpell(HitUnit, DeathKnightSpells.DeathGripTaunt, true);
+        if (Caster.HasAura(DeathKnightSpells.BLOOD))
+            Caster.SpellFactory.CastSpell(HitUnit, DeathKnightSpells.DeathGripTaunt, true);
     }
 }

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 23442 - Dimensional Ripper - Everlook
-internal class spell_item_dimensional_ripper_everlook : SpellScript, IHasSpellEffects
+internal class SpellItemDimensionalRipperEverlook : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -34,8 +35,8 @@ internal class spell_item_dimensional_ripper_everlook : SpellScript, IHasSpellEf
         var caster = Caster;
 
         if (r < 100) // 4/12 evil twin
-            caster.CastSpell(caster, ItemSpellIds.EvilTwin, true);
+            caster.SpellFactory.CastSpell(caster, ItemSpellIds.EVIL_TWIN, true);
         else // 1/12 fire
-            caster.CastSpell(caster, ItemSpellIds.TransporterMalfunctionFire, true);
+            caster.SpellFactory.CastSpell(caster, ItemSpellIds.TRANSPORTER_MALFUNCTION_FIRE, true);
     }
 }

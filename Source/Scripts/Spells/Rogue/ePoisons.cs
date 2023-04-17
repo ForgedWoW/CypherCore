@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Rogue;
 
-public enum ePoisons
+public enum EPoisons
 {
     WoundPoison = 8679,
     MindNumbingPoison = 5761,

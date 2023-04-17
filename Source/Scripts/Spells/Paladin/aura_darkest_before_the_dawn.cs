@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 //210378
 [SpellScript(210378)]
-public class aura_darkest_before_the_dawn : AuraScript, IHasAuraEffects
+public class AuraDarkestBeforeTheDawn : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,7 +20,7 @@ public class aura_darkest_before_the_dawn : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
     }
 
-    private void OnTick(AuraEffect UnnamedParameter)
+    private void OnTick(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 

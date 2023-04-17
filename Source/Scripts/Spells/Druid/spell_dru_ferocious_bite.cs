@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 22568 - Ferocious Bite
-internal class spell_dru_ferocious_bite : SpellScript, IHasSpellEffects
+internal class SpellDruFerociousBite : SpellScript, IHasSpellEffects
 {
     private double _damageMultiplier = 0.0f;
     public List<ISpellEffect> SpellEffects { get; } = new();

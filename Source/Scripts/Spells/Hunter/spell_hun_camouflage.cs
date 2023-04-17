@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(199483)]
-public class spell_hun_camouflage : AuraScript, IHasAuraEffects
+public class SpellHunCamouflage : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -22,18 +22,18 @@ public class spell_hun_camouflage : AuraScript, IHasAuraEffects
     }
 
 
-    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         if (Caster && Caster.IsPlayer)
         {
             Unit pet = Caster.GetGuardianPet();
 
             if (pet != null)
-                pet.CastSpell(pet, HunterSpells.CAMOUFLAGE, true);
+                pet.SpellFactory.CastSpell(pet, HunterSpells.CAMOUFLAGE, true);
         }
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         if (Caster && Caster.IsPlayer)
         {

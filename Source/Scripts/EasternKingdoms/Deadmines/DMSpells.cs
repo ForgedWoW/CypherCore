@@ -3,7 +3,7 @@
 
 namespace Scripts.EasternKingdoms.Deadmines;
 
-public static class DMSpells
+public static class DmSpells
 {
     public const uint CANNONBALL = 89697; // 91066 (HC) supported by Spell Difficulty
     public const uint THROW = 91038;

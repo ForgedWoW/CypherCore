@@ -3,9 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
@@ -13,7 +14,7 @@ namespace Scripts.Spells.DemonHunter;
 {
     178963, 203794, 228532
 })]
-public class spell_dh_soul_fragment_heals : SpellScript, IHasSpellEffects
+public class SpellDhSoulFragmentHeals : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -30,7 +31,7 @@ public class spell_dh_soul_fragment_heals : SpellScript, IHasSpellEffects
             PreventHitDefaultEffect(effIndex);
     }
 
-    private void HandleHeal(int UnnamedParameter)
+    private void HandleHeal(int unnamedParameter)
     {
         var caster = Caster;
 

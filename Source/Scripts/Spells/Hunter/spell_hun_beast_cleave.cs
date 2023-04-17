@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(115939)]
-public class spell_hun_beast_cleave : SpellScript, ISpellAfterCast
+public class SpellHunBeastCleave : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {
@@ -19,7 +19,7 @@ public class spell_hun_beast_cleave : SpellScript, ISpellAfterCast
                 var pet = player.CurrentPet;
 
                 if (pet != null)
-                    player.CastSpell(pet, HunterSpells.BEAST_CLEAVE_PROC, true);
+                    player.SpellFactory.CastSpell(pet, HunterSpells.BEAST_CLEAVE_PROC, true);
             }
     }
 }

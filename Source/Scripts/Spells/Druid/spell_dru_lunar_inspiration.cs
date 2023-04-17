@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 155580 - Lunar Inspiration
-internal class spell_dru_lunar_inspiration : AuraScript, IHasAuraEffects
+internal class SpellDruLunarInspiration : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +23,7 @@ internal class spell_dru_lunar_inspiration : AuraScript, IHasAuraEffects
 
     private void AfterApply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.CastSpell(Target, DruidSpellIds.LunarInspirationOverride, true);
+        Target.SpellFactory.CastSpell(Target, DruidSpellIds.LunarInspirationOverride, true);
     }
 
     private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

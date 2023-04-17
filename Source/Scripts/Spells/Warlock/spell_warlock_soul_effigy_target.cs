@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // 205178 - Soul Effigy target
 [SpellScript(205178)]
-public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
+public class SpellWarlockSoulEffigyTarget : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -23,7 +24,7 @@ public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.Dummy));
     }
 
-    private void PeriodicTick(AuraEffect UnnamedParameter)
+    private void PeriodicTick(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 
@@ -43,7 +44,7 @@ public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
             Remove();
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -58,7 +59,7 @@ public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
             effigy.ToTempSummon().DespawnOrUnsummon();
     }
 
-    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
         var target = Target;

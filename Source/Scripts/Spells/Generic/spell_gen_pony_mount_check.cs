@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_pony_mount_check : AuraScript, IHasAuraEffects
+internal class SpellGenPonyMountCheck : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -29,12 +29,12 @@ internal class spell_gen_pony_mount_check : AuraScript, IHasAuraEffects
         var owner = caster.OwnerUnit.AsPlayer;
 
         if (!owner ||
-            !owner.HasAchieved(GenericSpellIds.AchievementPonyup))
+            !owner.HasAchieved(GenericSpellIds.ACHIEVEMENT_PONYUP))
             return;
 
         if (owner.IsMounted)
         {
-            caster.Mount(GenericSpellIds.MountPony);
+            caster.Mount(GenericSpellIds.MOUNT_PONY);
             caster.SetSpeedRate(UnitMoveType.Run, owner.GetSpeedRate(UnitMoveType.Run));
         }
         else if (caster.IsMounted)

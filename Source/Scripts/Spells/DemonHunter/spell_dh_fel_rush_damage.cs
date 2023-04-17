@@ -2,15 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(223107)]
-public class spell_dh_fel_rush_damage : SpellScript, IHasSpellEffects, ISpellOnHit, ISpellOnCast
+public class SpellDhFelRushDamage : SpellScript, IHasSpellEffects, ISpellOnHit, ISpellOnCast
 {
     private bool _targetHit;
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -21,7 +23,7 @@ public class spell_dh_fel_rush_damage : SpellScript, IHasSpellEffects, ISpellOnH
 
         if (caster != null)
             if (caster.HasAura(DemonHunterSpells.FEL_MASTERY) && _targetHit)
-                caster.CastSpell(caster, DemonHunterSpells.FEL_MASTERY_FURY, true);
+                caster.SpellFactory.CastSpell(caster, DemonHunterSpells.FEL_MASTERY_FURY, true);
     }
 
     public void OnHit()

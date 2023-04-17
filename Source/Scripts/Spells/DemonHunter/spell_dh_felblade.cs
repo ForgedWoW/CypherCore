@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(232893)]
-public class spell_dh_felblade : SpellScript, IHasSpellEffects
+public class SpellDhFelblade : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -25,8 +26,8 @@ public class spell_dh_felblade : SpellScript, IHasSpellEffects
 
         if (Caster.GetDistance2d(HitUnit) <= 15.0f)
         {
-            Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_CHARGE, true);
-            Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_DAMAGE, true);
+            Caster.SpellFactory.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_CHARGE, true);
+            Caster.SpellFactory.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_DAMAGE, true);
         }
     }
 }

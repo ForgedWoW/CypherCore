@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.CALL_OF_YSERA_AURA)]
-public class aura_evoker_call_of_ysera : AuraScript, IAuraCheckProc
+public class AuraEvokerCallOfYsera : AuraScript, IAuraCheckProc
 {
     public bool CheckProc(ProcEventInfo info)
     {

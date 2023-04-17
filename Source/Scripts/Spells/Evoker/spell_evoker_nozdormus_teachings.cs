@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.BRONZE_TEMPORAL_ANOMALY)]
-public class spell_evoker_nozdormus_teachings : SpellScript, ISpellAfterCast
+public class SpellEvokerNozdormusTeachings : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {

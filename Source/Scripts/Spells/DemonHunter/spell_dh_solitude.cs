@@ -2,12 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
@@ -15,7 +16,7 @@ namespace Scripts.Spells.DemonHunter;
 
 // Solitude - 211509
 [SpellScript(211509)]
-public class spell_dh_solitude : AuraScript, IHasAuraEffects
+public class SpellDhSolitude : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -24,7 +25,7 @@ public class spell_dh_solitude : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
     }
 
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
         PreventDefaultAction();
 
@@ -41,7 +42,7 @@ public class spell_dh_solitude : AuraScript, IHasAuraEffects
         allies.Remove(caster);
 
         if (allies.Count == 0 && !caster.HasAura(DemonHunterSpells.SOLITUDE_BUFF))
-            caster.CastSpell(caster, DemonHunterSpells.SOLITUDE_BUFF, true);
+            caster.SpellFactory.CastSpell(caster, DemonHunterSpells.SOLITUDE_BUFF, true);
         else if (allies.Count > 0)
             caster.RemoveAura(DemonHunterSpells.SOLITUDE_BUFF);
     }

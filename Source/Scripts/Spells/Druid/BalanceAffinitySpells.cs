@@ -5,8 +5,8 @@ namespace Scripts.Spells.Druid;
 
 public struct BalanceAffinitySpells
 {
-    public static uint STARSURGE = 78674;
-    public static uint SUNFIRE = 93402;
-    public static uint LUNAR_STRIKE = 194153;
-    public static uint SOLAR_WRATH = 190984;
+    public static uint Starsurge = 78674;
+    public static uint Sunfire = 93402;
+    public static uint LunarStrike = 194153;
+    public static uint SolarWrath = 190984;
 }

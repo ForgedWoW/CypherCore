@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(155228)]
-public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
+public class SpellHunLoneWolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
 {
-    internal static uint[] g_BuffSpells =
+    internal static uint[] GBuffSpells =
     {
         (uint)LoneWolfes.LoneWolfMastery, (uint)LoneWolfes.LoneWolfStamina, (uint)LoneWolfes.LoneWolfCritical, (uint)LoneWolfes.LoneWolfHaste, (uint)LoneWolfes.LoneWolfSpellPower, (uint)LoneWolfes.LoneWolfPrimarStats, (uint)LoneWolfes.LoneWolfVersatility, (uint)LoneWolfes.LoneWolfMultistrike
     };
@@ -44,13 +44,13 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
                 auraEffect.ChangeAmount(0, true, true);
 
             for (byte I = 0; I < 8; ++I)
-                player.RemoveAura(g_BuffSpells[I]);
+                player.RemoveAura(GBuffSpells[I]);
         }
         else
         {
             if (!player.HasAura(LoneWolfes.LoneWolfAura))
             {
-                player.CastSpell(player, LoneWolfes.LoneWolfAura, true);
+                player.SpellFactory.CastSpell(player, LoneWolfes.LoneWolfAura, true);
 
                 aurEff.ChangeAmount(SpellInfo.GetEffect(0).BasePoints, true, true);
 
@@ -68,7 +68,7 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
         AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
     }
 
-    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         if (!Caster)
             return;
@@ -88,7 +88,7 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
         }
     }
 
-    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void OnRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         if (!Caster)
             return;

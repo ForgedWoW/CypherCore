@@ -1,31 +1,31 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Shaman;
 
 // 6826
 [Script]
-public class bfa_at_crashing_storm : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate
+public class BfaAtCrashingStorm : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate
 {
-    public uint damageTimer;
+    public uint DamageTimer;
 
     public void OnInitialize()
     {
-        damageTimer = 0;
+        DamageTimer = 0;
     }
 
     public void OnUpdate(uint diff)
     {
-        damageTimer += diff;
+        DamageTimer += diff;
 
-        if (damageTimer >= 2 * Time.IN_MILLISECONDS)
+        if (DamageTimer >= 2 * Time.IN_MILLISECONDS)
         {
             CheckPlayers();
-            damageTimer = 0;
+            DamageTimer = 0;
         }
     }
 
@@ -42,7 +42,7 @@ public class bfa_at_crashing_storm : AreaTriggerScript, IAreaTriggerOnInitialize
             if (targetList.Count != 0)
                 foreach (Player player in targetList)
                     if (!player.IsGameMaster)
-                        caster.CastSpell(player, ShamanSpells.CRASHING_STORM_TALENT_DAMAGE, true);
+                        caster.SpellFactory.CastSpell(player, ShamanSpells.CRASHING_STORM_TALENT_DAMAGE, true);
         }
     }
 }

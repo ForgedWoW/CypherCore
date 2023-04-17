@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 51770 - Emblazon Runeblade
-internal class spell_q12619_emblazon_runeblade : SpellScript, IHasSpellEffects
+internal class SpellQ12619EmblazonRuneblade : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -20,6 +21,6 @@ internal class spell_q12619_emblazon_runeblade : SpellScript, IHasSpellEffects
 
     private void HandleScript(int effIndex)
     {
-        Caster.CastSpell(Caster, (uint)EffectValue, false);
+        Caster.SpellFactory.CastSpell(Caster, (uint)EffectValue, false);
     }
 }

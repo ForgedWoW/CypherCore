@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(32546)]
-public class spell_pri_binding_heal : SpellScript, ISpellAfterCast
+public class SpellPriBindingHeal : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {

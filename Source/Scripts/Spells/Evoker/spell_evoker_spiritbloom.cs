@@ -2,24 +2,24 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.GREEN_SPIRITBLOOM, EvokerSpells.GREEN_SPIRITBLOOM_2)]
-internal class spell_evoker_spiritbloom : SpellScript, ISpellOnEpowerSpellEnd
+internal class SpellEvokerSpiritbloom : SpellScript, ISpellOnEpowerSpellEnd
 {
     public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
     {
         var caster = Caster;
 
         // cast on primary target
-        caster.CastSpell(EvokerSpells.SPIRITBLOOM_CHARGED, true, stage.Stage);
+        caster.SpellFactory.CastSpell(EvokerSpells.SPIRITBLOOM_CHARGED, true, stage.Stage);
 
         // determine number of additional targets
         var targets = 0;
@@ -38,7 +38,6 @@ internal class spell_evoker_spiritbloom : SpellScript, ISpellOnEpowerSpellEnd
                 targets = 3;
 
                 break;
-            
         }
 
         if (targets > 0)
@@ -58,7 +57,7 @@ internal class spell_evoker_spiritbloom : SpellScript, ISpellOnEpowerSpellEnd
             };
 
             foreach (var target in targetList)
-                caster.CastSpell(target, EvokerSpells.SPIRITBLOOM_CHARGED, args);
+                caster.SpellFactory.CastSpell(target, EvokerSpells.SPIRITBLOOM_CHARGED, args);
         }
     }
 }

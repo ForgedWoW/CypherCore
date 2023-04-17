@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 14537 Six Demon Bag
-internal class spell_item_six_demon_bag : SpellScript, IHasSpellEffects
+internal class SpellItemSixDemonBag : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -32,34 +33,34 @@ internal class spell_item_six_demon_bag : SpellScript, IHasSpellEffects
 
             if (rand < 25) // Fireball (25% chance)
             {
-                spellId = ItemSpellIds.Fireball;
+                spellId = ItemSpellIds.FIREBALL;
             }
             else if (rand < 50) // Frostball (25% chance)
             {
-                spellId = ItemSpellIds.Frostbolt;
+                spellId = ItemSpellIds.FROSTBOLT;
             }
             else if (rand < 70) // Chain Lighting (20% chance)
             {
-                spellId = ItemSpellIds.ChainLightning;
+                spellId = ItemSpellIds.CHAIN_LIGHTNING;
             }
             else if (rand < 80) // Polymorph (10% chance)
             {
-                spellId = ItemSpellIds.Polymorph;
+                spellId = ItemSpellIds.POLYMORPH;
 
                 if (RandomHelper.URand(0, 100) <= 30) // 30% chance to self-cast
                     target = caster;
             }
             else if (rand < 95) // Enveloping Winds (15% chance)
             {
-                spellId = ItemSpellIds.EnvelopingWinds;
+                spellId = ItemSpellIds.ENVELOPING_WINDS;
             }
             else // Summon Felhund minion (5% chance)
             {
-                spellId = ItemSpellIds.SummonFelhoundMinion;
+                spellId = ItemSpellIds.SUMMON_FELHOUND_MINION;
                 target = caster;
             }
 
-            caster.CastSpell(target, spellId, new CastSpellExtraArgs(CastItem));
+            caster.SpellFactory.CastSpell(target, spellId, new CastSpellExtraArgs(CastItem));
         }
     }
 }

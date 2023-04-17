@@ -5,5 +5,5 @@ namespace Scripts.Spells.Rogue;
 
 public enum CombatPotency
 {
-    COMBAT_POTENCY = 35551
+    CombatPotency = 35551
 }

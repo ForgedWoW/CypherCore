@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(408)]
-public class spell_rog_kidney_shot_SpellScript : SpellScript, ISpellAfterHit, ISpellOnTakePower
+public class SpellRogKidneyShotSpellScript : SpellScript, ISpellAfterHit, ISpellOnTakePower
 {
     private int _cp = 0;
 

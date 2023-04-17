@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Shaman;
 
 //NPC ID : 78001
 [CreatureScript(78001)]
-public class npc_cloudburst_totem : ScriptedAI
+public class NPCCloudburstTotem : ScriptedAI
 {
-    public npc_cloudburst_totem(Creature creature) : base(creature) { }
+    public NPCCloudburstTotem(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
         if (Me.OwnerUnit)
-            Me.CastSpell(Me.OwnerUnit, TotemSpells.TOTEM_CLOUDBURST_EFFECT, true);
+            Me.SpellFactory.CastSpell(Me.OwnerUnit, TotemSpells.TOTEM_CLOUDBURST_EFFECT, true);
     }
 }

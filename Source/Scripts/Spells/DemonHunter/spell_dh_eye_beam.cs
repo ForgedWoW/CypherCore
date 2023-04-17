@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(198013)]
-public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
+public class SpellDhEyeBeam : AuraScript, IHasAuraEffects
 {
     private bool _firstTick = true;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -22,14 +22,14 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 2, AuraType.Dummy, AuraEffectHandleModes.Real));
     }
 
-    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    private void HandlePeriodic(AuraEffect unnamedParameter)
     {
         var caster = Caster;
 
         if (caster != null)
             if (!_firstTick)
             {
-                caster.CastSpell(caster, DemonHunterSpells.EYE_BEAM_DAMAGE, true);
+                caster.SpellFactory.CastSpell(caster, DemonHunterSpells.EYE_BEAM_DAMAGE, true);
                 var energize = caster.GetAuraEffectAmount(DemonHunterSpells.BLIND_FURY, 2);
 
                 if (energize != 0)
@@ -39,7 +39,7 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
         _firstTick = false;
     }
 
-    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleRemove(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
@@ -47,14 +47,14 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
             caster.RemoveAura(DemonHunterSpells.EYE_BEAM_VISUAL);
     }
 
-    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    private void HandleApply(AuraEffect unnamedParameter, AuraEffectHandleModes unnamedParameter2)
     {
         var caster = Caster;
 
         if (caster != null)
         {
             if (!caster.HasAura(DemonHunterSpells.DEMONIC))
-                caster.CastSpell(caster, DemonHunterSpells.EYE_BEAM_VISUAL, true);
+                caster.SpellFactory.CastSpell(caster, DemonHunterSpells.EYE_BEAM_VISUAL, true);
 
             if (caster.HasAura(DemonHunterSpells.DEMONIC))
             {

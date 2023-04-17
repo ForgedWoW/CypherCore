@@ -3,17 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 168534 - Mastery: Elemental Overload (passive)
 [SpellScript(168534)]
-internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffects
+internal class SpellShaMasteryElementalOverload : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -39,7 +40,7 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
         if (spellInfo.Id == ShamanSpells.ChainLightning)
             chance /= 3.0f;
 
-        var stormkeeper = eventInfo.Actor.GetAura(ShamanSpells.Stormkeeper);
+        var stormkeeper = eventInfo.Actor.GetAura(ShamanSpells.STORMKEEPER);
 
         if (stormkeeper != null)
             if (eventInfo.ProcSpell.AppliedMods.Contains(stormkeeper))
@@ -67,7 +68,7 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 
                                            CastSpellExtraArgs args = new();
                                            args.OriginalCastId = originalCastId;
-                                           caster.CastSpell(targets, overloadSpellId, args);
+                                           caster.SpellFactory.CastSpell(targets, overloadSpellId, args);
                                        },
                                        TimeSpan.FromMilliseconds(400));
     }
@@ -76,19 +77,18 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
     {
         switch (triggeringSpellId)
         {
-            case ShamanSpells.LightningBolt:
-                return ShamanSpells.LightningBoltOverload;
+            case ShamanSpells.LIGHTNING_BOLT:
+                return ShamanSpells.LIGHTNING_BOLT_OVERLOAD;
             case ShamanSpells.ElementalBlast:
-                return ShamanSpells.ElementalBlastOverload;
-            case ShamanSpells.Icefury:
-                return ShamanSpells.IcefuryOverload;
+                return ShamanSpells.ELEMENTAL_BLAST_OVERLOAD;
+            case ShamanSpells.ICEFURY:
+                return ShamanSpells.ICEFURY_OVERLOAD;
             case ShamanSpells.LavaBurst:
-                return ShamanSpells.LavaBurstOverload;
+                return ShamanSpells.LAVA_BURST_OVERLOAD;
             case ShamanSpells.ChainLightning:
-                return ShamanSpells.ChainLightningOverload;
-            case ShamanSpells.LavaBeam:
-                return ShamanSpells.LavaBeamOverload;
-            
+                return ShamanSpells.CHAIN_LIGHTNING_OVERLOAD;
+            case ShamanSpells.LAVA_BEAM:
+                return ShamanSpells.LAVA_BEAM_OVERLOAD;
         }
 
         return 0;

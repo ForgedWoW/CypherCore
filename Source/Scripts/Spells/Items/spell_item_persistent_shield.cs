@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 26467 - Persistent Shield
-internal class spell_item_persistent_shield : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellItemPersistentShield : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -33,7 +34,7 @@ internal class spell_item_persistent_shield : AuraScript, IAuraCheckProc, IHasAu
         var bp0 = (int)MathFunctions.CalculatePct(eventInfo.HealInfo.Heal, 15);
 
         // Scarab Brooch does not replace stronger shields
-        var shield = target.GetAuraEffect(ItemSpellIds.PersistentShieldTriggered, 0, caster.GUID);
+        var shield = target.GetAuraEffect(ItemSpellIds.PERSISTENT_SHIELD_TRIGGERED, 0, caster.GUID);
 
         if (shield != null)
             if (shield.Amount > bp0)
@@ -41,6 +42,6 @@ internal class spell_item_persistent_shield : AuraScript, IAuraCheckProc, IHasAu
 
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, bp0);
-        caster.CastSpell(target, ItemSpellIds.PersistentShieldTriggered, args);
+        caster.SpellFactory.CastSpell(target, ItemSpellIds.PERSISTENT_SHIELD_TRIGGERED, args);
     }
 }

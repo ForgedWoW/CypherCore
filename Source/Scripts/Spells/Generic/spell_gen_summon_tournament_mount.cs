@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_summon_tournament_mount : SpellScript, ISpellCheckCast
+internal class SpellGenSummonTournamentMount : SpellScript, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {
         if (Caster.IsInDisallowedMountForm)
             Caster.RemoveAurasByType(AuraType.ModShapeshift);
 
-        if (!Caster.HasAura(GenericSpellIds.LanceEquipped))
+        if (!Caster.HasAura(GenericSpellIds.LANCE_EQUIPPED))
         {
             SetCustomCastResultMessage(SpellCustomErrors.MustHaveLanceEquipped);
 

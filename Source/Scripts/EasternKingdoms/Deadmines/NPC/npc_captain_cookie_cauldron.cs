@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_captain_cookie;
+using static Scripts.EasternKingdoms.Deadmines.Bosses.BossCaptainCookie;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(47754)]
-public class npc_captain_cookie_cauldron : ScriptedAI
+public class NPCCaptainCookieCauldron : ScriptedAI
 {
-    public npc_captain_cookie_cauldron(Creature pCreature) : base(pCreature)
+    public NPCCaptainCookieCauldron(Creature pCreature) : base(pCreature)
     {
         Me.ReactState = ReactStates.Passive;
         Me.SetUnitFlag(UnitFlags.Uninteractible);
@@ -20,8 +20,8 @@ public class npc_captain_cookie_cauldron : ScriptedAI
 
     public override void Reset()
     {
-        DoCast(Me, eSpell.CAULDRON_VISUAL, new Game.Spells.CastSpellExtraArgs(true));
-        DoCast(Me, eSpell.CAULDRON_FIRE);
+        DoCast(Me, ESpell.CAULDRON_VISUAL, new Game.Spells.SpellFactory.CastSpellExtraArgs(true));
+        DoCast(Me, ESpell.CAULDRON_FIRE);
         Me.SetUnitFlag(UnitFlags.Stunned);
     }
 }

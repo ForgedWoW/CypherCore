@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.CHRONO_LOOP)]
-public class aura_evoker_chrono_loop : AuraScript, IAuraOnApply, IAuraOnRemove
+public class AuraEvokerChronoLoop : AuraScript, IAuraOnApply, IAuraOnRemove
 {
     long _health = 0;
     uint _mapId = 0;

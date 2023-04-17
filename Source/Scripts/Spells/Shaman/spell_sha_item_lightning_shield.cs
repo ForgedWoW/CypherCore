@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 23551 - Lightning Shield T2 Bonus
 [SpellScript(23551)]
-internal class spell_sha_item_lightning_shield : AuraScript, IHasAuraEffects
+internal class SpellShaItemLightningShield : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,6 +26,6 @@ internal class spell_sha_item_lightning_shield : AuraScript, IHasAuraEffects
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         PreventDefaultAction();
-        Target.CastSpell(eventInfo.ProcTarget, ShamanSpells.ItemLightningShield, new CastSpellExtraArgs(aurEff));
+        Target.SpellFactory.CastSpell(eventInfo.ProcTarget, ShamanSpells.ItemLightningShield, new CastSpellExtraArgs(aurEff));
     }
 }

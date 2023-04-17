@@ -2,8 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
@@ -12,7 +12,7 @@ namespace Scripts.Spells.Evoker;
              EvokerSpells.BLUE_DISINTEGRATE_2,
              EvokerSpells.ECHO,
              EvokerSpells.DREAM_PROJECTION)]
-public class spell_evoker_just_in_time : SpellScript, ISpellOnCast
+public class SpellEvokerJustInTime : SpellScript, ISpellOnCast
 {
     public void OnCast()
     {

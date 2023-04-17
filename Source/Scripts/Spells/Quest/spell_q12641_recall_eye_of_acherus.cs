@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 52694 - Recall Eye of Acherus
-internal class spell_q12641_recall_eye_of_acherus : SpellScript, IHasSpellEffects
+internal class SpellQ12641RecallEyeOfAcherus : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -26,7 +27,7 @@ internal class spell_q12641_recall_eye_of_acherus : SpellScript, IHasSpellEffect
         {
             player.StopCastingCharm();
             player.StopCastingBindSight();
-            player.RemoveAura(QuestSpellIds.TheEyeOfAcherus);
+            player.RemoveAura(QuestSpellIds.THE_EYE_OF_ACHERUS);
         }
     }
 }

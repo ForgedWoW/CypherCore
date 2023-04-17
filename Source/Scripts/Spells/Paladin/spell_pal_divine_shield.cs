@@ -1,32 +1,32 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(642)] // 642 - Divine Shield
-internal class spell_pal_divine_shield : SpellScript, ISpellCheckCast, ISpellAfterCast
+internal class SpellPalDivineShield : SpellScript, ISpellCheckCast, ISpellAfterCast
 {
     public void AfterCast()
     {
         var caster = Caster;
 
-        if (caster.HasAura(PaladinSpells.FinalStand))
-            caster.CastSpell((Unit)null, PaladinSpells.FinalStandEffect, true);
+        if (caster.HasAura(PaladinSpells.FINAL_STAND))
+            caster.SpellFactory.CastSpell((Unit)null, PaladinSpells.FINAL_STAND_EFFECT, true);
 
 
-        caster.CastSpell(caster, PaladinSpells.Forbearance, true);
-        caster.CastSpell(caster, PaladinSpells.ImmuneShieldMarker, true);
+        caster.SpellFactory.CastSpell(caster, PaladinSpells.FORBEARANCE, true);
+        caster.SpellFactory.CastSpell(caster, PaladinSpells.IMMUNE_SHIELD_MARKER, true);
     }
 
 
     public SpellCastResult CheckCast()
     {
-        if (Caster.HasAura(PaladinSpells.Forbearance))
+        if (Caster.HasAura(PaladinSpells.FORBEARANCE))
             return SpellCastResult.TargetAurastate;
 
         return SpellCastResult.SpellCastOk;

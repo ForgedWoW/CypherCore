@@ -2,19 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
 
 namespace Scripts.Spells.Evoker;
 
 [AreaTriggerScript(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY)]
-public class at_evoker_resonating_sphere : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
+public class AtEvokerResonatingSphere : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
+    readonly List<Unit> _hit = new();
     double _amount = 0;
     int _targets = 0;
-    readonly List<Unit> _hit = new();
 
     public void OnCreate()
     {
@@ -37,7 +37,7 @@ public class at_evoker_resonating_sphere : AreaTriggerScript, IAreaTriggerOnCrea
             _hit.Add(unit);
             var args = new CastSpellExtraArgs(true);
             args.TriggeringAura = aura.GetEffect(0);
-            caster.CastSpell(unit, EvokerSpells.ECHO, args);
+            caster.SpellFactory.CastSpell(unit, EvokerSpells.ECHO, args);
         }
     }
 }

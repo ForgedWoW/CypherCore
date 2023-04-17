@@ -2,10 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.VictorNefarius;
 
@@ -13,36 +16,36 @@ internal struct SpellIds
 {
     // Victor Nefarius
     // Ubrs Spells
-    public const uint ChromaticChaos = 16337; // Self Cast hits 10339
+    public const uint CHROMATIC_CHAOS = 16337; // Self Cast hits 10339
 
-    public const uint VaelastraszzSpawn = 16354; // Self Cast Depawn one sec after
+    public const uint VAELASTRASZZ_SPAWN = 16354; // Self Cast Depawn one sec after
 
     // Bwl Spells
-    public const uint Shadowbolt = 22677;
-    public const uint ShadowboltVolley = 22665;
-    public const uint ShadowCommand = 22667;
-    public const uint Fear = 22678;
+    public const uint SHADOWBOLT = 22677;
+    public const uint SHADOWBOLT_VOLLEY = 22665;
+    public const uint SHADOW_COMMAND = 22667;
+    public const uint FEAR = 22678;
 
-    public const uint NefariansBarrier = 22663;
+    public const uint NEFARIANS_BARRIER = 22663;
 
     // Nefarian
-    public const uint ShadowflameInitial = 22992;
-    public const uint Shadowflame = 22539;
-    public const uint Bellowingroar = 22686;
-    public const uint Veilofshadow = 7068;
-    public const uint Cleave = 20691;
-    public const uint Taillash = 23364;
+    public const uint SHADOWFLAME_INITIAL = 22992;
+    public const uint SHADOWFLAME = 22539;
+    public const uint BELLOWINGROAR = 22686;
+    public const uint VEILOFSHADOW = 7068;
+    public const uint CLEAVE = 20691;
+    public const uint TAILLASH = 23364;
 
-    public const uint Mage = 23410;        // wild magic
-    public const uint Warrior = 23397;     // beserk
-    public const uint Druid = 23398;       // cat form
-    public const uint Priest = 23401;      // corrupted healing
-    public const uint Paladin = 23418;     // syphon blessing
-    public const uint Shaman = 23425;      // totems
-    public const uint Warlock = 23427;     // infernals
-    public const uint Hunter = 23436;      // bow broke
-    public const uint Rogue = 23414;       // Paralise
-    public const uint DeathKnight = 49576; // Death Grip
+    public const uint MAGE = 23410;        // wild magic
+    public const uint WARRIOR = 23397;     // beserk
+    public const uint DRUID = 23398;       // cat form
+    public const uint PRIEST = 23401;      // corrupted healing
+    public const uint PALADIN = 23418;     // syphon blessing
+    public const uint SHAMAN = 23425;      // totems
+    public const uint WARLOCK = 23427;     // infernals
+    public const uint HUNTER = 23436;      // bow broke
+    public const uint ROGUE = 23414;       // Paralise
+    public const uint DEATH_KNIGHT = 49576; // Death Grip
 
     // 19484
     // 22664
@@ -54,63 +57,63 @@ internal struct TextIds
 {
     // Nefarius
     // Ubrs
-    public const uint SayChaosSpell = 9;
-    public const uint SaySuccess = 10;
+    public const uint SAY_CHAOS_SPELL = 9;
+    public const uint SAY_SUCCESS = 10;
 
-    public const uint SayFailure = 11;
+    public const uint SAY_FAILURE = 11;
 
     // Bwl
-    public const uint SayGamesbegin1 = 12;
+    public const uint SAY_GAMESBEGIN1 = 12;
 
-    public const uint SayGamesbegin2 = 13;
+    public const uint SAY_GAMESBEGIN2 = 13;
     // public const uint SayVaelIntro             = 14; Not used - when he corrupts Vaelastrasz
 
     // Nefarian
-    public const uint SayRandom = 0;
-    public const uint SayRaiseSkeletons = 1;
-    public const uint SaySlay = 2;
-    public const uint SayDeath = 3;
+    public const uint SAY_RANDOM = 0;
+    public const uint SAY_RAISE_SKELETONS = 1;
+    public const uint SAY_SLAY = 2;
+    public const uint SAY_DEATH = 3;
 
-    public const uint SayMage = 4;
-    public const uint SayWarrior = 5;
-    public const uint SayDruid = 6;
-    public const uint SayPriest = 7;
-    public const uint SayPaladin = 8;
-    public const uint SayShaman = 9;
-    public const uint SayWarlock = 10;
-    public const uint SayHunter = 11;
-    public const uint SayRogue = 12;
-    public const uint SayDeathKnight = 13;
+    public const uint SAY_MAGE = 4;
+    public const uint SAY_WARRIOR = 5;
+    public const uint SAY_DRUID = 6;
+    public const uint SAY_PRIEST = 7;
+    public const uint SAY_PALADIN = 8;
+    public const uint SAY_SHAMAN = 9;
+    public const uint SAY_WARLOCK = 10;
+    public const uint SAY_HUNTER = 11;
+    public const uint SAY_ROGUE = 12;
+    public const uint SAY_DEATH_KNIGHT = 13;
 
-    public const uint GossipId = 6045;
-    public const uint GossipOptionId = 0;
+    public const uint GOSSIP_ID = 6045;
+    public const uint GOSSIP_OPTION_ID = 0;
 }
 
 internal struct CreatureIds
 {
-    public const uint BronzeDrakanoid = 14263;
-    public const uint BlueDrakanoid = 14261;
-    public const uint RedDrakanoid = 14264;
-    public const uint GreenDrakanoid = 14262;
-    public const uint BlackDrakanoid = 14265;
-    public const uint ChromaticDrakanoid = 14302;
+    public const uint BRONZE_DRAKANOID = 14263;
+    public const uint BLUE_DRAKANOID = 14261;
+    public const uint RED_DRAKANOID = 14264;
+    public const uint GREEN_DRAKANOID = 14262;
+    public const uint BLACK_DRAKANOID = 14265;
+    public const uint CHROMATIC_DRAKANOID = 14302;
 
-    public const uint BoneConstruct = 14605;
+    public const uint BONE_CONSTRUCT = 14605;
 
     // Ubrs
-    public const uint Gyth = 10339;
+    public const uint GYTH = 10339;
 }
 
 internal struct GameObjectIds
 {
-    public const uint PortcullisActive = 164726;
-    public const uint PortcullisTobossrooms = 175186;
+    public const uint PORTCULLIS_ACTIVE = 164726;
+    public const uint PORTCULLIS_TOBOSSROOMS = 175186;
 }
 
 internal struct MiscConst
 {
-    public const uint NefariusPath2 = 1379671;
-    public const uint NefariusPath3 = 1379672;
+    public const uint NEFARIUS_PATH2 = 1379671;
+    public const uint NEFARIUS_PATH3 = 1379672;
 
     public static Position[] DrakeSpawnLoc = // drakonid
     {
@@ -125,43 +128,43 @@ internal struct MiscConst
 
     public static uint[] Entry =
     {
-        CreatureIds.BronzeDrakanoid, CreatureIds.BlueDrakanoid, CreatureIds.RedDrakanoid, CreatureIds.GreenDrakanoid, CreatureIds.BlackDrakanoid
+        CreatureIds.BRONZE_DRAKANOID, CreatureIds.BLUE_DRAKANOID, CreatureIds.RED_DRAKANOID, CreatureIds.GREEN_DRAKANOID, CreatureIds.BLACK_DRAKANOID
     };
 }
 
 internal struct EventIds
 {
     // Victor Nefarius
-    public const uint SpawnAdd = 1;
-    public const uint ShadowBolt = 2;
-    public const uint Fear = 3;
+    public const uint SPAWN_ADD = 1;
+    public const uint SHADOW_BOLT = 2;
+    public const uint FEAR = 3;
 
-    public const uint MindControl = 4;
+    public const uint MIND_CONTROL = 4;
 
     // Nefarian
-    public const uint Shadowflame = 5;
-    public const uint Veilofshadow = 6;
-    public const uint Cleave = 7;
-    public const uint Taillash = 8;
+    public const uint SHADOWFLAME = 5;
+    public const uint VEILOFSHADOW = 6;
+    public const uint CLEAVE = 7;
+    public const uint TAILLASH = 8;
 
-    public const uint Classcall = 9;
+    public const uint CLASSCALL = 9;
 
     // Ubrs
-    public const uint Chaos1 = 10;
-    public const uint Chaos2 = 11;
-    public const uint Path2 = 12;
-    public const uint Path3 = 13;
-    public const uint Success1 = 14;
-    public const uint Success2 = 15;
-    public const uint Success3 = 16;
+    public const uint CHAOS1 = 10;
+    public const uint CHAOS2 = 11;
+    public const uint PATH2 = 12;
+    public const uint PATH3 = 13;
+    public const uint SUCCESS1 = 14;
+    public const uint SUCCESS2 = 15;
+    public const uint SUCCESS3 = 16;
 }
 
 [Script]
-internal class boss_victor_nefarius : BossAI
+internal class BossVictorNefarius : BossAI
 {
-    private uint SpawnedAdds;
+    private uint _spawnedAdds;
 
-    public boss_victor_nefarius(Creature creature) : base(creature, DataTypes.Nefarian)
+    public BossVictorNefarius(Creature creature) : base(creature, DataTypes.NEFARIAN)
     {
         Initialize();
     }
@@ -172,14 +175,14 @@ internal class boss_victor_nefarius : BossAI
 
         if (Me.Location.MapId == 469)
         {
-            if (!Me.FindNearestCreature(BWLCreatureIds.Nefarian, 1000.0f, true))
+            if (!Me.FindNearestCreature(BwlCreatureIds.NEFARIAN, 1000.0f, true))
                 _Reset();
 
             Me.SetVisible(true);
             Me.SetNpcFlag(NPCFlags.Gossip);
             Me.Faction = (uint)FactionTemplates.Friendly;
             Me.SetStandState(UnitStandStateType.SitHighChair);
-            Me.RemoveAura(SpellIds.NefariansBarrier);
+            Me.RemoveAura(SpellIds.NEFARIANS_BARRIER);
         }
     }
 
@@ -190,9 +193,9 @@ internal class boss_victor_nefarius : BossAI
 
     public override void SummonedCreatureDies(Creature summon, Unit killer)
     {
-        if (summon.Entry != BWLCreatureIds.Nefarian)
+        if (summon.Entry != BwlCreatureIds.NEFARIAN)
         {
-            summon.UpdateEntry(CreatureIds.BoneConstruct);
+            summon.UpdateEntry(CreatureIds.BONE_CONSTRUCT);
             summon.SetUnitFlag(UnitFlags.Uninteractible);
             summon.ReactState = ReactStates.Passive;
             summon.SetStandState(UnitStandStateType.Dead);
@@ -207,12 +210,12 @@ internal class boss_victor_nefarius : BossAI
             data == 1)
         {
             Me.StopMoving();
-            Events.ScheduleEvent(EventIds.Path2, TimeSpan.FromSeconds(9));
+            Events.ScheduleEvent(EventIds.PATH2, TimeSpan.FromSeconds(9));
         }
 
         if (type == 1 &&
             data == 2)
-            Events.ScheduleEvent(EventIds.Success1, TimeSpan.FromSeconds(5));
+            Events.ScheduleEvent(EventIds.SUCCESS1, TimeSpan.FromSeconds(5));
     }
 
     public override void UpdateAI(uint diff)
@@ -225,59 +228,58 @@ internal class boss_victor_nefarius : BossAI
             {
                 switch (eventId)
                 {
-                    case EventIds.Path2:
-                        Me.MotionMaster.MovePath(MiscConst.NefariusPath2, false);
-                        Events.ScheduleEvent(EventIds.Chaos1, TimeSpan.FromSeconds(7));
+                    case EventIds.PATH2:
+                        Me.MotionMaster.MovePath(MiscConst.NEFARIUS_PATH2, false);
+                        Events.ScheduleEvent(EventIds.CHAOS1, TimeSpan.FromSeconds(7));
 
                         break;
-                    case EventIds.Chaos1:
-                        var gyth = Me.FindNearestCreature(CreatureIds.Gyth, 75.0f, true);
+                    case EventIds.CHAOS1:
+                        var gyth = Me.FindNearestCreature(CreatureIds.GYTH, 75.0f, true);
 
                         if (gyth)
                         {
                             Me.SetFacingToObject(gyth);
-                            Talk(TextIds.SayChaosSpell);
+                            Talk(TextIds.SAY_CHAOS_SPELL);
                         }
 
-                        Events.ScheduleEvent(EventIds.Chaos2, TimeSpan.FromSeconds(2));
+                        Events.ScheduleEvent(EventIds.CHAOS2, TimeSpan.FromSeconds(2));
 
                         break;
-                    case EventIds.Chaos2:
-                        DoCast(SpellIds.ChromaticChaos);
+                    case EventIds.CHAOS2:
+                        DoCast(SpellIds.CHROMATIC_CHAOS);
                         Me.SetFacingTo(1.570796f);
 
                         break;
-                    case EventIds.Success1:
+                    case EventIds.SUCCESS1:
                         Unit player = Me.SelectNearestPlayer(60.0f);
 
                         if (player)
                         {
                             Me.SetFacingToObject(player);
-                            Talk(TextIds.SaySuccess);
-                            var portcullis1 = Me.FindNearestGameObject(GameObjectIds.PortcullisActive, 65.0f);
+                            Talk(TextIds.SAY_SUCCESS);
+                            var portcullis1 = Me.FindNearestGameObject(GameObjectIds.PORTCULLIS_ACTIVE, 65.0f);
 
                             if (portcullis1)
                                 portcullis1.SetGoState(GameObjectState.Active);
 
-                            var portcullis2 = Me.FindNearestGameObject(GameObjectIds.PortcullisTobossrooms, 80.0f);
+                            var portcullis2 = Me.FindNearestGameObject(GameObjectIds.PORTCULLIS_TOBOSSROOMS, 80.0f);
 
                             if (portcullis2)
                                 portcullis2.SetGoState(GameObjectState.Active);
                         }
 
-                        Events.ScheduleEvent(EventIds.Success2, TimeSpan.FromSeconds(4));
+                        Events.ScheduleEvent(EventIds.SUCCESS2, TimeSpan.FromSeconds(4));
 
                         break;
-                    case EventIds.Success2:
-                        DoCast(Me, SpellIds.VaelastraszzSpawn);
+                    case EventIds.SUCCESS2:
+                        DoCast(Me, SpellIds.VAELASTRASZZ_SPAWN);
                         Me.DespawnOrUnsummon(TimeSpan.FromSeconds(1));
 
                         break;
-                    case EventIds.Path3:
-                        Me.MotionMaster.MovePath(MiscConst.NefariusPath3, false);
+                    case EventIds.PATH3:
+                        Me.MotionMaster.MovePath(MiscConst.NEFARIUS_PATH3, false);
 
                         break;
-                    
                 }
             });
 
@@ -286,7 +288,7 @@ internal class boss_victor_nefarius : BossAI
 
         // Only do this if we haven't spawned nefarian yet
         if (UpdateVictim() &&
-            SpawnedAdds <= 42)
+            _spawnedAdds <= 42)
         {
             Events.Update(diff);
 
@@ -297,59 +299,59 @@ internal class boss_victor_nefarius : BossAI
             {
                 switch (eventId)
                 {
-                    case EventIds.ShadowBolt:
+                    case EventIds.SHADOW_BOLT:
                         switch (RandomHelper.URand(0, 1))
                         {
                             case 0:
-                                DoCastVictim(SpellIds.ShadowboltVolley);
+                                DoCastVictim(SpellIds.SHADOWBOLT_VOLLEY);
 
                                 break;
                             case 1:
                                 var target = SelectTarget(SelectTargetMethod.Random, 0, 40, true);
 
                                 if (target)
-                                    DoCast(target, SpellIds.Shadowbolt);
+                                    DoCast(target, SpellIds.SHADOWBOLT);
 
                                 break;
                         }
 
                         ResetThreatList();
-                        Events.ScheduleEvent(EventIds.ShadowBolt, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
+                        Events.ScheduleEvent(EventIds.SHADOW_BOLT, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
 
                         break;
-                    case EventIds.Fear:
+                    case EventIds.FEAR:
                     {
                         var target = SelectTarget(SelectTargetMethod.Random, 0, 40, true);
 
                         if (target)
-                            DoCast(target, SpellIds.Fear);
+                            DoCast(target, SpellIds.FEAR);
 
-                        Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
+                        Events.ScheduleEvent(EventIds.FEAR, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
 
                         break;
                     }
-                    case EventIds.MindControl:
+                    case EventIds.MIND_CONTROL:
                     {
                         var target = SelectTarget(SelectTargetMethod.Random, 0, 40, true);
 
                         if (target)
-                            DoCast(target, SpellIds.ShadowCommand);
+                            DoCast(target, SpellIds.SHADOW_COMMAND);
 
-                        Events.ScheduleEvent(EventIds.MindControl, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
+                        Events.ScheduleEvent(EventIds.MIND_CONTROL, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
 
                         break;
                     }
-                    case EventIds.SpawnAdd:
+                    case EventIds.SPAWN_ADD:
                         for (byte i = 0; i < 2; ++i)
                         {
-                            uint CreatureID;
+                            uint creatureID;
 
                             if (RandomHelper.URand(0, 2) == 0)
-                                CreatureID = CreatureIds.ChromaticDrakanoid;
+                                creatureID = CreatureIds.CHROMATIC_DRAKANOID;
                             else
-                                CreatureID = MiscConst.Entry[RandomHelper.URand(0, 4)];
+                                creatureID = MiscConst.Entry[RandomHelper.URand(0, 4)];
 
-                            Creature dragon = Me.SummonCreature(CreatureID, MiscConst.DrakeSpawnLoc[i]);
+                            Creature dragon = Me.SummonCreature(creatureID, MiscConst.DrakeSpawnLoc[i]);
 
                             if (dragon)
                             {
@@ -357,9 +359,9 @@ internal class boss_victor_nefarius : BossAI
                                 dragon.AI.AttackStart(Me.Victim);
                             }
 
-                            if (++SpawnedAdds >= 42)
+                            if (++_spawnedAdds >= 42)
                             {
-                                Creature nefarian = Me.SummonCreature(BWLCreatureIds.Nefarian, MiscConst.NefarianLoc[0]);
+                                Creature nefarian = Me.SummonCreature(BwlCreatureIds.NEFARIAN, MiscConst.NefarianLoc[0]);
 
                                 if (nefarian)
                                 {
@@ -367,20 +369,20 @@ internal class boss_victor_nefarius : BossAI
                                     nefarian.SetFarVisible(true);
                                     nefarian.SetCanFly(true);
                                     nefarian.SetDisableGravity(true);
-                                    nefarian.CastSpell(SpellIds.ShadowflameInitial);
+                                    nefarian.SpellFactory.CastSpell(SpellIds.SHADOWFLAME_INITIAL);
                                     nefarian.MotionMaster.MovePoint(1, MiscConst.NefarianLoc[1]);
                                 }
 
-                                Events.CancelEvent(EventIds.MindControl);
-                                Events.CancelEvent(EventIds.Fear);
-                                Events.CancelEvent(EventIds.ShadowBolt);
+                                Events.CancelEvent(EventIds.MIND_CONTROL);
+                                Events.CancelEvent(EventIds.FEAR);
+                                Events.CancelEvent(EventIds.SHADOW_BOLT);
                                 Me.SetVisible(false);
 
                                 return;
                             }
                         }
 
-                        Events.ScheduleEvent(EventIds.SpawnAdd, TimeSpan.FromSeconds(4));
+                        Events.ScheduleEvent(EventIds.SPAWN_ADD, TimeSpan.FromSeconds(4));
 
                         break;
                 }
@@ -393,11 +395,11 @@ internal class boss_victor_nefarius : BossAI
 
     public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     {
-        if (menuId == TextIds.GossipId &&
-            gossipListId == TextIds.GossipOptionId)
+        if (menuId == TextIds.GOSSIP_ID &&
+            gossipListId == TextIds.GOSSIP_OPTION_ID)
         {
             player.CloseGossipMenu();
-            Talk(TextIds.SayGamesbegin1);
+            Talk(TextIds.SAY_GAMESBEGIN1);
             BeginEvent(player);
         }
 
@@ -406,36 +408,36 @@ internal class boss_victor_nefarius : BossAI
 
     private void Initialize()
     {
-        SpawnedAdds = 0;
+        _spawnedAdds = 0;
     }
 
     private void BeginEvent(Player target)
     {
         _JustEngagedWith(target);
 
-        Talk(TextIds.SayGamesbegin2);
+        Talk(TextIds.SAY_GAMESBEGIN2);
 
         Me.Faction = (uint)FactionTemplates.DragonflightBlack;
         Me.RemoveNpcFlag(NPCFlags.Gossip);
-        DoCast(Me, SpellIds.NefariansBarrier);
+        DoCast(Me, SpellIds.NEFARIANS_BARRIER);
         Me.SetStandState(UnitStandStateType.Stand);
         Me.SetImmuneToPC(false);
         AttackStart(target);
-        Events.ScheduleEvent(EventIds.ShadowBolt, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
-        Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
+        Events.ScheduleEvent(EventIds.SHADOW_BOLT, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
+        Events.ScheduleEvent(EventIds.FEAR, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
         //_events.ScheduleEvent(EventIds.MindControl, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
-        Events.ScheduleEvent(EventIds.SpawnAdd, TimeSpan.FromSeconds(10));
+        Events.ScheduleEvent(EventIds.SPAWN_ADD, TimeSpan.FromSeconds(10));
     }
 }
 
 [Script]
-internal class boss_nefarian : BossAI
+internal class BossNefarian : BossAI
 {
-    private bool canDespawn;
-    private uint DespawnTimer;
-    private bool Phase3;
+    private bool _canDespawn;
+    private uint _despawnTimer;
+    private bool _phase3;
 
-    public boss_nefarian(Creature creature) : base(creature, DataTypes.Nefarian)
+    public BossNefarian(Creature creature) : base(creature, DataTypes.NEFARIAN)
     {
         Initialize();
     }
@@ -447,24 +449,24 @@ internal class boss_nefarian : BossAI
 
     public override void JustReachedHome()
     {
-        canDespawn = true;
+        _canDespawn = true;
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Events.ScheduleEvent(EventIds.Shadowflame, TimeSpan.FromSeconds(12));
-        Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
-        Events.ScheduleEvent(EventIds.Veilofshadow, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
-        Events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(7));
+        Events.ScheduleEvent(EventIds.SHADOWFLAME, TimeSpan.FromSeconds(12));
+        Events.ScheduleEvent(EventIds.FEAR, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+        Events.ScheduleEvent(EventIds.VEILOFSHADOW, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+        Events.ScheduleEvent(EventIds.CLEAVE, TimeSpan.FromSeconds(7));
         //_events.ScheduleEvent(EventIds.Taillash, TimeSpan.FromSeconds(10));
-        Events.ScheduleEvent(EventIds.Classcall, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
-        Talk(TextIds.SayRandom);
+        Events.ScheduleEvent(EventIds.CLASSCALL, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
+        Talk(TextIds.SAY_RANDOM);
     }
 
     public override void JustDied(Unit killer)
     {
         _JustDied();
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
     }
 
     public override void KilledUnit(Unit victim)
@@ -472,7 +474,7 @@ internal class boss_nefarian : BossAI
         if ((RandomHelper.Rand32() % 5) != 0)
             return;
 
-        Talk(TextIds.SaySlay, victim);
+        Talk(TextIds.SAY_SLAY, victim);
     }
 
     public override void MovementInform(MovementGeneratorType type, uint id)
@@ -491,25 +493,25 @@ internal class boss_nefarian : BossAI
 
     public override void UpdateAI(uint diff)
     {
-        if (canDespawn && DespawnTimer <= diff)
+        if (_canDespawn && _despawnTimer <= diff)
         {
-            Instance.SetBossState(DataTypes.Nefarian, EncounterState.Fail);
+            Instance.SetBossState(DataTypes.NEFARIAN, EncounterState.Fail);
 
-            var constructList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BoneConstruct, 500.0f);
+            var constructList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BONE_CONSTRUCT, 500.0f);
 
             foreach (var creature in constructList)
                 creature.DespawnOrUnsummon();
         }
         else
         {
-            DespawnTimer -= diff;
+            _despawnTimer -= diff;
         }
 
         if (!UpdateVictim())
             return;
 
-        if (canDespawn)
-            canDespawn = false;
+        if (_canDespawn)
+            _canDespawn = false;
 
         Events.Update(diff);
 
@@ -520,92 +522,91 @@ internal class boss_nefarian : BossAI
         {
             switch (eventId)
             {
-                case EventIds.Shadowflame:
-                    DoCastVictim(SpellIds.Shadowflame);
-                    Events.ScheduleEvent(EventIds.Shadowflame, TimeSpan.FromSeconds(12));
+                case EventIds.SHADOWFLAME:
+                    DoCastVictim(SpellIds.SHADOWFLAME);
+                    Events.ScheduleEvent(EventIds.SHADOWFLAME, TimeSpan.FromSeconds(12));
 
                     break;
-                case EventIds.Fear:
-                    DoCastVictim(SpellIds.Bellowingroar);
-                    Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+                case EventIds.FEAR:
+                    DoCastVictim(SpellIds.BELLOWINGROAR);
+                    Events.ScheduleEvent(EventIds.FEAR, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
 
                     break;
-                case EventIds.Veilofshadow:
-                    DoCastVictim(SpellIds.Veilofshadow);
-                    Events.ScheduleEvent(EventIds.Veilofshadow, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+                case EventIds.VEILOFSHADOW:
+                    DoCastVictim(SpellIds.VEILOFSHADOW);
+                    Events.ScheduleEvent(EventIds.VEILOFSHADOW, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
 
                     break;
-                case EventIds.Cleave:
-                    DoCastVictim(SpellIds.Cleave);
-                    Events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(7));
+                case EventIds.CLEAVE:
+                    DoCastVictim(SpellIds.CLEAVE);
+                    Events.ScheduleEvent(EventIds.CLEAVE, TimeSpan.FromSeconds(7));
 
                     break;
-                case EventIds.Taillash:
+                case EventIds.TAILLASH:
                     // Cast Nyi since we need a better check for behind Target
-                    DoCastVictim(SpellIds.Taillash);
-                    Events.ScheduleEvent(EventIds.Taillash, TimeSpan.FromSeconds(10));
+                    DoCastVictim(SpellIds.TAILLASH);
+                    Events.ScheduleEvent(EventIds.TAILLASH, TimeSpan.FromSeconds(10));
 
                     break;
-                case EventIds.Classcall:
+                case EventIds.CLASSCALL:
                     var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
 
                     if (target)
                         switch (target.Class)
                         {
                             case PlayerClass.Mage:
-                                Talk(TextIds.SayMage);
-                                DoCast(Me, SpellIds.Mage);
+                                Talk(TextIds.SAY_MAGE);
+                                DoCast(Me, SpellIds.MAGE);
 
                                 break;
                             case PlayerClass.Warrior:
-                                Talk(TextIds.SayWarrior);
-                                DoCast(Me, SpellIds.Warrior);
+                                Talk(TextIds.SAY_WARRIOR);
+                                DoCast(Me, SpellIds.WARRIOR);
 
                                 break;
                             case PlayerClass.Druid:
-                                Talk(TextIds.SayDruid);
-                                DoCast(target, SpellIds.Druid);
+                                Talk(TextIds.SAY_DRUID);
+                                DoCast(target, SpellIds.DRUID);
 
                                 break;
                             case PlayerClass.Priest:
-                                Talk(TextIds.SayPriest);
-                                DoCast(Me, SpellIds.Priest);
+                                Talk(TextIds.SAY_PRIEST);
+                                DoCast(Me, SpellIds.PRIEST);
 
                                 break;
                             case PlayerClass.Paladin:
-                                Talk(TextIds.SayPaladin);
-                                DoCast(Me, SpellIds.Paladin);
+                                Talk(TextIds.SAY_PALADIN);
+                                DoCast(Me, SpellIds.PALADIN);
 
                                 break;
                             case PlayerClass.Shaman:
-                                Talk(TextIds.SayShaman);
-                                DoCast(Me, SpellIds.Shaman);
+                                Talk(TextIds.SAY_SHAMAN);
+                                DoCast(Me, SpellIds.SHAMAN);
 
                                 break;
                             case PlayerClass.Warlock:
-                                Talk(TextIds.SayWarlock);
-                                DoCast(Me, SpellIds.Warlock);
+                                Talk(TextIds.SAY_WARLOCK);
+                                DoCast(Me, SpellIds.WARLOCK);
 
                                 break;
                             case PlayerClass.Hunter:
-                                Talk(TextIds.SayHunter);
-                                DoCast(Me, SpellIds.Hunter);
+                                Talk(TextIds.SAY_HUNTER);
+                                DoCast(Me, SpellIds.HUNTER);
 
                                 break;
                             case PlayerClass.Rogue:
-                                Talk(TextIds.SayRogue);
-                                DoCast(Me, SpellIds.Rogue);
+                                Talk(TextIds.SAY_ROGUE);
+                                DoCast(Me, SpellIds.ROGUE);
 
                                 break;
                             case PlayerClass.Deathknight:
-                                Talk(TextIds.SayDeathKnight);
-                                DoCast(Me, SpellIds.DeathKnight);
+                                Talk(TextIds.SAY_DEATH_KNIGHT);
+                                DoCast(Me, SpellIds.DEATH_KNIGHT);
 
                                 break;
-                            
                         }
 
-                    Events.ScheduleEvent(EventIds.Classcall, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
+                    Events.ScheduleEvent(EventIds.CLASSCALL, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
 
                     break;
             }
@@ -615,10 +616,10 @@ internal class boss_nefarian : BossAI
         });
 
         // Phase3 begins when health below 20 pct
-        if (!Phase3 &&
+        if (!_phase3 &&
             HealthBelowPct(20))
         {
-            var constructList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BoneConstruct, 500.0f);
+            var constructList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BONE_CONSTRUCT, 500.0f);
 
             foreach (var creature in constructList)
                 if (creature != null &&
@@ -631,8 +632,8 @@ internal class boss_nefarian : BossAI
                     creature.SetStandState(UnitStandStateType.Stand);
                 }
 
-            Phase3 = true;
-            Talk(TextIds.SayRaiseSkeletons);
+            _phase3 = true;
+            Talk(TextIds.SAY_RAISE_SKELETONS);
         }
 
         DoMeleeAttackIfReady();
@@ -640,8 +641,8 @@ internal class boss_nefarian : BossAI
 
     private void Initialize()
     {
-        Phase3 = false;
-        canDespawn = false;
-        DespawnTimer = 30000;
+        _phase3 = false;
+        _canDespawn = false;
+        _despawnTimer = 30000;
     }
 }

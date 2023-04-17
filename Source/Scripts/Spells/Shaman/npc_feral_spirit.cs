@@ -1,20 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.Spells.Shaman;
 
 // 29264
 [CreatureScript(29264)]
-public class npc_feral_spirit : ScriptedAI
+public class NPCFeralSpirit : ScriptedAI
 {
-    public npc_feral_spirit(Creature p_Creature) : base(p_Creature) { }
+    public NPCFeralSpirit(Creature pCreature) : base(pCreature) { }
 
-    public override void DamageDealt(Unit UnnamedParameter, ref double damage, DamageEffectType UnnamedParameter3)
+    public override void DamageDealt(Unit unnamedParameter, ref double damage, DamageEffectType unnamedParameter3)
     {
         var tempSum = Me.ToTempSummon();
 

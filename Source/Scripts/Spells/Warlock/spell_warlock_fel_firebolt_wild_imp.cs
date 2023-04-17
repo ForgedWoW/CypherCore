@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // 104318 - Fel Firebolt @ Wild Imp
 [SpellScript(104318)]
-public class spell_warlock_fel_firebolt_wild_imp : SpellScript, IHasSpellEffects
+public class SpellWarlockFelFireboltWildImp : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -38,7 +39,7 @@ public class spell_warlock_fel_firebolt_wild_imp : SpellScript, IHasSpellEffects
                 if (aur != null)
                     if (aur.StackAmount == 100)
                     {
-                        owner.CastSpell(owner, WarlockSpells.STOLEN_POWER_BUFF, true);
+                        owner.SpellFactory.CastSpell(owner, WarlockSpells.STOLEN_POWER_BUFF, true);
                         aur.Remove();
                     }
             }

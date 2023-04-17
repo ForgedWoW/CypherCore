@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 77756 - Lava Surge
 [SpellScript(77756)]
-internal class spell_sha_lava_surge : AuraScript, IHasAuraEffects
+internal class SpellShaLavaSurge : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -26,7 +26,7 @@ internal class spell_sha_lava_surge : AuraScript, IHasAuraEffects
     private bool CheckProcChance(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         var procChance = aurEff.Amount;
-        var igneousPotential = Target.GetAuraEffect(ShamanSpells.IgneousPotential, 0);
+        var igneousPotential = Target.GetAuraEffect(ShamanSpells.IGNEOUS_POTENTIAL, 0);
 
         if (igneousPotential != null)
             procChance += igneousPotential.Amount;
@@ -37,6 +37,6 @@ internal class spell_sha_lava_surge : AuraScript, IHasAuraEffects
     private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         PreventDefaultAction();
-        Target.CastSpell(Target, ShamanSpells.LavaSurge, true);
+        Target.SpellFactory.CastSpell(Target, ShamanSpells.LavaSurge, true);
     }
 }

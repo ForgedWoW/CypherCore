@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 121536 - Angelic Feather talent
-internal class spell_pri_angelic_feather_trigger : SpellScript, IHasSpellEffects
+internal class SpellPriAngelicFeatherTrigger : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -28,13 +29,13 @@ internal class spell_pri_angelic_feather_trigger : SpellScript, IHasSpellEffects
         // Caster is prioritary
         if (Caster.IsWithinDist2d(destPos, radius))
         {
-            Caster.CastSpell(Caster, PriestSpells.ANGELIC_FEATHER_AURA, true);
+            Caster.SpellFactory.CastSpell(Caster, PriestSpells.ANGELIC_FEATHER_AURA, true);
         }
         else
         {
             CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
             args.CastDifficulty = CastDifficulty;
-            Caster.CastSpell(destPos, PriestSpells.ANGELIC_FEATHER_AREATRIGGER, args);
+            Caster.SpellFactory.CastSpell(destPos, PriestSpells.ANGELIC_FEATHER_AREATRIGGER, args);
         }
     }
 }

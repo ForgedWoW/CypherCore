@@ -3,18 +3,20 @@
 
 using System;
 using System.Collections.Generic;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Warrior;
 
 [CreatureScript(119052)] //119052
-public class npc_warr_banner : ScriptedAI
+public class NPCWarrBanner : ScriptedAI
 {
     private uint _timer;
 
-    public npc_warr_banner(Creature creature) : base(creature)
+    public NPCWarrBanner(Creature creature) : base(creature)
     {
         Initialize();
     }

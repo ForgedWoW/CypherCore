@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 44425 - Arcane Barrage
-internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpellEffects
+internal class SpellMageArcaneBarrage : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
     private ObjectGuid _primaryTarget;
 
@@ -27,10 +28,10 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 
         if (arcaneCharges != 0)
         {
-            var auraEffect = caster.GetAuraEffect(MageSpells.ArcaneBarrageR3, 0, caster.GUID);
+            var auraEffect = caster.GetAuraEffect(MageSpells.ARCANE_BARRAGE_R3, 0, caster.GUID);
 
             if (auraEffect != null)
-                caster.CastSpell(caster, MageSpells.ArcaneBarrageEnergize, new CastSpellExtraArgs(SpellValueMod.BasePoint0, arcaneCharges * auraEffect.Amount / 100));
+                caster.SpellFactory.CastSpell(caster, MageSpells.ARCANE_BARRAGE_ENERGIZE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, arcaneCharges * auraEffect.Amount / 100));
         }
     }
 

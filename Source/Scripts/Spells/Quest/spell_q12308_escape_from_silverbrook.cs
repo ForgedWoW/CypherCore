@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 48682 - Escape from Silverbrook - Periodic Dummy
-internal class spell_q12308_escape_from_silverbrook : SpellScript, IHasSpellEffects
+internal class SpellQ12308EscapeFromSilverbrook : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -21,6 +22,6 @@ internal class spell_q12308_escape_from_silverbrook : SpellScript, IHasSpellEffe
 
     private void HandleDummy(int effIndex)
     {
-        Caster.CastSpell(Caster, QuestSpellIds.SummonWorgen, true);
+        Caster.SpellFactory.CastSpell(Caster, QuestSpellIds.SUMMON_WORGEN, true);
     }
 }

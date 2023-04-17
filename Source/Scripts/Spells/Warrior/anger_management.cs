@@ -4,17 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
 //152278 Anger Management
 [Script]
-public class anger_management : ScriptObjectAutoAdd, IPlayerOnSpellCast,
+public class AngerManagement : ScriptObjectAutoAdd, IPlayerOnSpellCast,
                                 IClassRescriction,
                                 IPlayerOnLogout,
                                 IPlayerOnMapChanged,
@@ -22,9 +23,9 @@ public class anger_management : ScriptObjectAutoAdd, IPlayerOnSpellCast,
 
 {
     public static Dictionary<Player, int> RageSpent = new();
-    public PlayerClass PlayerClass { get; } = PlayerClass.Warrior;
 
-    public anger_management() : base("anger_management") { }
+    public AngerManagement() : base("anger_management") { }
+    public PlayerClass PlayerClass { get; } = PlayerClass.Warrior;
 
     public void OnDeath(Player player)
     {
@@ -42,7 +43,7 @@ public class anger_management : ScriptObjectAutoAdd, IPlayerOnSpellCast,
             RageSpent[player] = 0;
     }
 
-    public void OnSpellCast(Player player, Spell spell, bool UnnamedParameter)
+    public void OnSpellCast(Player player, Spell spell, bool unnamedParameter)
     {
         var power = spell.PowerCost.FirstOrDefault(p => p.Power == PowerType.Rage);
 

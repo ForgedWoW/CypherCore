@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 1463 - Incanter's Flow
-internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
+internal class SpellMageIncantersFlow : AuraScript, IHasAuraEffects
 {
-    private sbyte modifier = 1;
+    private sbyte _modifier = 1;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
@@ -27,26 +27,26 @@ internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
         if (!Target.IsInCombat)
             return;
 
-        var aura = Target.GetAura(MageSpells.IncantersFlow);
+        var aura = Target.GetAura(MageSpells.INCANTERS_FLOW);
 
         if (aura != null)
         {
             uint stacks = aura.StackAmount;
 
             // Force always to values between 1 and 5
-            if ((modifier == -1 && stacks == 1) ||
-                (modifier == 1 && stacks == 5))
+            if ((_modifier == -1 && stacks == 1) ||
+                (_modifier == 1 && stacks == 5))
             {
-                modifier *= -1;
+                _modifier *= -1;
 
                 return;
             }
 
-            aura.ModStackAmount(modifier);
+            aura.ModStackAmount(_modifier);
         }
         else
         {
-            Target.CastSpell(Target, MageSpells.IncantersFlow, true);
+            Target.SpellFactory.CastSpell(Target, MageSpells.INCANTERS_FLOW, true);
         }
     }
 }

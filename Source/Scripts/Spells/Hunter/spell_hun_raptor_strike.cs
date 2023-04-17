@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(186270)]
-public class spell_hun_raptor_strike : SpellScript, ISpellOnHit
+public class SpellHunRaptorStrike : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
@@ -18,6 +18,6 @@ public class spell_hun_raptor_strike : SpellScript, ISpellOnHit
             return;
 
         if (caster.HasSpell(HunterSpells.SERPENT_STING))
-            caster.CastSpell(target, HunterSpells.SERPENT_STING_DAMAGE, true);
+            caster.SpellFactory.CastSpell(target, HunterSpells.SERPENT_STING_DAMAGE, true);
     }
 }

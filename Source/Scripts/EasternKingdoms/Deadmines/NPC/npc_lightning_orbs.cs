@@ -1,22 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(49520)]
-public class npc_lightning_orbs : NullCreatureAI
+public class NPCLightningOrbs : NullCreatureAI
 {
-    private uint TurnTimer;
+    private uint _turnTimer;
 
-    public npc_lightning_orbs(Creature creature) : base(creature) { }
+    public NPCLightningOrbs(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
-        TurnTimer = 100;
+        _turnTimer = 100;
         var vehicle = Me.VehicleKit1;
 
         if (vehicle != null)
@@ -32,14 +32,14 @@ public class npc_lightning_orbs : NullCreatureAI
 
     public override void UpdateAI(uint diff)
     {
-        if (TurnTimer <= diff)
+        if (_turnTimer <= diff)
         {
             Me.SetFacingTo(Me.Location.Orientation + 0.05233f);
-            TurnTimer = 100;
+            _turnTimer = 100;
         }
         else
         {
-            TurnTimer -= diff;
+            _turnTimer -= diff;
         }
     }
 }

@@ -58,12 +58,9 @@ public class Scenario : CriteriaHandler
 
     ~Scenario()
     {
-        foreach (var guid in _players)
+        foreach (var player in _players.Select(guid => _objectAccessor.FindPlayer(guid)).Where(player => player != null))
         {
-            var player = _objectAccessor.FindPlayer(guid);
-
-            if (player)
-                SendBootPlayer(player);
+            SendBootPlayer(player);
         }
 
         _players.Clear();
@@ -138,12 +135,7 @@ public class Scenario : CriteriaHandler
 
         if (quest != null)
             foreach (var guid in _players)
-            {
-                var player = _objectAccessor.FindPlayer(guid);
-
-                if (player)
-                    player.RewardQuest(quest, LootItemType.Item, 0, null, false);
-            }
+                _objectAccessor.FindPlayer(guid)?.RewardQuest(quest, LootItemType.Item, 0, null, false);
 
         if (step.IsBonusObjective())
             return;

@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(211053)]
-public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
+public class SpellDhFelBarrage : AuraScript, IHasAuraEffects
 {
     private int _charges = 1;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -38,7 +39,7 @@ public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectPeriodicHandler(HandleTrigger, 0, AuraType.PeriodicDummy));
     }
 
-    private void HandleTrigger(AuraEffect UnnamedParameter)
+    private void HandleTrigger(AuraEffect unnamedParameter)
     {
         var caster = Caster;
         var target = Target;
@@ -49,6 +50,6 @@ public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
         var args = new CastSpellExtraArgs();
         args.AddSpellMod(SpellValueMod.BasePoint0, (int)_charges);
         args.SetTriggerFlags(TriggerCastFlags.FullMask);
-        caster.CastSpell(target, DemonHunterSpells.FEL_BARRAGE_TRIGGER, args);
+        caster.SpellFactory.CastSpell(target, DemonHunterSpells.FEL_BARRAGE_TRIGGER, args);
     }
 }

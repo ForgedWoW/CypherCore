@@ -3,20 +3,20 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [Script] // 79096 - Restless Blades
-internal class spell_rog_restless_blades : AuraScript, IHasAuraEffects
+internal class SpellRogRestlessBlades : AuraScript, IHasAuraEffects
 {
     private static readonly uint[] Spells =
     {
-        RogueSpells.AdrenalineRush, RogueSpells.BetweenTheEyes, RogueSpells.Sprint, RogueSpells.GrapplingHook, RogueSpells.Vanish, RogueSpells.KillingSpree, RogueSpells.MarkedForDeath, RogueSpells.DeathFromAbove
+        RogueSpells.AdrenalineRush, RogueSpells.BETWEEN_THE_EYES, RogueSpells.Sprint, RogueSpells.GRAPPLING_HOOK, RogueSpells.VANISH, RogueSpells.KillingSpree, RogueSpells.MARKED_FOR_DEATH, RogueSpells.DEATH_FROM_ABOVE
     };
 
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -29,11 +29,11 @@ internal class spell_rog_restless_blades : AuraScript, IHasAuraEffects
 
     private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
     {
-        var spentCP = procInfo.ProcSpell?.GetPowerTypeCostAmount(PowerType.ComboPoints);
+        var spentCp = procInfo.ProcSpell?.GetPowerTypeCostAmount(PowerType.ComboPoints);
 
-        if (spentCP.HasValue)
+        if (spentCp.HasValue)
         {
-            var cdExtra = (int)-((double)(aurEff.Amount * spentCP.Value) * 0.1f);
+            var cdExtra = (int)-((double)(aurEff.Amount * spentCp.Value) * 0.1f);
 
             var history = Target.SpellHistory;
 

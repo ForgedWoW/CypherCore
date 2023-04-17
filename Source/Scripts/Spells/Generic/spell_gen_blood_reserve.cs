@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // Blood Reserve - 64568
-internal class spell_gen_blood_reserve : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellGenBloodReserve : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -39,7 +40,7 @@ internal class spell_gen_blood_reserve : AuraScript, IAuraCheckProc, IHasAuraEff
         var caster = eventInfo.ActionTarget;
         CastSpellExtraArgs args = new(aurEff);
         args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
-        caster.CastSpell(caster, GenericSpellIds.BloodReserveHeal, args);
-        caster.RemoveAura(GenericSpellIds.BloodReserveAura);
+        caster.SpellFactory.CastSpell(caster, GenericSpellIds.BLOOD_RESERVE_HEAL, args);
+        caster.RemoveAura(GenericSpellIds.BLOOD_RESERVE_AURA);
     }
 }

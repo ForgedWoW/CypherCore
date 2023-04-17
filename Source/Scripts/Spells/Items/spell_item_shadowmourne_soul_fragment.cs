@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 71905 - Soul Fragment
-internal class spell_item_shadowmourne_soul_fragment : AuraScript, IHasAuraEffects
+internal class SpellItemShadowmourneSoulFragment : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,27 +28,26 @@ internal class spell_item_shadowmourne_soul_fragment : AuraScript, IHasAuraEffec
         switch (StackAmount)
         {
             case 1:
-                target.CastSpell(target, ItemSpellIds.ShadowmourneVisualLow, true);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.SHADOWMOURNE_VISUAL_LOW, true);
 
                 break;
             case 6:
-                target.RemoveAura(ItemSpellIds.ShadowmourneVisualLow);
-                target.CastSpell(target, ItemSpellIds.ShadowmourneVisualHigh, true);
+                target.RemoveAura(ItemSpellIds.SHADOWMOURNE_VISUAL_LOW);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.SHADOWMOURNE_VISUAL_HIGH, true);
 
                 break;
             case 10:
-                target.RemoveAura(ItemSpellIds.ShadowmourneVisualHigh);
-                target.CastSpell(target, ItemSpellIds.ShadowmourneChaosBaneBuff, true);
+                target.RemoveAura(ItemSpellIds.SHADOWMOURNE_VISUAL_HIGH);
+                target.SpellFactory.CastSpell(target, ItemSpellIds.SHADOWMOURNE_CHAOS_BANE_BUFF, true);
 
                 break;
-            
         }
     }
 
     private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         var target = Target;
-        target.RemoveAura(ItemSpellIds.ShadowmourneVisualLow);
-        target.RemoveAura(ItemSpellIds.ShadowmourneVisualHigh);
+        target.RemoveAura(ItemSpellIds.SHADOWMOURNE_VISUAL_LOW);
+        target.RemoveAura(ItemSpellIds.SHADOWMOURNE_VISUAL_HIGH);
     }
 }

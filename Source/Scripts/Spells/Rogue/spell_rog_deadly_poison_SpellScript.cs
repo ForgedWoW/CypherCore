@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.DataStorage;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Serilog;
 
 namespace Scripts.Spells.Rogue;
 
 [Script] // 2818 - Deadly Poison
-internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHit, ISpellAfterHit
+internal class SpellRogDeadlyPoisonSpellScript : SpellScript, ISpellBeforeHit, ISpellAfterHit
 {
     private byte _stackAmount = 0;
 
@@ -65,9 +66,9 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
                         continue;
 
                     if (spellInfo.IsPositive)
-                        player.CastSpell(player, enchant.EffectArg[s], item);
+                        player.SpellFactory.CastSpell(player, enchant.EffectArg[s], item);
                     else
-                        player.CastSpell(target, enchant.EffectArg[s], item);
+                        player.SpellFactory.CastSpell(target, enchant.EffectArg[s], item);
                 }
             }
         }

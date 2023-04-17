@@ -3,110 +3,112 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.AI;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.MagistersTerrace.PriestessDelrissa;
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SayDeath = 10;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_DEATH = 10;
 }
 
 internal struct SpellIds
 {
-    public const uint DispelMagic = 27609;
-    public const uint FlashHeal = 17843;
-    public const uint SwPainNormal = 14032;
-    public const uint SwPainHeroic = 15654;
-    public const uint Shield = 44291;
-    public const uint RenewNormal = 44174;
-    public const uint RenewHeroic = 46192;
+    public const uint DISPEL_MAGIC = 27609;
+    public const uint FLASH_HEAL = 17843;
+    public const uint SW_PAIN_NORMAL = 14032;
+    public const uint SW_PAIN_HEROIC = 15654;
+    public const uint SHIELD = 44291;
+    public const uint RENEW_NORMAL = 44174;
+    public const uint RENEW_HEROIC = 46192;
 
     // Apoko
-    public const uint WindfuryTotem = 27621;
-    public const uint WarStomp = 46026;
-    public const uint Purge = 27626;
-    public const uint LesserHealingWave = 44256;
-    public const uint FrostShock = 21401;
-    public const uint FireNovaTotem = 44257;
-    public const uint EarthbindTotem = 15786;
+    public const uint WINDFURY_TOTEM = 27621;
+    public const uint WAR_STOMP = 46026;
+    public const uint PURGE = 27626;
+    public const uint LESSER_HEALING_WAVE = 44256;
+    public const uint FROST_SHOCK = 21401;
+    public const uint FIRE_NOVA_TOTEM = 44257;
+    public const uint EARTHBIND_TOTEM = 15786;
 
-    public const uint HealingPotion = 15503;
+    public const uint HEALING_POTION = 15503;
 
     // RogueSpells
-    public const uint KidneyShot = 27615;
-    public const uint Gouge = 12540;
-    public const uint Kick = 27613;
-    public const uint Vanish = 44290;
-    public const uint Backstab = 15657;
-    public const uint Eviscerate = 27611;
+    public const uint KIDNEY_SHOT = 27615;
+    public const uint GOUGE = 12540;
+    public const uint KICK = 27613;
+    public const uint VANISH = 44290;
+    public const uint BACKSTAB = 15657;
+    public const uint EVISCERATE = 27611;
 
     // WarlockSpells
-    public const uint Immolate = 44267;
-    public const uint ShadowBolt = 12471;
-    public const uint SeedOfCorruption = 44141;
-    public const uint CurseOfAgony = 14875;
-    public const uint Fear = 38595;
-    public const uint ImpFireball = 44164;
-    public const uint SummonImp = 44163;
+    public const uint IMMOLATE = 44267;
+    public const uint SHADOW_BOLT = 12471;
+    public const uint SEED_OF_CORRUPTION = 44141;
+    public const uint CURSE_OF_AGONY = 14875;
+    public const uint FEAR = 38595;
+    public const uint IMP_FIREBALL = 44164;
+    public const uint SUMMON_IMP = 44163;
 
     // KickDown
-    public const uint Knockdown = 11428;
-    public const uint SnapKick = 46182;
+    public const uint KNOCKDOWN = 11428;
+    public const uint SNAP_KICK = 46182;
 
     // MageSpells
-    public const uint Polymorph = 13323;
-    public const uint IceBlock = 27619;
-    public const uint Blizzard = 44178;
-    public const uint IceLance = 46194;
-    public const uint ConeOfCold = 38384;
-    public const uint Frostbolt = 15043;
-    public const uint Blink = 14514;
+    public const uint POLYMORPH = 13323;
+    public const uint ICE_BLOCK = 27619;
+    public const uint BLIZZARD = 44178;
+    public const uint ICE_LANCE = 46194;
+    public const uint CONE_OF_COLD = 38384;
+    public const uint FROSTBOLT = 15043;
+    public const uint BLINK = 14514;
 
     // WarriorSpells
-    public const uint InterceptStun = 27577;
-    public const uint Disarm = 27581;
-    public const uint PiercingHowl = 23600;
-    public const uint FrighteningShout = 19134;
-    public const uint Hamstring = 27584;
-    public const uint BattleShout = 27578;
-    public const uint MortalStrike = 44268;
+    public const uint INTERCEPT_STUN = 27577;
+    public const uint DISARM = 27581;
+    public const uint PIERCING_HOWL = 23600;
+    public const uint FRIGHTENING_SHOUT = 19134;
+    public const uint HAMSTRING = 27584;
+    public const uint BATTLE_SHOUT = 27578;
+    public const uint MORTAL_STRIKE = 44268;
 
     // HunterSpells
-    public const uint AimedShot = 44271;
-    public const uint Shoot = 15620;
-    public const uint ConcussiveShot = 27634;
-    public const uint MultiShot = 31942;
-    public const uint WingClip = 44286;
-    public const uint FreezingTrap = 44136;
+    public const uint AIMED_SHOT = 44271;
+    public const uint SHOOT = 15620;
+    public const uint CONCUSSIVE_SHOT = 27634;
+    public const uint MULTI_SHOT = 31942;
+    public const uint WING_CLIP = 44286;
+    public const uint FREEZING_TRAP = 44136;
 
     // EngineerSpells
-    public const uint GoblinDragonGun = 44272;
-    public const uint RocketLaunch = 44137;
-    public const uint Recombobulate = 44274;
-    public const uint HighExplosiveSheep = 44276;
-    public const uint FelIronBomb = 46024;
-    public const uint SheepExplosion = 44279;
+    public const uint GOBLIN_DRAGON_GUN = 44272;
+    public const uint ROCKET_LAUNCH = 44137;
+    public const uint RECOMBOBULATE = 44274;
+    public const uint HIGH_EXPLOSIVE_SHEEP = 44276;
+    public const uint FEL_IRON_BOMB = 46024;
+    public const uint SHEEP_EXPLOSION = 44279;
 }
 
 internal struct CreatureIds
 {
-    public const uint Sliver = 24552;
+    public const uint SLIVER = 24552;
 }
 
 internal struct MiscConst
 {
-    public const uint MaxActiveLackey = 4;
+    public const uint MAX_ACTIVE_LACKEY = 4;
 
-    public const float fOrientation = 4.98f;
-    public const float fZLocation = -19.921f;
+    public const float F_ORIENTATION = 4.98f;
+    public const float F_Z_LOCATION = -19.921f;
 
     public static float[][] LackeyLocations =
     {
@@ -128,7 +130,7 @@ internal struct MiscConst
         }
     };
 
-    public static uint[] _auiAddEntries =
+    public static uint[] AuiAddEntries =
     {
         24557, //Kagani Nightstrike
         24558, //Elris Duskhallow
@@ -152,17 +154,17 @@ internal struct MiscConst
 }
 
 [Script]
-internal class boss_priestess_delrissa : BossAI
+internal class BossPriestessDelrissa : BossAI
 {
-    public ObjectGuid[] _auiLackeyGUID = new ObjectGuid[MiscConst.MaxActiveLackey];
-    private readonly List<uint> LackeyEntryList = new();
+    public ObjectGuid[] AuiLackeyGUID = new ObjectGuid[MiscConst.MAX_ACTIVE_LACKEY];
+    private readonly List<uint> _lackeyEntryList = new();
 
-    private byte PlayersKilled;
+    private byte _playersKilled;
 
-    public boss_priestess_delrissa(Creature creature) : base(creature, DataTypes.PriestessDelrissa)
+    public BossPriestessDelrissa(Creature creature) : base(creature, DataTypes.PRIESTESS_DELRISSA)
     {
         Initialize();
-        LackeyEntryList.Clear();
+        _lackeyEntryList.Clear();
     }
 
     public override void Reset()
@@ -175,14 +177,14 @@ internal class boss_priestess_delrissa : BossAI
     //this mean she at some point evaded
     public override void JustReachedHome()
     {
-        Instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.Fail);
+        Instance.SetBossState(DataTypes.PRIESTESS_DELRISSA, EncounterState.Fail);
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
 
-        foreach (var lackeyGuid in _auiLackeyGUID)
+        foreach (var lackeyGuid in AuiLackeyGUID)
         {
             var pAdd = Global.ObjAccessor.GetUnit(Me, lackeyGuid);
 
@@ -190,7 +192,7 @@ internal class boss_priestess_delrissa : BossAI
                 AddThreat(who, 0.0f, pAdd);
         }
 
-        Instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.InProgress);
+        Instance.SetBossState(DataTypes.PRIESTESS_DELRISSA, EncounterState.InProgress);
     }
 
     public override void KilledUnit(Unit victim)
@@ -198,18 +200,18 @@ internal class boss_priestess_delrissa : BossAI
         if (!victim.IsPlayer)
             return;
 
-        Talk(MiscConst.PlayerDeath[PlayersKilled]);
+        Talk(MiscConst.PlayerDeath[_playersKilled]);
 
-        if (PlayersKilled < 4)
-            ++PlayersKilled;
+        if (_playersKilled < 4)
+            ++_playersKilled;
     }
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
 
-        if (Instance.GetData(DataTypes.DelrissaDeathCount) == MiscConst.MaxActiveLackey)
-            Instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.Done);
+        if (Instance.GetData(DataTypes.DELRISSA_DEATH_COUNT) == MiscConst.MAX_ACTIVE_LACKEY)
+            Instance.SetBossState(DataTypes.PRIESTESS_DELRISSA, EncounterState.Done);
         else
             Me.RemoveDynamicFlag(UnitDynFlags.Lootable);
     }
@@ -224,7 +226,7 @@ internal class boss_priestess_delrissa : BossAI
 
     private void Initialize()
     {
-        PlayersKilled = 0;
+        _playersKilled = 0;
 
         Scheduler.Schedule(TimeSpan.FromSeconds(15),
                            task =>
@@ -232,9 +234,9 @@ internal class boss_priestess_delrissa : BossAI
                                var health = Me.Health;
                                Unit target = Me;
 
-                               for (byte i = 0; i < _auiLackeyGUID.Length; ++i)
+                               for (byte i = 0; i < AuiLackeyGUID.Length; ++i)
                                {
-                                   var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[i]);
+                                   var pAdd = Global.ObjAccessor.GetUnit(Me, AuiLackeyGUID[i]);
 
                                    if (pAdd != null &&
                                        pAdd.IsAlive &&
@@ -242,7 +244,7 @@ internal class boss_priestess_delrissa : BossAI
                                        target = pAdd;
                                }
 
-                               DoCast(target, SpellIds.FlashHeal);
+                               DoCast(target, SpellIds.FLASH_HEAL);
                                task.Repeat();
                            });
 
@@ -253,14 +255,14 @@ internal class boss_priestess_delrissa : BossAI
 
                                if (RandomHelper.URand(0, 1) != 0)
                                {
-                                   var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
+                                   var pAdd = Global.ObjAccessor.GetUnit(Me, AuiLackeyGUID[RandomHelper.Rand32() % AuiLackeyGUID.Length]);
 
                                    if (pAdd != null &&
                                        pAdd.IsAlive)
                                        target = pAdd;
                                }
 
-                               DoCast(target, SpellIds.RenewNormal);
+                               DoCast(target, SpellIds.RENEW_NORMAL);
                                task.Repeat(TimeSpan.FromSeconds(5));
                            });
 
@@ -271,15 +273,15 @@ internal class boss_priestess_delrissa : BossAI
 
                                if (RandomHelper.URand(0, 1) != 0)
                                {
-                                   var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
+                                   var pAdd = Global.ObjAccessor.GetUnit(Me, AuiLackeyGUID[RandomHelper.Rand32() % AuiLackeyGUID.Length]);
 
                                    if (pAdd != null &&
                                        pAdd.IsAlive &&
-                                       !pAdd.HasAura(SpellIds.Shield))
+                                       !pAdd.HasAura(SpellIds.SHIELD))
                                        target = pAdd;
                                }
 
-                               DoCast(target, SpellIds.Shield);
+                               DoCast(target, SpellIds.SHIELD);
                                task.Repeat(TimeSpan.FromSeconds(7.5));
                            });
 
@@ -289,7 +291,7 @@ internal class boss_priestess_delrissa : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
                                if (target != null)
-                                   DoCast(target, SpellIds.SwPainNormal);
+                                   DoCast(target, SpellIds.SW_PAIN_NORMAL);
 
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
@@ -311,7 +313,7 @@ internal class boss_priestess_delrissa : BossAI
                                    }
                                    else
                                    {
-                                       var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
+                                       var pAdd = Global.ObjAccessor.GetUnit(Me, AuiLackeyGUID[RandomHelper.Rand32() % AuiLackeyGUID.Length]);
 
                                        if (pAdd != null &&
                                            pAdd.IsAlive)
@@ -320,7 +322,7 @@ internal class boss_priestess_delrissa : BossAI
                                }
 
                                if (target)
-                                   DoCast(target, SpellIds.DispelMagic);
+                                   DoCast(target, SpellIds.DISPEL_MAGIC);
 
                                task.Repeat(TimeSpan.FromSeconds(12));
                            });
@@ -350,39 +352,39 @@ internal class boss_priestess_delrissa : BossAI
         byte j = 0;
 
         //it's empty, so first Time
-        if (LackeyEntryList.Empty())
+        if (_lackeyEntryList.Empty())
         {
             //fill vector array with entries from Creature array
-            for (byte i = 0; i < LackeyEntryList.Count; ++i)
-                LackeyEntryList[i] = MiscConst._auiAddEntries[i];
+            for (byte i = 0; i < _lackeyEntryList.Count; ++i)
+                _lackeyEntryList[i] = MiscConst.AuiAddEntries[i];
 
             //remove random entries
-            LackeyEntryList.RandomResize(MiscConst.MaxActiveLackey);
+            _lackeyEntryList.RandomResize(MiscConst.MAX_ACTIVE_LACKEY);
 
             //summon all the remaining in vector
-            foreach (var guid in LackeyEntryList)
+            foreach (var guid in _lackeyEntryList)
             {
-                Creature pAdd = Me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
+                Creature pAdd = Me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.F_Z_LOCATION, MiscConst.F_ORIENTATION, TempSummonType.CorpseDespawn);
 
                 if (pAdd != null)
-                    _auiLackeyGUID[j] = pAdd.GUID;
+                    AuiLackeyGUID[j] = pAdd.GUID;
 
                 ++j;
             }
         }
         else
         {
-            foreach (var guid in LackeyEntryList)
+            foreach (var guid in _lackeyEntryList)
             {
-                var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[j]);
+                var pAdd = Global.ObjAccessor.GetUnit(Me, AuiLackeyGUID[j]);
 
                 //object already removed, not exist
                 if (!pAdd)
                 {
-                    pAdd = Me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
+                    pAdd = Me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.F_Z_LOCATION, MiscConst.F_ORIENTATION, TempSummonType.CorpseDespawn);
 
                     if (pAdd != null)
-                        _auiLackeyGUID[j] = pAdd.GUID;
+                        AuiLackeyGUID[j] = pAdd.GUID;
                 }
 
                 ++j;
@@ -392,25 +394,25 @@ internal class boss_priestess_delrissa : BossAI
 }
 
 //all 8 possible lackey use this common
-internal class boss_priestess_lackey_common : ScriptedAI
+internal class BossPriestessLackeyCommon : ScriptedAI
 {
-    public ObjectGuid[] _auiLackeyGUIDs = new ObjectGuid[MiscConst.MaxActiveLackey];
-    private readonly InstanceScript instance;
-    private bool UsedPotion;
+    public ObjectGuid[] AuiLackeyGuiDs = new ObjectGuid[MiscConst.MAX_ACTIVE_LACKEY];
+    private readonly InstanceScript _instance;
+    private bool _usedPotion;
 
-    public boss_priestess_lackey_common(Creature creature) : base(creature)
+    public BossPriestessLackeyCommon(Creature creature) : base(creature)
     {
         Initialize();
-        instance = creature.InstanceScript;
+        _instance = creature.InstanceScript;
     }
 
     public override void Reset()
     {
         Initialize();
-        AcquireGUIDs();
+        AcquireGuiDs();
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
+        var delrissa = _instance.GetCreature(DataTypes.PRIESTESS_DELRISSA);
 
         if (delrissa)
             if (!delrissa.IsAlive)
@@ -422,7 +424,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
         if (!who)
             return;
 
-        foreach (var guid in _auiLackeyGUIDs)
+        foreach (var guid in AuiLackeyGuiDs)
         {
             var pAdd = Global.ObjAccessor.GetUnit(Me, guid);
 
@@ -432,7 +434,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
                 AddThreat(who, 0.0f, pAdd);
         }
 
-        var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
+        var delrissa = _instance.GetCreature(DataTypes.PRIESTESS_DELRISSA);
 
         if (delrissa)
             if (delrissa.IsAlive &&
@@ -442,8 +444,8 @@ internal class boss_priestess_lackey_common : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
-        var uiLackeyDeathCount = instance.GetData(DataTypes.DelrissaDeathCount);
+        var delrissa = _instance.GetCreature(DataTypes.PRIESTESS_DELRISSA);
+        var uiLackeyDeathCount = _instance.GetData(DataTypes.DELRISSA_DEATH_COUNT);
 
         if (!delrissa)
             return;
@@ -453,24 +455,24 @@ internal class boss_priestess_lackey_common : ScriptedAI
             //should delrissa really yell if dead?
             AI.Talk(MiscConst.LackeyDeath[uiLackeyDeathCount]);
 
-        instance.SetData(DataTypes.DelrissaDeathCount, (uint)EncounterState.Special);
+        _instance.SetData(DataTypes.DELRISSA_DEATH_COUNT, (uint)EncounterState.Special);
 
         //increase local var, since we now may have four dead
         ++uiLackeyDeathCount;
 
-        if (uiLackeyDeathCount == MiscConst.MaxActiveLackey)
+        if (uiLackeyDeathCount == MiscConst.MAX_ACTIVE_LACKEY)
             //Time to make her lootable and complete event if she died before lackeys
             if (!delrissa.IsAlive)
             {
                 delrissa.SetDynamicFlag(UnitDynFlags.Lootable);
 
-                instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.Done);
+                _instance.SetBossState(DataTypes.PRIESTESS_DELRISSA, EncounterState.Done);
             }
     }
 
     public override void KilledUnit(Unit victim)
     {
-        var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
+        var delrissa = _instance.GetCreature(DataTypes.PRIESTESS_DELRISSA);
 
         if (delrissa)
             delrissa.AI.KilledUnit(victim);
@@ -478,11 +480,11 @@ internal class boss_priestess_lackey_common : ScriptedAI
 
     public override void UpdateAI(uint diff)
     {
-        if (!UsedPotion &&
+        if (!_usedPotion &&
             HealthBelowPct(25))
         {
-            DoCast(Me, SpellIds.HealingPotion);
-            UsedPotion = true;
+            DoCast(Me, SpellIds.HEALING_POTION);
+            _usedPotion = true;
         }
 
         Scheduler.Update(diff);
@@ -490,7 +492,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 
     private void Initialize()
     {
-        UsedPotion = false;
+        _usedPotion = false;
 
         // These guys does not follow normal threat system rules
         // For later development, some alternative threat system should be made
@@ -505,23 +507,23 @@ internal class boss_priestess_lackey_common : ScriptedAI
                            });
     }
 
-    private void AcquireGUIDs()
+    private void AcquireGuiDs()
     {
-        var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
+        var delrissa = _instance.GetCreature(DataTypes.PRIESTESS_DELRISSA);
 
         if (delrissa)
-            for (byte i = 0; i < MiscConst.MaxActiveLackey; ++i)
-                _auiLackeyGUIDs[i] = (delrissa.AI as boss_priestess_delrissa)._auiLackeyGUID[i];
+            for (byte i = 0; i < MiscConst.MAX_ACTIVE_LACKEY; ++i)
+                AuiLackeyGuiDs[i] = (delrissa.AI as BossPriestessDelrissa).AuiLackeyGUID[i];
     }
 }
 
 [Script]
-internal class boss_kagani_nightstrike : boss_priestess_lackey_common
+internal class BossKaganiNightstrike : BossPriestessLackeyCommon
 {
-    private bool InVanish;
+    private bool _inVanish;
 
     //Rogue
-    public boss_kagani_nightstrike(Creature creature) : base(creature)
+    public BossKaganiNightstrike(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -543,7 +545,7 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
 
         Scheduler.Update(diff);
 
-        if (!InVanish)
+        if (!_inVanish)
             DoMeleeAttackIfReady();
     }
 
@@ -552,21 +554,21 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(5.5),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Gouge);
+                               DoCastVictim(SpellIds.GOUGE);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(7),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Kick);
+                               DoCastVictim(SpellIds.KICK);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            task =>
                            {
-                               DoCast(Me, SpellIds.Vanish);
+                               DoCast(Me, SpellIds.VANISH);
 
                                var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
@@ -575,18 +577,18 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
                                if (unit)
                                    AddThreat(unit, 1000.0f);
 
-                               InVanish = true;
+                               _inVanish = true;
                                task.Repeat(TimeSpan.FromSeconds(30));
 
                                task.Schedule(TimeSpan.FromSeconds(10),
                                              waitTask =>
                                              {
-                                                 if (InVanish)
+                                                 if (_inVanish)
                                                  {
-                                                     DoCastVictim(SpellIds.Backstab, new CastSpellExtraArgs(true));
-                                                     DoCastVictim(SpellIds.KidneyShot, new CastSpellExtraArgs(true));
+                                                     DoCastVictim(SpellIds.BACKSTAB, new CastSpellExtraArgs(true));
+                                                     DoCastVictim(SpellIds.KIDNEY_SHOT, new CastSpellExtraArgs(true));
                                                      Me.SetVisible(true); // ...? Hacklike
-                                                     InVanish = false;
+                                                     _inVanish = false;
                                                  }
 
                                                  waitTask.Repeat();
@@ -596,19 +598,19 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Eviscerate);
+                               DoCastVictim(SpellIds.EVISCERATE);
                                task.Repeat(TimeSpan.FromSeconds(4));
                            });
 
-        InVanish = false;
+        _inVanish = false;
     }
 }
 
 [Script]
-internal class boss_ellris_duskhallow : boss_priestess_lackey_common
+internal class BossEllrisDuskhallow : BossPriestessLackeyCommon
 {
     //Warlock
-    public boss_ellris_duskhallow(Creature creature) : base(creature)
+    public BossEllrisDuskhallow(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -622,7 +624,7 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
 
     public override void JustEngagedWith(Unit who)
     {
-        DoCast(Me, SpellIds.SummonImp);
+        DoCast(Me, SpellIds.SUMMON_IMP);
     }
 
     public override void UpdateAI(uint diff)
@@ -640,14 +642,14 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Immolate);
+                               DoCastVictim(SpellIds.IMMOLATE);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(3),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ShadowBolt);
+                               DoCastVictim(SpellIds.SHADOW_BOLT);
                                task.Repeat(TimeSpan.FromSeconds(5));
                            });
 
@@ -657,7 +659,7 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
                                var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (unit)
-                                   DoCast(unit, SpellIds.SeedOfCorruption);
+                                   DoCast(unit, SpellIds.SEED_OF_CORRUPTION);
 
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
@@ -668,7 +670,7 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
                                var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (unit)
-                                   DoCast(unit, SpellIds.CurseOfAgony);
+                                   DoCast(unit, SpellIds.CURSE_OF_AGONY);
 
                                task.Repeat(TimeSpan.FromSeconds(13));
                            });
@@ -679,7 +681,7 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
                                var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (unit)
-                                   DoCast(unit, SpellIds.Fear);
+                                   DoCast(unit, SpellIds.FEAR);
 
                                task.Repeat();
                            });
@@ -687,10 +689,10 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
 }
 
 [Script]
-internal class boss_eramas_brightblaze : boss_priestess_lackey_common
+internal class BossEramasBrightblaze : BossPriestessLackeyCommon
 {
     //Monk
-    public boss_eramas_brightblaze(Creature creature) : base(creature)
+    public BossEramasBrightblaze(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -717,26 +719,26 @@ internal class boss_eramas_brightblaze : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Knockdown);
+                               DoCastVictim(SpellIds.KNOCKDOWN);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4.5),
                            task =>
                            {
-                               DoCastVictim(SpellIds.SnapKick);
+                               DoCastVictim(SpellIds.SNAP_KICK);
                                task.Repeat();
                            });
     }
 }
 
 [Script]
-internal class boss_yazzai : boss_priestess_lackey_common
+internal class BossYazzai : BossPriestessLackeyCommon
 {
-    private bool HasIceBlocked;
+    private bool _hasIceBlocked;
 
     //Mage
-    public boss_yazzai(Creature creature) : base(creature)
+    public BossYazzai(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -756,10 +758,10 @@ internal class boss_yazzai : boss_priestess_lackey_common
         base.UpdateAI(diff);
 
         if (HealthBelowPct(35) &&
-            !HasIceBlocked)
+            !_hasIceBlocked)
         {
-            DoCast(Me, SpellIds.IceBlock);
-            HasIceBlocked = true;
+            DoCast(Me, SpellIds.ICE_BLOCK);
+            _hasIceBlocked = true;
         }
 
         Scheduler.Update(diff, () => DoMeleeAttackIfReady());
@@ -767,7 +769,7 @@ internal class boss_yazzai : boss_priestess_lackey_common
 
     private void Initialize()
     {
-        HasIceBlocked = false;
+        _hasIceBlocked = false;
 
         Scheduler.Schedule(TimeSpan.FromSeconds(1),
                            task =>
@@ -776,7 +778,7 @@ internal class boss_yazzai : boss_priestess_lackey_common
 
                                if (target)
                                {
-                                   DoCast(target, SpellIds.Polymorph);
+                                   DoCast(target, SpellIds.POLYMORPH);
                                    task.Repeat(TimeSpan.FromSeconds(20));
                                }
                            });
@@ -787,7 +789,7 @@ internal class boss_yazzai : boss_priestess_lackey_common
                                var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (unit)
-                                   DoCast(unit, SpellIds.Blizzard);
+                                   DoCast(unit, SpellIds.BLIZZARD);
 
                                task.Repeat();
                            });
@@ -795,40 +797,40 @@ internal class boss_yazzai : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.IceLance);
+                               DoCastVictim(SpellIds.ICE_LANCE);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ConeOfCold);
+                               DoCastVictim(SpellIds.CONE_OF_COLD);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(3),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Frostbolt);
+                               DoCastVictim(SpellIds.FROSTBOLT);
                                task.Repeat(TimeSpan.FromSeconds(8));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               var InMeleeRange = false;
+                               var inMeleeRange = false;
 
                                foreach (var pair in Me.GetCombatManager().PvECombatRefs)
                                    if (pair.Value.GetOther(Me).IsWithinMeleeRange(Me))
                                    {
-                                       InMeleeRange = true;
+                                       inMeleeRange = true;
 
                                        break;
                                    }
 
                                //if anybody is in melee range than escape by blink
-                               if (InMeleeRange)
-                                   DoCast(Me, SpellIds.Blink);
+                               if (inMeleeRange)
+                                   DoCast(Me, SpellIds.BLINK);
 
                                task.Repeat();
                            });
@@ -836,10 +838,10 @@ internal class boss_yazzai : boss_priestess_lackey_common
 }
 
 [Script]
-internal class boss_warlord_salaris : boss_priestess_lackey_common
+internal class BossWarlordSalaris : BossPriestessLackeyCommon
 {
     //Warrior
-    public boss_warlord_salaris(Creature creature) : base(creature)
+    public BossWarlordSalaris(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -853,7 +855,7 @@ internal class boss_warlord_salaris : boss_priestess_lackey_common
 
     public override void JustEngagedWith(Unit who)
     {
-        DoCast(Me, SpellIds.BattleShout);
+        DoCast(Me, SpellIds.BATTLE_SHOUT);
     }
 
     public override void UpdateAI(uint diff)
@@ -871,23 +873,23 @@ internal class boss_warlord_salaris : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromMilliseconds(500),
                            task =>
                            {
-                               var InMeleeRange = false;
+                               var inMeleeRange = false;
 
                                foreach (var pair in Me.GetCombatManager().PvECombatRefs)
                                    if (pair.Value.GetOther(Me).IsWithinMeleeRange(Me))
                                    {
-                                       InMeleeRange = true;
+                                       inMeleeRange = true;
 
                                        break;
                                    }
 
                                //if nobody is in melee range than try to use Intercept
-                               if (!InMeleeRange)
+                               if (!inMeleeRange)
                                {
                                    var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
                                    if (unit)
-                                       DoCast(unit, SpellIds.InterceptStun);
+                                       DoCast(unit, SpellIds.INTERCEPT_STUN);
                                }
 
                                task.Repeat(TimeSpan.FromSeconds(10));
@@ -896,49 +898,49 @@ internal class boss_warlord_salaris : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Disarm);
+                               DoCastVictim(SpellIds.DISARM);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCastVictim(SpellIds.PiercingHowl);
+                               DoCastVictim(SpellIds.PIERCING_HOWL);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(18),
                            task =>
                            {
-                               DoCastVictim(SpellIds.FrighteningShout);
+                               DoCastVictim(SpellIds.FRIGHTENING_SHOUT);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4.5),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Hamstring);
+                               DoCastVictim(SpellIds.HAMSTRING);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               DoCastVictim(SpellIds.MortalStrike);
+                               DoCastVictim(SpellIds.MORTAL_STRIKE);
                                task.Repeat(TimeSpan.FromSeconds(4.5));
                            });
     }
 }
 
 [Script]
-internal class boss_garaxxas : boss_priestess_lackey_common
+internal class BossGaraxxas : BossPriestessLackeyCommon
 {
     private readonly TaskScheduler _meleeScheduler = new();
 
     private ObjectGuid _uiPetGUID;
 
     //Hunter
-    public boss_garaxxas(Creature creature) : base(creature)
+    public BossGaraxxas(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -950,7 +952,7 @@ internal class boss_garaxxas : boss_priestess_lackey_common
         var pPet = Global.ObjAccessor.GetUnit(Me, _uiPetGUID);
 
         if (!pPet)
-            Me.SummonCreature(CreatureIds.Sliver, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.CorpseDespawn);
+            Me.SummonCreature(CreatureIds.SLIVER, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.CorpseDespawn);
 
         base.Reset();
     }
@@ -978,35 +980,35 @@ internal class boss_garaxxas : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(6),
                            task =>
                            {
-                               DoCastVictim(SpellIds.AimedShot);
+                               DoCastVictim(SpellIds.AIMED_SHOT);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(2.5),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Shoot);
+                               DoCastVictim(SpellIds.SHOOT);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(8),
                            task =>
                            {
-                               DoCastVictim(SpellIds.ConcussiveShot);
+                               DoCastVictim(SpellIds.CONCUSSIVE_SHOT);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCastVictim(SpellIds.MultiShot);
+                               DoCastVictim(SpellIds.MULTI_SHOT);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4),
                            task =>
                            {
-                               DoCastVictim(SpellIds.WingClip);
+                               DoCastVictim(SpellIds.WING_CLIP);
                                task.Repeat();
                            });
 
@@ -1014,7 +1016,7 @@ internal class boss_garaxxas : boss_priestess_lackey_common
                            task =>
                            {
                                //attempt find go summoned from spell (cast by me)
-                               var go = Me.GetGameObject(SpellIds.FreezingTrap);
+                               var go = Me.GetGameObject(SpellIds.FREEZING_TRAP);
 
                                //if we have a go, we need to wait (only one trap at a Time)
                                if (go)
@@ -1024,7 +1026,7 @@ internal class boss_garaxxas : boss_priestess_lackey_common
                                else
                                {
                                    //if go does not exist, then we can cast
-                                   DoCastVictim(SpellIds.FreezingTrap);
+                                   DoCastVictim(SpellIds.FREEZING_TRAP);
                                    task.Repeat();
                                }
                            });
@@ -1032,12 +1034,12 @@ internal class boss_garaxxas : boss_priestess_lackey_common
 }
 
 [Script]
-internal class boss_apoko : boss_priestess_lackey_common
+internal class BossApoko : BossPriestessLackeyCommon
 {
-    private byte Totem_Amount;
+    private byte _totemAmount;
 
     //Shaman
-    public boss_apoko(Creature creature) : base(creature)
+    public BossApoko(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -1061,20 +1063,20 @@ internal class boss_apoko : boss_priestess_lackey_common
 
     private void Initialize()
     {
-        Totem_Amount = 1;
+        _totemAmount = 1;
 
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            task =>
                            {
-                               DoCast(Me, RandomHelper.RAND(SpellIds.WindfuryTotem, SpellIds.FireNovaTotem, SpellIds.EarthbindTotem));
-                               ++Totem_Amount;
-                               task.Repeat(TimeSpan.FromMilliseconds(Totem_Amount * 2000));
+                               DoCast(Me, RandomHelper.RAND(SpellIds.WINDFURY_TOTEM, SpellIds.FIRE_NOVA_TOTEM, SpellIds.EARTHBIND_TOTEM));
+                               ++_totemAmount;
+                               task.Repeat(TimeSpan.FromMilliseconds(_totemAmount * 2000));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCast(Me, SpellIds.WarStomp);
+                               DoCast(Me, SpellIds.WAR_STOMP);
                                task.Repeat();
                            });
 
@@ -1084,7 +1086,7 @@ internal class boss_apoko : boss_priestess_lackey_common
                                var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (unit)
-                                   DoCast(unit, SpellIds.Purge);
+                                   DoCast(unit, SpellIds.PURGE);
 
                                task.Repeat(TimeSpan.FromSeconds(15));
                            });
@@ -1092,24 +1094,24 @@ internal class boss_apoko : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(5),
                            task =>
                            {
-                               DoCast(Me, SpellIds.LesserHealingWave);
+                               DoCast(Me, SpellIds.LESSER_HEALING_WAVE);
                                task.Repeat();
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(7),
                            task =>
                            {
-                               DoCastVictim(SpellIds.FrostShock);
+                               DoCastVictim(SpellIds.FROST_SHOCK);
                                task.Repeat();
                            });
     }
 }
 
 [Script]
-internal class boss_zelfan : boss_priestess_lackey_common
+internal class BossZelfan : BossPriestessLackeyCommon
 {
     //Engineer
-    public boss_zelfan(Creature creature) : base(creature)
+    public BossZelfan(Creature creature) : base(creature)
     {
         Initialize();
     }
@@ -1136,28 +1138,28 @@ internal class boss_zelfan : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(20),
                            task =>
                            {
-                               DoCastVictim(SpellIds.GoblinDragonGun);
+                               DoCastVictim(SpellIds.GOBLIN_DRAGON_GUN);
                                task.Repeat(TimeSpan.FromSeconds(10));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(7),
                            task =>
                            {
-                               DoCastVictim(SpellIds.RocketLaunch);
+                               DoCastVictim(SpellIds.ROCKET_LAUNCH);
                                task.Repeat(TimeSpan.FromSeconds(9));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(4),
                            task =>
                            {
-                               foreach (var guid in _auiLackeyGUIDs)
+                               foreach (var guid in AuiLackeyGuiDs)
                                {
                                    var pAdd = Global.ObjAccessor.GetUnit(Me, guid);
 
                                    if (pAdd != null &&
                                        pAdd.IsPolymorphed)
                                    {
-                                       DoCast(pAdd, SpellIds.Recombobulate);
+                                       DoCast(pAdd, SpellIds.RECOMBOBULATE);
 
                                        break;
                                    }
@@ -1169,14 +1171,14 @@ internal class boss_zelfan : boss_priestess_lackey_common
         Scheduler.Schedule(TimeSpan.FromSeconds(10),
                            task =>
                            {
-                               DoCast(Me, SpellIds.HighExplosiveSheep);
+                               DoCast(Me, SpellIds.HIGH_EXPLOSIVE_SHEEP);
                                task.Repeat(TimeSpan.FromSeconds(65));
                            });
 
         Scheduler.Schedule(TimeSpan.FromSeconds(15),
                            task =>
                            {
-                               DoCastVictim(SpellIds.FelIronBomb);
+                               DoCastVictim(SpellIds.FEL_IRON_BOMB);
                                task.Repeat();
                            });
     }

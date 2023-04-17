@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(55090)]
-public class spell_dk_scourge_strike : SpellScript, IHasSpellEffects
+public class SpellDkScourgeStrike : SpellScript, IHasSpellEffects
 {
-    private List<WorldObject> saveTargets = new();
+    private List<WorldObject> _saveTargets = new();
     public List<ISpellEffect> SpellEffects { get; } = new();
 
 
@@ -28,7 +29,7 @@ public class spell_dk_scourge_strike : SpellScript, IHasSpellEffects
         PreventHitDefaultEffect(effIndex);
         var caster = Caster;
 
-        foreach (var target in saveTargets)
+        foreach (var target in _saveTargets)
             if (target != null)
             {
                 target.TryGetAsUnit(out var tar);
@@ -39,26 +40,26 @@ public class spell_dk_scourge_strike : SpellScript, IHasSpellEffects
 
                     if (festeringWoundAura != null)
                     {
-                        caster.CastSpell(tar, DeathKnightSpells.FESTERING_WOUND_DAMAGE, true);
+                        caster.SpellFactory.CastSpell(tar, DeathKnightSpells.FESTERING_WOUND_DAMAGE, true);
                         festeringWoundAura.ModStackAmount(-1);
 
                         if (caster.HasAura(DeathKnightSpells.BURSTING_SORES))
-                            caster.CastSpell(tar, DeathKnightSpells.BURSTING_SORES_DAMAGE, true);
+                            caster.SpellFactory.CastSpell(tar, DeathKnightSpells.BURSTING_SORES_DAMAGE, true);
                     }
 
-                    caster.CastSpell(tar, DeathKnightSpells.SCOURGE_STRIKE_TRIGGERED, true);
+                    caster.SpellFactory.CastSpell(tar, DeathKnightSpells.SCOURGE_STRIKE_TRIGGERED, true);
                 }
             }
     }
 
     private void GetTargetUnit(List<WorldObject> targets)
     {
-        saveTargets.Clear();
+        _saveTargets.Clear();
 
         if (!Caster.HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
             targets.RemoveIf((WorldObject target) => { return ExplTargetUnit != target; });
 
-        saveTargets = targets;
+        _saveTargets = targets;
     }
 
     private void TriggerFollowup(int effIndex)

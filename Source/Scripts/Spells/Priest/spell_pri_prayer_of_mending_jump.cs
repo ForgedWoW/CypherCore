@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 155793 - prayer of mending (Jump) - PRAYER_OF_MENDING_JUMP
-internal class spell_pri_prayer_of_mending_jump : SpellScript, IHasSpellEffects
+internal class SpellPriPrayerOfMendingJump : SpellScript, IHasSpellEffects
 {
     private SpellEffectInfo _healEffectDummy;
     private SpellInfo _spellInfoHeal;
@@ -69,7 +70,7 @@ internal class spell_pri_prayer_of_mending_jump : SpellScript, IHasSpellEffects
             CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
             args.AddSpellMod(SpellValueMod.AuraStack, EffectValue);
             args.AddSpellMod(SpellValueMod.BasePoint0, (int)basePoints);
-            origCaster.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_AURA, args);
+            origCaster.SpellFactory.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_AURA, args);
         }
     }
 }

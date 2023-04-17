@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_shadows_fate : AuraScript, IAuraOnProc
+internal class SpellItemShadowsFate : AuraScript, IAuraOnProc
 {
     public void OnProc(ProcEventInfo procInfo)
     {
@@ -23,6 +23,6 @@ internal class spell_item_shadows_fate : AuraScript, IAuraOnProc
             !target)
             return;
 
-        caster.CastSpell(target, ItemSpellIds.SoulFeast, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        caster.SpellFactory.CastSpell(target, ItemSpellIds.SOUL_FEAST, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
     }
 }

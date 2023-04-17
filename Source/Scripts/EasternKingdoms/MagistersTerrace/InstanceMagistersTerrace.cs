@@ -3,92 +3,96 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IMap;
 
 namespace Scripts.EasternKingdoms.MagistersTerrace;
 
 internal struct DataTypes
 {
     // Encounter states
-    public const uint SelinFireheart = 0;
-    public const uint Vexallus = 1;
-    public const uint PriestessDelrissa = 2;
-    public const uint KaelthasSunstrider = 3;
+    public const uint SELIN_FIREHEART = 0;
+    public const uint VEXALLUS = 1;
+    public const uint PRIESTESS_DELRISSA = 2;
+    public const uint KAELTHAS_SUNSTRIDER = 3;
 
     // Encounter related
-    public const uint KaelthasIntro = 4;
-    public const uint DelrissaDeathCount = 5;
+    public const uint KAELTHAS_INTRO = 4;
+    public const uint DELRISSA_DEATH_COUNT = 5;
 
     // Additional data
-    public const uint Kalecgos = 6;
-    public const uint EscapeOrb = 7;
+    public const uint KALECGOS = 6;
+    public const uint ESCAPE_ORB = 7;
 }
 
 internal struct CreatureIds
 {
     // Bosses
-    public const uint KaelthasSunstrider = 24664;
-    public const uint SelinFireheart = 24723;
-    public const uint Vexallus = 24744;
-    public const uint PriestessDelrissa = 24560;
+    public const uint KAELTHAS_SUNSTRIDER = 24664;
+    public const uint SELIN_FIREHEART = 24723;
+    public const uint VEXALLUS = 24744;
+    public const uint PRIESTESS_DELRISSA = 24560;
 
     // Encounter related
     // Kael'thas Sunstrider
-    public const uint ArcaneSphere = 24708;
-    public const uint FlameStrike = 24666;
-    public const uint Phoenix = 24674;
-    public const uint PhoenixEgg = 24675;
+    public const uint ARCANE_SPHERE = 24708;
+    public const uint FLAME_STRIKE = 24666;
+    public const uint PHOENIX = 24674;
+    public const uint PHOENIX_EGG = 24675;
 
     // Selin Fireheart
-    public const uint FelCrystal = 24722;
+    public const uint FEL_CRYSTAL = 24722;
 
     // Event related
-    public const uint Kalecgos = 24844;
-    public const uint HumanKalecgos = 24848;
-    public const uint CoilskarWitch = 24696;
-    public const uint SunbladeWarlock = 24686;
-    public const uint SunbladeMageGuard = 24683;
-    public const uint SisterOfTorment = 24697;
-    public const uint EthereumSmuggler = 24698;
-    public const uint SunbladeBloodKnight = 24684;
+    public const uint KALECGOS = 24844;
+    public const uint HUMAN_KALECGOS = 24848;
+    public const uint COILSKAR_WITCH = 24696;
+    public const uint SUNBLADE_WARLOCK = 24686;
+    public const uint SUNBLADE_MAGE_GUARD = 24683;
+    public const uint SISTER_OF_TORMENT = 24697;
+    public const uint ETHEREUM_SMUGGLER = 24698;
+    public const uint SUNBLADE_BLOOD_KNIGHT = 24684;
 }
 
 internal struct GameObjectIds
 {
-    public const uint AssemblyChamberDoor = 188065;
-    public const uint SunwellRaidGate2 = 187979;
-    public const uint SunwellRaidGate4 = 187770;
-    public const uint SunwellRaidGate5 = 187896;
-    public const uint AsylumDoor = 188064;
-    public const uint EscapeOrb = 188173;
+    public const uint ASSEMBLY_CHAMBER_DOOR = 188065;
+    public const uint SUNWELL_RAID_GATE2 = 187979;
+    public const uint SUNWELL_RAID_GATE4 = 187770;
+    public const uint SUNWELL_RAID_GATE5 = 187896;
+    public const uint ASYLUM_DOOR = 188064;
+    public const uint ESCAPE_ORB = 188173;
 }
 
 internal struct MiscConst
 {
-    public const uint EventSpawnKalecgos = 16547;
+    public const uint EVENT_SPAWN_KALECGOS = 16547;
 
-    public const uint SayKalecgosSpawn = 0;
+    public const uint SAY_KALECGOS_SPAWN = 0;
 
-    public const uint PathKalecgosFlight = 248440;
+    public const uint PATH_KALECGOS_FLIGHT = 248440;
 
-    public static ObjectData[] creatureData =
+    public static ObjectData[] CreatureData =
     {
-        new(CreatureIds.SelinFireheart, DataTypes.SelinFireheart), new(CreatureIds.Vexallus, DataTypes.Vexallus), new(CreatureIds.PriestessDelrissa, DataTypes.PriestessDelrissa), new(CreatureIds.KaelthasSunstrider, DataTypes.KaelthasSunstrider), new(CreatureIds.Kalecgos, DataTypes.Kalecgos), new(CreatureIds.HumanKalecgos, DataTypes.Kalecgos)
+        new(CreatureIds.SELIN_FIREHEART, DataTypes.SELIN_FIREHEART), new(CreatureIds.VEXALLUS, DataTypes.VEXALLUS), new(CreatureIds.PRIESTESS_DELRISSA, DataTypes.PRIESTESS_DELRISSA), new(CreatureIds.KAELTHAS_SUNSTRIDER, DataTypes.KAELTHAS_SUNSTRIDER), new(CreatureIds.KALECGOS, DataTypes.KALECGOS), new(CreatureIds.HUMAN_KALECGOS, DataTypes.KALECGOS)
     };
 
-    public static ObjectData[] gameObjectData =
+    public static ObjectData[] GameObjectData =
     {
-        new(GameObjectIds.EscapeOrb, DataTypes.EscapeOrb)
+        new(GameObjectIds.ESCAPE_ORB, DataTypes.ESCAPE_ORB)
     };
 
-    public static DoorData[] doorData =
+    public static DoorData[] DoorData =
     {
-        new(GameObjectIds.SunwellRaidGate2, DataTypes.SelinFireheart, DoorType.Passage), new(GameObjectIds.AssemblyChamberDoor, DataTypes.SelinFireheart, DoorType.Room), new(GameObjectIds.SunwellRaidGate5, DataTypes.Vexallus, DoorType.Passage), new(GameObjectIds.SunwellRaidGate4, DataTypes.PriestessDelrissa, DoorType.Passage), new(GameObjectIds.AsylumDoor, DataTypes.KaelthasSunstrider, DoorType.Room)
+        new(GameObjectIds.SUNWELL_RAID_GATE2, DataTypes.SELIN_FIREHEART, DoorType.Passage), new(GameObjectIds.ASSEMBLY_CHAMBER_DOOR, DataTypes.SELIN_FIREHEART, DoorType.Room), new(GameObjectIds.SUNWELL_RAID_GATE5, DataTypes.VEXALLUS, DoorType.Passage), new(GameObjectIds.SUNWELL_RAID_GATE4, DataTypes.PRIESTESS_DELRISSA, DoorType.Passage), new(GameObjectIds.ASYLUM_DOOR, DataTypes.KAELTHAS_SUNSTRIDER, DoorType.Room)
     };
 
     public static Position KalecgosSpawnPos = new(164.3747f, -397.1197f, 2.151798f, 1.66219f);
@@ -96,41 +100,40 @@ internal struct MiscConst
 }
 
 [Script]
-internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetInstanceScript
+internal class InstanceMagistersTerrace : InstanceMapScript, IInstanceMapGetInstanceScript
 {
-    private static readonly DungeonEncounterData[] encounters =
+    private static readonly DungeonEncounterData[] Encounters =
     {
-        new(DataTypes.SelinFireheart, 1897), new(DataTypes.Vexallus, 1898), new(DataTypes.PriestessDelrissa, 1895), new(DataTypes.KaelthasSunstrider, 1894)
+        new(DataTypes.SELIN_FIREHEART, 1897), new(DataTypes.VEXALLUS, 1898), new(DataTypes.PRIESTESS_DELRISSA, 1895), new(DataTypes.KAELTHAS_SUNSTRIDER, 1894)
     };
 
-    public instance_magisters_terrace() : base(nameof(instance_magisters_terrace), 585) { }
+    public InstanceMagistersTerrace() : base(nameof(InstanceMagistersTerrace), 585) { }
 
     public InstanceScript GetInstanceScript(InstanceMap map)
     {
-        return new instance_magisters_terrace_InstanceMapScript(map);
+        return new InstanceMagistersTerraceInstanceMapScript(map);
     }
 
-    private class instance_magisters_terrace_InstanceMapScript : InstanceScript
+    private class InstanceMagistersTerraceInstanceMapScript : InstanceScript
     {
-        private readonly List<ObjectGuid> _kaelthasPreTrashGUIDs = new();
+        private readonly List<ObjectGuid> _kaelthasPreTrashGuiDs = new();
         private byte _delrissaDeathCount;
 
-        public instance_magisters_terrace_InstanceMapScript(InstanceMap map) : base(map)
+        public InstanceMagistersTerraceInstanceMapScript(InstanceMap map) : base(map)
         {
             SetHeaders("MT");
             SetBossNumber(4);
-            LoadObjectData(MiscConst.creatureData, MiscConst.gameObjectData);
-            LoadDoorData(MiscConst.doorData);
-            LoadDungeonEncounterData(encounters);
+            LoadObjectData(MiscConst.CreatureData, MiscConst.GameObjectData);
+            LoadDoorData(MiscConst.DoorData);
+            LoadDungeonEncounterData(Encounters);
         }
 
         public override uint GetData(uint type)
         {
             switch (type)
             {
-                case DataTypes.DelrissaDeathCount:
+                case DataTypes.DELRISSA_DEATH_COUNT:
                     return _delrissaDeathCount;
-                
             }
 
             return 0;
@@ -140,14 +143,13 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
         {
             switch (type)
             {
-                case DataTypes.DelrissaDeathCount:
+                case DataTypes.DELRISSA_DEATH_COUNT:
                     if (data == (uint)EncounterState.Special)
                         _delrissaDeathCount++;
                     else
                         _delrissaDeathCount = 0;
 
                     break;
-                
             }
         }
 
@@ -157,17 +159,16 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 
             switch (creature.Entry)
             {
-                case CreatureIds.CoilskarWitch:
-                case CreatureIds.SunbladeWarlock:
-                case CreatureIds.SunbladeMageGuard:
-                case CreatureIds.SisterOfTorment:
-                case CreatureIds.EthereumSmuggler:
-                case CreatureIds.SunbladeBloodKnight:
+                case CreatureIds.COILSKAR_WITCH:
+                case CreatureIds.SUNBLADE_WARLOCK:
+                case CreatureIds.SUNBLADE_MAGE_GUARD:
+                case CreatureIds.SISTER_OF_TORMENT:
+                case CreatureIds.ETHEREUM_SMUGGLER:
+                case CreatureIds.SUNBLADE_BLOOD_KNIGHT:
                     if (creature.GetDistance(MiscConst.KaelthasTrashGroupDistanceComparisonPos) < 10.0f)
-                        _kaelthasPreTrashGUIDs.Add(creature.GUID);
+                        _kaelthasPreTrashGuiDs.Add(creature.GUID);
 
                     break;
-                
             }
         }
 
@@ -178,27 +179,26 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 
             switch (unit.Entry)
             {
-                case CreatureIds.CoilskarWitch:
-                case CreatureIds.SunbladeWarlock:
-                case CreatureIds.SunbladeMageGuard:
-                case CreatureIds.SisterOfTorment:
-                case CreatureIds.EthereumSmuggler:
-                case CreatureIds.SunbladeBloodKnight:
-                    if (_kaelthasPreTrashGUIDs.Contains(unit.GUID))
+                case CreatureIds.COILSKAR_WITCH:
+                case CreatureIds.SUNBLADE_WARLOCK:
+                case CreatureIds.SUNBLADE_MAGE_GUARD:
+                case CreatureIds.SISTER_OF_TORMENT:
+                case CreatureIds.ETHEREUM_SMUGGLER:
+                case CreatureIds.SUNBLADE_BLOOD_KNIGHT:
+                    if (_kaelthasPreTrashGuiDs.Contains(unit.GUID))
                     {
-                        _kaelthasPreTrashGUIDs.Remove(unit.GUID);
+                        _kaelthasPreTrashGuiDs.Remove(unit.GUID);
 
-                        if (_kaelthasPreTrashGUIDs.Count == 0)
+                        if (_kaelthasPreTrashGuiDs.Count == 0)
                         {
-                            var kaelthas = GetCreature(DataTypes.KaelthasSunstrider);
+                            var kaelthas = GetCreature(DataTypes.KAELTHAS_SUNSTRIDER);
 
                             if (kaelthas)
-                                kaelthas.AI.SetData(DataTypes.KaelthasIntro, (uint)EncounterState.InProgress);
+                                kaelthas.AI.SetData(DataTypes.KAELTHAS_INTRO, (uint)EncounterState.InProgress);
                         }
                     }
 
                     break;
-                
             }
         }
 
@@ -208,35 +208,34 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 
             switch (go.Entry)
             {
-                case GameObjectIds.EscapeOrb:
-                    if (GetBossState(DataTypes.KaelthasSunstrider) == EncounterState.Done)
+                case GameObjectIds.ESCAPE_ORB:
+                    if (GetBossState(DataTypes.KAELTHAS_SUNSTRIDER) == EncounterState.Done)
                         go.RemoveFlag(GameObjectFlags.NotSelectable);
 
                     break;
-                
             }
         }
 
         public override void ProcessEvent(WorldObject obj, uint eventId, WorldObject invoker)
         {
-            if (eventId == MiscConst.EventSpawnKalecgos)
-                if (!GetCreature(DataTypes.Kalecgos) &&
+            if (eventId == MiscConst.EVENT_SPAWN_KALECGOS)
+                if (!GetCreature(DataTypes.KALECGOS) &&
                     _events.Empty())
-                    _events.ScheduleEvent(MiscConst.EventSpawnKalecgos, TimeSpan.FromMinutes(1));
+                    _events.ScheduleEvent(MiscConst.EVENT_SPAWN_KALECGOS, TimeSpan.FromMinutes(1));
         }
 
         public override void Update(uint diff)
         {
             _events.Update(diff);
 
-            if (_events.ExecuteEvent() == MiscConst.EventSpawnKalecgos)
+            if (_events.ExecuteEvent() == MiscConst.EVENT_SPAWN_KALECGOS)
             {
-                Creature kalecgos = Instance.SummonCreature(CreatureIds.Kalecgos, MiscConst.KalecgosSpawnPos);
+                Creature kalecgos = Instance.SummonCreature(CreatureIds.KALECGOS, MiscConst.KalecgosSpawnPos);
 
                 if (kalecgos)
                 {
-                    kalecgos.MotionMaster.MovePath(MiscConst.PathKalecgosFlight, false);
-                    kalecgos.AI.Talk(MiscConst.SayKalecgosSpawn);
+                    kalecgos.MotionMaster.MovePath(MiscConst.PATH_KALECGOS_FLIGHT, false);
+                    kalecgos.AI.Talk(MiscConst.SAY_KALECGOS_SPAWN);
                 }
             }
         }
@@ -248,21 +247,20 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 
             switch (type)
             {
-                case DataTypes.PriestessDelrissa:
+                case DataTypes.PRIESTESS_DELRISSA:
                     if (state == EncounterState.InProgress)
                         _delrissaDeathCount = 0;
 
                     break;
-                case DataTypes.KaelthasSunstrider:
+                case DataTypes.KAELTHAS_SUNSTRIDER:
                     if (state == EncounterState.Done)
                     {
-                        var orb = GetGameObject(DataTypes.EscapeOrb);
+                        var orb = GetGameObject(DataTypes.ESCAPE_ORB);
 
                         orb?.RemoveFlag(GameObjectFlags.NotSelectable);
                     }
 
                     break;
-                
             }
 
             return true;

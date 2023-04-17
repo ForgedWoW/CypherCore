@@ -2,22 +2,23 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.AmbassadorFlamelash;
 
 internal struct SpellIds
 {
-    public const uint Fireblast = 15573;
+    public const uint FIREBLAST = 15573;
 }
 
 [Script]
-internal class boss_ambassador_flamelash : ScriptedAI
+internal class BossAmbassadorFlamelash : ScriptedAI
 {
-    public boss_ambassador_flamelash(Creature creature) : base(creature) { }
+    public BossAmbassadorFlamelash(Creature creature) : base(creature) { }
 
     public override void Reset()
     {
@@ -29,7 +30,7 @@ internal class boss_ambassador_flamelash : ScriptedAI
         Scheduler.Schedule(TimeSpan.FromSeconds(2),
                            task =>
                            {
-                               DoCastVictim(SpellIds.Fireblast);
+                               DoCastVictim(SpellIds.FIREBLAST);
                                task.Repeat(TimeSpan.FromSeconds(7));
                            });
 

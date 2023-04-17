@@ -2,24 +2,25 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Gehennas;
 
 internal struct SpellIds
 {
-    public const uint GehennasCurse = 19716;
-    public const uint RainOfFire = 19717;
-    public const uint ShadowBolt = 19728;
+    public const uint GEHENNAS_CURSE = 19716;
+    public const uint RAIN_OF_FIRE = 19717;
+    public const uint SHADOW_BOLT = 19728;
 }
 
 [Script]
-internal class boss_gehennas : BossAI
+internal class BossGehennas : BossAI
 {
-    public boss_gehennas(Creature creature) : base(creature, DataTypes.Gehennas) { }
+    public BossGehennas(Creature creature) : base(creature, DataTypes.GEHENNAS) { }
 
     public override void JustEngagedWith(Unit victim)
     {
@@ -28,7 +29,7 @@ internal class boss_gehennas : BossAI
         Scheduler.Schedule(TimeSpan.FromSeconds(12),
                            task =>
                            {
-                               DoCastVictim(SpellIds.GehennasCurse);
+                               DoCastVictim(SpellIds.GEHENNAS_CURSE);
                                task.Repeat(TimeSpan.FromSeconds(22), TimeSpan.FromSeconds(30));
                            });
 
@@ -38,7 +39,7 @@ internal class boss_gehennas : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 0);
 
                                if (target)
-                                   DoCast(target, SpellIds.RainOfFire);
+                                   DoCast(target, SpellIds.RAIN_OF_FIRE);
 
                                task.Repeat(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(12));
                            });
@@ -49,7 +50,7 @@ internal class boss_gehennas : BossAI
                                var target = SelectTarget(SelectTargetMethod.Random, 1);
 
                                if (target)
-                                   DoCast(target, SpellIds.ShadowBolt);
+                                   DoCast(target, SpellIds.SHADOW_BOLT);
 
                                task.Repeat(TimeSpan.FromSeconds(7));
                            });

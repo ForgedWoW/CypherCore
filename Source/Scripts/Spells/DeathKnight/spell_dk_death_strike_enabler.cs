@@ -3,17 +3,17 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Models;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script] // 89832 - Death Strike Enabler - DEATH_STRIKE_ENABLER
-internal class spell_dk_death_strike_enabler : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellDkDeathStrikeEnabler : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     // Amount of seconds we calculate Damage over
     private double[] _damagePerSecond = new double[5];

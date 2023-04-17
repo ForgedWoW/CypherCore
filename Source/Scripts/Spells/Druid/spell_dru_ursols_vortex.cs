@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(102793)]
-public class spell_dru_ursols_vortex : SpellScript, IHasSpellEffects
+public class SpellDruUrsolsVortex : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,12 +25,12 @@ public class spell_dru_ursols_vortex : SpellScript, IHasSpellEffects
         var caster = Caster;
 
         if (caster != null)
-            caster.AddAura(Spells.URSOLS_VORTEX_SLOW, HitUnit);
+            caster.AddAura(Spells.UrsolsVortexSlow, HitUnit);
     }
 
 
     private struct Spells
     {
-        public static readonly uint URSOLS_VORTEX_SLOW = 127797;
+        public static readonly uint UrsolsVortexSlow = 127797;
     }
 }

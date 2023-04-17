@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_bonked : SpellScript, IHasSpellEffects
+internal class SpellGenBonked : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -29,10 +30,10 @@ internal class spell_gen_bonked : SpellScript, IHasSpellEffects
             if (!(aura != null && aura.StackAmount == 3))
                 return;
 
-            target.CastSpell(target, GenericSpellIds.FormSwordDefeat, true);
-            target.RemoveAura(GenericSpellIds.Bonked);
+            target.SpellFactory.CastSpell(target, GenericSpellIds.FORM_SWORD_DEFEAT, true);
+            target.RemoveAura(GenericSpellIds.BONKED);
 
-            aura = target.GetAura(GenericSpellIds.Onguard);
+            aura = target.GetAura(GenericSpellIds.ONGUARD);
 
             if (aura != null)
             {

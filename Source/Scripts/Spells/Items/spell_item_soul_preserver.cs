@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script]
-internal class spell_item_soul_preserver : AuraScript, IHasAuraEffects
+internal class SpellItemSoulPreserver : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -30,22 +31,21 @@ internal class spell_item_soul_preserver : AuraScript, IHasAuraEffects
         switch (caster.Class)
         {
             case PlayerClass.Druid:
-                caster.CastSpell(caster, ItemSpellIds.SoulPreserverDruid, new CastSpellExtraArgs(aurEff));
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.SOUL_PRESERVER_DRUID, new CastSpellExtraArgs(aurEff));
 
                 break;
             case PlayerClass.Paladin:
-                caster.CastSpell(caster, ItemSpellIds.SoulPreserverPaladin, new CastSpellExtraArgs(aurEff));
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.SOUL_PRESERVER_PALADIN, new CastSpellExtraArgs(aurEff));
 
                 break;
             case PlayerClass.Priest:
-                caster.CastSpell(caster, ItemSpellIds.SoulPreserverPriest, new CastSpellExtraArgs(aurEff));
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.SOUL_PRESERVER_PRIEST, new CastSpellExtraArgs(aurEff));
 
                 break;
             case PlayerClass.Shaman:
-                caster.CastSpell(caster, ItemSpellIds.SoulPreserverShaman, new CastSpellExtraArgs(aurEff));
+                caster.SpellFactory.CastSpell(caster, ItemSpellIds.SOUL_PRESERVER_SHAMAN, new CastSpellExtraArgs(aurEff));
 
                 break;
-            
         }
     }
 }

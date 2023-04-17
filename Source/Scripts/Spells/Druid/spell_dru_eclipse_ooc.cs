@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 329910 - Eclipse out of combat - ECLIPSE_OOC
-internal class spell_dru_eclipse_ooc : AuraScript, IHasAuraEffects
+internal class SpellDruEclipseOoc : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -32,8 +32,8 @@ internal class spell_dru_eclipse_ooc : AuraScript, IHasAuraEffects
             (!owner.HasAura(DruidSpellIds.EclipseSolarSpellCnt) || !owner.HasAura(DruidSpellIds.EclipseLunarSpellCnt)))
         {
             // Restore 2 stacks to each spell when out of combat
-            spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseSolarSpellCnt, (uint)auraEffDummy.Amount);
-            spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseLunarSpellCnt, (uint)auraEffDummy.Amount);
+            SpellDruEclipseCommon.SetSpellCount(owner, DruidSpellIds.EclipseSolarSpellCnt, (uint)auraEffDummy.Amount);
+            SpellDruEclipseCommon.SetSpellCount(owner, DruidSpellIds.EclipseLunarSpellCnt, (uint)auraEffDummy.Amount);
         }
     }
 }

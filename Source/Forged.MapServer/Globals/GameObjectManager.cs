@@ -11126,7 +11126,7 @@ public sealed class GameObjectManager
 
                 if (spellScript != null)
                 {
-                    spellScript._Init(pair.Key.GetName(), spellEntry.Id);
+                    spellScript._Init(pair.Key.GetName(), spellEntry.Id, _classFactory);
                     spellScript._Register();
 
                     if (!spellScript._Validate(spellEntry))
@@ -11152,7 +11152,7 @@ public sealed class GameObjectManager
 
                 if (auraScript != null)
                 {
-                    auraScript._Init(pair.Key.GetName(), spellEntry.Id);
+                    auraScript._Init(pair.Key.GetName(), spellEntry.Id, _classFactory);
                     auraScript._Register();
 
                     if (!auraScript._Validate(spellEntry))

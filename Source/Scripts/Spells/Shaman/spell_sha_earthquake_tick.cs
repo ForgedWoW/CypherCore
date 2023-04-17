@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman;
 
 // 77478 - Earthquake tick
 [SpellScript(77478)]
-internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEffects
+internal class SpellShaEarthquakeTick : SpellScript, ISpellOnHit, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -30,7 +31,7 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
                     foundAreaTrigger.ForEachAreaTriggerScript<IAreaTriggerScriptValues>(a =>
                     {
                         if (a.ScriptValues.TryAdd(target.GUID.ToString(), target.GUID))
-                            Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
+                            Caster.SpellFactory.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
                     });
             }
     }

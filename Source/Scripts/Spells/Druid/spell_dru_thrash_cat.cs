@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(106830)]
-public class spell_dru_thrash_cat : SpellScript, IHasSpellEffects
+public class SpellDruThrashCat : SpellScript, IHasSpellEffects
 {
-    private bool m_awardComboPoint = true;
+    private bool _mAwardComboPoint = true;
     public List<ISpellEffect> SpellEffects { get; } = new();
 
     public override void Register()
@@ -28,10 +29,10 @@ public class spell_dru_thrash_cat : SpellScript, IHasSpellEffects
             return;
 
         // This prevent awarding multiple Combo Points when multiple targets hit with Thrash AoE
-        if (m_awardComboPoint)
+        if (_mAwardComboPoint)
             // Awards the caster 1 Combo Point
             caster.ModifyPower(PowerType.ComboPoints, 1);
 
-        m_awardComboPoint = false;
+        _mAwardComboPoint = false;
     }
 }

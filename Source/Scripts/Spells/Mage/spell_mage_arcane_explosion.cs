@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 1449 - Arcane Explosion
-internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
+internal class SpellMageArcaneExplosion : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -22,7 +23,7 @@ internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
     private void CheckRequiredAuraForBaselineEnergize(int effIndex)
     {
         if (GetUnitTargetCountForEffect(1) == 0 ||
-            !Caster.HasAura(MageSpells.ArcaneMage))
+            !Caster.HasAura(MageSpells.ARCANE_MAGE))
             PreventHitDefaultEffect(effIndex);
     }
 

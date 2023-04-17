@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 8042 Earth Shock
 [SpellScript(51556)]
-public class spell_sha_earth_shock : SpellScript, IHasSpellEffects, ISpellOnTakePower
+public class SpellShaEarthShock : SpellScript, IHasSpellEffects, ISpellOnTakePower
 {
     private int _takenPower = 0;
     public List<ISpellEffect> SpellEffects { get; } = new();

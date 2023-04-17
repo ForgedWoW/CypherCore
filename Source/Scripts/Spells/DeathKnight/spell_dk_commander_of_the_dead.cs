@@ -2,19 +2,21 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
+public class SpellDkCommanderOfTheDeadAura : SpellScript, IHasSpellEffects
 {
-    private readonly List<WorldObject> saveTargets = new();
+    private readonly List<WorldObject> _saveTargets = new();
     public List<ISpellEffect> SpellEffects { get; } = new();
 
 
@@ -30,10 +32,10 @@ public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
         var target = HitUnit;
 
         if (caster != null)
-            if (saveTargets.Count > 0)
+            if (_saveTargets.Count > 0)
             {
-                saveTargets.ForEach(k => { caster.CastSpell(k, DeathKnightSpells.DT_COMMANDER_BUFF, true); });
-                saveTargets.Clear();
+                _saveTargets.ForEach(k => { caster.SpellFactory.CastSpell(k, DeathKnightSpells.DT_COMMANDER_BUFF, true); });
+                _saveTargets.Clear();
             }
     }
 
@@ -47,10 +49,10 @@ public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
             if (target.AsCreature.OwnerUnit != Caster)
                 return true;
 
-            if (target.AsCreature.Entry != DeathKnightSpells.DKNPCS.GARGOYLE && target.AsCreature.Entry != DeathKnightSpells.DKNPCS.AOTD_GHOUL)
+            if (target.AsCreature.Entry != DeathKnightSpells.Dknpcs.GARGOYLE && target.AsCreature.Entry != DeathKnightSpells.Dknpcs.AOTD_GHOUL)
                 return true;
 
-            saveTargets.Add(target);
+            _saveTargets.Add(target);
 
             return false;
         });
@@ -60,7 +62,7 @@ public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
 }
 
 [SpellScript(390259)]
-public class spell_dk_commander_of_the_dead_aura_proc : AuraScript, IAuraCheckProc, IHasAuraEffects
+public class SpellDkCommanderOfTheDeadAuraProc : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -80,6 +82,6 @@ public class spell_dk_commander_of_the_dead_aura_proc : AuraScript, IAuraCheckPr
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         PreventDefaultAction();
-        Target.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.DT_COMMANDER_BUFF, true);
+        Target.SpellFactory.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.DT_COMMANDER_BUFF, true);
     }
 }

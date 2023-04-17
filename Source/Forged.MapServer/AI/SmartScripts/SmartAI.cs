@@ -162,17 +162,15 @@ public class SmartAI : CreatureAI
                 if (fail)
                     player.FailQuest(EscortQuestID);
 
-                var group = player.Group;
-
-                if (group)
-                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
+                if (player.Group != null)
+                    for (var groupRef = player.Group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                     {
                         var groupGuy = groupRef.Source;
 
                         if (!groupGuy.Location.IsInMap(player))
                             continue;
 
-                        if (!fail && groupGuy.IsAtGroupRewardDistance(Me) && !groupGuy.GetCorpse())
+                        if (!fail && groupGuy.IsAtGroupRewardDistance(Me) && groupGuy.GetCorpse() == null)
                             groupGuy.AreaExploredOrEventHappens(EscortQuestID);
                         else if (fail)
                             groupGuy.FailQuest(EscortQuestID);
@@ -255,7 +253,7 @@ public class SmartAI : CreatureAI
         {
             var target = !_followGuid.IsEmpty ? Me.ObjectAccessor.GetUnit(Me, _followGuid) : null;
 
-            if (target)
+            if (target != null)
             {
                 Me.MotionMaster.MoveFollow(target, _followDist, _followAngle);
                 // evade is not cleared in MoveFollow, so we can't keep it
@@ -600,28 +598,28 @@ public class SmartAI : CreatureAI
         if (!IsAIControlled())
             return;
 
-        if (Me.IsEngaged)
+        if (!Me.IsEngaged)
+            return;
+
+        if (on)
         {
-            if (on)
-            {
-                if (!Me.HasReactState(ReactStates.Passive) && Me.Victim && !Me.MotionMaster.HasMovementGenerator(movement => { return movement.GetMovementGeneratorType() == MovementGeneratorType.Chase && movement.Mode == MovementGeneratorMode.Default && movement.Priority == MovementGeneratorPriority.Normal; }))
-                {
-                    SetRun(_run);
-                    Me.MotionMaster.MoveChase(Me.Victim);
-                }
-            }
-            else
-            {
-                var movement = Me.MotionMaster.GetMovementGenerator(a => a.GetMovementGeneratorType() == MovementGeneratorType.Chase && a.Mode == MovementGeneratorMode.Default && a.Priority == MovementGeneratorPriority.Normal);
+            if (Me.HasReactState(ReactStates.Passive) || Me.Victim == null || Me.MotionMaster.HasMovementGenerator(movement => { return movement.GetMovementGeneratorType() == MovementGeneratorType.Chase && movement.Mode == MovementGeneratorMode.Default && movement.Priority == MovementGeneratorPriority.Normal; }))
+                return;
 
-                if (movement != null)
-                {
-                    Me.MotionMaster.Remove(movement);
+            SetRun(_run);
+            Me.MotionMaster.MoveChase(Me.Victim);
+        }
+        else
+        {
+            var movement = Me.MotionMaster.GetMovementGenerator(a => a.GetMovementGeneratorType() == MovementGeneratorType.Chase && a.Mode == MovementGeneratorMode.Default && a.Priority == MovementGeneratorPriority.Normal);
 
-                    if (stopMoving)
-                        Me.StopMoving();
-                }
-            }
+            if (movement == null)
+                return;
+
+            Me.MotionMaster.Remove(movement);
+
+            if (stopMoving)
+                Me.StopMoving();
         }
     }
 

@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Whiplash - 119909
 [SpellScript(119909)]
-public class spell_warl_whiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
+public class SpellWarlWhiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
 {
     public void AfterHit()
     {
@@ -25,7 +25,7 @@ public class spell_warl_whiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
         /*if (pet->GetEntry() != PET_ENTRY_SUCCUBUS)
             return;*/
 
-        pet.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
+        pet.SpellFactory.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
         caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(25));
     }
 

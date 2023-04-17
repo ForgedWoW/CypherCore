@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_artifact_fury_of_the_illidari : AreaTriggerScript, IAreaTriggerOnUpdate, IAreaTriggerOnRemove
+public class AtDhArtifactFuryOfTheIllidari : AreaTriggerScript, IAreaTriggerOnUpdate, IAreaTriggerOnRemove
 {
     public void OnRemove()
     {
@@ -28,7 +28,7 @@ public class at_dh_artifact_fury_of_the_illidari : AreaTriggerScript, IAreaTrigg
         var target = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(1));
 
         if (target != null)
-            caster.CastSpell(At, DemonHunterSpells.RAGE_OF_THE_ILLIDARI_VISUAL, true);
+            caster.SpellFactory.CastSpell(At, DemonHunterSpells.RAGE_OF_THE_ILLIDARI_VISUAL, true);
         //  caster->m_Events.AddEventAtOffset(() =>
         // {
         //caster->CastCustomSpell(RAGE_OF_THE_ILLIDARI_DAMAGE, SpellValueMod.BasePoint0, rageOfTheIllidari, target, TriggerCastFlags.FullMask);

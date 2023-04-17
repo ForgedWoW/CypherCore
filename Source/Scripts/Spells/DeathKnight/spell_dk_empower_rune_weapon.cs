@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.Scripting;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(47568)]
-public class spell_dk_empower_rune_weapon : SpellScript
+public class SpellDkEmpowerRuneWeapon : SpellScript
 {
     public void OnHit()
     {

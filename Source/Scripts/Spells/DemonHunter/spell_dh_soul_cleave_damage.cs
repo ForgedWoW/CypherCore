@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(228478)]
-public class spell_dh_soul_cleave_damage : SpellScript, IHasSpellEffects, ISpellOnHit
+public class SpellDhSoulCleaveDamage : SpellScript, IHasSpellEffects, ISpellOnHit
 {
-    private readonly int m_ExtraSpellCost = 0;
+    private readonly int _mExtraSpellCost = 0;
     public List<ISpellEffect> SpellEffects { get; } = new();
 
     public void OnHit()
@@ -39,11 +40,11 @@ public class spell_dh_soul_cleave_damage : SpellScript, IHasSpellEffects, ISpell
             return;
 
         var dmg = HitDamage * 2;
-        dmg = (int)((double)dmg * (((double)m_ExtraSpellCost + 300.0f) / 600.0f));
+        dmg = (int)((double)dmg * (((double)_mExtraSpellCost + 300.0f) / 600.0f));
         HitDamage = dmg;
 
-        caster.SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - m_ExtraSpellCost);
-        caster.AsPlayer.SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - m_ExtraSpellCost);
+        caster.SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - _mExtraSpellCost);
+        caster.AsPlayer.SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - _mExtraSpellCost);
 
         if (caster.HasAura(DemonHunterSpells.GLUTTONY_BUFF))
             caster.RemoveAura(DemonHunterSpells.GLUTTONY_BUFF);

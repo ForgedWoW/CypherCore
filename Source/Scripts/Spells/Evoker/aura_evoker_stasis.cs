@@ -2,17 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.STASIS)]
-internal class aura_evoker_stasis : AuraScript, IAuraOnProc, IAuraOnApply, IAuraOverrideProcInfo
+internal class AuraEvokerStasis : AuraScript, IAuraOnProc, IAuraOnApply, IAuraOverrideProcInfo
 {
     readonly List<ObjectGuid> _seenSpells = new();
 

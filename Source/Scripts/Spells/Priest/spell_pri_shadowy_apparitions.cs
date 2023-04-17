@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(78203)]
-public class spell_pri_shadowy_apparitions : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellPriShadowyApparitions : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -30,11 +30,11 @@ public class spell_pri_shadowy_apparitions : AuraScript, IHasAuraEffects, IAuraC
         AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    private void HandleProc(AuraEffect unnamedParameter, ProcEventInfo eventInfo)
     {
         if (Target && eventInfo.ActionTarget)
         {
-            Target.CastSpell(eventInfo.ActionTarget, PriestSpells.SHADOWY_APPARITION_MISSILE, true);
+            Target.SpellFactory.CastSpell(eventInfo.ActionTarget, PriestSpells.SHADOWY_APPARITION_MISSILE, true);
             Target.SendPlaySpellVisual(eventInfo.ActionTarget.Location, Caster.Location.Orientation, MiscSpells.VISUAL_SHADOWY_APPARITION, 0, 0, MiscSpells.SHADOWY_APPARITION_TRAVEL_SPEED, false);
         }
     }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Framework.Constants;
-using Game;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_meteor_timer : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnRemove
+public class AtMageMeteorTimer : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
     public void OnCreate()
     {
@@ -26,7 +26,7 @@ public class at_mage_meteor_timer : AreaTriggerScript, IAreaTriggerOnCreate, IAr
             tempSumm.Faction = caster.Faction;
             tempSumm.SetSummonerGUID(caster.GUID);
             PhasingHandler.InheritPhaseShift(tempSumm, caster);
-            caster.CastSpell(tempSumm, MageSpells.METEOR_VISUAL, true);
+            caster.SpellFactory.CastSpell(tempSumm, MageSpells.METEOR_VISUAL, true);
         }
     }
 
@@ -44,7 +44,7 @@ public class at_mage_meteor_timer : AreaTriggerScript, IAreaTriggerOnCreate, IAr
             tempSumm.Faction = caster.Faction;
             tempSumm.SetSummonerGUID(caster.GUID);
             PhasingHandler.InheritPhaseShift(tempSumm, caster);
-            caster.CastSpell(tempSumm, MageSpells.METEOR_DAMAGE, true);
+            caster.SpellFactory.CastSpell(tempSumm, MageSpells.METEOR_DAMAGE, true);
         }
     }
 }

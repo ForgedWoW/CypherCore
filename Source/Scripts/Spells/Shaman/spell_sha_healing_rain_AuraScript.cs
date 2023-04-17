@@ -2,17 +2,20 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
 // 73920 - Healing Rain (Aura)
 [SpellScript(73920)]
-internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
+internal class SpellShaHealingRainAuraScript : AuraScript, IHasAuraEffects
 {
     private ObjectGuid _visualDummy;
     private Position _pos;
@@ -32,7 +35,7 @@ internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
 
     private void HandleEffectPeriodic(AuraEffect aurEff)
     {
-        Target.CastSpell(_pos, ShamanSpells.HealingRainHeal, new CastSpellExtraArgs(aurEff));
+        Target.SpellFactory.CastSpell(_pos, ShamanSpells.HEALING_RAIN_HEAL, new CastSpellExtraArgs(aurEff));
     }
 
     private void HandleEffecRemoved(AuraEffect aurEff, AuraEffectHandleModes mode)

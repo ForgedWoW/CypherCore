@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(102351)]
-public class spell_dru_cenarion_ward : AuraScript, IHasAuraEffects
+public class SpellDruCenarionWard : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -28,11 +28,11 @@ public class spell_dru_cenarion_ward : AuraScript, IHasAuraEffects
         if (!Caster || !eventInfo.ActionTarget)
             return;
 
-        Caster.CastSpell(eventInfo.ActionTarget, Spells.CENARION_WARD_TRIGGERED, true);
+        Caster.SpellFactory.CastSpell(eventInfo.ActionTarget, Spells.CenarionWardTriggered, true);
     }
 
     private struct Spells
     {
-        public static readonly uint CENARION_WARD_TRIGGERED = 102352;
+        public static readonly uint CenarionWardTriggered = 102352;
     }
 }

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(214579)]
-public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
+public class SpellHunSidewinders : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -28,7 +29,7 @@ public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
             var target = HitUnit;
 
             if (target != null)
-                caster.CastSpell(target, 187131, true);
+                caster.SpellFactory.CastSpell(target, 187131, true);
         }
     }
 
@@ -42,7 +43,7 @@ public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
 
             if (target != null)
             {
-                caster.CastSpell(target, 214581, true);
+                caster.SpellFactory.CastSpell(target, 214581, true);
                 caster.SendPlaySpellVisual(target.Location, target.Location.Orientation, 56931, 0, 0, 18.0f, false);
             }
         }

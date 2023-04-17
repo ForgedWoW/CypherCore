@@ -3,15 +3,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [Script] // 315508 - Roll the Bones
-internal class spell_rog_roll_the_bones : SpellScript, IHasSpellEffects
+internal class SpellRogRollTheBones : SpellScript, IHasSpellEffects
 {
     private static readonly uint[] Spells =
     {
@@ -60,7 +61,7 @@ internal class spell_rog_roll_the_bones : SpellScript, IHasSpellEffects
             var spellId = possibleBuffs[i];
             CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
             args.AddSpellMod(SpellValueMod.Duration, SpellInfo.Duration + currentDuration);
-            Caster.CastSpell(Caster, spellId, args);
+            Caster.SpellFactory.CastSpell(Caster, spellId, args);
         }
     }
 }

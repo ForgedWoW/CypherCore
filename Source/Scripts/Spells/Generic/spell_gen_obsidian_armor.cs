@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
 [Script] // 27539 - Obsidian Armor
-internal class spell_gen_obsidian_armor : AuraScript, IAuraCheckProc, IHasAuraEffects
+internal class SpellGenObsidianArmor : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -41,33 +42,33 @@ internal class spell_gen_obsidian_armor : AuraScript, IAuraCheckProc, IHasAuraEf
         switch (SharedConst.GetFirstSchoolInMask(eventInfo.SchoolMask))
         {
             case SpellSchools.Holy:
-                spellId = GenericSpellIds.Holy;
+                spellId = GenericSpellIds.HOLY;
 
                 break;
             case SpellSchools.Fire:
-                spellId = GenericSpellIds.Fire;
+                spellId = GenericSpellIds.FIRE;
 
                 break;
             case SpellSchools.Nature:
-                spellId = GenericSpellIds.Nature;
+                spellId = GenericSpellIds.NATURE;
 
                 break;
             case SpellSchools.Frost:
-                spellId = GenericSpellIds.Frost;
+                spellId = GenericSpellIds.FROST;
 
                 break;
             case SpellSchools.Shadow:
-                spellId = GenericSpellIds.Shadow;
+                spellId = GenericSpellIds.SHADOW;
 
                 break;
             case SpellSchools.Arcane:
-                spellId = GenericSpellIds.Arcane;
+                spellId = GenericSpellIds.ARCANE;
 
                 break;
             default:
                 return;
         }
 
-        Target.CastSpell(Target, spellId, new CastSpellExtraArgs(aurEff));
+        Target.SpellFactory.CastSpell(Target, spellId, new CastSpellExtraArgs(aurEff));
     }
 }

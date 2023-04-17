@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
@@ -15,7 +15,7 @@ namespace Scripts.Spells.Evoker;
              EvokerSpells.RED_FIRE_BREATH,
              EvokerSpells.GREEN_SPIRITBLOOM,
              EvokerSpells.GREEN_SPIRITBLOOM_2)]
-public class spell_evoker_flow_state : SpellScript, ISpellAfterCast
+public class SpellEvokerFlowState : SpellScript, ISpellAfterCast
 {
     public void AfterCast()
     {

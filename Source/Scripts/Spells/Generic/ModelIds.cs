@@ -6,6 +6,6 @@ namespace Scripts.Spells.Generic;
 internal struct ModelIds
 {
     //ServiceUniform
-    public const uint GoblinMale = 31002;
-    public const uint GoblinFemale = 31003;
+    public const uint GOBLIN_MALE = 31002;
+    public const uint GOBLIN_FEMALE = 31003;
 }

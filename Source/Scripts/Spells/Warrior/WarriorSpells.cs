@@ -74,7 +74,7 @@ internal struct WarriorSpells
     public const uint INTERCEPT_STUN = 105771;
     public const uint INTERVENE_TRIGGER = 147833;
     public const uint INTO_THE_FRAY = 202602;
-    public const uint ITEM_PVP_SET_4P_BONUS = 133277;
+    public const uint ITEM_PVP_SET_4_P_BONUS = 133277;
     public const uint JUGGERNAUT_CRIT_BONUS_BUFF = 65156;
     public const uint JUGGERNAUT_CRIT_BONUS_TALENT = 64976;
     public const uint JUMP_TO_SKYHOLD_AURA = 215997;
@@ -169,5 +169,5 @@ internal struct WarriorSpells
 
 internal struct Misc
 {
-    public const uint SpellVisualBlazingCharge = 26423;
+    public const uint SPELL_VISUAL_BLAZING_CHARGE = 26423;
 }

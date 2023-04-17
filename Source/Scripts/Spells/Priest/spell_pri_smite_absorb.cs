@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 
 namespace Scripts.Spells.Priest;
 
 [SpellScript(208771)]
-public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
+public class SpellPriSmiteAbsorb : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -20,7 +20,7 @@ public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
         AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
     }
 
-    private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
+    private double HandleAbsorb(AuraEffect unnamedParameter, DamageInfo dmgInfo, double absorbAmount)
     {
         var caster = Caster;
         var attacker = dmgInfo.Attacker;

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 194384, 214206 - Atonement
-internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
+internal class SpellPriAtonementTriggered : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -31,7 +31,7 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 
             if (atonement != null)
             {
-                var script = atonement.GetScript<spell_pri_atonement>();
+                var script = atonement.GetScript<SpellPriAtonement>();
 
                 script?.AddAtonementTarget(Target.GUID);
             }
@@ -48,7 +48,7 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 
             if (atonement != null)
             {
-                var script = atonement.GetScript<spell_pri_atonement>();
+                var script = atonement.GetScript<SpellPriAtonement>();
 
                 script?.RemoveAtonementTarget(Target.GUID);
             }

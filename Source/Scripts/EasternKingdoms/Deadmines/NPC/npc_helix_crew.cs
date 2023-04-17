@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_helix_gearbreaker;
+using static Scripts.EasternKingdoms.Deadmines.Bosses.BossHelixGearbreaker;
 
 namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
@@ -13,11 +13,11 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 {
     49136, 49137, 49138, 49139
 })]
-public class npc_helix_crew : PassiveAI
+public class NPCHelixCrew : PassiveAI
 {
     public uint ThrowBombTimer;
 
-    public npc_helix_crew(Creature pCreature) : base(pCreature) { }
+    public NPCHelixCrew(Creature pCreature) : base(pCreature) { }
 
     public override void Reset()
     {
@@ -38,7 +38,7 @@ public class npc_helix_crew : PassiveAI
 
             if (player != null)
             {
-                DoCast(player, eSpels.THROW_BOMB);
+                DoCast(player, ESpels.THROW_BOMB);
                 ThrowBombTimer = 5000;
             }
         }

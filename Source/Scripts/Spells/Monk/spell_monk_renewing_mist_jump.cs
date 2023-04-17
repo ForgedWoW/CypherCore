@@ -2,15 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(119607)]
-public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
+public class SpellMonkRenewingMistJump : SpellScript, IHasSpellEffects
 {
     private ObjectGuid _previousTargetGuid = new();
     public List<ISpellEffect> SpellEffects { get; } = new();

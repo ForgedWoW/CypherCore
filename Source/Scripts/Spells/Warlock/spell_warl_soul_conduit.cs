@@ -3,17 +3,18 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 // Soul Conduit - 215941
 [SpellScript(215941)]
-public class spell_warl_soul_conduit : AuraScript, IHasAuraEffects, IAuraCheckProc
+public class SpellWarlSoulConduit : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
     private int _refund = 0;
 
@@ -53,7 +54,7 @@ public class spell_warl_soul_conduit : AuraScript, IHasAuraEffects, IAuraCheckPr
         AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
     }
 
-    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    private void HandleProc(AuraEffect unnamedParameter, ProcEventInfo unnamedParameter2)
     {
         var caster = Caster;
 
@@ -61,6 +62,6 @@ public class spell_warl_soul_conduit : AuraScript, IHasAuraEffects, IAuraCheckPr
             return;
 
         if (RandomHelper.randChance(SpellInfo.GetEffect(0).BasePoints))
-            caster.CastSpell(caster, WarlockSpells.SOUL_CONDUIT_REFUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_refund));
+            caster.SpellFactory.CastSpell(caster, WarlockSpells.SOUL_CONDUIT_REFUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_refund));
     }
 }

@@ -3,15 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellEffects
+internal class SpellHunMastersCall : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -65,11 +66,11 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 
     private void HandleDummy(int effIndex)
     {
-        Caster.AsPlayer.CurrentPet.CastSpell(HitUnit, (uint)EffectValue, true);
+        Caster.AsPlayer.CurrentPet.SpellFactory.CastSpell(HitUnit, (uint)EffectValue, true);
     }
 
     private void HandleScriptEffect(int effIndex)
     {
-        HitUnit.CastSpell((Unit)null, HunterSpells.MastersCallTriggered, true);
+        HitUnit.SpellFactory.CastSpell((Unit)null, HunterSpells.MastersCallTriggered, true);
     }
 }

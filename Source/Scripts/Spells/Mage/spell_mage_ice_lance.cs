@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // Ice Lance - 30455
-internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
+internal class SpellMageIceLance : SpellScript, IHasSpellEffects
 {
     private readonly List<ObjectGuid> _orderedTargets = new();
     public List<ISpellEffect> SpellEffects { get; } = new();
@@ -50,13 +51,13 @@ internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
             }
 
             // Chain Reaction
-            if (caster.HasAura(MageSpells.ChainReactionDummy))
-                caster.CastSpell(caster, MageSpells.ChainReaction, true);
+            if (caster.HasAura(MageSpells.CHAIN_REACTION_DUMMY))
+                caster.SpellFactory.CastSpell(caster, MageSpells.ChainReaction, true);
         }
 
         // put Target index for chain value Multiplier into EFFECT_1 base points, otherwise triggered spell doesn't know which Damage Multiplier to apply
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
         args.AddSpellMod(SpellValueMod.BasePoint1, index);
-        caster.CastSpell(target, MageSpells.IceLanceTrigger, args);
+        caster.SpellFactory.CastSpell(target, MageSpells.IceLanceTrigger, args);
     }
 }

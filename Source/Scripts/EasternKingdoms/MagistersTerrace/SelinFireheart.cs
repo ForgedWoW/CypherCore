@@ -2,73 +2,76 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.MagistersTerrace.SelinFireheart;
 
 internal struct TextIds
 {
-    public const uint SayAggro = 0;
-    public const uint SayEnergy = 1;
-    public const uint SayEmpowered = 2;
-    public const uint SayKill = 3;
-    public const uint SayDeath = 4;
-    public const uint EmoteCrystal = 5;
+    public const uint SAY_AGGRO = 0;
+    public const uint SAY_ENERGY = 1;
+    public const uint SAY_EMPOWERED = 2;
+    public const uint SAY_KILL = 3;
+    public const uint SAY_DEATH = 4;
+    public const uint EMOTE_CRYSTAL = 5;
 }
 
 internal struct SpellIds
 {
     // Crystal effect spells
-    public const uint FelCrystalDummy = 44329;
-    public const uint ManaRage = 44320; // This spell triggers 44321, which changes scale and regens mana Requires an entry in spell_script_target
+    public const uint FEL_CRYSTAL_DUMMY = 44329;
+    public const uint MANA_RAGE = 44320; // This spell triggers 44321, which changes scale and regens mana Requires an entry in spell_script_target
 
     // Selin's spells
-    public const uint DrainLife = 44294;
-    public const uint FelExplosion = 44314;
+    public const uint DRAIN_LIFE = 44294;
+    public const uint FEL_EXPLOSION = 44314;
 
-    public const uint DrainMana = 46153; // Heroic only
+    public const uint DRAIN_MANA = 46153; // Heroic only
 }
 
 internal struct PhaseIds
 {
-    public const byte Normal = 1;
-    public const byte Drain = 2;
+    public const byte NORMAL = 1;
+    public const byte DRAIN = 2;
 }
 
 internal struct EventIds
 {
-    public const uint FelExplosion = 1;
-    public const uint DrainCrystal = 2;
-    public const uint DrainMana = 3;
-    public const uint DrainLife = 4;
-    public const uint Empower = 5;
+    public const uint FEL_EXPLOSION = 1;
+    public const uint DRAIN_CRYSTAL = 2;
+    public const uint DRAIN_MANA = 3;
+    public const uint DRAIN_LIFE = 4;
+    public const uint EMPOWER = 5;
 }
 
 internal struct MiscConst
 {
-    public const int ActionSwitchPhase = 1;
+    public const int ACTION_SWITCH_PHASE = 1;
 }
 
 [Script] // @todo crystals should really be a Db creature summon group, having them in `creature` like this will cause tons of despawn/respawn bugs
-internal class boss_selin_fireheart : BossAI
+internal class BossSelinFireheart : BossAI
 {
     private bool _scheduledEvents;
-    private ObjectGuid CrystalGUID;
+    private ObjectGuid _crystalGUID;
 
-    public boss_selin_fireheart(Creature creature) : base(creature, DataTypes.SelinFireheart) { }
+    public BossSelinFireheart(Creature creature) : base(creature, DataTypes.SELIN_FIREHEART) { }
 
     public override void Reset()
     {
-        var crystals = Me.GetCreatureListWithEntryInGrid(CreatureIds.FelCrystal, 250.0f);
+        var crystals = Me.GetCreatureListWithEntryInGrid(CreatureIds.FEL_CRYSTAL, 250.0f);
 
         foreach (var creature in crystals)
             creature.Respawn(true);
 
         _Reset();
-        CrystalGUID.Clear();
+        _crystalGUID.Clear();
         _scheduledEvents = false;
     }
 
@@ -76,30 +79,29 @@ internal class boss_selin_fireheart : BossAI
     {
         switch (action)
         {
-            case MiscConst.ActionSwitchPhase:
-                Events.SetPhase(PhaseIds.Normal);
-                Events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
+            case MiscConst.ACTION_SWITCH_PHASE:
+                Events.SetPhase(PhaseIds.NORMAL);
+                Events.ScheduleEvent(EventIds.FEL_EXPLOSION, TimeSpan.FromSeconds(2), 0, PhaseIds.NORMAL);
                 AttackStart(Me.Victim);
                 Me.MotionMaster.MoveChase(Me.Victim);
 
                 break;
-            
         }
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        Talk(TextIds.SayAggro);
+        Talk(TextIds.SAY_AGGRO);
         base.JustEngagedWith(who);
 
-        Events.SetPhase(PhaseIds.Normal);
-        Events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromMilliseconds(2100), 0, PhaseIds.Normal);
+        Events.SetPhase(PhaseIds.NORMAL);
+        Events.ScheduleEvent(EventIds.FEL_EXPLOSION, TimeSpan.FromMilliseconds(2100), 0, PhaseIds.NORMAL);
     }
 
     public override void KilledUnit(Unit victim)
     {
         if (victim.IsPlayer)
-            Talk(TextIds.SayKill);
+            Talk(TextIds.SAY_KILL);
     }
 
     public override void MovementInform(MovementGeneratorType type, uint id)
@@ -107,21 +109,21 @@ internal class boss_selin_fireheart : BossAI
         if (type == MovementGeneratorType.Point &&
             id == 1)
         {
-            var CrystalChosen = Global.ObjAccessor.GetUnit(Me, CrystalGUID);
+            var crystalChosen = Global.ObjAccessor.GetUnit(Me, _crystalGUID);
 
-            if (CrystalChosen != null &&
-                CrystalChosen.IsAlive)
+            if (crystalChosen != null &&
+                crystalChosen.IsAlive)
             {
-                CrystalChosen.RemoveUnitFlag(UnitFlags.Uninteractible);
-                CrystalChosen.CastSpell(Me, SpellIds.ManaRage, true);
-                Events.ScheduleEvent(EventIds.Empower, TimeSpan.FromSeconds(10), PhaseIds.Drain);
+                crystalChosen.RemoveUnitFlag(UnitFlags.Uninteractible);
+                crystalChosen.SpellFactory.CastSpell(Me, SpellIds.MANA_RAGE, true);
+                Events.ScheduleEvent(EventIds.EMPOWER, TimeSpan.FromSeconds(10), PhaseIds.DRAIN);
             }
         }
     }
 
     public override void JustDied(Unit killer)
     {
-        Talk(TextIds.SayDeath);
+        Talk(TextIds.SAY_DEATH);
         _JustDied();
 
         ShatterRemainingCrystals();
@@ -141,55 +143,54 @@ internal class boss_selin_fireheart : BossAI
         {
             switch (eventId)
             {
-                case EventIds.FelExplosion:
-                    DoCastAOE(SpellIds.FelExplosion);
-                    Events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
+                case EventIds.FEL_EXPLOSION:
+                    DoCastAOE(SpellIds.FEL_EXPLOSION);
+                    Events.ScheduleEvent(EventIds.FEL_EXPLOSION, TimeSpan.FromSeconds(2), 0, PhaseIds.NORMAL);
 
                     break;
-                case EventIds.DrainCrystal:
+                case EventIds.DRAIN_CRYSTAL:
                     SelectNearestCrystal();
                     _scheduledEvents = false;
 
                     break;
-                case EventIds.DrainMana:
+                case EventIds.DRAIN_MANA:
                 {
                     var target = SelectTarget(SelectTargetMethod.Random, 0, 45.0f, true);
 
                     if (target != null)
-                        DoCast(target, SpellIds.DrainMana);
+                        DoCast(target, SpellIds.DRAIN_MANA);
 
-                    Events.ScheduleEvent(EventIds.DrainMana, TimeSpan.FromSeconds(10), 0, PhaseIds.Normal);
+                    Events.ScheduleEvent(EventIds.DRAIN_MANA, TimeSpan.FromSeconds(10), 0, PhaseIds.NORMAL);
 
                     break;
                 }
-                case EventIds.DrainLife:
+                case EventIds.DRAIN_LIFE:
                 {
                     var target = SelectTarget(SelectTargetMethod.Random, 0, 20.0f, true);
 
                     if (target != null)
-                        DoCast(target, SpellIds.DrainLife);
+                        DoCast(target, SpellIds.DRAIN_LIFE);
 
-                    Events.ScheduleEvent(EventIds.DrainLife, TimeSpan.FromSeconds(10), 0, PhaseIds.Normal);
+                    Events.ScheduleEvent(EventIds.DRAIN_LIFE, TimeSpan.FromSeconds(10), 0, PhaseIds.NORMAL);
 
                     break;
                 }
-                case EventIds.Empower:
+                case EventIds.EMPOWER:
                 {
-                    Talk(TextIds.SayEmpowered);
+                    Talk(TextIds.SAY_EMPOWERED);
 
-                    var CrystalChosen = ObjectAccessor.GetCreature(Me, CrystalGUID);
+                    var crystalChosen = ObjectAccessor.GetCreature(Me, _crystalGUID);
 
-                    if (CrystalChosen && CrystalChosen.IsAlive)
-                        CrystalChosen.KillSelf();
+                    if (crystalChosen && crystalChosen.IsAlive)
+                        crystalChosen.KillSelf();
 
-                    CrystalGUID.Clear();
+                    _crystalGUID.Clear();
 
                     Me.MotionMaster.Clear();
                     Me.MotionMaster.MoveChase(Me.Victim);
 
                     break;
                 }
-                
             }
 
             if (Me.HasUnitState(UnitState.Casting))
@@ -197,21 +198,21 @@ internal class boss_selin_fireheart : BossAI
         });
 
         if (Me.GetPowerPct(PowerType.Mana) < 10.0f)
-            if (Events.IsInPhase(PhaseIds.Normal) &&
+            if (Events.IsInPhase(PhaseIds.NORMAL) &&
                 !_scheduledEvents)
             {
                 _scheduledEvents = true;
                 var timer = RandomHelper.RandTime(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7));
-                Events.ScheduleEvent(EventIds.DrainLife, timer, 0, PhaseIds.Normal);
+                Events.ScheduleEvent(EventIds.DRAIN_LIFE, timer, 0, PhaseIds.NORMAL);
 
                 if (IsHeroic())
                 {
-                    Events.ScheduleEvent(EventIds.DrainCrystal, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15), 0, PhaseIds.Normal);
-                    Events.ScheduleEvent(EventIds.DrainMana, timer + TimeSpan.FromSeconds(5), 0, PhaseIds.Normal);
+                    Events.ScheduleEvent(EventIds.DRAIN_CRYSTAL, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15), 0, PhaseIds.NORMAL);
+                    Events.ScheduleEvent(EventIds.DRAIN_MANA, timer + TimeSpan.FromSeconds(5), 0, PhaseIds.NORMAL);
                 }
                 else
                 {
-                    Events.ScheduleEvent(EventIds.DrainCrystal, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(25), 0, PhaseIds.Normal);
+                    Events.ScheduleEvent(EventIds.DRAIN_CRYSTAL, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(25), 0, PhaseIds.NORMAL);
                 }
             }
 
@@ -220,19 +221,19 @@ internal class boss_selin_fireheart : BossAI
 
     private void SelectNearestCrystal()
     {
-        var crystal = Me.FindNearestCreature(CreatureIds.FelCrystal, 250.0f);
+        var crystal = Me.FindNearestCreature(CreatureIds.FEL_CRYSTAL, 250.0f);
 
         if (crystal)
         {
-            Talk(TextIds.SayEnergy);
-            Talk(TextIds.EmoteCrystal);
+            Talk(TextIds.SAY_ENERGY);
+            Talk(TextIds.EMOTE_CRYSTAL);
 
-            DoCast(crystal, SpellIds.FelCrystalDummy);
-            CrystalGUID = crystal.GUID;
+            DoCast(crystal, SpellIds.FEL_CRYSTAL_DUMMY);
+            _crystalGUID = crystal.GUID;
             var pos = new Position();
             crystal.GetClosePoint(pos, Me.CombatReach, SharedConst.ContactDistance);
 
-            Events.SetPhase(PhaseIds.Drain);
+            Events.SetPhase(PhaseIds.DRAIN);
             Me.SetWalk(false);
             Me.MotionMaster.MovePoint(1, pos);
         }
@@ -240,7 +241,7 @@ internal class boss_selin_fireheart : BossAI
 
     private void ShatterRemainingCrystals()
     {
-        var crystals = Me.GetCreatureListWithEntryInGrid(CreatureIds.FelCrystal, 250.0f);
+        var crystals = Me.GetCreatureListWithEntryInGrid(CreatureIds.FEL_CRYSTAL, 250.0f);
 
         foreach (var crystal in crystals)
             crystal.KillSelf();
@@ -248,9 +249,9 @@ internal class boss_selin_fireheart : BossAI
 }
 
 [Script]
-internal class npc_fel_crystal : ScriptedAI
+internal class NPCFelCrystal : ScriptedAI
 {
-    public npc_fel_crystal(Creature creature) : base(creature) { }
+    public NPCFelCrystal(Creature creature) : base(creature) { }
 
     public override void JustDied(Unit killer)
     {
@@ -258,10 +259,10 @@ internal class npc_fel_crystal : ScriptedAI
 
         if (instance != null)
         {
-            var selin = instance.GetCreature(DataTypes.SelinFireheart);
+            var selin = instance.GetCreature(DataTypes.SELIN_FIREHEART);
 
             if (selin && selin.IsAlive)
-                selin.AI.DoAction(MiscConst.ActionSwitchPhase);
+                selin.AI.DoAction(MiscConst.ACTION_SWITCH_PHASE);
         }
     }
 }

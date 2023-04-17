@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 40112 Knockdown Fel Cannon: The Aggro Check
-internal class spell_q11010_q11102_q11023_aggro_check : SpellScript, IHasSpellEffects
+internal class SpellQ11010Q11102Q11023AggroCheck : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -27,6 +28,6 @@ internal class spell_q11010_q11102_q11023_aggro_check : SpellScript, IHasSpellEf
             // Check if found player Target is on fly Mount or using flying form
             if (playerTarget.HasAuraType(AuraType.Fly) ||
                 playerTarget.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed))
-                playerTarget.CastSpell(playerTarget, QuestSpellIds.FlakCannonTrigger, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle));
+                playerTarget.SpellFactory.CastSpell(playerTarget, QuestSpellIds.FLAK_CANNON_TRIGGER, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle));
     }
 }

@@ -2,15 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 33763 - Lifebloom
-internal class spell_dru_lifebloom : AuraScript, IHasAuraEffects
+internal class SpellDruLifebloom : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -25,6 +25,6 @@ internal class spell_dru_lifebloom : AuraScript, IHasAuraEffects
         // Final heal only on duration end
         if (TargetApplication.RemoveMode == AuraRemoveMode.Expire ||
             TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell)
-            Caster.CastSpell(OwnerAsUnit, DruidSpellIds.LifebloomFinalHeal, true);
+            Caster.SpellFactory.CastSpell(OwnerAsUnit, DruidSpellIds.LifebloomFinalHeal, true);
     }
 }

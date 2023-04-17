@@ -2,86 +2,87 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.m_Events.Brewfest;
 
 internal struct SpellIds
 {
     //Ramblabla
-    public const uint Giddyup = 42924;
-    public const uint RentalRacingRam = 43883;
-    public const uint SwiftWorkRam = 43880;
-    public const uint RentalRacingRamAura = 42146;
-    public const uint RamLevelNeutral = 43310;
-    public const uint RamTrot = 42992;
-    public const uint RamCanter = 42993;
-    public const uint RamGallop = 42994;
-    public const uint RamFatigue = 43052;
-    public const uint ExhaustedRam = 43332;
-    public const uint RelayRaceTurnIn = 44501;
+    public const uint GIDDYUP = 42924;
+    public const uint RENTAL_RACING_RAM = 43883;
+    public const uint SWIFT_WORK_RAM = 43880;
+    public const uint RENTAL_RACING_RAM_AURA = 42146;
+    public const uint RAM_LEVEL_NEUTRAL = 43310;
+    public const uint RAM_TROT = 42992;
+    public const uint RAM_CANTER = 42993;
+    public const uint RAM_GALLOP = 42994;
+    public const uint RAM_FATIGUE = 43052;
+    public const uint EXHAUSTED_RAM = 43332;
+    public const uint RELAY_RACE_TURN_IN = 44501;
 
     //Brewfestmounttransformation
-    public const uint MountRam100 = 43900;
-    public const uint MountRam60 = 43899;
-    public const uint MountKodo100 = 49379;
-    public const uint MountKodo60 = 49378;
-    public const uint BrewfestMountTransform = 49357;
-    public const uint BrewfestMountTransformReverse = 52845;
+    public const uint MOUNT_RAM100 = 43900;
+    public const uint MOUNT_RAM60 = 43899;
+    public const uint MOUNT_KODO100 = 49379;
+    public const uint MOUNT_KODO60 = 49378;
+    public const uint BREWFEST_MOUNT_TRANSFORM = 49357;
+    public const uint BREWFEST_MOUNT_TRANSFORM_REVERSE = 52845;
 }
 
 internal struct QuestIds
 {
     //Ramblabla
-    public const uint BrewfestSpeedBunnyGreen = 43345;
-    public const uint BrewfestSpeedBunnyYellow = 43346;
-    public const uint BrewfestSpeedBunnyRed = 43347;
+    public const uint BREWFEST_SPEED_BUNNY_GREEN = 43345;
+    public const uint BREWFEST_SPEED_BUNNY_YELLOW = 43346;
+    public const uint BREWFEST_SPEED_BUNNY_RED = 43347;
 
     //Barkerbunny
     // Horde
-    public const uint BarkForDrohnsDistillery = 11407;
-    public const uint BarkForTchalisVoodooBrewery = 11408;
+    public const uint BARK_FOR_DROHNS_DISTILLERY = 11407;
+    public const uint BARK_FOR_TCHALIS_VOODOO_BREWERY = 11408;
 
     // Alliance
-    public const uint BarkBarleybrew = 11293;
-    public const uint BarkForThunderbrews = 11294;
+    public const uint BARK_BARLEYBREW = 11293;
+    public const uint BARK_FOR_THUNDERBREWS = 11294;
 }
 
 internal struct TextIds
 {
     // Bark For Drohn'S Distillery!
-    public const uint DrohnDistillery1 = 23520;
-    public const uint DrohnDistillery2 = 23521;
-    public const uint DrohnDistillery3 = 23522;
-    public const uint DrohnDistillery4 = 23523;
+    public const uint DROHN_DISTILLERY1 = 23520;
+    public const uint DROHN_DISTILLERY2 = 23521;
+    public const uint DROHN_DISTILLERY3 = 23522;
+    public const uint DROHN_DISTILLERY4 = 23523;
 
     // Bark For T'Chali'S Voodoo Brewery!
-    public const uint TChalisVoodoo1 = 23524;
-    public const uint TChalisVoodoo2 = 23525;
-    public const uint TChalisVoodoo3 = 23526;
-    public const uint TChalisVoodoo4 = 23527;
+    public const uint CHALIS_VOODOO1 = 23524;
+    public const uint CHALIS_VOODOO2 = 23525;
+    public const uint CHALIS_VOODOO3 = 23526;
+    public const uint CHALIS_VOODOO4 = 23527;
 
     // Bark For The Barleybrews!
-    public const uint Barleybrew1 = 23464;
-    public const uint Barleybrew2 = 23465;
-    public const uint Barleybrew3 = 23466;
-    public const uint Barleybrew4 = 22941;
+    public const uint BARLEYBREW1 = 23464;
+    public const uint BARLEYBREW2 = 23465;
+    public const uint BARLEYBREW3 = 23466;
+    public const uint BARLEYBREW4 = 22941;
 
     // Bark For The Thunderbrews!
-    public const uint Thunderbrews1 = 23467;
-    public const uint Thunderbrews2 = 23468;
-    public const uint Thunderbrews3 = 23469;
-    public const uint Thunderbrews4 = 22942;
+    public const uint THUNDERBREWS1 = 23467;
+    public const uint THUNDERBREWS2 = 23468;
+    public const uint THUNDERBREWS3 = 23469;
+    public const uint THUNDERBREWS4 = 22942;
 }
 
 [Script] // 42924 - Giddyup!
-internal class spell_brewfest_giddyup : AuraScript, IHasAuraEffects
+internal class SpellBrewfestGiddyup : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -96,43 +97,42 @@ internal class spell_brewfest_giddyup : AuraScript, IHasAuraEffects
     {
         var target = Target;
 
-        if (!target.HasAura(SpellIds.RentalRacingRam) &&
-            !target.HasAura(SpellIds.SwiftWorkRam))
+        if (!target.HasAura(SpellIds.RENTAL_RACING_RAM) &&
+            !target.HasAura(SpellIds.SWIFT_WORK_RAM))
         {
             target.RemoveAura(Id);
 
             return;
         }
 
-        if (target.HasAura(SpellIds.ExhaustedRam))
+        if (target.HasAura(SpellIds.EXHAUSTED_RAM))
             return;
 
         switch (StackAmount)
         {
             case 1: // green
-                target.RemoveAura(SpellIds.RamLevelNeutral);
-                target.RemoveAura(SpellIds.RamCanter);
-                target.CastSpell(target, SpellIds.RamTrot, true);
+                target.RemoveAura(SpellIds.RAM_LEVEL_NEUTRAL);
+                target.RemoveAura(SpellIds.RAM_CANTER);
+                target.SpellFactory.CastSpell(target, SpellIds.RAM_TROT, true);
 
                 break;
             case 6: // yellow
-                target.RemoveAura(SpellIds.RamTrot);
-                target.RemoveAura(SpellIds.RamGallop);
-                target.CastSpell(target, SpellIds.RamCanter, true);
+                target.RemoveAura(SpellIds.RAM_TROT);
+                target.RemoveAura(SpellIds.RAM_GALLOP);
+                target.SpellFactory.CastSpell(target, SpellIds.RAM_CANTER, true);
 
                 break;
             case 11: // red
-                target.RemoveAura(SpellIds.RamCanter);
-                target.CastSpell(target, SpellIds.RamGallop, true);
+                target.RemoveAura(SpellIds.RAM_CANTER);
+                target.SpellFactory.CastSpell(target, SpellIds.RAM_GALLOP, true);
 
                 break;
-            
         }
 
         if (TargetApplication.RemoveMode == AuraRemoveMode.Default)
         {
-            target.RemoveAura(SpellIds.RamTrot);
-            target.CastSpell(target, SpellIds.RamLevelNeutral, true);
+            target.RemoveAura(SpellIds.RAM_TROT);
+            target.SpellFactory.CastSpell(target, SpellIds.RAM_LEVEL_NEUTRAL, true);
         }
     }
 
@@ -147,7 +147,7 @@ internal class spell_brewfest_giddyup : AuraScript, IHasAuraEffects
 // 42993 - Ram - Canter
 // 42994 - Ram - Gallop
 [Script]
-internal class spell_brewfest_ram : AuraScript, IHasAuraEffects
+internal class SpellBrewfestRam : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -160,59 +160,58 @@ internal class spell_brewfest_ram : AuraScript, IHasAuraEffects
     {
         var target = Target;
 
-        if (target.HasAura(SpellIds.ExhaustedRam))
+        if (target.HasAura(SpellIds.EXHAUSTED_RAM))
             return;
 
         switch (Id)
         {
-            case SpellIds.RamLevelNeutral:
+            case SpellIds.RAM_LEVEL_NEUTRAL:
             {
-                var aura = target.GetAura(SpellIds.RamFatigue);
+                var aura = target.GetAura(SpellIds.RAM_FATIGUE);
 
                 aura?.ModStackAmount(-4);
             }
 
                 break;
-            case SpellIds.RamTrot: // green
+            case SpellIds.RAM_TROT: // green
             {
-                var aura = target.GetAura(SpellIds.RamFatigue);
+                var aura = target.GetAura(SpellIds.RAM_FATIGUE);
 
                 aura?.ModStackAmount(-2);
 
                 if (aurEff.GetTickNumber() == 4)
-                    target.CastSpell(target, QuestIds.BrewfestSpeedBunnyGreen, true);
+                    target.SpellFactory.CastSpell(target, QuestIds.BREWFEST_SPEED_BUNNY_GREEN, true);
             }
 
                 break;
-            case SpellIds.RamCanter:
+            case SpellIds.RAM_CANTER:
             {
                 CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
                 args.AddSpellMod(SpellValueMod.AuraStack, 1);
-                target.CastSpell(target, SpellIds.RamFatigue, args);
+                target.SpellFactory.CastSpell(target, SpellIds.RAM_FATIGUE, args);
 
                 if (aurEff.GetTickNumber() == 8)
-                    target.CastSpell(target, QuestIds.BrewfestSpeedBunnyYellow, true);
+                    target.SpellFactory.CastSpell(target, QuestIds.BREWFEST_SPEED_BUNNY_YELLOW, true);
 
                 break;
             }
-            case SpellIds.RamGallop:
+            case SpellIds.RAM_GALLOP:
             {
                 CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-                args.AddSpellMod(SpellValueMod.AuraStack, target.HasAura(SpellIds.RamFatigue) ? 4 : 5 /*Hack*/);
-                target.CastSpell(target, SpellIds.RamFatigue, args);
+                args.AddSpellMod(SpellValueMod.AuraStack, target.HasAura(SpellIds.RAM_FATIGUE) ? 4 : 5 /*Hack*/);
+                target.SpellFactory.CastSpell(target, SpellIds.RAM_FATIGUE, args);
 
                 if (aurEff.GetTickNumber() == 8)
-                    target.CastSpell(target, QuestIds.BrewfestSpeedBunnyRed, true);
+                    target.SpellFactory.CastSpell(target, QuestIds.BREWFEST_SPEED_BUNNY_RED, true);
 
                 break;
             }
-            
         }
     }
 }
 
 [Script] // 43052 - Ram Fatigue
-internal class spell_brewfest_ram_fatigue : AuraScript, IHasAuraEffects
+internal class SpellBrewfestRamFatigue : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -227,19 +226,19 @@ internal class spell_brewfest_ram_fatigue : AuraScript, IHasAuraEffects
 
         if (StackAmount == 101)
         {
-            target.RemoveAura(SpellIds.RamLevelNeutral);
-            target.RemoveAura(SpellIds.RamTrot);
-            target.RemoveAura(SpellIds.RamCanter);
-            target.RemoveAura(SpellIds.RamGallop);
-            target.RemoveAura(SpellIds.Giddyup);
+            target.RemoveAura(SpellIds.RAM_LEVEL_NEUTRAL);
+            target.RemoveAura(SpellIds.RAM_TROT);
+            target.RemoveAura(SpellIds.RAM_CANTER);
+            target.RemoveAura(SpellIds.RAM_GALLOP);
+            target.RemoveAura(SpellIds.GIDDYUP);
 
-            target.CastSpell(target, SpellIds.ExhaustedRam, true);
+            target.SpellFactory.CastSpell(target, SpellIds.EXHAUSTED_RAM, true);
         }
     }
 }
 
 [Script] // 43450 - Brewfest - apple trap - friendly DND
-internal class spell_brewfest_apple_trap : AuraScript, IHasAuraEffects
+internal class SpellBrewfestAppleTrap : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -250,12 +249,12 @@ internal class spell_brewfest_apple_trap : AuraScript, IHasAuraEffects
 
     private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
-        Target.RemoveAura(SpellIds.RamFatigue);
+        Target.RemoveAura(SpellIds.RAM_FATIGUE);
     }
 }
 
 [Script] // 43332 - Exhausted Ram
-internal class spell_brewfest_exhausted_ram : AuraScript, IHasAuraEffects
+internal class SpellBrewfestExhaustedRam : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -267,12 +266,12 @@ internal class spell_brewfest_exhausted_ram : AuraScript, IHasAuraEffects
     private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
     {
         var target = Target;
-        target.CastSpell(target, SpellIds.RamLevelNeutral, true);
+        target.SpellFactory.CastSpell(target, SpellIds.RAM_LEVEL_NEUTRAL, true);
     }
 }
 
 [Script] // 43714 - Brewfest - Relay Race - Intro - Force - Player to throw- DND
-internal class spell_brewfest_relay_race_intro_force_player_to_throw : SpellScript, IHasSpellEffects
+internal class SpellBrewfestRelayRaceIntroForcePlayerToThrow : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -286,12 +285,12 @@ internal class spell_brewfest_relay_race_intro_force_player_to_throw : SpellScri
         PreventHitDefaultEffect(effIndex);
         // All this spells trigger a spell that requires reagents; if the
         // triggered spell is cast as "triggered", reagents are not consumed
-        HitUnit.CastSpell((Unit)null, EffectInfo.TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask & ~TriggerCastFlags.IgnorePowerAndReagentCost));
+        HitUnit.SpellFactory.CastSpell((Unit)null, EffectInfo.TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask & ~TriggerCastFlags.IgnorePowerAndReagentCost));
     }
 }
 
 [Script] // 43755 - Brewfest - Daily - Relay Race - Player - Increase Mount Duration - DND
-internal class spell_brewfest_relay_race_turn_in : SpellScript, IHasSpellEffects
+internal class SpellBrewfestRelayRaceTurnIn : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -304,18 +303,18 @@ internal class spell_brewfest_relay_race_turn_in : SpellScript, IHasSpellEffects
     {
         PreventHitDefaultEffect(effIndex);
 
-        var aura = HitUnit.GetAura(SpellIds.SwiftWorkRam);
+        var aura = HitUnit.GetAura(SpellIds.SWIFT_WORK_RAM);
 
         if (aura != null)
         {
             aura.SetDuration(aura.Duration + 30 * Time.IN_MILLISECONDS);
-            Caster.CastSpell(HitUnit, SpellIds.RelayRaceTurnIn, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+            Caster.SpellFactory.CastSpell(HitUnit, SpellIds.RELAY_RACE_TURN_IN, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
         }
     }
 }
 
 [Script] // 43876 - Dismount Ram
-internal class spell_brewfest_dismount_ram : SpellScript, IHasSpellEffects
+internal class SpellBrewfestDismountRam : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -326,7 +325,7 @@ internal class spell_brewfest_dismount_ram : SpellScript, IHasSpellEffects
 
     private void HandleScript(int effIndex)
     {
-        Caster.RemoveAura(SpellIds.RentalRacingRam);
+        Caster.RemoveAura(SpellIds.RENTAL_RACING_RAM);
     }
 }
 
@@ -335,7 +334,7 @@ internal class spell_brewfest_dismount_ram : SpellScript, IHasSpellEffects
 // 43261 Brewfest  - Barker Bunny 3
 // 43262 Brewfest  - Barker Bunny 4
 [Script]
-internal class spell_brewfest_barker_bunny : AuraScript, IHasAuraEffects
+internal class SpellBrewfestBarkerBunny : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -353,31 +352,31 @@ internal class spell_brewfest_barker_bunny : AuraScript, IHasAuraEffects
     {
         var target = Target.AsPlayer;
 
-        uint BroadcastTextId = 0;
+        uint broadcastTextId = 0;
 
-        if (target.GetQuestStatus(QuestIds.BarkForDrohnsDistillery) == QuestStatus.Incomplete ||
-            target.GetQuestStatus(QuestIds.BarkForDrohnsDistillery) == QuestStatus.Complete)
-            BroadcastTextId = RandomHelper.RAND(TextIds.DrohnDistillery1, TextIds.DrohnDistillery2, TextIds.DrohnDistillery3, TextIds.DrohnDistillery4);
+        if (target.GetQuestStatus(QuestIds.BARK_FOR_DROHNS_DISTILLERY) == QuestStatus.Incomplete ||
+            target.GetQuestStatus(QuestIds.BARK_FOR_DROHNS_DISTILLERY) == QuestStatus.Complete)
+            broadcastTextId = RandomHelper.RAND(TextIds.DROHN_DISTILLERY1, TextIds.DROHN_DISTILLERY2, TextIds.DROHN_DISTILLERY3, TextIds.DROHN_DISTILLERY4);
 
-        if (target.GetQuestStatus(QuestIds.BarkForTchalisVoodooBrewery) == QuestStatus.Incomplete ||
-            target.GetQuestStatus(QuestIds.BarkForTchalisVoodooBrewery) == QuestStatus.Complete)
-            BroadcastTextId = RandomHelper.RAND(TextIds.TChalisVoodoo1, TextIds.TChalisVoodoo2, TextIds.TChalisVoodoo3, TextIds.TChalisVoodoo4);
+        if (target.GetQuestStatus(QuestIds.BARK_FOR_TCHALIS_VOODOO_BREWERY) == QuestStatus.Incomplete ||
+            target.GetQuestStatus(QuestIds.BARK_FOR_TCHALIS_VOODOO_BREWERY) == QuestStatus.Complete)
+            broadcastTextId = RandomHelper.RAND(TextIds.CHALIS_VOODOO1, TextIds.CHALIS_VOODOO2, TextIds.CHALIS_VOODOO3, TextIds.CHALIS_VOODOO4);
 
-        if (target.GetQuestStatus(QuestIds.BarkBarleybrew) == QuestStatus.Incomplete ||
-            target.GetQuestStatus(QuestIds.BarkBarleybrew) == QuestStatus.Complete)
-            BroadcastTextId = RandomHelper.RAND(TextIds.Barleybrew1, TextIds.Barleybrew2, TextIds.Barleybrew3, TextIds.Barleybrew4);
+        if (target.GetQuestStatus(QuestIds.BARK_BARLEYBREW) == QuestStatus.Incomplete ||
+            target.GetQuestStatus(QuestIds.BARK_BARLEYBREW) == QuestStatus.Complete)
+            broadcastTextId = RandomHelper.RAND(TextIds.BARLEYBREW1, TextIds.BARLEYBREW2, TextIds.BARLEYBREW3, TextIds.BARLEYBREW4);
 
-        if (target.GetQuestStatus(QuestIds.BarkForThunderbrews) == QuestStatus.Incomplete ||
-            target.GetQuestStatus(QuestIds.BarkForThunderbrews) == QuestStatus.Complete)
-            BroadcastTextId = RandomHelper.RAND(TextIds.Thunderbrews1, TextIds.Thunderbrews2, TextIds.Thunderbrews3, TextIds.Thunderbrews4);
+        if (target.GetQuestStatus(QuestIds.BARK_FOR_THUNDERBREWS) == QuestStatus.Incomplete ||
+            target.GetQuestStatus(QuestIds.BARK_FOR_THUNDERBREWS) == QuestStatus.Complete)
+            broadcastTextId = RandomHelper.RAND(TextIds.THUNDERBREWS1, TextIds.THUNDERBREWS2, TextIds.THUNDERBREWS3, TextIds.THUNDERBREWS4);
 
-        if (BroadcastTextId != 0)
-            target.Talk(BroadcastTextId, ChatMsg.Say, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+        if (broadcastTextId != 0)
+            target.Talk(broadcastTextId, ChatMsg.Say, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
     }
 }
 
 [Script]
-internal class spell_item_brewfest_mount_transformation : SpellScript, IHasSpellEffects
+internal class SpellItemBrewfestMountTransformation : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -394,29 +393,29 @@ internal class spell_item_brewfest_mount_transformation : SpellScript, IHasSpell
         if (caster.HasAuraType(AuraType.Mounted))
         {
             caster.RemoveAurasByType(AuraType.Mounted);
-            uint spell_id;
+            uint spellID;
 
             switch (SpellInfo.Id)
             {
-                case SpellIds.BrewfestMountTransform:
+                case SpellIds.BREWFEST_MOUNT_TRANSFORM:
                     if (caster.GetSpeedRate(UnitMoveType.Run) >= 2.0f)
-                        spell_id = caster.Team == TeamFaction.Alliance ? SpellIds.MountRam100 : SpellIds.MountKodo100;
+                        spellID = caster.Team == TeamFaction.Alliance ? SpellIds.MOUNT_RAM100 : SpellIds.MOUNT_KODO100;
                     else
-                        spell_id = caster.Team == TeamFaction.Alliance ? SpellIds.MountRam60 : SpellIds.MountKodo60;
+                        spellID = caster.Team == TeamFaction.Alliance ? SpellIds.MOUNT_RAM60 : SpellIds.MOUNT_KODO60;
 
                     break;
-                case SpellIds.BrewfestMountTransformReverse:
+                case SpellIds.BREWFEST_MOUNT_TRANSFORM_REVERSE:
                     if (caster.GetSpeedRate(UnitMoveType.Run) >= 2.0f)
-                        spell_id = caster.Team == TeamFaction.Horde ? SpellIds.MountRam100 : SpellIds.MountKodo100;
+                        spellID = caster.Team == TeamFaction.Horde ? SpellIds.MOUNT_RAM100 : SpellIds.MOUNT_KODO100;
                     else
-                        spell_id = caster.Team == TeamFaction.Horde ? SpellIds.MountRam60 : SpellIds.MountKodo60;
+                        spellID = caster.Team == TeamFaction.Horde ? SpellIds.MOUNT_RAM60 : SpellIds.MOUNT_KODO60;
 
                     break;
                 default:
                     return;
             }
 
-            caster.CastSpell(caster, spell_id, true);
+            caster.SpellFactory.CastSpell(caster, spellID, true);
         }
     }
 }

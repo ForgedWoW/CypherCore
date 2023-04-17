@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(194011)]
-public class spell_monk_zen_pilgrimage : SpellScript, ISpellOnCast, ISpellCheckCast
+public class SpellMonkZenPilgrimage : SpellScript, ISpellOnCast, ISpellCheckCast
 {
     public SpellCastResult CheckCast()
     {
@@ -19,12 +19,12 @@ public class spell_monk_zen_pilgrimage : SpellScript, ISpellOnCast, ISpellCheckC
 
         if (caster != null)
         {
-            var _player = caster.AsPlayer;
+            var player = caster.AsPlayer;
 
-            if (_player != null)
-                if (_player.IsQuestRewarded(40236)) // Check quest for port to oplot
+            if (player != null)
+                if (player.IsQuestRewarded(40236)) // Check quest for port to oplot
                 {
-                    caster.CastSpell(caster, 194011, false);
+                    caster.SpellFactory.CastSpell(caster, 194011, false);
 
                     return SpellCastResult.DontReport;
                 }
@@ -39,12 +39,12 @@ public class spell_monk_zen_pilgrimage : SpellScript, ISpellOnCast, ISpellCheckC
 
         if (caster != null)
         {
-            var _player = caster.AsPlayer;
+            var player = caster.AsPlayer;
 
-            if (_player != null)
+            if (player != null)
             {
-                _player.SaveRecallPosition();
-                _player.CastSpell(_player, 126896, true);
+                player.SaveRecallPosition();
+                player.SpellFactory.CastSpell(player, 126896, true);
             }
         }
     }

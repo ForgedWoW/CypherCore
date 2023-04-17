@@ -5,7 +5,7 @@ namespace Scripts.Spells.Druid;
 
 public struct DruidFlamesSpells
 {
-    public static uint DRUID_OF_THE_FLAMES = 99245;
-    public static uint BURNING_ESSENCE = 138927;
-    public static uint MODEL_DRUID_OF_THE_FLAMES = 38150;
+    public static uint DruidOfTheFlames = 99245;
+    public static uint BurningEssence = 138927;
+    public static uint ModelDruidOfTheFlames = 38150;
 }

@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;
 
 [Script]
-internal class spell_gen_azgalor_rain_of_fire_hellfire_citadel : SpellScript, IHasSpellEffects
+internal class SpellGenAzgalorRainOfFireHellfireCitadel : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -20,6 +21,6 @@ internal class spell_gen_azgalor_rain_of_fire_hellfire_citadel : SpellScript, IH
 
     private void HandleDummy(int effIndex)
     {
-        Caster.CastSpell(HitUnit, (uint)EffectValue, true);
+        Caster.SpellFactory.CastSpell(HitUnit, (uint)EffectValue, true);
     }
 }

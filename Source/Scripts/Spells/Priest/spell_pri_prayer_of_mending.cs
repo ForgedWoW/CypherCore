@@ -2,15 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 33076 - Prayer of Mending
-internal class spell_pri_prayer_of_mending : SpellScript, IHasSpellEffects
+internal class SpellPriPrayerOfMending : SpellScript, IHasSpellEffects
 {
     private SpellEffectInfo _healEffectDummy;
     private SpellInfo _spellInfoHeal;
@@ -36,6 +37,6 @@ internal class spell_pri_prayer_of_mending : SpellScript, IHasSpellEffects
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
         args.AddSpellMod(SpellValueMod.AuraStack, EffectValue);
         args.AddSpellMod(SpellValueMod.BasePoint0, (int)basePoints);
-        Caster.CastSpell(HitUnit, PriestSpells.PRAYER_OF_MENDING_AURA, args);
+        Caster.SpellFactory.CastSpell(HitUnit, PriestSpells.PRAYER_OF_MENDING_AURA, args);
     }
 }

@@ -2,16 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
 [SpellScript(WarlockSpells.SOUL_LEECH_ABSORB)]
-internal class aura_warl_soul_leech_absorb : AuraScript, IHasAuraEffects
+internal class AuraWarlSoulLeechAbsorb : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -34,7 +35,7 @@ internal class aura_warl_soul_leech_absorb : AuraScript, IHasAuraEffects
             }
             else
             {
-                player.CastSpell(player,
+                player.SpellFactory.CastSpell(player,
                                  WarlockSpells.FEL_ARMOR_DMG_DELAY_REMAINING,
                                  new CastSpellExtraArgs(true)
                                      .SetSpellValueMod(SpellValueMod.BasePoint0, damageToDistribute)
@@ -56,7 +57,7 @@ internal class aura_warl_soul_leech_absorb : AuraScript, IHasAuraEffects
                 }
                 else
                 {
-                    player.CastSpell(player, WarlockSpells.FEL_ARMOR_DMG_DELAY, damageToDistribute / numTicks, true);
+                    player.SpellFactory.CastSpell(player, WarlockSpells.FEL_ARMOR_DMG_DELAY, damageToDistribute / numTicks, true);
                 }
             }
         }

@@ -12,6 +12,7 @@ using Forged.MapServer.Scripting.Interfaces;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Scripting;
@@ -296,12 +297,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
     public bool TryGetCasterAsPlayer(out Player player)
     {
-        var caster = Aura.Caster;
-
-        if (caster.TryGetAsPlayer(out player))
-            return true;
-
-        return false;
+        return Aura.Caster.TryGetAsPlayer(out player);
     }
 
     private class ScriptStateStore

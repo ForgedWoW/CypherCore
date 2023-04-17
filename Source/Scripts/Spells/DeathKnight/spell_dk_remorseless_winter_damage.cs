@@ -2,14 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(196771)]
-public class spell_dk_remorseless_winter_damage : SpellScript, IHasSpellEffects
+public class SpellDkRemorselessWinterDamage : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -24,6 +25,6 @@ public class spell_dk_remorseless_winter_damage : SpellScript, IHasSpellEffects
         var unit = HitUnit;
 
         if (unit != null)
-            Caster.CastSpell(unit, DeathKnightSpells.REMORSELESS_WINTER_SLOW_DOWN, true);
+            Caster.SpellFactory.CastSpell(unit, DeathKnightSpells.REMORSELESS_WINTER_SLOW_DOWN, true);
     }
 }

@@ -3,15 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Framework.Constants;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock;
 
 // Suffering - 119907
 [SpellScript(119907)]
-public class spell_warl_suffering : SpellScript, ISpellCheckCast, IHasSpellEffects
+public class SpellWarlSuffering : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
 
@@ -46,7 +47,7 @@ public class spell_warl_suffering : SpellScript, ISpellCheckCast, IHasSpellEffec
         /*if (pet->GetEntry() != PET_ENTRY_VOIDWALKER)
             return;*/
 
-        pet.CastSpell(target, WarlockSpells.VOIDWALKER_SUFFERING, true);
+        pet.SpellFactory.CastSpell(target, WarlockSpells.VOIDWALKER_SUFFERING, true);
         caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(10));
     }
 }

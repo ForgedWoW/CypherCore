@@ -1,22 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_binding_shotAI : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
+public class AtHunBindingShotAI : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
     public enum UsedSpells
     {
-        BINDING_SHOT_AURA = 117405,
-        BINDING_SHOT_STUN = 117526,
-        BINDING_SHOT_IMMUNE = 117553,
-        BINDING_SHOT_VISUAL_1 = 118306,
-        HUNDER_BINDING_SHOT_VISUAL_2 = 117614
+        BindingShotAura = 117405,
+        BindingShotStun = 117526,
+        BindingShotImmune = 117553,
+        BindingShotVisual1 = 118306,
+        HunderBindingShotVisual2 = 117614
     }
 
     public void OnUnitEnter(Unit unit)
@@ -30,7 +30,7 @@ public class at_hun_binding_shotAI : AreaTriggerScript, IAreaTriggerOnUnitEnter,
             return;
 
         if (!caster.IsFriendlyTo(unit))
-            unit.CastSpell(unit, UsedSpells.BINDING_SHOT_AURA, true);
+            unit.SpellFactory.CastSpell(unit, UsedSpells.BindingShotAura, true);
     }
 
     public void OnUnitExit(Unit unit)
@@ -41,10 +41,10 @@ public class at_hun_binding_shotAI : AreaTriggerScript, IAreaTriggerOnUnitEnter,
         var pos = At.Location;
 
         // Need to check range also, since when the trigger is removed, this get called as well.
-        if (unit.HasAura(UsedSpells.BINDING_SHOT_AURA) && unit.Location.GetExactDist(pos) >= 5.0f)
+        if (unit.HasAura(UsedSpells.BindingShotAura) && unit.Location.GetExactDist(pos) >= 5.0f)
         {
-            unit.RemoveAura(UsedSpells.BINDING_SHOT_AURA);
-            At.GetCaster().CastSpell(unit, UsedSpells.BINDING_SHOT_STUN, true);
+            unit.RemoveAura(UsedSpells.BindingShotAura);
+            At.GetCaster().SpellFactory.CastSpell(unit, UsedSpells.BindingShotStun, true);
         }
     }
 }

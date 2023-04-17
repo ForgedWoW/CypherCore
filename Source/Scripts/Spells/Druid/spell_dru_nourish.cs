@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Scripting;
+using Forged.MapServer.Scripting;
 
 namespace Scripts.Spells.Druid;
 
 [SpellScript(50464)]
-public class spell_dru_nourish : SpellScript
+public class SpellDruNourish : SpellScript
 {
-    private const int NOURISH_PASSIVE = 203374;
-    private const int REJUVENATION = 774;
+    private const int NourishPassive = 203374;
+    private const int Rejuvenation = 774;
 
     public void OnHit()
     {
@@ -20,8 +20,8 @@ public class spell_dru_nourish : SpellScript
             var target = HitUnit;
 
             if (target != null)
-                if (caster.HasAura(NOURISH_PASSIVE))
-                    caster.CastSpell(target, REJUVENATION, true);
+                if (caster.HasAura(NourishPassive))
+                    caster.SpellFactory.CastSpell(target, Rejuvenation, true);
         }
     }
 }

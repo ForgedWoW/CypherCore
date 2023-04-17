@@ -2,11 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -20,7 +21,7 @@ namespace Scripts.Spells.Warlock;
 {
     32863, 36123, 38252, 39367, 44141, 70388
 })] // Monster spells, triggered only on amount drop (not on death)
-internal class spell_warl_seed_of_corruption_generic : AuraScript, IHasAuraEffects
+internal class SpellWarlSeedOfCorruptionGeneric : AuraScript, IHasAuraEffects
 {
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
@@ -55,6 +56,6 @@ internal class spell_warl_seed_of_corruption_generic : AuraScript, IHasAuraEffec
         if (!caster)
             return;
 
-        caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_GENERIC, new CastSpellExtraArgs(aurEff));
+        caster.SpellFactory.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_GENERIC, new CastSpellExtraArgs(aurEff));
     }
 }

@@ -2,17 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Spells.Auras;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(6940)] // 6940 - Hand of Sacrifice
-internal class spell_pal_hand_of_sacrifice : AuraScript, IHasAuraEffects
+internal class SpellPalHandOfSacrifice : AuraScript, IHasAuraEffects
 {
-    private int remainingAmount;
+    private int _remainingAmount;
     public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
     public override bool Load()
@@ -21,7 +21,7 @@ internal class spell_pal_hand_of_sacrifice : AuraScript, IHasAuraEffects
 
         if (caster)
         {
-            remainingAmount = (int)caster.MaxHealth;
+            _remainingAmount = (int)caster.MaxHealth;
 
             return true;
         }
@@ -36,10 +36,10 @@ internal class spell_pal_hand_of_sacrifice : AuraScript, IHasAuraEffects
 
     private double Split(AuraEffect aurEff, DamageInfo dmgInfo, double splitAmount)
     {
-        remainingAmount -= (int)splitAmount;
+        _remainingAmount -= (int)splitAmount;
 
-        if (remainingAmount <= 0)
-            Target.RemoveAura(PaladinSpells.HandOfSacrifice);
+        if (_remainingAmount <= 0)
+            Target.RemoveAura(PaladinSpells.HAND_OF_SACRIFICE);
 
         return splitAmount;
     }
