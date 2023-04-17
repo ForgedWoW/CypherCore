@@ -15,6 +15,7 @@ public class CreatureListSearcher : IGridNotifierCreature
     internal PhaseShift PhaseShift;
     private readonly ICheck<Creature> _check;
     private readonly List<Creature> _objects;
+
     public CreatureListSearcher(WorldObject searcher, List<Creature> objects, ICheck<Creature> check, GridType gridType)
     {
         PhaseShift = searcher.Location.PhaseShift;
@@ -24,6 +25,7 @@ public class CreatureListSearcher : IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

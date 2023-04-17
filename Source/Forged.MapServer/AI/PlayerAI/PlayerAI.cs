@@ -16,6 +16,14 @@ namespace Forged.MapServer.AI.PlayerAI;
 
 public class PlayerAI : UnitAI
 {
+    public enum SpellTarget
+    {
+        None,
+        Victim,
+        Charmer,
+        Self
+    }
+
     protected new Player Me;
 
     private readonly bool _isSelfHealer;
@@ -30,14 +38,6 @@ public class PlayerAI : UnitAI
         _selfSpec = player.GetPrimarySpecialization();
         _isSelfHealer = IsPlayerHealer(player);
         _isSelfRangedAttacker = IsPlayerRangedAttacker(player);
-    }
-
-    public enum SpellTarget
-    {
-        None,
-        Victim,
-        Charmer,
-        Self
     }
 
     public void CancelAllShapeshifts()
@@ -253,11 +253,11 @@ public class PlayerAI : UnitAI
         return who.Class switch
         {
             PlayerClass.Paladin => who.GetPrimarySpecialization() == TalentSpecialization.PaladinHoly,
-            PlayerClass.Priest => who.GetPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.GetPrimarySpecialization() == TalentSpecialization.PriestHoly,
-            PlayerClass.Shaman => who.GetPrimarySpecialization() == TalentSpecialization.ShamanRestoration,
-            PlayerClass.Monk => who.GetPrimarySpecialization() == TalentSpecialization.MonkMistweaver,
-            PlayerClass.Druid => who.GetPrimarySpecialization() == TalentSpecialization.DruidRestoration,
-            _ => false,
+            PlayerClass.Priest  => who.GetPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.GetPrimarySpecialization() == TalentSpecialization.PriestHoly,
+            PlayerClass.Shaman  => who.GetPrimarySpecialization() == TalentSpecialization.ShamanRestoration,
+            PlayerClass.Monk    => who.GetPrimarySpecialization() == TalentSpecialization.MonkMistweaver,
+            PlayerClass.Druid   => who.GetPrimarySpecialization() == TalentSpecialization.DruidRestoration,
+            _                   => false,
         };
     }
 

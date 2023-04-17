@@ -24,6 +24,7 @@ public class KillRewarder
     private Player _maxNotGrayMember;
     private uint _sumLevel;
     private uint _xp;
+
     public KillRewarder(Player[] killers, Unit victim, bool isBattleground)
     {
         _killers = killers;
@@ -147,9 +148,7 @@ public class KillRewarder
             _isFullXp = _maxNotGrayMember && _maxLevel == _maxNotGrayMember.Level;
         }
         else
-        {
             _count = 1;
-        }
     }
 
     private void _InitXP(Player player, Player killer)

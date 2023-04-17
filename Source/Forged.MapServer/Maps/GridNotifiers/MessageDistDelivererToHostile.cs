@@ -19,6 +19,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
     private readonly T _packetSender;
     private readonly PhaseShift _phaseShift;
     private readonly Unit _source;
+
     public MessageDistDelivererToHostile(Unit src, T packetSender, float dist, GridType gridType)
     {
         _source = src;
@@ -29,6 +30,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

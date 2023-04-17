@@ -21,7 +21,9 @@ public class TerrainManager
     private readonly HashSet<uint> _keepLoaded = new();
     private readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
     private readonly LimitedThreadTaskManager _threadTaskManager;
+
     private readonly WorldDatabase _worldDatabase;
+
     // parent map links
     private MultiMap<uint, uint> _parentMapData = new();
 
@@ -158,6 +160,7 @@ public class TerrainManager
 
         _threadTaskManager.Wait();
     }
+
     private TerrainInfo LoadTerrainImpl(uint mapId)
     {
         var rootTerrain = new TerrainInfo(mapId, _keepLoaded.Contains(mapId));

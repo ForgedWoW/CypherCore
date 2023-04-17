@@ -10,8 +10,10 @@ internal class CommerceTokenGetMarketPriceResponse : ServerPacket
     public uint AuctionDuration;
     public ulong CurrentMarketPrice;
     public TokenResult Result;
+
     public uint UnkInt; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
-                        // preset auction duration enum
+
+    // preset auction duration enum
     public CommerceTokenGetMarketPriceResponse() : base(ServerOpcodes.CommerceTokenGetMarketPriceResponse) { }
 
     public override void Write()

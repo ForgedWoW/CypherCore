@@ -40,9 +40,7 @@ public class AreaBoundary
             DoublePositionZ = z;
         }
 
-        public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation)
-        {
-        }
+        public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation) { }
 
         public double DoublePositionX { get; }
 

@@ -11,6 +11,7 @@ public class GetAllAlliesOfTargetCreaturesWithinRange : ICheck<Creature>
 {
     private readonly float _fRange;
     private readonly Unit _pObject;
+
     public GetAllAlliesOfTargetCreaturesWithinRange(Unit obj, float maxRange = 0f)
     {
         _pObject = obj;

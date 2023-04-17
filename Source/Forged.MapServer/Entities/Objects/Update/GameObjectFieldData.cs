@@ -231,6 +231,7 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
                 data.WriteUInt32(UiWidgetItemUnknown1000);
         }
     }
+
     private uint GetViewerGameObjectFlags(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
     {
         uint flags = gameObjectData.Flags;

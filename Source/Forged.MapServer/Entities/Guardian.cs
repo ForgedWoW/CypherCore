@@ -73,19 +73,15 @@ public class Guardian : Minion
         if (IsPet && OwnerUnit.IsTypeId(TypeId.Player))
         {
             if (OwnerUnit.Class is PlayerClass.Warlock or PlayerClass.Shaman or PlayerClass.Deathknight
-               )                                                                 // Risen Ghoul
-            {
+               ) // Risen Ghoul
                 petType = PetType.Summon;
-            }
             else if (OwnerUnit.Class == PlayerClass.Hunter)
             {
                 petType = PetType.Hunter;
                 UnitTypeMask |= UnitTypeMask.HunterPet;
             }
             else
-            {
                 Log.Logger.Error("Unknown type pet {0} is summoned by player class {1}", Entry, OwnerUnit.Class);
-            }
         }
 
         var creature_ID = petType == PetType.Hunter ? 1 : cinfo.Entry;
@@ -138,22 +134,16 @@ public class Guardian : Minion
 
         // Power
         if (petType == PetType.Hunter) // Hunter pets have focus
-        {
             SetPowerType(PowerType.Focus);
-        }
         else if (IsPetGhoul() || IsPetAbomination()) // DK pets have energy
         {
             SetPowerType(PowerType.Energy);
             SetFullPower(PowerType.Energy);
         }
         else if (IsPetImp() || IsPetFelhunter() || IsPetVoidwalker() || IsPetSuccubus() || IsPetDoomguard() || IsPetFelguard()) // Warlock pets have energy (since 5.x)
-        {
             SetPowerType(PowerType.Energy);
-        }
         else
-        {
             SetPowerType(PowerType.Mana);
-        }
 
         // Damage
         SetBonusDamage(0);
@@ -354,6 +344,7 @@ public class Guardian : Minion
         if (OwnerUnit.IsTypeId(TypeId.Player) && OwnerUnit.MinionGUID == GUID && OwnerUnit.CharmedGUID.IsEmpty)
             OwnerUnit.AsPlayer.CharmSpellInitialize();
     }
+
     public override bool UpdateAllStats()
     {
         UpdateMaxHealth();
@@ -566,9 +557,7 @@ public class Guardian : Minion
             SetBonusResistanceMod(school, (int)bonusValue);
         }
         else
-        {
             UpdateArmor();
-        }
     }
 
     public override bool UpdateStats(Stats stat)
@@ -606,13 +595,11 @@ public class Guardian : Minion
         }
         //warlock's and mage's pets gain 30% of owner's intellect
         else if (stat == Stats.Intellect)
-        {
             if (owner.Class is PlayerClass.Warlock or PlayerClass.Mage)
             {
                 ownersBonus = MathFunctions.CalculatePct(owner.GetStat(stat), 30);
                 value += ownersBonus;
             }
-        }
 
         SetStat(stat, (int)value);
         _statFromOwner[(int)stat] = ownersBonus;
@@ -636,11 +623,11 @@ public class Guardian : Minion
                 UpdateMaxPower(PowerType.Mana);
 
                 break;
-            
         }
 
         return true;
     }
+
     private void SetBonusDamage(float damage)
     {
         _bonusSpellDamage = damage;

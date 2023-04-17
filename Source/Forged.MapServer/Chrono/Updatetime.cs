@@ -16,6 +16,7 @@ public class UpdateTime
     private uint _recordedTime;
     private uint _totalUpdateTime;
     private uint _updateTimeTableIndex;
+
     public uint GetAverageUpdateTime()
     {
         return _averageUpdateTime;
@@ -51,6 +52,7 @@ public class UpdateTime
 
         return sum / weightsum;
     }
+
     public void RecordUpdateTimeDuration(string text, uint minUpdateTime)
     {
         var thisTime = Time.MSTime;

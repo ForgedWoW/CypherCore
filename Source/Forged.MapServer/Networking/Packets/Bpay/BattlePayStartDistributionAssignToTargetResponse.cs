@@ -11,6 +11,7 @@ public class BattlePayStartDistributionAssignToTargetResponse : ServerPacket
 
     public ulong DistributionID { get; set; } = 0;
     public uint unkint1 { get; set; } = 0;
+
     public uint unkint2 { get; set; } = 0;
     /*WorldPacket const* WorldPackets::BattlePay::BattlepayUnk::Write()
     {

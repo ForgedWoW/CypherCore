@@ -20,6 +20,6 @@ public struct AuthWaitInfo
         data.FlushBits();
     }
 
-  // Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
-        // true if the account has a forced character migration pending. @todo implement
+    // Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
+    // true if the account has a forced character migration pending. @todo implement
 }

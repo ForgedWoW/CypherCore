@@ -36,9 +36,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public partial class Creature : Unit
 {
-    public Creature(ClassFactory classFactory) : this(false, classFactory)
-    {
-    }
+    public Creature(ClassFactory classFactory) : this(false, classFactory) { }
 
     public Creature(bool worldObject, ClassFactory classFactory) : base(worldObject, classFactory)
     {
@@ -395,9 +393,7 @@ public partial class Creature : Unit
         var unit = CharmerOrOwner;
 
         if (unit != null)
-        {
             return victim.Location.IsWithinDist(unit, dist);
-        }
         else
         {
             // include sizes for huge npcs
@@ -693,9 +689,7 @@ public partial class Creature : Unit
         else
         {
             if (forceRespawnTimer > TimeSpan.Zero)
-            {
                 SaveRespawnTime((uint)forceRespawnTimer.TotalSeconds);
-            }
             else
             {
                 var respawnDelay = RespawnDelay;
@@ -1194,13 +1188,9 @@ public partial class Creature : Unit
 
         // Load creature equipment
         if (data == null)
-        {
             LoadEquipment(); // use default equipment (if available) for summons
-        }
         else if (data.EquipmentId == 0)
-        {
             LoadEquipment(0); // 0 means no equipment for creature table
-        }
         else
         {
             OriginalEquipmentId = data.EquipmentId;
@@ -1487,10 +1477,8 @@ public partial class Creature : Unit
                 }
             }
             else
-            {
                 // compatibility mode creatures will be respawned in ::Update()
                 DeathState = DeathState.Dead;
-            }
 
             if (CanFly)
             {
@@ -1618,9 +1606,7 @@ public partial class Creature : Unit
                     addvalue = (27.0f / 5.0f + 17.0f) * manaIncreaseRate;
                 }
                 else
-                {
                     addvalue = (float)maxValue / 3;
-                }
 
                 break;
             }
@@ -1653,9 +1639,7 @@ public partial class Creature : Unit
                 ReacquireSpellFocusTarget();
         }
         else // don't allow re-target right away to prevent visual bugs
-        {
             _spellFocusInfo.Delay = withDelay ? 1000 : 1u;
-        }
 
         _spellFocusInfo.Spell = null;
     }
@@ -2082,9 +2066,7 @@ public partial class Creature : Unit
         Unit target;
 
         if (CanHaveThreatList)
-        {
             target = GetThreatManager().CurrentVictim;
-        }
         else if (!HasReactState(ReactStates.Passive))
         {
             // We're a player pet, probably
@@ -2112,9 +2094,7 @@ public partial class Creature : Unit
             }
         }
         else
-        {
             return null;
-        }
 
         if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
         {
@@ -2441,9 +2421,7 @@ public partial class Creature : Unit
             _spellFocusInfo.Orientation = Location.Orientation;
         }
         else // don't automatically reacquire target for the previous spellcast
-        {
             _spellFocusInfo.Delay = 0;
-        }
 
         _spellFocusInfo.Spell = focusSpell;
 
@@ -2606,17 +2584,13 @@ public partial class Creature : Unit
                     var linkedRespawnTime = Location.Map.GetLinkedRespawnTime(dbtableHighGuid);
 
                     if (linkedRespawnTime == 0) // Can respawn
-                    {
                         Respawn();
-                    }
                     else // the master is dead
                     {
                         var targetGuid = ObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
 
                         if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
-                        {
                             SetRespawnTime(Time.WEEK);
-                        }
                         else
                         {
                             // else copy time from master and add a little
@@ -2687,9 +2661,7 @@ public partial class Creature : Unit
                         _boundaryCheckTime = 2500;
                     }
                     else
-                    {
                         _boundaryCheckTime -= diff;
-                    }
                 }
 
                 // if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
@@ -2736,9 +2708,7 @@ public partial class Creature : Unit
                     {
                         // regenerate health if not in combat or if polymorphed)
                         if (!IsEngaged || IsPolymorphed)
-                        {
                             RegenerateHealth();
-                        }
                         else if (CannotReachTarget)
                         {
                             // regenerate health if cannot reach the target and the setting is set to do so.
@@ -2749,9 +2719,7 @@ public partial class Creature : Unit
                                 Log.Logger.Debug($"RegenerateHealth() enabled because Creature cannot reach the target. Detail: {GetDebugInfo()}");
                             }
                             else
-                            {
                                 Log.Logger.Debug($"RegenerateHealth() disabled even if the Creature cannot reach the target. Detail: {GetDebugInfo()}");
-                            }
                         }
                     }
 
@@ -2825,9 +2793,7 @@ public partial class Creature : Unit
         SetBaseAttackTime(WeaponAttackType.RangedAttack, cInfo.RangeAttackTime);
 
         if (updateLevel)
-        {
             SelectLevel();
-        }
         else if (!IsGuardian)
         {
             var previousHealth = Health;
@@ -3066,9 +3032,7 @@ public partial class Creature : Unit
                 entry = Template.Entry;
             }
             else
-            {
                 vehId = cinfo.VehicleId;
-            }
         }
 
         if (vehId != 0)
@@ -3101,9 +3065,7 @@ public partial class Creature : Unit
         if (Formation != null)
         {
             if (Formation.Leader == this)
-            {
                 Formation.FormationReset(false);
-            }
             else if (Formation.IsFormed)
             {
                 MotionMaster.MoveIdle(); //wait the order of leader
@@ -3148,9 +3110,7 @@ public partial class Creature : Unit
                     SetFacingToObject(objTarget, false);
             }
             else
-            {
                 SetFacingTo(_spellFocusInfo.Orientation, false);
-            }
         }
 
         _spellFocusInfo.Delay = 0;
@@ -3176,9 +3136,7 @@ public partial class Creature : Unit
             addvalue = 0.015f * MaxHealth * healthIncreaseRate;
         }
         else
-        {
             addvalue = (float)maxValue / 3;
-        }
 
         // Apply modifiers (if any).
         addvalue *= GetTotalAuraMultiplier(AuraType.ModHealthRegenPercent);

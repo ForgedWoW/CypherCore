@@ -12,6 +12,7 @@ internal class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
     private readonly bool _ignoreCivilians;
     private readonly Creature _me;
     private readonly bool _useLOS;
+
     public NearestHostileUnitInAggroRangeCheck(Creature creature, bool useLOS = false, bool ignoreCivilians = false)
     {
         _me = creature;

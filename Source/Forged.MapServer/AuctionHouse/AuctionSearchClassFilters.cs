@@ -7,6 +7,13 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionSearchClassFilters
 {
+    public enum FilterType : uint
+    {
+        SkipClass = 0,
+        SkipSubclass = 0xFFFFFFFF,
+        SkipInvtype = 0xFFFFFFFF
+    }
+
     public SubclassFilter[] Classes = new SubclassFilter[(int)ItemClass.Max];
 
     public AuctionSearchClassFilters()
@@ -15,12 +22,6 @@ public class AuctionSearchClassFilters
             Classes[i] = new SubclassFilter();
     }
 
-    public enum FilterType : uint
-    {
-        SkipClass = 0,
-        SkipSubclass = 0xFFFFFFFF,
-        SkipInvtype = 0xFFFFFFFF
-    }
     public class SubclassFilter
     {
         public ulong[] InvTypes = new ulong[ItemConst.MaxItemSubclassTotal];

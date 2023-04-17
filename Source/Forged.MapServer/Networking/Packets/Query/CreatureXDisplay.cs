@@ -8,6 +8,7 @@ public class CreatureXDisplay
     public uint CreatureDisplayID;
     public float Probability = 1.0f;
     public float Scale = 1.0f;
+
     public CreatureXDisplay(uint creatureDisplayID, float displayScale, float probability)
     {
         CreatureDisplayID = creatureDisplayID;

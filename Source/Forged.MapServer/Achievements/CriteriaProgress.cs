@@ -10,6 +10,7 @@ public class CriteriaProgress
     public ObjectGuid PlayerGUID;
     public bool Changed { get; set; }
     public ulong Counter { get; set; }
+
     public long Date { get; set; } // latest update time.
-                                   // GUID of the player that completed this criteria (guild achievements)
+    // GUID of the player that completed this criteria (guild achievements)
 }

@@ -15,6 +15,7 @@ namespace Forged.MapServer.LootManagement;
 public class LootItem
 {
     private readonly ConditionManager _conditionManager;
+
     // quest drop
     private readonly GameObjectManager _objectManager;
 
@@ -61,6 +62,7 @@ public class LootItem
 
     // additional loot condition
     public ObjectGuid RollWinnerGuid { get; set; } // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
+
     public static bool AllowedForPlayer(Player player, Loot loot, uint itemid, bool needsQuest, bool followLootRules, bool strictUsabilityCheck, List<Condition> conditions, GameObjectManager objectManager, ConditionManager conditionManager)
     {
         // DB conditions check

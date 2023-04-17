@@ -49,9 +49,7 @@ internal class MiscAddItemCommands
                 itemId = record.Id;
             }
             else
-            {
                 return false;
-            }
         }
         else // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
         {
@@ -132,10 +130,8 @@ internal class MiscAddItemCommands
                     handler.SendSysMessage(CypherStrings.RemoveitemFailure, itemId, unableToDestroyItemCount, handler.GetNameLink(playerTarget));
             }
             else
-            {
                 // failed to destroy items of the amount requested
                 handler.SendSysMessage(CypherStrings.RemoveitemFailure, itemId, -count, handler.GetNameLink(playerTarget));
-            }
 
             return true;
         }
@@ -314,9 +310,7 @@ internal class MiscAddItemCommands
                 itemId = itr.Id;
             }
             else
-            {
                 return false;
-            }
         }
         else // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
         {
@@ -392,10 +386,8 @@ internal class MiscAddItemCommands
                     handler.SendSysMessage(CypherStrings.RemoveitemFailure, itemId, unableToDestroyItemCount, handler.GetNameLink(playerTarget));
             }
             else
-            {
                 // failed to destroy items of the amount requested
                 handler.SendSysMessage(CypherStrings.RemoveitemFailure, itemId, -count, handler.GetNameLink(playerTarget));
-            }
 
             return true;
         }

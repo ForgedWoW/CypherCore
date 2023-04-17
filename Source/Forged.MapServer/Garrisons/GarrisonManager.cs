@@ -182,6 +182,7 @@ public class GarrisonManager
         };
 
         GarrAbilities garrAbilities = null;
+
         if (_garrisonFollowerAbilities[faction].TryGetValue(garrFollowerId, out var abilities))
             garrAbilities = abilities;
 

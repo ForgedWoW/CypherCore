@@ -32,14 +32,18 @@ public class QuestInfo
     public float POIx;
     public float POIy;
     public uint PortraitGiver;
+
     public int PortraitGiverModelSceneID;
+
     // quest giver entry ?
     public uint PortraitGiverMount;
 
     public string PortraitGiverName;
     public string PortraitGiverText;
     public uint PortraitTurnIn;
+
     public string PortraitTurnInName;
+
     // quest turn in entry ?
     public string PortraitTurnInText;
 
@@ -117,13 +121,15 @@ public class QuestInfo
 
     // zone or sort to display in quest log
     public uint SuggestedGroupNum;
-     // new 2.4.0, player gets this title (id from CharTitles)
-     // reward skill id
-     // reward skill points
-     // rep mask (unsure on what it does)
+
+    // new 2.4.0, player gets this title (id from CharTitles)
+    // reward skill id
+    // reward skill points
+    // rep mask (unsure on what it does)
     public uint TimeAllowed;
     public int TreasurePickerID;
     public QuestInfoChoiceItem[] UnfilteredChoiceItems = new QuestInfoChoiceItem[SharedConst.QuestRewardChoicesCount];
+
     public QuestInfo()
     {
         LogTitle = "";

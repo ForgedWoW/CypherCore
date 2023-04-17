@@ -14,8 +14,7 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
     public SmartEvent Event;
     public SmartTarget Target;
 
-    public SmartScriptHolder()
-    { }
+    public SmartScriptHolder() { }
 
     public SmartScriptHolder(SmartScriptHolder other)
     {

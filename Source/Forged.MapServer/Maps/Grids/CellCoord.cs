@@ -24,15 +24,6 @@ public class CellCoord : ICoord
 
     public uint X { get; set; }
     public uint Y { get; set; }
-    public static bool operator !=(CellCoord p1, CellCoord p2)
-    {
-        return !(p1 == p2);
-    }
-
-    public static bool operator ==(CellCoord p1, CellCoord p2)
-    {
-        return p2 != null && p1 != null && p1.X == p2.X && p1.Y == p2.Y;
-    }
 
     public void DecX(uint val)
     {
@@ -48,19 +39,6 @@ public class CellCoord : ICoord
             Y -= val;
         else
             Y = 0;
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj is CellCoord coord)
-            return coord == this;
-
-        return false;
-    }
-
-    public override int GetHashCode()
-    {
-        return X.GetHashCode() ^ Y.GetHashCode();
     }
 
     public uint GetId()
@@ -95,5 +73,28 @@ public class CellCoord : ICoord
         Y = Math.Min(Y, Limit - 1);
 
         return this;
+    }
+
+    public static bool operator !=(CellCoord p1, CellCoord p2)
+    {
+        return !(p1 == p2);
+    }
+
+    public static bool operator ==(CellCoord p1, CellCoord p2)
+    {
+        return p2 != null && p1 != null && p1.X == p2.X && p1.Y == p2.Y;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is CellCoord coord)
+            return coord == this;
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return X.GetHashCode() ^ Y.GetHashCode();
     }
 }

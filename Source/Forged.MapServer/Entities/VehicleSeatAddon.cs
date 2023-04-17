@@ -13,6 +13,7 @@ public class VehicleSeatAddon
     public float ExitParameterY;
     public float ExitParameterZ;
     public float SeatOrientationOffset;
+
     public VehicleSeatAddon(float orientatonOffset, float exitX, float exitY, float exitZ, float exitO, byte param)
     {
         SeatOrientationOffset = orientatonOffset;

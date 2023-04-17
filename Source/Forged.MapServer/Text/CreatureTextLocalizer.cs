@@ -31,9 +31,7 @@ public class CreatureTextLocalizer : IDoWork<Player>
             _packetCache[locIdx] = sender;
         }
         else
-        {
             sender = _packetCache[locIdx];
-        }
 
         switch (_msgType)
         {

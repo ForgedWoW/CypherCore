@@ -25,6 +25,7 @@ public partial class Player
     public Difficulty DungeonDifficultyId { get; set; }
 
     public Difficulty LegacyRaidDifficultyId { get; set; }
+
     public ZonePVPTypeOverride OverrideZonePvpType
     {
         get => (ZonePVPTypeOverride)(uint)ActivePlayerData.OverrideZonePVPType;
@@ -32,6 +33,7 @@ public partial class Player
     }
 
     public Difficulty RaidDifficultyId { get; set; }
+
     public void AddInstanceEnterTime(uint instanceId, long enterTime)
     {
         if (!_instanceResetTimes.ContainsKey(instanceId))
@@ -110,6 +112,7 @@ public partial class Player
 
         return RaidDifficultyId;
     }
+
     public uint GetRecentInstanceId(uint mapId)
     {
         return _recentInstances.LookupByKey(mapId);
@@ -246,9 +249,7 @@ public partial class Player
                         missingItem = ar.Item;
                 }
                 else if (ar.Item2 != 0 && !HasItemCount(ar.Item2))
-                {
                     missingItem = ar.Item2;
-                }
 
                 missingQuest = Team switch
                 {
@@ -276,9 +277,7 @@ public partial class Player
                 if (report)
                 {
                     if (missingQuest != 0 && ar != null && !string.IsNullOrEmpty(ar.QuestFailedText))
-                    {
                         SendSysMessage("{0}", ar.QuestFailedText);
-                    }
                     else if (!mapDiff.Message[WorldMgr.DefaultDbcLocale].IsEmpty() && mapDiff.Message[WorldMgr.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
                     {
                         if (abortParams != null)
@@ -289,13 +288,9 @@ public partial class Player
                         }
                     }
                     else if (missingItem != 0)
-                    {
                         Session.SendNotification(ObjectManager.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, ObjectManager.GetItemTemplate(missingItem).GetName());
-                    }
                     else if (levelMin != 0)
-                    {
                         Session.SendNotification(ObjectManager.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
-                    }
                 }
 
                 return false;
@@ -421,25 +416,17 @@ public partial class Player
         PvpInfo.IsInHostileArea = false;
 
         if (area.IsSanctuary()) // sanctuary and arena cannot be overriden
-        {
             PvpInfo.IsInHostileArea = false;
-        }
         else if (area.HasFlag(AreaFlags.Arena))
-        {
             PvpInfo.IsInHostileArea = true;
-        }
         else if (overrideZonePvpType == ZonePVPTypeOverride.None)
         {
             if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && WorldStateManager.GetValue(area.PvpCombatWorldStateID, Location.Map) != 0))
-            {
                 PvpInfo.IsInHostileArea = true;
-            }
             else if (IsWarModeLocalActive || area.HasFlag(AreaFlags.Unk3))
             {
                 if (area.HasFlag(AreaFlags.ContestedArea))
-                {
                     PvpInfo.IsInHostileArea = IsWarModeLocalActive;
-                }
                 else
                 {
                     var factionTemplate = WorldObjectCombat.GetFactionTemplateEntry();
@@ -454,7 +441,6 @@ public partial class Player
             }
         }
         else
-        {
             PvpInfo.IsInHostileArea = overrideZonePvpType switch
             {
                 ZonePVPTypeOverride.Friendly  => false,
@@ -463,7 +449,6 @@ public partial class Player
                 ZonePVPTypeOverride.Combat    => true,
                 _                             => PvpInfo.IsInHostileArea
             };
-        }
 
         // Treat players having a quest flagging for PvP as always in hostile area
         PvpInfo.IsHostile = PvpInfo.IsInHostileArea || HasPvPForcingQuest() || IsWarModeLocalActive;
@@ -521,9 +506,7 @@ public partial class Player
             PvpInfo.IsInNoPvPArea = true;
         }
         else
-        {
             RestMgr.RemoveRestFlag(RestFlag.City);
-        }
 
         UpdatePvPState();
 
@@ -554,6 +537,7 @@ public partial class Player
                 guild.UpdateMemberData(this, GuildMemberData.ZoneId, newZone);
         }
     }
+
     private bool IsInstanceLoginGameMasterException()
     {
         if (!CanBeGameMaster)
@@ -599,9 +583,7 @@ public partial class Player
                 CombatStopWithPets();
         }
         else
-        {
             RemovePvpFlag(UnitPVPStateFlags.Sanctuary);
-        }
 
         var areaRestFlag = Team == TeamFaction.Alliance ? AreaFlags.RestZoneAlliance : AreaFlags.RestZoneHorde;
 

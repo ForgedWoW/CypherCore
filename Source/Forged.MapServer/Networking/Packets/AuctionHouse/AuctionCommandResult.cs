@@ -21,6 +21,7 @@ internal class AuctionCommandResult : ServerPacket
 
     /// < the type of action that triggered this notification. Possible values are @ ref AuctionAction
     public int ErrorCode;
+
     /// < the bid error. Possible values are @ ref AuctionError
     public ObjectGuid Guid;
 
@@ -29,6 +30,7 @@ internal class AuctionCommandResult : ServerPacket
 
     ///< the sum of outbid is (1% of current bid) * 5, if the bid is too small, then this value is 1 copper.
     public ulong Money;
+
     public AuctionCommandResult() : base(ServerOpcodes.AuctionCommandResult) { }
 
     public override void Write()

@@ -24,6 +24,14 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
     public int Bit { get; set; }
     public int BlockBit { get; set; }
     public UpdateMask ChangesMask { get; set; }
+
+    public abstract void ClearChangesMask();
+
+    public UpdateMask GetUpdateMask()
+    {
+        return ChangesMask;
+    }
+
     public void ClearChanged<U>(UpdateField<U> updateField) where U : new()
     {
         ChangesMask.Reset(updateField.Bit);
@@ -39,8 +47,6 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
         ChangesMask.Reset(Bit);
         updateField.ClearChanged(index);
     }
-
-    public abstract void ClearChangesMask();
 
     public void ClearChangesMask<U>(UpdateField<U> updateField) where U : new()
     {
@@ -74,10 +80,6 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
         }
     }
 
-    public UpdateMask GetUpdateMask()
-    {
-        return ChangesMask;
-    }
     public void MarkChanged<U>(UpdateField<U> updateField) where U : new()
     {
         ChangesMask.Set(updateField.BlockBit);
@@ -140,6 +142,7 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 
         return new DynamicUpdateFieldSetter<U>(updateField, index);
     }
+
     public void WriteCompleteDynamicFieldUpdateMask(int size, WorldPacket data, int bitsForSize = 32)
     {
         data.WriteBits(size, bitsForSize);

@@ -23,6 +23,7 @@ public class WorldPacket : ByteBuffer
     public uint Opcode { get; }
 
     public DateTime ReceivedTime { get; private set; }
+
     public ObjectGuid ReadPackedGuid()
     {
         var loLength = ReadUInt8();

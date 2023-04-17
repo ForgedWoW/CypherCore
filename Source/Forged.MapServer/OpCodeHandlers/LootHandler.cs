@@ -332,9 +332,7 @@ public class LootHandler : IWorldSessionHandler
                     Player.SetLootSpecId(packet.SpecID);
         }
         else
-        {
             Player.SetLootSpecId(0);
-        }
     }
 
     private class AELootCreatureCheck : ICheck<Creature>

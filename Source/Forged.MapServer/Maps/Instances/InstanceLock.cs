@@ -77,6 +77,7 @@ public class InstanceLock
     {
         return _expiryTime < GameTime.SystemTime;
     }
+
     public bool IsExtended()
     {
         return _extended;
@@ -101,6 +102,7 @@ public class InstanceLock
     {
         _instanceId = instanceId;
     }
+
     public void SetInUse(bool inUse)
     {
         _isInUse = inUse;

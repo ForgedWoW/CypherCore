@@ -509,6 +509,7 @@ public class BattlePetMgr
             do
             {
                 Slots[i].Index = slotsResult.Read<byte>(0);
+
                 if (_pets.TryGetValue(slotsResult.Read<ulong>(1), out var battlePet))
                     Slots[i].Pet = battlePet.PacketInfo;
 

@@ -10,6 +10,7 @@ public class InteractionData
     public uint PlayerChoiceId { get; set; }
     public ObjectGuid SourceGuid { get; set; }
     public uint TrainerId { get; set; }
+
     public void Reset()
     {
         SourceGuid.Clear();

@@ -46,15 +46,6 @@ public class Channel
     private ObjectGuid _ownerGuid;
     private bool _ownershipEnabled;
 
-    public uint ChannelId { get; }
-    public ChannelFlags Flags { get; }
-    public ObjectGuid GUID { get; }
-    public bool IsConstant => ChannelId != 0;
-    public bool IsLFG => Flags.HasAnyFlag(ChannelFlags.Lfg);
-    public int NumPlayers => _playersStore.Count;
-    public AreaTableRecord ZoneEntry { get; }
-    private bool IsAnnounce { get; set; }
-
     public Channel(ObjectGuid guid, uint channelId, TeamFaction team, AreaTableRecord zoneEntry,
                    CliDB cliDB, GameObjectManager gameObjectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
                    IConfiguration configuration, AccountManager accountManager, CharacterDatabase characterDatabase, WorldManager worldManager)
@@ -113,6 +104,15 @@ public class Channel
         }
     }
 
+    public uint ChannelId { get; }
+    public ChannelFlags Flags { get; }
+    public ObjectGuid GUID { get; }
+    public bool IsConstant => ChannelId != 0;
+    public bool IsLFG => Flags.HasAnyFlag(ChannelFlags.Lfg);
+    public int NumPlayers => _playersStore.Count;
+    public AreaTableRecord ZoneEntry { get; }
+    private bool IsAnnounce { get; set; }
+
     public static void GetChannelName(ref string channelName, uint channelId, Locale locale, AreaTableRecord zoneEntry, CliDB cliDB, GameObjectManager objectManager)
     {
         if (channelId == 0)
@@ -128,9 +128,7 @@ public class Channel
                 channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), zoneEntry.AreaName[locale]);
         }
         else
-        {
             channelName = channelEntry.Name[locale];
-        }
     }
 
     public void AddonSay(ObjectGuid guid, string prefix, string what, bool isLogged)
@@ -755,9 +753,7 @@ public class Channel
             }
         }
         else
-        {
             return;
-        }
 
         _isDirty = false;
         _nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.MINUTE, 6 * Time.MINUTE) * Math.Max(1u, _configuration.GetDefaultValue("PreserveCustomChannelInterval", 5));

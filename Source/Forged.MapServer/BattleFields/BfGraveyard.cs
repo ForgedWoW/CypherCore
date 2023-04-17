@@ -157,9 +157,7 @@ public class BfGraveyard
                 continue;
 
             if (closestGrave != null)
-            {
                 player.TeleportTo(closestGrave.Location);
-            }
             else
             {
                 closestGrave = BattleField.GetClosestGraveYard(player);

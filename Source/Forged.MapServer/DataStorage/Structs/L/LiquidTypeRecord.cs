@@ -23,7 +23,9 @@ public sealed class LiquidTypeRecord
     public byte ParticleMovement;
     public float ParticleScale;
     public byte ParticleTexSlots;
+
     public byte SoundBank;
+
     // used to be "type", maybe needs fixing (works well for now)
     public uint SoundID;
 

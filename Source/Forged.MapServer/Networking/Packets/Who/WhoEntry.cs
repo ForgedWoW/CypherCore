@@ -15,6 +15,7 @@ public class WhoEntry
     public uint GuildVirtualRealmAddress;
     public bool IsGM;
     public PlayerGuidLookupData PlayerData = new();
+
     public void Write(WorldPacket data)
     {
         PlayerData.Write(data);

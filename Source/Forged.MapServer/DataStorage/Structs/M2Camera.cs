@@ -13,12 +13,14 @@ public struct M2Camera
     public Vector3 position_base;
     public M2Track positions;
     public M2Track rolldata;
+
     public Vector3 target_position_base;
+
     // How the camera's position moves. Should be 3*3 floats.
     public M2Track target_positions;
 
     public uint type; // 0: portrait, 1: characterinfo; -1: else (flyby etc.); referenced backwards in the lookup table.
-                      // How the target moves. Should be 3*3 floats.
-                      // The camera can have some roll-effect. Its 0 to 2*Pi.
-                      // FoV for this segment
+    // How the target moves. Should be 3*3 floats.
+    // The camera can have some roll-effect. Its 0 to 2*Pi.
+    // FoV for this segment
 }

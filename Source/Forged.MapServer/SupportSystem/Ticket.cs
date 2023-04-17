@@ -33,6 +33,7 @@ public class Ticket
 
     public Player AssignedPlayer => Player.ObjectAccessor.FindConnectedPlayer(AssignedTo);
     public ObjectGuid AssignedToGUID => AssignedTo;
+
     public string AssignedToName
     {
         get

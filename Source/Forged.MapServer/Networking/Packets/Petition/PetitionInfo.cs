@@ -27,6 +27,7 @@ public class PetitionInfo
     public int PetitionID;
     public int StaticType;
     public string Title;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(PetitionID);

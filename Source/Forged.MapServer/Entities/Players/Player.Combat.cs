@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -46,7 +45,7 @@ public partial class Player
         }
 
         if (CliDB.SpellShapeshiftFormStorage.ContainsKey((uint)ShapeshiftForm)))
-            SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
+        SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
 
         var weaponBasedAttackPower = apply ? (int)(proto.GetDPS(itemLevel) * 6.0f) : 0;
 
@@ -141,8 +140,8 @@ public partial class Player
         DisablePvpRules();
 
         ScriptManager.ForEach<IPlayerOnDuelEnd>(p => p.OnDuelEnd(type == DuelCompleteType.Won ? this : opponent,
-                                                                    type == DuelCompleteType.Won ? opponent : this,
-                                                                    type));
+                                                                 type == DuelCompleteType.Won ? opponent : this,
+                                                                 type));
 
         switch (type)
         {
@@ -420,6 +419,7 @@ public partial class Player
     public void UpdatePvP(bool state, bool overrideEndTime = false)
     {
         SetPvP(state);
+
         if (!state || overrideEndTime)
             PvpInfo.EndTimer = 0;
         else
@@ -541,9 +541,7 @@ public partial class Player
                 SendPacket(new DuelInBounds());
             }
             else if (currTime >= Duel.OutOfBoundsTime)
-            {
                 DuelComplete(DuelCompleteType.Fled);
-            }
         }
     }
 
@@ -560,9 +558,7 @@ public partial class Player
                 SpellFactory.CastSpell((Unit)null, _titanGripPenaltySpellId, true);
         }
         else
-        {
             RemoveAura(_titanGripPenaltySpellId);
-        }
     }
 
     private void GetDodgeFromAgility(double diminishing, double nondiminishing)
@@ -692,9 +688,7 @@ public partial class Player
                     SetBaseAttackTime(weaponAttackType, proto.Delay);
             }
             else
-            {
                 SetBaseAttackTime(weaponAttackType, SharedConst.BaseAttackTime); // If there is no weapon reset attack time to base (might have been changed from forms)
-            }
         }
     }
 

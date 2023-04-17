@@ -26,21 +26,6 @@ public class GridCoord : ICoord
 
     public uint X { get; set; }
     public uint Y { get; set; }
-    public static bool operator !=(GridCoord first, GridCoord other)
-    {
-        return !(first == other);
-    }
-
-    public static bool operator ==(GridCoord first, GridCoord other)
-    {
-        if (ReferenceEquals(first, other))
-            return true;
-
-        if (ReferenceEquals(first, null) || ReferenceEquals(other, null))
-            return false;
-
-        return first.Equals(other);
-    }
 
     public void DecX(uint val)
     {
@@ -56,25 +41,6 @@ public class GridCoord : ICoord
             Y -= val;
         else
             Y = 0;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is ObjectGuid guid && Equals(guid);
-    }
-
-    public bool Equals(GridCoord other)
-    {
-        return other.X == X && other.Y == Y;
-    }
-
-    public override int GetHashCode()
-    {
-        return new
-        {
-            X_Coord = X,
-            Y_Coord = Y
-        }.GetHashCode();
     }
 
     public uint GetId()
@@ -109,5 +75,40 @@ public class GridCoord : ICoord
         Y = Math.Min(Y, Limit - 1);
 
         return this;
+    }
+
+    public static bool operator !=(GridCoord first, GridCoord other)
+    {
+        return !(first == other);
+    }
+
+    public static bool operator ==(GridCoord first, GridCoord other)
+    {
+        if (ReferenceEquals(first, other))
+            return true;
+
+        if (ReferenceEquals(first, null) || ReferenceEquals(other, null))
+            return false;
+
+        return first.Equals(other);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is ObjectGuid guid && Equals(guid);
+    }
+
+    public bool Equals(GridCoord other)
+    {
+        return other.X == X && other.Y == Y;
+    }
+
+    public override int GetHashCode()
+    {
+        return new
+        {
+            X_Coord = X,
+            Y_Coord = Y
+        }.GetHashCode();
     }
 }

@@ -139,9 +139,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
                 cost += itemTransmogrified.GetSellPrice(_player);
             }
             else
-            {
                 resetAppearanceItems.Add(itemTransmogrified);
-            }
 
             if (transmogItem.SpellItemEnchantmentID != 0)
             {
@@ -173,9 +171,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
                 cost += illusion.TransmogCost;
             }
             else
-            {
                 resetIllusionItems.Add(itemTransmogrified);
-            }
         }
 
         if (!player.HasAuraType(AuraType.RemoveTransmogCost) && cost != 0) // 0 cost if reverting look

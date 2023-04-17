@@ -14,6 +14,7 @@ public class ClientGossipText
     public string QuestTitle;
     public int QuestType;
     public bool Repeatable;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(QuestID);

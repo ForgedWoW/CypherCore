@@ -11,6 +11,7 @@ public class NonTankTargetSelector : ICheck<Unit>
 {
     private readonly bool _playerOnly;
     private readonly Unit _source;
+
     public NonTankTargetSelector(Unit source, bool playerOnly = true)
     {
         _source = source;

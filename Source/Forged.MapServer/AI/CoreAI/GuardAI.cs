@@ -11,9 +11,7 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class GuardAI : ScriptedAI.ScriptedAI
 {
-    public GuardAI(Creature creature) : base(creature)
-    {
-    }
+    public GuardAI(Creature creature) : base(creature) { }
 
     public override bool CanSeeAlways(WorldObject obj)
     {

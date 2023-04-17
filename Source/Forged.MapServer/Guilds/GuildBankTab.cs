@@ -33,6 +33,7 @@ public class GuildBankTab
     public string Name { get; private set; }
 
     public string Text { get; private set; }
+
     public void Delete(SQLTransaction trans, bool removeItemsFromDB = false)
     {
         for (byte slotId = 0; slotId < GuildConst.MaxBankSlots; ++slotId)

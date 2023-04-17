@@ -10,6 +10,7 @@ public class DistributionUpdate : ServerPacket
     public DistributionUpdate() : base(ServerOpcodes.BattlePayDistributionUpdate) { }
 
     public BpayDistributionObject DistributionObject { get; set; } = new();
+
     public override void Write()
     {
         DistributionObject.Write(WorldPacket);

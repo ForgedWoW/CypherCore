@@ -60,9 +60,7 @@ public class GameTableReader
                             array.SetValue(float.Parse(values[valueIndex++]), i);
                     }
                     else
-                    {
                         fields[fieldIndex].SetValue(obj, float.Parse(values[valueIndex]));
-                    }
                 }
 
                 data.Add(obj);

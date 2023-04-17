@@ -12,6 +12,7 @@ public class DungeonScoreSeasonData
     public int Season;
     public List<DungeonScoreMapData> SeasonMaps = new();
     public float SeasonScore;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Season);

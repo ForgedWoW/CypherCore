@@ -9,6 +9,7 @@ public class ItemPosCount
 {
     public uint Count;
     public ushort Pos;
+
     public ItemPosCount(ushort pos, uint count)
     {
         Pos = pos;

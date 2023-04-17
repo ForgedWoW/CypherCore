@@ -5,15 +5,15 @@ namespace Forged.MapServer.Collision.Maps;
 
 public class AreaInfo
 {
+    public AreaInfo()
+    {
+        GroundZ = float.NegativeInfinity;
+    }
+
     public int AdtId { get; set; }
     public uint Flags { get; set; }
     public float GroundZ { get; set; }
     public int GroupId { get; set; }
     public bool Result { get; set; }
     public int RootId { get; set; }
-
-    public AreaInfo()
-    {
-        GroundZ = float.NegativeInfinity;
-    }
 }

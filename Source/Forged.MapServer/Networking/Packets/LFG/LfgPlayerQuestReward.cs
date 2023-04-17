@@ -14,11 +14,14 @@ public class LfgPlayerQuestReward
     public uint Mask;
     public uint RewardMoney;
     public int? RewardSpellID;
+
     public uint RewardXP;
+
     // Only used by SMSG_LFG_PLAYER_INFO
     public int? Unused1;
+
     public ulong? Unused2;
-     // Only used by SMSG_REQUEST_PVP_REWARDS_RESPONSE
+    // Only used by SMSG_REQUEST_PVP_REWARDS_RESPONSE
 
     public void Write(WorldPacket data)
     {

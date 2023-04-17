@@ -32,6 +32,7 @@ public class MoveSplineInit
     }
 
     public MoveSplineInitArgs Args { get; set; } = new();
+
     public void DisableTransportPathTransformations()
     {
         Args.TransformForTransport = false;
@@ -48,9 +49,7 @@ public class MoveSplineInit
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
         if (!moveSpline.Splineflags.HasFlag(SplineFlag.Done) && moveSpline.OnTransport == transport)
-        {
             realPosition = moveSpline.ComputePosition();
-        }
         else
         {
             var pos = !transport ? _unit.Location : _unit.MovementInfo.Transport.Pos;
@@ -211,9 +210,7 @@ public class MoveSplineInit
             var vehicle = _unit.VehicleBase;
 
             if (vehicle != null)
-            {
                 angle -= vehicle.Location.Orientation;
-            }
             else
             {
                 var transport = _unit.Transport;
@@ -325,9 +322,7 @@ public class MoveSplineInit
         Vector4 loc = new();
 
         if (moveSpline.OnTransport == transport)
-        {
             loc = moveSpline.ComputePosition();
-        }
         else
         {
             var pos = !transport ? _unit.Location : _unit.MovementInfo.Transport.Pos;
@@ -366,20 +361,17 @@ public class MoveSplineInit
     private UnitMoveType SelectSpeedType(MovementFlag moveFlags)
     {
         if (moveFlags.HasAnyFlag(MovementFlag.Flying))
-        {
             return moveFlags.HasAnyFlag(MovementFlag.Backward) ? UnitMoveType.FlightBack : UnitMoveType.Flight;
-        }
 
         if (moveFlags.HasAnyFlag(MovementFlag.Swimming))
-        {
             return moveFlags.HasAnyFlag(MovementFlag.Backward) ? UnitMoveType.SwimBack : UnitMoveType.Swim;
-        }
-        if (moveFlags.HasAnyFlag(MovementFlag.Walking))
-        {
-            return UnitMoveType.Walk;
-        }
 
-        return moveFlags.HasAnyFlag(MovementFlag.Backward) ? UnitMoveType.RunBack :
+        if (moveFlags.HasAnyFlag(MovementFlag.Walking))
+            return UnitMoveType.Walk;
+
+        return moveFlags.HasAnyFlag(MovementFlag.Backward)
+                   ? UnitMoveType.RunBack
+                   :
                    // Flying creatures use MOVEMENTFLAG_CAN_FLY or MOVEMENTFLAG_DISABLE_GRAVITY
                    // Run speed is their default flight speed.
                    UnitMoveType.Run;

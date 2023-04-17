@@ -15,6 +15,7 @@ public class ConversationLine
     public byte Flags;
     public uint StartTime;
     public uint UiCameraID;
+
     public uint GetViewerStartTime(ConversationLine conversationLine, Conversation conversation, Player receiver)
     {
         var startTime = conversationLine.StartTime;

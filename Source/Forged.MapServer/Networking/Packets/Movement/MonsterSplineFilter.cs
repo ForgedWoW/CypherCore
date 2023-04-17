@@ -13,6 +13,7 @@ public class MonsterSplineFilter
     public byte FilterFlags;
     public List<MonsterSplineFilterKey> FilterKeys = new();
     public short StartOffset;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(FilterKeys.Count);

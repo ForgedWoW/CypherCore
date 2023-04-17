@@ -10,6 +10,7 @@ internal class ScriptNameContainer
 {
     private readonly List<Entry> _indexToName = new();
     private readonly Dictionary<string, Entry> _nameToIndex = new();
+
     public ScriptNameContainer()
     {
         // We insert an empty placeholder here so we can use the

@@ -138,9 +138,7 @@ public class WorldSocket : SocketBase
     public override void OnClose()
     {
         lock (_worldSessionLock)
-        {
             _worldSession = null;
-        }
 
         base.OnClose();
     }
@@ -220,7 +218,6 @@ public class WorldSocket : SocketBase
 
         // SendPacket may be called from multiple threads.
         lock (_sendlock)
-        {
             try
             {
                 packet.LogPacket(_worldSession);
@@ -274,7 +271,6 @@ public class WorldSocket : SocketBase
             {
                 Log.Logger.Error(ex);
             }
-        }
     }
 
     public override bool Update()
@@ -416,13 +412,9 @@ public class WorldSocket : SocketBase
         digestKeyHash.Process(account.GameInfo.SessionKey, account.GameInfo.SessionKey.Length);
 
         if (account.GameInfo.OS == "Wn64")
-        {
             digestKeyHash.Finish(buildInfo.Win64AuthSeed);
-        }
         else if (account.GameInfo.OS == "Mc64")
-        {
             digestKeyHash.Finish(buildInfo.Mac64AuthSeed);
-        }
         else
         {
             Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.GameInfo.Id, authSession.RealmJoinTicket, address);
@@ -531,7 +523,6 @@ public class WorldSocket : SocketBase
             }
         }
         else if (!account.BNet.LockCountry.IsEmpty() && account.BNet.LockCountry != "00" && !_ipCountry.IsEmpty())
-        {
             if (account.BNet.LockCountry != _ipCountry)
             {
                 SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
@@ -540,7 +531,6 @@ public class WorldSocket : SocketBase
 
                 return;
             }
-        }
 
         var mutetime = account.GameInfo.MuteTime;
 
@@ -656,9 +646,7 @@ public class WorldSocket : SocketBase
     private bool HandlePing(Ping ping)
     {
         if (_lastPingTime == 0)
-        {
             _lastPingTime = GameTime.CurrentTime; // for 1st ping
-        }
         else
         {
             var now = GameTime.CurrentTime;
@@ -673,31 +661,23 @@ public class WorldSocket : SocketBase
 
                 if (maxAllowed != 0 && _overSpeedPings > maxAllowed)
                     lock (_worldSessionLock)
-                    {
                         if (_worldSession != null && !_worldSession.HasPermission(RBACPermissions.SkipCheckOverspeedPing))
                             Log.Logger.Error("WorldSocket:HandlePing: {0} kicked for over-speed pings (address: {1})", _worldSession.GetPlayerInfo(), GetRemoteIpAddress());
-                        //return ReadDataHandlerResult.Error;
-                    }
+                //return ReadDataHandlerResult.Error;
             }
             else
-            {
                 _overSpeedPings = 0;
-            }
         }
 
         lock (_worldSessionLock)
-        {
             if (_worldSession != null)
-            {
                 _worldSession.Latency = ping.Latency;
-            }
             else
             {
                 Log.Logger.Error("WorldSocket:HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = {0}", GetRemoteIpAddress());
 
                 return false;
             }
-        }
 
         SendPacket(new Pong(ping.Serial));
 

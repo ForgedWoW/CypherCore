@@ -31,6 +31,11 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
     public ushort ItemLevel { get; }
     public ushort SuffixItemNameDescriptionId { get; }
 
+    public int CompareTo(AuctionsBucketKey other)
+    {
+        return ItemId.CompareTo(other.ItemId);
+    }
+
     public static AuctionsBucketKey ForCommodity(ItemTemplate itemTemplate)
     {
         return new AuctionsBucketKey(itemTemplate.Id, (ushort)itemTemplate.BaseItemLevel, 0, 0);
@@ -57,11 +62,6 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
     public static bool operator ==(AuctionsBucketKey right, AuctionsBucketKey left)
     {
         return left != null && right != null && right.ItemId == left.ItemId && right.ItemLevel == left.ItemLevel && right.BattlePetSpeciesId == left.BattlePetSpeciesId && right.SuffixItemNameDescriptionId == left.SuffixItemNameDescriptionId;
-    }
-
-    public int CompareTo(AuctionsBucketKey other)
-    {
-        return ItemId.CompareTo(other.ItemId);
     }
 
     public override bool Equals(object obj)

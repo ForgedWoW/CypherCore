@@ -18,10 +18,6 @@ namespace Forged.MapServer.OutdoorPVP;
 // base class for specific outdoor pvp handlers
 public class OutdoorPvP : ZoneScript
 {
-    // the map of the objectives belonging to this outdoorpvp
-    public Dictionary<ulong, OPvPCapturePoint> CapturePoints { get; set; } = new();
-    public OutdoorPvPTypes TypeId { get; set; }
-    public Map Map { get; }
     private readonly List<ObjectGuid>[] _players = new List<ObjectGuid>[2];
 
     public OutdoorPvP(Map map)
@@ -31,6 +27,11 @@ public class OutdoorPvP : ZoneScript
         _players[0] = new List<ObjectGuid>();
         _players[1] = new List<ObjectGuid>();
     }
+
+    // the map of the objectives belonging to this outdoorpvp
+    public Dictionary<ulong, OPvPCapturePoint> CapturePoints { get; set; } = new();
+    public OutdoorPvPTypes TypeId { get; set; }
+    public Map Map { get; }
 
     public void AddCapturePoint(OPvPCapturePoint cp)
     {
@@ -66,7 +67,6 @@ public class OutdoorPvP : ZoneScript
     public virtual void HandleKill(Player killer, Unit killed)
     {
         if (killer.Group != null)
-        {
             for (var refe = killer.Group.FirstMember; refe != null; refe = refe.Next())
             {
                 var groupGuy = refe.Source;
@@ -83,7 +83,6 @@ public class OutdoorPvP : ZoneScript
                 if ((groupGuy.IsOutdoorPvPActive() && IsInsideObjective(groupGuy)) || killed.IsTypeId(Framework.Constants.TypeId.Unit))
                     HandleKillImpl(groupGuy, killed);
             }
-        }
         else
         {
             // creature kills must be notified, even if not inside objective / not outdoor pvp active
@@ -181,12 +180,10 @@ public class OutdoorPvP : ZoneScript
     public void TeamCastSpell(uint teamIndex, int spellId)
     {
         foreach (var player in _players[teamIndex].Select(guid => Map.ObjectAccessor.FindPlayer(guid)).Where(player => player != null))
-        {
             if (spellId > 0)
                 player.SpellFactory.CastSpell(player, (uint)spellId, true);
             else
                 player.RemoveAura((uint)-spellId); // by stack?
-        }
     }
 
     public virtual bool Update(uint diff)

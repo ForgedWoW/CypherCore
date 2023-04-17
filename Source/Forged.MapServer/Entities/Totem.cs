@@ -16,6 +16,7 @@ public class Totem : Minion
 {
     private uint _duration;
     private TotemType _totemType;
+
     public Totem(SummonPropertiesRecord propertiesRecord, Unit owner) : base(propertiesRecord, owner, false)
     {
         UnitTypeMask |= UnitTypeMask.Totem;
@@ -185,12 +186,11 @@ public class Totem : Minion
             return;
         }
         else
-        {
             _duration -= diff;
-        }
 
         base.Update(diff);
     }
+
     public override bool UpdateAllStats()
     {
         return true;

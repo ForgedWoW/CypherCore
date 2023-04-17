@@ -32,10 +32,6 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
     public GridType GridType { get; set; }
 
     public GridMapTypeMask Mask { get; set; }
-    public WorldObject GetTarget()
-    {
-        return _object;
-    }
 
     public void Visit(IList<AreaTrigger> objs)
     {
@@ -219,5 +215,10 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
 
             return;
         }
+    }
+
+    public WorldObject GetTarget()
+    {
+        return _object;
     }
 }

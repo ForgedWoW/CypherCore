@@ -21,6 +21,7 @@ public class ClientGossipOptions
     public GossipOptionStatus Status;
     public string Text = "";
     public TreasureLootList Treasure = new();
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(GossipOptionID);

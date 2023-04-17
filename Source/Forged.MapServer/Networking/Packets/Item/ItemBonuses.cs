@@ -11,6 +11,7 @@ public class ItemBonuses
 {
     public List<uint> BonusListIDs = new();
     public ItemContext Context;
+
     public static bool operator !=(ItemBonuses left, ItemBonuses right)
     {
         return !(left == right);

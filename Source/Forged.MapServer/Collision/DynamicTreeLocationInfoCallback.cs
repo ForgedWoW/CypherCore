@@ -12,14 +12,14 @@ public class DynamicTreeLocationInfoCallback : WorkerCallback
 {
     private readonly PhaseShift _phaseShift;
 
-    public GameObjectModel HitModel { get; private set; } = new();
-
-    public LocationInfo LocationInfo { get; } = new();
-
     public DynamicTreeLocationInfoCallback(PhaseShift phaseShift)
     {
         _phaseShift = phaseShift;
     }
+
+    public GameObjectModel HitModel { get; private set; } = new();
+
+    public LocationInfo LocationInfo { get; } = new();
 
     public override void Invoke(Vector3 p, GameObjectModel obj)
     {

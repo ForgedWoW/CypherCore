@@ -31,6 +31,5 @@ internal class MostHpPercentMissingInRange : ICheck<Unit>
         _hpPct = u.HealthPct;
 
         return true;
-
     }
 }

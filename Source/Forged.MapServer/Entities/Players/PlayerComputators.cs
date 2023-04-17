@@ -44,6 +44,7 @@ public class PlayerComputators
     private readonly SocialManager _socialManager;
     private readonly TerrainManager _terrainManager;
     private readonly WorldManager _worldManager;
+
     public PlayerComputators(CliDB cliDB, IConfiguration configuration, CharacterCache characterCache, GuildManager guildManager,
                              CharacterDatabase characterDatabase, GroupManager groupManager, ObjectAccessor objectAccessor, SocialManager socialManager,
                              LoginDatabase loginDatabase, WorldManager worldManager, TerrainManager terrainManager, PetitionManager petitionManager,
@@ -87,9 +88,7 @@ public class PlayerComputators
             name = characterInfo.Name;
 
         if (deleteFinally)
-        {
             charDeleteMethod = CharDeleteMethod.Remove;
-        }
         else if (characterInfo != null) // To avoid a Select, we select loaded data. If it doesn't exist, return.
         {
             // Define the required variables
@@ -175,6 +174,7 @@ public class PlayerComputators
                         {
                             var mailId = resultItems.Read<ulong>(52);
                             var mailItem = LoadMailedItem(playerGuid, null, mailId, null, resultItems.GetFields(), additionalData.LookupByKey(resultItems.Read<ulong>(0)));
+
                             if (mailItem != null)
                                 itemsByMail.Add(mailId, mailItem);
                         } while (resultItems.NextRow());
@@ -614,10 +614,8 @@ public class PlayerComputators
     public byte GetFactionGroupForRace(Race race)
     {
         if (_cliDB.ChrRacesStorage.TryGetValue((uint)race, out var rEntry))
-        {
             if (_cliDB.FactionTemplateStorage.TryGetValue((uint)rEntry.FactionID, out var faction))
                 return faction.FactionGroup;
-        }
 
         return 1;
     }
@@ -854,6 +852,7 @@ public class PlayerComputators
         if (result.IsEmpty())
         {
             loc = new WorldLocation();
+
             return false;
         }
 
@@ -871,6 +870,7 @@ public class PlayerComputators
         stmt.AddValue(1, guid.Counter);
         _characterDatabase.ExecuteOrAppend(trans, stmt);
     }
+
     public void RemovePetitionsAndSigns(ObjectGuid guid)
     {
         _petitionManager.RemoveSignaturesBySigner(guid);

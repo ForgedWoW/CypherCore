@@ -163,9 +163,7 @@ public class CharmInfo
                 ActiveStates newstate;
 
                 if (!spellInfo.IsAutocastable)
-                {
                     newstate = ActiveStates.Passive;
-                }
                 else
                 {
                     if (spellInfo.NeedsExplicitUnitTarget)
@@ -174,9 +172,7 @@ public class CharmInfo
                         ToggleCreatureAutocast(spellInfo, true);
                     }
                     else
-                    {
                         newstate = ActiveStates.Disabled;
-                    }
                 }
 
                 AddSpellToActionBar(spellInfo, newstate);
@@ -248,9 +244,7 @@ public class CharmInfo
             }
         }
         else
-        {
             InitEmptyActionBar();
-        }
     }
 
     public bool IsAtStay()
@@ -339,6 +333,7 @@ public class CharmInfo
                 creature.ReactState = _oldReactState;
         }
     }
+
     public void SaveStayPosition()
     {
         //! At this point a new spline destination is enabled because of Unit.StopMoving()

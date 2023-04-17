@@ -57,11 +57,8 @@ public class LanguageManager
 
         // Load languages from Languages.db2. Just the id, we don't need the name
         foreach (var langEntry in _cliDB.LanguagesStorage.Values)
-        {
             if (_langsMap.TryGetValue(langEntry.Id, out var spellsRange))
-            {
                 _langsMap.Add(langEntry.Id, new LanguageDesc());
-            }
             else
             {
                 List<LanguageDesc> langsWithSkill = new();
@@ -77,7 +74,6 @@ public class LanguageManager
                     _langsMap.Add(langEntry.Id, langDesc);
                 }
             }
-        }
 
         // Add the languages used in code in case they don't exist
         _langsMap.Add((uint)Language.Universal, new LanguageDesc());

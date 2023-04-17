@@ -15,6 +15,7 @@ public class PlayerWorker : IGridNotifierPlayer
 {
     private readonly Action<Player> _action;
     private readonly PhaseShift _phaseShift;
+
     public PlayerWorker(WorldObject searcher, Action<Player> action, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -23,12 +24,11 @@ public class PlayerWorker : IGridNotifierPlayer
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Player> objs)
     {
         foreach (var player in objs)
-        {
             if (player.Location.InSamePhase(_phaseShift))
                 _action.Invoke(player);
-        }
     }
 }

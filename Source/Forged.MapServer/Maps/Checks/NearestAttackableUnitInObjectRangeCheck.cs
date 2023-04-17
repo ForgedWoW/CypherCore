@@ -31,6 +31,5 @@ public class NearestAttackableUnitInObjectRangeCheck : ICheck<Unit>
         _range = _obj.Location.GetDistance(u); // use found unit range as new range limit for next check
 
         return true;
-
     }
 }

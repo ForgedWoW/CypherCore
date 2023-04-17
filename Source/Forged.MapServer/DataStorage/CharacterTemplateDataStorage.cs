@@ -13,6 +13,7 @@ public class CharacterTemplateDataStorage
     private readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
     private readonly CliDB _cliDB;
     private readonly WorldDatabase _worldDatabase;
+
     public CharacterTemplateDataStorage(WorldDatabase worldDatabase, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;

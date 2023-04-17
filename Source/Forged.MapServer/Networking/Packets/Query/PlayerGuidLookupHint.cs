@@ -6,8 +6,9 @@ namespace Forged.MapServer.Networking.Packets.Query;
 public class PlayerGuidLookupHint
 {
     public uint? NativeRealmAddress = new();
+
     public uint? VirtualRealmAddress = new(); // current realm (?) (identifier made from the Index, BattleGroup and Region)
-                                              // original realm (?) (identifier made from the Index, BattleGroup and Region)
+    // original realm (?) (identifier made from the Index, BattleGroup and Region)
 
     public void Write(WorldPacket data)
     {

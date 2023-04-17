@@ -129,7 +129,7 @@ internal class SendCommands
         SQLTransaction trans = new();
 
         handler.ClassFactory.ResolvePositional<MailDraft>(subject, text)
-                     .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
+               .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
         handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
 
@@ -203,8 +203,8 @@ internal class SendCommands
         SQLTransaction trans = new();
 
         handler.ClassFactory.ResolvePositional<MailDraft>(subject, text)
-                     .AddMoney((uint)money)
-                     .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
+               .AddMoney((uint)money)
+               .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
         handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
 

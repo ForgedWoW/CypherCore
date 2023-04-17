@@ -724,9 +724,7 @@ public class WorldLocation : Position
                 pos.Z += CollisionHeight;
             }
             else
-            {
                 GetHitSpherePointFor(new Position(ox, oy, oz), pos);
-            }
 
             return Map.IsInLineOfSight(PhaseShift, pos, ox, oy, oz, checks, ignoreFlags);
         }
@@ -747,9 +745,7 @@ public class WorldLocation : Position
             pos.Z += CollisionHeight;
         }
         else
-        {
             obj.Location.GetHitSpherePointFor(new Position(X, Y, Z + CollisionHeight), pos);
-        }
 
         var pos2 = new Position();
 
@@ -759,9 +755,7 @@ public class WorldLocation : Position
             pos2.Z += CollisionHeight;
         }
         else
-        {
             GetHitSpherePointFor(new Position(obj.Location.X, obj.Location.Y, obj.Location.Z + obj.Location.CollisionHeight), pos2);
-        }
 
         return Map.IsInLineOfSight(PhaseShift, pos2, pos, checks, ignoreFlags);
     }
@@ -792,6 +786,7 @@ public class WorldLocation : Position
             if (!player.Satisfy(player.ObjectManager.GetAccessRequirement(mapid, targetDifficulty), mapid, abortParams, true))
                 return abortParams;
         }
+
         var group = player.Group;
 
         if (entry.IsRaid() && (int)entry.Expansion() >= player.Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)) // can only enter in a raid group but raids from old expansion don't need a group

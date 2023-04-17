@@ -61,6 +61,7 @@ public sealed class ChrRacesRecord
     public int Unknown1000;
     public float[] Unknown910_1 = new float[3];
     public float[] Unknown910_2 = new float[3];
+
     public ChrRacesFlag GetFlags()
     {
         return (ChrRacesFlag)Flags;

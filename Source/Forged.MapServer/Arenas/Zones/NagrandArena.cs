@@ -11,9 +11,7 @@ namespace Forged.MapServer.Arenas.Zones;
 
 public class NagrandArena : Arena
 {
-    public NagrandArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
-    {
-    }
+    public NagrandArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {

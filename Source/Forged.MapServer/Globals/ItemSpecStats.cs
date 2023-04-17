@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
 using Framework.Constants;
@@ -14,6 +13,7 @@ internal class ItemSpecStats
     public uint ItemSpecStatCount;
     public ItemSpecStat[] ItemSpecStatTypes = new ItemSpecStat[ItemConst.MaxStats];
     public uint ItemType;
+
     public ItemSpecStats(ItemRecord item, ItemSparseRecord sparse)
     {
         if (item.ClassID == ItemClass.Weapon)
@@ -86,11 +86,9 @@ internal class ItemSpecStats
                     AddStat(ItemSpecStat.Wand);
 
                     break;
-                
             }
         }
         else if (item.ClassID == ItemClass.Armor)
-        {
             switch ((ItemSubClassArmor)item.SubclassID)
             {
                 case ItemSubClassArmor.Cloth:
@@ -129,16 +127,14 @@ internal class ItemSpecStats
                         AddStat(ItemSpecStat.Relic);
                     }
                     else
-                    {
                         ItemType = 0;
-                    }
 
                     break;
             }
-        }
         else if (item.ClassID == ItemClass.Gem)
         {
             ItemType = 7;
+
             if (CliDB.GemPropertiesStorage.TryGetValue(sparse.GemProperties, out var gem))
             {
                 if (gem.Type.HasAnyFlag(SocketColor.RelicIron))
@@ -176,9 +172,7 @@ internal class ItemSpecStats
             }
         }
         else
-        {
             ItemType = 0;
-        }
 
         for (uint i = 0; i < ItemConst.MaxStats; ++i)
             if (sparse.StatModifierBonusStat[i] != -1)

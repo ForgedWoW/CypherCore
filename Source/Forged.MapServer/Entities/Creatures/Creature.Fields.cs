@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.AI.CoreAI;
-using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;

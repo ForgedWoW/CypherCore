@@ -30,6 +30,7 @@ public class SpawnData : SpawnMetadata
     public int Spawntimesecs { get; set; }
     public string StringId { get; set; }
     public int TerrainSwapMap { get; set; }
+
     public static SpawnObjectType TypeFor<T>()
     {
         return typeof(T).Name switch

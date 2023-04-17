@@ -33,6 +33,7 @@ public class MovementInfo
     public Position Pos { get; set; }
     public float StepUpStartElevation { get; set; }
     public uint Time { get; set; }
+
     public void AddExtraMovementFlag2(MovementFlags3 flag)
     {
         _flags3 |= flag;
@@ -82,6 +83,7 @@ public class MovementInfo
     {
         MovementFlags &= ~f;
     }
+
     public void RemoveMovementFlag2(MovementFlag2 f)
     {
         _flags2 &= ~f;
@@ -111,6 +113,7 @@ public class MovementInfo
     {
         _flags2 = f;
     }
+
     // advflying
     public struct AdvFlyingMovement
     {

@@ -22,6 +22,7 @@ public struct MethodCall
     {
         return (uint)(Type >> 32);
     }
+
     public void Read(ByteBuffer data)
     {
         Type = data.ReadUInt64();

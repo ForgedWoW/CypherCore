@@ -115,11 +115,6 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
         return Owner.Template.Transport.SpawnMap;
     }
 
-    public List<uint> GetPauseTimes()
-    {
-        return _stopFrames;
-    }
-
     public ObjectGuid GetTransportGUID()
     {
         return Owner.GUID;
@@ -129,6 +124,28 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
     {
         return Owner.Location.Orientation;
     }
+
+    public ITransport RemovePassenger(WorldObject passenger)
+    {
+        if (_passengers.Remove(passenger))
+        {
+            passenger.Transport = null;
+            passenger.MovementInfo.Transport.Reset();
+            Log.Logger.Debug($"Object {passenger.GetName()} removed from transport {Owner.GetName()}.");
+
+            var plr = passenger.AsPlayer;
+
+            plr?.SetFallInformation(0, plr.Location.Z);
+        }
+
+        return this;
+    }
+
+    public List<uint> GetPauseTimes()
+    {
+        return _stopFrames;
+    }
+
     public uint GetTransportPeriod()
     {
         if (_animationInfo != null)
@@ -199,21 +216,6 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
             Owner.RemoveDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
     }
 
-    public ITransport RemovePassenger(WorldObject passenger)
-    {
-        if (_passengers.Remove(passenger))
-        {
-            passenger.Transport = null;
-            passenger.MovementInfo.Transport.Reset();
-            Log.Logger.Debug($"Object {passenger.GetName()} removed from transport {Owner.GetName()}.");
-
-            var plr = passenger.AsPlayer;
-
-            plr?.SetFallInformation(0, plr.Location.Z);
-        }
-
-        return this;
-    }
     public void SetAutoCycleBetweenStopFrames(bool on)
     {
         _autoCycleBetweenStopFrames = on;
@@ -236,9 +238,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
         uint newProgress = 0;
 
         if (_stopFrames.Empty())
-        {
             newProgress = now % period;
-        }
         else
         {
             var stopTargetTime = 0;
@@ -288,9 +288,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
                 newProgress = (uint)(period * progressPct) % period;
             }
             else
-            {
                 newProgress = (uint)stopTargetTime;
-            }
 
             if (newProgress == stopTargetTime && newProgress != _pathProgress)
             {
@@ -388,6 +386,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
         // update progress marker for client
         Owner.SetPathProgressForClient(_pathProgress / (float)period);
     }
+
     public void UpdatePassengerPositions()
     {
         foreach (var passenger in _passengers)

@@ -22,6 +22,7 @@ public class Corpse : WorldObject
 {
     private readonly CorpseType _type;
     private CellCoord _cellCoord;
+
     private long _time;
     // gride for corpse position for fast search
 
@@ -50,6 +51,7 @@ public class Corpse : WorldObject
     public Player LootRecipient { get; set; }
 
     public override ObjectGuid OwnerGUID => CorpseData.Owner;
+
     public static void DeleteFromDB(ObjectGuid ownerGuid, SQLTransaction trans)
     {
         var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CORPSE);
@@ -259,6 +261,7 @@ public class Corpse : WorldObject
 
         base.RemoveFromWorld();
     }
+
     public void ReplaceAllCorpseDynamicFlags(CorpseDynFlags dynamicFlags)
     {
         SetUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.DynamicFlags), (uint)dynamicFlags);
@@ -404,6 +407,7 @@ public class Corpse : WorldObject
 
         Loot?.Update();
     }
+
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedCorpseMask, Player target)
     {
         UpdateMask valuesMask = new((int)TypeId.Max);
@@ -437,6 +441,7 @@ public class Corpse : WorldObject
         private readonly CorpseData _corpseData = new();
         private readonly ObjectFieldData _objectMask = new();
         private readonly Corpse _owner;
+
         public ValuesUpdateForPlayerWithMaskSender(Corpse owner)
         {
             _owner = owner;

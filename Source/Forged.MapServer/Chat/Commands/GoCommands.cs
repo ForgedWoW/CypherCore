@@ -323,9 +323,7 @@ internal class GoCommands
             }
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.CommandInstanceNoExit, mapName, mapId);
-        }
 
         // try going to start
         var entrance = handler.ObjectManager.GetMapEntranceTrigger(mapId);
@@ -339,14 +337,10 @@ internal class GoCommands
                 return true;
             }
             else
-            {
                 handler.SendSysMessage(CypherStrings.CommandGoInstanceStartFailed, mapName, mapId);
-            }
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.CommandInstanceNoEntrance, mapName, mapId);
-        }
 
         return false;
     }
@@ -553,9 +547,7 @@ internal class GoCommands
                     continue;
 
                 if (spawnpoint == null)
-                {
                     spawnpoint = pair.Value;
-                }
                 else
                 {
                     handler.SendSysMessage(CypherStrings.CommandGocreatmultiple);
@@ -604,9 +596,7 @@ internal class GoCommands
                     continue;
 
                 if (spawnpoint == null)
-                {
                     spawnpoint = pair.Value;
-                }
                 else
                 {
                     handler.SendSysMessage(CypherStrings.CommandGocreatmultiple);

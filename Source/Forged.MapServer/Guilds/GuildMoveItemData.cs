@@ -34,6 +34,7 @@ public abstract class GuildMoveItemData
     public List<ItemPosCount> ItemPositions { get; set; } = new();
     public Player Player { get; set; }
     public byte SlotId { get; set; }
+
     public InventoryResult CanStore(Item pItem, bool swap, bool sendError)
     {
         ItemPositions.Clear();

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Collision.Maps;
 
 public class LocationInfo
 {
-    public float GroundZ { get; set; }
-    public ModelInstance HitInstance { get; set; }
-    public GroupModel HitModel { get; set; }
-    public int RootId { get; set; }
-
     public LocationInfo()
     {
         GroundZ = float.NegativeInfinity;
     }
+
+    public float GroundZ { get; set; }
+    public ModelInstance HitInstance { get; set; }
+    public GroupModel HitModel { get; set; }
+    public int RootId { get; set; }
 }

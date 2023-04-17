@@ -32,6 +32,7 @@ public class AuctionItem
     public ObjectGuid Owner;
     public ObjectGuid OwnerAccountID;
     public ulong? UnitPrice;
+
     public void Write(WorldPacket data)
     {
         data.WriteBit(Item != null);

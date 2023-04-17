@@ -36,6 +36,7 @@ public class UnitActionBarEntry
     {
         return (ActiveStates)UNIT_ACTION_BUTTON_TYPE(PackedData);
     }
+
     public bool IsActionBarForSpell()
     {
         var type = GetActiveState();

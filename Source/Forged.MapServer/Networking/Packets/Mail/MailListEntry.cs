@@ -25,6 +25,7 @@ public class MailListEntry
     public ulong SentMoney;
     public int StationeryID;
     public string Subject = "";
+
     public MailListEntry(Mails.Mail mail, Player player)
     {
         MailID = mail.MessageID;

@@ -10,6 +10,7 @@ public class VehicleSeat
     public PassengerInfo Passenger;
     public VehicleSeatAddon SeatAddon;
     public VehicleSeatRecord SeatInfo;
+
     public VehicleSeat(VehicleSeatRecord seatInfo, VehicleSeatAddon seatAddon)
     {
         SeatInfo = seatInfo;

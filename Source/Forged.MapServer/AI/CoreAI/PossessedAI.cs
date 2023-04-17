@@ -19,8 +19,7 @@ public class PossessedAI : CreatureAI
         Me.Attack(target, true);
     }
 
-    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
-    { }
+    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other) { }
 
     public override void JustDied(Unit unit)
     {
@@ -38,11 +37,9 @@ public class PossessedAI : CreatureAI
         EngagementOver();
     }
 
-    public override void JustStartedThreateningMe(Unit who)
-    { }
+    public override void JustStartedThreateningMe(Unit who) { }
 
-    public override void MoveInLineOfSight(Unit who)
-    { }
+    public override void MoveInLineOfSight(Unit who) { }
 
     public override void UpdateAI(uint diff)
     {

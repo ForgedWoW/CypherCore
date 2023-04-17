@@ -11,6 +11,7 @@ public class UpgradeStarted : ServerPacket
     public UpgradeStarted() : base(ServerOpcodes.CharacterUpgradeStarted) { }
 
     public ObjectGuid CharacterGUID { get; set; } = new();
+
     public override void Write()
     {
         WorldPacket.Write(CharacterGUID);

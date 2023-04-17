@@ -13,6 +13,7 @@ public sealed class PrestigeLevelInfoRecord
     public uint Id;
     public string Name;
     public int PrestigeLevel;
+
     public bool IsDisabled()
     {
         return (Flags & PrestigeLevelInfoFlags.Disabled) != 0;

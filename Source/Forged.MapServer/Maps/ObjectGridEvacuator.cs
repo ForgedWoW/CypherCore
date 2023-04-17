@@ -17,6 +17,7 @@ internal class ObjectGridEvacuator : IGridNotifierCreature, IGridNotifierGameObj
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

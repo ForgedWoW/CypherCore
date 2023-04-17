@@ -289,13 +289,11 @@ public partial class Player
         AddTraitConfig(traitConfig);
 
         foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(traitConfig, this))
-        {
             if (!traitConfig.Entries.LookupByKey(grantedEntry.TraitNodeID)?.ContainsKey(grantedEntry.TraitNodeEntryID))
             {
                 TraitConfig value = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, traitConfigIndex);
                 AddDynamicUpdateFieldValue(value.ModifyValue(value.Entries), grantedEntry);
             }
-        }
 
         _traitConfigStates[configId] = PlayerSpellState.Changed;
     }
@@ -338,19 +336,13 @@ public partial class Player
     {
         // The first time reset costs 1 gold
         if (GetTalentResetCost() < 1 * MoneyConstants.Gold)
-        {
             return 1 * MoneyConstants.Gold;
-        }
         // then 5 gold
         else if (GetTalentResetCost() < 5 * MoneyConstants.Gold)
-        {
             return 5 * MoneyConstants.Gold;
-        }
         // After that it increases in increments of 5 gold
         else if (GetTalentResetCost() < 10 * MoneyConstants.Gold)
-        {
             return 10 * MoneyConstants.Gold;
-        }
         else
         {
             var months = (ulong)(GameTime.CurrentTime - GetTalentResetTime()) / Time.MONTH;
@@ -408,10 +400,8 @@ public partial class Player
         var talentTiers = DB2Manager.GetNumTalentsAtLevel(level, Class);
 
         if (level < 10)
-        {
             // Remove all talent points
             ResetTalents(true);
-        }
         else
         {
             if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
@@ -427,15 +417,14 @@ public partial class Player
             for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
             {
                 for (var slot = DB2Manager.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
-                {
                     if (CliDB.PvpTalentStorage.TryGetValue(GetPvpTalentMap(spec)[slot], out var pvpTalent))
                         RemovePvpTalent(pvpTalent, spec);
-                }
             }
 
         if (!Session.PlayerLoading)
             SendTalentsInfoData(); // update at client
     }
+
     public TalentLearnResult LearnPvpTalent(uint talentID, byte slot, ref uint spellOnCooldown)
     {
         if (slot >= PlayerConst.MaxPvpTalentSlots)
@@ -529,9 +518,7 @@ public partial class Player
 
         foreach (var talent in DB2Manager.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
             if (talent.SpecID == 0)
-            {
                 bestSlotMatch = talent;
-            }
 
             else if (talent.SpecID == GetPrimarySpecialization())
             {
@@ -611,6 +598,7 @@ public partial class Player
         if (talentMap.ContainsKey(talent.Id))
             talentMap[talent.Id] = PlayerSpellState.Removed;
     }
+
     public void RenameTraitConfig(int editedConfigId, string newName)
     {
         var editedIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == editedConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
@@ -706,6 +694,7 @@ public partial class Player
         SendTalentsInfoData();
         UpdateItemSetAuras();
     }
+
     public void SendRespecWipeConfirm(ObjectGuid guid, uint cost, SpecResetType respecType)
     {
         RespecWipeConfirm respecWipeConfirm = new()
@@ -812,6 +801,7 @@ public partial class Player
     {
         SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.LootSpecID), (ushort)id);
     }
+
     public void SetTraitConfigUseSharedActionBars(int traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig)
     {
         var configIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == traitConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
@@ -882,7 +872,6 @@ public partial class Player
         var pvpTalents = GetPvpTalentMap(GetActiveTalentGroup());
 
         foreach (var pvpTalentId in pvpTalents)
-        {
             if (CliDB.PvpTalentStorage.TryGetValue(pvpTalentId, out var pvpTalentInfo))
             {
                 if (enable)
@@ -900,8 +889,8 @@ public partial class Player
                     RemoveSpell(pvpTalentInfo.SpellID, true);
                 }
             }
-        }
     }
+
     public void UpdateTraitConfig(TraitConfigPacket newConfig, int savedConfigId, bool withCastTime)
     {
         var index = ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == newConfig.ID);
@@ -955,10 +944,9 @@ public partial class Player
             StartLoadingActionButtons(FinalizeTraitConfigUpdate);
         }
         else
-        {
             FinalizeTraitConfigUpdate();
-        }
     }
+
     private bool AddPvpTalent(PvpTalentRecord talent, byte activeTalentGroup, byte slot)
     {
         //ASSERT(talent);
@@ -1064,6 +1052,7 @@ public partial class Player
         for (var i = 0; i < editedConfig.Entries.Size(); ++i)
         {
             var oldEntry = editedConfig.Entries[i];
+
             if (newConfig.Entries.LookupByKey(oldEntry.TraitNodeID)?.ContainsKey(oldEntry.TraitNodeEntryID))
                 continue;
 
@@ -1175,6 +1164,7 @@ public partial class Player
     {
         return GetTalentMap(group).ContainsKey(talentId) && GetTalentMap(group)[talentId] != PlayerSpellState.Removed;
     }
+
     private void RemovePvpTalent(PvpTalentRecord talent, byte activeTalentGroup)
     {
         var spellInfo = SpellManager.GetSpellInfo(talent.SpellID);
@@ -1201,10 +1191,8 @@ public partial class Player
     {
         for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
             foreach (var talentId in GetPvpTalentMap(spec))
-            {
                 if (CliDB.PvpTalentStorage.TryGetValue(talentId, out var talentInfo))
                     RemovePvpTalent(talentInfo, spec);
-            }
     }
 
     private void SetActiveTalentGroup(byte group)
@@ -1221,10 +1209,12 @@ public partial class Player
     {
         _specializationInfo.ResetTalentsCost = cost;
     }
+
     private void SetTalentResetTime(long time)
     {
         _specializationInfo.ResetTalentsTime = time;
     }
+
     private void StartLoadingActionButtons(Action callback = null)
     {
         uint traitConfigId = 0;
@@ -1251,16 +1241,16 @@ public partial class Player
 
         mySess.QueryProcessor
               .AddCallback(CharacterDatabase.AsyncQuery(stmt)
-                             .WithCallback(result =>
-                             {
-                                 // safe callback, we can't pass this pointer directly
-                                 // in case player logs out before db response (player would be deleted in that case)
-                                 var thisPlayer = mySess.Player;
+                                            .WithCallback(result =>
+                                            {
+                                                // safe callback, we can't pass this pointer directly
+                                                // in case player logs out before db response (player would be deleted in that case)
+                                                var thisPlayer = mySess.Player;
 
-                                 if (thisPlayer != null && thisPlayer.GUID == myGuid)
-                                     thisPlayer.LoadActions(result);
+                                                if (thisPlayer != null && thisPlayer.GUID == myGuid)
+                                                    thisPlayer.LoadActions(result);
 
-                                 callback?.Invoke();
-                             }));
+                                                callback?.Invoke();
+                                            }));
     }
 }

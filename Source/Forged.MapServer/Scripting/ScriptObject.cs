@@ -11,12 +11,13 @@ namespace Forged.MapServer.Scripting;
 public abstract class ScriptObject : IScriptObject
 {
     private readonly string _name;
-    public ClassFactory ClassFactory { get; set; }
 
     public ScriptObject(string name)
     {
         _name = name;
     }
+
+    public ClassFactory ClassFactory { get; set; }
 
     public string GetName()
     {

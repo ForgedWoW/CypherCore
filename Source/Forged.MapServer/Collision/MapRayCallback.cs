@@ -12,14 +12,14 @@ public class MapRayCallback : WorkerCallback
     private readonly ModelIgnoreFlags _flags;
     private readonly ModelInstance[] _prims;
 
-    public bool DidHit { get; private set; }
-
     public MapRayCallback(ModelInstance[] val, ModelIgnoreFlags ignoreFlags)
     {
         _prims = val;
         DidHit = false;
         _flags = ignoreFlags;
     }
+
+    public bool DidHit { get; private set; }
 
     public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit = true)
     {

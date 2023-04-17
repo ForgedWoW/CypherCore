@@ -2,10 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Chat;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.B;
 using Forged.MapServer.Entities.Units;
@@ -16,12 +14,12 @@ namespace Forged.MapServer.BattlePets;
 
 public class BattlePet
 {
-    private readonly BattlePetMgrData _battlePetMgr;
-    private readonly DB6Storage<BattlePetBreedQualityRecord> _battlePetBreedQualityRecords;
     public DeclinedName DeclinedName;
     public long NameTimestamp;
     public BattlePetStruct PacketInfo;
     public BattlePetSaveInfo SaveInfo;
+    private readonly BattlePetMgrData _battlePetMgr;
+    private readonly DB6Storage<BattlePetBreedQualityRecord> _battlePetBreedQualityRecords;
 
     public BattlePet(BattlePetMgrData battlePetMgr, DB6Storage<BattlePetBreedQualityRecord> battlePetBreedQualityRecords)
     {

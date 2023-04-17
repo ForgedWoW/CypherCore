@@ -17,6 +17,7 @@ public class GameObjectFactory
     private readonly MapManager _mapManager;
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
+
     public GameObjectFactory(GameObjectManager objectManager, MapManager mapManager, WorldDatabase worldDatabase, ClassFactory classFactory)
     {
         _objectManager = objectManager;

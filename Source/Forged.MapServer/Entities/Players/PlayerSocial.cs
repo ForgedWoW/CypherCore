@@ -150,6 +150,7 @@ public class PlayerSocial
 
         PlayerSocialMap[friendGuid].Note = note;
     }
+
     public void SetPlayerGUID(ObjectGuid guid)
     {
         _mPlayerGUID = guid;
@@ -173,6 +174,7 @@ public class PlayerSocial
 
         return counter;
     }
+
     private ObjectGuid GetPlayerGUID()
     {
         return _mPlayerGUID;

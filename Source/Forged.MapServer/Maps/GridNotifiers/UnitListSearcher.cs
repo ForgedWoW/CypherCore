@@ -17,6 +17,7 @@ public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
     private readonly ICheck<Unit> _check;
     private readonly List<Unit> _objects;
     private readonly PhaseShift _phaseShift;
+
     public UnitListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Unit> check, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -26,6 +27,7 @@ public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

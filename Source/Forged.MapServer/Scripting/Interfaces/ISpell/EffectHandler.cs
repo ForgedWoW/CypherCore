@@ -10,13 +10,13 @@ public class EffectHandler : SpellEffect, ISpellEffectHandler
 {
     private readonly Action<int> _callEffect;
 
-    public SpellEffectName EffectName { get; private set; }
-
     public EffectHandler(Action<int> callEffect, int effectIndex, SpellEffectName spellEffectName, SpellScriptHookType hookType) : base(effectIndex, hookType)
     {
         EffectName = spellEffectName;
         _callEffect = callEffect;
     }
+
+    public SpellEffectName EffectName { get; private set; }
 
     public void CallEffect(int effIndex)
     {

@@ -53,7 +53,6 @@ public class ArenaTeam
             case ArenaTypes.Team2v2: return 0;
             case ArenaTypes.Team3v3: return 1;
             case ArenaTypes.Team5v5: return 2;
-            
         }
 
         Log.Logger.Error("FATAL: Unknown arena team type {0} for some arena team", type);
@@ -68,7 +67,6 @@ public class ArenaTeam
             case 0: return (byte)ArenaTypes.Team2v2;
             case 1: return (byte)ArenaTypes.Team3v3;
             case 2: return (byte)ArenaTypes.Team5v5;
-            
         }
 
         Log.Logger.Error("FATAL: Unknown arena team slot {0} for some arena team", slot);
@@ -100,9 +98,7 @@ public class ArenaTeam
             playerClass = characterInfo.ClassId;
         }
         else
-        {
             return false;
-        }
 
         // Check if player is already in a similar arena team
         if ((player && player.GetArenaTeamId(GetSlot()) != 0) || Global.CharacterCacheStorage.GetCharacterArenaTeamIdByGuid(playerGuid, GetArenaType()) != 0)
@@ -192,7 +188,7 @@ public class ArenaTeam
 
         // Assign member variables
         _captainGuid = captainGuid;
-        this._type = type;
+        _type = type;
         _teamName = arenaTeamName;
         _backgroundColor = backgroundColor;
         _emblemStyle = emblemStyle;
@@ -206,7 +202,7 @@ public class ArenaTeam
         stmt.AddValue(0, _teamId);
         stmt.AddValue(1, _teamName);
         stmt.AddValue(2, captainLowGuid);
-        stmt.AddValue(3, this._type);
+        stmt.AddValue(3, _type);
         stmt.AddValue(4, _stats.Rating);
         stmt.AddValue(5, _backgroundColor);
         stmt.AddValue(6, _emblemStyle);
@@ -316,9 +312,7 @@ public class ArenaTeam
     {
         // Rating can only drop to 0
         if (_stats.Rating + mod < 0)
-        {
             _stats.Rating = 0;
-        }
         else
         {
             _stats.Rating += (ushort)mod;
@@ -861,14 +855,10 @@ public class ArenaTeam
                     mod = (winRatingModifier1 / 2.0f + winRatingModifier1 / 2.0f * (1300.0f - ownRating) / 300.0f) * (1.0f - chance);
             }
             else
-            {
                 mod = GetDefaultValue("Arena:ArenaWinRatingModifier2", 24.0f) * (1.0f - chance);
-            }
         }
         else
-        {
             mod = GetDefaultValue("Arena:ArenaLoseRatingModifier", 24.0f) * -chance;
-        }
 
         return (int)Math.Ceiling(mod);
     }

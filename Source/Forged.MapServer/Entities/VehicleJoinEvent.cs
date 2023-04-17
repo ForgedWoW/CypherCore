@@ -17,6 +17,7 @@ public class VehicleJoinEvent : BasicEvent
     public Unit Passenger;
     public KeyValuePair<sbyte, VehicleSeat> Seat;
     public Vehicle Target;
+
     public VehicleJoinEvent(Vehicle v, Unit u)
     {
         Target = v;
@@ -45,12 +46,10 @@ public class VehicleJoinEvent : BasicEvent
             Target.GetBase().RemoveAurasByType(AuraType.ControlVehicle, Passenger.GUID);
         }
         else
-        {
             Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
                              Passenger.GUID.ToString(),
                              Passenger.Entry,
                              Seat.Key);
-        }
 
         if (Passenger.Location.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
             Passenger.AsCreature.DespawnOrUnsummon();

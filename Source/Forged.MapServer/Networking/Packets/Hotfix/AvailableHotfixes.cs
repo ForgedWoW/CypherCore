@@ -11,6 +11,7 @@ internal class AvailableHotfixes : ServerPacket
 {
     public MultiMap<int, HotfixRecord> Hotfixes;
     public uint VirtualRealmAddress;
+
     public AvailableHotfixes(uint virtualRealmAddress, MultiMap<int, HotfixRecord> hotfixes) : base(ServerOpcodes.AvailableHotfixes)
     {
         VirtualRealmAddress = virtualRealmAddress;

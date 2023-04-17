@@ -12,6 +12,7 @@ public class WorldObjectVisibility
     private readonly WorldObject _worldObject;
     private SmoothPhasing _smoothPhasing;
     private float? _visibilityDistanceOverride;
+
     public WorldObjectVisibility(WorldObject worldObject)
     {
         ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
@@ -25,6 +26,7 @@ public class WorldObjectVisibility
     public FlaggedArray32<ServerSideVisibilityType> ServerSideVisibilityDetect { get; set; } = new(2);
     public FlaggedArray32<StealthType> Stealth { get; set; } = new(2);
     public FlaggedArray32<StealthType> StealthDetect { get; set; } = new(2);
+
     public float VisibilityRange
     {
         get
@@ -41,6 +43,7 @@ public class WorldObjectVisibility
 
     private bool IsFarVisible { get; set; }
     private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
+
     public virtual bool CanAlwaysSee(WorldObject obj)
     {
         return false;
@@ -50,6 +53,7 @@ public class WorldObjectVisibility
     {
         return _worldObject.Location.Map != obj.Location.Map || !_worldObject.Location.InSamePhase(obj);
     }
+
     public bool CanSeeOrDetect(WorldObject obj, bool ignoreStealth = false, bool distanceCheck = false, bool checkAlert = false)
     {
         if (_worldObject == obj)
@@ -130,9 +134,7 @@ public class WorldObjectVisibility
                 return true;
         }
         else
-        {
             return ServerSideVisibilityDetect.GetValue(ServerSideVisibilityType.GM) >= obj.Visibility.ServerSideVisibility.GetValue(ServerSideVisibilityType.GM);
-        }
 
         // Ghost players, Spirit Healers, and some other NPCs
         if (corpseVisibility || Convert.ToBoolean(obj.Visibility.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibilityDetect.GetValue(ServerSideVisibilityType.Ghost)))
@@ -152,14 +154,10 @@ public class WorldObjectVisibility
                         return false;
                 }
                 else
-                {
                     return false;
-                }
             }
             else
-            {
                 return false;
-            }
         }
 
         return !obj.IsInvisibleDueToDespawn(_worldObject) && CanDetect(obj, ignoreStealth, checkAlert);
@@ -237,6 +235,7 @@ public class WorldObjectVisibility
     {
         return !_worldObject.Location.IsInWorld || _worldObject.IsDestroyedObject;
     }
+
     public void SetFarVisible(bool on)
     {
         if (_worldObject.IsPlayer)
@@ -275,6 +274,7 @@ public class WorldObjectVisibility
 
         _visibilityDistanceOverride = SharedConst.VisibilityDistances[(int)type];
     }
+
     private bool CanDetect(WorldObject obj, bool ignoreStealth, bool checkAlert = false)
     {
         var seer = _worldObject;

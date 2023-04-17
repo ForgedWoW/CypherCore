@@ -18,6 +18,7 @@ public class InspectItemData
     public byte Index;
     public ItemInstance Item;
     public bool Usable;
+
     public InspectItemData(Entities.Items.Item item, byte index)
     {
         CreatorGUID = item.Creator;
@@ -71,9 +72,7 @@ public class InspectItemData
                     essence.SlotUnlocked = true;
                 }
                 else
-                {
                     essence.SlotUnlocked = azeriteItem.HasUnlockedEssenceSlot(slot);
-                }
 
                 AzeriteEssences.Add(essence);
             }

@@ -53,9 +53,7 @@ public class GuildAchievementMgr : AchievementManager
             return;
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowInGuildNews))
-        {
             referencePlayer.Guild?.AddGuildNews(GuildNews.Achievement, ObjectGuid.Empty, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
-        }
 
         SendAchievementEarned(achievement);
 
@@ -69,7 +67,7 @@ public class GuildAchievementMgr : AchievementManager
         {
             if (referencePlayer.GuildId == _owner.GetId())
                 ca.CompletingPlayers.Add(referencePlayer.GUID);
-            
+
             if (referencePlayer.Group != null)
                 for (var refe = referencePlayer.Group.FirstMember; refe != null; refe = refe.Next())
                 {
@@ -265,6 +263,7 @@ public class GuildAchievementMgr : AchievementManager
     public void SendAchievementInfo(Player receiver, uint achievementId = 0)
     {
         GuildCriteriaUpdate guildCriteriaUpdate = new();
+
         if (CliDB.AchievementStorage.TryGetValue(achievementId, out var achievement))
         {
             var tree = CriteriaManager.GetCriteriaTree(achievement.CriteriaTree);

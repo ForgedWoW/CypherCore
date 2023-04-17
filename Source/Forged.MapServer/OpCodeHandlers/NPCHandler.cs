@@ -145,9 +145,7 @@ public class NPCHandler : IWorldSessionHandler
                 packet.Items.Add(item);
             }
             else
-            {
                 continue;
-            }
 
             if (++count >= SharedConst.MaxVendorItems)
                 break;
@@ -620,9 +618,7 @@ public class NPCHandler : IWorldSessionHandler
                         SendPetStableResult(StableResult.StableSuccess);
                     }
                     else
-                    {
                         SendPetStableResult(StableResult.InternalError);
-                    }
                 }
             });
     }

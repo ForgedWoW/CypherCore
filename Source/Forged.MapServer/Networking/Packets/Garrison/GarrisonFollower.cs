@@ -26,6 +26,7 @@ public class GarrisonFollower
     public uint Quality;
     public uint Xp;
     public uint ZoneSupportSpellID;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(DbID);

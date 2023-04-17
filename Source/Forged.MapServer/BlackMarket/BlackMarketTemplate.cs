@@ -13,6 +13,12 @@ namespace Forged.MapServer.BlackMarket;
 public class BlackMarketTemplate
 {
     private readonly GameObjectManager _objectManager;
+
+    public BlackMarketTemplate(GameObjectManager objectManager)
+    {
+        _objectManager = objectManager;
+    }
+
     public float Chance { get; set; }
     public long Duration { get; set; }
     public ItemInstance Item { get; set; }
@@ -20,11 +26,6 @@ public class BlackMarketTemplate
     public ulong MinBid { get; set; }
     public uint Quantity { get; set; }
     public uint SellerNPC { get; set; }
-
-    public BlackMarketTemplate(GameObjectManager objectManager)
-    {
-        _objectManager = objectManager;
-    }
 
     public bool LoadFromDB(SQLFields fields)
     {
@@ -68,6 +69,5 @@ public class BlackMarketTemplate
         Log.Logger.Error("Black market template {0} does not have a valid item. (Entry: {1})", MarketID, Item.ItemID);
 
         return false;
-
     }
 }

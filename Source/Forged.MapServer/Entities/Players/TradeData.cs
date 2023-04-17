@@ -13,6 +13,7 @@ public class TradeData
     private readonly ObjectGuid[] _items = new ObjectGuid[(int)TradeSlots.Count];
     private readonly Player _player;
     private ObjectGuid _spellCastItem;
+
     public TradeData(Player player, Player trader)
     {
         _player = player;
@@ -22,11 +23,6 @@ public class TradeData
     }
 
     public uint ClientStateIndex { get; private set; }
-
-    public Item GetItem(TradeSlots slot)
-    {
-        return !_items[(int)slot].IsEmpty ? _player.GetItemByGuid(_items[(int)slot]) : null;
-    }
 
     public ulong Money { get; private set; }
 
@@ -39,6 +35,17 @@ public class TradeData
     public Player Trader { get; }
 
     public TradeData TraderData => Trader.TradeData;
+
+    public bool HasSpellCastItem => !_spellCastItem.IsEmpty;
+
+    public bool IsAccepted { get; private set; }
+
+    public bool IsInAcceptProcess { get; private set; }
+
+    public Item GetItem(TradeSlots slot)
+    {
+        return !_items[(int)slot].IsEmpty ? _player.GetItemByGuid(_items[(int)slot]) : null;
+    }
 
     public TradeSlots GetTradeSlotForItem(ObjectGuid itemGuid)
     {
@@ -57,12 +64,6 @@ public class TradeData
 
         return false;
     }
-
-    public bool HasSpellCastItem => !_spellCastItem.IsEmpty;
-
-    public bool IsAccepted { get; private set; }
-
-    public bool IsInAcceptProcess { get; private set; }
 
     public void SetAccepted(bool state, bool crosssend = false)
     {
@@ -110,6 +111,7 @@ public class TradeData
         // need remove possible player spell applied (possible move reagent)
         SetSpell(0);
     }
+
     public void SetMoney(ulong money)
     {
         if (Money == money)
@@ -156,10 +158,12 @@ public class TradeData
         Update();      // send spell info to item owner
         Update(false); // send spell info to caster self
     }
+
     public void UpdateClientStateIndex()
     {
         ++ClientStateIndex;
     }
+
     public void UpdateServerStateIndex()
     {
         ServerStateIndex = RandomHelper.Rand32();

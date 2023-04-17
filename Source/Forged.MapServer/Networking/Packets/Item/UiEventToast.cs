@@ -7,6 +7,7 @@ public struct UiEventToast
 {
     public int Asset;
     public int UiEventToastID;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(UiEventToastID);

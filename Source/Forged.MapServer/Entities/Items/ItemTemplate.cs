@@ -25,9 +25,10 @@ public class ItemTemplate
     };
 
     private static readonly SkillType[] ItemWeaponSkills =
-            {
+    {
         SkillType.Axes, SkillType.TwoHandedAxes, SkillType.Bows, SkillType.Guns, SkillType.Maces, SkillType.TwoHandedMaces, SkillType.Polearms, SkillType.Swords, SkillType.TwoHandedSwords, SkillType.Warglaives, SkillType.Staves, 0, 0, SkillType.FistWeapons, 0, SkillType.Daggers, 0, 0, SkillType.Crossbows, SkillType.Wands, SkillType.ClassicFishing
     };
+
     private readonly SkillType[] _itemProfessionSkills =
     {
         SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking, SkillType.ClassicBlacksmithing, SkillType.ClassicLeatherworking, SkillType.ClassicAlchemy, SkillType.ClassicHerbalism, SkillType.ClassicCooking, SkillType.Mining, SkillType.Tailoring, SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing, SkillType.ClassicMining, SkillType.ClassicTailoring, SkillType.ClassicEngineering, SkillType.ClassicEnchanting, SkillType.ClassicFishing, SkillType.Skinning, SkillType.Jewelcrafting, SkillType.Inscription, SkillType.Archaeology, SkillType.ClassicSkinning, SkillType.ClassicJewelcrafting, SkillType.ClassicInscription
@@ -62,6 +63,7 @@ public class ItemTemplate
     public ItemFlagsCustom FlagsCu { get; set; }
     public uint FoodType { get; set; }
     public uint GemProperties => ExtendedData.GemProperties;
+
     public bool HasSignature => MaxStackSize == 1 &&
                                 Class != ItemClass.Consumable &&
                                 Class != ItemClass.Quest &&
@@ -76,6 +78,7 @@ public class ItemTemplate
     public bool IsCraftingReagent => HasFlag(ItemFlags2.UsedInATradeskill);
     public bool IsCurrencyToken => (BagFamily & BagFamilyMask.CurrencyTokens) != 0;
     public bool IsPotion => Class == ItemClass.Consumable && SubClass == (uint)ItemSubClassConsumable.Potion;
+
     public bool IsRangedWeapon => IsWeapon &&
                                   SubClass is (uint)ItemSubClassWeapon.Bow or (uint)ItemSubClassWeapon.Gun or (uint)ItemSubClassWeapon.Crossbow;
 
@@ -176,6 +179,7 @@ public class ItemTemplate
         if (Class != ItemClass.Armor || SubClass != (uint)ItemSubClassArmor.Shield)
         {
             var armorQuality = CliDB.ItemArmorQualityStorage.LookupByKey(itemLevel);
+
             if (!CliDB.ItemArmorTotalStorage.TryGetValue(itemLevel, out var armorTotal))
                 return 0;
 
@@ -215,7 +219,6 @@ public class ItemTemplate
                     locationModifier = location.Platemodifier;
 
                     break;
-                
             }
 
             return (uint)(armorQuality.QualityMod[(int)quality] * total * locationModifier + 0.5f);
@@ -281,7 +284,6 @@ public class ItemTemplate
                             dps = CliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
                         break;
-                    
                 }
 
                 break;
@@ -294,7 +296,6 @@ public class ItemTemplate
                     dps = CliDB.ItemDamageOneHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
                 break;
-            
         }
 
         return dps;
@@ -381,6 +382,7 @@ public class ItemTemplate
     {
         return (FlagsCu & customFlag) != 0;
     }
+
     public bool IsUsableByLootSpecialization(Player player, bool alwaysAllowBoundToAccount)
     {
         if (HasFlag(ItemFlags.IsBoundToAccount) && alwaysAllowBoundToAccount)

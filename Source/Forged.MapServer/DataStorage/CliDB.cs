@@ -53,10 +53,10 @@ public class CliDB
     public BitSet LoadStores(string dataPath, Locale defaultLocale, ContainerBuilder builder)
     {
         ActionBlock<Action> taskManager = new(a => a(),
-                                               new ExecutionDataflowBlockOptions()
-                                               {
-                                                   MaxDegreeOfParallelism = 20
-                                               });
+                                              new ExecutionDataflowBlockOptions()
+                                              {
+                                                  MaxDegreeOfParallelism = 20
+                                              });
 
         var oldMSTime = Time.MSTime;
 

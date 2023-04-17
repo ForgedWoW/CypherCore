@@ -16,6 +16,7 @@ public class ProductListResponse : ServerPacket
     public List<BpayProduct> Products { get; set; } = new();
     public uint Result { get; set; } = 0;
     public List<BpayShop> Shops { get; set; } = new();
+
     public override void Write()
     {
         WorldPacket.Write(Result);

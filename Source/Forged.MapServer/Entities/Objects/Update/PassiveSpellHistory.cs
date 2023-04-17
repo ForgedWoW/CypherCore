@@ -11,6 +11,7 @@ public class PassiveSpellHistory
 {
     public int AuraSpellID;
     public int SpellID;
+
     public void WriteCreate(WorldPacket data, Unit owner, Player receiver)
     {
         data.WriteInt32(SpellID);

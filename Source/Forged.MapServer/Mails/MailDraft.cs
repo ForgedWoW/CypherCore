@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Items;
@@ -20,13 +19,13 @@ namespace Forged.MapServer.Mails;
 public class MailDraft
 {
     private readonly Dictionary<ulong, Item> _items = new();
-    private bool _mailTemplateItemsNeed;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
     private readonly IConfiguration _configuration;
     private readonly CharacterDatabase _characterDatabase;
     private readonly CharacterCache _characterCache;
     private readonly LootFactory _lootFactory;
+    private bool _mailTemplateItemsNeed;
 
     public MailDraft(uint mailTemplateId, bool needItems, ObjectAccessor objectAccessor, GameObjectManager objectManager, IConfiguration configuration, CharacterDatabase characterDatabase,
                      CharacterCache characterCache, LootFactory lootFactory)
@@ -54,6 +53,16 @@ public class MailDraft
         _characterCache = characterCache;
         _lootFactory = lootFactory;
     }
+
+    public string Body { get; }
+
+    public ulong Cod { get; set; }
+
+    public uint MailTemplateId { get; }
+
+    public ulong Money { get; set; }
+
+    public string Subject { get; }
 
     public MailDraft AddCod(uint cod)
     {
@@ -170,12 +179,9 @@ public class MailDraft
 
             foreach (var item in _items.Values)
                 pReceiver.AddMItem(item);
-        
         }
         else if (!_items.Empty())
-        {
             DeleteIncludedItems(null);
-        }
     }
 
     public void SendReturnToSender(uint senderAcc, ulong senderGuid, ulong receiverGUID, SQLTransaction trans)
@@ -230,16 +236,6 @@ public class MailDraft
 
         _items.Clear();
     }
-
-    public string Body { get; }
-
-    public ulong Cod { get; set; }
-
-    public uint MailTemplateId { get; }
-
-    public ulong Money { get; set; }
-
-    public string Subject { get; }
 
     private void PrepareItems(Player receiver, SQLTransaction trans)
     {

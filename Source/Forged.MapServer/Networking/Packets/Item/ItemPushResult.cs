@@ -10,6 +10,13 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemPushResult : ServerPacket
 {
+    public enum DisplayType
+    {
+        Hidden = 0,
+        Normal = 1,
+        EncounterLoot = 2
+    }
+
     public int BattlePetBreedID;
 
     public uint BattlePetBreedQuality;
@@ -56,12 +63,6 @@ internal class ItemPushResult : ServerPacket
 
     public ItemPushResult() : base(ServerOpcodes.ItemPushResult) { }
 
-    public enum DisplayType
-    {
-        Hidden = 0,
-        Normal = 1,
-        EncounterLoot = 2
-    }
     public override void Write()
     {
         WorldPacket.WritePackedGuid(PlayerGUID);

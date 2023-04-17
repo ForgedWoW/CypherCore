@@ -843,9 +843,7 @@ internal class NPCCommands
             ulong spawnId;
 
             if (spawnIdArg.HasValue)
-            {
                 spawnId = spawnIdArg.Value;
-            }
             else
             {
                 var creature = handler.SelectedCreature;
@@ -1236,9 +1234,7 @@ internal class NPCCommands
                     }
                 }
                 else
-                {
                     lowguid = creature.SpawnId;
-                }
             }
 
             // now lowguid is low guid really existed creature

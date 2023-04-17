@@ -22,6 +22,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
     private readonly Player _skippedReceiver;
     private readonly WorldObject _source;
     private readonly TeamFaction _team;
+
     public MessageDistDeliverer(WorldObject src, T packetSender, float dist, bool ownTeamOnly = false, Player skipped = null, bool req3dDist = false)
     {
         _source = src;
@@ -37,6 +38,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
     }
 
     public GridType GridType { get; set; } = GridType.World;
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

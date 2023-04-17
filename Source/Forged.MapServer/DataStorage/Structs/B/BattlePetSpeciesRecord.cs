@@ -19,6 +19,7 @@ public sealed class BattlePetSpeciesRecord
     public string SourceText;
     public sbyte SourceTypeEnum;
     public uint SummonSpellID;
+
     public BattlePetSpeciesFlags GetFlags()
     {
         return (BattlePetSpeciesFlags)Flags;

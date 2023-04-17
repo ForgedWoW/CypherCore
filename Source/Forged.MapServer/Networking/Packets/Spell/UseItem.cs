@@ -11,6 +11,7 @@ public class UseItem : ClientPacket
     public ObjectGuid CastItem;
     public byte PackSlot;
     public byte Slot;
+
     public UseItem(WorldPacket packet) : base(packet)
     {
         Cast = new SpellCastRequest();

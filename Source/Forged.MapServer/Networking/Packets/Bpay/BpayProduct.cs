@@ -10,16 +10,21 @@ public class BpayProduct
     public BpayDisplayInfo Display { get; set; }
     public uint DisplayId { get; set; }
     public uint Entry { get; set; }
+
     public uint Flags { get; set; }
+
     // MountSpellID
     public uint ItemId { get; set; }
 
     public List<BpayProductItem> Items { get; set; } = new();
     public string Name { get; set; }
     public uint ProductId { get; set; }
+
     public byte Type { get; set; }
-         // ItemEntry
-    public uint Unk1 { get; set; }      // ItemCount
+
+    // ItemEntry
+    public uint Unk1 { get; set; } // ItemCount
+
     // BattlePetCreatureID
     public uint Unk4 { get; set; }
     public uint Unk5 { get; set; }
@@ -30,6 +35,7 @@ public class BpayProduct
     public bool UnkBit { get; set; }
     public uint UnkBits { get; set; }
     public string UnkString { get; set; } = "";
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(ProductId);

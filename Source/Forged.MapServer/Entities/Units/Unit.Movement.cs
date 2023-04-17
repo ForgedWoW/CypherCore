@@ -106,9 +106,7 @@ public partial class Unit
                     pPet.RemoveUnitFlag(UnitFlags.Stunned);
             }
             else
-            {
                 player.ResummonPetTemporaryUnSummonedIfAny();
-            }
 
             // if we have charmed npc, remove stun also
             var charm = player.Charmed;
@@ -147,10 +145,8 @@ public partial class Unit
             ridingSkill = AsPlayer.GetSkillValue(SkillType.Riding);
 
         if (HasAuraType(AuraType.MountRestrictions))
-        {
             foreach (var auraEffect in GetAuraEffectsByType(AuraType.MountRestrictions))
                 mountFlags |= (AreaMountFlags)auraEffect.MiscValue;
-        }
         else
         {
             if (CliDB.AreaTableStorage.TryGetValue(areaId, out var areaTable))
@@ -194,9 +190,7 @@ public partial class Unit
                 }
                 // player is on water surface
                 else if (!mountCapability.Flags.HasAnyFlag(MountCapabilityFlags.Float))
-                {
                     continue;
-                }
             }
             else if (isInWater)
             {
@@ -204,9 +198,7 @@ public partial class Unit
                     continue;
             }
             else if (!mountCapability.Flags.HasAnyFlag(MountCapabilityFlags.Float))
-            {
                 continue;
-            }
 
             if (mountCapability.ReqMapID != -1 &&
                 Location.MapId != mountCapability.ReqMapID &&
@@ -226,11 +218,9 @@ public partial class Unit
             var thisPlayer = AsPlayer;
 
             if (thisPlayer != null)
-            {
                 if (CliDB.PlayerConditionStorage.TryGetValue((uint)mountCapability.PlayerConditionID, out var playerCondition))
                     if (!ConditionManager.IsPlayerMeetingCondition(thisPlayer, playerCondition))
                         continue;
-            }
 
             return mountCapability;
         }
@@ -335,9 +325,7 @@ public partial class Unit
             angle += Location.GetRelativeAngle(dest);
 
         if (IsTypeId(TypeId.Unit))
-        {
             MotionMaster.MoveJumpTo(angle, speedXy, speedZ);
-        }
         else
         {
             var vcos = (float)Math.Cos(angle + Location.Orientation);
@@ -373,9 +361,7 @@ public partial class Unit
         }
 
         if (!player)
-        {
             MotionMaster.MoveKnockbackFrom(origin, speedXy, speedZ, spellEffectExtraData);
-        }
         else
         {
             var o = Location == origin ? Location.Orientation + MathF.PI : origin.GetRelativeAngle(Location);
@@ -675,9 +661,7 @@ public partial class Unit
             RemoveUnitMovementFlag(MovementFlag.Swimming | MovementFlag.SplineElevation);
         }
         else
-        {
             RemoveUnitMovementFlag(MovementFlag.CanFly | MovementFlag.MaskMovingFly);
-        }
 
         if (!enable && IsTypeId(TypeId.Player))
             AsPlayer.SetFallInformation(0, Location.Z);
@@ -886,9 +870,7 @@ public partial class Unit
             RemoveUnitMovementFlag(MovementFlag.Swimming | MovementFlag.SplineElevation);
         }
         else
-        {
             RemoveUnitMovementFlag(MovementFlag.DisableGravity);
-        }
 
 
         var playerMover = UnitBeingMoved?.AsPlayer;
@@ -1034,9 +1016,7 @@ public partial class Unit
             MovementInfo.SetFallTime(0);
         }
         else
-        {
             RemoveUnitMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar);
-        }
 
         return true;
     }
@@ -1227,9 +1207,7 @@ public partial class Unit
                 StopMoving();
             }
             else
-            {
                 RemoveUnitMovementFlag(MovementFlag.Root);
-            }
         }
 
         var playerMover = UnitBeingMoved?.AsPlayer; // unit controlled by a player.
@@ -1359,6 +1337,7 @@ public partial class Unit
             SendMessageToSet(packet, true);
         }
     }
+
     public bool SetSwim(bool enable)
     {
         if (enable == HasUnitMovementFlag(MovementFlag.Swimming))
@@ -1467,6 +1446,7 @@ public partial class Unit
         MoveSplineInit init = new(this);
         init.Stop();
     }
+
     public void UpdateMountCapability()
     {
         var mounts = GetAuraEffectsByType(AuraType.Mounted);
@@ -1476,9 +1456,7 @@ public partial class Unit
             aurEff.RecalculateAmount();
 
             if (aurEff.Amount == 0)
-            {
                 aurEff.Base.Remove();
-            }
             else
             {
                 if (CliDB.MountCapabilityStorage.TryGetValue((uint)aurEff.Amount, out var capability)) // aura may get removed by interrupt Id, reapply
@@ -1561,9 +1539,7 @@ public partial class Unit
                 Location.Map.CreatureRelocation(AsCreature, x, y, z, orientation);
         }
         else if (turn)
-        {
             UpdateOrientation(orientation);
-        }
 
         _positionUpdateInfo.Relocated = relocated;
         _positionUpdateInfo.Turned = turn;
@@ -1640,9 +1616,7 @@ public partial class Unit
                     stackBonus = GetTotalAuraMultiplier(AuraType.ModMountedFlightSpeedAlways);
                 }
                 else // Use not mount (shapeshift for example) auras (should stack)
-                {
                     mainSpeedMod = GetTotalAuraModifier(AuraType.ModIncreaseFlightSpeed) + GetTotalAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
-                }
 
                 nonStackBonus += GetMaxPositiveAuraModifier(AuraType.ModFlightSpeedNotStack) / 100.0f;
 
@@ -1757,6 +1731,7 @@ public partial class Unit
 
         SetSpeedRate(mtype, (float)speed);
     }
+
     private void ApplyControlStatesIfNeeded()
     {
         // Unit States might have been already cleared but auras still present. I need to check with HasAuraType
@@ -1942,6 +1917,7 @@ public partial class Unit
         if (IsVehicle)
             VehicleKit.RelocatePassengers();
     }
+
     private void UpdateSplineMovement(uint diff)
     {
         if (MoveSpline.Splineflags.HasFlag(SplineFlag.Done))

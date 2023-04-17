@@ -73,6 +73,7 @@ public class M2Storage
 
         Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", _flyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     // Number of cameras not used. Multiple cameras never used in 7.1.5
     private void ReadCamera(M2Camera cam, BinaryReader reader, CinematicCameraRecord dbcentry)
     {

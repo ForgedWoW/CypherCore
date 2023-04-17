@@ -54,10 +54,8 @@ public class InstanceLockManager
             return TransferAbortReason.None;
 
         if (entries.Map.IsFlexLocking())
-        {
             // compare completed encounters - if instance has any encounters unkilled in players lock then cannot enter
             return (playerInstanceLock.GetData().CompletedEncountersMask & ~instanceLock.GetData().CompletedEncountersMask) != 0 ? TransferAbortReason.AlreadyCompletedEncounter : TransferAbortReason.None;
-        }
 
         if (!entries.MapDifficulty.IsUsingEncounterLocks() && playerInstanceLock.GetInstanceId() != 0 && playerInstanceLock.GetInstanceId() != instanceLock.GetInstanceId())
             return TransferAbortReason.LockedToDifferentInstance;
@@ -81,15 +79,15 @@ public class InstanceLockManager
                                                   (Difficulty)entries.MapDifficulty.DifficultyID,
                                                   GetNextResetTime(entries),
                                                   0,
-                                                  sharedData, this);
+                                                  sharedData,
+                                                  this);
         }
         else
-        {
             instanceLock = new InstanceLock(entries.MapDifficulty.MapID,
                                             (Difficulty)entries.MapDifficulty.DifficultyID,
                                             GetNextResetTime(entries),
-                                            0, this);
-        }
+                                            0,
+                                            this);
 
         if (!_temporaryInstanceLocksByPlayer.ContainsKey(playerGuid))
             _temporaryInstanceLocksByPlayer[playerGuid] = new Dictionary<InstanceLockKey, InstanceLock>();
@@ -105,9 +103,7 @@ public class InstanceLockManager
     public InstanceLock FindActiveInstanceLock(ObjectGuid playerGuid, MapDb2Entries entries)
     {
         lock (_lockObject)
-        {
             return FindActiveInstanceLock(playerGuid, entries, false, true);
-        }
     }
 
     public InstanceLock FindActiveInstanceLock(ObjectGuid playerGuid, MapDb2Entries entries, bool ignoreTemporary, bool ignoreExpired)
@@ -243,9 +239,7 @@ public class InstanceLockManager
                     _instanceLockDataById[instanceId] = sharedData;
                 }
                 else
-                {
                     instanceLock = new InstanceLock(mapId, difficulty, expiryTime, instanceId, this);
-                }
 
                 instanceLock.GetData().Data = lockResult.Read<string>(5);
                 instanceLock.GetData().CompletedEncountersMask = lockResult.Read<uint>(6);
@@ -350,7 +344,6 @@ public class InstanceLockManager
                          $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Instance lock for {playerGuid} is {(extended ? "now" : "no longer")} extended");
 
         return Tuple.Create(oldExpiryTime, instanceLock.GetEffectiveExpiryTime());
-
     }
 
     public InstanceLock UpdateInstanceLockForPlayer(SQLTransaction trans, ObjectGuid playerGuid, MapDb2Entries entries, InstanceLockUpdateEvent updateEvent)
@@ -390,28 +383,24 @@ public class InstanceLockManager
                                                       (Difficulty)entries.MapDifficulty.DifficultyID,
                                                       GetNextResetTime(entries),
                                                       updateEvent.InstanceId,
-                                                      sharedDataItr, this);
+                                                      sharedDataItr,
+                                                      this);
             }
             else
-            {
                 instanceLock = new InstanceLock(entries.MapDifficulty.MapID,
                                                 (Difficulty)entries.MapDifficulty.DifficultyID,
                                                 GetNextResetTime(entries),
-                                                updateEvent.InstanceId, this);
-            }
+                                                updateEvent.InstanceId,
+                                                this);
 
             lock (_lockObject)
-            {
                 _instanceLocksByPlayer[playerGuid][entries.GetKey()] = instanceLock;
-            }
 
             Log.Logger.Debug($"[{entries.Map.Id}-{entries.Map.MapName[_worldManager.DefaultDbcLocale]} | " +
                              $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Created new instance lock for {playerGuid} in instance {updateEvent.InstanceId}");
         }
         else
-        {
             instanceLock.SetInstanceId(updateEvent.InstanceId);
-        }
 
         instanceLock.GetData().Data = updateEvent.NewData;
 

@@ -18,6 +18,7 @@ public class QuestPOIData
     public List<QuestPOIBlobData> Blobs { get; set; }
     public ByteBuffer QueryDataBuffer { get; set; }
     public uint QuestID { get; set; }
+
     public void InitializeQueryData()
     {
         Write(QueryDataBuffer);

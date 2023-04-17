@@ -9,6 +9,7 @@ internal class GarrisonEventList
 {
     public List<GarrisonEventEntry> Events = new();
     public int Type;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Type);

@@ -8,6 +8,7 @@ public struct CTROptions
     public uint ContentTuningConditionMask;
     public uint ExpansionLevelMask;
     public int Unused901;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(ContentTuningConditionMask);

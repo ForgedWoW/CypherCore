@@ -16,6 +16,7 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
     private readonly WorldObject _obj;
     private readonly bool _playerOnly;
     private readonly float _range;
+
     public AnyFriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         _obj = obj;

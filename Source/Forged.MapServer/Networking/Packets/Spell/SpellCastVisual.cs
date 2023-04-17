@@ -9,6 +9,7 @@ public struct SpellCastVisual
 {
     public uint ScriptVisualID;
     public uint SpellXSpellVisualID;
+
     public SpellCastVisual(uint spellXSpellVisualID, uint scriptVisualID)
     {
         SpellXSpellVisualID = spellXSpellVisualID;

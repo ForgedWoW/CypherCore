@@ -9,7 +9,9 @@ public sealed class ItemExtendedCostRecord
 {
     public byte ArenaBracket;
     public uint[] CurrencyCount = new uint[ItemConst.MaxItemExtCostCurrencies];
+
     public ushort[] CurrencyID = new ushort[ItemConst.MaxItemExtCostCurrencies];
+
     // arena slot restrictions (min slot value)
     public byte Flags;
 
@@ -19,6 +21,7 @@ public sealed class ItemExtendedCostRecord
     public byte MinFactionID;
     public int MinReputation;
     public byte RequiredAchievement;
+
     public ushort RequiredArenaRating;
     // required personal arena rating
     // required item id

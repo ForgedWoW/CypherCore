@@ -31,6 +31,7 @@ public class SpellCastData
     public SpellTargetData Target = new();
     public List<TargetLocation> TargetPoints = new();
     public SpellCastVisual Visual;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(CasterGUID);

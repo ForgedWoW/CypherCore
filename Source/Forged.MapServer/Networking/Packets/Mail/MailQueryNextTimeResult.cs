@@ -12,6 +12,7 @@ public class MailQueryNextTimeResult : ServerPacket
 {
     public List<MailNextTimeEntry> Next;
     public float NextMailTime;
+
     public MailQueryNextTimeResult() : base(ServerOpcodes.MailQueryNextTimeResult)
     {
         Next = new List<MailNextTimeEntry>();
@@ -39,6 +40,7 @@ public class MailQueryNextTimeResult : ServerPacket
         public ObjectGuid SenderGuid;
         public int StationeryID;
         public float TimeLeft;
+
         public MailNextTimeEntry(Mails.Mail mail)
         {
             switch (mail.MessageType)

@@ -78,7 +78,9 @@ public class ReputationMgr
     public byte HonoredFactionCount { get; private set; }
     public byte ReveredFactionCount { get; private set; }
     public SortedDictionary<uint, FactionState> StateList { get; } = new();
+
     public byte VisibleFactionCount { get; private set; }
+
     // this allows calculating base reputations to offline players, just by race and class
     public static int GetBaseReputationOf(FactionRecord factionEntry, Race race, PlayerClass playerClass)
     {
@@ -233,10 +235,8 @@ public class ReputationMgr
                         SetInactive(faction, true); // have internal checks for visibility requirement
 
                     if (dbFactionFlags.HasFlag(ReputationFlags.AtWar)) // DB at war
-                    {
-                        SetAtWar(faction, true); // have internal checks for FACTION_FLAG_PEACE_FORCED
-                    }
-                    else // DB not at war
+                        SetAtWar(faction, true);                       // have internal checks for FACTION_FLAG_PEACE_FORCED
+                    else                                               // DB not at war
                     {
                         // allow remove if visible (and then not FACTION_FLAG_INVISIBLE_FORCED or FACTION_FLAG_HIDDEN)
                         if (faction.Flags.HasFlag(ReputationFlags.Visible))
@@ -422,18 +422,14 @@ public class ReputationMgr
                     UpdateRankCounters(oldRank, newRank);
             }
             else
-            {
                 _sendFactionIncreased = true; // TODO: Check Paragon reputation
-            }
 
             // Calculate new standing and reputation change
             var newStanding = 0;
             var reputationChange = standing - oldStanding;
 
             if (!IsRenownReputation(factionEntry))
-            {
                 newStanding = standing - baseRep;
-            }
             else
             {
                 if (_cliDB.CurrencyTypesStorage.TryGetValue((uint)factionEntry.RenownCurrencyID, out var currency))

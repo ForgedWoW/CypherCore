@@ -11,6 +11,7 @@ public class PurchaseUpdate : ServerPacket
     public PurchaseUpdate() : base(ServerOpcodes.BattlePayPurchaseUpdate) { }
 
     public List<BpayPurchase> Purchase { get; set; } = new();
+
     public override void Write()
     {
         WorldPacket.WriteUInt32((uint)Purchase.Count);

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -157,6 +156,7 @@ public class Bag : Item
 
         base.Dispose();
     }
+
     public uint GetBagSize()
     {
         return m_containerData.NumSlots;
@@ -216,6 +216,7 @@ public class Bag : Item
 
         base.RemoveFromWorld();
     }
+
     public void RemoveItem(byte slot, bool update)
     {
         if (m_bagslot[slot] != null)
@@ -237,6 +238,7 @@ public class Bag : Item
             pItem.SetSlot(slot);
         }
     }
+
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedContainerMask, Player target)
     {
         var flags = GetUpdateFieldFlagsFor(target);

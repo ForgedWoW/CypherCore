@@ -10,6 +10,7 @@ namespace Forged.MapServer.Networking.Packets.System;
 public class FeatureSystemStatusGlueScreen : ServerPacket
 {
     public int ActiveCharacterUpgradeBoostType;
+
     // NYI
     public int ActiveClassTrialBoostType;
 
@@ -19,15 +20,20 @@ public class FeatureSystemStatusGlueScreen : ServerPacket
     public bool BpayStoreDisabledByParentalControls; // NYI
     public bool BpayStoreEnabled;
     public uint BpayStoreProductDeliveryDelay;
+
     public bool CharUndeleteEnabled;
+
     // NYI
-    public bool CommerceSystemEnabled;          // NYI
+    public bool CommerceSystemEnabled; // NYI
     public bool CompetitiveModeEnabled;
+
     public EuropaTicketConfig? EuropaTicketSystemStatus;
+
     // Currently active Classic season
     public List<GameRuleValuePair> GameRuleValues = new();
 
     public bool IsExpansionPreorderInStore;
+
     // NYI
     public bool KioskModeEnabled;
 
@@ -36,7 +42,9 @@ public class FeatureSystemStatusGlueScreen : ServerPacket
     public bool LiveRegionAccountCopyEnabled;
     public bool LiveRegionCharacterCopyEnabled;
     public List<int> LiveRegionCharacterCopySourceRegions = new();
+
     public bool LiveRegionCharacterListEnabled;
+
     // NYI
     // NYI
     // NYI
@@ -44,7 +52,9 @@ public class FeatureSystemStatusGlueScreen : ServerPacket
 
     public int MaxCharactersPerRealm;
     public int MaximumExpansionLevel;
+
     public short MaxPlayerNameQueriesPerPacket = 50;
+
     // NYI
     // NYI
     public int MinimumExpansionLevel;
@@ -53,22 +63,26 @@ public class FeatureSystemStatusGlueScreen : ServerPacket
     public short PlayerNameQueryTelemetryInterval = 600;
     public long TokenBalanceAmount;
     public bool TokenBalanceEnabled;
+
     public uint TokenPollTimeSeconds;
+
     // NYI
     // NYI
     public bool TrialBoostEnabled;
 
-    public bool Unk14;                          // NYI
-                                                // NYI
-                                                // NYI
+    public bool Unk14; // NYI
+
+    // NYI
+    // NYI
     public bool Unknown901CheckoutRelated;
 
     // NYI
     public bool Unused1000;
 
-    public bool WillKickFromWorld;              // NYI
-                                                // NYI
-                                                // NYI 
+    public bool WillKickFromWorld; // NYI
+
+    // NYI
+    // NYI 
     public FeatureSystemStatusGlueScreen() : base(ServerOpcodes.FeatureSystemStatusGlueScreen) { }
 
     public override void Write()

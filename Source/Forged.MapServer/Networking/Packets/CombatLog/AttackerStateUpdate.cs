@@ -19,7 +19,9 @@ internal class AttackerStateUpdate : CombatLogServerPacket
     public uint MeleeSpellID;
     public int OriginalDamage;
     public int OverDamage = -1;
+
     public int RageGained;
+
     // (damage - health) or -1 if unit is still alive
     public SubDamage? SubDmg;
 

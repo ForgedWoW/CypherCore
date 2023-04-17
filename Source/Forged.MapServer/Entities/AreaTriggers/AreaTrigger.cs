@@ -50,6 +50,7 @@ public class AreaTrigger : WorldObject
     private ulong _spawnId;
 
     private ObjectGuid _targetGuid;
+
     public AreaTrigger(ClassFactory classFactory, AreaTriggerDataStorage dataStorage, DB2Manager db2Manager) : base(false, classFactory)
     {
         _dataStorage = dataStorage;
@@ -112,9 +113,11 @@ public class AreaTrigger : WorldObject
     private float Progress => TimeSinceCreated < TimeToTargetScale ? (float)TimeSinceCreated / TimeToTargetScale : 1.0f;
 
     private Unit Target => ObjectAccessor.GetUnit(this, _targetGuid);
+
     public static AreaTrigger CreateAreaTrigger(ClassFactory classFactory, uint areaTriggerCreatePropertiesId, Unit caster, Unit target, SpellInfo spell, Position pos, int duration, SpellCastVisualField spellVisual, ObjectGuid castId = default, AuraEffect aurEff = null)
     {
         var at = classFactory.Resolve<AreaTrigger>();
+
         return !at.Create(areaTriggerCreatePropertiesId, caster, target, spell, pos, duration, spellVisual, castId, aurEff) ? null : at;
     }
 
@@ -328,6 +331,7 @@ public class AreaTrigger : WorldObject
 
         Location.Map.ObjectsStore.TryRemove(GUID, out _);
     }
+
     public bool SetDestination(uint timeToTarget, Position targetPos = null, WorldObject startingObject = null)
     {
         var path = new PathGenerator(startingObject ?? GetCaster());
@@ -365,9 +369,7 @@ public class AreaTrigger : WorldObject
         {
             // "If" order matter here, Orbit > Attached > Splines
             if (HasOrbit())
-            {
                 UpdateOrbitPosition();
-            }
             else if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
             {
                 var target = Target;
@@ -376,16 +378,12 @@ public class AreaTrigger : WorldObject
                     Location.Map.AreaTriggerRelocation(this, target.Location.X, target.Location.Y, target.Location.Z, target.Location.Orientation);
             }
             else
-            {
                 UpdateSplinePosition(diff);
-            }
 
             if (Duration != -1)
             {
                 if (Duration > diff)
-                {
                     _UpdateDuration((int)(Duration - diff));
-                }
                 else
                 {
                     Remove(); // expired
@@ -408,15 +406,15 @@ public class AreaTrigger : WorldObject
             _periodicProcTimer = _basePeriodicProcTimer;
         }
         else
-        {
             _periodicProcTimer -= diff;
-        }
     }
+
     public void UpdateShape()
     {
         if (Shape.TriggerType == AreaTriggerTypes.Polygon)
             UpdatePolygonOrientation();
     }
+
     private void _UpdateDuration(int newDuration)
     {
         Duration = newDuration;
@@ -650,9 +648,7 @@ public class AreaTrigger : WorldObject
             InitOrbit(orbit, timeToTarget);
         }
         else if (CreateProperties.HasSplines)
-        {
             InitSplineOffsets(CreateProperties.SplinePoints, timeToTarget);
-        }
 
         // movement on transport of areatriggers on unit is handled by themself
         var transport = MovementInfo.Transport.Guid.IsEmpty ? caster.Transport : null;
@@ -718,6 +714,7 @@ public class AreaTrigger : WorldObject
 
         return true;
     }
+
     [System.Diagnostics.Conditional("DEBUG")]
     private void DebugVisualizePosition()
     {

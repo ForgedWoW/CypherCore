@@ -14,6 +14,7 @@ public class MonsterMove : ServerPacket
     public ObjectGuid MoverGUID;
     public Vector3 Pos;
     public MovementMonsterSpline SplineData;
+
     public MonsterMove() : base(ServerOpcodes.OnMonsterMove, ConnectionType.Instance)
     {
         SplineData = new MovementMonsterSpline();

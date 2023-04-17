@@ -28,6 +28,7 @@ public class WDCHeader
 
     public uint TableHash;
     public uint TotalFieldCount;
+
     public bool HasIndexTable()
     {
         return Convert.ToBoolean(Flags & HeaderFlags.IndexMap);

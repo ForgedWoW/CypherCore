@@ -11,16 +11,16 @@ namespace Forged.MapServer.Combat;
 
 public class CombatManager
 {
+    public CombatManager(Unit owner)
+    {
+        Owner = owner;
+    }
+
     public bool HasCombat => HasPvECombat() || HasPvPCombat();
     public Unit Owner { get; }
     public Dictionary<ObjectGuid, CombatReference> PvECombatRefs { get; } = new();
 
     public Dictionary<ObjectGuid, PvPCombatReference> PvPCombatRefs { get; } = new();
-
-    public CombatManager(Unit owner)
-    {
-        Owner = owner;
-    }
 
     public static bool CanBeginCombat(Unit a, Unit b)
     {
@@ -89,10 +89,8 @@ public class CombatManager
         Owner.GetThreatManager().ClearAllThreat();
 
         lock (PvECombatRefs)
-        {
             while (!PvECombatRefs.Empty())
                 PvECombatRefs.First().Value.EndCombat();
-        }
     }
 
     public void EndCombatBeyondRange(float range, bool includingPvP)
@@ -145,11 +143,9 @@ public class CombatManager
     public bool HasPvECombat()
     {
         lock (PvECombatRefs)
-        {
             foreach (var (_, refe) in PvECombatRefs)
                 if (!refe.IsSuppressedFor(Owner))
                     return true;
-        }
 
         return false;
     }
@@ -157,11 +153,9 @@ public class CombatManager
     public bool HasPvECombatWithPlayers()
     {
         lock (PvECombatRefs)
-        {
             foreach (var reference in PvECombatRefs)
                 if (!reference.Value.IsSuppressedFor(Owner) && reference.Value.GetOther(Owner).IsPlayer)
                     return true;
-        }
 
         return false;
     }
@@ -169,11 +163,9 @@ public class CombatManager
     public bool HasPvPCombat()
     {
         lock (PvECombatRefs)
-        {
             foreach (var pair in PvPCombatRefs)
                 if (!pair.Value.IsSuppressedFor(Owner))
                     return true;
-        }
 
         return false;
     }
@@ -212,9 +204,7 @@ public class CombatManager
     public bool IsInCombatWith(ObjectGuid guid)
     {
         lock (PvECombatRefs)
-        {
             return PvECombatRefs.ContainsKey(guid) || PvPCombatRefs.ContainsKey(guid);
-        }
     }
 
     public bool IsInCombatWith(Unit who)
@@ -225,12 +215,10 @@ public class CombatManager
     public void PurgeReference(ObjectGuid guid, bool pvp)
     {
         lock (PvECombatRefs)
-        {
             if (pvp)
                 PvPCombatRefs.Remove(guid);
             else
                 PvECombatRefs.Remove(guid);
-        }
     }
 
     public void RevalidateCombat()
@@ -311,10 +299,8 @@ public class CombatManager
     public void SuppressPvPCombat()
     {
         lock (PvECombatRefs)
-        {
             foreach (var pair in PvPCombatRefs)
                 pair.Value.Suppress(Owner);
-        }
 
         if (UpdateOwnerCombatState())
         {
@@ -372,20 +358,16 @@ public class CombatManager
     private void EndAllPvPCombat()
     {
         lock (PvECombatRefs)
-        {
             while (!PvPCombatRefs.Empty())
                 PvPCombatRefs.First().Value.EndCombat();
-        }
     }
 
     private void PutReference(ObjectGuid guid, CombatReference refe)
     {
         lock (PvECombatRefs)
-        {
             if (refe.IsPvP)
                 PvPCombatRefs[guid] = (PvPCombatReference)refe;
             else
                 PvECombatRefs[guid] = refe;
-        }
     }
 }

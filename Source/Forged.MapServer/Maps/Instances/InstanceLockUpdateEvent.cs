@@ -12,6 +12,7 @@ public struct InstanceLockUpdateEvent
     public uint InstanceCompletedEncountersMask;
     public uint InstanceId;
     public string NewData;
+
     public InstanceLockUpdateEvent(uint instanceId, string newData, uint instanceCompletedEncountersMask, DungeonEncounterRecord completedEncounter, uint? entranceWorldSafeLocId)
     {
         InstanceId = instanceId;

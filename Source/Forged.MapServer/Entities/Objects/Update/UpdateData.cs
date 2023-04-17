@@ -15,6 +15,7 @@ public class UpdateData
     private readonly List<ObjectGuid> _outOfRangeGUIDs = new();
     private uint _blockCount;
     private uint _mapId;
+
     public UpdateData(uint mapId)
     {
         _mapId = mapId;
@@ -90,6 +91,7 @@ public class UpdateData
     {
         return _blockCount > 0 || !_outOfRangeGUIDs.Empty() || !_destroyGUIDs.Empty();
     }
+
     public void SetMapId(ushort mapId)
     {
         _mapId = mapId;

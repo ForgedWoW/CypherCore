@@ -10,6 +10,7 @@ public class ConfirmPurchaseResponse : ClientPacket
     public ulong ClientCurrentPriceFixedPoint { get; set; } = 0;
     public bool ConfirmPurchase { get; set; } = false;
     public uint ServerToken { get; set; } = 0;
+
     public override void Read()
     {
         ConfirmPurchase = WorldPacket.ReadBool();

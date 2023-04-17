@@ -10,6 +10,7 @@ internal class RemoveNewItem : ClientPacket
     public RemoveNewItem(WorldPacket packet) : base(packet) { }
 
     public ObjectGuid ItemGuid { get; set; }
+
     public override void Read()
     {
         ItemGuid = WorldPacket.ReadPackedGuid();

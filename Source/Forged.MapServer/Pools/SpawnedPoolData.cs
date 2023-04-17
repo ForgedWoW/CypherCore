@@ -20,6 +20,7 @@ public class SpawnedPoolData
     }
 
     public Map Map { get; }
+
     public void AddSpawn<T>(ulong dbGuid, uint poolId)
     {
         switch (typeof(T).Name)
@@ -76,6 +77,7 @@ public class SpawnedPoolData
                 return false;
         }
     }
+
     public void RemoveSpawn<T>(ulong dbGuid, uint poolId)
     {
         switch (typeof(T).Name)

@@ -15,6 +15,7 @@ public class GuildRankData
     public uint[] TabFlags = new uint[GuildConst.MaxBankTabs];
     public uint[] TabWithdrawItemLimit = new uint[GuildConst.MaxBankTabs];
     public uint WithdrawGoldLimit;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(RankID);

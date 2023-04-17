@@ -19,13 +19,11 @@ namespace Forged.MapServer.Warden;
 
 public abstract class Warden
 {
-    public IConfiguration Configuration { get; }
-    public AccountManager AccountManager { get; }
-    public WorldManager WorldManager { get; }
-    public WardenCheckManager WardenCheckManager { get; }
     internal readonly SARC4 InputCrypto;
     internal readonly SARC4 OutputCrypto;
+
     internal uint CheckTimer;
+
     // Timer for sending check requests
     internal uint ClientResponseTimer;
 
@@ -49,6 +47,11 @@ public abstract class Warden
         OutputCrypto = new SARC4();
         CheckTimer = 10 * Time.IN_MILLISECONDS;
     }
+
+    public IConfiguration Configuration { get; }
+    public AccountManager AccountManager { get; }
+    public WorldManager WorldManager { get; }
+    public WardenCheckManager WardenCheckManager { get; }
 
     public string ApplyPenalty(WardenCheck check = null)
     {
@@ -244,6 +247,7 @@ public abstract class Warden
             Session.SendPacket(pkt1);
         }
     }
+
     public void Update(uint diff)
     {
         if (!Initialized)
@@ -267,9 +271,7 @@ public abstract class Warden
                     Session.KickPlayer("Warden::Update Warden module response delay exceeded");
                 }
                 else
-                {
                     ClientResponseTimer += diff;
-                }
             }
         }
         else
@@ -280,6 +282,7 @@ public abstract class Warden
                 CheckTimer -= diff;
         }
     }
+
     private bool ProcessLuaCheckResponse(string msg)
     {
         var wardenToken = "_TW\t";

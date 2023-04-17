@@ -19,6 +19,7 @@ public sealed class MapDifficultyRecord
     public uint MaxPlayers;
     public LocalizedString Message; // m_message_lang (text showed when transfer to map failed)
     public MapDifficultyResetInterval ResetInterval;
+
     public MapDifficultyFlags GetFlags()
     {
         return (MapDifficultyFlags)Flags;

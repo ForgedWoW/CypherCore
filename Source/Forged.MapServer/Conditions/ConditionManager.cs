@@ -204,11 +204,9 @@ public sealed class ConditionManager
                 elseGroupSearcherTypeMasks[i.ElseGroup] &= GetSearcherTypeMaskForConditionList(refe);
             }
             else // handle normal condition
-            {
                 // object will match conditions in one ElseGroupStore only when it matches all of them
                 // so, let's find a smallest possible mask which satisfies all conditions
                 elseGroupSearcherTypeMasks[i.ElseGroup] &= i.GetSearcherTypeMaskForCondition();
-            }
         }
 
         // object will match condition when one of the checks in ElseGroupStore is matching
@@ -236,14 +234,12 @@ public sealed class ConditionManager
     public bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, ConditionSourceInfo sourceInfo)
     {
         if (sourceType is > ConditionSourceType.None and < ConditionSourceType.Max)
-        {
             if (_conditionStorage[sourceType].TryGetValue(entry, out var conditions))
             {
                 Log.Logger.Debug("GetConditionsForNotGroupedEntry: found conditions for type {0} and entry {1}", sourceType, entry);
 
                 return IsObjectMeetToConditions(sourceInfo, conditions);
             }
-        }
 
         return true;
     }
@@ -286,14 +282,12 @@ public sealed class ConditionManager
     public bool IsObjectMeetingTrainerSpellConditions(uint trainerId, uint spellId, Player player)
     {
         if (_trainerSpellConditionContainerStorage.TryGetValue(trainerId, out var multiMap))
-        {
             if (multiMap.TryGetValue(spellId, out var conditionList))
             {
                 Log.Logger.Debug($"GetConditionsForTrainerSpell: found conditions for trainer id {trainerId} spell {spellId}");
 
                 return IsObjectMeetToConditions(player, conditionList);
             }
-        }
 
         return true;
     }
@@ -364,10 +358,8 @@ public sealed class ConditionManager
                             elseGroupStore[condition.ElseGroup] = false;
                     }
                     else
-                    {
                         Log.Logger.Debug("IsPlayerMeetToConditionList: Reference template -{0} not found",
                                          condition.ReferenceId); //checked at loading, should never happen
-                    }
                 }
                 else //handle normal condition
                 {
@@ -455,7 +447,6 @@ public sealed class ConditionManager
         }
 
         if (condition.ChrSpecializationIndex >= 0 || condition.ChrSpecializationRole >= 0)
-        {
             if (_cliDB.ChrSpecializationStorage.TryGetValue(player.GetPrimarySpecialization(), out var spec))
             {
                 if (condition.ChrSpecializationIndex >= 0 && spec.OrderIndex != condition.ChrSpecializationIndex)
@@ -464,7 +455,6 @@ public sealed class ConditionManager
                 if (condition.ChrSpecializationRole >= 0 && spec.Role != condition.ChrSpecializationRole)
                     return false;
             }
-        }
 
         bool[] results;
 
@@ -515,9 +505,7 @@ public sealed class ConditionManager
                         return false;
                 }
                 else if (_cliDB.FactionStorage.HasRecord(condition.MaxReputation) && (uint)player.GetReputationRank(condition.MaxFactionID) > condition.MaxReputation)
-                {
                     return false;
-                }
             }
             else
             {
@@ -981,9 +969,7 @@ public sealed class ConditionManager
                     return true;
             }
             else if (!meets)
-            {
                 return false;
-            }
         }
 
         return !condition.GetFlags().HasFlag(UnitConditionFlags.LogicOr);
@@ -1097,9 +1083,7 @@ public sealed class ConditionManager
                     Log.Logger.Debug("Condition {0} {1} has useless data in SourceEntry ({2})!", rowType, iSourceTypeOrReferenceId, cond.SourceEntry);
             }
             else if (!IsConditionTypeValid(cond)) //doesn't have reference, validate ConditionType
-            {
                 continue;
-            }
 
             if (iSourceTypeOrReferenceId < 0) //it is a reference template
             {
@@ -3243,6 +3227,7 @@ public sealed class ConditionManager
             case WorldStateExpressionFunctions.WeekNumber:
                 var now = GameTime.CurrentTime;
                 uint raidOrigin = 1135695600;
+
                 if (_cliDB.CfgRegionsStorage.TryGetValue(WorldManager.Realm.Id.Region, out var region))
                     raidOrigin = region.Raidorigin;
 

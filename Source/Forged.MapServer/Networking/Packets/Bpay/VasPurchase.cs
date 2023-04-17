@@ -13,6 +13,7 @@ public class VasPurchase
     public uint UnkInt { get; set; } = 0;
     public uint UnkInt2 { get; set; } = 0;
     public ulong UnkLong { get; set; } = 0;
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(PlayerGuid);

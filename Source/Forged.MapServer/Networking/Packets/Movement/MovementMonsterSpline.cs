@@ -12,6 +12,7 @@ public class MovementMonsterSpline
     public uint Id;
     public MovementSpline Move;
     public byte StopDistanceTolerance; // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
+
     public MovementMonsterSpline()
     {
         Move = new MovementSpline();

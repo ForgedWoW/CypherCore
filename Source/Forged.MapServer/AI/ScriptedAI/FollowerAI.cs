@@ -71,9 +71,7 @@ internal class FollowerAI : ScriptedAI
             Me.MotionMaster.MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
         }
         else
-        {
             Me.DespawnOrUnsummon();
-        }
     }
 
     public override void MoveInLineOfSight(Unit who)
@@ -96,9 +94,7 @@ internal class FollowerAI : ScriptedAI
             Me.MotionMaster.Remove(MovementGeneratorType.Follow);
 
         if (withEndEvent)
-        {
             AddFollowState(FollowState.PostEvent);
-        }
         else
         {
             if (HasFollowState(FollowState.PostEvent))
@@ -199,7 +195,6 @@ internal class FollowerAI : ScriptedAI
                     var group = player.Group;
 
                     if (group)
-                    {
                         for (var groupRef = group.FirstMember; groupRef != null && (maxRangeExceeded || questAbandoned); groupRef = groupRef.Next())
                         {
                             var member = groupRef.Source;
@@ -218,7 +213,6 @@ internal class FollowerAI : ScriptedAI
                                     questAbandoned = false;
                             }
                         }
-                    }
                     else
                     {
                         if (Me.Location.IsWithinDistInMap(player, 100.0f))
@@ -245,9 +239,7 @@ internal class FollowerAI : ScriptedAI
                 _updateFollowTimer = 1000;
             }
             else
-            {
                 _updateFollowTimer -= uiDiff;
-            }
         }
 
         UpdateFollowerAI();
@@ -265,9 +257,7 @@ internal class FollowerAI : ScriptedAI
         if (player)
         {
             if (player.IsAlive)
-            {
                 return player;
-            }
             else
             {
                 var group = player.Group;

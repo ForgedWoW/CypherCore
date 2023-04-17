@@ -10,8 +10,10 @@ public class SendKnownSpells : ServerPacket
 {
     public List<uint> FavoriteSpells = new();
     public bool InitialLogin;
+
     public List<uint> KnownSpells = new();
-     // tradeskill recipes
+
+    // tradeskill recipes
     public SendKnownSpells() : base(ServerOpcodes.SendKnownSpells, ConnectionType.Instance) { }
 
     public override void Write()

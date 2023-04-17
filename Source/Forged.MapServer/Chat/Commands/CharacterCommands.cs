@@ -81,9 +81,7 @@ internal class CharacterCommands
                 Log.Logger.ForContext<GMCommands>().Information($"GM {sessionPlayer.GetName()} (Account: {session.AccountId}) {logString}");
         }
         else
-        {
             Log.Logger.ForContext<GMCommands>().Information($"{handler.GetCypherString(CypherStrings.Console)} {logString}");
-        }
 
         return true;
     }
@@ -185,9 +183,7 @@ internal class CharacterCommands
             target.Session.KickPlayer("HandleCharacterEraseCommand GM Command deleting character");
         }
         else
-        {
             accountId = handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(player.GetGUID());
-        }
 
         handler.AccountManager.GetName(accountId, out var accountName);
 
@@ -344,9 +340,7 @@ internal class CharacterCommands
                     Log.Logger.ForContext<GMCommands>().Information("GM {0} (Account: {1}) forced rename {2} to player {3} (Account: {4})", sessionPlayer.GetName(), session.AccountId, newName, sessionPlayer.GetName(), handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(sessionPlayer.GUID));
             }
             else
-            {
                 Log.Logger.ForContext<GMCommands>().Information("CONSOLE forced rename '{0}' to '{1}' ({2})", player.GetName(), newName, player.GetGUID().ToString());
-            }
         }
         else
         {

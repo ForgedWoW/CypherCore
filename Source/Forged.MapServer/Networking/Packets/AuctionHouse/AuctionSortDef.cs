@@ -9,6 +9,7 @@ public struct AuctionSortDef
 {
     public bool ReverseSort;
     public AuctionHouseSortOrder SortOrder;
+
     public AuctionSortDef(AuctionHouseSortOrder sortOrder, bool reverseSort)
     {
         SortOrder = sortOrder;

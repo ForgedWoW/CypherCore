@@ -13,6 +13,7 @@ public class ZoneDynamicInfo
     public List<LightOverride> LightOverrides { get; set; } = new();
     public uint MusicId { get; set; }
     public WeatherState WeatherId { get; set; }
+
     public struct LightOverride
     {
         public uint AreaLightId;

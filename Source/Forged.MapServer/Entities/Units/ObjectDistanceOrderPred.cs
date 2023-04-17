@@ -10,6 +10,7 @@ public class ObjectDistanceOrderPred : IComparer<WorldObject>
 {
     private readonly bool _ascending;
     private readonly WorldObject _refObj;
+
     public ObjectDistanceOrderPred(WorldObject pRefObj, bool ascending = true)
     {
         _refObj = pRefObj;

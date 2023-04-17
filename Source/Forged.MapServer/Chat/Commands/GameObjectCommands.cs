@@ -137,9 +137,7 @@ internal class GameObjectCommands
             thisGO = handler.GetObjectFromPlayerMapByDbGuid(spawnId);
         }
         else
-        {
             entry = (uint)data;
-        }
 
         var gameObjectInfo = handler.ObjectManager.GetGameObjectTemplate(entry);
 
@@ -231,9 +229,7 @@ internal class GameObjectCommands
             }
         }
         else
-        {
             pos = handler.Session.Player.Location;
-        }
 
         var map = obj.Location.Map;
 
@@ -404,9 +400,7 @@ internal class GameObjectCommands
                     initString = false;
                 }
                 else
-                {
                     eventFilter.Append(',' + entry);
-                }
 
             if (!initString)
                 eventFilter.Append("))");

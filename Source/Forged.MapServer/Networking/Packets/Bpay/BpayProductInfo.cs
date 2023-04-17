@@ -18,6 +18,7 @@ public class BpayProductInfo
     public uint Unk2 { get; set; }
     public uint Unk3 { get; set; }
     public List<uint> UnkInts { get; set; } = new();
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(ProductId);

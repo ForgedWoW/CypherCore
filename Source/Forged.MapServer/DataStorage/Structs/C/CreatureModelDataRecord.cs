@@ -35,7 +35,9 @@ public sealed class CreatureModelDataRecord
     public uint SizeClass;
     public uint SoundID;
     public float TamedPetBaseScale;
+
     public sbyte Unknown820_1;
+
     // scale related
     public float Unknown820_2;
 

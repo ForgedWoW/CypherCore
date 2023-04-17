@@ -12,6 +12,7 @@ public class PurchaseListResponse : ServerPacket
 
     public List<BpayPurchase> Purchase { get; set; } = new();
     public uint Result { get; set; } = 0;
+
     public override void Write()
     {
         WorldPacket.Write(Result);

@@ -31,6 +31,7 @@ public sealed class SpellItemEnchantmentRecord
     public sbyte ScalingClassRestricted;
     public uint TransmogCost;
     public uint TransmogUseConditionID;
+
     public SpellItemEnchantmentFlags GetFlags()
     {
         return (SpellItemEnchantmentFlags)Flags;

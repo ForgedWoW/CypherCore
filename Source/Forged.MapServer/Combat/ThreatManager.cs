@@ -38,6 +38,15 @@ public class ThreatManager
     private ThreatReference _fixateRef;
     private uint _updateTimer;
 
+    public ThreatManager(Unit owner)
+    {
+        Owner = owner;
+        _updateTimer = ThreatUpdateInterval;
+
+        for (var i = 0; i < (int)SpellSchools.Max; ++i)
+            SingleSchoolModifiers[i] = 1.0f;
+    }
+
     public bool CanHaveThreatList { get; private set; }
 
     public Unit CurrentVictim
@@ -61,15 +70,6 @@ public class ThreatManager
     // can our owner have a threat list?
     // identical to ThreatManager::CanHaveThreatList(GetOwner())
     public int ThreatListSize => SortedThreatList.Count;
-
-    public ThreatManager(Unit owner)
-    {
-        Owner = owner;
-        _updateTimer = ThreatUpdateInterval;
-
-        for (var i = 0; i < (int)SpellSchools.Max; ++i)
-            SingleSchoolModifiers[i] = 1.0f;
-    }
 
     public static double CalculateModifiedThreat(double threat, Unit victim, SpellInfo spell)
     {
@@ -359,14 +359,12 @@ public class ThreatManager
     public void FixateTarget(Unit target)
     {
         if (target)
-        {
             if (_myThreatListEntries.TryGetValue(target.GUID, out var it))
             {
                 _fixateRef = it;
 
                 return;
             }
-        }
 
         _fixateRef = null;
     }
@@ -624,9 +622,7 @@ public class ThreatManager
             _updateTimer = ThreatUpdateInterval;
         }
         else
-        {
             _updateTimer -= tdiff;
-        }
     }
 
     public void UpdateMySpellSchoolModifiers()

@@ -18,6 +18,7 @@ public class GridCell
     ///     Holds all World objects - Player, Pets, Corpse(resurrectable), DynamicObject(farsight)
     /// </summary>
     private readonly WorldObjectTypedList _objects;
+
     public GridCell()
     {
         _objects = new WorldObjectTypedList();

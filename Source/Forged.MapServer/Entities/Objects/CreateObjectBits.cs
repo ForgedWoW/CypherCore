@@ -23,6 +23,7 @@ public struct CreateObjectBits
     public bool Stationary;
     public bool ThisIsYou;
     public bool Vehicle;
+
     public void Clear()
     {
         NoBirthAnim = false;

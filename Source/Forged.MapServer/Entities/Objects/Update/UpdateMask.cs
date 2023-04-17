@@ -12,6 +12,7 @@ public class UpdateMask
     private readonly uint[] _blocks;
     private readonly uint[] _blocksMask;
     private readonly int _blocksMaskCount;
+
     public UpdateMask(int bits, uint[] input = null)
     {
         _blockCount = (bits + 31) / 32;
@@ -34,6 +35,7 @@ public class UpdateMask
     }
 
     public bool this[int index] => (_blocks[index / 32] & (1 << (index % 32))) != 0;
+
     public static int GetBlockFlag(int bit)
     {
         return 1 << (bit % 32);
@@ -80,6 +82,7 @@ public class UpdateMask
     {
         return _blocksMask[index];
     }
+
     public bool IsAnySet()
     {
         return _blocksMask.Any(blockMask => blockMask != 0);

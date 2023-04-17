@@ -11,6 +11,7 @@ public class BpayVisual
     public string Name { get; set; } = "";
     public uint Unk { get; set; }
     public uint VisualId { get; set; }
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.WriteBits(Name.Length, 10);

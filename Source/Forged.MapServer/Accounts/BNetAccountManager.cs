@@ -12,6 +12,7 @@ public sealed class BNetAccountManager
 {
     private readonly AccountManager _accountManager;
     private readonly LoginDatabase _loginDatabase;
+
     public BNetAccountManager(LoginDatabase loginDatabase, AccountManager accountManager)
     {
         _loginDatabase = loginDatabase;
@@ -82,6 +83,7 @@ public sealed class BNetAccountManager
 
         return AccountOpResult.Ok;
     }
+
     public uint GetId(string username)
     {
         var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_EMAIL);

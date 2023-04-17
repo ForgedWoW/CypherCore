@@ -7,6 +7,7 @@ using System.Linq;
 using System.Numerics;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Movement;
@@ -14,7 +15,6 @@ using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
 using Serilog;
-using Transport = Forged.MapServer.Entities.Transport;
 
 namespace Forged.MapServer.Maps;
 
@@ -298,6 +298,7 @@ public class TransportManager
 
         Log.Logger.Information("Loaded {0} transports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     private static void InitializeLeg(TransportPathLeg leg, List<TransportPathEvent> outEvents, List<TaxiPathNodeRecord> pathPoints, List<TaxiPathNodeRecord> pauses, List<TaxiPathNodeRecord> events, GameObjectTemplate goInfo, ref uint totalTime)
     {
         List<Vector3> splinePath = new(pathPoints.Select(node => new Vector3(node.Loc.X, node.Loc.Y, node.Loc.Z)));

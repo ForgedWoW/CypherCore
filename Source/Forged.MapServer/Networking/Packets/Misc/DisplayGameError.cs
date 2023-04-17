@@ -10,6 +10,7 @@ internal class DisplayGameError : ServerPacket
     private readonly int? Arg;
     private readonly int? Arg2;
     private readonly GameError Error;
+
     public DisplayGameError(GameError error) : base(ServerOpcodes.DisplayGameError)
     {
         Error = error;

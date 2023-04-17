@@ -14,6 +14,7 @@ public class GuildRewardItem
     public int MinGuildRep;
     public ulong RaceMask;
     public uint Unk4;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(ItemID);

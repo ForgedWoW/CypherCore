@@ -109,9 +109,7 @@ internal class GMCommands
             handler.SendSysMessage("========================");
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.GmlistEmpty);
-        }
 
         return true;
     }

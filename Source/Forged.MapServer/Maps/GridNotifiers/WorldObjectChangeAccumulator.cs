@@ -19,6 +19,7 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
     private readonly List<ObjectGuid> _plrList = new();
     private readonly Dictionary<Player, UpdateData> _updateData;
     private readonly WorldObject _worldObject;
+
     public WorldObjectChangeAccumulator(WorldObject obj, Dictionary<Player, UpdateData> d, GridType gridType, ObjectAccessor objectAccessor)
     {
         _updateData = d;
@@ -28,6 +29,7 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

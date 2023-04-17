@@ -12,6 +12,7 @@ public class PVPMatchStatistics
     public sbyte[] PlayerCount = new sbyte[2];
     public RatingData Ratings;
     public List<PVPMatchPlayerStatistics> Statistics = new();
+
     public void Write(WorldPacket data)
     {
         data.WriteBit(Ratings != null);
@@ -81,6 +82,7 @@ public class PVPMatchStatistics
         public int Role;
         public int Sex;
         public List<PVPMatchPlayerPVPStat> Stats = new();
+
         public void Write(WorldPacket data)
         {
             data.WritePackedGuid(PlayerGUID);

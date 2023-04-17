@@ -24,6 +24,7 @@ public class BossInfo
     public DungeonEncounterRecord[] DungeonEncounters { get; set; } = new DungeonEncounterRecord[MapConst.MaxDungeonEncountersPerBoss];
     public List<ObjectGuid> Minion { get; set; } = new();
     public EncounterState State { get; set; }
+
     public DungeonEncounterRecord GetDungeonEncounterForDifficulty(Difficulty difficulty)
     {
         return DungeonEncounters.FirstOrDefault(dungeonEncounter => dungeonEncounter?.DifficultyID != null && (dungeonEncounter?.DifficultyID == 0 || (Difficulty)dungeonEncounter.DifficultyID == difficulty));

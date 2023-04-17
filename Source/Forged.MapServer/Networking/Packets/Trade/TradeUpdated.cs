@@ -68,6 +68,7 @@ public class TradeUpdated : ServerPacket
         public bool Lock;
         public uint MaxDurability;
         public int OnUseEnchantmentID;
+
         public void Write(WorldPacket data)
         {
             data.WriteInt32(EnchantID);

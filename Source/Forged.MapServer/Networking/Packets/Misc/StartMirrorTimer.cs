@@ -13,6 +13,7 @@ public class StartMirrorTimer : ServerPacket
     public int SpellID;
     public MirrorTimerType Timer;
     public int Value;
+
     public StartMirrorTimer(MirrorTimerType timer, int value, int maxValue, int scale, int spellID, bool paused) : base(ServerOpcodes.StartMirrorTimer)
     {
         Timer = timer;

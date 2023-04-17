@@ -9,6 +9,7 @@ public sealed class AuctionHouseRecord
     public byte DepositRate;
     public ushort FactionID;
     public uint Id;
+
     public string Name;
-     // id of faction.dbc for player factions associated with city
+    // id of faction.dbc for player factions associated with city
 }

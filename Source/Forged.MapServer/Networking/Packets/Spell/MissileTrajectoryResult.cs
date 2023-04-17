@@ -7,6 +7,7 @@ public struct MissileTrajectoryResult
 {
     public float Pitch;
     public uint TravelTime;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(TravelTime);

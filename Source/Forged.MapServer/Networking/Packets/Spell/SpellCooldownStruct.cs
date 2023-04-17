@@ -8,6 +8,7 @@ public class SpellCooldownStruct
     public uint ForcedCooldown;
     public float ModRate = 1.0f;
     public uint SrecID;
+
     public SpellCooldownStruct(uint spellId, uint forcedCooldown)
     {
         SrecID = spellId;

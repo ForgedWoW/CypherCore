@@ -44,12 +44,15 @@ public class CufProfile
     public ushort LeftOffset { get; set; }
     public byte LeftPoint { get; set; }
     public string ProfileName { get; set; }
+
     public byte SortBy { get; set; }
+
     // LeftOffset, TopOffset and BottomOffset
     public ushort TopOffset { get; set; }
 
     // LeftAlign, TopAlight, BottomAlign
     public byte TopPoint { get; set; }
+
     public bool GetOption(CUFBoolOptions opt)
     {
         return BoolOptions.Get((int)opt);

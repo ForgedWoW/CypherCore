@@ -106,6 +106,7 @@ public class PetitionManager
 
         Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
     }
+
     public void RemovePetition(ObjectGuid petitionGuid)
     {
         _petitionStorage.Remove(petitionGuid);
@@ -123,6 +124,7 @@ public class PetitionManager
 
         _characterDatabase.CommitTransaction(trans);
     }
+
     public void RemovePetitionsByOwner(ObjectGuid ownerGuid)
     {
         foreach (var key in _petitionStorage.Keys.ToList())

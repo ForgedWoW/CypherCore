@@ -37,9 +37,7 @@ public class BIHWrap<T> where T : Model
         ++_unbalancedTimes;
 
         lock (_objects)
-        {
             _objectsToPush.Add(obj);
-        }
     }
 
     public void IntersectPoint(Vector3 point, WorkerCallback intersectCallback)
@@ -67,12 +65,10 @@ public class BIHWrap<T> where T : Model
         ++_unbalancedTimes;
 
         lock (_objects)
-        {
             if (_obj2Idx.TryGetValue(obj, out var idx))
                 _objects[idx] = null;
             else
                 _objectsToPush.Remove(obj);
-        }
     }
 
     public class MdlCallback : WorkerCallback

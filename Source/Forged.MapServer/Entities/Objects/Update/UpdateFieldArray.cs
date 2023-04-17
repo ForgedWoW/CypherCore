@@ -22,11 +22,13 @@ public class UpdateFieldArray<T> : IEnumerable<T> where T : new()
     public int Bit { get; set; }
     public int FirstElementBit { get; set; }
     public T[] Values { get; set; }
+
     public T this[int index]
     {
         get => Values[index];
         set => Values[index] = value;
     }
+
     public IEnumerator<T> GetEnumerator()
     {
         foreach (var obj in Values)

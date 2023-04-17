@@ -31,7 +31,7 @@ public partial class Player
     };
 
     private readonly float[] _parryCap =
-        {
+    {
         65.631440f,  // Warrior
         65.631440f,  // Paladin
         145.560408f, // Hunter
@@ -47,6 +47,7 @@ public partial class Player
         0.0f,        // Evoker
         0.0f,        // Adventurer
     };
+
     public bool _ModifyUInt32(bool apply, ref uint baseValue, ref int amount)
     {
         // If amount is negative, change sign and value of apply.
@@ -57,9 +58,7 @@ public partial class Player
         }
 
         if (apply)
-        {
             baseValue += (uint)amount;
-        }
         else
         {
             // Make sure we do not get public uint overflow.
@@ -282,9 +281,7 @@ public partial class Player
                 val2 = strengthValue + agilityValue;
             }
             else
-            {
                 val2 = (level + Math.Max(GetStat(Stats.Agility), 0.0f)) * entry.RangedAttackPowerPerAgility;
-            }
         }
         else
         {
@@ -368,7 +365,7 @@ public partial class Player
     }
 
     public void UpdateCritPercentage(WeaponAttackType attType)
-    { 
+    {
         float ApplyCritLimit(double value)
         {
             if (Configuration.GetDefaultValue("Stats:Limits:Enable", false))
@@ -731,9 +728,7 @@ public partial class Player
             pet?.UpdateResistances(school);
         }
         else
-        {
             UpdateArmor();
-        }
     }
 
     public void UpdateSpellCritChance()
@@ -839,6 +834,7 @@ public partial class Player
 
         return true;
     }
+
     public void UpdateVersatilityDamageDone()
     {
         // No proof that CR_VERSATILITY_DAMAGE_DONE is allways = ActivePlayerData::Versatility
@@ -849,6 +845,7 @@ public partial class Player
         else
             UpdateDamagePhysical(WeaponAttackType.BaseAttack);
     }
+
     private void _ApplyAllStatBonuses()
     {
         SetCanModifyStats(false);
@@ -1004,6 +1001,7 @@ public partial class Player
     private Stats GetPrimaryStat()
     {
         byte primaryStatPriority;
+
         if (CliDB.ChrSpecializationStorage.TryGetValue(GetPrimarySpecialization(), out var specialization))
             primaryStatPriority = (byte)specialization.PrimaryStatPriority;
         else

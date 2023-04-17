@@ -14,6 +14,7 @@ public class CreatureWorker : IGridNotifierCreature
 {
     private readonly IDoWork<Creature> _doWork;
     private readonly PhaseShift _phaseShift;
+
     public CreatureWorker(WorldObject searcher, IDoWork<Creature> work, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -22,12 +23,11 @@ public class CreatureWorker : IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)
-        {
             if (creature.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(creature);
-        }
     }
 }

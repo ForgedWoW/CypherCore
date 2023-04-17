@@ -54,6 +54,7 @@ public class SendMail : ClientPacket
         public int StationeryID;
         public string Subject;
         public string Target;
+
         public struct MailAttachment
         {
             public byte AttachPosition;

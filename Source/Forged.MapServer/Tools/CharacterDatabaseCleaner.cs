@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.DataStorage;
@@ -34,8 +33,6 @@ internal class CharacterDatabaseCleaner
         _spellManager = spellManager;
         _worldManager = worldManager;
     }
-
-    private delegate bool CheckFor(uint id);
 
     public void CleanDatabase()
     {
@@ -106,9 +103,7 @@ internal class CharacterDatabaseCleaner
                     found = true;
                 }
                 else
-                {
                     ss.Append(',');
-                }
 
                 ss.Append(id);
             }
@@ -120,6 +115,7 @@ internal class CharacterDatabaseCleaner
             _characterDatabase.Execute(ss.ToString());
         }
     }
+
     private void CleanCharacterAchievementProgress()
     {
         CheckUnique("criteria", "character_achievement_progress", AchievementProgressCheck);
@@ -150,12 +146,14 @@ internal class CharacterDatabaseCleaner
     {
         return _cliDB.SkillLineStorage.ContainsKey(skill);
     }
+
     private bool SpellCheck(uint spellID)
     {
         var spellInfo = _spellManager.GetSpellInfo(spellID);
 
         return spellInfo != null && !spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
     }
+
     private bool TalentCheck(uint talentID)
     {
         if (!_cliDB.TalentStorage.TryGetValue(talentID, out var talentInfo))
@@ -163,4 +161,6 @@ internal class CharacterDatabaseCleaner
 
         return _cliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
     }
+
+    private delegate bool CheckFor(uint id);
 }

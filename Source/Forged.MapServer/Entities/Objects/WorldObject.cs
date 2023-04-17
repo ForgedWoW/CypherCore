@@ -35,7 +35,6 @@ using Forged.MapServer.Phasing;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Spells;
-using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
@@ -250,9 +249,7 @@ public abstract class WorldObject : IDisposable
                     return owner.AsPlayer;
             }
             else if (IsGameObject)
-            {
                 return AsPlayer;
-            }
 
             return null;
         }
@@ -267,6 +264,29 @@ public abstract class WorldObject : IDisposable
     public WorldObjectCombat WorldObjectCombat { get; }
     public ZoneScript ZoneScript { get; set; }
     protected TypeId ObjectTypeId { get; set; }
+
+    public virtual void Dispose()
+    {
+        // this may happen because there are many !create/delete
+        if (IsWorldObject() && Location.Map != null)
+        {
+            if (IsTypeId(TypeId.Corpse))
+                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+            else
+                Location.ResetMap();
+        }
+
+        if (Location.IsInWorld)
+        {
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
+
+            if (IsTypeMask(TypeMask.Item))
+                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
+        }
+
+        if (_objectUpdated)
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
+    }
 
     public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
     {
@@ -965,9 +985,7 @@ public abstract class WorldObject : IDisposable
             DestroyForPlayer(player);
 
             lock (player.ClientGuiDs)
-            {
                 player.ClientGuiDs.Remove(GUID);
-            }
         }
     }
 
@@ -977,29 +995,6 @@ public abstract class WorldObject : IDisposable
         BuildDestroyUpdateBlock(updateData);
         updateData.BuildPacket(out var packet);
         target.SendPacket(packet);
-    }
-
-    public virtual void Dispose()
-    {
-        // this may happen because there are many !create/delete
-        if (IsWorldObject() && Location.Map != null)
-        {
-            if (IsTypeId(TypeId.Corpse))
-                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
-            else
-                Location.ResetMap();
-        }
-
-        if (Location.IsInWorld)
-        {
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
-
-            if (IsTypeMask(TypeMask.Item))
-                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
-        }
-
-        if (_objectUpdated)
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
     }
 
     public void DoWithSuppressingObjectUpdates(Action action)

@@ -56,11 +56,13 @@ public class SetupCurrency : ServerPacket
         public int? MaxQuantity;
         public uint? MaxWeeklyQuantity;
         public uint Quantity;
+
         public int? TotalEarned;
+
         // Weekly Currency cap.
         public uint? TrackedQuantity;
 
         public uint Type;
-        public uint? WeeklyQuantity;    // Currency count obtained this Week.  
+        public uint? WeeklyQuantity; // Currency count obtained this Week.  
     }
 }

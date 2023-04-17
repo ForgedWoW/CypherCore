@@ -29,6 +29,7 @@ public class CreatureMovementData
     public CreatureRandomMovementType Random { get; set; }
     public bool Rooted { get; set; }
     public bool Swim { get; set; }
+
     public override string ToString()
     {
         return $"Ground: {Ground}, Swim: {Swim}, Flight: {Flight} {(Rooted ? ", Rooted" : "")}, Chase: {Chase}, Random: {Random}, InteractionPauseTimer: {InteractionPauseTimer}";

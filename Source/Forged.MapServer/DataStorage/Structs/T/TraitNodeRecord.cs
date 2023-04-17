@@ -13,6 +13,7 @@ public sealed class TraitNodeRecord
     public int PosY;
     public int TraitTreeID;
     public sbyte Type;
+
     public TraitNodeType GetNodeType()
     {
         return (TraitNodeType)Type;

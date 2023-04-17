@@ -35,8 +35,6 @@ public class BattleField : ZoneScript
     public bool IsActive;
     public WorldLocation KickPosition;
     public Map Map;
-    private readonly GameObjectFactory _gameObjectFactory;
-    private readonly ClassFactory _classFactory;
     public uint MapId;
 
     // MapId where is Battlefield
@@ -84,6 +82,8 @@ public class BattleField : ZoneScript
     // See enum BattlefieldTypes
     // BattleID (for packet)
     public uint ZoneId;
+    private readonly GameObjectFactory _gameObjectFactory;
+    private readonly ClassFactory _classFactory;
 
     // Timer for invite players in area 15 minute before start battle
     // bool for know if all players in area has been invited
@@ -145,6 +145,7 @@ public class BattleField : ZoneScript
     public GroupManager GroupManager { get; }
     public bool IsEnabled { get; set; }
     public ObjectAccessor ObjectAccessor { get; }
+
     public GameObjectManager ObjectManager { get; }
     // Global timer for event
 
@@ -186,7 +187,7 @@ public class BattleField : ZoneScript
         for (byte team = 0; team < 2; ++team)
             foreach (var guid in PlayersInQueue[team])
             {
-                 ObjectAccessor.FindPlayer(guid)?.SendPacket(data);
+                ObjectAccessor.FindPlayer(guid)?.SendPacket(data);
             }
     }
 
@@ -209,8 +210,7 @@ public class BattleField : ZoneScript
     }
 
     // Return if we can use mount in battlefield
-    public virtual void DoCompleteOrIncrementAchievement(uint achievement, Player player, byte incrementNumber = 1)
-    { }
+    public virtual void DoCompleteOrIncrementAchievement(uint achievement, Player player, byte incrementNumber = 1) { }
 
     public void EndBattle(bool endByTimer)
     {
@@ -303,8 +303,7 @@ public class BattleField : ZoneScript
     }
 
     // Called when a Unit is kill in battlefield zone
-    public virtual void HandleKill(Player killer, Unit killed)
-    { }
+    public virtual void HandleKill(Player killer, Unit killed) { }
 
     public void HandlePlayerEnterZone(Player player, uint zone)
     {
@@ -397,32 +396,25 @@ public class BattleField : ZoneScript
     }
 
     // Called at the end of battle
-    public virtual void OnBattleEnd(bool endByTimer)
-    { }
+    public virtual void OnBattleEnd(bool endByTimer) { }
 
     // Called on start
-    public virtual void OnBattleStart()
-    { }
+    public virtual void OnBattleStart() { }
 
     // Called when a player enter in battlefield zone
-    public virtual void OnPlayerEnterZone(Player player)
-    { }
+    public virtual void OnPlayerEnterZone(Player player) { }
 
     // Called when a player accept to join the battle
-    public virtual void OnPlayerJoinWar(Player player)
-    { }
+    public virtual void OnPlayerJoinWar(Player player) { }
 
     // Called when a player leave the battle
-    public virtual void OnPlayerLeaveWar(Player player)
-    { }
+    public virtual void OnPlayerLeaveWar(Player player) { }
 
     // Called when a player leave battlefield zone
-    public virtual void OnPlayerLeaveZone(Player player)
-    { }
+    public virtual void OnPlayerLeaveZone(Player player) { }
 
     // Called x minutes before battle start when player in zone are invite to join queue
-    public virtual void OnStartGrouping()
-    { }
+    public virtual void OnStartGrouping() { }
 
     // Called in WorldSession:HandleBfQueueInviteResponse
     public void PlayerAcceptInviteToQueue(Player player)
@@ -491,8 +483,7 @@ public class BattleField : ZoneScript
     }
 
     // use for switch off all worldstate for client
-    public virtual void SendRemoveWorldStates(Player player)
-    { }
+    public virtual void SendRemoveWorldStates(Player player) { }
 
     public void SendWarning(uint id, WorldObject target = null)
     {
@@ -711,7 +702,7 @@ public class BattleField : ZoneScript
     {
         if (!player.Location.IsInWorld)
             return false;
-        
+
         player.Group?.RemoveMember(player.GUID);
 
         var group = GetFreeBfRaid(player.TeamId);

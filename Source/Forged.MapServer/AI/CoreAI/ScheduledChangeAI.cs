@@ -9,31 +9,21 @@ namespace Forged.MapServer.AI.CoreAI;
 
 internal class ScheduledChangeAI : CreatureAI
 {
-    public ScheduledChangeAI(Creature creature) : base(creature)
-    {
-    }
+    public ScheduledChangeAI(Creature creature) : base(creature) { }
 
-    public override void AttackStart(Unit unit)
-    { }
+    public override void AttackStart(Unit unit) { }
 
-    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
-    { }
+    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other) { }
 
-    public override void JustAppeared()
-    { }
+    public override void JustAppeared() { }
 
-    public override void JustEnteredCombat(Unit unit)
-    { }
+    public override void JustEnteredCombat(Unit unit) { }
 
-    public override void JustStartedThreateningMe(Unit unit)
-    { }
+    public override void JustStartedThreateningMe(Unit unit) { }
 
-    public override void MoveInLineOfSight(Unit unit)
-    { }
+    public override void MoveInLineOfSight(Unit unit) { }
 
-    public override void OnCharmed(bool isNew)
-    { }
+    public override void OnCharmed(bool isNew) { }
 
-    public override void UpdateAI(uint diff)
-    { }
+    public override void UpdateAI(uint diff) { }
 }

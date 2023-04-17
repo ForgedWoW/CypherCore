@@ -142,9 +142,7 @@ public class Guild
                 return false;
         }
         else if (_characterCache.GetCharacterGuildIdByGuid(guid) != 0)
-        {
             return false;
-        }
 
         // Remove all player signs from another petitions
         // This will be prevent attempt to join many guilds and corrupt guild data integrity
@@ -427,9 +425,7 @@ public class Guild
                 player.RemoveSpell(entry.SpellID, false, false);
         }
         else
-        {
             _characterCache.UpdateCharacterGuildId(guid, 0);
-        }
 
         DeleteMemberFromDB(trans, guid.Counter);
 
@@ -971,9 +967,7 @@ public class Guild
 
             // Guild masters cannot be removed
             if (member.IsRank(GuildRankId.GuildMaster))
-            {
                 SendCommandResult(session, GuildCommandType.RemovePlayer, GuildCommandError.LeaderLeave);
-            }
             // Do not allow to remove player with the same rank or higher
             else
             {
@@ -982,9 +976,7 @@ public class Guild
                 var targetRank = GetRankInfo(member.RankId);
 
                 if (targetRank.Order <= myRank.Order)
-                {
                     SendCommandResult(session, GuildCommandType.RemovePlayer, GuildCommandError.RankTooHigh_S, name);
-                }
                 else
                 {
                     DeleteMember(null, guid, false, true);
@@ -1153,13 +1145,9 @@ public class Guild
         var player = session.Player;
 
         if (!IsLeader(player))
-        {
             SendSaveEmblemResult(session, GuildEmblemError.NotGuildMaster); // "Only guild leaders can create emblems."
-        }
         else if (!player.HasEnoughMoney(10 * MoneyConstants.Gold))
-        {
             SendSaveEmblemResult(session, GuildEmblemError.NotEnoughMoney); // "You can't afford to do that."
-        }
         else
         {
             player.ModifyMoney(-(long)10 * MoneyConstants.Gold);
@@ -1263,9 +1251,7 @@ public class Guild
 
         // Player must have rights to set MOTD
         if (!HasRankRight(session.Player, GuildRankRights.SetMotd))
-        {
             SendCommandResult(session, GuildCommandType.EditMOTD, GuildCommandError.Permissions);
-        }
         else
         {
             _motd = motd;
@@ -1405,9 +1391,7 @@ public class Guild
         GuildMember member;
 
         if (!HasRankRight(player, demote ? GuildRankRights.Demote : GuildRankRights.Promote))
-        {
             SendCommandResult(session, type, GuildCommandError.LeaderLeave);
-        }
         // Promoted player must be a member of guild
         else if ((member = GetMember(guid)) != null)
         {
@@ -2191,7 +2175,6 @@ public class Guild
             brokenRanks = true;
         }
         else
-        {
             for (byte rankId = 0; rankId < ranks; ++rankId)
             {
                 var rankInfo = GetRankInfo((GuildRankId)rankId);
@@ -2202,11 +2185,8 @@ public class Guild
                     brokenRanks = true;
                 }
                 else
-                {
                     rankInfo.CreateMissingTabsIfNeeded(GetPurchasedTabsSize(), trans, true);
-                }
             }
-        }
 
         if (brokenRanks)
         {
@@ -2237,9 +2217,7 @@ public class Guild
             }
         }
         else if (!leader.IsRank(GuildRankId.GuildMaster))
-        {
             SetLeader(trans, leader);
-        }
 
         if (trans.commands.Count > 0)
             _characterDatabase.CommitTransaction(trans);
@@ -2248,6 +2226,7 @@ public class Guild
 
         return true;
     }
+
     private void CreateDefaultGuildRanks(SQLTransaction trans, Locale loc = Locale.enUS)
     {
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GUILD_RANKS);
@@ -2493,9 +2472,7 @@ public class Guild
     private void ModifyBankMoney(SQLTransaction trans, ulong amount, bool add)
     {
         if (add)
-        {
             _bankMoney += amount;
-        }
         else
         {
             // Check if there is enough money in bank.
@@ -2585,9 +2562,7 @@ public class Guild
             {
                 // Same tab - add destination slots to collection
                 if (pDest.Container == pSrc.Container)
-                {
                     pDest.CopySlots(slots);
-                }
                 else // Different tabs - send second message
                 {
                     List<byte> destSlots = new();
@@ -2695,9 +2670,7 @@ public class Guild
         };
 
         if (broadcast)
-        {
             BroadcastPacket(eventPacket);
-        }
         else
         {
             session.SendPacket(eventPacket);

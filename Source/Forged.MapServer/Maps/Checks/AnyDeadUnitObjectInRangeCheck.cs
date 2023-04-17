@@ -11,6 +11,7 @@ public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
 {
     private readonly float _range;
     private readonly WorldObject _searchObj;
+
     public AnyDeadUnitObjectInRangeCheck(WorldObject searchObj, float range)
     {
         _searchObj = searchObj;

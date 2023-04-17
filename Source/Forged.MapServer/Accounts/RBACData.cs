@@ -14,7 +14,7 @@ public class RBACData
     private readonly AccountManager _accountManager;
     private readonly LoginDatabase _loginDatabase;
     private readonly int _realmId; // RealmId Affected
-    private byte _secLevel;                            // Account SecurityLevel
+    private byte _secLevel;        // Account SecurityLevel
 
     // Gets the Name of the Object
 
@@ -31,6 +31,7 @@ public class RBACData
     public List<uint> DeniedPermissions { get; } = new();
     public List<uint> GrantedPermissions { get; } = new();
     public uint Id { get; }
+
     public string Name { get; }
     // Gets the Id of the Object
     // Returns all the granted permissions (after computation)
@@ -97,13 +98,11 @@ public class RBACData
             CalculateNewPermissions();
         }
         else
-        {
             Log.Logger.Debug("RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
                              Id,
                              Name,
                              permissionId,
                              realmId);
-        }
 
         return RBACCommandResult.Ok;
     }
@@ -170,13 +169,11 @@ public class RBACData
             CalculateNewPermissions();
         }
         else
-        {
             Log.Logger.Debug("RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
                              Id,
                              Name,
                              permissionId,
                              realmId);
-        }
 
         return RBACCommandResult.Ok;
     }
@@ -268,13 +265,11 @@ public class RBACData
             CalculateNewPermissions();
         }
         else
-        {
             Log.Logger.Debug("RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
                              Id,
                              Name,
                              permissionId,
                              realmId);
-        }
 
         return RBACCommandResult.Ok;
     }

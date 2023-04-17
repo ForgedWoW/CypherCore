@@ -246,9 +246,7 @@ internal class BNetAccountCommands
             handler.SendSysMessage("----------------------------------------------------");
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.AccountBnetListNoAccounts, battlenetAccountName);
-        }
 
         return true;
     }

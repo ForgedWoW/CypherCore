@@ -13,6 +13,7 @@ public class DeliveryEnded : ServerPacket
 
     public ulong DistributionID { get; set; } = 0;
     public List<ItemInstance> Item { get; set; } = new();
+
     public override void Write()
     {
         WorldPacket.Write(DistributionID);

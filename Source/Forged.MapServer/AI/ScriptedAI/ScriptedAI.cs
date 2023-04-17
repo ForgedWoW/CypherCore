@@ -212,7 +212,7 @@ public class ScriptedAI : CreatureAI
         return _difficulty switch
         {
             Difficulty.Normal => normal5,
-            _ => heroic10,
+            _                 => heroic10,
         };
     }
 
@@ -300,7 +300,7 @@ public class ScriptedAI : CreatureAI
         return _difficulty switch
         {
             Difficulty.Raid10N => normal10,
-            _ => normal25,
+            _                  => normal25,
         };
     }
 
@@ -308,10 +308,10 @@ public class ScriptedAI : CreatureAI
     {
         return _difficulty switch
         {
-            Difficulty.Raid10N => normal10,
-            Difficulty.Raid25N => normal25,
+            Difficulty.Raid10N  => normal10,
+            Difficulty.Raid25N  => normal25,
             Difficulty.Raid10HC => heroic10,
-            _ => heroic25,
+            _                   => heroic25,
         };
     }
 

@@ -21,6 +21,7 @@ public partial class Unit
     public float HealthPct => MaxHealth != 0 ? 100.0f * Health / MaxHealth : 0.0f;
     public bool IsFullHealth => Health == MaxHealth;
     public long MaxHealth => UnitData.MaxHealth;
+
     public void ApplyModManaCostModifier(SpellSchools school, int mod, bool apply)
     {
         ApplyModUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.ManaCostModifier, (int)school), mod, apply);
@@ -318,6 +319,7 @@ public partial class Unit
 
         UpdateUnitMod(unitMod);
     }
+
     public bool HealthAbovePct(double pct)
     {
         return Health > CountPctFromMaxHealth(pct);
@@ -528,13 +530,9 @@ public partial class Unit
         lock (_healthLock)
         {
             if (DeathState is DeathState.JustDied or DeathState.Corpse)
-            {
                 val = 0;
-            }
             else if (IsTypeId(TypeId.Player) && DeathState == DeathState.Dead)
-            {
                 val = 1;
-            }
             else
             {
                 var maxHealth = MaxHealth;
@@ -813,6 +811,7 @@ public partial class Unit
         AuraPctModifiersGroup[(int)unitMod][(int)modifierType] = val;
         UpdateUnitMod(unitMod);
     }
+
     public void UpdateAllResistances()
     {
         for (var i = SpellSchools.Normal; i < SpellSchools.Max; ++i)
@@ -874,9 +873,7 @@ public partial class Unit
             SetBonusResistanceMod(school, (int)(value - baseValue));
         }
         else
-        {
             UpdateArmor();
-        }
     }
 
     public void UpdateStatBuffMod(Stats stat)
@@ -957,6 +954,7 @@ public partial class Unit
     {
         return false;
     }
+
     // player or player's pet resilience (-1%)
     internal double GetDamageReduction(double damage)
     {
@@ -975,9 +973,7 @@ public partial class Unit
         var player = AsPlayer;
 
         if (player)
-        {
             return player.GetRatingBonusValue(cr);
-        }
         // Player's pet get resilience from owner
         else if (IsPet && OwnerUnit)
         {
@@ -1050,7 +1046,6 @@ public partial class Unit
         var thisPlayer = AsPlayer;
 
         if (thisPlayer != null)
-        {
             chance = attackType switch
             {
                 WeaponAttackType.BaseAttack   => thisPlayer.ActivePlayerData.CritPercentage,
@@ -1058,7 +1053,6 @@ public partial class Unit
                 WeaponAttackType.RangedAttack => thisPlayer.ActivePlayerData.RangedCritPercentage,
                 _                             => chance
             };
-        }
         else
         {
             if (!AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
@@ -1105,9 +1099,7 @@ public partial class Unit
         var playerVictim = victim.AsPlayer;
 
         if (playerVictim)
-        {
             chance = playerVictim.ActivePlayerData.DodgePercentage;
-        }
         else
         {
             if (!victim.IsTotem)

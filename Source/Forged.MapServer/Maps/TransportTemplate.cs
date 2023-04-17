@@ -120,16 +120,13 @@ public class TransportTemplate
             var segmentTimeAtFullSpeed = segmentDuration - accelerationTime;
 
             if (timePassedInSegment <= segmentTimeAtFullSpeed)
-            {
                 return timePassedInSegment * Speed;
-            }
 
             var segmentAccelerationTime = timePassedInSegment - segmentTimeAtFullSpeed;
             var segmentAccelerationDistance = AccelerationRate * accelerationTime;
             var segmentDistanceAtFullSpeed = segmentTimeAtFullSpeed * Speed;
 
             return (2.0 * segmentAccelerationDistance - segmentAccelerationTime * AccelerationRate) * 0.5 * segmentAccelerationTime + segmentDistanceAtFullSpeed;
-
         }
 
         if (isLastSegment)
@@ -138,7 +135,6 @@ public class TransportTemplate
                 return AccelerationRate * timePassedInSegment * 0.5 * timePassedInSegment;
 
             return (timePassedInSegment - AccelerationTime) * Speed + AccelerationDistance;
-
         }
 
         var accelerationTime1 = Math.Min(segmentDuration * 0.5, AccelerationTime);

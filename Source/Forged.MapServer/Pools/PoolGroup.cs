@@ -57,9 +57,7 @@ public class PoolGroup<T>
                 spawns.RemoveSpawn<T>(obj.Guid, _poolId);
             }
             else if (alwaysDeleteRespawnTime)
-            {
                 RemoveRespawnTimeFromDB(spawns, obj.Guid);
-            }
 
         foreach (var obj in _explicitlyChanced)
             if (spawns.IsSpawnedObject<T>(obj.Guid))
@@ -71,9 +69,7 @@ public class PoolGroup<T>
                 spawns.RemoveSpawn<T>(obj.Guid, _poolId);
             }
             else if (alwaysDeleteRespawnTime)
-            {
                 RemoveRespawnTimeFromDB(spawns, obj.Guid);
-            }
     }
 
     public uint GetPoolId()
@@ -91,9 +87,10 @@ public class PoolGroup<T>
         if (typeof(T).Name != "Pool")
             return IsEmpty();
 
-        return _explicitlyChanced.All(explicitlyChanced => _poolManager.IsEmpty((uint)explicitlyChanced.Guid)) && 
+        return _explicitlyChanced.All(explicitlyChanced => _poolManager.IsEmpty((uint)explicitlyChanced.Guid)) &&
                _equalChanced.All(equalChanced => _poolManager.IsEmpty((uint)equalChanced.Guid));
     }
+
     public void RemoveOneRelation(uint childPoolID)
     {
         if (typeof(T).Name != "Pool")
@@ -180,6 +177,7 @@ public class PoolGroup<T>
         if (triggerFrom != 0)
             DespawnObject(spawns, triggerFrom);
     }
+
     private void Despawn1Object(SpawnedPoolData spawns, ulong guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true)
     {
         switch (typeof(T).Name)

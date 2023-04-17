@@ -19,6 +19,7 @@ internal class PlayerChoiceResponseReward
     public uint SkillPointCount;
     public int TitleID;
     public uint Xp;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(TitleID);

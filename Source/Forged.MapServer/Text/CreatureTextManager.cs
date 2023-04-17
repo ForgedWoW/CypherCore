@@ -35,6 +35,7 @@ public sealed class CreatureTextManager
     private readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
     private readonly WorldDatabase _worldDatabase;
     private readonly WorldManager _worldManager;
+
     public CreatureTextManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, LanguageManager languageManager,
                                DB2Manager db2Manager, WorldManager worldManager, GameObjectManager objectManager, CellCalculator cellCalculator)
     {

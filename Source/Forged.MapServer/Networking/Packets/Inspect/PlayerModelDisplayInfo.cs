@@ -20,6 +20,7 @@ public class PlayerModelDisplayInfo
     public string Name;
     public byte Race;
     public uint SpecializationID;
+
     public void Initialize(Player player)
     {
         GUID = player.GUID;

@@ -22,6 +22,7 @@ public class InspectResult : ServerPacket
     public TraitInspectInfo TalentTraits;
     public ushort TodayHK;
     public ushort YesterdayHK;
+
     public InspectResult() : base(ServerOpcodes.InspectResult)
     {
         DisplayInfo = new PlayerModelDisplayInfo();

@@ -31,6 +31,7 @@ public class QuestRewards
     public uint Title;
     public uint TreasurePickerID;
     public uint XP;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(ChoiceItemCount);

@@ -13,6 +13,7 @@ public sealed class WaypointManager
     private readonly GridDefines _gridDefines;
     private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
     private readonly WorldDatabase _worldDatabase;
+
     public WaypointManager(WorldDatabase worldDatabase, GridDefines gridDefines)
     {
         _worldDatabase = worldDatabase;

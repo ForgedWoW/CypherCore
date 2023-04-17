@@ -39,6 +39,7 @@ public class TempSummon : Creature
 
     public uint Timer { get; private set; }
     private TempSummonType SummonType { get; set; }
+
     public override float GetDamageMultiplierForTarget(WorldObject target)
     {
         return 1.0f;
@@ -186,6 +187,7 @@ public class TempSummon : Creature
     {
         _summonerGuid = summonerGUID;
     }
+
     public void SetTempSummonType(TempSummonType type)
     {
         SummonType = type;
@@ -270,9 +272,7 @@ public class TempSummon : Creature
                     Timer -= diff;
                 }
                 else if (Timer != _lifetime)
-                {
                     Timer = _lifetime;
-                }
 
                 break;
             }
@@ -323,14 +323,10 @@ public class TempSummon : Creature
                         return;
                     }
                     else
-                    {
                         Timer -= diff;
-                    }
                 }
                 else if (Timer != _lifetime)
-                {
                     Timer = _lifetime;
-                }
 
                 break;
             }
@@ -345,14 +341,10 @@ public class TempSummon : Creature
                         return;
                     }
                     else
-                    {
                         Timer -= diff;
-                    }
                 }
                 else if (Timer != _lifetime)
-                {
                     Timer = _lifetime;
-                }
 
                 break;
             }
@@ -363,6 +355,7 @@ public class TempSummon : Creature
                 break;
         }
     }
+
     public override void UpdateObjectVisibilityOnCreate()
     {
         List<WorldObject> objectsToUpdate = new();

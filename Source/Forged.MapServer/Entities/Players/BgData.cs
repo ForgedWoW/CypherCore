@@ -31,7 +31,7 @@ public class BgData
     public uint MountSpell { get; set; }
     public uint[] TaxiPath { get; set; } = new uint[2];
 
-     //< From where player entered BG
+    //< From where player entered BG
     public void ClearTaxiPath()
     {
         TaxiPath[0] = TaxiPath[1] = 0;

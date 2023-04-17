@@ -9,6 +9,21 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class ContentTuningParams
 {
+    public enum ContentTuningFlags
+    {
+        NoLevelScaling = 0x1,
+        NoItemLevelScaling = 0x2
+    }
+
+    public enum ContentTuningType
+    {
+        CreatureToPlayerDamage = 1,
+        PlayerToCreatureDamage = 2,
+        CreatureToCreatureDamage = 4,
+        PlayerToSandboxScaling = 7, // NYI
+        PlayerToPlayerExpectedStat = 8
+    }
+
     public byte Expansion;
 
     public ContentTuningFlags Flags = ContentTuningFlags.NoLevelScaling | ContentTuningFlags.NoItemLevelScaling;
@@ -33,20 +48,6 @@ internal class ContentTuningParams
 
     public int Unused927;
 
-    public enum ContentTuningFlags
-    {
-        NoLevelScaling = 0x1,
-        NoItemLevelScaling = 0x2
-    }
-
-    public enum ContentTuningType
-    {
-        CreatureToPlayerDamage = 1,
-        PlayerToCreatureDamage = 2,
-        CreatureToCreatureDamage = 4,
-        PlayerToSandboxScaling = 7, // NYI
-        PlayerToPlayerExpectedStat = 8
-    }
     public bool GenerateDataForUnits(Unit attacker, Unit target)
     {
         var playerAttacker = attacker.AsPlayer;
@@ -74,10 +75,8 @@ internal class ContentTuningParams
                     return GenerateDataCreatureToPlayer(creatureAttacker, playerTarget);
             }
             else if (creatureTarget)
-            {
                 if (creatureAttacker.HasScalableLevels || creatureTarget.HasScalableLevels)
                     return GenerateDataCreatureToCreature(creatureAttacker, creatureTarget);
-            }
         }
 
         return false;

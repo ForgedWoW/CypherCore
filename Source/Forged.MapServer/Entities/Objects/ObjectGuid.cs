@@ -371,6 +371,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
         HighValue = high;
         LowValue = low;
     }
+
     public override string ToString()
     {
         var str = $"GUID Full: 0x{HighValue + LowValue}, Type: {High}";

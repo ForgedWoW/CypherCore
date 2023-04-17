@@ -24,6 +24,7 @@ internal class ObjectGridLoaderBase
     internal uint GameObjects { get; set; }
     internal Grid Grid { get; set; }
     internal Map Map { get; set; }
+
     public uint GetLoadedAreaTriggers()
     {
         return AreaTriggers;
@@ -43,9 +44,11 @@ internal class ObjectGridLoaderBase
     {
         return GameObjects;
     }
+
     internal uint LoadHelper<T>(SortedSet<ulong> guidSet, CellCoord cell, Map map, uint phaseId = 0, ObjectGuid? phaseOwner = null) where T : WorldObject
     {
         var count = 0u;
+
         foreach (var guid in guidSet)
         {
             // Don't spawn at all if there's a respawn timer
@@ -85,6 +88,6 @@ internal class ObjectGridLoaderBase
         if (obj.IsActive)
             map.AddToActive(obj);
 
-        return  1;
+        return 1;
     }
 }

@@ -30,6 +30,5 @@ internal class NearestGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
         _range = _obj.Location.GetDistance(go); // use found GO range as new range limit for next check
 
         return true;
-
     }
 }

@@ -148,18 +148,14 @@ public class MotionMaster
     public bool Empty()
     {
         lock (Generators)
-        {
             return DefaultGenerator == null && Generators.Empty();
-        }
     }
 
     public MovementGenerator GetCurrentMovementGenerator()
     {
         lock (Generators)
-        {
             if (!Generators.Empty())
                 return Generators.FirstOrDefault();
-        }
 
         return DefaultGenerator;
     }
@@ -170,10 +166,8 @@ public class MotionMaster
             return null;
 
         lock (Generators)
-        {
             if (slot == MovementSlot.Active && !Generators.Empty())
                 return Generators.FirstOrDefault();
-        }
 
         if (slot == MovementSlot.Default && DefaultGenerator != null)
             return DefaultGenerator;
@@ -197,10 +191,8 @@ public class MotionMaster
             return MovementGeneratorType.Max;
 
         lock (Generators)
-        {
             if (slot == MovementSlot.Active && !Generators.Empty())
                 return Generators.FirstOrDefault().GetMovementGeneratorType();
-        }
 
         if (slot == MovementSlot.Default && DefaultGenerator != null)
             return DefaultGenerator.GetMovementGeneratorType();
@@ -211,10 +203,8 @@ public class MotionMaster
     public MovementSlot GetCurrentSlot()
     {
         lock (Generators)
-        {
             if (!Generators.Empty())
                 return MovementSlot.Active;
-        }
 
         return DefaultGenerator != null ? MovementSlot.Default : MovementSlot.Max;
     }
@@ -253,7 +243,6 @@ public class MotionMaster
 
             case MovementSlot.Active:
                 lock (Generators)
-                {
                     if (!Generators.Empty())
                     {
                         var itr = Generators.FirstOrDefault(filter);
@@ -261,7 +250,6 @@ public class MotionMaster
                         if (itr != null)
                             movement = itr;
                     }
-                }
 
                 break;
         }
@@ -277,7 +265,6 @@ public class MotionMaster
             list.Add(new MovementGeneratorInformation(DefaultGenerator.GetMovementGeneratorType(), ObjectGuid.Empty));
 
         lock (Generators)
-        {
             foreach (var movement in Generators)
             {
                 var type = movement.GetMovementGeneratorType();
@@ -294,9 +281,7 @@ public class MotionMaster
                             list.Add(target != null ? new MovementGeneratorInformation(type, target.GUID, target.GetName()) : new MovementGeneratorInformation(type, ObjectGuid.Empty));
                         }
                         else
-                        {
                             list.Add(new MovementGeneratorInformation(type, ObjectGuid.Empty));
-                        }
 
                         break;
 
@@ -306,7 +291,6 @@ public class MotionMaster
                         break;
                 }
             }
-        }
 
         return list;
     }
@@ -328,13 +312,11 @@ public class MotionMaster
 
             case MovementSlot.Active:
                 lock (Generators)
-                {
                     if (!Generators.Empty())
                     {
                         var itr = Generators.FirstOrDefault(filter);
                         value = itr != null;
                     }
-                }
 
                 break;
         }
@@ -591,13 +573,9 @@ public class MotionMaster
             return;
 
         if (Owner.IsCreature)
-        {
             Add(time != 0 ? new TimedFleeingMovementGenerator(enemy.GUID, time) : new FleeingMovementGenerator<Creature>(enemy.GUID));
-        }
         else
-        {
             Add(new FleeingMovementGenerator<Player>(enemy.GUID));
-        }
     }
 
     public void MoveFollow(Unit target, float dist, float angle = 0.0f, MovementSlot slot = MovementSlot.Active)
@@ -833,9 +811,7 @@ public class MotionMaster
             Add(new AssistanceMovementGenerator(EventId.AssistMove, x, y, z, Owner.Configuration));
         }
         else
-        {
             Log.Logger.Error($"MotionMaster::MoveSeekAssistance: {Owner.GUID}, attempted to seek assistance");
-        }
     }
 
     public void MoveSeekAssistanceDistract(uint time)
@@ -921,14 +897,10 @@ public class MotionMaster
                 Add(movement);
             }
             else
-            {
                 Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{Owner.GUID}', attempted taxi to non-existing path Id: {path} (node: {pathnode})");
-            }
         }
         else
-        {
             Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{Owner.GUID}', attempted taxi to path Id: {path} (node: {pathnode})");
-        }
     }
 
     public void PropagateSpeedChange()
@@ -966,11 +938,9 @@ public class MotionMaster
 
             case MovementSlot.Active:
                 lock (Generators)
-                {
                     if (!Generators.Empty())
                         if (Generators.Contains(movement))
                             Remove(movement, GetCurrentMovementGenerator() == movement, false);
-                }
 
                 break;
         }
@@ -1001,7 +971,6 @@ public class MotionMaster
 
             case MovementSlot.Active:
                 lock (Generators)
-                {
                     if (!Generators.Empty())
                     {
                         var itr = Generators.FirstOrDefault(a => a.GetMovementGeneratorType() == type);
@@ -1009,7 +978,6 @@ public class MotionMaster
                         if (itr != null)
                             Remove(itr, GetCurrentMovementGenerator() == itr, false);
                     }
-                }
 
                 break;
         }
@@ -1018,9 +986,7 @@ public class MotionMaster
     public int Size()
     {
         lock (Generators)
-        {
             return (DefaultGenerator != null ? 1 : 0) + Generators.Count;
-        }
     }
 
     public bool StopOnDeath()
@@ -1076,9 +1042,7 @@ public class MotionMaster
             if (!top.Update(Owner, diff))
                 // Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
                 lock (Generators)
-                {
                     Pop(true, true); // Natural, and only, call to MovementInform
-                }
 
             ResolveDelayedActions();
         }
@@ -1113,9 +1077,7 @@ public class MotionMaster
             return;
 
         lock (BaseUnitStatesMap)
-        {
             BaseUnitStatesMap.Add((uint)movement.BaseUnitState, movement);
-        }
 
         Owner.AddUnitState(movement.BaseUnitState);
     }
@@ -1131,9 +1093,7 @@ public class MotionMaster
             return;
 
         lock (BaseUnitStatesMap)
-        {
             BaseUnitStatesMap.Remove((uint)movement.BaseUnitState, movement);
-        }
 
         if (!BaseUnitStatesMap.ContainsKey((uint)movement.BaseUnitState))
             Owner.ClearUnitState(movement.BaseUnitState);
@@ -1201,9 +1161,7 @@ public class MotionMaster
             case MovementSlot.Default:
                 if (DefaultGenerator != null)
                     lock (Generators)
-                    {
                         DefaultGenerator.Finalize(Owner, Generators.Empty(), false);
-                    }
 
                 DefaultGenerator = movement;
 
@@ -1235,9 +1193,7 @@ public class MotionMaster
                         }
                     }
                     else
-                    {
                         DefaultGenerator.Deactivate(Owner);
-                    }
 
                     Generators.Add(movement);
                 }

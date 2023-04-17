@@ -25,6 +25,7 @@ public class GameTime
     {
         return StartTime;
     }
+
     public static void UpdateGameTimers()
     {
         CurrentTime = Time.UnixTime;

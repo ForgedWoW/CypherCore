@@ -15,6 +15,7 @@ public class GuildBankQueryResults : ServerPacket
     public int Tab;
     public List<GuildBankTabInfo> TabInfo;
     public int WithdrawalsRemaining;
+
     public GuildBankQueryResults() : base(ServerOpcodes.GuildBankQueryResults)
     {
         ItemInfo = new List<GuildBankItemInfo>();

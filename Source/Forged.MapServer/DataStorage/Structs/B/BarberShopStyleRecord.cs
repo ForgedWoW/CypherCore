@@ -12,6 +12,7 @@ public sealed class BarberShopStyleRecord
     public uint Id;
     public byte Race;
     public byte Sex;
+
     public byte Type; // value 0 . hair, value 2 . facialhair
-                      // real ID to hair/facial hair
+    // real ID to hair/facial hair
 }

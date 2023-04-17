@@ -69,9 +69,7 @@ internal class MiscCommands
                 }
                 // if both players are in different bgs
                 else if (player.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
-                {
                     player.LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
-                }
 
                 // all's well, set bg id
                 // when porting out from the bg, it will be reset to 0
@@ -113,9 +111,7 @@ internal class MiscCommands
                     player.LegacyRaidDifficultyId = target.LegacyRaidDifficultyId;
                 }
                 else
-                {
                     player.DungeonDifficultyId = target.DungeonDifficultyId;
-                }
             }
 
             handler.SendSysMessage(CypherStrings.AppearingAt, chrNameLink);
@@ -500,11 +496,9 @@ internal class MiscCommands
         var getDurationFromConfig = false;   // If there's no given duration, we'll retrieve the world cfg value later
 
         if (args.Empty())
-        {
             // Might have a selected player. We'll check it later
             // Get the duration from world cfg
             getDurationFromConfig = true;
-        }
         else
         {
             // Get the args that we might have (up to 2)
@@ -540,9 +534,7 @@ internal class MiscCommands
                         canApplyFreeze = true;
                     }
                     else
-                    {
                         getDurationFromConfig = true;
-                    }
                 }
             }
         }
@@ -757,9 +749,7 @@ internal class MiscCommands
                 handler.SendSysMessage(CypherStrings.GpsPositionIndoors);
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.GpsNoVmap);
-        }
 
         var unknown = handler.GetCypherString(CypherStrings.Unknown);
 
@@ -1195,9 +1185,7 @@ internal class MiscCommands
             stmt.AddValue(0, mutedUntil);
         }
         else
-        {
             stmt.AddValue(0, -(muteTime * Time.MINUTE));
-        }
 
         stmt.AddValue(1, muteReasonStr);
         stmt.AddValue(2, muteBy);
@@ -1222,9 +1210,7 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.YouDisableChat, nameLink, muteTime, muteReasonStr);
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.CommandDisableChatDelayed, nameLink, muteTime, muteReasonStr);
-        }
 
         return true;
     }
@@ -1351,9 +1337,7 @@ internal class MiscCommands
         }
         // if not, then return false. Which shouldn't happen, now should it ?
         else if (!handler.ExtractPlayerTarget(args, out target, out targetGuid, out targetName))
-        {
             return false;
-        }
 
         /* The variables we extract for the command. They are
         * default as "does not exist" to prevent problems
@@ -1544,9 +1528,7 @@ internal class MiscCommands
             result2 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
         }
         else
-        {
             banType = handler.GetCypherString(CypherStrings.Account);
-        }
 
         if (!result2.IsEmpty())
         {
@@ -1644,6 +1626,7 @@ internal class MiscCommands
 
         // Position data
         var map = handler.CliDB.MapStorage.LookupByKey(mapId);
+
         if (handler.CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
         {
             zoneName = area.AreaName[locale];
@@ -1751,14 +1734,10 @@ internal class MiscCommands
                 handler.SendSysMessage(CypherStrings.Pvpstats, allianceVictories, hordeVictories);
             }
             else
-            {
                 return false;
-            }
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.PvpstatsDisabled);
-        }
 
         return true;
     }
@@ -1866,9 +1845,7 @@ internal class MiscCommands
             target.SaveToDB();
         }
         else
-        {
             handler.ClassFactory.Resolve<PlayerComputators>().OfflineResurrect(targetGuid, null);
-        }
 
         return true;
     }
@@ -1999,9 +1976,7 @@ internal class MiscCommands
                 }
                 // if both players are in different bgs
                 else if (target.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
-                {
                     target.LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
-                }
 
                 // all's well, set bg id
                 // when porting out from the bg, it will be reset to 0

@@ -94,6 +94,7 @@ public class GuildMember
     public uint WeekReputation { get; set; }
 
     public uint ZoneId { get; set; }
+
     public void AddFlag(GuildMemberFlags var)
     {
         Flags |= var;

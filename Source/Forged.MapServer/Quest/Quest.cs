@@ -30,6 +30,7 @@ public class Quest
     private readonly GameObjectManager _gameObjectManager;
     private readonly QuestPoolManager _questPoolManager;
     private readonly SpellManager _spellManager;
+
     public Quest(SQLFields fields, IConfiguration configuration, DB2Manager db2Manager, CliDB cliDB, QuestPoolManager questPoolManager, GameObjectManager gameObjectManager,
                  SpellManager spellManager, ConditionManager conditionManager)
     {
@@ -171,11 +172,14 @@ public class Quest
     public bool IsDaily => Flags.HasAnyFlag(QuestFlags.Daily);
     public bool IsDailyOrWeekly => Flags.HasAnyFlag(QuestFlags.Daily | QuestFlags.Weekly);
     public bool IsDfQuest => SpecialFlags.HasAnyFlag(QuestSpecialFlags.DfQuest);
+
     public bool IsMonthly => SpecialFlags.HasAnyFlag(QuestSpecialFlags.Monthly);
+
     // table data accessors:
     public bool IsRepeatable => SpecialFlags.HasAnyFlag(QuestSpecialFlags.Repeatable);
 
     public bool IsSeasonal => QuestSortID is -(int)QuestSort.Seasonal or -(int)QuestSort.Special or -(int)QuestSort.LunarFestival or -(int)QuestSort.Midsummer or -(int)QuestSort.Brewfest or -(int)QuestSort.LoveIsInTheAir or -(int)QuestSort.Noblegarden && !IsRepeatable;
+
     // Possibly deprecated Id
     public bool IsUnavailable => HasFlag(QuestFlags.Unavailable);
 
@@ -186,11 +190,14 @@ public class Quest
     public uint LimitTime { get; set; }
     public string LogDescription { get; set; }
     public string LogTitle { get; set; }
+
     public int ManagedWorldStateID { get; set; }
+
     // quest_template_addon table (custom data)
     public uint MaxLevel { get; set; }
 
     public uint MaxMoneyReward => MaxMoneyValue * _configuration.GetDefaultValue("Rate:QuestId:Money:Reward", 1u);
+
     public uint MaxMoneyValue
     {
         get
@@ -232,6 +239,7 @@ public class Quest
     public uint QuestInfoID { get; set; }
     public int QuestSessionBonus { get; set; }
     public int QuestSortID { get; set; }
+
     public QuestTagType? QuestTag
     {
         get
@@ -297,7 +305,9 @@ public class Quest
     public uint SuggestedPlayers { get; set; }
     public int TreasurePickerID { get; set; }
     public QuestType Type { get; set; }
+
     public BitArray UsedQuestObjectiveTypes { get; set; } = new((int)QuestObjectiveType.Max);
+
     // custom flags, not sniffed/WDB
     public static uint RoundXPValue(uint xp)
     {

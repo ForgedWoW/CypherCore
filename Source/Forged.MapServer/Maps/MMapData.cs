@@ -14,6 +14,7 @@ public class MMapData
 
     public Dictionary<uint, ulong> LoadedTileRefs { get; set; } = new();
     public Detour.dtNavMesh NavMesh { get; set; }
+
     public Dictionary<uint, Detour.dtNavMeshQuery> NavMeshQueries { get; set; } = new(); // instanceId to query
-                                                                           // maps [map grid coords] to [dtTile]
+    // maps [map grid coords] to [dtTile]
 }

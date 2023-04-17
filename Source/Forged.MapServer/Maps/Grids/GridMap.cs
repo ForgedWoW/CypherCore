@@ -27,7 +27,9 @@ public class GridMap
     private byte[] _liquidFlags;
     private ushort _liquidGlobalEntry;
     private LiquidHeaderTypeFlags _liquidGlobalFlags;
+
     private byte _liquidHeight;
+
     //Liquid Map
     private float _liquidLevel;
 
@@ -36,6 +38,7 @@ public class GridMap
     private byte _liquidOffY;
     private byte _liquidWidth;
     private Plane[] _minHeightPlanes;
+
     public GridMap(CliDB cliDB, GridDefines gridDefines)
     {
         _cliDB = cliDB;
@@ -57,6 +60,7 @@ public class GridMap
     public ushort[] Uint16V9 { get; set; }
     public float[] V8 { get; set; }
     public float[] V9 { get; set; }
+
     public ushort GetArea(float x, float y)
     {
         if (AreaMap == null)
@@ -113,13 +117,13 @@ public class GridMap
         var idx = (xInt >> 3) * 16 + (yInt >> 3);
         var type = _liquidFlags != null ? (LiquidHeaderTypeFlags)_liquidFlags[idx] : _liquidGlobalFlags;
         uint entry = _liquidEntry != null ? _liquidEntry[idx] : _liquidGlobalEntry;
+
         if (_cliDB.LiquidTypeStorage.TryGetValue(entry, out var liquidEntry))
         {
             type &= LiquidHeaderTypeFlags.DarkWater;
             uint liqTypeIdx = liquidEntry.SoundBank;
 
             if (entry < 21)
-            {
                 if (_cliDB.AreaTableStorage.TryGetValue(GetArea(x, y), out var area))
                 {
                     uint overrideLiquid = area.LiquidTypeID[liquidEntry.SoundBank];
@@ -138,7 +142,6 @@ public class GridMap
                         liqTypeIdx = liq.SoundBank;
                     }
                 }
-            }
 
             type |= (LiquidHeaderTypeFlags)(1 << (int)liqTypeIdx);
         }
@@ -220,13 +223,9 @@ public class GridMap
                 quarterIndex = 2 + (-MapConst.SizeofGrids - gx > gy ? 1u : 0);
         }
         else if (Convert.ToBoolean(doubleGridX & 1))
-        {
             quarterIndex = 6 + (-MapConst.SizeofGrids - gx <= gy ? 1u : 0);
-        }
         else
-        {
             quarterIndex = gx > gy ? 1u : 0;
-        }
 
         Ray ray = new(new Vector3(gx, gy, 0.0f), Vector3.UnitZ);
 
@@ -279,7 +278,6 @@ public class GridMap
         Log.Logger.Error("Error loading map holes data");
 
         return LoadResult.ReadFromFileFailed;
-
     }
 
     public void UnloadData()
@@ -292,6 +290,7 @@ public class GridMap
         _liquidMap = null;
         _gridGetHeight = GetHeightFromFlat;
     }
+
     private float GetHeightFromFlat(float x, float y)
     {
         return _gridHeight;
@@ -467,7 +466,7 @@ public class GridMap
         if (IsHole(xInt, yInt))
             return MapConst.InvalidHeight;
 
-        
+
         unsafe
         {
             fixed (byte* v9 = UbyteV9)
@@ -594,9 +593,7 @@ public class GridMap
             }
         }
         else
-        {
             _gridGetHeight = GetHeightFromFlat;
-        }
 
         if (!mapHeader.Flags.HasAnyFlag(HeightHeaderFlags.HasFlightBounds))
             return true;

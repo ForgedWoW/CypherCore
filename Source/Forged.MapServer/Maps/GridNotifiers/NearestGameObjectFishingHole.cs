@@ -27,6 +27,5 @@ internal class NearestGameObjectFishingHole : ICheck<GameObject>
         _range = _obj.Location.GetDistance(go);
 
         return true;
-
     }
 }

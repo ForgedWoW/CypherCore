@@ -7,6 +7,7 @@ public struct SpellModifierData
 {
     public byte ClassIndex;
     public double ModifierValue;
+
     public void Write(WorldPacket data)
     {
         data.WriteFloat((float)ModifierValue);

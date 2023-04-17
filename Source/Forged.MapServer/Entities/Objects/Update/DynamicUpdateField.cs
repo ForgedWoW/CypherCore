@@ -32,6 +32,7 @@ public class DynamicUpdateField<T> where T : new()
     public int BlockBit { get; set; }
     public List<uint> UpdateMask { get; set; }
     public List<T> Values { get; set; }
+
     public T this[int index]
     {
         get
@@ -43,6 +44,7 @@ public class DynamicUpdateField<T> where T : new()
         }
         set { Values[index] = value; }
     }
+
     public static implicit operator List<T>(DynamicUpdateField<T> updateField)
     {
         return updateField.Values;
@@ -176,6 +178,7 @@ public class DynamicUpdateField<T> where T : new()
         if (Values.Count % 32 != 0)
             data.WriteBits(UpdateMask.Last(), Values.Count % 32);
     }
+
     private void MarkAllUpdateMaskFields(T value)
     {
         if (value is IHasChangesMask mask)

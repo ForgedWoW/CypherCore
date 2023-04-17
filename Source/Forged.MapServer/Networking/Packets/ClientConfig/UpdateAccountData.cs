@@ -13,8 +13,10 @@ public class UpdateAccountData : ServerPacket
     public AccountDataTypes DataType = 0;
     public ObjectGuid Player;
     public uint Size;
+
     public long Time; // UnixTime
-                      // decompressed size
+
+    // decompressed size
     public UpdateAccountData() : base(ServerOpcodes.UpdateAccountData) { }
 
     public override void Write()
@@ -25,9 +27,7 @@ public class UpdateAccountData : ServerPacket
         WorldPacket.WriteBits(DataType, 4);
 
         if (CompressedData == null)
-        {
             WorldPacket.WriteUInt32(0);
-        }
         else
         {
             var bytes = CompressedData.GetData();

@@ -129,6 +129,7 @@ public class CharacterCache
     public bool GetCharacterNameByGuid(ObjectGuid guid, out string name)
     {
         name = "Unknown";
+
         if (!_characterCacheStore.TryGetValue(guid, out var characterCacheEntry))
             return false;
 
@@ -170,6 +171,7 @@ public class CharacterCache
 
         Log.Logger.Information($"Loaded character infos for {_characterCacheStore.Count} characters in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
+
     public void UpdateCharacterAccountId(ObjectGuid guid, uint accountId)
     {
         if (!_characterCacheStore.TryGetValue(guid, out var p))

@@ -12,7 +12,9 @@ public struct GameObjectValue
     public building Building;
     public capturePoint CapturePoint;
     public fishinghole FishingHole;
+
     public transport Transport;
+
     //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
     public struct building
     {

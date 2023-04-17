@@ -71,6 +71,7 @@ public sealed class VehicleSeatRecord
     public short VehicleRideAnimKitID;
     public short VehicleRideAnimLoop;
     public sbyte VehicleRideAnimLoopBone;
+
     public bool CanEnterOrExit()
     {
         return HasFlag(VehicleSeatFlags.CanEnterOrExit) ||
@@ -92,6 +93,7 @@ public sealed class VehicleSeatRecord
     {
         return FlagsB.HasAnyFlag((int)flag);
     }
+
     public bool IsEjectable()
     {
         return HasFlag(VehicleSeatFlagsB.Ejectable);

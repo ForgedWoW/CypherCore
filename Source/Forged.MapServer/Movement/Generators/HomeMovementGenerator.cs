@@ -73,7 +73,6 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
         AddFlag(MovementGeneratorFlags.InformEnabled);
 
         return false;
-
     }
 
     public override MovementGeneratorType GetMovementGeneratorType()

@@ -110,6 +110,7 @@ public class ChannelManager
     public Channel GetSystemChannel(uint channelId, AreaTableRecord zoneEntry = null)
     {
         var channelGuid = CreateBuiltinChannelGuid(channelId, zoneEntry);
+
         if (_channels.TryGetValue(channelGuid, out var currentChannel))
             return currentChannel;
 
@@ -126,6 +127,7 @@ public class ChannelManager
     public void LeftChannel(uint channelId, AreaTableRecord zoneEntry)
     {
         var guid = CreateBuiltinChannelGuid(channelId, zoneEntry);
+
         if (!_channels.TryGetValue(guid, out var channel))
             return;
 

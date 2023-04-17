@@ -15,6 +15,7 @@ internal class CalendarAddEventInfo
     public int TextureID;
     public long Time;
     public string Title;
+
     public void Read(WorldPacket data)
     {
         ClubId = data.ReadUInt64();

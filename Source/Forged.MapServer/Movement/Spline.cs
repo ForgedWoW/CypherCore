@@ -188,10 +188,10 @@ public class Spline<T>
     {
         return MMode switch
         {
-            EvaluationMode.Linear => SegLengthLinear(i),
-            EvaluationMode.Catmullrom => SegLengthCatmullRom(i),
+            EvaluationMode.Linear        => SegLengthLinear(i),
+            EvaluationMode.Catmullrom    => SegLengthCatmullRom(i),
             EvaluationMode.Bezier3Unused => SegLengthBezier3(i),
-            _ => 0
+            _                            => 0
         };
     }
 

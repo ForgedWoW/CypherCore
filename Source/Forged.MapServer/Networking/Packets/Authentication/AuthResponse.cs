@@ -12,9 +12,11 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 internal class AuthResponse : ServerPacket
 {
     public BattlenetRpcErrorCode Result;
-    public AuthSuccessInfo SuccessInfo;  // contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
-    public AuthWaitInfo? WaitInfo;       // contains the queue wait information in case the account is in the login queue.
-     // the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
+    public AuthSuccessInfo SuccessInfo; // contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
+
+    public AuthWaitInfo? WaitInfo; // contains the queue wait information in case the account is in the login queue.
+
+    // the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
     public AuthResponse() : base(ServerOpcodes.AuthResponse) { }
 
     public override void Write()
@@ -107,7 +109,7 @@ internal class AuthResponse : ServerPacket
     public class AuthSuccessInfo
     {
         public byte AccountExpansionLevel;
-        public byte ActiveExpansionLevel;  // the current server expansion, the possible values are in @ref Expansions
+        public byte ActiveExpansionLevel; // the current server expansion, the possible values are in @ref Expansions
         public List<RaceClassAvailability> AvailableClasses;
 
         public uint CurrencyID;
@@ -132,17 +134,19 @@ internal class AuthResponse : ServerPacket
         public long Time;
 
         // the current expansion of this account, the possible values are in @ref Expansions
-        public uint TimeRested;            // affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
+        public uint TimeRested; // affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
 
         public uint TimeSecondsUntilPCKick;
-        public uint VirtualRealmAddress;    // a special identifier made from the Index, BattleGroup and Region. @todo implement
-                                            // @todo research
+
+        public uint VirtualRealmAddress; // a special identifier made from the Index, BattleGroup and Region. @todo implement
+
+        // @todo research
         public List<VirtualRealmInfo> VirtualRealms = new(); // list of realms connected to this one (inclusive) @todo implement
-            // list of pre-made character templates. @todo implement
+        // list of pre-made character templates. @todo implement
 
         // number of horde players in this realm. @todo implement
-             // number of alliance players in this realm. @todo implement
-         // expansion trial expiration unix timestamp
+        // number of alliance players in this realm. @todo implement
+        // expansion trial expiration unix timestamp
 
         public struct GameTime
         {

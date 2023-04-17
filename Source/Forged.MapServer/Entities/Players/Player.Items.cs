@@ -30,8 +30,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    private delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
-
     public void _ApplyAllLevelScaleItemMods(bool apply)
     {
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
@@ -567,9 +565,7 @@ public partial class Player
                             auraEffect.Value.ChangeAmount((int)(artifactPowerRank.AuraPointsOverride != 0 ? artifactPowerRank.AuraPointsOverride : auraEffect.Value.GetSpellEffectInfo().CalcValue()));
                 }
                 else
-                {
                     RemoveAura(powerAura);
-                }
             }
             else if (apply)
             {
@@ -635,9 +631,7 @@ public partial class Player
                 SpellFactory.CastSpell(this, PlayerConst.SpellIdHeartEssenceActionBarOverride, args);
             }
             else
-            {
                 RemoveAura(PlayerConst.SpellIdHeartEssenceActionBarOverride);
-            }
         }
     }
 
@@ -665,9 +659,7 @@ public partial class Player
                 SpellFactory.CastSpell(item, azeritePower.SpellID);
         }
         else
-        {
             RemoveAurasDueToItemSpell(azeritePower.SpellID, item.GUID);
-        }
     }
 
     public void ApplyEquipSpell(SpellInfo spellInfo, Item item, bool apply, bool formChange = false)
@@ -685,9 +677,7 @@ public partial class Player
                         return;
                 }
                 else if (GetAppliedAurasQuery().HasSpellId(spellInfo.Id).Results.Any())
-                {
                     return;
-                }
 
             Log.Logger.Debug("WORLD: cast {0} Equip spellId - {1}", item != null ? "item" : "itemset", spellInfo.Id);
 
@@ -1037,6 +1027,7 @@ public partial class Player
             }
 
             var stacks = count / pProto.BuyCount;
+
             if (!CliDB.ItemExtendedCostStorage.TryGetValue(crItem.ExtendedCost, out var iece))
             {
                 Log.Logger.Error("Item {0} have wrong ExtendedCost field value {1}", pProto.Id, crItem.ExtendedCost);
@@ -1439,9 +1430,7 @@ public partial class Player
                 msg = CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, dstItem, true);
         }
         else if (PlayerComputators.IsEquipmentPos(src))
-        {
             return InventoryResult.CantSwap;
-        }
 
         return msg;
     }
@@ -1488,7 +1477,7 @@ public partial class Player
                     {
                         if (IsInCombat)
                             return InventoryResult.NotInCombat;
-                        
+
                         if (Battleground != null)
                             if (Battleground.IsArena && Battleground.Status == BattlegroundStatus.InProgress)
                                 return InventoryResult.NotDuringArenaMatch;
@@ -1586,9 +1575,7 @@ public partial class Player
                 {
                     // Do not allow polearm to be equipped in the offhand (rare case for the only 1h polearm 41750)
                     if (type == InventoryType.Weapon && pProto.SubClass == (uint)ItemSubClassWeapon.Polearm)
-                    {
                         return InventoryResult.TwoHandSkillNotFound;
-                    }
                     else if (type == InventoryType.Weapon)
                     {
                         if (!CanDualWield)
@@ -1600,10 +1587,8 @@ public partial class Player
                             return InventoryResult.TwoHandSkillNotFound;
                     }
                     else if (type == InventoryType.Weapon2Hand)
-                    {
                         if (!CanDualWield || !CanTitanGrip())
                             return InventoryResult.TwoHandSkillNotFound;
-                    }
 
                     if (IsTwoHandUsed())
                         return InventoryResult.Equipped2handed;
@@ -1618,9 +1603,7 @@ public partial class Player
                             return InventoryResult.NotEquippable;
                     }
                     else if (eslot != EquipmentSlot.MainHand)
-                    {
                         return InventoryResult.NotEquippable;
-                    }
 
                     if (!CanTitanGrip())
                     {
@@ -2094,7 +2077,6 @@ public partial class Player
             return InventoryResult.ProficiencyNeeded;
 
         return InventoryResult.Ok;
-
     }
 
     public InventoryResult CanUseItem(ItemTemplate proto, bool skipRequiredLevelCheck = false)
@@ -2313,9 +2295,7 @@ public partial class Player
             _items[slot] = null;
         }
         else if ((pBag = GetBagByPos(bag)) != null)
-        {
             pBag.RemoveItem(slot, update);
-        }
 
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
@@ -2782,7 +2762,7 @@ public partial class Player
 
         if (!inventory)
             return;
-        
+
         var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
 
         for (var i = InventorySlots.ItemStart; i < inventoryEnd; i++)
@@ -2903,7 +2883,7 @@ public partial class Player
             if (availableGuildMoney == 0)
                 return;
 
-           
+
             // We must calculate total repair cost and take money once to avoid spam in the guild bank log and reduce number of transactions in the database
             ulong totalCost = 0;
             // Sort the items by repair cost from lowest to highest
@@ -3065,9 +3045,7 @@ public partial class Player
                     var spellProto = SpellManager.GetSpellInfo(cooldownSpell);
 
                     if (spellProto == null)
-                    {
                         Log.Logger.Error("Weapon switch cooldown spell {0} couldn't be found in Spell.dbc", cooldownSpell);
-                    }
                     else
                     {
                         _weaponChangeTimer = spellProto.StartRecoveryTime;
@@ -3171,7 +3149,6 @@ public partial class Player
         ItemAddedQuestCheck(item, 1);
 
         return equippedItem;
-
     }
 
     public bool ForEachItem(ItemSearchLocation location, Func<Item, bool> callback)
@@ -3310,7 +3287,7 @@ public partial class Player
             if (!callback(item))
                 return false;
         }
-        
+
 
         return true;
     }
@@ -3335,9 +3312,7 @@ public partial class Player
                 StoreItem(offDest, currentEquiped, true);
             }
             else
-            {
                 toBeMailedCurrentEquipment.Add(currentEquiped);
-            }
         }
 
         // If there are item in the toBeMailedCurrentEquipment vector remove it from inventory and send it in mail.
@@ -3805,7 +3780,6 @@ public partial class Player
         Session.SendVoidStorageTransferResult(VoidTransferError.InternalError1);
 
         return null;
-
     }
 
     public VoidStorageItem GetVoidStorageItem(ulong id, out byte slot)
@@ -3870,9 +3844,7 @@ public partial class Player
     public bool HasItemTotemCategory(uint totemCategory)
     {
         if (GetAuraEffectsByType(AuraType.ProvideTotemCategory).Any(providedTotemCategory => DB2Manager.IsTotemCategoryCompatibleWith((uint)providedTotemCategory.MiscValueB, totemCategory)))
-        {
             return true;
-        }
 
         var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
 
@@ -4187,9 +4159,7 @@ public partial class Player
         }
         // For wintergrasp Quests
         else if (Location.Zone == (uint)AreaId.Wintergrasp)
-        {
             bones.Loot.FillLoot(1, LootStorageType.Creature, this, true);
-        }
 
         // It may need a better formula
         // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
@@ -4247,9 +4217,7 @@ public partial class Player
                             UpdateExpertise(WeaponAttackType.BaseAttack);
                         }
                         else if (slot == EquipmentSlot.OffHand)
-                        {
                             UpdateExpertise(WeaponAttackType.OffAttack);
-                        }
 
                         // update armor penetration - passive auras may need it
                         switch (slot)
@@ -4406,7 +4374,6 @@ public partial class Player
 
                     break;
                 }
-                
             }
         }
 
@@ -4421,7 +4388,7 @@ public partial class Player
             Result = error
         };
 
-        if(error == 0)
+        if (error == 0)
         {
             itemPurchaseRefundResult.Contents = new ItemPurchaseContents()
             {
@@ -4974,9 +4941,7 @@ public partial class Player
                 SendNotifyLootItemRemoved(loot.Guid, loot.OwnerGuid, lootSlot);
             }
             else //not freeforall, notify everyone
-            {
                 loot.NotifyItemRemoved(lootSlot, Location.Map);
-            }
 
             //if only one person is supposed to loot the item, then set it to looted
             if (!item.Freeforall)
@@ -4986,9 +4951,7 @@ public partial class Player
 
             if (ObjectManager.GetItemTemplate(item.Itemid) != null)
                 if (newitem.Quality > ItemQuality.Epic || (newitem.Quality == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
-                {
                     Guild?.AddGuildNews(GuildNews.ItemLooted, GUID, 0, item.Itemid);
-                }
 
             // if aeLooting then we must delay sending out item so that it appears properly stacked in chat
             if (aeResult == null)
@@ -4999,9 +4962,7 @@ public partial class Player
                 UpdateCriteria(CriteriaType.LootAnyItem, item.Itemid, item.Count);
             }
             else
-            {
                 aeResult.Add(newitem, item.Count, SharedConst.GetLootTypeForClient(loot.LootType), loot.DungeonEncounterId);
-            }
 
             // LootItem is being removed (looted) from the container, delete it from the DB.
             if (loot.LootType == LootType.Item)
@@ -5010,9 +4971,7 @@ public partial class Player
             ApplyItemLootedSpell(newitem, true);
         }
         else
-        {
             SendEquipError(msg, null, null, item.Itemid);
-        }
     }
 
     public Item StoreNewItem(List<ItemPosCount> pos, uint itemId, bool update, uint randomBonusListId = 0, List<ObjectGuid> allowedLooters = null, ItemContext context = 0, List<uint> bonusListIDs = null, bool addToCollection = true)
@@ -5283,13 +5242,9 @@ public partial class Player
                     RemoveItem(srcbag, srcslot, true);
 
                     if (IsInventoryPos(dst))
-                    {
                         StoreItem(posCounts, pSrcItem, true);
-                    }
                     else if (PlayerComputators.IsBankPos(dst))
-                    {
                         BankItem(posCounts, pSrcItem, true);
-                    }
                     else if (PlayerComputators.IsEquipmentPos(dst))
                     {
                         EquipItem(pos, pSrcItem, true);
@@ -5328,13 +5283,9 @@ public partial class Player
         ushort eDest = 0;
 
         if (IsInventoryPos(dst))
-        {
             msg = CanStoreItem(dstbag, dstslot, sDest, pSrcItem, true);
-        }
         else if (PlayerComputators.IsBankPos(dst))
-        {
             msg = CanBankItem(dstbag, dstslot, sDest, pSrcItem, true);
-        }
         else if (PlayerComputators.IsEquipmentPos(dst))
         {
             msg = CanEquipItem(dstslot, out eDest, pSrcItem, true);
@@ -5355,13 +5306,9 @@ public partial class Player
         ushort eDest2 = 0;
 
         if (IsInventoryPos(src))
-        {
             msg = CanStoreItem(srcbag, srcslot, sDest2, pDstItem, true);
-        }
         else if (PlayerComputators.IsBankPos(src))
-        {
             msg = CanBankItem(srcbag, srcslot, sDest2, pDstItem, true);
-        }
         else if (PlayerComputators.IsEquipmentPos(src))
         {
             msg = CanEquipItem(srcslot, out eDest2, pDstItem, true);
@@ -5463,13 +5410,9 @@ public partial class Player
 
         // add to dest
         if (IsInventoryPos(dst))
-        {
             StoreItem(sDest, pSrcItem, true);
-        }
         else if (PlayerComputators.IsBankPos(dst))
-        {
             BankItem(sDest, pSrcItem, true);
-        }
         else if (PlayerComputators.IsEquipmentPos(dst))
         {
             EquipItem(eDest, pSrcItem, true);
@@ -5663,9 +5606,7 @@ public partial class Player
                                                      {
                                                          if (checkDuplicateGuid)
                                                              if (bestItemLevels.Any(slotData1 => slotData1.guid == item.GUID))
-                                                             {
                                                                  return;
-                                                             }
 
                                                          ref var slotData = ref bestItemLevels[slot];
 
@@ -5809,9 +5750,7 @@ public partial class Player
                 pItem.SetContainer(null);
             }
             else
-            {
                 pBag.StoreItem(slot, pItem, update);
-            }
 
             if (Location.IsInWorld && update)
             {
@@ -6090,10 +6029,8 @@ public partial class Player
                 return;
 
             for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
-            {
                 if (CliDB.AzeritePowerStorage.TryGetValue(azeriteEmpoweredItem.GetSelectedAzeritePower(i), out var azeritePower))
                     ApplyAzeritePower(azeriteEmpoweredItem, azeritePower, apply);
-            }
         }
     }
 
@@ -6195,7 +6132,6 @@ public partial class Player
         var result = CanEquipItem(slot, out dest, pItem, swap);
 
         return result;
-
     }
 
     private InventoryResult CanStoreItem(byte bag, byte slot, List<ItemPosCount> dest, uint entry, uint count, Item pItem, bool swap)
@@ -6916,9 +6852,7 @@ public partial class Player
                                                  return false;
                                          }
                                          else
-                                         {
                                              res = ires;
-                                         }
                                      }
 
                                      return true;
@@ -7175,9 +7109,7 @@ public partial class Player
                             return ItemConst.NullSlot;
 
                         if (isProfessionTool)
-                        {
                             slots[0] = (byte)(ProfessionSlots.Profession1Tool + professionSlot * ProfessionSlots.MaxCount);
-                        }
                         else
                         {
                             slots[0] = (byte)(ProfessionSlots.Profession1Gear1 + professionSlot * ProfessionSlots.MaxCount);
@@ -7553,9 +7485,7 @@ public partial class Player
     {
         // also checks for garbage data
         foreach (var guid in from guid in _itemSoulboundTradeable.ToList() let item = GetItemByGuid(guid) where item == null || item.OwnerGUID != GUID || item.CheckSoulboundTradeExpire() select guid)
-        {
             _itemSoulboundTradeable.Remove(guid);
-        }
     }
 
     private void VisualizeItem(uint slot, Item pItem)
@@ -7586,4 +7516,6 @@ public partial class Player
 
         pItem.SetState(ItemUpdateState.Changed, this);
     }
+
+    private delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
 }

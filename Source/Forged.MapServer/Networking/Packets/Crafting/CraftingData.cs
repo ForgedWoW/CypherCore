@@ -30,6 +30,7 @@ internal class CraftingData
     public int Skill;
     public int SkillFromReagents;
     public int SkillLineAbilityID;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(CraftingQualityID);

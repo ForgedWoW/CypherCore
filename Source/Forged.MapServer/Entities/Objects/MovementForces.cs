@@ -11,6 +11,7 @@ public class MovementForces
 
     public bool IsEmpty => _forces.Empty() && ModMagnitude == 1.0f;
     public float ModMagnitude { get; set; } = 1.0f;
+
     public bool Add(MovementForce newForce)
     {
         var movementForce = FindMovementForce(newForce.ID);
@@ -27,6 +28,7 @@ public class MovementForces
     {
         return _forces;
     }
+
     public bool Remove(ObjectGuid id)
     {
         var movementForce = FindMovementForce(id);

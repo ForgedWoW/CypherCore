@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Networking.Packets.Item;
@@ -140,9 +139,7 @@ public class BonusData
                     _state.HasQualityBonus = true;
                 }
                 else if ((uint)Quality < values[0])
-                {
                     Quality = (ItemQuality)values[0];
-                }
 
                 break;
 

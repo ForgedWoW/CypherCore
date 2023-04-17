@@ -11,6 +11,7 @@ public class PersonalCraftingOrderCount : IEquatable<PersonalCraftingOrderCount>
 {
     public uint Count;
     public int ProfessionID;
+
     public bool Equals(PersonalCraftingOrderCount right)
     {
         return ProfessionID == right.ProfessionID && Count == right.Count;

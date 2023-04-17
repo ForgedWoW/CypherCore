@@ -11,6 +11,7 @@ public class SpellFlatModByLabel
     public int LabelID;
     public double ModifierValue;
     public int ModIndex;
+
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
         data.WriteInt32(ModIndex);

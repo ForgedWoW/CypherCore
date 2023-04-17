@@ -58,10 +58,8 @@ internal class QuestCommands
                 var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
 
                 if (curRep < obj.Amount)
-                {
                     if (player.CliDB.FactionStorage.TryGetValue(obj.ObjectID, out var factionEntry))
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
-                }
 
                 break;
             }
@@ -70,10 +68,8 @@ internal class QuestCommands
                 var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
 
                 if (curRep > obj.Amount)
-                {
                     if (player.CliDB.FactionStorage.TryGetValue(obj.ObjectID, out var factionEntry))
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
-                }
 
                 break;
             }

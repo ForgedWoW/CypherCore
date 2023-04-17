@@ -76,6 +76,7 @@ public class MultiPersonalPhaseTracker
                 _playerData.Remove(itr.Key);
         }
     }
+
     public void UnregisterTrackedObject(WorldObject obj)
     {
         _playerData.LookupByKey(obj.Location.PhaseShift.PersonalGuid)?.UnregisterTrackedObject(obj);

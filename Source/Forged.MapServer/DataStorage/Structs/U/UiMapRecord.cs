@@ -21,6 +21,7 @@ public sealed class UiMapRecord
     public uint System;
     public UiMapType Type;
     public int VisibilityPlayerConditionID;
+
     public UiMapFlag GetFlags()
     {
         return (UiMapFlag)Flags;

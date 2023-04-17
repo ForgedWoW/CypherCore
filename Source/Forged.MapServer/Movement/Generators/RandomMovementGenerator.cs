@@ -213,9 +213,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
         --_wanderSteps;
 
         if (_wanderSteps != 0) // Creature has yet to do steps before pausing
-        {
             _timer.Reset(splineDuration);
-        }
         else
         {
             // Creature has made all its steps, time for a little break

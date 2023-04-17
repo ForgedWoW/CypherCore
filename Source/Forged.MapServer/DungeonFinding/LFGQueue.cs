@@ -161,9 +161,7 @@ public class LFGQueue
                     playersInGroup += Global.LFGMgr.GetPlayerCount(guid);
                 }
                 else
-                {
                     players++;
-                }
         }
 
         return $"Queued Players: {players} (in group: {playersInGroup}) Groups: {groups}\n";
@@ -235,9 +233,7 @@ public class LFGQueue
                 }
             }
             else
-            {
                 itDelete = key;
-            }
         }
 
         if (!itDelete.IsEmpty)
@@ -612,9 +608,7 @@ public class LFGQueue
                 leader = true;
             }
             else if (!leader && (proposal.Leader.IsEmpty || Convert.ToBoolean(RandomHelper.IRand(0, 1))))
-            {
                 proposal.Leader = rolePair.Key;
-            }
 
             // Assing player data and roles
             LfgProposalPlayer data = new()

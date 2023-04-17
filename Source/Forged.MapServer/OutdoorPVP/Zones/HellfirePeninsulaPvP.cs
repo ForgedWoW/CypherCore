@@ -99,7 +99,6 @@ internal class HellfirePeninsulaPvP : OutdoorPvP
                 _mTowerFlagSpawnIds[(int)OutdoorPvPhpTowerType.Stadium] = go.SpawnId;
 
                 break;
-            
         }
 
         base.OnGameObjectCreate(go);
@@ -159,13 +158,9 @@ internal class HellfirePeninsulaPvP : OutdoorPvP
             return false;
 
         if (_mAllianceTowersControlled == 3)
-        {
             TeamApplyBuff(TeamIds.Alliance, OutdoorPvPhpSpells.ALLIANCE_BUFF, OutdoorPvPhpSpells.HORDE_BUFF);
-        }
         else if (_mHordeTowersControlled == 3)
-        {
             TeamApplyBuff(TeamIds.Horde, OutdoorPvPhpSpells.HORDE_BUFF, OutdoorPvPhpSpells.ALLIANCE_BUFF);
-        }
         else
         {
             TeamCastSpell(TeamIds.Alliance, -(int)OutdoorPvPhpSpells.ALLIANCE_BUFF);

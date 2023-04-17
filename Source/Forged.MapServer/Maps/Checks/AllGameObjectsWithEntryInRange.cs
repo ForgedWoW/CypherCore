@@ -12,6 +12,7 @@ internal class AllGameObjectsWithEntryInRange : ICheck<GameObject>
     private readonly float _fRange;
     private readonly WorldObject _pObject;
     private readonly uint _uiEntry;
+
     public AllGameObjectsWithEntryInRange(WorldObject obj, uint entry, float maxRange)
     {
         _pObject = obj;

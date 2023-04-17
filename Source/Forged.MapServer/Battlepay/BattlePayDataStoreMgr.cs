@@ -15,18 +15,19 @@ public class BattlePayDataStoreMgr
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _gameObjectManager;
-    public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; } = new();
-    public SortedDictionary<uint, ProductAddon> ProductAddons { get; } = new();
-    public List<BpayGroup> ProductGroups { get; } = new();
-    public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; } = new();
-    public SortedDictionary<uint, BpayProduct> Products { get; } = new();
-    public List<BpayShop> ShopEntries { get; } = new();
 
     public BattlePayDataStoreMgr(WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
     {
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
     }
+
+    public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; } = new();
+    public SortedDictionary<uint, ProductAddon> ProductAddons { get; } = new();
+    public List<BpayGroup> ProductGroups { get; } = new();
+    public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; } = new();
+    public SortedDictionary<uint, BpayProduct> Products { get; } = new();
+    public List<BpayShop> ShopEntries { get; } = new();
 
     public bool DisplayInfoExist(uint displayInfoEntry)
     {
@@ -82,7 +83,6 @@ public class BattlePayDataStoreMgr
         Log.Logger.Information("GetProductInfoForProduct failed for productID {}", productID);
 
         return null;
-
     }
 
     public List<BpayProduct> GetProductsOfProductInfo(uint productInfoEntry)
@@ -113,6 +113,7 @@ public class BattlePayDataStoreMgr
         LoadProductGroups();
         LoadShopEntries();
     }
+
     public bool ProductExist(uint productID)
     {
         if (Products.ContainsKey(productID))
@@ -122,6 +123,7 @@ public class BattlePayDataStoreMgr
 
         return false;
     }
+
     private void LoadDisplayInfos()
     {
         Log.Logger.Information("Loading Battlepay display info ...");
@@ -366,6 +368,7 @@ public class BattlePayDataStoreMgr
 
         Log.Logger.Information(">> Loaded {} Battlepay product groups", (ulong)ProductGroups.Count);
     }
+
     private void LoadShopEntries()
     {
         Log.Logger.Information("Loading Battlepay shop entries ...");

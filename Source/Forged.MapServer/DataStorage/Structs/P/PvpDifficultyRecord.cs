@@ -11,6 +11,7 @@ public sealed class PvpDifficultyRecord
     public uint MapID { get; set; }
     public byte MaxLevel { get; set; }
     public byte MinLevel { get; set; }
+
     public byte RangeIndex { get; set; }
     // helpers
 

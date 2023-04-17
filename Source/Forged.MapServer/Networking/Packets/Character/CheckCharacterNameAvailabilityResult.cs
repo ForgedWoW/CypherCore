@@ -9,6 +9,7 @@ internal class CheckCharacterNameAvailabilityResult : ServerPacket
 {
     public ResponseCodes Result;
     public uint SequenceIndex;
+
     public CheckCharacterNameAvailabilityResult(uint sequenceIndex, ResponseCodes result) : base(ServerOpcodes.CheckCharacterNameAvailabilityResult)
     {
         SequenceIndex = sequenceIndex;

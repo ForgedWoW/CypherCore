@@ -17,6 +17,7 @@ public class SpawnMetadata
     public SpawnGroupTemplateData SpawnGroupData { get; set; } = null;
     public ulong SpawnId { get; set; }
     public SpawnObjectType Type { get; set; }
+
     public static bool TypeHasData(SpawnObjectType type)
     {
         return type < SpawnObjectType.NumSpawnTypesWithData;
@@ -26,6 +27,7 @@ public class SpawnMetadata
     {
         return ((1 << (int)type) & (int)mask) != 0;
     }
+
     public static bool TypeIsValid(SpawnObjectType type)
     {
         return type < SpawnObjectType.NumSpawnTypes;

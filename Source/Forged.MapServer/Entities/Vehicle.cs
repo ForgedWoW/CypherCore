@@ -17,6 +17,13 @@ namespace Forged.MapServer.Entities;
 
 public class Vehicle : ITransport
 {
+    public enum Status
+    {
+        None,
+        Installed,
+        UnInstalling,
+    }
+
     public Dictionary<sbyte, VehicleSeat> Seats = new();
 
     public uint UsableSeatNum;
@@ -45,7 +52,6 @@ public class Vehicle : ITransport
             uint seatId = _vehicleInfo.SeatID[i];
 
             if (seatId != 0)
-            {
                 if (CliDB.VehicleSeatStorage.TryGetValue(seatId, out var veSeat))
                 {
                     var addon = Global.ObjectMgr.GetVehicleSeatAddon(seatId);
@@ -54,7 +60,6 @@ public class Vehicle : ITransport
                     if (veSeat.CanEnterOrExit())
                         ++UsableSeatNum;
                 }
-            }
         }
 
         // Set or remove correct flags based on available seats. Will overwrite db data (if wrong).
@@ -65,18 +70,98 @@ public class Vehicle : ITransport
 
         InitMovementInfoForBase();
     }
-
-    public enum Status
-    {
-        None,
-        Installed,
-        UnInstalling,
-    }
     //< DBC data for vehicle
 
     public void AddPassenger(WorldObject passenger)
     {
         Log.Logger.Fatal("Vehicle cannot directly gain passengers without auras");
+    }
+
+    public void CalculatePassengerOffset(Position pos)
+    {
+        ITransport.CalculatePassengerOffset(pos,
+                                            GetBase().Location.X,
+                                            GetBase().Location.Y,
+                                            GetBase().Location.Z,
+                                            GetBase().Location.Orientation);
+    }
+
+    public void CalculatePassengerPosition(Position pos)
+    {
+        ITransport.CalculatePassengerPosition(pos,
+                                              GetBase().Location.X,
+                                              GetBase().Location.Y,
+                                              GetBase().Location.Z,
+                                              GetBase().Location.Orientation);
+    }
+
+    public int GetMapIdForSpawning()
+    {
+        return (int)GetBase().Location.MapId;
+    }
+
+    public ObjectGuid GetTransportGUID()
+    {
+        return GetBase().GUID;
+    }
+
+    public float GetTransportOrientation()
+    {
+        return GetBase().Location.Orientation;
+    }
+
+    //< Internal variable for sanity checks
+    public ITransport RemovePassenger(WorldObject passenger)
+    {
+        var unit = passenger.AsUnit;
+
+        if (unit == null)
+            return null;
+
+        if (unit.Vehicle != this)
+            return null;
+
+        var seat = GetSeatKeyValuePairForPassenger(unit);
+
+        Log.Logger.Debug("Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
+                         unit.GetName(),
+                         _me.Entry,
+                         _vehicleInfo.Id,
+                         _me.GUID.ToString(),
+                         seat.Key);
+
+        if (seat.Value.SeatInfo.CanEnterOrExit() && ++UsableSeatNum != 0)
+            _me.SetNpcFlag(_me.IsTypeId(TypeId.Player) ? NPCFlags.PlayerVehicle : NPCFlags.SpellClick);
+
+        // Enable gravity for passenger when he did not have it active before entering the vehicle
+        if (seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.DisableGravity) && !seat.Value.Passenger.IsGravityDisabled)
+            unit.SetDisableGravity(false);
+
+        // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
+        if (seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.PassengerNotSelectable) && !seat.Value.Passenger.IsUninteractible)
+            unit.RemoveUnitFlag(UnitFlags.Uninteractible);
+
+        seat.Value.Passenger.Reset();
+
+        if (_me.IsTypeId(TypeId.Unit) && unit.IsTypeId(TypeId.Player) && seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.CanControl))
+            _me.RemoveCharmedBy();
+
+        if (_me.Location.IsInWorld)
+            unit.MovementInfo.ResetTransport();
+
+        // only for flyable vehicles
+        if (unit.IsFlying)
+            _me.SpellFactory.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
+
+        if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.IsAIEnabled)
+            _me.AsCreature.AI.PassengerBoarded(unit, seat.Key, false);
+
+        if (GetBase().IsTypeId(TypeId.Unit))
+            ScriptManager.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
+
+        unit.Vehicle = null;
+
+        return this;
     }
 
     public bool AddVehiclePassenger(Unit unit, sbyte seatId)
@@ -155,24 +240,6 @@ public class Vehicle : ITransport
         return true;
     }
 
-    public void CalculatePassengerOffset(Position pos)
-    {
-        ITransport.CalculatePassengerOffset(pos,
-                                            GetBase().Location.X,
-                                            GetBase().Location.Y,
-                                            GetBase().Location.Z,
-                                            GetBase().Location.Orientation);
-    }
-
-    public void CalculatePassengerPosition(Position pos)
-    {
-        ITransport.CalculatePassengerPosition(pos,
-                                              GetBase().Location.X,
-                                              GetBase().Location.Y,
-                                              GetBase().Location.Z,
-                                              GetBase().Location.Orientation);
-    }
-
     public byte GetAvailableSeatCount()
     {
         byte ret = 0;
@@ -204,9 +271,7 @@ public class Vehicle : ITransport
         str.Append("Vehicle pending events:");
 
         if (_pendingJoinEvents.Empty())
-        {
             str.Append(" none");
-        }
         else
         {
             str.Append("\n");
@@ -226,11 +291,6 @@ public class Vehicle : ITransport
             return vehicleTemplate.DespawnDelay;
 
         return TimeSpan.FromMilliseconds(1);
-    }
-
-    public int GetMapIdForSpawning()
-    {
-        return (int)GetBase().Location.MapId;
     }
 
     public VehicleSeat GetNextEmptySeat(sbyte seatId, bool next)
@@ -294,16 +354,6 @@ public class Vehicle : ITransport
                 return pair.Value.SeatInfo;
 
         return null;
-    }
-
-    public ObjectGuid GetTransportGUID()
-    {
-        return GetBase().GUID;
-    }
-
-    public float GetTransportOrientation()
-    {
-        return GetBase().Location.Orientation;
     }
 
     public VehicleRecord GetVehicleInfo()
@@ -407,59 +457,6 @@ public class Vehicle : ITransport
         _me.RemoveAurasByType(AuraType.ControlVehicle);
     }
 
-    //< Internal variable for sanity checks
-    public ITransport RemovePassenger(WorldObject passenger)
-    {
-        var unit = passenger.AsUnit;
-
-        if (unit == null)
-            return null;
-
-        if (unit.Vehicle != this)
-            return null;
-
-        var seat = GetSeatKeyValuePairForPassenger(unit);
-
-        Log.Logger.Debug("Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
-                         unit.GetName(),
-                         _me.Entry,
-                         _vehicleInfo.Id,
-                         _me.GUID.ToString(),
-                         seat.Key);
-
-        if (seat.Value.SeatInfo.CanEnterOrExit() && ++UsableSeatNum != 0)
-            _me.SetNpcFlag(_me.IsTypeId(TypeId.Player) ? NPCFlags.PlayerVehicle : NPCFlags.SpellClick);
-
-        // Enable gravity for passenger when he did not have it active before entering the vehicle
-        if (seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.DisableGravity) && !seat.Value.Passenger.IsGravityDisabled)
-            unit.SetDisableGravity(false);
-
-        // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
-        if (seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.PassengerNotSelectable) && !seat.Value.Passenger.IsUninteractible)
-            unit.RemoveUnitFlag(UnitFlags.Uninteractible);
-
-        seat.Value.Passenger.Reset();
-
-        if (_me.IsTypeId(TypeId.Unit) && unit.IsTypeId(TypeId.Player) && seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.CanControl))
-            _me.RemoveCharmedBy();
-
-        if (_me.Location.IsInWorld)
-            unit.MovementInfo.ResetTransport();
-
-        // only for flyable vehicles
-        if (unit.IsFlying)
-            _me.SpellFactory.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
-
-        if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.IsAIEnabled)
-            _me.AsCreature.AI.PassengerBoarded(unit, seat.Key, false);
-
-        if (GetBase().IsTypeId(TypeId.Unit))
-            ScriptManager.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
-
-        unit.Vehicle = null;
-
-        return this;
-    }
     public void RemovePendingEvent(VehicleJoinEvent e)
     {
         foreach (var Event in _pendingJoinEvents)
@@ -534,6 +531,7 @@ public class Vehicle : ITransport
         if (GetBase().IsTypeId(TypeId.Unit))
             ScriptManager.RunScript<IVehicleOnUninstall>(p => p.OnUninstall(this), GetBase().AsCreature.GetScriptId());
     }
+
     private void ApplyAllImmunities()
     {
         // This couldn't be done in DB, because some spells have MECHANIC_NONE
@@ -587,7 +585,6 @@ public class Vehicle : ITransport
                 _me.ApplySpellImmune(0, SpellImmunity.State, AuraType.ModDamagePercentTaken, false); // Battering Ram
 
                 break;
-            
         }
     }
 

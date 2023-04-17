@@ -446,9 +446,7 @@ internal class BgArathiBasin : Battleground
                 if (_mBannerTimers[node].Timer != 0)
                 {
                     if (_mBannerTimers[node].Timer > diff)
-                    {
                         _mBannerTimers[node].Timer -= diff;
-                    }
                     else
                     {
                         _mBannerTimers[node].Timer = 0;
@@ -460,9 +458,7 @@ internal class BgArathiBasin : Battleground
                 if (_mNodeTimers[node] != 0)
                 {
                     if (_mNodeTimers[node] > diff)
-                    {
                         _mNodeTimers[node] -= diff;
-                    }
                     else
                     {
                         _mNodeTimers[node] = 0;
@@ -713,7 +709,6 @@ internal class BgArathiBasin : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)ABObjectives.DefendBase);
 
                 break;
-            
         }
 
         return true;
@@ -859,7 +854,6 @@ internal class BgArathiBasin : Battleground
                 UpdateWorldState(ABWorldStates.GOLD_MINE_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested  ? 1 : 0);
 
                 break;
-            
         }
 
         // How many bases each team owns

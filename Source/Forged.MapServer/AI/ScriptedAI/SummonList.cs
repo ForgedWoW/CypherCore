@@ -43,9 +43,7 @@ public class SummonList : List<ObjectGuid>
             var summon = ObjectAccessor.GetCreature(_me, id);
 
             if (!summon)
-            {
                 Remove(id);
-            }
             else if (summon.Entry == entry)
             {
                 Remove(id);
@@ -115,6 +113,7 @@ public class SummonList : List<ObjectGuid>
     {
         Add(summon.GUID);
     }
+
     private void DoActionImpl(int action, List<ObjectGuid> summons)
     {
         foreach (var guid in summons)

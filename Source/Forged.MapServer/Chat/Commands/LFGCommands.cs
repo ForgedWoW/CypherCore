@@ -38,9 +38,7 @@ internal class LFGCommands
         var target = player.GetConnectedPlayer();
 
         if (target != null)
-        {
             groupTarget = target.Group;
-        }
         else
         {
             var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);

@@ -28,9 +28,7 @@ public class AchievementManager : CriteriaHandler
     public AchievementManager(CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                               DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
                               LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
-        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
-    {
-    }
+        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager) { }
 
     public uint AchievementPoints { get; protected set; }
 
@@ -139,8 +137,7 @@ public class AchievementManager : CriteriaHandler
             UpdateCriteria(i, 0, 0, 0, null, referencePlayer);
     }
 
-    public virtual void CompletedAchievement(AchievementRecord entry, Player referencePlayer)
-    { }
+    public virtual void CompletedAchievement(AchievementRecord entry, Player referencePlayer) { }
 
     public override void CompletedCriteriaTree(CriteriaTree tree, Player referencePlayer)
     {

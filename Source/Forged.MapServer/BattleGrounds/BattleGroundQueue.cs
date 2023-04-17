@@ -131,7 +131,6 @@ public class BattlegroundQueue
 
         //add players from group to ginfo
         if (group)
-        {
             for (var refe = group.FirstMember; refe != null; refe = refe.Next())
             {
                 var member = refe.Source;
@@ -149,7 +148,6 @@ public class BattlegroundQueue
                 // add the pinfo to ginfo's list
                 ginfo.Players[member.GUID] = plInfo;
             }
-        }
         else
         {
             PlayerQueueInfo plInfo = new()
@@ -293,9 +291,7 @@ public class BattlegroundQueue
             minPlayersPerTeam = _battlegroundManager.IsArenaTesting() ? 1u : _queueId.TeamSize;
         }
         else if (_battlegroundManager.IsTesting())
-        {
             minPlayersPerTeam = 1;
-        }
 
         _selectionPools[TeamIds.Alliance].Init();
         _selectionPools[TeamIds.Horde].Init();
@@ -377,9 +373,7 @@ public class BattlegroundQueue
                         arenaRating = front1.ArenaMatchmakerRating;
                 }
                 else if (front1 == null && front2 == null)
-                {
                     return; //queues are empty
-                }
             }
 
             //set rating range
@@ -491,6 +485,7 @@ public class BattlegroundQueue
     public bool GetPlayerGroupInfoData(ObjectGuid guid, out GroupQueueInfo ginfo)
     {
         ginfo = null;
+
         if (!_queuedPlayers.TryGetValue(guid, out var playerQueueInfo))
             return false;
 
@@ -1107,9 +1102,7 @@ public class BattlegroundQueue
                     found = true;
                 }
                 else if (!found)
-                {
                     groupToKick = groupQueueInfo;
-                }
 
             //if pool is empty, do nothing
             if (GetPlayerCount() == 0)

@@ -11,6 +11,7 @@ internal class PartyMemberAuraStates
     public ushort Flags;
     public List<float> Points = new();
     public int SpellID;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(SpellID);

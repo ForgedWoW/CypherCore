@@ -480,9 +480,7 @@ public class LootManager : LootStoreBox
                     Spell.ReportNonExistingId(spellInfo.Id, spellInfo.Id);
             }
             else
-            {
                 lootIdSet.Remove(spellInfo.Id);
-            }
         }
 
         // output error for any still listed (not referenced from appropriate table) ids

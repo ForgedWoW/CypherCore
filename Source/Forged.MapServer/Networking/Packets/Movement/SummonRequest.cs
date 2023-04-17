@@ -8,6 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class SummonRequest : ServerPacket
 {
+    public enum SummonReason
+    {
+        Spell = 0,
+        Scenario = 1
+    }
+
     public int AreaID;
 
     public SummonReason Reason;
@@ -20,11 +26,6 @@ internal class SummonRequest : ServerPacket
 
     public SummonRequest() : base(ServerOpcodes.SummonRequest, ConnectionType.Instance) { }
 
-    public enum SummonReason
-    {
-        Spell = 0,
-        Scenario = 1
-    }
     public override void Write()
     {
         WorldPacket.WritePackedGuid(SummonerGUID);

@@ -10,7 +10,9 @@ public class WardenCheck
     public ushort CheckId { get; set; }
     public string Comment { get; set; }
     public byte[] Data { get; set; }
+
     public char[] IdStr { get; set; } = new char[4];
+
     // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     public byte Length { get; set; }
 

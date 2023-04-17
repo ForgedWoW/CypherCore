@@ -52,9 +52,7 @@ public class WorldService
                 Params[removeSuffix(attr.Name)] = attr.Value;
             }
             else
-            {
                 Params[attr.Name] = attr.Value;
-            }
         }
 
         if (command == null)
@@ -71,6 +69,7 @@ public class WorldService
             _                             => BattlenetRpcErrorCode.RpcNotImplemented
         };
     }
+
     private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
     {
         if (Params.TryGetValue("Param_RealmAddress", out var realmAddress))
@@ -89,6 +88,7 @@ public class WorldService
     private BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
     {
         var subRegionId = "";
+
         if (Params.TryGetValue("Command_RealmListRequest_v1", out var subRegion))
             subRegionId = subRegion.StringValue;
 

@@ -203,9 +203,7 @@ public class Garrison
             }
         }
         else
-        {
             _owner.SendPacket(buildingRemoved);
-        }
     }
 
     public uint CountFollowers(Predicate<Follower> predicate)
@@ -397,6 +395,7 @@ public class Garrison
                 do
                 {
                     var dbId = abilities.Read<ulong>(0);
+
                     if (!_cliDB.GarrAbilityStorage.TryGetValue(abilities.Read<uint>(1), out var ability))
                         continue;
 
@@ -644,9 +643,7 @@ public class Garrison
                 return GarrisonError.RequiresBlueprint;
         }
         else // Building is built as a quest reward
-        {
             return GarrisonError.InvalidBuildingId;
-        }
 
         // Check all plots to find if we already have this building
         GarrBuildingRecord existingBuilding;
@@ -760,10 +757,10 @@ public class Garrison
 
     public class Building
     {
-        private readonly CliDB _cliDB;
         public ObjectGuid Guid;
         public GarrisonBuildingInfo PacketInfo;
         public List<ObjectGuid> Spawns = new();
+        private readonly CliDB _cliDB;
 
         public Building(CliDB cliDB)
         {
@@ -798,16 +795,16 @@ public class Garrison
 
     public class Plot
     {
-        private readonly CliDB _cliDB;
-        private readonly GarrisonManager _garrisonManager;
-        private readonly GameObjectManager _gameObjectManager;
-        private readonly GameObjectFactory _gameObjectFactory;
-        private readonly ClassFactory _classFactory;
         public Building BuildingInfo;
         public uint EmptyGameObjectId;
         public uint GarrSiteLevelPlotInstId;
         public GarrisonPlotInfo PacketInfo;
         public Quaternion Rotation;
+        private readonly CliDB _cliDB;
+        private readonly GarrisonManager _garrisonManager;
+        private readonly GameObjectManager _gameObjectManager;
+        private readonly GameObjectFactory _gameObjectFactory;
+        private readonly ClassFactory _classFactory;
 
         public Plot(CliDB cliDB, GarrisonManager garrisonManager, GameObjectManager gameObjectManager, GameObjectFactory gameObjectFactory, ClassFactory classFactory)
         {

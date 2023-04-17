@@ -114,8 +114,7 @@ public class BossAI : ScriptedAI
         return IsInBoundary(victim.Location);
     }
 
-    public virtual void ExecuteEvent(uint eventId)
-    { }
+    public virtual void ExecuteEvent(uint eventId) { }
 
     public uint GetBossId()
     {
@@ -150,8 +149,7 @@ public class BossAI : ScriptedAI
         _Reset();
     }
 
-    public virtual void ScheduleTasks()
-    { }
+    public virtual void ScheduleTasks() { }
 
     public override void SummonedCreatureDespawn(Creature summon)
     {

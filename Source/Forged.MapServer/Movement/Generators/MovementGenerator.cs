@@ -14,6 +14,11 @@ public abstract class MovementGenerator : IEquatable<MovementGenerator>
     public MovementGeneratorMode Mode { get; set; }
     public MovementGeneratorPriority Priority { get; set; }
 
+    public bool Equals(MovementGenerator other)
+    {
+        return other != null && Mode == other.Mode && Priority == other.Priority;
+    }
+
     public void AddFlag(MovementGeneratorFlags flag)
     {
         Flags |= flag;
@@ -22,10 +27,6 @@ public abstract class MovementGenerator : IEquatable<MovementGenerator>
     // on current top if another movement replaces
     public virtual void Deactivate(Unit owner) { }
 
-    public bool Equals(MovementGenerator other)
-    {
-        return other != null && Mode == other.Mode && Priority == other.Priority;
-    }
     // on movement delete
     public virtual void Finalize(Unit owner, bool active, bool movementInform) { }
 

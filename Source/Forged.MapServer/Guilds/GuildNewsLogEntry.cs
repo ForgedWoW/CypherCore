@@ -40,6 +40,7 @@ public class GuildNewsLogEntry : GuildLogEntry
     public ObjectGuid PlayerGuid { get; }
 
     public uint Value { get; }
+
     public override void SaveToDB(SQLTransaction trans)
     {
         byte index = 0;

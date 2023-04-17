@@ -37,7 +37,9 @@ public sealed class LFGDungeonsRecord
     public int RewardsBgTextureFileID;
     public ushort ScenarioID;
     public sbyte Subtype;
+
     public LfgType TypeID;
+
     // Helpers
     public uint Entry()
     {

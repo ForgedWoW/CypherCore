@@ -11,6 +11,7 @@ public class ChatAddonMessageParams
     public string Prefix;
     public string Text;
     public ChatMsg Type = ChatMsg.Party;
+
     public void Read(WorldPacket data)
     {
         var prefixLen = data.ReadBits<uint>(5);

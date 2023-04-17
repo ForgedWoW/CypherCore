@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using Forged.MapServer.Cache;
 using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Objects;
@@ -162,9 +161,7 @@ internal class GroupCommands
         }
         // If not, we return false and end right away.
         else if (!handler.ExtractPlayerTarget(args, out playerTarget, out guidTarget, out nameTarget))
-        {
             return false;
-        }
 
         // Next, we need a group. So we define a group variable.
         PlayerGroup groupTarget = null;
@@ -238,10 +235,8 @@ internal class GroupCommands
                 phases = PhasingHandler.FormatPhases(p.Location.PhaseShift);
 
                 if (handler.CliDB.AreaTableStorage.TryGetValue(p.Location.Area, out var area))
-                {
                     if (handler.CliDB.AreaTableStorage.TryGetValue(area.ParentAreaID, out var zone))
                         zoneName = zone.AreaName[handler.SessionDbcLocale];
-                }
             }
             else
             {

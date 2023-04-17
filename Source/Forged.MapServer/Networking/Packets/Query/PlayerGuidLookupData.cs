@@ -28,6 +28,7 @@ public class PlayerGuidLookupData
 
     // same as bgs.protocol.club.v1.MemberId.unique_id
     public uint VirtualRealmAddress;
+
     public bool Initialize(ObjectGuid guid, Player player = null)
     {
         var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(guid);

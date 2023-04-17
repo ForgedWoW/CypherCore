@@ -11,6 +11,7 @@ internal class AreaTriggerSplineInfo
     public uint ElapsedTimeForMovement;
     public List<Vector3> Points = new();
     public uint TimeToTarget;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(TimeToTarget);

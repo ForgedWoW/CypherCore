@@ -17,6 +17,7 @@ internal class CalendarEventInviteInfo
     public string Notes;
     public long ResponseTime;
     public CalendarInviteStatus Status;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(Guid);

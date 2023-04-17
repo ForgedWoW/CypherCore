@@ -31,6 +31,5 @@ internal class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Crea
         _range = _obj.Location.GetDistance(u); // use found unit range as new range limit for next check
 
         return true;
-
     }
 }

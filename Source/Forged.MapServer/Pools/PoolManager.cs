@@ -14,6 +14,13 @@ namespace Forged.MapServer.Pools;
 
 public class PoolManager
 {
+    public enum QuestTypes
+    {
+        None = 0,
+        Daily = 1,
+        Weekly = 2
+    }
+
     public MultiMap<uint, uint> QuestCreatureRelation = new();
 
     public MultiMap<uint, uint> QuestGORelation = new();
@@ -47,12 +54,6 @@ public class PoolManager
         _gameObjectFactory = gameObjectFactory;
     }
 
-    public enum QuestTypes
-    {
-        None = 0,
-        Daily = 1,
-        Weekly = 2
-    }
     public bool CheckPool(uint poolID)
     {
         if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].CheckPool())
@@ -93,6 +94,7 @@ public class PoolManager
     public SpawnedPoolData InitPoolsForMap(Map map)
     {
         SpawnedPoolData spawnedPoolData = new(map);
+
         if (_autoSpawnPoolsPerMap.TryGetValue(spawnedPoolData.Map.Id, out var poolIds))
             foreach (var poolId in poolIds)
                 SpawnPool(spawnedPoolData, poolId);
@@ -194,9 +196,7 @@ public class PoolManager
             var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -270,9 +270,7 @@ public class PoolManager
             var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -346,9 +344,7 @@ public class PoolManager
             var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 pools in pools");
-            }
             else
             {
                 uint count = 0;
@@ -471,9 +467,7 @@ public class PoolManager
                                               " LEFT JOIN pool_members ON pool_members.type = 2 AND pool_template.entry = pool_members.spawnId WHERE game_event_pool.pool_entry IS NULL");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Pool handling system initialized, 0 pools spawned.");
-            }
             else
             {
                 uint count = 0;
@@ -517,6 +511,7 @@ public class PoolManager
         SpawnPool<GameObject>(spawnedPoolData, poolID, 0);
         SpawnPool<Creature>(spawnedPoolData, poolID, 0);
     }
+
     public void UpdatePool<T>(SpawnedPoolData spawnedPoolData, uint poolID, ulong dbGuidOrPoolID)
     {
         var motherpoolid = IsPartOfAPool<Pool>(poolID);
@@ -541,6 +536,7 @@ public class PoolManager
                 break;
         }
     }
+
     private void SpawnPool<T>(SpawnedPoolData spawnedPoolData, uint poolID, ulong dbGuid)
     {
         switch (typeof(T).Name)

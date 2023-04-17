@@ -54,6 +54,7 @@ public class BlackMarketManager
 
     public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket:Enabled", true);
     public long LastUpdate { get; private set; }
+
     public void AddAuction(BlackMarketEntry auction)
     {
         _auctions[auction.MarketId] = auction;
@@ -186,6 +187,7 @@ public class BlackMarketManager
 
         Log.Logger.Information("Loaded {0} black market templates in {1} ms.", _templates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     public void RefreshAuctions()
     {
         SQLTransaction trans = new();
@@ -315,8 +317,8 @@ public class BlackMarketManager
             SendBlackMarketWonNotification(bidder.Session, entry, item);
 
         _classFactory.ResolvePositional<MailDraft>(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Won), entry.BuildAuctionMailBody())
-            .AddItem(item)
-            .SendMailTo(trans, new MailReceiver(bidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
+                     .AddItem(item)
+                     .SendMailTo(trans, new MailReceiver(bidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
 
         entry.SetMailSent();
     }

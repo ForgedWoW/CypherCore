@@ -27,6 +27,7 @@ public class GuildEmblemInfo
     public uint Color { get; private set; }
 
     public uint Style { get; private set; }
+
     public bool LoadFromDB(SQLFields field)
     {
         Style = field.Read<byte>(3);

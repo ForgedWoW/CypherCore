@@ -26,6 +26,5 @@ internal class NearestPlayerInObjectRangeCheck : ICheck<Player>
         _range = _obj.Location.GetDistance(pl);
 
         return true;
-
     }
 }

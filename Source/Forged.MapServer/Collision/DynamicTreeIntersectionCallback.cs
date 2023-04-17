@@ -12,13 +12,13 @@ public class DynamicTreeIntersectionCallback : WorkerCallback
 {
     private readonly PhaseShift _phaseShift;
 
-    public bool DidHit { get; private set; }
-
     public DynamicTreeIntersectionCallback(PhaseShift phaseShift)
     {
         DidHit = false;
         _phaseShift = phaseShift;
     }
+
+    public bool DidHit { get; private set; }
 
     public override bool Invoke(Ray r, Model obj, ref float distance)
     {

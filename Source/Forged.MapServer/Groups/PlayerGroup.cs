@@ -119,11 +119,9 @@ public class PlayerGroup
 
     private bool IsReadyCheckCompleted
     {
-        get
-        {
-            return MemberSlots.All(member => member.ReadyChecked);
-        }
+        get { return MemberSlots.All(member => member.ReadyChecked); }
     }
+
     public bool AddInvite(Player player)
     {
         if (player is not { GroupInvite: null })
@@ -208,9 +206,7 @@ public class PlayerGroup
                 player.SetOriginalGroup(this, subGroup);
         }
         else //if player is not in group, then call set group
-        {
             player.SetGroup(this, subGroup);
-        }
 
         player.SetPartyType(GroupCategory, GroupType.Normal);
         player.ResetGroupUpdateSequenceIfNeeded(this);
@@ -606,9 +602,7 @@ public class PlayerGroup
 
         // update quest related GO states (quest activity dependent from raid membership)
         foreach (var player in MemberSlots.Select(member => _objectAccessor.FindPlayer(member.Guid)))
-        {
             player?.UpdateVisibleGameobjectsOrSpellClicks();
-        }
     }
 
     public void ConvertToLFG()
@@ -650,9 +644,7 @@ public class PlayerGroup
 
         // update quest related GO states (quest activity dependent from raid membership)
         foreach (var member in MemberSlots)
-        {
             _objectAccessor.FindPlayer(member.Guid)?.UpdateVisibleGameobjectsOrSpellClicks();
-        }
     }
 
     public bool Create(Player leader)
@@ -724,9 +716,7 @@ public class PlayerGroup
             AddMember(leader); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
         }
         else if (!AddMember(leader))
-        {
             return false;
-        }
 
         return true;
     }
@@ -760,9 +750,7 @@ public class PlayerGroup
             //we cannot call _removeMember because it would invalidate member iterator
             //if we are removing player from Battlegroundraid
             if (IsBGGroup || IsBfGroup)
-            {
                 player.RemoveFromBattlegroundOrBattlefieldRaid();
-            }
             else
             {
                 //we can remove player who is in Battlegroundfrom his original group
@@ -1031,9 +1019,7 @@ public class PlayerGroup
             {
                 // Battlegroundgroup handling
                 if (IsBGGroup || IsBfGroup)
-                {
                     player.RemoveFromBattlegroundOrBattlefieldRaid();
-                }
                 else
                     // Regular group
                 {

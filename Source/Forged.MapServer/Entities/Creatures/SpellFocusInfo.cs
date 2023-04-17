@@ -10,8 +10,10 @@ internal struct SpellFocusInfo
 {
     public uint Delay;
     public float Orientation;
+
     public Spell Spell;
+
     // ms until the creature's target should snap back (0 = no snapback scheduled)
     public ObjectGuid Target; // the creature's "real" target while casting
-     // the creature's "real" orientation while casting
+    // the creature's "real" orientation while casting
 }

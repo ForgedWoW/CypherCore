@@ -94,9 +94,7 @@ public class MapManager
                     var bg = player.Battleground;
 
                     if (bg != null)
-                    {
                         map = CreateBattleground(mapId, newInstanceId, bg);
-                    }
                     else
                     {
                         player.TeleportToBGEntryPoint();
@@ -196,11 +194,9 @@ public class MapManager
     public void DoForAllMaps(Action<Map> worker)
     {
         lock (_mapsLock)
-        {
             foreach (var kvp in _maps.Values)
                 foreach (var map in kvp.Values)
                     worker(map);
-        }
     }
 
     public void DoForAllMapsWithMapId(uint mapId, Action<Map> worker)
@@ -251,9 +247,8 @@ public class MapManager
         }
 
         if (entry.IsGarrison())
-        {
             return (uint)player.GUID.Counter;
-        }
+
         if (entry.IsSplitByFaction())
             return (uint)player.TeamId;
 
@@ -263,9 +258,7 @@ public class MapManager
     public Map FindMap(uint mapId, uint instanceId)
     {
         lock (_mapsLock)
-        {
             return FindMap_i(mapId, instanceId);
-        }
     }
 
     public void FreeInstanceId(uint instanceId)
@@ -301,9 +294,7 @@ public class MapManager
             _freeInstanceIds[(int)_nextInstanceId] = true;
         }
         else
-        {
             _nextInstanceId = (uint)nextFreeId;
-        }
 
         return newInstanceId;
     }
@@ -316,17 +307,13 @@ public class MapManager
     public uint GetNumInstances()
     {
         lock (_mapsLock)
-        {
             return (uint)_maps.Sum(pair => pair.Value.Count(kvp => kvp.Value.IsDungeon));
-        }
     }
 
     public uint GetNumPlayersInInstances()
     {
         lock (_mapsLock)
-        {
             return (uint)_maps.Sum(pair => pair.Value.Sum(kvp => kvp.Value.IsDungeon ? kvp.Value.Players.Count : 0));
-        }
     }
 
     public void IncreaseScheduledScriptsCount()
@@ -344,12 +331,11 @@ public class MapManager
     public void InitializeVisibilityDistanceInfo()
     {
         lock (_mapsLock)
-        {
             foreach (var pair in _maps.Values)
                 foreach (var map in pair.Values)
                     map.InitVisibilityDistance();
-        }
     }
+
     public void InitInstanceIds()
     {
         _nextInstanceId = 1;
@@ -472,6 +458,7 @@ public class MapManager
         _updater.Wait();
         _timer.Current = 0;
     }
+
     private BattlegroundMap CreateBattleground(uint mapId, uint instanceId, Battleground bg)
     {
         Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");

@@ -30,13 +30,6 @@ public class DosProtection
         _policy = (Policy)_configuration.GetDefaultValue("PacketSpoof:Policy", 1);
     }
 
-    private enum Policy
-    {
-        Log,
-        Kick,
-        Ban,
-    }
-
     //todo fix me
     public bool EvaluateOpcode(WorldPacket packet, long time)
     {
@@ -102,5 +95,12 @@ public class DosProtection
         }
 
         return true;
+    }
+
+    private enum Policy
+    {
+        Log,
+        Kick,
+        Ban,
     }
 }

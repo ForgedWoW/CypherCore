@@ -23,6 +23,7 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)
@@ -42,7 +43,7 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 
             if (pl == null)
                 continue;
-            
+
             if (pl.SeerView == dynamicObject)
                 pl.UpdateVisibilityOf(_objects);
         }

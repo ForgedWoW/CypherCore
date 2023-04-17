@@ -36,6 +36,7 @@ public class Pet : Guardian
     private uint _focusRegenTimer;
     private bool _loading;
     private GroupUpdatePetFlags _mGroupUpdateMask;
+
     public Pet(Player owner, PetType type = PetType.Max) : base(null, owner, true)
     {
         PetType = type;
@@ -98,10 +99,12 @@ public class Pet : Guardian
             return base.NativeObjectScale;
         }
     }
+
     public Player OwningPlayer => base.OwnerUnit.AsPlayer;
     public override byte PetAutoSpellSize => (byte)_autospells.Count;
     public PetType PetType { get; set; }
     public ushort Specialization { get; private set; }
+
     public static void DeleteFromDB(uint petNumber)
     {
         SQLTransaction trans = new();
@@ -281,6 +284,7 @@ public class Pet : Guardian
         }
 
         SetDisplayId(creature.DisplayId);
+
         if (CliDB.CreatureFamilyStorage.TryGetValue(cinfo.Family, out var cFamily))
             SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
         else
@@ -307,6 +311,7 @@ public class Pet : Guardian
         _declinedname = null;
         base.Dispose();
     }
+
     public void FillPetInfo(PetStable.PetInfo petInfo)
     {
         petInfo.PetNumber = GetCharmInfo().GetPetNumber();
@@ -601,18 +606,14 @@ public class Pet : Guardian
         SetCanModifyStats(true);
 
         if (PetType == PetType.Summon && !current) //all (?) summon pets come with full health when called, but not when they are current
-        {
             SetFullPower(PowerType.Mana);
-        }
         else
         {
             var savedhealth = petInfo.Health;
             var savedmana = petInfo.Mana;
 
             if (savedhealth == 0 && PetType == PetType.Hunter)
-            {
                 SetDeathState(DeathState.JustDied);
-            }
             else
             {
                 SetHealth(savedhealth);
@@ -707,6 +708,7 @@ public class Pet : Guardian
                  Log.Logger.Debug($"New Pet has {GUID}");
 
                  var specId = specializationId;
+
                  if (CliDB.ChrSpecializationStorage.TryGetValue(specId, out var petSpec))
                      specId = (ushort)Global.DB2Mgr.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? PlayerClass.Max : 0, petSpec.OrderIndex).Id;
 
@@ -759,6 +761,7 @@ public class Pet : Guardian
             Location.Map.ObjectsStore.TryRemove(GUID, out _);
         }
     }
+
     public bool RemoveSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
     {
         if (!Spells.TryGetValue(spellId, out var petSpell))
@@ -908,6 +911,7 @@ public class Pet : Guardian
             DeleteFromDB(GetCharmInfo().GetPetNumber());
         }
     }
+
     public override void SetDeathState(DeathState s)
     {
         base.SetDeathState(s);
@@ -922,9 +926,7 @@ public class Pet : Guardian
             }
         }
         else if (DeathState == DeathState.Alive)
-        {
             CastPetAuras(true);
-        }
     }
 
     public override void SetDisplayId(uint modelId, float displayScale = 1f)
@@ -998,7 +1000,6 @@ public class Pet : Guardian
                 GivePetLevel((int)owner.Level);
 
                 break;
-            
         }
     }
 
@@ -1089,9 +1090,7 @@ public class Pet : Guardian
                 if (Duration > 0)
                 {
                     if (Duration > diff)
-                    {
                         Duration -= (int)diff;
-                    }
                     else
                     {
                         Remove(PetType != PetType.Summon ? PetSaveMode.AsDeleted : PetSaveMode.NotInSlot);
@@ -1129,11 +1128,11 @@ public class Pet : Guardian
 
                 break;
             }
-            
         }
 
         base.Update(diff);
     }
+
     private void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
     {
         Log.Logger.Debug("Loading auras for {0}", GUID.ToString());
@@ -1210,9 +1209,7 @@ public class Pet : Guardian
                         remainCharges = (byte)spellInfo.ProcCharges;
                 }
                 else
-                {
                     remainCharges = 0;
-                }
 
                 var info = effectInfo[key];
                 var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
@@ -1366,9 +1363,7 @@ public class Pet : Guardian
                 DB.Characters.Execute(stmt);
             }
             else
-            {
                 Log.Logger.Error("addSpell: Non-existed in SpellStore spell #{0} request.", spellId);
-            }
 
             return false;
         }
@@ -1376,9 +1371,7 @@ public class Pet : Guardian
         if (Spells.TryGetValue(spellId, out var petSpell))
         {
             if (petSpell.State == PetSpellState.Removed)
-            {
                 state = PetSpellState.Changed;
-            }
             else
             {
                 if (state == PetSpellState.Unchanged && petSpell.State != PetSpellState.Unchanged)
@@ -1410,9 +1403,7 @@ public class Pet : Guardian
                 newspell.Active = ActiveStates.Passive;
         }
         else
-        {
             newspell.Active = active;
-        }
 
         // talent: unlearn all other talent ranks (high and low)
         if (spellInfo.IsRanked)
@@ -1442,9 +1433,7 @@ public class Pet : Guardian
                     }
                     // ignore new lesser rank
                     else
-                    {
                         return false;
-                    }
                 }
             }
 
@@ -1485,9 +1474,7 @@ public class Pet : Guardian
                 if (ab.GetAction() != 0 && ab.IsActionBarForSpell())
                 {
                     if (!HasSpell(ab.GetAction()))
-                    {
                         GetCharmInfo().SetActionBar(i, 0, ActiveStates.Passive);
-                    }
                     else if (ab.GetActiveState() == ActiveStates.Enabled)
                     {
                         var spellInfo = Global.SpellMgr.GetSpellInfo(ab.GetAction(), Difficulty.None);
@@ -1523,6 +1510,7 @@ public class Pet : Guardian
 
         return true;
     }
+
     private string GenerateActionBarData()
     {
         StringBuilder ss = new();
@@ -1643,6 +1631,7 @@ public class Pet : Guardian
         if (!_loading)
             OwningPlayer.SendPacket(packet);
     }
+
     private void RemoveSpecializationSpells(bool clearActionBar)
     {
         List<uint> unlearnedSpells = new();

@@ -9,8 +9,10 @@ public class QuestGiverCompleteQuest : ClientPacket
 {
     public bool FromScript;
     public ObjectGuid QuestGiverGUID; // NPC / GameObject guid for normal quest completion. Player guid for self-completed quests
+
     public uint QuestID;
-     // 0 - standart complete quest mode with npc, 1 - auto-complete mode
+
+    // 0 - standart complete quest mode with npc, 1 - auto-complete mode
     public QuestGiverCompleteQuest(WorldPacket packet) : base(packet) { }
 
     public override void Read()

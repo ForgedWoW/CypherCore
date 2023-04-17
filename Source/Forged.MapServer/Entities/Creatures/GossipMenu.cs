@@ -15,6 +15,7 @@ public class GossipMenu
     private readonly DB2Manager _db2Manager;
     private readonly SortedDictionary<uint, GossipMenuItem> _menuItems = new();
     private readonly GameObjectManager _objectManager;
+
     public GossipMenu(GameObjectManager objectManager, CliDB cliDB, DB2Manager db2Manager)
     {
         _objectManager = objectManager;
@@ -24,6 +25,7 @@ public class GossipMenu
 
     public Locale Locale { get; set; }
     public uint MenuId { get; set; }
+
     public uint AddMenuItem(int gossipOptionId, int orderIndex, GossipOptionNpc optionNpc, string optionText, uint language,
                             GossipOptionFlags flags, int? gossipNpcOptionId, uint actionMenuId, uint actionPoiId, bool boxCoded, uint boxMoney,
                             string boxText, int? spellId, int? overrideIconId, uint sender, uint action)
@@ -115,9 +117,7 @@ public class GossipMenu
 
         // OptionText
         if (optionBroadcastText != null)
-        {
             strOptionText = _db2Manager.GetBroadcastTextValue(optionBroadcastText, Locale);
-        }
         else
         {
             strOptionText = menuItem.OptionText;
@@ -134,9 +134,7 @@ public class GossipMenu
 
         // BoxText
         if (boxBroadcastText != null)
-        {
             strBoxText = _db2Manager.GetBroadcastTextValue(boxBroadcastText, Locale);
-        }
         else
         {
             strBoxText = menuItem.BoxText;
@@ -198,6 +196,7 @@ public class GossipMenu
     {
         return GetItemByIndex(orderIndex)?.Sender ?? 0;
     }
+
     public bool IsEmpty()
     {
         return _menuItems.Empty();
@@ -207,6 +206,7 @@ public class GossipMenu
     {
         return GetItemByIndex(orderIndex) is { BoxCoded: true };
     }
+
     private GossipMenuItem GetItemByIndex(uint orderIndex)
     {
         return _menuItems.LookupByKey(orderIndex);

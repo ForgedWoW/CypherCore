@@ -11,6 +11,7 @@ internal class PhaseShiftData
     public ObjectGuid PersonalGUID;
     public List<PhaseShiftDataPhase> Phases = new();
     public uint PhaseShiftFlags;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(PhaseShiftFlags);

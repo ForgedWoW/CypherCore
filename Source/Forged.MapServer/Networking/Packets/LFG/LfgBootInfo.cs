@@ -18,6 +18,7 @@ public class LfgBootInfo
     public bool VoteInProgress;
     public bool VotePassed;
     public uint VotesNeeded;
+
     public void Write(WorldPacket data)
     {
         data.WriteBit(VoteInProgress);

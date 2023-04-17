@@ -30,15 +30,12 @@ public class WorldObjectTypedList
     public bool Contains(WorldObject obj)
     {
         lock (_worldObjects)
-        {
             return _worldObjects.Contains(obj);
-        }
     }
 
     public int GetCount<T>()
     {
         lock (_worldObjects)
-        {
             switch (typeof(T).Name)
             {
                 case nameof(Creature):
@@ -58,7 +55,6 @@ public class WorldObjectTypedList
                 case nameof(SceneObject):
                     return _sceneObjects.Count;
             }
-        }
 
         return 0;
     }

@@ -53,6 +53,7 @@ public class InitWorldStates : ServerPacket
             WorldPacket.WriteInt32(wsi.Value);
         }
     }
+
     private struct WorldStateInfo
     {
         public readonly int Value;

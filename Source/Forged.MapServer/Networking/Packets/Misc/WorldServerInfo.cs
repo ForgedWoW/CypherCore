@@ -10,7 +10,9 @@ public class WorldServerInfo : ServerPacket
     public bool BlockExitingLoadingScreen;
     public uint DifficultyID;
     public uint? InstanceGroupSize;
+
     public bool IsTournamentRealm;
+
     // instead it will be done after this packet is sent again with false in this bit and SMSG_UPDATE_OBJECT Values for player
     public uint? RestrictedAccountMaxLevel;
 
@@ -18,6 +20,7 @@ public class WorldServerInfo : ServerPacket
     public ulong? RestrictedAccountMaxMoney;
 
     public bool XRealmPvpAlert;
+
     public WorldServerInfo() : base(ServerOpcodes.WorldServerInfo, ConnectionType.Instance)
     {
         InstanceGroupSize = new uint?();

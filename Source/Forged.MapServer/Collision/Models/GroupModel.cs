@@ -17,14 +17,6 @@ public class GroupModel : Model
     private AxisAlignedBox _iBound;
     private WmoLiquid _iLiquid;
 
-    public override AxisAlignedBox Bounds => _iBound;
-
-    public uint LiquidType => _iLiquid?.GetLiquidType() ?? 0;
-
-    public uint MogpFlags { get; private set; }
-
-    public uint WmoID { get; private set; }
-
     public GroupModel()
     {
         _iLiquid = null;
@@ -51,6 +43,14 @@ public class GroupModel : Model
         WmoID = groupWmoid;
         _iLiquid = null;
     }
+
+    public override AxisAlignedBox Bounds => _iBound;
+
+    public uint LiquidType => _iLiquid?.GetLiquidType() ?? 0;
+
+    public uint MogpFlags { get; private set; }
+
+    public uint WmoID { get; private set; }
 
     public bool GetLiquidLevel(Vector3 pos, out float liqHeight)
     {

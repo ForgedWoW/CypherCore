@@ -25,6 +25,7 @@ public class SplineChainResumeInfo
     public byte PointIndex { get; set; }
     public byte SplineIndex { get; set; }
     public uint TimeToNext { get; set; }
+
     public void Clear()
     {
         Chain.Clear();

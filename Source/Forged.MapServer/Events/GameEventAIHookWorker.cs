@@ -15,14 +15,14 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
     private readonly bool _activate;
     private readonly ushort _eventId;
 
-    public GridType GridType { get; set; }
-
     public GameEventAIHookWorker(ushort eventId, bool activate, GridType gridType = GridType.All)
     {
         _eventId = eventId;
         _activate = activate;
         GridType = gridType;
     }
+
+    public GridType GridType { get; set; }
 
     public void Visit(IList<Creature> objs)
     {

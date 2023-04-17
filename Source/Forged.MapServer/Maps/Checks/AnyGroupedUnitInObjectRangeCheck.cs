@@ -16,6 +16,7 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
     private readonly float _range;
     private readonly Unit _refUnit;
     private readonly WorldObject _source;
+
     public AnyGroupedUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool raid, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         _source = obj;
@@ -38,9 +39,7 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
                 return false;
         }
         else if (!_refUnit.IsInPartyWith(u))
-        {
             return false;
-        }
 
         if (_refUnit.WorldObjectCombat.IsHostileTo(u))
             return false;

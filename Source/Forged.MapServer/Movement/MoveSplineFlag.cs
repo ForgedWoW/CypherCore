@@ -22,6 +22,7 @@ public class MoveSplineFlag
 
     public byte AnimTier { get; set; }
     public SplineFlag Flags { get; set; }
+
     public void EnableAnimation()
     {
         Flags = (Flags & ~(SplineFlag.Falling | SplineFlag.Parabolic | SplineFlag.FallingSlow | SplineFlag.FadeObject)) | SplineFlag.Animation;

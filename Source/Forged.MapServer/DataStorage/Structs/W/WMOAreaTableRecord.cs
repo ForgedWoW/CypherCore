@@ -16,11 +16,14 @@ public sealed class WMOAreaTableRecord
     public byte SoundProviderPrefUnderwater;
     public ushort UwAmbience;
     public ushort UwIntroSound;
+
     public uint UwZoneMusic;
+
     //  used in adt file
     public int WmoGroupID;
 
-    public ushort WmoID;   //  used in root WMO
-                           //  used in group WMO
+    public ushort WmoID; //  used in root WMO
+
+    //  used in group WMO
     public ushort ZoneMusic;
 }

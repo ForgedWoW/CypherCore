@@ -8,10 +8,6 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgUpdateData
 {
-    public List<uint> Dungeons { get; set; } = new();
-    public LfgState State { get; set; }
-    public LfgUpdateType UpdateType { get; set; }
-
     public LfgUpdateData(LfgUpdateType type = LfgUpdateType.Default)
     {
         UpdateType = type;
@@ -31,4 +27,8 @@ public class LfgUpdateData
         State = state;
         Dungeons = dungeons;
     }
+
+    public List<uint> Dungeons { get; set; } = new();
+    public LfgState State { get; set; }
+    public LfgUpdateType UpdateType { get; set; }
 }

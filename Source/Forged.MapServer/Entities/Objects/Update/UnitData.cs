@@ -91,7 +91,9 @@ public class UnitData : BaseUpdateData<Unit>
     public UpdateField<uint> MountDisplayID = new(32, 56);
     public UpdateField<ObjectGuid> NameplateAttachToGUID = new(96, 122);
     public UpdateField<uint> NativeDisplayID = new(32, 54);
+
     public UpdateField<float> NativeXDisplayScale = new(32, 55);
+
     // When set, nameplate of this unit will instead appear on that object
     public UpdateFieldArray<uint> NpcFlags = new(2, 123, 124);
 
@@ -545,6 +547,7 @@ public class UnitData : BaseUpdateData<Unit>
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
+
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Unit owner, Player receiver)
     {
         data.WriteBits(changesMask.GetBlocksMask(0), 7);
@@ -1022,6 +1025,7 @@ public class UnitData : BaseUpdateData<Unit>
                     data.WriteInt32(ManaCostModifier[i]);
             }
     }
+
     private uint GetViewerDependentAuraState(Unit unit, Player receiver)
     {
         // Check per caster aura states to not enable using a spell in client if specified aura is not by target
@@ -1119,6 +1123,7 @@ public class UnitData : BaseUpdateData<Unit>
 
         return npcFlag;
     }
+
     private byte GetViewerDependentPvpFlags(UnitData unitData, Unit unit, Player receiver)
     {
         byte pvpFlags = unitData.PvpFlags;

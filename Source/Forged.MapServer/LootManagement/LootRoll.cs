@@ -38,20 +38,6 @@ public class LootRoll
         _lootFactory = lootFactory;
     }
 
-    ~LootRoll()
-    {
-        if (_isStarted)
-            SendAllPassed();
-
-        foreach (var (playerGuid, roll) in _rollVoteMap)
-        {
-            if (roll.Vote != RollVote.NotEmitedYet)
-                continue;
-
-            _objectAccessor.GetPlayer(_map, playerGuid)?.RemoveLootRoll(this);
-        }
-    }
-
     public bool IsLootItem(ObjectGuid lootObject, uint lootListId)
     {
         return _loot.Guid == lootObject && _lootItem.LootListId == lootListId;
@@ -245,9 +231,7 @@ public class LootRoll
         _lootItem.IsBlocked = false;
 
         if (winnerPair.Value == null)
-        {
             SendAllPassed();
-        }
         else
         {
             _lootItem.RollWinnerGuid = winnerPair.Key;
@@ -282,9 +266,7 @@ public class LootRoll
                         _loot.NotifyItemRemoved((byte)_lootItem.LootListId, _map);
                 }
                 else
-                {
                     player.StoreLootItem(_loot.OwnerGuid, (byte)_lootItem.LootListId, _loot);
-                }
             }
         }
 
@@ -470,6 +452,20 @@ public class LootRoll
                 continue;
 
             SendRoll(playerGuid, -1, RollVote.Pass, null);
+        }
+    }
+
+    ~LootRoll()
+    {
+        if (_isStarted)
+            SendAllPassed();
+
+        foreach (var (playerGuid, roll) in _rollVoteMap)
+        {
+            if (roll.Vote != RollVote.NotEmitedYet)
+                continue;
+
+            _objectAccessor.GetPlayer(_map, playerGuid)?.RemoveLootRoll(this);
         }
     }
 }

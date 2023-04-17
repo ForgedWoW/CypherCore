@@ -17,6 +17,7 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
     private readonly WorldObject _obj;
     private readonly float _range;
     private readonly SpellInfo _spellInfo;
+
     public AnyAoETargetUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, SpellInfo spellInfo = null, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         _obj = obj;
@@ -44,9 +45,7 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
                     return false;
             }
             else if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
-            {
                 return false;
-            }
         }
 
         if (!_funit.WorldObjectCombat.IsValidAttackTarget(u, _spellInfo))

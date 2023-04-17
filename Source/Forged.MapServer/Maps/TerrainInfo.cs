@@ -19,7 +19,9 @@ namespace Forged.MapServer.Maps;
 public class TerrainInfo
 {
     private static readonly TimeSpan CleanupInterval = TimeSpan.FromMinutes(1);
+
     private readonly List<TerrainInfo> _childTerrain = new();
+
     // global garbage collection timer
     private readonly TimeTracker _cleanupTimer;
 
@@ -29,8 +31,10 @@ public class TerrainInfo
     private readonly BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
     private readonly object _loadLock = new();
     private readonly uint _mapId;
+
     private readonly ushort[][] _referenceCountFromMap = new ushort[MapConst.MaxGrids][];
-     // cache what grids are available for this map (not including parent/child maps)
+
+    // cache what grids are available for this map (not including parent/child maps)
     private TerrainInfo _parentTerrain;
 
     public TerrainInfo(uint mapId, bool keeLoaded)
@@ -71,9 +75,7 @@ public class TerrainInfo
                     Log.Logger.Error($"Map file '{fileName}' is from an incompatible map version ({header.VersionMagic}), {MapConst.MapVersionMagic} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.");
             }
             else
-            {
                 ret = true;
-            }
         }
 
         return ret;
@@ -211,9 +213,7 @@ public class TerrainInfo
                 areaId = gridAreaId;
         }
         else
-        {
             areaId = gridAreaId;
-        }
 
         if (areaId == 0)
             areaId = CliDB.MapStorage.LookupByKey(GetId()).AreaTableID;
@@ -371,6 +371,7 @@ public class TerrainInfo
         {
             data.Outdoors = true;
             data.AreaId = gridAreaId;
+
             if (CliDB.AreaTableStorage.TryGetValue(data.AreaId, out var areaEntry1))
                 data.Outdoors = ((AreaFlags)areaEntry1.Flags[0] & (AreaFlags.Inside | AreaFlags.Outside)) != AreaFlags.Inside;
         }
@@ -391,6 +392,7 @@ public class TerrainInfo
                 liquidType = 15;
 
             uint liquidFlagType = 0;
+
             if (CliDB.LiquidTypeStorage.TryGetValue(liquidType, out var liquidData))
                 liquidFlagType = liquidData.SoundBank;
 
@@ -399,10 +401,8 @@ public class TerrainInfo
                 uint overrideLiquid = areaEntry.LiquidTypeID[liquidFlagType];
 
                 if (overrideLiquid == 0 && areaEntry.ParentAreaID != 0)
-                {
                     if (CliDB.AreaTableStorage.TryGetValue(areaEntry.ParentAreaID, out var zoneEntry))
                         overrideLiquid = zoneEntry.LiquidTypeID[liquidFlagType];
-                }
 
                 if (CliDB.LiquidTypeStorage.TryGetValue(overrideLiquid, out var overrideData))
                 {
@@ -458,9 +458,7 @@ public class TerrainInfo
         // ensure GridMap is loaded
         if (!_loadedGrids[GetBitsetIndex(gx, gy)] && loadIfMissing)
             lock (_loadLock)
-            {
                 LoadMapAndVMapImpl(gx, gy);
-            }
 
         var grid = _gridMap[gx][gy];
 
@@ -518,11 +516,11 @@ public class TerrainInfo
                     liquidType = 15;
 
                 uint liquidFlagType = 0;
+
                 if (CliDB.LiquidTypeStorage.TryGetValue(liquidType, out var liq))
                     liquidFlagType = liq.SoundBank;
 
                 if (liquidType != 0 && liquidType < 21)
-                {
                     if (CliDB.AreaTableStorage.TryGetValue(GetAreaId(phaseShift, mapId, x, y, z), out var area))
                     {
                         uint overrideLiquid = area.LiquidTypeID[liquidFlagType];
@@ -541,7 +539,6 @@ public class TerrainInfo
                             liquidFlagType = liq1.SoundBank;
                         }
                     }
-                }
 
                 data.Level = liquidLevel;
                 data.DepthLevel = groundLevel;
@@ -595,6 +592,7 @@ public class TerrainInfo
     {
         return CliDB.MapStorage.LookupByKey(GetId()).MapName[Global.WorldMgr.DefaultDbcLocale];
     }
+
     public float GetMinHeight(PhaseShift phaseShift, uint mapId, float x, float y)
     {
         var grid = GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y);
@@ -692,6 +690,7 @@ public class TerrainInfo
     public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
     {
         areaid = zoneid = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
+
         if (CliDB.AreaTableStorage.TryGetValue(areaid, out var area))
             if (area.ParentAreaID != 0)
                 zoneid = area.ParentAreaID;
@@ -705,6 +704,7 @@ public class TerrainInfo
     public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
     {
         var areaId = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
+
         if (CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
             if (area.ParentAreaID != 0)
                 return area.ParentAreaID;
@@ -718,6 +718,7 @@ public class TerrainInfo
 
         return childMap != null && childMap._gridFileExists[GetBitsetIndex(gx, gy)];
     }
+
     public bool IsInWater(PhaseShift phaseShift, uint mapId, float x, float y, float pZ, out LiquidData data)
     {
         return (GetLiquidStatus(phaseShift, mapId, x, y, pZ, LiquidHeaderTypeFlags.AllLiquids, out data) & (ZLiquidStatus.InWater | ZLiquidStatus.UnderWater)) != 0;
@@ -759,9 +760,7 @@ public class TerrainInfo
             return;
 
         lock (_loadLock)
-        {
             LoadMapAndVMapImpl(gx, gy);
-        }
     }
 
     public void LoadMapAndVMapImpl(int gx, int gy)
@@ -775,6 +774,7 @@ public class TerrainInfo
 
         _loadedGrids[GetBitsetIndex(gx, gy)] = true;
     }
+
     public void LoadMMap(int gx, int gy)
     {
         if (!Global.DisableMgr.IsPathfindingEnabled(GetId()))
@@ -813,6 +813,7 @@ public class TerrainInfo
                 break;
         }
     }
+
     public void UnloadMap(int gx, int gy)
     {
         if (_keepLoaded)
@@ -836,6 +837,7 @@ public class TerrainInfo
 
         _loadedGrids[GetBitsetIndex(gx, gy)] = false;
     }
+
     private static int GetBitsetIndex(int gx, int gy)
     {
         return gx * MapConst.MaxGrids + gy;

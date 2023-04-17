@@ -60,13 +60,9 @@ public class SocialManager
         if (target.IsVisibleGloballyFor(player))
         {
             if (target.IsDnd)
-            {
                 friendInfo.Status = FriendStatus.Dnd;
-            }
             else if (target.IsAfk)
-            {
                 friendInfo.Status = FriendStatus.Afk;
-            }
             else
             {
                 friendInfo.Status = FriendStatus.Online;
@@ -122,6 +118,7 @@ public class SocialManager
         else
             player.SendPacket(friendStatus);
     }
+
     private void BroadcastToFriendListers(Player player, ServerPacket packet)
     {
         if (!player)

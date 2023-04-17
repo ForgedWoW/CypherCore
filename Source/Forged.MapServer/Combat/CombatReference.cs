@@ -10,16 +10,16 @@ public class CombatReference
     private bool _suppressFirst;
     private bool _suppressSecond;
 
-    public Unit First { get; set; }
-    public bool IsPvP { get; set; }
-    public Unit Second { get; set; }
-
     public CombatReference(Unit a, Unit b, bool pvp = false)
     {
         First = a;
         Second = b;
         IsPvP = pvp;
     }
+
+    public Unit First { get; set; }
+    public bool IsPvP { get; set; }
+    public Unit Second { get; set; }
 
     public void EndCombat()
     {

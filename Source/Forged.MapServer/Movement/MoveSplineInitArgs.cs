@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Units;
 using Serilog;
 
@@ -37,7 +36,9 @@ public class MoveSplineInitArgs
     public bool TransformForTransport { get; set; }
     public float Velocity { get; set; }
     public float VerticalAcceleration { get; set; }
+
     public bool Walk { get; set; }
+
     // Returns true to show that the arguments were configured correctly and MoveSpline initialization will succeed.
     public bool Validate(Unit unit)
     {
@@ -49,7 +50,6 @@ public class MoveSplineInitArgs
             Log.Logger.Error(unit != null ? $"MoveSplineInitArgs::Validate: expression '{false}' failed for {(verbose ? unit.GetDebugInfo() : unit.GUID.ToString())}" : $"MoveSplineInitArgs::Validate: expression '{false}' failed for cyclic spline continuation");
 
             return false;
-
         }
 
         if (!Check(Path.Count > 1, true))
@@ -73,7 +73,7 @@ public class MoveSplineInitArgs
         if (!Check(SpellEffectExtra.ParabolicCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ParabolicCurveId), false))
             return false;
 
-        return Check(SpellEffectExtra.ProgressCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ProgressCurveId), true) && 
+        return Check(SpellEffectExtra.ProgressCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ProgressCurveId), true) &&
                Check(SpellEffectExtra.ParabolicCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ParabolicCurveId), true);
     }
 

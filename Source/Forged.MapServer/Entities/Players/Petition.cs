@@ -38,6 +38,7 @@ public class Petition
 
         return false;
     }
+
     public void RemoveSignatureBySigner(ObjectGuid playerGuid)
     {
         foreach (var itr in Signatures)

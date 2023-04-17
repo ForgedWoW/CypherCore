@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
@@ -301,9 +300,7 @@ internal class LookupCommands
                         ss.Append(handler.GetCypherString(CypherStrings.FactionInactive));
                 }
                 else
-                {
                     ss.Append(handler.GetCypherString(CypherStrings.FactionNoreputation));
-                }
 
                 handler.SendSysMessage(ss.ToString());
 
@@ -785,9 +782,7 @@ internal class LookupCommands
                     handler.SendSysMessage(CypherStrings.ItemListConsole, id, name);
             }
             else
-            {
                 handler.SendSysMessage(CypherStrings.CommandNoitemfound);
-            }
 
             return true;
         }
@@ -994,9 +989,7 @@ internal class LookupCommands
                 handler.SendSysMessage(ss.ToString());
             }
             else
-            {
                 handler.SendSysMessage(CypherStrings.CommandNomapfound);
-            }
 
             return true;
         }
@@ -1153,6 +1146,7 @@ internal class LookupCommands
                                     maxLevel = questLevels.Value.MaxLevel;
 
                                 var scalingFactionGroup = 0;
+
                                 if (handler.CliDB.ContentTuningStorage.TryGetValue(qInfo.ContentTuningId, out var contentTuning))
                                     scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
@@ -1167,9 +1161,7 @@ internal class LookupCommands
                                                        statusStr);
                             }
                             else
-                            {
                                 handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, questTitle, statusStr);
-                            }
 
                             found = found switch
                             {
@@ -1219,6 +1211,7 @@ internal class LookupCommands
                             maxLevel = questLevels.Value.MaxLevel;
 
                         var scalingFactionGroup = 0;
+
                         if (handler.CliDB.ContentTuningStorage.TryGetValue(qInfo.ContentTuningId, out var contentTuning))
                             scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
@@ -1233,9 +1226,7 @@ internal class LookupCommands
                                                statusStr);
                     }
                     else
-                    {
                         handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, title, statusStr);
-                    }
 
                     found = found switch
                     {
@@ -1290,6 +1281,7 @@ internal class LookupCommands
                         maxLevel = questLevels.Value.MaxLevel;
 
                     var scalingFactionGroup = 0;
+
                     if (handler.CliDB.ContentTuningStorage.TryGetValue(quest.ContentTuningId, out var contentTuning))
                         scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
@@ -1304,14 +1296,10 @@ internal class LookupCommands
                                            statusStr);
                 }
                 else
-                {
                     handler.SendSysMessage(CypherStrings.QuestListConsole, id, title, statusStr);
-                }
             }
             else
-            {
                 handler.SendSysMessage(CypherStrings.CommandNoquestfound);
-            }
 
             return true;
         }
@@ -1496,9 +1484,7 @@ internal class LookupCommands
                 handler.SendSysMessage(ss.ToString());
             }
             else
-            {
                 handler.SendSysMessage(CypherStrings.CommandNospellfound);
-            }
 
             return true;
         }

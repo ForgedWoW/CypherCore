@@ -10,6 +10,7 @@ internal class PlaySpeakerBoxSound : ServerPacket
 {
     public uint SoundKitID;
     public ObjectGuid SourceObjectGUID;
+
     public PlaySpeakerBoxSound(ObjectGuid sourceObjectGuid, uint soundKitID) : base(ServerOpcodes.PlaySpeakerbotSound)
     {
         SourceObjectGUID = sourceObjectGuid;

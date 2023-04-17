@@ -33,6 +33,7 @@ public sealed class AreaTableRecord
     public byte WindSettingsID;
     public ushort ZoneMusic;
     public string ZoneName;
+
     public bool HasFlag(AreaFlags flag)
     {
         return Flags[0].HasAnyFlag((uint)flag);

@@ -64,9 +64,7 @@ public class SkillHandler : IWorldSessionHandler
                 learnPvpTalentFailed.Talents.Add(pvpTalent);
             }
             else
-            {
                 anythingLearned = true;
-            }
         }
 
         if (learnPvpTalentFailed.Reason != 0)
@@ -94,9 +92,7 @@ public class SkillHandler : IWorldSessionHandler
                 learnTalentFailed.Talents.Add((ushort)talentId);
             }
             else
-            {
                 anythingLearned = true;
-            }
         }
 
         if (learnTalentFailed.Reason != 0)

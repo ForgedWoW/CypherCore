@@ -24,10 +24,6 @@ public class CreatureSearcher : IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
-    public Creature GetTarget()
-    {
-        return _object;
-    }
 
     public void Visit(IList<Creature> objs)
     {
@@ -47,5 +43,10 @@ public class CreatureSearcher : IGridNotifierCreature
 
             return;
         }
+    }
+
+    public Creature GetTarget()
+    {
+        return _object;
     }
 }

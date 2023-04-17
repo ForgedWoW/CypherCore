@@ -20,6 +20,7 @@ public sealed class UISplashScreenRecord
     public int SoundKitID;
     public int TextureKitID;
     public string TopLeftFeatureDesc;
+
     public string TopLeftFeatureTitle;
     // serverside TimeEvent table, see ModifierTreeType::HasTimeEventPassed
 }

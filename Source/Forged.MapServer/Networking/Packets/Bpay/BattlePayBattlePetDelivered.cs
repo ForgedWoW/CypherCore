@@ -11,6 +11,7 @@ public class BattlePayBattlePetDelivered : ServerPacket
     public BattlePayBattlePetDelivered() : base(ServerOpcodes.BattlePayBattlePetDelivered) { }
 
     public ObjectGuid BattlePetGuid { get; set; } = new();
+
     public uint DisplayID { get; set; } = 0;
     /*WorldPacket const* WorldPackets::BattlePay::PurchaseDetails::Write()
     {

@@ -256,9 +256,7 @@ public static class MovementExtensions
             data.WriteVector3(direction);
         }
         else
-        {
             data.WriteVector3(movementForce.Direction);
-        }
 
         data.WriteUInt32(movementForce.TransportID);
         data.WriteFloat(movementForce.Magnitude);

@@ -31,9 +31,7 @@ public class ScriptRegistry
         {
             // We're dealing with a code-only script; just add it.
             lock (_scriptMap)
-            {
                 _scriptMap[Interlocked.Increment(ref _scriptIdCounter)] = script;
-            }
 
             _scriptManager.IncrementScriptCount();
 
@@ -67,42 +65,32 @@ public class ScriptRegistry
             if (!existing)
             {
                 lock (_scriptMap)
-                {
                     _scriptMap[id] = script;
-                }
 
                 _scriptManager.IncrementScriptCount();
             }
         }
         else
-        {
             // The script uses a script Name from database, but isn't assigned to anything.
             Log.Logger.Error("Script named '{0}' does not have a script Name assigned in database.", script.GetName());
-        }
     }
 
     public bool Empty()
     {
         lock (_scriptMap)
-        {
             return _scriptMap.Empty();
-        }
     }
 
     // Gets a script by its ID (assigned by ObjectMgr).
     public T GetScriptById<T>(uint id) where T : IScriptObject
     {
         lock (_scriptMap)
-        {
             return (T)_scriptMap.LookupByKey(id);
-        }
     }
 
     public void Unload()
     {
         lock (_scriptMap)
-        {
             _scriptMap.Clear();
-        }
     }
 }

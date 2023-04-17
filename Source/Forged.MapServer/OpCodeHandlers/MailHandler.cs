@@ -17,7 +17,6 @@ using Forged.MapServer.Networking.Packets.Mail;
 using Forged.MapServer.Networking.Packets.NPC;
 using Framework.Constants;
 using Framework.Database;
-using Game.Common;
 using Game.Common.Handlers;
 using Serilog;
 
@@ -56,9 +55,7 @@ public class MailHandler : IWorldSessionHandler
                 return false;
         }
         else
-        {
             return false;
-        }
 
         return true;
     }
@@ -132,9 +129,7 @@ public class MailHandler : IWorldSessionHandler
             bodyItem.SetText(mailTemplateEntry.Body[SessionDbcLocale]);
         }
         else
-        {
             bodyItem.SetText(m.body);
-        }
 
         if (m.messageType == MailMessageType.Normal)
             bodyItem.SetCreator(ObjectGuid.Create(HighGuid.Player, m.sender));
@@ -156,9 +151,7 @@ public class MailHandler : IWorldSessionHandler
             player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.Ok);
         }
         else
-        {
             player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.EquipError, msg);
-        }
     }
 
     //called when client deletes mail
@@ -346,9 +339,7 @@ public class MailHandler : IWorldSessionHandler
                                    sender_accId);
                 }
                 else if (!receiver)
-                {
                     sender_accId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(sender_guid);
-                }
 
                 // check player existence
                 if (receiver || sender_accId != 0)
@@ -375,9 +366,7 @@ public class MailHandler : IWorldSessionHandler
             player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.Ok, 0, takeItem.AttachID, count);
         }
         else
-        {
             player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.EquipError, msg);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.MailTakeMoney)]
@@ -390,7 +379,9 @@ public class MailHandler : IWorldSessionHandler
 
         var m = player.GetMail(takeMoney.MailID);
 
-        if (m == null || m.state == MailState.Deleted || m.deliver_time > GameTime.CurrentTime ||
+        if (m == null ||
+            m.state == MailState.Deleted ||
+            m.deliver_time > GameTime.CurrentTime ||
             (takeMoney.Money > 0 && m.money != takeMoney.Money))
         {
             player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.InternalError);
@@ -453,9 +444,7 @@ public class MailHandler : IWorldSessionHandler
             }
         }
         else
-        {
             result.NextMailTime = -Time.DAY;
-        }
 
         SendPacket(result);
     }
@@ -751,9 +740,7 @@ public class MailHandler : IWorldSessionHandler
         var receiver = Global.ObjAccessor.FindPlayer(receiverGuid);
 
         if (receiver != null)
-        {
             mailCountCheckContinuation(receiver.Team, receiver.MailSize, receiver.Level, receiver.Session.AccountId, receiver.Session.BattlenetAccountId);
-        }
         else
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_COUNT);

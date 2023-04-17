@@ -37,7 +37,9 @@ public class CellCalculator
         Cell cell = new(p, _gridDefines);
 
         if (dontLoad)
-            cell.Data.NoCreate = true;;
+            cell.Data.NoCreate = true;
+
+        ;
 
         cell.Visit(p, visitor, centerObj.Location.Map, centerObj, radius);
     }
@@ -48,7 +50,9 @@ public class CellCalculator
         Cell cell = new(p, _gridDefines);
 
         if (dontLoad)
-            cell.Data.NoCreate = true;;
+            cell.Data.NoCreate = true;
+
+        ;
 
         cell.Visit(p, visitor, map, x, y, radius);
     }

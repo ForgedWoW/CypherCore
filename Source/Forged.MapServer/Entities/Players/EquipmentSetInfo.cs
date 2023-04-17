@@ -8,31 +8,37 @@ namespace Forged.MapServer.Entities.Players;
 
 public class EquipmentSetInfo
 {
-    public EquipmentSetInfo()
-    {
-        State = EquipmentSetUpdateState.New;
-        Data = new EquipmentSetData();
-    }
-
     public enum EquipmentSetType
     {
         Equipment = 0,
         Transmog = 1
     }
 
+    public EquipmentSetInfo()
+    {
+        State = EquipmentSetUpdateState.New;
+        Data = new EquipmentSetData();
+    }
+
     public EquipmentSetData Data { get; set; }
+
     public EquipmentSetUpdateState State { get; set; }
+
     // Data sent in EquipmentSet related packets
     public class EquipmentSetData
     {
         public int[] Appearances { get; set; } = new int[EquipmentSlot.End];
+
         public int AssignedSpecIndex { get; set; } = -1;
+
         // ItemModifiedAppearanceID
         public int[] Enchants { get; set; } = new int[2];
 
         public ulong Guid { get; set; }
         public uint IgnoreMask { get; set; }
+
         public ObjectGuid[] Pieces { get; set; } = new ObjectGuid[EquipmentSlot.End];
+
         // SpellItemEnchantmentID
         public int SecondaryShoulderApparanceId { get; set; }
 
@@ -46,6 +52,7 @@ public class EquipmentSetInfo
         public int SecondaryWeaponSlot { get; set; }
 
         public string SetIcon { get; set; } = "";
+
         // Set Identifier
         public uint SetId { get; set; }
 

@@ -34,6 +34,7 @@ public class SceneObject : WorldObject
 
     public override uint Faction => 0;
     public override ObjectGuid OwnerGUID => _sceneObjectData.CreatedBy;
+
     public static SceneObject CreateSceneObject(uint sceneId, Unit creator, Position pos, ObjectGuid privateObjectOwner)
     {
         var sceneTemplate = ObjectManager.GetSceneTemplate(sceneId);
@@ -121,6 +122,7 @@ public class SceneObject : WorldObject
         if (ShouldBeRemoved())
             Remove();
     }
+
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedSceneObjectMask, Player target)
     {
         UpdateMask valuesMask = new((int)TypeId.Max);
@@ -204,6 +206,7 @@ public class SceneObject : WorldObject
 
         return false;
     }
+
     private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
     {
         private readonly ObjectFieldData _objectMask = new();

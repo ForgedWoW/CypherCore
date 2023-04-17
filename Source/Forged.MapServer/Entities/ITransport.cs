@@ -78,7 +78,6 @@ public interface ITransport
                 map.AreaTriggerRelocation(passenger.AsAreaTrigger, pos);
 
                 break;
-            
         }
 
         var unit = passenger.AsUnit;

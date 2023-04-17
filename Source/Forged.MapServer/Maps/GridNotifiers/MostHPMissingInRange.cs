@@ -27,6 +27,5 @@ public class MostHpMissingInRange<T> : ICheck<T> where T : Unit
         _hp = (u.MaxHealth - u.Health);
 
         return true;
-
     }
 }

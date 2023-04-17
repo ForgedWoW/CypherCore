@@ -63,7 +63,6 @@ internal class BanListCommands
 
         // Chat short output
         if (handler.Session)
-        {
             do
             {
                 var stmt2 = charDB.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
@@ -73,7 +72,6 @@ internal class BanListCommands
                 if (!banResult.IsEmpty())
                     handler.SendSysMessage(banResult.Read<string>(0));
             } while (result.NextRow());
-        }
         // Console wide output
         else
         {
@@ -102,7 +100,6 @@ internal class BanListCommands
                     var banreason = banInfo.Read<string>(3).Substring(0, 15);
 
                     if (banInfo.Read<long>(0) == banInfo.Read<long>(1))
-                    {
                         handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
                                                charName,
                                                tmBan.Year % 100,
@@ -112,7 +109,6 @@ internal class BanListCommands
                                                tmBan.Minute,
                                                bannedby,
                                                banreason);
-                    }
                     else
                     {
                         var timeUnban = banInfo.Read<long>(1);
@@ -148,7 +144,6 @@ internal class BanListCommands
 
         // Chat short output
         if (handler.Session)
-        {
             do
             {
                 var accountid = result.Read<uint>(0);
@@ -158,7 +153,6 @@ internal class BanListCommands
                 if (!banResult.IsEmpty())
                     handler.SendSysMessage(banResult.Read<string>(0));
             } while (result.NextRow());
-        }
         // Console wide output
         else
         {
@@ -196,7 +190,6 @@ internal class BanListCommands
                     var banreason = banInfo.Read<string>(3).Substring(0, 15);
 
                     if (banInfo.Read<uint>(0) == banInfo.Read<uint>(1))
-                    {
                         handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
                                                accountName.Substring(0, 15),
                                                tmBan.Year % 100,
@@ -206,7 +199,6 @@ internal class BanListCommands
                                                tmBan.Minute,
                                                bannedby,
                                                banreason);
-                    }
                     else
                     {
                         long timeUnban = banInfo.Read<uint>(1);
@@ -269,12 +261,10 @@ internal class BanListCommands
 
         // Chat short output
         if (handler.Session)
-        {
             do
             {
                 handler.SendSysMessage("{0}", result.Read<string>(0));
             } while (result.NextRow());
-        }
         // Console wide output
         else
         {
@@ -292,7 +282,6 @@ internal class BanListCommands
                 var banreason = result.Read<string>(4).Substring(0, 15);
 
                 if (result.Read<uint>(1) == result.Read<uint>(2))
-                {
                     handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
                                            result.Read<string>(0),
                                            tmBan.Year % 100,
@@ -302,7 +291,6 @@ internal class BanListCommands
                                            tmBan.Minute,
                                            bannedby,
                                            banreason);
-                }
                 else
                 {
                     long timeUnban = result.Read<uint>(2);

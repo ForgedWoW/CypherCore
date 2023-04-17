@@ -23,6 +23,7 @@ public class Trainer
     private readonly SpellManager _spellManager;
     private readonly List<TrainerSpell> _spells;
     private readonly TrainerType _type;
+
     public Trainer(uint id, TrainerType type, string greeting, List<TrainerSpell> spells, ConditionManager conditionManager, BattlePetMgrData battlePetMgr, SpellManager spellManager)
     {
         _id = id;
@@ -121,9 +122,7 @@ public class Trainer
 
         // learn explicitly or cast explicitly
         if (_spellManager.GetSpellInfo(trainerSpell.SpellId).HasEffect(SpellEffectName.LearnSpell))
-        {
             player.SpellFactory.CastSpell(player, trainerSpell.SpellId, true);
-        }
         else
         {
             var dependent = false;
@@ -139,6 +138,7 @@ public class Trainer
             player.LearnSpell(trainerSpell.SpellId, dependent);
         }
     }
+
     private bool CanTeachSpell(Player player, TrainerSpell trainerSpell)
     {
         var state = GetSpellState(player, trainerSpell);
@@ -174,6 +174,7 @@ public class Trainer
     {
         return _spells.Find(trainerSpell => trainerSpell.SpellId == spellId);
     }
+
     private TrainerSpellState GetSpellState(Player player, TrainerSpell trainerSpell)
     {
         if (player.HasSpell(trainerSpell.SpellId))
@@ -190,7 +191,7 @@ public class Trainer
         if (trainerSpell.ReqAbility.Any(reqAbility => reqAbility != 0 && !player.HasSpell(reqAbility)))
             return TrainerSpellState.Unavailable;
 
-            // check level requirement
+        // check level requirement
         if (player.Level < trainerSpell.ReqLevel)
             return TrainerSpellState.Unavailable;
 

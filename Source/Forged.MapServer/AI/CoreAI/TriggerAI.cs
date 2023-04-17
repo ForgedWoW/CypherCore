@@ -9,9 +9,7 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class TriggerAI : NullCreatureAI
 {
-    public TriggerAI(Creature c) : base(c)
-    {
-    }
+    public TriggerAI(Creature c) : base(c) { }
 
     public override void IsSummonedBy(WorldObject summoner)
     {

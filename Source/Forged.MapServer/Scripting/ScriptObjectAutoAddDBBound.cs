@@ -7,9 +7,7 @@ namespace Forged.MapServer.Scripting;
 
 public abstract class ScriptObjectAutoAddDBBound : ScriptObject, IScriptAutoAdd
 {
-    protected ScriptObjectAutoAddDBBound(string name) : base(name)
-    {
-    }
+    protected ScriptObjectAutoAddDBBound(string name) : base(name) { }
 
     public override bool IsDatabaseBound()
     {

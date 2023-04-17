@@ -9,7 +9,9 @@ internal class ChatAddonMessageTargeted : ClientPacket
 {
     public ObjectGuid? ChannelGUID;
     public ChatAddonMessageParams Params = new();
+
     public string Target;
+
     // not optional in the packet. Optional for api reasons
     public ChatAddonMessageTargeted(WorldPacket packet) : base(packet) { }
 

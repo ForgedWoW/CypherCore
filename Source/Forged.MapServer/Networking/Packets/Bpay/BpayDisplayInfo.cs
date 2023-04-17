@@ -19,7 +19,9 @@ public class BpayDisplayInfo
     public string Name7 { get; set; } = "";
     public uint Unk1 { get; set; }
     public uint Unk2 { get; set; }
+
     public uint Unk3 { get; set; }
+
     // UiTextureAtlasMemberID
     public uint UnkInt1 { get; set; }
 

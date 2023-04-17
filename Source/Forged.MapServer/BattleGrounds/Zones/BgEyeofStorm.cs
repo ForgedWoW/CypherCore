@@ -209,9 +209,7 @@ internal class BgEyeofStorm : Battleground
                 entry = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[i].GraveYardId);
 
                 if (entry == null)
-                {
                     Log.Logger.Error("BattlegroundEY: Graveyard {0} could not be found.", EotSMisc.MCapturingPointTypes[i].GraveYardId);
-                }
                 else
                 {
                     distance = (entry.Loc.X - plrX) * (entry.Loc.X - plrX) + (entry.Loc.Y - plrY) * (entry.Loc.Y - plrY) + (entry.Loc.Z - plrZ) * (entry.Loc.Z - plrZ);
@@ -373,9 +371,7 @@ internal class BgEyeofStorm : Battleground
             if (_mFlagKeeper == guid)
             {
                 if (player)
-                {
                     EventPlayerDroppedFlag(player);
-                }
                 else
                 {
                     SetFlagPicker(ObjectGuid.Empty);
@@ -561,7 +557,6 @@ internal class BgEyeofStorm : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, EotSMisc.OBJECTIVE_CAPTURE_FLAG);
 
                 break;
-            
         }
 
         return true;
@@ -619,9 +614,7 @@ internal class BgEyeofStorm : Battleground
                         _mPlayersNearPoint[EotSPoints.POINTS_MAX].RemoveAt(j);
                     }
                     else
-                    {
                         ++j;
-                    }
                 }
             }
         }

@@ -74,34 +74,22 @@ public class AISelector
 
         // select by NPC flags
         if (creature.IsVehicle)
-        {
             return new VehicleAI(creature);
-        }
 
         if (creature.HasUnitTypeMask(UnitTypeMask.ControlableGuardian) && ((Guardian)creature).OwnerUnit.IsTypeId(TypeId.Player))
-        {
             return new PetAI(creature);
-        }
 
         if (creature.HasNpcFlag(NPCFlags.SpellClick))
-        {
             return new NullCreatureAI(creature);
-        }
 
         if (creature.IsGuard)
-        {
             return new GuardAI(creature);
-        }
 
         if (creature.HasUnitTypeMask(UnitTypeMask.ControlableGuardian))
-        {
             return new PetAI(creature);
-        }
 
         if (creature.IsTotem)
-        {
             return new TotemAI(creature);
-        }
 
         if (creature.IsTrigger)
         {
@@ -112,9 +100,7 @@ public class AISelector
         }
 
         if (creature.IsCritter && !creature.HasUnitTypeMask(UnitTypeMask.Guardian))
-        {
             return new CritterAI(creature);
-        }
 
         if (!creature.IsCivilian && !creature.WorldObjectCombat.IsNeutralToAll())
             return new AggressorAI(creature);
@@ -136,7 +122,7 @@ public class AISelector
         return go.AiName switch
         {
             "SmartGameObjectAI" => new SmartGameObjectAI(go),
-            _ => new GameObjectAI(go),
+            _                   => new GameObjectAI(go),
         };
     }
 
@@ -150,10 +136,10 @@ public class AISelector
 
         return type switch
         {
-            MovementGeneratorType.Random => new RandomMovementGenerator(),
+            MovementGeneratorType.Random   => new RandomMovementGenerator(),
             MovementGeneratorType.Waypoint => new WaypointMovementGenerator(),
-            MovementGeneratorType.Idle => new IdleMovementGenerator(),
-            _ => null,
+            MovementGeneratorType.Idle     => new IdleMovementGenerator(),
+            _                              => null,
         };
     }
 }

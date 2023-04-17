@@ -38,9 +38,7 @@ internal class WDC3Row
         _stringsTable = stringsTable;
 
         if (id != -1)
-        {
             Id = id;
-        }
         else
         {
             var idFieldIndex = reader.Header.IdIndex;
@@ -52,6 +50,7 @@ internal class WDC3Row
     }
 
     public int Id { get; set; }
+
     public T As<T>() where T : new()
     {
         _data.Position = 0;
@@ -130,10 +129,8 @@ internal class WDC3Row
                         var array = new string[atr.Length];
 
                         if (_stringsTable == null)
-                        {
                             for (var i = 0; i < array.Length; i++)
                                 array[i] = _data.ReadCString();
-                        }
                         else
                         {
                             var pos = _recordsOffset + (_data.Position >> 3);
@@ -210,9 +207,7 @@ internal class WDC3Row
                         break;
                     case TypeCode.String:
                         if (_stringsTable == null)
-                        {
                             f.SetValue(obj, _data.ReadCString());
-                        }
                         else
                         {
                             var pos = _recordsOffset + (_data.Position >> 3);
@@ -227,9 +222,7 @@ internal class WDC3Row
                             LocalizedString localized = new();
 
                             if (_stringsTable == null)
-                            {
                                 localized[Locale.enUS] = _data.ReadCString();
-                            }
                             else
                             {
                                 var pos = _recordsOffset + (_data.Position >> 3);

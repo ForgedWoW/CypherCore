@@ -19,7 +19,9 @@ public class EnumCharactersResult : ServerPacket
     public bool IsAlliedRacesCreationAllowed;
     public bool IsDeletedCharacters;
     public bool IsNewPlayer;
+
     public bool IsNewPlayerRestricted;
+
     // used for character undelete list
     public bool IsNewPlayerRestrictionSkipped;
 
@@ -29,11 +31,14 @@ public class EnumCharactersResult : ServerPacket
     public bool IsTrialAccountRestricted;
 
     public int MaxCharacterLevel = 1;
+
     public List<RaceLimitDisableInfo> RaceLimitDisables = new();
+
     // all characters on the list
     public List<RaceUnlock> RaceUnlockData = new();
 
     public bool Success;
+
     //
     public List<UnlockedConditionalAppearance> UnlockedConditionalAppearances = new();
     public EnumCharactersResult() : base(ServerOpcodes.EnumCharactersResult) { }
@@ -81,6 +86,7 @@ public class EnumCharactersResult : ServerPacket
             Server,
             Level
         }
+
         public void Write(WorldPacket data)
         {
             data.WriteInt32(RaceID);
@@ -128,7 +134,9 @@ public class EnumCharactersResult : ServerPacket
         public Array<ChrCustomizationChoice> Customizations = new(72);
         public byte ExperienceLevel;
         public bool FirstLogin;
+
         public CharacterFlags Flags;
+
         // Character Id @see enum CharacterFlags
         public CharacterCustomizeFlags Flags2;
 
@@ -166,11 +174,14 @@ public class EnumCharactersResult : ServerPacket
         public byte SexId;
         public short SpecID;
         public int Unknown703;
+
         public byte unkWod61x;
+
         // @todo
         public VisualItemInfo[] VisualItems = new VisualItemInfo[InventorySlots.ReagentBagEnd];
 
         public uint ZoneId;
+
         public CharacterInfo(SQLFields fields)
         {
             Guid = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(0));
@@ -322,8 +333,9 @@ public class EnumCharactersResult : ServerPacket
         {
             public uint CreatureDisplayId; // PetCreatureDisplayID
             public uint CreatureFamily;
-            public uint Level;             // PetExperienceLevel
-                                           // PetCreatureFamilyID
+
+            public uint Level; // PetExperienceLevel
+            // PetCreatureFamilyID
         }
 
         public struct VisualItemInfo

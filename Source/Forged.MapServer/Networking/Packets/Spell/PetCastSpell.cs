@@ -9,6 +9,7 @@ public class PetCastSpell : ClientPacket
 {
     public SpellCastRequest Cast;
     public ObjectGuid PetGUID;
+
     public PetCastSpell(WorldPacket packet) : base(packet)
     {
         Cast = new SpellCastRequest();

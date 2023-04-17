@@ -11,11 +11,13 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 public class ChannelListResponse : ServerPacket
 {
     public string Channel;
+
     // Channel Name
     public ChannelFlags ChannelFlags;
 
     public bool Display;
     public List<ChannelPlayer> Members;
+
     public ChannelListResponse() : base(ServerOpcodes.ChannelList)
     {
         Members = new List<ChannelPlayer>();

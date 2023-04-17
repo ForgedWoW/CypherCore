@@ -21,6 +21,7 @@ public sealed class ChrSpecializationRecord
     public sbyte PrimaryStatPriority;
     public sbyte Role;
     public int SpellIconFileID;
+
     public bool IsPetSpecialization()
     {
         return ClassID == 0;

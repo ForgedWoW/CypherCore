@@ -3,7 +3,6 @@
 
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Entities.AreaTriggers;
-using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
 

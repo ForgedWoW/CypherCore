@@ -116,11 +116,9 @@ public class PetAI : CreatureAI
         AttackStart(attacker);
     }
 
-    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
-    { }
+    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other) { }
 
-    public override void JustAppeared()
-    { }
+    public override void JustAppeared() { }
 
     public override void JustEnteredCombat(Unit who)
     {
@@ -157,11 +155,9 @@ public class PetAI : CreatureAI
 
     // The following aren't used by the PetAI but need to be defined to override
     //  default CreatureAI functions which interfere with the PetAI
-    public override void MoveInLineOfSight(Unit who)
-    { }
+    public override void MoveInLineOfSight(Unit who) { }
 
-    public override void MoveInLineOfSight_Safe(Unit who)
-    { }
+    public override void MoveInLineOfSight_Safe(Unit who) { }
 
     public override void MovementInform(MovementGeneratorType type, uint id)
     {
@@ -336,9 +332,7 @@ public class PetAI : CreatureAI
                     DoMeleeAttackIfReady();
             }
             else
-            {
                 DoMeleeAttackIfReady();
-            }
         }
         else
         {
@@ -357,9 +351,7 @@ public class PetAI : CreatureAI
                     HandleReturnMovement();
             }
             else
-            {
                 HandleReturnMovement();
-            }
         }
 
         // Autocast (casted only in combat or persistent spells in any state)

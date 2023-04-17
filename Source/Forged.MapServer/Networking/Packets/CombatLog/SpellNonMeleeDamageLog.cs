@@ -11,7 +11,9 @@ internal class SpellNonMeleeDamageLog : CombatLogServerPacket
 {
     public int Absorbed;
     public ObjectGuid CasterGUID;
+
     public ObjectGuid CastID;
+
     // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
     public ContentTuningParams ContentTuning;
 

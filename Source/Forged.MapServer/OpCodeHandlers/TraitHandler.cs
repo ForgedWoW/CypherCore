@@ -111,9 +111,7 @@ public class TraitHandler : IWorldSessionHandler
             _player.UpdateTraitConfig(newConfigState, 0, true);
         }
         else
-        {
             _player.SetTraitConfigUseStarterBuild(classTalentsSetStarterBuildActive.ConfigID, false);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.ClassTalentsSetUsesSharedActionBars)]
@@ -236,9 +234,7 @@ public class TraitHandler : IWorldSessionHandler
         var needsCastTime = newConfigState.Type == TraitConfigType.Combat && hasRemovedEntries;
 
         if (traitsCommitConfig.SavedLocalIdentifier != 0)
-        {
             newConfigState.LocalIdentifier = traitsCommitConfig.SavedLocalIdentifier;
-        }
         else
         {
             var savedConfig = _player.GetTraitConfig(traitsCommitConfig.SavedLocalIdentifier);

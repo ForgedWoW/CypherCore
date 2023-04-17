@@ -22,6 +22,7 @@ public class BitReader
     public byte[] Data { get; set; }
     public int Offset { get; set; }
     public int Position { get; set; }
+
     public T Read<T>(int numBits) where T : unmanaged
     {
         var result = Unsafe.As<byte, ulong>(ref Data[Offset + (Position >> 3)]) << (64 - numBits - (Position & 7)) >> (64 - numBits);

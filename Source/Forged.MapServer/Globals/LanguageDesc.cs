@@ -15,6 +15,7 @@ public class LanguageDesc
 
     public uint SkillId { get; set; }
     public uint SpellId { get; set; }
+
     public static bool operator !=(LanguageDesc left, LanguageDesc right)
     {
         return !(left == right);

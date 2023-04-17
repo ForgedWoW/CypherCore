@@ -88,7 +88,9 @@ public class WorldSession : IDisposable
     private bool _inQueue;
     private ConnectToKey _instanceConnectKey;
     private long _logoutTime;
+
     private ObjectGuid _playerLoading;
+
     // code processed in LoginPlayer
     private bool _playerSave;
 
@@ -97,6 +99,7 @@ public class WorldSession : IDisposable
     private uint _timeSyncTimer;
     private TutorialsFlag _tutorialsChanged;
     private Warden.Warden _warden; // Remains NULL if Warden system is not enabled by config
+
     public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, long muteTime, string os, Locale locale, uint recruiter, bool isARecruiter, ClassFactory classFactory)
     {
         MuteTime = muteTime;
@@ -159,7 +162,9 @@ public class WorldSession : IDisposable
     public string AccountName { get; }
     public ObjectGuid BattlenetAccountGUID => ObjectGuid.Create(HighGuid.BNetAccount, BattlenetAccountId);
     public uint BattlenetAccountId { get; }
+
     public BattlepayManager BattlePayMgr { get; }
+
     // Battle Pets
     public BattlePetMgr BattlePetMgr { get; }
 
@@ -179,14 +184,18 @@ public class WorldSession : IDisposable
     public bool PlayerDisconnected => !(Socket != null && Socket.IsOpen);
     public bool PlayerLoading => !_playerLoading.IsEmpty;
     public bool PlayerLogout { get; private set; }
+
     public bool PlayerLogoutWithSave => PlayerLogout && _playerSave;
+
     // Packets cooldown
     public string PlayerName => Player != null ? Player.GetName() : "Unknown";
 
     public bool PlayerRecentlyLoggedOut { get; private set; }
     public AsyncCallbackProcessor<QueryCallback> QueryProcessor { get; } = new();
     public RBACData RBACData { get; private set; }
+
     public Dictionary<uint, byte> RealmCharacterCounts { get; } = new();
+
     // Battlenet
     public Array<byte> RealmListSecret { get; set; } = new(32);
 
@@ -197,6 +206,27 @@ public class WorldSession : IDisposable
     public Locale SessionDbLocaleIndex { get; }
     public WorldSocket Socket { get; set; }
     private bool IsConnectionIdle => _timeOutTime < GameTime.CurrentTime && !_inQueue;
+
+    public void Dispose()
+    {
+        _cancellationToken.Cancel();
+
+        // unload player if not unloaded
+        if (Player != null)
+            LogoutPlayer(true);
+
+        // - If have unclosed socket, close it
+        if (Socket != null)
+        {
+            Socket.CloseSocket();
+            Socket = null;
+        }
+
+        // empty incoming packet queue
+        _recvQueue.Complete();
+
+        _loginDatabase.Execute("UPDATE account SET online = 0 WHERE id = {0};", AccountId); // One-time query
+    }
 
     public SQLQueryHolderCallback<TR> AddQueryHolderCallback<TR>(SQLQueryHolderCallback<TR> callback)
     {
@@ -222,27 +252,6 @@ public class WorldSession : IDisposable
             KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
 
         return false;
-    }
-
-    public void Dispose()
-    {
-        _cancellationToken.Cancel();
-
-        // unload player if not unloaded
-        if (Player != null)
-            LogoutPlayer(true);
-
-        // - If have unclosed socket, close it
-        if (Socket != null)
-        {
-            Socket.CloseSocket();
-            Socket = null;
-        }
-
-        // empty incoming packet queue
-        _recvQueue.Complete();
-
-        _loginDatabase.Execute("UPDATE account SET online = 0 WHERE id = {0};", AccountId); // One-time query
     }
 
     public void DoLootRelease(LootManagement.Loot loot)
@@ -275,9 +284,7 @@ public class WorldSession : IDisposable
             if (loot.IsLooted() || go.GoType is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole)
             {
                 if (go.GoType == GameObjectTypes.FishingNode)
-                {
                     go.SetLootState(LootState.JustDeactivated);
-                }
                 else if (go.GoType == GameObjectTypes.FishingHole)
                 {
                     // The fishing hole used once more
@@ -289,17 +296,13 @@ public class WorldSession : IDisposable
                         go.SetLootState(LootState.Ready);
                 }
                 else if (go.GoType != GameObjectTypes.GatheringNode && go.IsFullyLooted)
-                {
                     go.SetLootState(LootState.JustDeactivated);
-                }
 
                 go.OnLootRelease(player);
             }
             else
-            {
                 // not fully looted object
                 go.SetLootState(LootState.Activated, player);
-            }
         }
         else if (lguid.IsCorpse) // ONLY remove insignia at BG
         {
@@ -794,9 +797,7 @@ public class WorldSession : IDisposable
             SendPacket(waitQueueUpdate);
         }
         else
-        {
             SendPacket(new WaitQueueFinish());
-        }
     }
 
     public void SendClientCacheVersion(uint version)
@@ -998,6 +999,7 @@ public class WorldSession : IDisposable
 
         return true;
     }
+
     private long DrainQueue(ConcurrentQueue<WorldPacket> queue)
     {
         // Before we process anything:
@@ -1207,9 +1209,7 @@ public class WorldSession : IDisposable
         }
 
         if (!seamlessTeleport)
-        {
             player.SendInitialPacketsAfterAddToMap();
-        }
         else
         {
             player.UpdateVisibilityForPlayer();
@@ -1413,15 +1413,12 @@ public class WorldSession : IDisposable
                 _asyncMessageQueueSemaphore.Set();
             }
             else if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
-            {
                 _threadSafeQueue.Enqueue(packet);
-            }
             else
-            {
                 _threadUnsafe.Enqueue(packet);
-            }
         }
     }
+
     private void SendAvailableHotfixes()
     {
         SendPacket(new AvailableHotfixes(_realm.Id.VirtualRealmAddress, _db2Manager.GetHotfixData()));

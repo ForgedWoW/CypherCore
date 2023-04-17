@@ -29,9 +29,10 @@ public class EscortAI : ScriptedAI
     private bool _hasImmuneToNPCFlags;
     private bool _instantRespawn;
     private bool _manualPath;
-    private float _maxPlayerDistance;
+    private readonly float _maxPlayerDistance;
     private TimeSpan _pauseTimer;
     private uint _playerCheckTimer;
+
     private ObjectGuid _playerGUID;
     //generally passed in Start() when regular escort script.
 
@@ -41,7 +42,7 @@ public class EscortAI : ScriptedAI
     private bool _returnToStart;
 
     // obsolete, determined by faction.
-    private bool _running;        // all creatures are walking by default (has Id MOVEMENTFLAG_WALK)
+    private bool _running; // all creatures are walking by default (has Id MOVEMENTFLAG_WALK)
 
     // if creature can walk same path (loop) without despawn. Not for regular escort quests.
     private bool _started;
@@ -377,13 +378,9 @@ public class EscortAI : ScriptedAI
                                 Log.Logger.Debug($"EscortAI::UpdateAI: returning to spawn location: {respawnPosition} ({Me.GUID})");
                             }
                             else if (_instantRespawn)
-                            {
                                 Me.Respawn();
-                            }
                             else
-                            {
                                 Me.DespawnOrUnsummon();
-                            }
                         }
 
                         Log.Logger.Debug($"EscortAI::UpdateAI: reached end of waypoints ({Me.GUID})");
@@ -407,9 +404,7 @@ public class EscortAI : ScriptedAI
                 }
             }
             else
-            {
                 _pauseTimer -= TimeSpan.FromMilliseconds(diff);
-            }
         }
 
         //Check if player or any member of his group is within range
@@ -435,9 +430,7 @@ public class EscortAI : ScriptedAI
                             Me.Location.Map.Respawn(SpawnObjectType.Creature, Me.SpawnId);
                     }
                     else
-                    {
                         Me.DespawnOrUnsummon();
-                    }
 
                     return;
                 }
@@ -445,9 +438,7 @@ public class EscortAI : ScriptedAI
                 _playerCheckTimer = 1000;
             }
             else
-            {
                 _playerCheckTimer -= diff;
-            }
         }
 
         UpdateEscortAI(diff);

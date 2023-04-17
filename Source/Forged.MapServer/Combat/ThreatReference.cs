@@ -19,6 +19,14 @@ public class ThreatReference : IComparable<ThreatReference>
     private double _baseAmount;
     private TauntState _taunted;
 
+    public ThreatReference(ThreatManager threatManager, Unit victim)
+    {
+        Owner = threatManager.Owner.AsCreature;
+        ThreatManager = threatManager;
+        Victim = victim;
+        Online = OnlineState.Offline;
+    }
+
     public bool IsAvailable => Online > OnlineState.Offline;
 
     public bool IsDetaunted => _taunted == TauntState.Detaunt;
@@ -66,14 +74,6 @@ public class ThreatReference : IComparable<ThreatReference>
     public TauntState TauntState => IsTaunting ? TauntState.Taunt : _taunted;
     public double Threat => Math.Max(_baseAmount + TempModifier, 0.0f);
     public Unit Victim { get; }
-
-    public ThreatReference(ThreatManager threatManager, Unit victim)
-    {
-        Owner = threatManager.Owner.AsCreature;
-        ThreatManager = threatManager;
-        Victim = victim;
-        Online = OnlineState.Offline;
-    }
 
     public int CompareTo(ThreatReference other)
     {

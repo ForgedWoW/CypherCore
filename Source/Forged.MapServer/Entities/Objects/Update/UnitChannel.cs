@@ -12,6 +12,7 @@ public class UnitChannel
     public uint SpellID;
     public SpellCastVisualField SpellVisual = new();
     public uint SpellXSpellVisualID;
+
     public void WriteCreate(WorldPacket data, Unit owner, Player receiver)
     {
         data.WriteUInt32(SpellID);

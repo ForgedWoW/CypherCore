@@ -15,6 +15,7 @@ public class FriendInfo
     public string Note;
     public FriendStatus Status;
     public ObjectGuid WowAccountGuid;
+
     public FriendInfo()
     {
         Status = FriendStatus.Offline;

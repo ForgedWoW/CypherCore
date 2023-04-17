@@ -308,9 +308,7 @@ public class GameEventManager
             var result = _characterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 GameInfo event saves in GameInfo events. DB table `game_event_save` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -354,9 +352,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 GameInfo event prerequisites in GameInfo events. DB table `game_event_prerequisite` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -408,9 +404,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT guid, eventEntry FROM game_event_creature");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 creatures in GameInfo events. DB table `game_event_creature` is empty");
-            }
             else
             {
                 uint count = 0;
@@ -462,9 +456,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT guid, eventEntry FROM game_event_gameobject");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 gameobjects in GameInfo events. DB table `game_event_gameobject` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -514,9 +506,7 @@ public class GameEventManager
                                               "FROM creature JOIN game_event_model_equip ON creature.guid=game_event_model_equip.guid");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 model/equipment changes in GameInfo events. DB table `game_event_model_equip` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -575,9 +565,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 quests additions in GameInfo events. DB table `game_event_creature_quest` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -613,9 +601,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 go quests additions in GameInfo events. DB table `game_event_gameobject_quest` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -651,9 +637,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 quest event conditions in GameInfo events. DB table `game_event_quest_condition` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -695,9 +679,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 conditions in GameInfo events. DB table `game_event_condition` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -735,9 +717,7 @@ public class GameEventManager
             var result = _characterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 condition saves in GameInfo events. DB table `game_event_condition_save` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -755,9 +735,7 @@ public class GameEventManager
                     }
 
                     if (_gameEvent[eventID].Conditions.ContainsKey(condition))
-                    {
                         _gameEvent[eventID].Conditions[condition].Done = result.Read<uint>(2);
-                    }
                     else
                     {
                         Log.Logger.Error("game_event_condition_save contains not present condition evt id {0} cond id {1}", eventID, condition);
@@ -781,9 +759,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 npcflags in GameInfo events. DB table `game_event_npcflag` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -819,9 +795,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 seasonal quests additions in GameInfo events. DB table `game_event_seasonal_questrelation` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -864,9 +838,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionId, IgnoreFiltering FROM game_event_npc_vendor ORDER BY guid, slot ASC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 vendor additions in GameInfo events. DB table `game_event_npc_vendor` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -941,9 +913,7 @@ public class GameEventManager
             var result = _worldDatabase.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 Battlegroundholidays in GameInfo events. DB table `game_event_battleground_holiday` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -978,9 +948,7 @@ public class GameEventManager
                                               " JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 pools for GameInfo events. DB table `game_event_pool` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -1208,9 +1176,7 @@ public class GameEventManager
                 }
                 else if (_gameEvent[id].State == GameEventState.WorldConditions && CheckOneGameEventConditions(id))
                     // changed, save to DB the gameevent state, will be updated in next update cycle
-                {
                     SaveWorldEventStateToDB(id);
-                }
 
                 Log.Logger.Debug("GameEvent {0} is active", id);
 
@@ -1223,9 +1189,7 @@ public class GameEventManager
                 Log.Logger.Debug("GameEvent {0} is not active", id);
 
                 if (IsActiveEvent(id))
-                {
                     deactivate.Add(id);
-                }
                 else
                 {
                     if (!_isSystemInit)
@@ -1875,9 +1839,7 @@ public class GameEventManager
             var creatureQuestMap = _objectManager.GetCreatureQuestRelationMapHack();
 
             if (activate) // Add the pair(id, quest) to the multimap
-            {
                 creatureQuestMap.Add(pair.Item1, pair.Item2);
-            }
             else
             {
                 if (!HasCreatureQuestActiveEventExcept(pair.Item2, eventId))
@@ -1891,9 +1853,7 @@ public class GameEventManager
             var gameObjectQuestMap = _objectManager.GetGOQuestRelationMapHack();
 
             if (activate) // Add the pair(id, quest) to the multimap
-            {
                 gameObjectQuestMap.Add(pair.Item1, pair.Item2);
-            }
             else
             {
                 if (!HasGameObjectQuestActiveEventExcept(pair.Item2, eventId))

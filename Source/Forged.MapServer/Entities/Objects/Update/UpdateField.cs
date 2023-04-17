@@ -12,9 +12,11 @@ public class UpdateField<T> : IUpdateField<T> where T : new()
         Value = new T();
     }
 
+    public T Value { get; set; }
+
     public int Bit { get; set; }
     public int BlockBit { get; set; }
-    public T Value { get; set; }
+
     public static implicit operator T(UpdateField<T> updateField)
     {
         return updateField.Value;

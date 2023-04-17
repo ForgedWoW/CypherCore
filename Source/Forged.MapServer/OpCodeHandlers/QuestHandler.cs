@@ -243,9 +243,7 @@ public class QuestHandler : IWorldSessionHandler
             sender.SendPushToPartyResponse(receiver, QuestPushReason.Success);
 
             if ((quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly) || quest.HasFlag(QuestFlags.AutoComplete))
-            {
                 receiver.PlayerTalkClass.SendQuestGiverRequestItems(quest, sender.GUID, receiver.CanCompleteRepeatableQuest(quest), true);
-            }
             else
             {
                 receiver.SetQuestSharingInfo(sender.GUID, quest.Id);
@@ -567,9 +565,7 @@ public class QuestHandler : IWorldSessionHandler
             }
         }
         else
-        {
             _player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverCloseQuest, Processing = PacketProcessing.Inplace)]
@@ -853,9 +849,7 @@ public class QuestHandler : IWorldSessionHandler
         var quest = Global.ObjectMgr.GetQuestTemplate(packet.QuestID);
 
         if (quest != null)
-        {
             _player.PlayerTalkClass.SendQuestQueryResponse(quest);
-        }
         else
         {
             QueryQuestInfoResponse response = new()

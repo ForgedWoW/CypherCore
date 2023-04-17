@@ -168,9 +168,7 @@ internal class CommandArgs
                     return default;
 
                 if (bool.TryParse(token, out var tempValue))
-                {
                     val = tempValue;
-                }
                 else
                 {
                     if (token == "1" || token.Equals("y", StringComparison.OrdinalIgnoreCase) || token.Equals("on", StringComparison.OrdinalIgnoreCase) || token.Equals("yes", StringComparison.OrdinalIgnoreCase))
@@ -291,9 +289,7 @@ internal class CommandArgs
             var thisResult = TryConsume(out val, types[index], handler, args);
 
             if (thisResult.IsSuccessful)
-            {
                 return thisResult;
-            }
             else
             {
                 var nestedResult = TryAtIndex(out val, types, index + 1, handler, args);
@@ -311,9 +307,7 @@ internal class CommandArgs
             }
         }
         else
-        {
             return default;
-        }
     }
 
     private static ChatCommandResult TryConsumeTo(dynamic[] tuple, int offset, ParameterInfo[] parameterInfos, CommandHandler handler, string args)

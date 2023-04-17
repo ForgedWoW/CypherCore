@@ -19,7 +19,9 @@ public class CreatureData : SpawnData
     public sbyte EquipmentId { get; set; }
     public byte MovementType { get; set; }
     public ulong Npcflag { get; set; }
+
     public uint UnitFlags { get; set; }
+
     // enum UnitFlags mask values
     public uint UnitFlags2 { get; set; }
 

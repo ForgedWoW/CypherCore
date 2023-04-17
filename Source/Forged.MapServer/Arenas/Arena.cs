@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
@@ -178,9 +177,7 @@ public class Arena : Battleground
                     {
                         // if rated arena match - make member lost!
                         if (team == winner)
-                        {
                             winnerArenaTeam.OfflineMemberLost(pair.Key, loserMatchmakerRating, winnerMatchmakerChange);
-                        }
                         else
                         {
                             if (winner == 0)
@@ -274,11 +271,9 @@ public class Arena : Battleground
     public override void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
     {
         if (IsRated && Status == BattlegroundStatus.InProgress)
-        {
             if (GetPlayers().TryGetValue(guid, out var bgPlayer)) // check if the player was a participant of the match, or only entered through gm command (appear)
             {
                 // if the player was a match participant, calculate rating
-
                 var winnerArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(bgPlayer.Team)));
                 var loserArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(bgPlayer.Team));
 
@@ -293,7 +288,6 @@ public class Arena : Battleground
                         loserArenaTeam.OfflineMemberLost(guid, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));
                 }
             }
-        }
 
         // remove player
         base.RemovePlayerAtLeave(guid, transport, sendPacket);

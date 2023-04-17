@@ -9,7 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 internal class InstanceEncounterChangePriority : ServerPacket
 {
     public byte TargetFramePriority;
+
     public ObjectGuid Unit;
+
     // used to update the position of the unit's current frame
     public InstanceEncounterChangePriority() : base(ServerOpcodes.InstanceEncounterChangePriority, ConnectionType.Instance) { }
 

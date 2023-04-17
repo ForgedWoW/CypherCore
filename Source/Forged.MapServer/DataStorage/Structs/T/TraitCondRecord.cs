@@ -22,6 +22,7 @@ public sealed class TraitCondRecord
     public int TraitNodeGroupID;
     public int TraitNodeID;
     public int TraitTreeID;
+
     public TraitConditionType GetCondType()
     {
         return (TraitConditionType)CondType;

@@ -16,6 +16,7 @@ public class PlayerListSearcher : IGridNotifierPlayer
     private readonly ICheck<Player> _check;
     private readonly List<Unit> _objects;
     private readonly PhaseShift _phaseShift;
+
     public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -33,6 +34,7 @@ public class PlayerListSearcher : IGridNotifierPlayer
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Player> objs)
     {
         foreach (var player in objs)

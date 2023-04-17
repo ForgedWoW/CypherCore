@@ -31,6 +31,7 @@ public class PacketHandler
 
     public PacketProcessing ProcessingPlace { get; private set; }
     public SessionStatus SessionStatus { get; private set; }
+
     public void Invoke(WorldSession session, WorldPacket packet)
     {
         if (_packetType == null)

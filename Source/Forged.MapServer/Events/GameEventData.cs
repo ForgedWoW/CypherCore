@@ -8,6 +8,11 @@ namespace Forged.MapServer.Events;
 
 public class GameEventData
 {
+    public GameEventData()
+    {
+        Start = 1;
+    }
+
     public byte Announce { get; set; }
     public Dictionary<uint, GameEventFinishCondition> Conditions { get; set; } = new();
     public string Description { get; set; }
@@ -31,11 +36,6 @@ public class GameEventData
     // time between end and start
     // length of the event (Time.Minutes) after finishing all conditions
     public GameEventState State { get; set; } // state of the GameInfo event, these are saved into the game_event table on change!
-
-    public GameEventData()
-    {
-        Start = 1;
-    }
 
     // events that must be completed before starting this event
     // if 0 dont announce, if 1 announce, if 2 take config value

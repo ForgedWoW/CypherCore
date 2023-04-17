@@ -24,10 +24,6 @@ public class PlayerLastSearcher : IGridNotifierPlayer
     }
 
     public GridType GridType { get; set; }
-    public Player GetTarget()
-    {
-        return _object;
-    }
 
     public void Visit(IList<Player> objs)
     {
@@ -39,5 +35,10 @@ public class PlayerLastSearcher : IGridNotifierPlayer
             if (_check.Invoke(player))
                 _object = player;
         }
+    }
+
+    public Player GetTarget()
+    {
+        return _object;
     }
 }

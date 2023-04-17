@@ -17,6 +17,7 @@ public class ResetNotifier : IGridNotifierPlayer, IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

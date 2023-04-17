@@ -16,7 +16,9 @@ internal class PartyInvite : ServerPacket
     public bool CanAccept;
     public ObjectGuid InviterBNetAccountId;
     public ObjectGuid InviterGUID;
+
     public string InviterName;
+
     // Inviter
     public VirtualRealmInfo InviterRealm;
 
@@ -26,7 +28,9 @@ internal class PartyInvite : ServerPacket
     public int LfgCompletedMask;
     public List<int> LfgSlots = new();
     public bool MightCRZYou;
+
     public bool MustBeBNetFriend;
+
     // Lfg
     public uint ProposedRoles;
 

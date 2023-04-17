@@ -82,6 +82,7 @@ public class ObjectGuidFactory
     {
         return new ObjectGuid((ulong)HighGuid.Uniq << 58, id);
     }
+
     public static ObjectGuid CreateWebObj(uint realmId, byte arg1, byte arg2, ulong counter)
     {
         return new ObjectGuid(((ulong)HighGuid.WebObj << 58) | ((ulong)(GetRealmIdForObjectGuid(realmId) & 0x1FFF) << 42) | ((ulong)(arg1 & 0x1F) << 37) | ((ulong)(arg2 & 0x3) << 35), counter);
@@ -96,6 +97,7 @@ public class ObjectGuidFactory
     {
         return new ObjectGuid(((ulong)type << 58) | ((ulong)(GetRealmIdForObjectGuid(realmId) & 0x1FFF) << 42) | ((ulong)(mapId & 0x1FFF) << 29) | ((ulong)(entry & 0x7FFFFF) << 6) | ((ulong)subType & 0x3F), ((ulong)(serverId & 0xFFFFFF) << 40) | (counter & 0xFFFFFFFFFF));
     }
+
     private static uint GetRealmIdForObjectGuid(uint realmId)
     {
         return realmId != 0 ? realmId : WorldManager.Realm.Id.Index;

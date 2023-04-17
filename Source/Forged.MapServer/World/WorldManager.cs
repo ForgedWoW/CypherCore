@@ -86,19 +86,24 @@ public class WorldManager
     private uint _maxSkill;
     private long _nextCalendarOldEventsDeletionTime;
     private long _nextCurrencyReset;
+
     private long _nextGuildReset;
+
     // scheduled reset times
     private long _nextRandomBgReset;
 
     private ObjectAccessor _objectAccessor;
     private QuestPoolManager _questPoolManager;
     private ShutdownMask _shutdownMask;
+
     private long _timerExpires;
+
     // by loaded DBC
     private uint _warnDiff;
 
     private long _warnShutdownTime;
     private WorldStateManager _worldStateManager;
+
     public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager,
                         WorldDatabase worldDatabase, CharacterDatabase characterDatabase, SupportManager supportManager,
                         VMapManager vMapManager, MapManager mapManager, CliDB cliDB, Realm realm, TerrainManager terrainManager)
@@ -148,6 +153,7 @@ public class WorldManager
     public int ActiveSessionCount => _sessions.Count - _queuedPlayer.Count;
     public List<WorldSession> AllSessions => _sessions.Values.ToList();
     public CleaningFlags CleaningFlags { get; set; }
+
     public uint ConfigMaxSkillValue
     {
         get
@@ -173,6 +179,7 @@ public class WorldManager
     public bool IsFFAPvPRealm => _configuration.GetDefaultValue("GameType", 0) == (int)RealmType.FFAPVP;
     public bool IsGuidAlert { get; private set; }
     public bool IsGuidWarning { get; private set; }
+
     public bool IsPvPRealm
     {
         get
@@ -185,7 +192,9 @@ public class WorldManager
 
     public bool IsShuttingDown => ShutDownTimeLeft > 0;
     public uint MaxActiveSessionCount { get; private set; }
+
     public uint MaxPlayerCount { get; private set; }
+
     // Get the maximum number of parallel sessions on the server since last reboot
     public uint MaxQueuedSessionCount { get; private set; }
 
@@ -199,6 +208,7 @@ public class WorldManager
     public long NextWeeklyQuestsResetTime { get; set; }
     public uint PlayerAmountLimit { get; set; }
     public uint PlayerCount { get; private set; }
+
     public AccountTypes PlayerSecurityLimit
     {
         get => _allowedSecurityLevel;
@@ -220,6 +230,7 @@ public class WorldManager
     public int VisibilityNotifyPeriodInInstances { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
     public int VisibilityNotifyPeriodOnContinents { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
     public WorldUpdateTime WorldUpdateTime { get; }
+
     public void AddSession(WorldSession s)
     {
         _addSessQueue.Enqueue(s);
@@ -343,9 +354,7 @@ public class WorldManager
                 return BanReturn.Notfound; // Nobody to ban
         }
         else
-        {
             guid = pBanned.GUID;
-        }
 
         //Use transaction in order to ensure the order of the queries
         SQLTransaction trans = new();
@@ -459,7 +468,7 @@ public class WorldManager
     }
 
     public void Inject(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor, QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
-                        WorldStateManager worldStateManager, GameEventManager eventManager, GameObjectManager objectManager)
+                       WorldStateManager worldStateManager, GameEventManager eventManager, GameObjectManager objectManager)
     {
         _accountManager = accountManager;
         _characterCache = characterCache;
@@ -515,7 +524,7 @@ public class WorldManager
 
         // for AhBot
         _timers[WorldTimers.AhBot]
-            .                                                                                                       // for AhBot
+            .                                                                                                        // for AhBot
             Interval = _configuration.GetDefaultValue("AuctionHouseBot:Update:Interval", 20) * Time.IN_MILLISECONDS; // every 20 sec
 
         _timers[WorldTimers.GuildSave].Interval = _configuration.GetDefaultValue("Guild:SaveInterval", 15) * Time.MINUTE * Time.IN_MILLISECONDS;
@@ -549,6 +558,7 @@ public class WorldManager
         InitGuildResetTime();
         InitCurrencyResetTime();
     }
+
     public bool IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid)
     {
         foreach (var sessionForBnet in _sessionsByBnetGuid.LookupByKey(battlenetAccountGuid))
@@ -836,9 +846,7 @@ public class WorldManager
                 return false; // Nobody to ban
         }
         else
-        {
             guid = pBanned.GUID;
-        }
 
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
         stmt.AddValue(0, guid.Counter);
@@ -1031,6 +1039,7 @@ public class WorldManager
         IsClosed = val;
         _scriptManager.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
     }
+
     public void SetDBCMask(BitSet mask)
     {
         _availableDbcLocaleMask = mask;
@@ -1123,9 +1132,7 @@ public class WorldManager
 
         // If the shutdown time is 0, evaluate shutdown on next tick (no message)
         if (time == 0)
-        {
             ShutDownTimeLeft = 1;
-        }
         // Else set the shutdown timer and warn users
         else
         {
@@ -1172,6 +1179,7 @@ public class WorldManager
             SendGuidWarning();
         }
     }
+
     public void Update(uint diff)
     {
         //- Update the GameInfo time and check for shutdown time
@@ -1389,6 +1397,7 @@ public class WorldManager
         _scriptManager.ForEach<IWorldOnUpdate>(p => p.OnUpdate(diff));
         _taskManager.Wait(); // wait for all blocks to complete.
     }
+
     public void UpdateRealmCharCount(uint accountId)
     {
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_COUNT);
@@ -1419,6 +1428,7 @@ public class WorldManager
             }
         }
     }
+
     private void AddQueuedPlayer(WorldSession sess)
     {
         sess.SetInQueue(true);
@@ -1532,6 +1542,7 @@ public class WorldManager
         ShutdownServ(1800, ShutdownMask.Restart, ShutdownExitCode.Restart);
         _warnShutdownTime += Time.HOUR;
     }
+
     private long GetNextDailyResetTime(long t)
     {
         return Time.GetLocalHourTimestamp(t, _configuration.GetDefaultValue("Quests:DailyResetTime", 3u));
@@ -1593,9 +1604,7 @@ public class WorldManager
                         return true;
                 }
                 else
-                {
                     _disconnects.Remove(disconnect.Key);
-                }
 
         return false;
     }
@@ -1731,9 +1740,7 @@ public class WorldManager
 
         foreach (var iter in _queuedPlayer)
             if (iter != sess)
-            {
                 ++position;
-            }
             else
             {
                 sess.SetInQueue(false);
@@ -1790,9 +1797,7 @@ public class WorldManager
         _characterDatabase.Execute("UPDATE `character_currency` SET `WeeklyQuantity` = 0");
 
         foreach (var session in _sessions.Values)
-        {
             session.Player?.ResetCurrencyWeekCap();
-        }
 
         _nextCurrencyReset += Time.DAY * _configuration.GetDefaultValue("Currency:ResetInterval", 7);
         SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);
@@ -1834,13 +1839,9 @@ public class WorldManager
         var abcenter = _configuration.GetDefaultValue("AutoBroadcast:Center", 0);
 
         if (abcenter == 0)
-        {
             SendWorldText(CypherStrings.AutoBroadcast, pair.Value.Message);
-        }
         else if (abcenter == 1)
-        {
             SendGlobalMessage(new PrintNotification(pair.Value.Message));
-        }
         else if (abcenter == 2)
         {
             SendWorldText(CypherStrings.AutoBroadcast, pair.Value.Message);
@@ -1857,6 +1858,7 @@ public class WorldManager
 
         _warnDiff = 0;
     }
+
     private void UpdateGameTime()
     {
         // update the time
@@ -1885,6 +1887,7 @@ public class WorldManager
             }
         }
     }
+
     private void UpdateMaxSessionCounters()
     {
         MaxActiveSessionCount = Math.Max(MaxActiveSessionCount, (uint)(_sessions.Count - _queuedPlayer.Count));
@@ -1905,6 +1908,7 @@ public class WorldManager
             _loginDatabase.DirectExecute(stmt);
         }
     }
+
     private void UpdateWarModeRewardValues()
     {
         var warModeEnabledFaction = new long[2];
@@ -1922,7 +1926,6 @@ public class WorldManager
                 var race = result.Read<byte>(0);
 
                 if (_cliDB.ChrRacesStorage.TryGetValue(race, out var raceEntry))
-                {
                     if (_cliDB.FactionTemplateStorage.TryGetValue((uint)raceEntry.FactionID, out var raceFaction))
                     {
                         if ((raceFaction.FactionGroup & (byte)FactionMasks.Alliance) != 0)
@@ -1930,7 +1933,6 @@ public class WorldManager
                         else if ((raceFaction.FactionGroup & (byte)FactionMasks.Horde) != 0)
                             warModeEnabledFaction[TeamIds.Horde] += result.Read<long>(1);
                     }
-                }
             } while (result.NextRow());
 
 

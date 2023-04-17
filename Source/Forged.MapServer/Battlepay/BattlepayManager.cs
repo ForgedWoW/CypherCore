@@ -30,15 +30,6 @@ public class BattlepayManager
     private ulong _distributionIDCount;
     private ulong _purchaseIDCount;
 
-    public BattlepayHandler BattlepayHandler { get; set; }
-    public Purchase CurrentTransaction { get; private set; } = new();
-
-    public bool IsAvailable => _configuration.GetDefaultValue("FeatureSystem:BpayStore:Enabled", false);
-
-    public uint ShopCurrency => _configuration.GetDefaultValue("FeatureSystem:BpayStore:Currency", 1u);
-
-    public string WalletName { get; }
-
     public BattlepayManager(WorldSession session, BattlePetMgrData battlePetMgr, LoginDatabase loginDatabase, IConfiguration configuration, BattlePayDataStoreMgr battlePayDataStoreMgr)
     {
         _session = session;
@@ -50,6 +41,15 @@ public class BattlepayManager
         _distributionIDCount = 0;
         WalletName = "Credits";
     }
+
+    public BattlepayHandler BattlepayHandler { get; set; }
+    public Purchase CurrentTransaction { get; private set; } = new();
+
+    public bool IsAvailable => _configuration.GetDefaultValue("FeatureSystem:BpayStore:Enabled", false);
+
+    public uint ShopCurrency => _configuration.GetDefaultValue("FeatureSystem:BpayStore:Currency", 1u);
+
+    public string WalletName { get; }
 
     public void AddBattlePetFromBpayShop(uint battlePetCreatureID)
     {
@@ -185,9 +185,7 @@ public class BattlepayManager
                                                            "Ingame Shop item delivery");
                     }
                     else
-                    {
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
-                    }
 
                     foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId).Where(item => _session.Player.ObjectManager.GetItemTemplate(item.ItemID) != null))
                         if (player.GetFreeInventorySpace() > item.Quantity)
@@ -273,9 +271,7 @@ public class BattlepayManager
                                                            "Ingame Shop - WoW Token Delivery");
                     }
                     else
-                    {
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
-                    }
 
                     break;
 
@@ -335,9 +331,7 @@ public class BattlepayManager
                                                            "Ingame Shop - WoW Token Delivery");
                     }
                     else
-                    {
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
-                    }
 
                     break;
 
@@ -377,9 +371,7 @@ public class BattlepayManager
                             player.SendNewItem(newItem, 1, true, false);
                         }
                         else
-                        {
                             itemstosendinmail.Add(itemTemplatePair.Value.Id);
-                        }
                     }
 
                     if (itemstosendinmail.Count > 0)

@@ -51,9 +51,7 @@ public class VehicleHandler : IWorldSessionHandler
         }
 
         else
-        {
             Log.Logger.Error("HandleEjectPassenger: {0} tried to eject invalid {1}", Player.GUID.ToString(), packet.Passenger.ToString());
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveChangeVehicleSeats, Processing = PacketProcessing.ThreadSafe)]
@@ -83,9 +81,7 @@ public class VehicleHandler : IWorldSessionHandler
         vehicle_base.MovementInfo = packet.Status;
 
         if (packet.DstVehicle.IsEmpty)
-        {
             Player.ChangeSeat(-1, packet.DstSeatIndex != 255);
-        }
         else
         {
             var vehUnit = Global.ObjAccessor.GetUnit(Player, packet.DstVehicle);
@@ -207,9 +203,7 @@ public class VehicleHandler : IWorldSessionHandler
         }
 
         if (vehicle_base.GUID == packet.Vehicle)
-        {
             Player.ChangeSeat((sbyte)packet.SeatIndex);
-        }
         else
         {
             var vehUnit = Global.ObjAccessor.GetUnit(Player, packet.Vehicle);

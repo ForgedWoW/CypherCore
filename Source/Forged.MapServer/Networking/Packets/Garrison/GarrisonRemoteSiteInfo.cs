@@ -9,6 +9,7 @@ internal class GarrisonRemoteSiteInfo
 {
     public List<GarrisonRemoteBuildingInfo> Buildings = new();
     public uint GarrSiteLevelID;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(GarrSiteLevelID);

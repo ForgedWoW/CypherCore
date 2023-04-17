@@ -18,9 +18,6 @@ public class CommandManager
 {
     private readonly IConfiguration _configuration;
 
-    public SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
-    public bool Running { get; set; }
-
     public CommandManager(WorldDatabase worldDatabase, IConfiguration configuration)
     {
         _configuration = configuration;
@@ -63,7 +60,6 @@ public class CommandManager
                 var map = Commands;
 
                 foreach (var key in name.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                {
                     if (map.TryGetValue(key, out var it))
                     {
                         cmd = it;
@@ -76,7 +72,6 @@ public class CommandManager
 
                         break;
                     }
-                }
 
                 if (cmd == null)
                     continue;
@@ -93,6 +88,9 @@ public class CommandManager
         foreach (var (name, cmd) in Commands)
             cmd.ResolveNames(name);
     }
+
+    public SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
+    public bool Running { get; set; }
 
     public void InitConsole()
     {

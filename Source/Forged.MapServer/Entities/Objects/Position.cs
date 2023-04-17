@@ -44,6 +44,7 @@ public class Position
 
     public bool IsDefault => X == 0 && Y == 0 && Z == 0 && Orientation == 0;
     public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
+
     public float Orientation
     {
         get => _orientation;
@@ -53,6 +54,7 @@ public class Position
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
+
     public static implicit operator Vector2(Position position)
     {
         return new Vector2(position.X, position.Y);
@@ -307,14 +309,17 @@ public class Position
         Z += offset.Z;
         Orientation = Orientation + offset.Orientation;
     }
+
     public float ToAbsoluteAngle(float relAngle)
     {
         return NormalizeOrientation(relAngle + Orientation);
     }
+
     public override string ToString()
     {
         return $"X: {X} Y: {Y} Z: {Z} O: {Orientation}";
     }
+
     public Vector3 ToVector3()
     {
         return new Vector3()
@@ -335,6 +340,7 @@ public class Position
             W = Orientation
         };
     }
+
     private float ToRelativeAngle(float absAngle)
     {
         return NormalizeOrientation(absAngle - Orientation);

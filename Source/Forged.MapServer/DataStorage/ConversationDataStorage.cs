@@ -19,6 +19,7 @@ public class ConversationDataStorage
     private readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
+
     public ConversationDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, IConfiguration configuration)
     {
         _worldDatabase = worldDatabase;
@@ -75,9 +76,7 @@ public class ConversationDataStorage
             Log.Logger.Information("Loaded {0} Conversation line templates in {1} ms", _conversationLineTemplateStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
         else
-        {
             Log.Logger.Information("Loaded 0 Conversation line templates. DB table `conversation_line_template` is empty.");
-        }
 
         var actorResult = _worldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx, CreatureId, CreatureDisplayInfoId, NoActorObject, ActivePlayerObject FROM conversation_actors");
 
@@ -124,9 +123,7 @@ public class ConversationDataStorage
             Log.Logger.Information("Loaded {0} Conversation actors in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
         else
-        {
             Log.Logger.Information("Loaded 0 Conversation actors. DB table `conversation_actors` is empty.");
-        }
 
         // Validate FirstLineId
         Dictionary<uint, uint> prevConversationLineIds = new();
@@ -193,10 +190,9 @@ public class ConversationDataStorage
             Log.Logger.Information("Loaded {0} Conversation templates in {1} ms", _conversationTemplateStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
         else
-        {
             Log.Logger.Information("Loaded 0 Conversation templates. DB table `conversation_template` is empty.");
-        }
     }
+
     private struct ConversationActorDbRow
     {
         public uint ActorIndex;
@@ -208,6 +204,7 @@ public class ConversationDataStorage
         private readonly IConfiguration _configuration;
         private readonly GameObjectManager _objectManager;
         private readonly WorldDatabase _worldDatabase;
+
         public ConversationActorDbRow(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, IConfiguration configuration)
         {
             _worldDatabase = worldDatabase;

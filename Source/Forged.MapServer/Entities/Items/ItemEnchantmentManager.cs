@@ -17,6 +17,7 @@ public class ItemEnchantmentManager
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, RandomBonusListIds> _storage = new();
     private readonly WorldDatabase _worldDatabase;
+
     public ItemEnchantmentManager(WorldDatabase worldDatabase, DB2Manager db2Manager, CliDB cliDB, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;

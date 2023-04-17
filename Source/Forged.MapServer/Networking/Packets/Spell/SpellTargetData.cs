@@ -17,6 +17,7 @@ public class SpellTargetData
     public float? Orientation;
     public TargetLocation SrcLocation;
     public ObjectGuid Unit;
+
     public void Read(WorldPacket data)
     {
         data.ResetBitPos();

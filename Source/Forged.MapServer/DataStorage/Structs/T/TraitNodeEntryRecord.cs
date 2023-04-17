@@ -11,6 +11,7 @@ public sealed class TraitNodeEntryRecord
     public int MaxRanks;
     public byte NodeEntryType;
     public int TraitDefinitionID;
+
     public TraitNodeEntryType GetNodeEntryType()
     {
         return (TraitNodeEntryType)NodeEntryType;

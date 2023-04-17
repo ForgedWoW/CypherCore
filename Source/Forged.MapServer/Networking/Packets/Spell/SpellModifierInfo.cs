@@ -9,6 +9,7 @@ public class SpellModifierInfo
 {
     public List<SpellModifierData> ModifierData = new();
     public byte ModIndex;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(ModIndex);

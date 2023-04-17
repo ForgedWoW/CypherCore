@@ -26,6 +26,7 @@ public class LfgPlayerDungeonInfo
     public uint Slot;
     public int SpecificLimit;
     public int SpecificQuantity;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Slot);

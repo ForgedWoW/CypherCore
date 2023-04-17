@@ -13,6 +13,7 @@ public sealed class SummonPropertiesRecord
     public uint Id;
     public int Slot;
     public SummonTitle Title;
+
     public SummonPropertiesFlags GetFlags()
     {
         return (SummonPropertiesFlags)Flags[0];

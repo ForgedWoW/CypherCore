@@ -37,6 +37,7 @@ public class UnitCombatHelpers
     private readonly LootStoreBox _lootStorage;
     private readonly ObjectAccessor _objectAccessor;
     private readonly ScriptManager _scriptManager;
+
     public UnitCombatHelpers(ScriptManager scriptManager, LootFactory lootFactory, ObjectAccessor objectAccessor, LootStoreBox lootStorage,
                              LootManager lootManager, IConfiguration configuration, BattleFieldManager battleFieldManager, DB2Manager db2Manager)
     {
@@ -59,9 +60,7 @@ public class UnitCombatHelpers
         Unit target = null;
 
         if (victim.IsPlayer)
-        {
             target = victim;
-        }
         else // victim->GetTypeId() == TYPEID_UNIT
         {
             var owner = victim.OwnerUnit;
@@ -516,7 +515,6 @@ public class UnitCombatHelpers
         damage = 0;
 
         return true;
-
     }
 
     public ProcFlagsHit CreateProcHitMask(SpellNonMeleeDamage damageInfo, SpellMissInfo missCondition)
@@ -525,7 +523,6 @@ public class UnitCombatHelpers
 
         // Check victim state
         if (missCondition != SpellMissInfo.None)
-        {
             switch (missCondition)
             {
                 case SpellMissInfo.Miss:
@@ -571,7 +568,6 @@ public class UnitCombatHelpers
 
                     break;
             }
-        }
         else
         {
             // On block
@@ -599,9 +595,7 @@ public class UnitCombatHelpers
                     hitMask |= ProcFlagsHit.Normal;
             }
             else if (damageInfo.HitInfo.HasAnyFlag((int)HitInfo.FullResist))
-            {
                 hitMask |= ProcFlagsHit.FullResist;
-            }
         }
 
         return hitMask;
@@ -663,9 +657,7 @@ public class UnitCombatHelpers
                     victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Damage, spellProto);
             }
             else
-            {
                 victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Damage);
-            }
 
             if (damageTaken == 0 && damagetype != DamageEffectType.DOT && cleanDamage != null && cleanDamage.AbsorbedDamage != 0)
                 if (victim != attacker && victim.IsPlayer)
@@ -739,9 +731,7 @@ public class UnitCombatHelpers
             duelHasEnded = true;
         }
         else if (victim.TryGetAsCreature(out var creature) && damageTaken >= health && creature.StaticFlags.HasFlag(CreatureStaticFlags.UNKILLABLE))
-        {
             damageTaken = health - 1;
-        }
         else if (victim.IsVehicle && damageTaken >= health - 1 && victim.Charmer != null && victim.Charmer.IsTypeId(TypeId.Player))
         {
             var victimRider = victim.Charmer.AsPlayer;
@@ -871,9 +861,7 @@ public class UnitCombatHelpers
             durabilityLoss = false;
 
         if (killed)
-        {
             Kill(attacker, victim, durabilityLoss, skipSettingDeathState);
-        }
         else
         {
             if (victim.IsTypeId(TypeId.Player))
@@ -1167,7 +1155,6 @@ public class UnitCombatHelpers
                 if (creature.Location.Map.IsDungeon)
                 {
                     if (dungeonEncounter != null)
-                    {
                         creature.PersonalLoot = _lootManager.GenerateDungeonEncounterPersonalLoot(dungeonEncounter.Id,
                                                                                                   creature.LootId,
                                                                                                   _lootStorage.Creature,
@@ -1178,7 +1165,6 @@ public class UnitCombatHelpers
                                                                                                   (ushort)creature.GetLootMode(),
                                                                                                   creature.Location.Map.GetDifficultyLootItemContext(),
                                                                                                   tappers);
-                    }
                     else if (!tappers.Empty())
                     {
                         var group = !groups.Empty() ? groups.First() : null;
@@ -1207,7 +1193,6 @@ public class UnitCombatHelpers
                     }
                 }
                 else
-                {
                     foreach (var tapper in tappers)
                     {
                         var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Corpse);
@@ -1226,7 +1211,6 @@ public class UnitCombatHelpers
                         if (loot != null)
                             creature.PersonalLoot[tapper.GUID] = loot;
                     }
-                }
             }
 
             new KillRewarder(tappers.ToArray(), victim, false).Reward();
@@ -1404,9 +1388,7 @@ public class UnitCombatHelpers
                 var killedPlr = victim.AsPlayer;
 
                 if (killedPlr != null)
-                {
                     _scriptManager.ForEach<IPlayerOnPVPKill>(p => p.OnPVPKill(killerPlr, killedPlr));
-                }
                 else
                 {
                     var killedCre = victim.AsCreature;
@@ -1429,6 +1411,7 @@ public class UnitCombatHelpers
             }
         }
     }
+
     public void ProcSkillsAndAuras(Unit actor, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
     {
         var attType = damageInfo?.AttackType ?? WeaponAttackType.BaseAttack;
@@ -1447,6 +1430,7 @@ public class UnitCombatHelpers
         if (attacker != null)
             damage = damage * attacker.GetDamageMultiplierForTarget(victim);
     }
+
     public double SpellCriticalDamageBonus(Unit caster, SpellInfo spellProto, double damage, Unit victim = null)
     {
         // Calculate critical bonus
@@ -1493,6 +1477,7 @@ public class UnitCombatHelpers
 
         return damage;
     }
+
     private double CalcSpellResistedDamage(Unit attacker, Unit victim, double damage, SpellSchoolMask schoolMask, SpellInfo spellInfo)
     {
         // Magic damage, check for resists
@@ -1514,10 +1499,8 @@ public class UnitCombatHelpers
             discreteResistProbability[2] = 2.5f * averageResist;
         }
         else
-        {
             for (uint i = 0; i < 11; ++i)
                 discreteResistProbability[i] = Math.Max(0.5f - 2.5f * Math.Abs(0.1f * i - averageResist), 0.0f);
-        }
 
         var roll = RandomHelper.NextDouble();
         double probabilitySum = 0.0f;

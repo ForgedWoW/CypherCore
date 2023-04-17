@@ -341,16 +341,12 @@ public class ItemHandler : IWorldSessionHandler
                 _player.StoreItem(dest, pItem, true);
             }
             else
-            {
                 _player.SendEquipError(msg, pItem);
-            }
 
             return;
         }
         else
-        {
             _player.SendBuyError(BuyResult.CantFindItem, creature, 0);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.BuyItem, Processing = PacketProcessing.Inplace)]
@@ -447,9 +443,7 @@ public class ItemHandler : IWorldSessionHandler
             _player.DestroyItemCount(pItem, ref i_count, true);
         }
         else
-        {
             _player.DestroyItem(destroyItem.ContainerId, destroyItem.SlotNum, true);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.GetItemPurchaseData, Processing = PacketProcessing.Inplace)]
@@ -518,9 +512,7 @@ public class ItemHandler : IWorldSessionHandler
             }
         }
         else
-        {
             _player.SendEquipError(InventoryResult.ItemNotFound);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.RemoveNewItem, Processing = PacketProcessing.Inplace)]
@@ -607,9 +599,7 @@ public class ItemHandler : IWorldSessionHandler
 
             // special case at auto sell (sell all)
             if (packet.Amount == 0)
-            {
                 packet.Amount = pItem.Count;
-            }
             else
             {
                 // prevent sell more items that exist in stack (possible only not from client)
@@ -673,9 +663,7 @@ public class ItemHandler : IWorldSessionHandler
                     }
                 }
                 else
-                {
                     pl.SendSellError(SellResult.CantSellItem, creature, packet.ItemGUID);
-                }
 
                 return;
             }
@@ -790,21 +778,18 @@ public class ItemHandler : IWorldSessionHandler
                         }
                     }
                     else if (oldGemData[j] != null)
-                    {
                         if (iGemProto.Id == oldGemData[j].ItemId)
                         {
                             Player.SendEquipError(InventoryResult.ItemUniqueEquippableSocketed, itemTarget);
 
                             return;
                         }
-                    }
                 }
 
             // unique limit type item
             var limit_newcount = 0;
 
             if (iGemProto.ItemLimitCategory != 0)
-            {
                 if (CliDB.ItemLimitCategoryStorage.TryGetValue(iGemProto.ItemLimitCategory, out var limitEntry))
                 {
                     // NOTE: limitEntry.mode is not checked because if item has limit then it is applied in equip case
@@ -832,7 +817,6 @@ public class ItemHandler : IWorldSessionHandler
                         return;
                     }
                 }
-            }
 
             // for equipped item check all equipment for duplicate equipped gems
             if (itemTarget.IsEquipped)

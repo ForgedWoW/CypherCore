@@ -15,6 +15,7 @@ public class GameObjectListSearcher : IGridNotifierGameObject
     private readonly ICheck<GameObject> _check;
     private readonly List<GameObject> _objects;
     private readonly PhaseShift _phaseShift;
+
     public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -24,6 +25,7 @@ public class GameObjectListSearcher : IGridNotifierGameObject
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<GameObject> objs)
     {
         foreach (var gameObject in objs)

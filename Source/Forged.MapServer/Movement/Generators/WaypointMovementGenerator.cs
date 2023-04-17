@@ -166,9 +166,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
                 }
             }
             else
-            {
                 return true; // keep waiting
-            }
         }
         else // not moving, no timer
         {
@@ -320,9 +318,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
                 var pos = new Position(currentWaypoint.X, currentWaypoint.Y, currentWaypoint.Z, owner.Location.Orientation);
 
                 if (!transportPath)
-                {
                     owner.HomePosition = pos;
-                }
                 else
                 {
                     var trans = owner.Transport;
@@ -416,6 +412,5 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         _nextMoveTime.Reset(0);
 
         return true;
-
     }
 }

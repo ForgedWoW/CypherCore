@@ -136,9 +136,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                         AttackStartCaster(target, CasterChaseDistance);
                 }
                 else
-                {
                     AttackStart(target);
-                }
 
                 _forceFacing = true;
             }
@@ -157,9 +155,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
             if (_castCheckTimer <= diff)
             {
                 if (Me.HasUnitState(UnitState.Casting))
-                {
                     _castCheckTimer = 0;
-                }
                 else
                 {
                     if (IsRangedAttacker()) // chase to zero if the target isn't in line of sight
@@ -186,9 +182,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                 }
             }
             else
-            {
                 _castCheckTimer -= diff;
-            }
 
             DoAutoAttackIfReady();
         }
@@ -208,6 +202,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
     private Tuple<Spell, Unit> SelectAppropriateCastForSpec()
     {
         List<Tuple<Tuple<Spell, Unit>, uint>> spells = new();
+
         // TODO Fix this, AI needs spells.
         /*
             switch (me.getClass())

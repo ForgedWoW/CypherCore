@@ -12,6 +12,13 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class ConnectTo : ServerPacket
 {
+    public enum AddressType
+    {
+        IPv4 = 1,
+        IPv6 = 2,
+        NamedSocket = 3 // not supported by windows client
+    }
+
     public byte Con;
 
     public ulong Key;
@@ -25,12 +32,6 @@ internal class ConnectTo : ServerPacket
         Payload = new ConnectPayload();
     }
 
-    public enum AddressType
-    {
-        IPv4 = 1,
-        IPv6 = 2,
-        NamedSocket = 3 // not supported by windows client
-    }
     public override void Write()
     {
         ByteBuffer whereBuffer = new();
@@ -50,7 +51,6 @@ internal class ConnectTo : ServerPacket
                 whereBuffer.WriteString(Payload.Where.NameSocket);
 
                 break;
-            
         }
 
         Sha256 hash = new();

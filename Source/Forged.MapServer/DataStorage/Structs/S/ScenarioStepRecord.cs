@@ -15,11 +15,14 @@ public sealed class ScenarioStepRecord
     public byte OrderIndex;
     public int RelatedStep;
     public uint RewardQuestID;
+
     public ushort ScenarioID;
+
     // Bonus step can only be completed if scenario is in the step specified in this field
     public ushort Supersedes;
 
     public string Title;
+
     // Used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
     public uint VisibilityPlayerConditionID;
     public ushort WidgetSetID;

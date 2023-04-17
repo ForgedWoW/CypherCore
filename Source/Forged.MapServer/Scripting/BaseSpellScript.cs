@@ -11,19 +11,19 @@ namespace Forged.MapServer.Scripting;
 
 public class BaseSpellScript : IBaseSpellScript
 {
-    public SpellManager SpellManager { get; set; }
-    public ClassFactory ClassFactory { get; set; }
-    public byte CurrentScriptState { get; set; }
-    public string ScriptName { get; set; }
-
-    public uint ScriptSpellId { get; set; }
-
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public BaseSpellScript()
     {
         CurrentScriptState = (byte)SpellScriptState.None;
     }
+
+    public SpellManager SpellManager { get; set; }
+    public ClassFactory ClassFactory { get; set; }
+    public byte CurrentScriptState { get; set; }
+    public string ScriptName { get; set; }
+
+    public uint ScriptSpellId { get; set; }
 
     public string _GetScriptName()
     {
@@ -61,7 +61,6 @@ public class BaseSpellScript : IBaseSpellScript
         Log.Logger.Error("Spell `{0}` did not pass Validate() function of script `{1}` - script will be not added to the spell", entry.Id, ScriptName);
 
         return false;
-
     }
 
     // Function called when script is created, if returns false script will be unloaded afterwards

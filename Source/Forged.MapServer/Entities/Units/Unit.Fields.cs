@@ -18,7 +18,6 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Movement;
-using Forged.MapServer.Scripting;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Collections;
@@ -31,8 +30,8 @@ public partial class Unit
     public static TimeSpan MaxDamageHistoryDuration = TimeSpan.FromSeconds(20);
     public bool CanDualWield;
     public object SendLock = new();
-    protected float[] CreateStats = new float[(int)Stats.Max];
     private static readonly TimeSpan DespawnTime = TimeSpan.FromSeconds(2);
+    protected float[] CreateStats = new float[(int)Stats.Max];
     private readonly AuraApplicationCollection _appliedAuras = new();
     private readonly List<AreaTrigger> _areaTrigger = new();
     private readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new();
@@ -180,9 +179,7 @@ public partial class Unit
             var scaleMod = ObjectScale; // 99% sure about this
 
             if (IsMounted)
-            {
                 if (CliDB.CreatureDisplayInfoStorage.TryGetValue(MountDisplayId, out var mountDisplayInfo))
-                {
                     if (CliDB.CreatureModelDataStorage.TryGetValue(mountDisplayInfo.ModelID, out var mountModelData))
                     {
                         var displayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
@@ -191,8 +188,6 @@ public partial class Unit
 
                         return collisionHeight == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight;
                     }
-                }
-            }
 
             //! Dismounting case - use basic default model data
             var defaultDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
@@ -610,9 +605,7 @@ public partial class Unit
         get
         {
             lock (_visibleAurasToUpdate)
-            {
                 return _visibleAuras.ToList();
-            }
         }
     }
 

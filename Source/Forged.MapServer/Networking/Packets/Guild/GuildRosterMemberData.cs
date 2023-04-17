@@ -32,6 +32,7 @@ public class GuildRosterMemberData
     public long TotalXP;
     public uint VirtualRealmAddress;
     public long WeeklyXP;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(Guid);

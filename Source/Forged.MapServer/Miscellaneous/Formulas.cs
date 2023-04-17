@@ -18,12 +18,14 @@ public class Formulas
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly ScriptManager _scriptManager;
+
     public Formulas(CliDB cliDB, ScriptManager scriptManager, IConfiguration configuration)
     {
         _cliDB = cliDB;
         _scriptManager = scriptManager;
         _configuration = configuration;
     }
+
     public uint BaseGain(uint plLevel, uint mobLevel)
     {
         uint baseGain;
@@ -50,9 +52,7 @@ public class Formulas
                 baseGain = (uint)Math.Round(xpMob.PerKill * ((1 - (plLevel - mobLevel) / zd) * (xpMob.Divisor / xpPlayer.Divisor)));
             }
             else
-            {
                 baseGain = 0;
-            }
         }
 
         if (_configuration.GetDefaultValue("MinCreatureScaledXPRatio", 0) != 0 && plLevel != mobLevel)
@@ -177,6 +177,7 @@ public class Formulas
 
         return honor;
     }
+
     public uint XPGain(Player player, Unit u, bool isBattleGround = false)
     {
         var creature = u.AsCreature;

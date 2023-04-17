@@ -130,7 +130,6 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
                 init.SetWalk(true);
 
                 break;
-            
         }
 
         init.Launch();

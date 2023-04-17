@@ -14,6 +14,7 @@ public class RestMgr
     private uint _innAreaTriggerId;
     private RestFlag _restFlagMask;
     private long _restTime;
+
     public RestMgr(Player player)
     {
         _player = player;
@@ -151,6 +152,7 @@ public class RestMgr
         _player.SetRestThreshold(restType, (uint)_restBonus[(int)restType]);
         _player.SetRestState(restType, newRestState);
     }
+
     public void SetRestFlag(RestFlag restFlag, uint triggerId = 0)
     {
         var oldRestMask = _restFlagMask;
@@ -165,6 +167,7 @@ public class RestMgr
         if (triggerId != 0)
             _innAreaTriggerId = triggerId;
     }
+
     public void Update(uint now)
     {
         if (RandomHelper.randChance(3) && _restTime > 0) // freeze update

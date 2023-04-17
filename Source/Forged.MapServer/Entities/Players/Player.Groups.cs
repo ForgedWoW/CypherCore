@@ -175,12 +175,11 @@ public partial class Player
         GroupRef.Link(group, this);
         GroupRef.SubGroup = subgroup;
     }
+
     public void SetGroup(PlayerGroup group, byte subgroup = 0)
     {
         if (!group)
-        {
             GroupRef.Unlink();
-        }
         else
         {
             GroupRef.Link(group, this);
@@ -198,15 +197,14 @@ public partial class Player
     public void SetOriginalGroup(PlayerGroup group, byte subgroup = 0)
     {
         if (!group)
-        {
             OriginalGroupRef.Unlink();
-        }
         else
         {
             OriginalGroupRef.Link(group, this);
             OriginalGroupRef.SubGroup = subgroup;
         }
     }
+
     public void SetPartyType(GroupCategory category, GroupType type)
     {
         byte value = PlayerData.PartyType;
@@ -214,6 +212,7 @@ public partial class Player
         value |= (byte)((byte)type << ((byte)category * 4));
         SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.PartyType), value);
     }
+
     public void UninviteFromGroup()
     {
         var group = GroupInvite;
@@ -234,6 +233,7 @@ public partial class Player
                 group.RemoveAllInvites();
         }
     }
+
     private Player GetNextRandomRaidMember(float radius)
     {
         var group = Group;

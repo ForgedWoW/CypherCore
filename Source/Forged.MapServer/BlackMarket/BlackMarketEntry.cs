@@ -17,13 +17,6 @@ public class BlackMarketEntry
     private readonly BlackMarketManager _blackMarketManager;
     private readonly CharacterCache _characterCache;
     private uint _secondsRemaining;
-    
-    public ulong Bidder { get; private set; }
-    public ulong CurrentBid { get; private set; }
-    public bool MailSent { get; private set; }
-    public uint MarketId { get; private set; }
-    public ulong MinIncrement => CurrentBid / 20 - CurrentBid / 20 % MoneyConstants.Gold;
-    public uint NumBids { get; private set; }
 
     public BlackMarketEntry(CharacterDatabase characterDatabase, BlackMarketManager blackMarketManager, CharacterCache characterCache)
     {
@@ -31,6 +24,13 @@ public class BlackMarketEntry
         _blackMarketManager = blackMarketManager;
         _characterCache = characterCache;
     }
+
+    public ulong Bidder { get; private set; }
+    public ulong CurrentBid { get; private set; }
+    public bool MailSent { get; private set; }
+    public uint MarketId { get; private set; }
+    public ulong MinIncrement => CurrentBid / 20 - CurrentBid / 20 % MoneyConstants.Gold;
+    public uint NumBids { get; private set; }
 
     public string BuildAuctionMailBody()
     {
@@ -96,7 +96,6 @@ public class BlackMarketEntry
         Log.Logger.Error("Black market auction {0} does not have a valid bidder (GUID: {1}).", MarketId, Bidder);
 
         return false;
-
     }
 
     public void PlaceBid(ulong bid, Player player, SQLTransaction trans) //Updated
@@ -150,6 +149,7 @@ public class BlackMarketEntry
     {
         _secondsRemaining = (uint)(_secondsRemaining - (newTimeOfUpdate - _blackMarketManager.LastUpdate));
     }
+
     public bool ValidateBid(ulong bid)
     {
         if (bid <= CurrentBid)
@@ -160,7 +160,7 @@ public class BlackMarketEntry
 
         return bid < BlackMarketConst.MaxBid;
     }
-     // Set when mail has been sent
+    // Set when mail has been sent
 
     private long GetExpirationTime()
     {

@@ -31,6 +31,7 @@ internal class PartyMemberStats
     public uint WmoDoodadPlacementID;
     public ushort WmoGroupID;
     public ushort ZoneID;
+
     public void Write(WorldPacket data)
     {
         for (byte i = 0; i < 2; i++)

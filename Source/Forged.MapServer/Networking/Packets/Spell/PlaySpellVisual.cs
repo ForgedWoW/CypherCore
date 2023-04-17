@@ -19,8 +19,10 @@ internal class PlaySpellVisual : ServerPacket
     public uint SpellVisualID;
     public ObjectGuid Target;
     public Vector3 TargetPosition;
-    public ObjectGuid Transport;   // Used when Target = Empty && (SpellVisual::Flags & 0x400) == 0
-                                   // Overrides missile destination for SpellVisual::SpellVisualMissileSetID
+
+    public ObjectGuid Transport; // Used when Target = Empty && (SpellVisual::Flags & 0x400) == 0
+
+    // Overrides missile destination for SpellVisual::SpellVisualMissileSetID
     public float TravelSpeed;
     public PlaySpellVisual() : base(ServerOpcodes.PlaySpellVisual) { }
 

@@ -48,6 +48,7 @@ internal class SpellPeriodicAuraLog : CombatLogServerPacket
         public uint OverHealOrKill;
         public uint Resisted;
         public uint SchoolMaskOrPower;
+
         public void Write(WorldPacket data)
         {
             data.WriteUInt32(Effect);

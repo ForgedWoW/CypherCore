@@ -10,6 +10,7 @@ public struct EuropaTicketConfig
     public bool SuggestionsEnabled;
     public SavedThrottleObjectState ThrottleState;
     public bool TicketsEnabled;
+
     public void Write(WorldPacket data)
     {
         data.WriteBit(TicketsEnabled);

@@ -128,9 +128,7 @@ public class LootItemStorage
             Log.Logger.Information($"Loaded {count} stored item loots in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
         }
         else
-        {
             Log.Logger.Information("Loaded 0 stored item loots");
-        }
 
         stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_ITEMCONTAINER_MONEY);
         result = _characterDatabase.Query(stmt);
@@ -155,9 +153,7 @@ public class LootItemStorage
             Log.Logger.Information($"Loaded {count} stored item money in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
         }
         else
-        {
             Log.Logger.Information("Loaded 0 stored item money");
-        }
     }
 
     public bool LoadStoredLoot(Item item, Player player)

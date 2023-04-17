@@ -12,12 +12,12 @@ internal class SharedInstanceLockData : InstanceLockData
         _instanceLockManager = instanceLockManager;
     }
 
+    public uint InstanceId { get; set; }
+
     ~SharedInstanceLockData()
     {
         // Cleanup database
         if (InstanceId != 0)
             _instanceLockManager.OnSharedInstanceLockDataDelete(InstanceId);
     }
-
-    public uint InstanceId { get; set; }
 }

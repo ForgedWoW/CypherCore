@@ -54,9 +54,7 @@ public class ChatCommandNode
                     handler.SendSysMessage(CypherStrings.SubcmdInvalid, cmd.Name, ' ', token);
                 }
                 else
-                {
                     handler.SendSysMessage(CypherStrings.CmdInvalid, token);
-                }
 
                 return;
             }
@@ -84,9 +82,7 @@ public class ChatCommandNode
         }
 
         if (cmd != null)
-        {
             cmd.SendCommandHelp(handler);
-        }
         else if (cmdStr.IsEmpty())
         {
             handler.SendSysMessage(CypherStrings.AvailableCmds);
@@ -100,9 +96,7 @@ public class ChatCommandNode
             }
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.CmdInvalid, cmdStr);
-        }
     }
 
     public static bool TryExecuteCommand(CommandHandler handler, string cmdStr)
@@ -164,10 +158,8 @@ public class ChatCommandNode
                     LogCommandUsage(handler.Session, (uint)cmd.Permission.RequiredPermission, cmdStr);
             }
             else if (!handler.HasSentErrorMessage)
-            {
                 /* invocation failed, we should show usage */
                 cmd.SendCommandHelp(handler);
-            }
 
             return true;
         }
@@ -195,13 +187,11 @@ public class ChatCommandNode
     public bool Invoke(CommandHandler handler, string args)
     {
         if (_parameters.Any(p => p.ParameterType == typeof(StringArguments))) //Old system, can remove once all commands are changed.
-        {
             return (bool)_methodInfo.Invoke(null,
                                             new object[]
                                             {
                                                 handler, new StringArguments(args)
                                             });
-        }
         else
         {
             var parseArgs = new dynamic[_parameters.Length];
@@ -209,9 +199,7 @@ public class ChatCommandNode
             var result = CommandArgs.ConsumeFromOffset(parseArgs, 1, _parameters, handler, args);
 
             if (result.IsSuccessful)
-            {
                 return (bool)_methodInfo.Invoke(null, parseArgs);
-            }
             else
             {
                 if (result.HasErrorMessage)
@@ -243,13 +231,9 @@ public class ChatCommandNode
         if (hasInvoker)
         {
             if (HelpString != 0)
-            {
                 handler.SendSysMessage(HelpString);
-            }
             else if (!HelpText.IsEmpty())
-            {
                 handler.SendSysMessage(HelpText);
-            }
             else
             {
                 handler.SendSysMessage(CypherStrings.CmdHelpGeneric, Name);
@@ -297,6 +281,7 @@ public class ChatCommandNode
         {
             var locale = session.SessionDbcLocale;
             areaName = area.AreaName[locale];
+
             if (CliDB.AreaTableStorage.TryGetValue(area.ParentAreaID, out var zone))
                 zoneName = zone.AreaName[locale];
         }

@@ -26,6 +26,7 @@ public struct InvUpdate
             Items.Add(item);
         }
     }
+
     public struct InvItem
     {
         public byte ContainerSlot;

@@ -12,6 +12,7 @@ public sealed class TransmogIllusionRecord
     public int SpellItemEnchantmentID;
     public int TransmogCost;
     public int UnlockConditionID;
+
     public TransmogIllusionFlags GetFlags()
     {
         return (TransmogIllusionFlags)Flags;

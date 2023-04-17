@@ -98,9 +98,7 @@ internal class TeleCommands
         };
 
         if (handler.ObjectManager.AddGameTele(tele))
-        {
             handler.SendSysMessage(CypherStrings.CommandTpAdded);
-        }
         else
         {
             handler.SendSysMessage(CypherStrings.CommandTpAddedErr);
@@ -266,9 +264,7 @@ internal class TeleCommands
             if (where is string && where.Equals("$home")) // References target's homebind
             {
                 if (target)
-                {
                     target.TeleportTo(target.Homebind);
-                }
                 else
                 {
                     var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
@@ -310,9 +306,7 @@ internal class TeleCommands
                         continue;
 
                     if (spawnpoint == null)
-                    {
                         spawnpoint = creatureData;
-                    }
                     else
                     {
                         handler.SendSysMessage(CypherStrings.CommandGocreatmultiple);

@@ -212,10 +212,12 @@ public class Map : IDisposable
     public ConcurrentDictionary<ObjectGuid, WorldObject> ObjectsStore { get; } = new();
     public OutdoorPvPManager OutdoorPvPManager { get; }
     public List<Player> Players => ActivePlayers;
+
     public int PlayersCountExceptGMs
     {
         get { return ActivePlayers.Count(pl => !pl.IsGameMaster); }
     }
+
     public SpawnedPoolData PoolData { get; }
     public PoolManager PoolManager { get; }
     public ScriptManager ScriptManager { get; }
@@ -236,6 +238,30 @@ public class Map : IDisposable
     internal object MapLock { get; set; } = new();
     internal uint UnloadTimer { get; set; }
     protected List<Player> ActivePlayers { get; } = new();
+
+    public void Dispose()
+    {
+        OnDestroyMap(this);
+
+        // Delete all waiting spawns
+        // This doesn't delete from database.
+        UnloadAllRespawnInfos();
+
+        for (var i = 0; i < _worldObjects.Count; ++i)
+        {
+            var obj = _worldObjects[i];
+            obj.RemoveFromWorld();
+            obj.Location.ResetMap();
+        }
+
+        if (!_scriptSchedule.Empty())
+            MapManager.DecreaseScheduledScriptCount((uint)_scriptSchedule.Sum(kvp => kvp.Value.Count));
+
+        OutdoorPvPManager.DestroyOutdoorPvPForMap(this);
+        BattleFieldManager.DestroyBattlefieldsForMap(this);
+
+        MMAPManager.UnloadMapInstance(Id, InstanceIdInternal);
+    }
 
     public static bool IsInWMOInterior(uint mogpFlags)
     {
@@ -307,9 +333,7 @@ public class Map : IDisposable
         obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
 
         lock (_objectsToRemove)
-        {
             _objectsToRemove.Add(obj);
-        }
     }
 
     public void AddObjectToSwitchList(WorldObject obj, bool on)
@@ -399,9 +423,7 @@ public class Map : IDisposable
         var p = GridDefines.ComputeGridCoord(respawnLocation.X, respawnLocation.Y);
 
         if (GetGrid(p.X, p.Y) != null)
-        {
             GetGrid(p.X, p.Y).GridInformation.IncUnloadActiveLock();
-        }
         else
         {
             var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
@@ -430,9 +452,7 @@ public class Map : IDisposable
                         grid.GetGridCell(cell.Data.CellX, cell.Data.CellY).AddWorldObject(obj);
                     }
                     else
-                    {
                         grid.GetGridCell(cell.Data.CellX, cell.Data.CellY).AddGridObject(obj);
-                    }
                 }
 
                 return;
@@ -550,10 +570,8 @@ public class Map : IDisposable
     public void AddUpdateObject(WorldObject obj)
     {
         lock (_updateObjects)
-        {
             if (obj != null)
                 _updateObjects.Add(obj);
-        }
     }
 
     public void AddWorldObject(WorldObject obj)
@@ -749,10 +767,8 @@ public class Map : IDisposable
 
         // delay creature move for grid/cell to grid/cell moves
         if (oldCell.DiffCell(newCell) || oldCell.DiffGrid(newCell))
-        {
             AddCreatureToMoveList(creature, x, y, z, ang);
-            // in diffcell/diffgrid case notifiers called at finishing move creature in MoveAllCreaturesInMoveList
-        }
+        // in diffcell/diffgrid case notifiers called at finishing move creature in MoveAllCreaturesInMoveList
         else
         {
             creature.Location.Relocate(x, y, z, ang);
@@ -788,7 +804,6 @@ public class Map : IDisposable
         c.UpdateObjectVisibility(false);
 
         return true;
-
     }
 
     public virtual void DelayedUpdate(uint diff)
@@ -831,30 +846,6 @@ public class Map : IDisposable
         stmt.AddValue(0, Id);
         stmt.AddValue(1, InstanceId);
         CharacterDatabase.Execute(stmt);
-    }
-
-    public void Dispose()
-    {
-        OnDestroyMap(this);
-
-        // Delete all waiting spawns
-        // This doesn't delete from database.
-        UnloadAllRespawnInfos();
-
-        for (var i = 0; i < _worldObjects.Count; ++i)
-        {
-            var obj = _worldObjects[i];
-            obj.RemoveFromWorld();
-            obj.Location.ResetMap();
-        }
-
-        if (!_scriptSchedule.Empty())
-            MapManager.DecreaseScheduledScriptCount((uint)_scriptSchedule.Sum(kvp => kvp.Value.Count));
-
-        OutdoorPvPManager.DestroyOutdoorPvPForMap(this);
-        BattleFieldManager.DestroyBattlefieldsForMap(this);
-
-        MMAPManager.UnloadMapInstance(Id, InstanceIdInternal);
     }
 
     public void DoOnPlayers(Action<Player> action)
@@ -969,7 +960,6 @@ public class Map : IDisposable
         go.UpdateObjectVisibility(false);
 
         return true;
-
     }
 
     public ulong GenerateLowGuid(HighGuid high)
@@ -1126,9 +1116,9 @@ public class Map : IDisposable
 
         return linkedGuid.High switch
         {
-            HighGuid.Creature => GetCreatureRespawnTime(linkedGuid.Counter),
+            HighGuid.Creature   => GetCreatureRespawnTime(linkedGuid.Counter),
             HighGuid.GameObject => GetGORespawnTime(linkedGuid.Counter),
-            _ => 0L
+            _                   => 0L
         };
     }
 
@@ -1278,10 +1268,10 @@ public class Map : IDisposable
     {
         return type switch
         {
-            SpawnObjectType.Creature => GetCreatureBySpawnId(spawnId),
-            SpawnObjectType.GameObject => GetGameObjectBySpawnId(spawnId),
+            SpawnObjectType.Creature    => GetCreatureBySpawnId(spawnId),
+            SpawnObjectType.GameObject  => GetGameObjectBySpawnId(spawnId),
             SpawnObjectType.AreaTrigger => GetAreaTriggerBySpawnId(spawnId),
-            _ => null
+            _                           => null
         };
     }
 
@@ -1337,10 +1327,8 @@ public class Map : IDisposable
     public IList<uint> GridYKeys(uint x)
     {
         lock (Grids)
-        {
             if (Grids.TryGetValue(x, out var yGrid))
                 return yGrid.Keys.ToList();
-        }
 
         return Enumerable.Empty<uint>() as IList<uint>;
     }
@@ -1577,9 +1565,7 @@ public class Map : IDisposable
                     Log.Logger.Error($"Loading saved respawn time of {respawnTime} for spawnid ({type},{spawnId}) - spawn does not exist, ignoring");
             }
             else
-            {
                 Log.Logger.Error($"Loading saved respawn time of {respawnTime} for spawnid ({type},{spawnId}) - invalid spawn type, ignoring");
-            }
         } while (result.NextRow());
     }
 
@@ -1729,9 +1715,7 @@ public class Map : IDisposable
         var p = GridDefines.ComputeGridCoord(respawnLocation.X, respawnLocation.Y);
 
         if (GetGrid(p.X, p.Y) != null)
-        {
             GetGrid(p.X, p.Y).GridInformation.DecUnloadActiveLock();
-        }
         else
         {
             var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
@@ -1875,9 +1859,7 @@ public class Map : IDisposable
     public void RemoveUpdateObject(WorldObject obj)
     {
         lock (_updateObjects)
-        {
             _updateObjects.Remove(obj);
-        }
     }
 
     public void RemoveWorldObject(WorldObject obj)
@@ -1957,9 +1939,7 @@ public class Map : IDisposable
                 Log.Logger.Error($"Attempt to load saved respawn {respawnTime} for ({type},{spawnId}) failed - duplicate respawn? Skipped.");
         }
         else if (success)
-        {
             SaveRespawnInfoDB(ri, dbTrans);
-        }
     }
 
     public void ScriptCommandStart(ScriptInfo script, uint delay, WorldObject source, WorldObject target)
@@ -1988,9 +1968,7 @@ public class Map : IDisposable
             return;
 
         lock (_scriptLock)
-        {
             ScriptsProcess();
-        }
     }
 
     // Put scripts in the execution queue
@@ -2031,9 +2009,7 @@ public class Map : IDisposable
             return;
 
         lock (_scriptLock)
-        {
             ScriptsProcess();
-        }
     }
 
     public void SendInitSelf(Player player)
@@ -2110,11 +2086,11 @@ public class Map : IDisposable
         SendZoneWeather(zoneInfo, player);
 
         foreach (var overrideLight in zoneInfo.LightOverrides.Select(lightOverride => new OverrideLight()
-        {
-            AreaLightID = lightOverride.AreaLightId,
-            OverrideLightID = lightOverride.OverrideLightId,
-            TransitionMilliseconds = lightOverride.TransitionMilliseconds
-        }))
+                 {
+                     AreaLightID = lightOverride.AreaLightId,
+                     OverrideLightID = lightOverride.OverrideLightId,
+                     TransitionMilliseconds = lightOverride.TransitionMilliseconds
+                 }))
             player.SendPacket(overrideLight);
     }
 
@@ -2474,11 +2450,11 @@ public class Map : IDisposable
 
         var summon = mask switch
         {
-            UnitTypeMask.Summon => new TempSummon(properties, summonerUnit, false),
+            UnitTypeMask.Summon   => new TempSummon(properties, summonerUnit, false),
             UnitTypeMask.Guardian => new Guardian(properties, summonerUnit, false),
-            UnitTypeMask.Puppet => new Puppet(properties, summonerUnit),
-            UnitTypeMask.Totem => new Totem(properties, summonerUnit),
-            UnitTypeMask.Minion => new Minion(properties, summonerUnit, false)
+            UnitTypeMask.Puppet   => new Puppet(properties, summonerUnit),
+            UnitTypeMask.Totem    => new Totem(properties, summonerUnit),
+            UnitTypeMask.Minion   => new Minion(properties, summonerUnit, false)
         };
 
         if (!summon.Create(GenerateLowGuid(HighGuid.Creature), this, entry, pos, null, vehId, true))
@@ -2632,9 +2608,7 @@ public class Map : IDisposable
         }
 
         lock (Grids)
-        {
             Grids.Remove(x, y);
-        }
 
         var gx = (int)(MapConst.MaxGrids - 1 - x);
         var gy = (int)(MapConst.MaxGrids - 1 - y);
@@ -2670,9 +2644,7 @@ public class Map : IDisposable
             _respawnCheckTimer = Configuration.GetDefaultValue("Respawn:MinCheckIntervalMS", 5000u);
         }
         else
-        {
             _respawnCheckTimer -= diff;
-        }
 
         _threadManager.Wait();
 
@@ -2786,9 +2758,7 @@ public class Map : IDisposable
         // Process necessary scripts
         if (!_scriptSchedule.Empty())
             lock (_scriptLock)
-            {
                 ScriptsProcess();
-            }
 
         _weatherUpdateTimer.Update(diff);
 
@@ -2967,9 +2937,7 @@ public class Map : IDisposable
             }
         }
         else
-        {
             return false;
-        }
 
         RespawnInfo ri = new(info);
         _respawnTimes.Add(ri);
@@ -3163,9 +3131,7 @@ public class Map : IDisposable
         object lockobj = null;
 
         lock (_locks)
-        {
             lockobj = _locks.GetOrAdd(p.X, p.Y, () => new object());
-        }
 
         lock (lockobj)
         {
@@ -3249,10 +3215,8 @@ public class Map : IDisposable
             return null;
 
         lock (Grids)
-        {
             if (Grids.TryGetValue(x, out var ygrid) && ygrid.TryGetValue(y, out var grid))
                 return grid;
-        }
 
         return null;
     }
@@ -3269,10 +3233,10 @@ public class Map : IDisposable
     {
         return type switch
         {
-            SpawnObjectType.Creature => _creatureRespawnTimesBySpawnId,
-            SpawnObjectType.GameObject => _gameObjectRespawnTimesBySpawnId,
+            SpawnObjectType.Creature    => _creatureRespawnTimesBySpawnId,
+            SpawnObjectType.GameObject  => _gameObjectRespawnTimesBySpawnId,
             SpawnObjectType.AreaTrigger => null,
-            _ => null
+            _                           => null
         };
     }
 
@@ -3281,9 +3245,7 @@ public class Map : IDisposable
         Creature creature = null;
 
         if (source == null && target == null)
-        {
             Log.Logger.Error("{0} source and target objects are NULL.", scriptInfo.GetDebugInfo());
-        }
         else
         {
             if (bReverse)
@@ -3324,9 +3286,7 @@ public class Map : IDisposable
         GameObject gameobject = null;
 
         if (source == null && target == null)
-        {
             Log.Logger.Error($"{scriptInfo.GetDebugInfo()} source and target objects are NULL.");
-        }
         else
         {
             if (bReverse)
@@ -3363,9 +3323,7 @@ public class Map : IDisposable
         Player player = null;
 
         if (source == null && target == null)
-        {
             Log.Logger.Error("{0} source and target objects are NULL.", scriptInfo.GetDebugInfo());
-        }
         else
         {
             // Check target first, then source.
@@ -3482,7 +3440,6 @@ public class Map : IDisposable
     private void MoveAllAreaTriggersInMoveList()
     {
         lock (_areaTriggersToMove)
-        {
             for (var i = 0; i < _areaTriggersToMove.Count; ++i)
             {
                 var at = _areaTriggersToMove[i];
@@ -3511,17 +3468,13 @@ public class Map : IDisposable
                     at.UpdateObjectVisibility(false);
                 }
                 else
-                {
                     Log.Logger.Debug("AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GUID.ToString());
-                }
             }
-        }
     }
 
     private void MoveAllCreaturesInMoveList()
     {
         lock (_creaturesToMove)
-        {
             for (var i = 0; i < _creaturesToMove.Count; ++i)
             {
                 var creature = _creaturesToMove[i];
@@ -3572,13 +3525,11 @@ public class Map : IDisposable
                     }
                 }
             }
-        }
     }
 
     private void MoveAllGameObjectsInMoveList()
     {
         lock (_gameObjectsToMove)
-        {
             for (var i = 0; i < _gameObjectsToMove.Count; ++i)
             {
                 var go = _gameObjectsToMove[i];
@@ -3620,7 +3571,6 @@ public class Map : IDisposable
                     AddObjectToRemoveList(go);
                 }
             }
-        }
     }
 
     private void ProcessRelocationNotifies(uint diff)
@@ -3760,10 +3710,8 @@ public class Map : IDisposable
                 RemoveRespawnTime(next.ObjectType, next.SpawnId, null, true);
             }
             else
-            {
                 // new respawn time, update heap position
                 SaveRespawnInfoDB(next);
-            }
         }
     }
 
@@ -3785,7 +3733,6 @@ public class Map : IDisposable
         }
 
         lock (_objectsToRemove)
-        {
             while (!_objectsToRemove.Empty())
             {
                 var obj = _objectsToRemove.First();
@@ -3833,7 +3780,7 @@ public class Map : IDisposable
                         // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
                         // make sure that like sources auras/etc removed before destructor start
                         obj. // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
-                             // make sure that like sources auras/etc removed before destructor start
+                            // make sure that like sources auras/etc removed before destructor start
                             AsCreature.CleanupsBeforeDelete();
 
                         RemoveFromMap(obj.AsCreature, true);
@@ -3848,7 +3795,6 @@ public class Map : IDisposable
 
                 _objectsToRemove.Remove(obj);
             }
-        }
     }
 
     private void RemoveAreaTriggerFromMoveList(AreaTrigger at)
@@ -3867,9 +3813,7 @@ public class Map : IDisposable
         corpse.UpdateObjectVisibilityOnDestroy();
 
         if (corpse.Location.GetCurrentCell() != null)
-        {
             RemoveFromMap(corpse, false);
-        }
         else
         {
             corpse.RemoveFromWorld();
@@ -3887,19 +3831,15 @@ public class Map : IDisposable
     private void RemoveCreatureFromMoveList(Creature c)
     {
         lock (_creaturesToMove)
-        {
             if (c.Location.MoveState == ObjectCellMoveState.Active)
                 c.Location.MoveState = ObjectCellMoveState.Inactive;
-        }
     }
 
     private void RemoveDynamicObjectFromMoveList(DynamicObject dynObj)
     {
         lock (_dynamicObjectsToMove)
-        {
             if (dynObj.Location.MoveState == ObjectCellMoveState.Active)
                 dynObj.Location.MoveState = ObjectCellMoveState.Inactive;
-        }
     }
 
     private void RemoveFromActiveHelper(WorldObject obj)
@@ -3910,10 +3850,8 @@ public class Map : IDisposable
     private void RemoveGameObjectFromMoveList(GameObject go)
     {
         lock (_gameObjectsToMove)
-        {
             if (go.Location.MoveState == ObjectCellMoveState.Active)
                 go.Location.MoveState = ObjectCellMoveState.Inactive;
-        }
     }
 
     private void ResetMarkedCells()
@@ -3944,33 +3882,23 @@ public class Map : IDisposable
         }
 
         if (guid == 0)
-        {
             Log.Logger.Error("{0} door guid is not specified.", scriptInfo.GetDebugInfo());
-        }
         else if (source == null)
-        {
             Log.Logger.Error("{0} source object is NULL.", scriptInfo.GetDebugInfo());
-        }
         else if (!source.IsTypeMask(TypeMask.Unit))
-        {
             Log.Logger.Error("{0} source object is not unit (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
                              scriptInfo.GetDebugInfo(),
                              source.TypeId,
                              source.Entry,
                              source.GUID.ToString());
-        }
         else
         {
             var pDoor = FindGameObject(source, guid);
 
             if (pDoor == null)
-            {
                 Log.Logger.Error("{0} gameobject was not found (guid: {1}).", scriptInfo.GetDebugInfo(), guid);
-            }
             else if (pDoor.GoType != GameObjectTypes.Door)
-            {
                 Log.Logger.Error("{0} gameobject is not a door (GoType: {1}, Entry: {2}, GUID: {3}).", scriptInfo.GetDebugInfo(), pDoor.GoType, pDoor.Entry, pDoor.GUID.ToString());
-            }
             else if (bOpen == (pDoor.GoState == GameObjectState.Ready))
             {
                 pDoor.UseDoorOrButton((uint)nTimeToToggle);
@@ -4195,12 +4123,10 @@ public class Map : IDisposable
                                                           speed);
                             }
                             else
-                            {
                                 unit.NearTeleportTo(step.Script.MoveTo.DestX,
                                                     step.Script.MoveTo.DestY,
                                                     step.Script.MoveTo.DestZ,
                                                     unit.Location.Orientation);
-                            }
                         }
 
                         break;
@@ -4377,9 +4303,7 @@ public class Map : IDisposable
                         if (source != null)
                         {
                             if (step.Script.TempSummonCreature.CreatureEntry == 0)
-                            {
                                 Log.Logger.Error("{0} creature entry (datalong) is not specified.", step.Script.GetDebugInfo());
-                            }
                             else
                             {
                                 var x = step.Script.TempSummonCreature.PosX;
@@ -4555,9 +4479,7 @@ public class Map : IDisposable
                                     pReceiver.SendNewItem(item, step.Script.CreateItem.Amount, false, true);
                             }
                             else
-                            {
                                 pReceiver.SendEquipError(msg, null, null, step.Script.CreateItem.ItemEntry);
-                            }
                         }
 
                         break;
@@ -4568,9 +4490,7 @@ public class Map : IDisposable
                         var cSource = GetScriptCreatureSourceOrTarget(source, target, step.Script, true);
 
                         if (cSource != null)
-                        {
                             cSource.DespawnOrUnsummon(TimeSpan.FromMilliseconds(step.Script.DespawnSelf.DespawnDelay));
-                        }
                         else
                         {
                             var goSource = GetScriptGameObjectSourceOrTarget(source, target, step.Script, true);
@@ -4642,9 +4562,7 @@ public class Map : IDisposable
                         if (cSource != null)
                         {
                             if (cSource.IsDead)
-                            {
                                 Log.Logger.Error("{0} creature is already dead (Entry: {1}, GUID: {2})", step.Script.GetDebugInfo(), cSource.Entry, cSource.GUID.ToString());
-                            }
                             else
                             {
                                 cSource.SetDeathState(DeathState.JustDied);
@@ -4674,9 +4592,7 @@ public class Map : IDisposable
                                 sourceUnit.SetFacingToObject(targetUnit);
                             }
                             else
-                            {
                                 sourceUnit.SetFacingTo(step.Script.Orientation._Orientation);
-                            }
                         }
 
                         break;
@@ -4777,14 +4693,12 @@ public class Map : IDisposable
         Dictionary<Player, UpdateData> updatePlayers = new();
 
         lock (_updateObjects)
-        {
             while (!_updateObjects.Empty())
             {
                 var obj = _updateObjects[0];
                 _updateObjects.RemoveAt(0);
                 obj.BuildUpdate(updatePlayers);
             }
-        }
 
         foreach (var iter in updatePlayers)
         {
@@ -4817,13 +4731,9 @@ public class Map : IDisposable
             player.SendPacket(weather);
         }
         else if (zoneDynamicInfo.DefaultWeather != null)
-        {
             zoneDynamicInfo.DefaultWeather.SendWeatherUpdateToPlayer(player);
-        }
         else
-        {
             Weather.Weather.SendFineWeatherUpdateToPlayer(player);
-        }
     }
 
     private void SetGrid(Grid grid, uint x, uint y)
@@ -4836,9 +4746,7 @@ public class Map : IDisposable
         }
 
         lock (Grids)
-        {
             Grids.Add(x, y, grid);
-        }
     }
 
     private void SetGridObjectDataLoaded(bool pLoaded, uint x, uint y)

@@ -11,8 +11,10 @@ internal class UseEquipmentSet : ClientPacket
 {
     public ulong GUID;
     public InvUpdate Inv;
+
     public EquipmentSetItem[] Items = new EquipmentSetItem[EquipmentSlot.End];
-     //Set Identifier
+
+    //Set Identifier
     public UseEquipmentSet(WorldPacket packet) : base(packet) { }
 
     public override void Read()

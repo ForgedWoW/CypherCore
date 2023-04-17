@@ -65,9 +65,7 @@ public class TaxiHandler : IWorldSessionHandler
             return true;
         }
         else
-        {
             return false;
-        }
     }
 
     public void SendTaxiMenu(Creature unit)
@@ -155,6 +153,7 @@ public class TaxiHandler : IWorldSessionHandler
             return;
 
         var from = CliDB.TaxiNodesStorage.LookupByKey(curloc);
+
         if (!CliDB.TaxiNodesStorage.TryGetValue(activateTaxi.Node, out var to))
             return;
 
@@ -167,6 +166,7 @@ public class TaxiHandler : IWorldSessionHandler
             }
 
         uint preferredMountDisplay = 0;
+
         if (CliDB.MountStorage.TryGetValue(activateTaxi.FlyingMountID, out var mount))
             if (Player.HasSpell(mount.SourceSpellID))
             {

@@ -7,7 +7,9 @@ public sealed class Cfg_RegionsRecord
 {
     public uint ChallengeOrigin;
     public uint Id;
+
     public uint Raidorigin;
+
     // Date of first raid reset, all other resets are calculated as this date plus interval
     public byte RegionGroupMask;
 

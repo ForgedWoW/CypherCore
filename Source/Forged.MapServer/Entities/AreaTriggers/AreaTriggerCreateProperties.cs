@@ -27,6 +27,7 @@ public unsafe class AreaTriggerCreateProperties
     public uint FacingCurveId { get; set; }
     public bool HasSplines => SplinePoints.Count >= 2;
     public uint Id { get; set; }
+
     public float MaxSearchRadius
     {
         get
@@ -53,6 +54,7 @@ public unsafe class AreaTriggerCreateProperties
     public AreaTriggerTemplate Template { get; set; }
     public uint TimeToTarget { get; set; }
     public uint TimeToTargetScale { get; set; }
+
     public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId, GameObjectManager objectManager)
     {
         AreaTriggerCreateProperties ret = new()

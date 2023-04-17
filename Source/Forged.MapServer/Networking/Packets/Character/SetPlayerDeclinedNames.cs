@@ -11,6 +11,7 @@ internal class SetPlayerDeclinedNames : ClientPacket
 {
     public DeclinedName DeclinedNames;
     public ObjectGuid Player;
+
     public SetPlayerDeclinedNames(WorldPacket packet) : base(packet)
     {
         DeclinedNames = new DeclinedName();

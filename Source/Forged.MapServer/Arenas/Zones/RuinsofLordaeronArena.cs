@@ -11,9 +11,7 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal class RuinsofLordaeronArena : Arena
 {
-    public RuinsofLordaeronArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
-    {
-    }
+    public RuinsofLordaeronArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {

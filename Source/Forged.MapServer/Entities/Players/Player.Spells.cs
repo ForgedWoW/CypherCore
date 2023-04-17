@@ -17,7 +17,6 @@ using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Scripting.Interfaces.IItem;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
-using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
@@ -101,9 +100,7 @@ public partial class Player
 
             case SpellModType.LabelFlat:
                 if (apply)
-                {
                     AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), (mod as SpellFlatModifierByLabel).Value);
-                }
                 else
                 {
                     var firstIndex = ActivePlayerData.SpellFlatModByLabel.FindIndex((mod as SpellFlatModifierByLabel).Value);
@@ -116,9 +113,7 @@ public partial class Player
 
             case SpellModType.LabelPct:
                 if (apply)
-                {
                     AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), (mod as SpellPctModifierByLabel).Value);
-                }
                 else
                 {
                     var firstIndex = ActivePlayerData.SpellPctModByLabel.FindIndex((mod as SpellPctModifierByLabel).Value);
@@ -236,7 +231,7 @@ public partial class Player
                             UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
                     }
 
-                    break;
+                        break;
 
                     case ItemEnchantmentType.EquipSpell:
                         if (enchantSpellID != 0)
@@ -565,10 +560,8 @@ public partial class Player
                     AddEnchantmentDuration(item, slot, duration);
             }
             else
-            {
                 // duration == 0 will remove EnchantDuration
                 AddEnchantmentDuration(item, slot, 0);
-            }
         }
     }
 
@@ -593,9 +586,7 @@ public partial class Player
             }
         }
         else
-        {
             RemoveItemDependentAurasAndCasts(item);
-        }
     }
 
     public void ApplyModToSpell(SpellModifier mod, Spell spell)
@@ -769,9 +760,7 @@ public partial class Player
                         chance = GetPpmProcChance(weaponSpeed, proto.SpellPPMRate, spellInfo);
                     }
                     else if (chance > 100.0f)
-                    {
                         chance = GetWeaponProcChance();
-                    }
 
                     if (RandomHelper.randChance(chance) && ScriptManager.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
                         SpellFactory.CastSpell(damageInfo.Victim, spellInfo.Id, item);
@@ -781,6 +770,7 @@ public partial class Player
         for (byte eSlot = 0; eSlot < (byte)EnchantmentSlot.Max; ++eSlot)
         {
             var enchantID = item.GetEnchantmentId((EnchantmentSlot)eSlot);
+
             if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var pEnchant))
                 continue;
 
@@ -913,6 +903,7 @@ public partial class Player
         for (EnchantmentSlot eSlot = 0; eSlot < EnchantmentSlot.Max; ++eSlot)
         {
             var enchantID = item.GetEnchantmentId(eSlot);
+
             if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var pEnchant))
                 continue;
 
@@ -1726,9 +1717,7 @@ public partial class Player
             }
         }
         else
-        {
             UpdateQuestObjectiveProgress(QuestObjectiveType.LearnSpell, (int)spellId, 1);
-        }
     }
 
     public void ModifySkillBonus(SkillType skillid, int val, bool talent)
@@ -1965,9 +1954,7 @@ public partial class Player
             var prevSpell = SpellManager.GetPrevSpellInChain(spellId);
 
             if (prevSpell == 0) // first rank, remove skill
-            {
                 SetSkill(spellLearnSkill.Skill, 0, 0, 0);
-            }
             else
             {
                 // search prev. skill setting by spell ranks chain
@@ -1980,9 +1967,7 @@ public partial class Player
                 }
 
                 if (prevSkill == null) // not found prev skill setting, remove skill
-                {
                     SetSkill(spellLearnSkill.Skill, 0, 0, 0);
-                }
                 else // set to prev. skill setting values
                 {
                     uint skillValue = GetPureSkillValue(prevSkill.Skill);
@@ -2021,7 +2006,6 @@ public partial class Player
             // if ranked non-stackable spell: need activate lesser rank and update dendence state
             // No need to check for spellInfo != NULL here because if cur_active is true, then that means that the spell was already in m_spells, and only valid spells can be pushed there.
             if (curActive && spellInfo.IsRanked)
-            {
                 // need manually update dependence state (learn spell ignore like attempts)
                 if (_spells.TryGetValue(prevID, out var prevSpell))
                 {
@@ -2042,7 +2026,6 @@ public partial class Player
                             prevActivate = true;
                         }
                 }
-            }
 
         _overrideSpells.Remove(spellId);
 
@@ -2244,9 +2227,7 @@ public partial class Player
                         RefreshSkillBonusAuras();
                     }
                     else // updated skill, mark as changed to save into database
-                    {
                         skillStatusData.State = SkillState.Changed;
-                    }
                 }
             }
             else if (currVal != 0) // Deactivate skill line
@@ -2758,9 +2739,7 @@ public partial class Player
             skillStatusData.State = SkillState.Changed;
 
         if (bonusSkillLevels.Any(bsl => value < bsl && newValue >= bsl))
-        {
             LearnSkillRewardedSpells(skillId, newValue, Race);
-        }
 
         UpdateSkillEnchantments(skillId, value, newValue);
         UpdateCriteria(CriteriaType.SkillRaised, skillId);
@@ -2880,9 +2859,7 @@ public partial class Player
                 DeleteSpellFromAllPlayers(spellId);
             }
             else
-            {
                 Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) does not exist", spellId);
-            }
 
             return false;
         }
@@ -2897,9 +2874,7 @@ public partial class Player
                 DeleteSpellFromAllPlayers(spellId);
             }
             else
-            {
                 Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) is invalid", spellId);
-            }
 
             return false;
         }
@@ -2959,10 +2934,8 @@ public partial class Player
             if (playerSpell.TraitDefinitionId != traitDefinitionId)
             {
                 if (playerSpell.TraitDefinitionId.HasValue)
-                {
                     if (CliDB.TraitDefinitionStorage.TryGetValue(playerSpell.TraitDefinitionId.Value, out var traitDefinition))
                         RemoveOverrideSpell(traitDefinition.OverridesSpellID, spellId);
-                }
 
                 playerSpell.TraitDefinitionId = traitDefinitionId;
             }
@@ -2987,9 +2960,7 @@ public partial class Player
                 else if (Location.IsInWorld)
                 {
                     if (nextActiveSpellID != 0)
-                    {
                         SendSupercededSpell(spellId, nextActiveSpellID);
-                    }
                     else
                     {
                         UnlearnedSpells removedSpells = new();
@@ -3014,7 +2985,6 @@ public partial class Player
                 disabledCase = true;
             }
             else
-            {
                 switch (playerSpell.State)
                 {
                     case PlayerSpellState.Unchanged:
@@ -3036,7 +3006,6 @@ public partial class Player
                         return false;
                     }
                 }
-            }
         }
 
         if (!disabledCase) // skip new spell adding if spell already known (disabled spells case)
@@ -3173,10 +3142,8 @@ public partial class Player
         }
 
         if (traitDefinitionId.HasValue)
-        {
             if (CliDB.TraitDefinitionStorage.TryGetValue(traitDefinitionId.Value, out var traitDefinition))
                 AddOverrideSpell(traitDefinition.OverridesSpellID, spellId);
-        }
 
         // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
         var freeProfs = FreePrimaryProfessionPoints;
@@ -3209,7 +3176,6 @@ public partial class Player
             }
         }
         else
-        {
             // not ranked skills
             foreach (var spellIdx in skillBounds)
             {
@@ -3228,7 +3194,6 @@ public partial class Player
                         LearnDefaultSkill(rcInfo);
                 }
             }
-        }
 
         // learn dependent spells
         var spellBounds = SpellManager.GetSpellLearnSpellMapBounds(spellId);
@@ -3294,9 +3259,7 @@ public partial class Player
                     SpellFactory.CastSpell(this, (uint)spellId, new CastSpellExtraArgs().SetCastItem(item));
             }
             else
-            {
                 RemoveAura((uint)spellId);
-            }
         }
     }
 
@@ -3780,11 +3743,11 @@ public partial class Player
 
                 foreach (var mod in _spellModifiers[i][(int)SpellModType.Flat].Cast<SpellModifierByClassMask>().Where(mod => mod.Mask & mask))
                     flatData.ModifierValue += mod.Value;
-                
+
 
                 foreach (var mod in _spellModifiers[i][(int)SpellModType.Pct].Cast<SpellModifierByClassMask>().Where(mod => mod.Mask & mask))
                     pctData.ModifierValue *= 1.0f + MathFunctions.CalculatePct(1.0f, mod.Value);
-           
+
 
                 flatMod.ModifierData.Add(flatData);
                 pctMod.ModifierData.Add(pctData);
@@ -3845,9 +3808,7 @@ public partial class Player
             var enchantDuration = _enchantDurations[i];
 
             if (enchantDuration.Item.GetEnchantmentId(enchantDuration.Slot) == 0)
-            {
                 _enchantDurations.Remove(enchantDuration);
-            }
             else if (enchantDuration.Leftduration <= time)
             {
                 ApplyEnchantment(enchantDuration.Item, enchantDuration.Slot, false, false);
@@ -3855,9 +3816,7 @@ public partial class Player
                 _enchantDurations.Remove(enchantDuration);
             }
             else if (enchantDuration.Leftduration > time)
-            {
                 enchantDuration.Leftduration -= time;
-            }
         }
     }
 
@@ -3874,9 +3833,7 @@ public partial class Player
                 var spellInfo = SpellManager.GetSpellInfo(itemSetSpell.SpellID);
 
                 if (itemSetSpell.ChrSpecID != 0 && itemSetSpell.ChrSpecID != GetPrimarySpecialization())
-                {
                     ApplyEquipSpell(spellInfo, null, false); // item set aura is not for current spec
-                }
                 else
                 {
                     ApplyEquipSpell(spellInfo, null, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied

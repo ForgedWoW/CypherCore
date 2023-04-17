@@ -8,10 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 public class ShowTaxiNodes : ServerPacket
 {
     public byte[] CanLandNodes = null;
+
     // Nodes known by player
     public byte[] CanUseNodes = null;
 
     public ShowTaxiNodesWindowInfo? WindowInfo;
+
     // Nodes available for use - this can temporarily disable a known node
     public ShowTaxiNodes() : base(ServerOpcodes.ShowTaxiNodes) { }
 

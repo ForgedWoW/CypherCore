@@ -13,6 +13,7 @@ public class GuildPermissionsQueryResults : ServerPacket
     public uint RankID;
     public List<GuildRankTabPermissions> Tab;
     public int WithdrawGoldLimit;
+
     public GuildPermissionsQueryResults() : base(ServerOpcodes.GuildPermissionsQueryResults)
     {
         Tab = new List<GuildRankTabPermissions>();

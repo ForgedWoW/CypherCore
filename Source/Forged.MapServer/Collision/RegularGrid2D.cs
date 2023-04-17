@@ -39,17 +39,13 @@ public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, n
     public bool Contains(T value)
     {
         lock (_memberTable)
-        {
             return _memberTable.ContainsKey(value);
-        }
     }
 
     public bool Empty()
     {
         lock (_memberTable)
-        {
             return _memberTable.Empty();
-        }
     }
 
     public virtual void Insert(T value)
@@ -183,9 +179,7 @@ public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, n
         // Remove the member
 
         lock (_memberTable)
-        {
             _memberTable.Remove(value);
-        }
     }
 
     private TNode GetGrid(int x, int y)

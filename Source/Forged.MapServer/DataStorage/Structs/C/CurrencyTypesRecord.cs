@@ -25,6 +25,7 @@ public sealed class CurrencyTypesRecord
     public byte SpellCategory;
     public uint SpellWeight;
     public int XpQuestDifficulty;
+
     public CurrencyTypesFlags GetFlags()
     {
         return (CurrencyTypesFlags)Flags[0];

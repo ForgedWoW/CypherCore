@@ -50,6 +50,7 @@ internal class MoveSetCompoundState : ServerPacket
         public float? Speed;
         public SpeedRange SpeedRange;
         public int? VehicleRecID;
+
         public MoveStateChange(ServerOpcodes messageId, uint sequenceIndex)
         {
             MessageID = messageId;

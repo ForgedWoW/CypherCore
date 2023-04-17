@@ -13,9 +13,7 @@ public class CombatAI : CreatureAI
 {
     protected List<uint> Spells = new();
 
-    public CombatAI(Creature c) : base(c)
-    {
-    }
+    public CombatAI(Creature c) : base(c) { }
 
     public override void InitializeAI()
     {
@@ -92,8 +90,6 @@ public class CombatAI : CreatureAI
                 Events.ScheduleEvent(spellId, info.Cooldown, info.Cooldown * 2);
         }
         else
-        {
             DoMeleeAttackIfReady();
-        }
     }
 }

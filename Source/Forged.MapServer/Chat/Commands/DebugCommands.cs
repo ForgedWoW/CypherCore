@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
-using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities;
@@ -31,7 +30,6 @@ using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Util;
 using Serilog;
-using Transport = Forged.MapServer.Entities.Transport;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -169,9 +167,7 @@ internal class DebugCommands
             return false;
 
         if (entry == 0)
-        {
             handler.Player.EnterVehicle(target, seatId);
-        }
         else
         {
             var check = new AllCreaturesOfEntryInRange(handler.Player, entry, 20.0f);
@@ -635,9 +631,7 @@ internal class DebugCommands
                         }
                     }
                     else
-                    {
                         handler.SendSysMessage($" | |-- '{groupData.Name}' could've been {(isSpawn ? "allowed to spawn" : "blocked from spawning")} if boss state {bossStateId} matched mask 0x{tuple.Item3:X2}; but it is {actualState} . 0x{1 << (int)actualState:X2}, which does not match.");
-                    }
                 }
 
                 if (isBlocked)
@@ -648,9 +642,7 @@ internal class DebugCommands
                     handler.SendSysMessage($" | |=> '{groupData.Name}' is not active due to none of its rules being matched");
             }
             else
-            {
                 handler.SendSysMessage($" - '{groupData.Name}' ({key}) is {(map.IsSpawnGroupActive(key) ? "" : "not ")}active");
-            }
         }
 
         return true;
@@ -743,10 +735,8 @@ internal class DebugCommands
             target = handler.Player;
 
         if (!moveFlags.HasValue)
-        {
             //! Display case
             handler.SendSysMessage(CypherStrings.MoveflagsGet, target.GetUnitMovementFlags(), target.GetUnitMovementFlags2());
-        }
         else
         {
             // @fixme: port master's HandleDebugMoveflagsCommand; flags need different handling
@@ -757,9 +747,7 @@ internal class DebugCommands
                 target.SetUnitMovementFlags2((MovementFlag2)moveFlagsExtra);
 
             if (!target.IsTypeId(TypeId.Player))
-            {
                 target.DestroyForNearbyPlayers(); // Force new SMSG_UPDATE_OBJECT:CreateObject
-            }
             else
             {
                 MoveUpdate moveUpdate = new()
@@ -787,9 +775,7 @@ internal class DebugCommands
             var bg = player.Battleground;
 
             if (bg)
-            {
                 nearestLoc = bg.GetClosestGraveYard(player);
-            }
             else
             {
                 var bf = handler.ClassFactory.Resolve<BattleFieldManager>().GetBattlefieldToZoneId(player.Location.Map, player.Location.Zone);
@@ -1066,9 +1052,7 @@ internal class DebugCommands
             var redirectInfo = mgr.RedirectInfo;
 
             if (redirectInfo.Empty())
-            {
                 handler.SendSysMessage(" - No redirects being applied");
-            }
             else
             {
                 handler.SendSysMessage($" - {redirectInfo.Count} redirects being applied:");
@@ -1086,9 +1070,7 @@ internal class DebugCommands
             var redirectRegistry = mgr.RedirectRegistry;
 
             if (redirectRegistry.Empty())
-            {
                 handler.SendSysMessage(" - No redirects are registered");
-            }
             else
             {
                 handler.SendSysMessage($" - {redirectRegistry.Count} spells may have redirects registered");
@@ -1135,9 +1117,7 @@ internal class DebugCommands
         var threatenedByMe = target.GetThreatManager().ThreatenedByMeList;
 
         if (threatenedByMe.Empty())
-        {
             handler.SendSysMessage($"{target.GetName()} ({target.GUID}) does not threaten any units.");
-        }
         else
         {
             handler.SendSysMessage($"List of units threatened by {target.GetName()} ({target.GUID})");
@@ -1172,22 +1152,14 @@ internal class DebugCommands
                 handler.SendSysMessage("End of threat list.");
             }
             else if (!target.IsEngaged)
-            {
                 handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not currently engaged.");
-            }
             else
-            {
                 handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) seems to be engaged, but does not have a threat list??");
-            }
         }
         else if (target.IsEngaged)
-        {
             handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is currently engaged. (This unit cannot have a threat list.)");
-        }
         else
-        {
             handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is not currently engaged. (This unit cannot have a threat list.)");
-        }
 
         return true;
     }
@@ -1203,9 +1175,7 @@ internal class DebugCommands
         var start = false;
 
         if (operation == "stop")
-        {
             transport.EnableMovement(false);
-        }
         else if (operation == "start")
         {
             transport.EnableMovement(true);

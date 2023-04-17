@@ -10,6 +10,7 @@ public class SpellCastVisualField
 {
     public uint ScriptVisualID;
     public uint SpellXSpellVisualID;
+
     public void WriteCreate(WorldPacket data, WorldObject owner, Player receiver)
     {
         data.WriteUInt32(SpellXSpellVisualID);

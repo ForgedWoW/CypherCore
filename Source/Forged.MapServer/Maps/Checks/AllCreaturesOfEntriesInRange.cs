@@ -12,6 +12,7 @@ public class AllCreaturesOfEntriesInRange : ICheck<Creature>
     private readonly float _fRange;
     private readonly WorldObject _pObject;
     private readonly uint[] _uiEntry;
+
     public AllCreaturesOfEntriesInRange(WorldObject obj, uint[] entry, float maxRange = 0f)
     {
         _pObject = obj;

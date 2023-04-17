@@ -199,9 +199,7 @@ public sealed class GuildManager
             var result = _characterDatabase.Query("SELECT guildid, rid, RankOrder, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild ranks. DB table `guild_rank` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -238,9 +236,7 @@ public sealed class GuildManager
                                                   "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild members. DB table `guild_member` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -272,9 +268,7 @@ public sealed class GuildManager
             var result = _characterDatabase.Query("SELECT guildid, TabId, rid, gbright, SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild bank tab rights. DB table `guild_bank_right` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -305,9 +299,7 @@ public sealed class GuildManager
             var result = _characterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild event logs. DB table `guild_eventlog` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -339,9 +331,7 @@ public sealed class GuildManager
             var result = _characterDatabase.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -372,9 +362,7 @@ public sealed class GuildManager
             var result = _characterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid, Flags, Value, Timestamp FROM guild_newslog ORDER BY TimeStamp DESC, LogGuid DESC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild event logs. DB table `guild_newslog` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -406,9 +394,7 @@ public sealed class GuildManager
             var result = _characterDatabase.Query("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab ORDER BY guildid ASC, TabId ASC");
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
-            }
             else
             {
                 uint count = 0;
@@ -439,9 +425,7 @@ public sealed class GuildManager
             var result = _characterDatabase.Query(_characterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_ITEMS));
 
             if (result.IsEmpty())
-            {
                 Log.Logger.Information("Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
-            }
             else
             {
                 uint count = 0;

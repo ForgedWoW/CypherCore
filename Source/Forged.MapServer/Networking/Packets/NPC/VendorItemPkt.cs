@@ -19,6 +19,7 @@ public class VendorItemPkt
     public bool Refundable;
     public int StackCount;
     public int Type;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(Price);

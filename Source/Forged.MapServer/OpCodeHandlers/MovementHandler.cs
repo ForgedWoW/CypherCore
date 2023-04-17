@@ -335,9 +335,7 @@ public class MovementHandler : IWorldSessionHandler
                             movementInfo.ResetTransport();
                     }
                     else
-                    {
                         movementInfo.ResetTransport();
-                    }
                 }
             }
 
@@ -345,9 +343,7 @@ public class MovementHandler : IWorldSessionHandler
                 movementInfo.Transport.Reset();
         }
         else if (plrMover && plrMover.Transport != null) // if we were on a transport, leave
-        {
             plrMover.Transport.RemovePassenger(plrMover);
-        }
 
         // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
         if (opcode == ClientOpcodes.MoveFallLand && plrMover && !plrMover.IsInFlight)
@@ -412,9 +408,7 @@ public class MovementHandler : IWorldSessionHandler
                     }
             }
             else
-            {
                 plrMover.RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
-            }
 
             if (opcode == ClientOpcodes.MoveJump)
             {
@@ -510,7 +504,6 @@ public class MovementHandler : IWorldSessionHandler
 
             // far teleport case
             if (curDestNode != null && curDestNode.ContinentID != Player.Location.MapId && Player.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Flight)
-            {
                 if (Player.MotionMaster.GetCurrentMovementGenerator() is FlightPathMovementGenerator flight)
                 {
                     // short preparations to continue flight
@@ -520,7 +513,6 @@ public class MovementHandler : IWorldSessionHandler
 
                     Player.TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, Player.Location.Orientation);
                 }
-            }
 
             return;
         }
@@ -726,9 +718,7 @@ public class MovementHandler : IWorldSessionHandler
         }
 
         if (!seamlessTeleport)
-        {
             player.SendInitialPacketsAfterAddToMap();
-        }
         else
         {
             player.UpdateVisibilityForPlayer();

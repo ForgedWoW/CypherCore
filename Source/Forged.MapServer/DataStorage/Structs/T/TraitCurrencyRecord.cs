@@ -12,6 +12,7 @@ public sealed class TraitCurrencyRecord
     public int Icon;
     public uint Id;
     public int Type;
+
     public TraitCurrencyType GetCurrencyType()
     {
         return (TraitCurrencyType)Type;

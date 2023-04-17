@@ -30,6 +30,22 @@ public class Condition
     private readonly ScriptManager _scriptManager;
     private readonly WorldStateManager _worldStateManager;
 
+    // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
+    public Condition(ConditionManager conditionManager, ScriptManager scriptManager, CliDB cliDB, GameObjectManager objectManager, PlayerComputators playerComputators,
+                     GameEventManager gameEventManager, WorldStateManager worldStateManager, AchievementGlobalMgr achievementGlobalMgr)
+    {
+        _conditionManager = conditionManager;
+        _scriptManager = scriptManager;
+        _cliDB = cliDB;
+        _objectManager = objectManager;
+        _playerComputators = playerComputators;
+        _gameEventManager = gameEventManager;
+        _worldStateManager = worldStateManager;
+        _achievementGlobalMgr = achievementGlobalMgr;
+        SourceType = ConditionSourceType.None;
+        ConditionType = ConditionTypes.None;
+    }
+
     public byte ConditionTarget { get; set; }
 
     public ConditionTypes ConditionType { get; set; }
@@ -50,22 +66,6 @@ public class Condition
     public uint SourceId { get; set; }
 
     public ConditionSourceType SourceType { get; set; } //SourceTypeOrReferenceId
-
-    // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
-    public Condition(ConditionManager conditionManager, ScriptManager scriptManager, CliDB cliDB, GameObjectManager objectManager, PlayerComputators playerComputators,
-                     GameEventManager gameEventManager, WorldStateManager worldStateManager, AchievementGlobalMgr achievementGlobalMgr)
-    {
-        _conditionManager = conditionManager;
-        _scriptManager = scriptManager;
-        _cliDB = cliDB;
-        _objectManager = objectManager;
-        _playerComputators = playerComputators;
-        _gameEventManager = gameEventManager;
-        _worldStateManager = worldStateManager;
-        _achievementGlobalMgr = achievementGlobalMgr;
-        SourceType = ConditionSourceType.None;
-        ConditionType = ConditionTypes.None;
-    }
 
     public uint GetMaxAvailableConditionTargets()
     {
@@ -342,10 +342,8 @@ public class Condition
                 break;
             case ConditionTypes.ReputationRank:
                 if (player != null)
-                {
                     if (_cliDB.FactionStorage.TryGetValue(ConditionValue1, out var faction))
                         condMeets = Convert.ToBoolean(ConditionValue2 & (1 << (int)player.ReputationMgr.GetRank(faction)));
-                }
 
                 break;
             case ConditionTypes.Achievement:
@@ -663,10 +661,8 @@ public class Condition
             case ConditionTypes.PlayerCondition:
             {
                 if (player != null)
-                {
                     if (_cliDB.PlayerConditionStorage.TryGetValue(ConditionValue1, out var playerCondition))
                         condMeets = _conditionManager.IsPlayerMeetingCondition(player, playerCondition);
-                }
 
                 break;
             }
@@ -692,9 +688,7 @@ public class Condition
                 ss.AppendFormat(" ({0})", _conditionManager.StaticSourceTypeData[(int)SourceType]);
         }
         else
-        {
             ss.Append(" (Unknown)");
-        }
 
         if (_conditionManager.CanHaveSourceGroupSet(SourceType))
             ss.Append($", SourceGroup: {SourceGroup}");

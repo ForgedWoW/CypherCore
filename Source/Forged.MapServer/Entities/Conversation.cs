@@ -41,6 +41,7 @@ public class Conversation : WorldObject
 
     public override uint Faction => 0;
     public override ObjectGuid OwnerGUID => GetCreatorGuid();
+
     public static Conversation CreateConversation(uint conversationEntry, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null, bool autoStart = true)
     {
         var conversationTemplate = Global.ConversationDataStorage.GetConversationTemplate(conversationEntry);
@@ -190,6 +191,7 @@ public class Conversation : WorldObject
 
         base.Update(diff);
     }
+
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedConversationMask, Player target)
     {
         UpdateMask valuesMask = new((int)TypeId.Max);
@@ -324,11 +326,13 @@ public class Conversation : WorldObject
 
         return true;
     }
+
     private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
     {
         private readonly ConversationData ConversationMask = new();
         private readonly ObjectFieldData ObjectMask = new();
         private readonly Conversation Owner;
+
         public ValuesUpdateForPlayerWithMaskSender(Conversation owner)
         {
             Owner = owner;

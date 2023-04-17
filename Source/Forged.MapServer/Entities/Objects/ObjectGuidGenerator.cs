@@ -40,6 +40,7 @@ public class ObjectGuidGenerator
     {
         _nextGuid = val;
     }
+
     private void CheckGuidTrigger(ulong guidlow)
     {
         if (!_worldManager.IsGuidAlert && guidlow > _configuration.GetDefaultValue("Respawn:GuidAlertLevel", 16000000ul))

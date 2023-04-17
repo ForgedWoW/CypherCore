@@ -10,14 +10,18 @@ public class CalcDamageInfo
 {
     public double Absorb;
     public double Damage;
+
     public Unit Attacker { get; set; } // Attacker
-                                       // Helper
+
+    // Helper
     public WeaponAttackType AttackType { get; set; }
 
     public double Blocked { get; set; }
     public double CleanDamage { get; set; }
     public uint DamageSchoolMask { get; set; }
+
     public HitInfo HitInfo { get; set; }
+
     // Used only for rage calculation
     public MeleeHitOutcome HitOutCome { get; set; }
 
@@ -25,7 +29,8 @@ public class CalcDamageInfo
     public ProcFlagsInit ProcAttacker { get; set; }
     public ProcFlagsInit ProcVictim { get; set; }
     public double Resist { get; set; }
-    public Unit Target { get; set; }   // Target for damage
+    public Unit Target { get; set; } // Target for damage
+
     public VictimState TargetState { get; set; }
- // TODO: remove this field (need use TargetState)
+    // TODO: remove this field (need use TargetState)
 }

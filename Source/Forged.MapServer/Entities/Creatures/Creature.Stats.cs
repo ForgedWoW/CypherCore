@@ -71,8 +71,8 @@ public partial class Creature
         return powerType switch
         {
             PowerType.AlternatePower => 1,
-            PowerType.ComboPoints => 2,
-            _ => (uint)PowerType.Max
+            PowerType.ComboPoints    => 2,
+            _                        => (uint)PowerType.Max
         };
     }
 
@@ -117,9 +117,7 @@ public partial class Creature
 
         //automatically update weapon damage after attack power modification
         if (ranged)
-        {
             UpdateDamagePhysical(WeaponAttackType.RangedAttack);
-        }
         else
         {
             UpdateDamagePhysical(WeaponAttackType.BaseAttack);

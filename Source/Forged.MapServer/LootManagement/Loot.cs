@@ -81,6 +81,7 @@ public class Loot
     public ObjectGuid OwnerGuid { get; set; }
 
     public MultiMap<ObjectGuid, NotNormalLootItem> PlayerFFAItems { get; } = new();
+
     // Inserts the item into the loot (called by LootTemplate processors)
     public void AddItem(LootStoreItem item)
     {
@@ -266,9 +267,7 @@ public class Loot
         }
         // ... for personal loot
         else
-        {
             FillNotNormalLootFor(lootOwner);
-        }
 
         return true;
     }

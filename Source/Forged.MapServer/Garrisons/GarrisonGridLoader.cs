@@ -20,8 +20,6 @@ internal class GarrisonGridLoader : IGridNotifierGameObject
     private readonly GarrisonMap _map;
     private uint _gameObjects;
 
-    public GridType GridType { get; set; }
-
     public GarrisonGridLoader(Grid grid, GarrisonMap map, Cell cell, GridType gridType = GridType.Grid)
     {
         _cell = cell;
@@ -30,6 +28,8 @@ internal class GarrisonGridLoader : IGridNotifierGameObject
         _garrison = map.GetGarrison();
         GridType = gridType;
     }
+
+    public GridType GridType { get; set; }
 
     public void Visit(IList<GameObject> objs)
     {

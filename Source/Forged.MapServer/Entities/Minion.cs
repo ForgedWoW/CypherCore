@@ -29,6 +29,7 @@ public class Minion : TempSummon
 
     public bool IsGuardianPet => IsPet || SummonPropertiesRecord is { Control: SummonCategory.Pet };
     public override Unit OwnerUnit => Owner;
+
     public override string GetDebugInfo()
     {
         return $"{base.GetDebugInfo()}\nOwner: {(OwnerUnit ? OwnerUnit.GUID : "")}";
@@ -125,13 +126,14 @@ public class Minion : TempSummon
                 break;
             }
     }
+
     public void SetFollowAngle(float angle)
     {
         _followAngle = angle;
     }
- // Ghoul may be guardian or pet
+    // Ghoul may be guardian or pet
 
-     // Sludge Belcher dk talent
+    // Sludge Belcher dk talent
 
- // Spirit wolf from feral spirits
+    // Spirit wolf from feral spirits
 }

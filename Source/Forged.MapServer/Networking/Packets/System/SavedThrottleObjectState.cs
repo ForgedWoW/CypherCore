@@ -9,6 +9,7 @@ public struct SavedThrottleObjectState
     public uint MaxTries;
     public uint PerMilliseconds;
     public uint TryCount;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(MaxTries);

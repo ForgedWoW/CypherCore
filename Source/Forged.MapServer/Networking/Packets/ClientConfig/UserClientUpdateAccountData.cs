@@ -13,8 +13,10 @@ public class UserClientUpdateAccountData : ClientPacket
     public AccountDataTypes DataType = 0;
     public ObjectGuid PlayerGuid;
     public uint Size;
+
     public long Time; // UnixTime
-                      // decompressed size
+
+    // decompressed size
     public UserClientUpdateAccountData(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -17,6 +17,7 @@ public class GameObjectAI
     public readonly GameObject Me;
     protected EventMap Events;
     protected TaskScheduler Scheduler;
+
     public GameObjectAI(GameObject go)
     {
         Me = go;

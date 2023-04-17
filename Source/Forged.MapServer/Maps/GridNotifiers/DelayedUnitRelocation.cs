@@ -18,6 +18,7 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
     private readonly ObjectAccessor _objectAccessor;
     private readonly CellCoord _p;
     private readonly float _radius;
+
     public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType, ObjectAccessor objectAccessor)
     {
         _map = map;
@@ -29,6 +30,7 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

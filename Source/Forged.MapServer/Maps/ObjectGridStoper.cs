@@ -16,6 +16,7 @@ internal class ObjectGridStoper : IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         // stop any fights at grid de-activation and remove dynobjects/areatriggers created at cast by creatures

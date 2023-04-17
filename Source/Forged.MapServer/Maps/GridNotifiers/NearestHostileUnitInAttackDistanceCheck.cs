@@ -34,9 +34,7 @@ internal class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
                 return false;
         }
         else if (!_me.CanStartAttack(u, false))
-        {
             return false;
-        }
 
         _range = _me.Location.GetDistance(u); // use found unit range as new range limit for next check
 

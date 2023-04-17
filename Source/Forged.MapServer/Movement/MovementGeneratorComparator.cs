@@ -17,9 +17,7 @@ internal class MovementGeneratorComparator : IComparer<MovementGenerator>
             return 0;
 
         if (a.Mode < b.Mode)
-        {
             return 1;
-        }
 
         if (a.Mode == b.Mode)
         {

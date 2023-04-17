@@ -14,6 +14,7 @@ public class AnyUnfriendlyUnitInObjectRangeCheck : ICheck<Unit>
     private readonly Unit _funit;
     private readonly WorldObject _obj;
     private readonly float _range;
+
     public AnyUnfriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, Func<Unit, bool> additionalCheck = null)
     {
         _obj = obj;

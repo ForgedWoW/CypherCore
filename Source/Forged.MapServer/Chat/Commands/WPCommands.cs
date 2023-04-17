@@ -27,9 +27,7 @@ internal class WpCommands
         if (!optionalPathId.HasValue)
         {
             if (target)
-            {
                 pathId = target.WaypointPath;
-            }
             else
             {
                 stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_ID);
@@ -41,9 +39,7 @@ internal class WpCommands
             }
         }
         else
-        {
             pathId = optionalPathId.Value;
-        }
 
         // path_id . ID of the Path
         // point   . number of the waypoint (if not 0)
@@ -105,9 +101,7 @@ internal class WpCommands
                     handler.SendSysMessage("|cff00ff00Wp Event: New waypoint event added: {0}|r", "", id);
                 }
                 else
-                {
                     handler.SendSysMessage("|cff00ff00Wp Event: You have choosed an existing waypoint script guid: {0}|r", id);
-                }
             }
             else
             {
@@ -201,9 +195,7 @@ internal class WpCommands
                 handler.SendSysMessage("|cff00ff00{0}{1}|r", "Wp Event: Waypoint script removed: ", id);
             }
             else
-            {
                 handler.SendSysMessage("|cffff33ffWp Event: ERROR: you have selected a non existing script: {0}|r", id);
-            }
 
             return true;
         }
@@ -334,9 +326,7 @@ internal class WpCommands
                     return true;
                 }
                 else
-                {
                     handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg, id); // Query can't be a prepared statement
-                }
             }
 
             handler.SendSysMessage("|cff00ff00Waypoint script:|r|cff00ffff{0}:|r|cff00ff00 {1} updated.|r", id, arg);

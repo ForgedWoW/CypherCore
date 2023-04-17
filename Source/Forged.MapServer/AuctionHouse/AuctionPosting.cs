@@ -182,7 +182,7 @@ public class AuctionPosting
                     return (long)(leftPrice - rightPrice);
                 }
                 case AuctionHouseSortOrder.Name:
-                    return String.Compare(left.Bucket.FullName[(int)_locale], right.Bucket.FullName[(int)_locale], StringComparison.Ordinal);
+                    return string.Compare(left.Bucket.FullName[(int)_locale], right.Bucket.FullName[(int)_locale], StringComparison.Ordinal);
 
                 case AuctionHouseSortOrder.Level:
                 {

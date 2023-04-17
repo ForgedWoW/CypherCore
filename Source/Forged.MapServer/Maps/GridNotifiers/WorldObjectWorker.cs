@@ -19,6 +19,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
 {
     private readonly IDoWork<WorldObject> _doWork;
     private readonly PhaseShift _phaseShift;
+
     public WorldObjectWorker(WorldObject searcher, IDoWork<WorldObject> work, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {
         Mask = mapTypeMask;
@@ -30,16 +31,15 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
     public GridType GridType { get; set; }
 
     public GridMapTypeMask Mask { get; set; }
+
     public void Visit(IList<AreaTrigger> objs)
     {
         if (!Mask.HasAnyFlag(GridMapTypeMask.AreaTrigger))
             return;
 
         foreach (var areaTrigger in objs)
-        {
             if (areaTrigger.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(areaTrigger);
-        }
     }
 
     public void Visit(IList<Conversation> objs)
@@ -48,10 +48,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
             return;
 
         foreach (var conversation in objs)
-        {
             if (conversation.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(conversation);
-        }
     }
 
     public void Visit(IList<Corpse> objs)
@@ -60,10 +58,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
             return;
 
         foreach (var corpse in objs)
-        {
             if (corpse.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(corpse);
-        }
     }
 
     public void Visit(IList<Creature> objs)
@@ -72,10 +68,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
             return;
 
         foreach (var creature in objs)
-        {
             if (creature.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(creature);
-        }
     }
 
     public void Visit(IList<DynamicObject> objs)
@@ -84,10 +78,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
             return;
 
         foreach (var dynamicObject in objs)
-        {
             if (dynamicObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(dynamicObject);
-        }
     }
 
     public void Visit(IList<GameObject> objs)
@@ -96,10 +88,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
             return;
 
         foreach (var gameObject in objs)
-        {
             if (gameObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(gameObject);
-        }
     }
 
     public void Visit(IList<Player> objs)
@@ -108,10 +98,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
             return;
 
         foreach (var player in objs)
-        {
             if (player.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(player);
-        }
     }
 
     public void Visit(IList<SceneObject> objs)
@@ -120,9 +108,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
             return;
 
         foreach (var sceneObject in objs)
-        {
             if (sceneObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(sceneObject);
-        }
     }
 }

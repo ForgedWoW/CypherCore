@@ -49,9 +49,7 @@ public class PlayerData : BaseUpdateData<Player>
     public DynamicUpdateField<int> VisualItemReplacements = new(0, 6);
     public UpdateField<ObjectGuid> WowAccount = new(0, 8);
 
-    public PlayerData() : base(0, TypeId.Player, 190)
-    {
-    }
+    public PlayerData() : base(0, TypeId.Player, 190) { }
 
     public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
     {

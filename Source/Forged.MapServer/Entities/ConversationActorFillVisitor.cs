@@ -16,6 +16,7 @@ internal class ConversationActorFillVisitor
     private readonly Conversation _conversation;
     private readonly Unit _creator;
     private readonly Map _map;
+
     public ConversationActorFillVisitor(Conversation conversation, Unit creator, Map map, ConversationActorTemplate actor)
     {
         _conversation = conversation;

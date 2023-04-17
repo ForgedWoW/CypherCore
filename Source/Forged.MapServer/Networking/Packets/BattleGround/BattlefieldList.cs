@@ -14,7 +14,9 @@ internal class BattlefieldList : ServerPacket
     public int BattlemasterListID;
     public bool HasRandomWinToday;
     public byte MaxLevel;
+
     public byte MinLevel;
+
     // Players cannot join a specific Battleground instance anymore - this is always empty
     public bool PvpAnywhere;
     public BattlefieldList() : base(ServerOpcodes.BattlefieldList) { }

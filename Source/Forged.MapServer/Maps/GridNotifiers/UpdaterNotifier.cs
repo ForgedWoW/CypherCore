@@ -23,18 +23,6 @@ public class UpdaterNotifier : IGridNotifierWorldObject
     }
 
     public GridType GridType { get; set; }
-    public void ExecuteUpdate()
-    {
-        foreach (var obj in _worldObjects)
-            try
-            {
-                obj.Update(_timeDiff);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
 
     public void Visit(IList<WorldObject> objs)
     {
@@ -46,5 +34,18 @@ public class UpdaterNotifier : IGridNotifierWorldObject
             if (obj.Location.IsInWorld)
                 _worldObjects.Add(obj);
         }
+    }
+
+    public void ExecuteUpdate()
+    {
+        foreach (var obj in _worldObjects)
+            try
+            {
+                obj.Update(_timeDiff);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
     }
 }

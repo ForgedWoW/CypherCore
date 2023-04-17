@@ -60,12 +60,10 @@ internal class ListCommands
                                    count);
         }
         else
-        {
             result = handler.ClassFactory.Resolve<WorldDatabase>()
                             .Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
                                    creatureId,
                                    count);
-        }
 
         if (!result.IsEmpty())
             do
@@ -178,9 +176,7 @@ internal class ListCommands
             result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
         }
         else
-        {
             result = null;
-        }
 
         if (result != null && !result.IsEmpty())
             do
@@ -218,9 +214,7 @@ internal class ListCommands
             result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
         }
         else
-        {
             result = null;
-        }
 
         if (result != null && !result.IsEmpty())
             do
@@ -356,9 +350,7 @@ internal class ListCommands
                                             handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemStr, itemEntry, itemGUID, itemCount);
                                         }
                                         else
-                                        {
                                             handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemTemplate.GetName(handler.SessionDbcLocale), itemEntry, itemGUID, itemCount);
-                                        }
                                     } while (result3.NextRow());
                             } while (result2.NextRow());
                     }
@@ -371,9 +363,7 @@ internal class ListCommands
             return true;
         }
         else
-        {
             handler.SendSysMessage(CypherStrings.ListMailNotFound);
-        }
 
         return true;
     }
@@ -414,12 +404,10 @@ internal class ListCommands
                                    count);
         }
         else
-        {
             result = handler.ClassFactory.Resolve<WorldDatabase>()
                             .Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
                                    gameObjectId,
                                    count);
-        }
 
         if (!result.IsEmpty())
             do

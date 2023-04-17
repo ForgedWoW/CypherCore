@@ -13,7 +13,9 @@ public class SpellNonMeleeDamage
     public double Absorb;
     public Unit Attacker;
     public double Blocked;
+
     public ObjectGuid CastId;
+
     // Used for help
     public double CleanDamage;
 
@@ -28,6 +30,7 @@ public class SpellNonMeleeDamage
     public SpellInfo Spell;
     public SpellCastVisual SpellVisual;
     public Unit Target;
+
     public SpellNonMeleeDamage(Unit attacker, Unit target, SpellInfo spellInfo, SpellCastVisual spellVisual, SpellSchoolMask schoolMask, ObjectGuid castId = default)
     {
         Target = target;

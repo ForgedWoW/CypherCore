@@ -22,6 +22,7 @@ internal class GarrisonMission
     public long StartTime = 2288912640;
     public int SuccessChance = 0;
     public uint TravelDuration;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(DbID);

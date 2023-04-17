@@ -21,8 +21,7 @@ public class TotemAI : NullCreatureAI
         _victimGuid = ObjectGuid.Empty;
     }
 
-    public override void AttackStart(Unit victim)
-    { }
+    public override void AttackStart(Unit victim) { }
 
     public override void UpdateAI(uint diff)
     {
@@ -65,8 +64,6 @@ public class TotemAI : NullCreatureAI
             Me.SpellFactory.CastSpell(victim, Me.ToTotem().GetSpell());
         }
         else
-        {
             _victimGuid.Clear();
-        }
     }
 }

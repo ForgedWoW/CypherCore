@@ -9,6 +9,7 @@ internal class SpellVisualLoadScreen : ServerPacket
 {
     public int Delay;
     public int SpellVisualKitID;
+
     public SpellVisualLoadScreen(int spellVisualKitId, int delay) : base(ServerOpcodes.SpellVisualLoadScreen, ConnectionType.Instance)
     {
         SpellVisualKitID = spellVisualKitId;

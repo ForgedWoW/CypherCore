@@ -10,6 +10,7 @@ internal class TraitConfigCommitFailed : ServerPacket
     public int ConfigID;
     public int Reason;
     public uint SpellID;
+
     public TraitConfigCommitFailed(int configId = 0, uint spellId = 0, int reason = 0) : base(ServerOpcodes.TraitConfigCommitFailed)
     {
         ConfigID = configId;

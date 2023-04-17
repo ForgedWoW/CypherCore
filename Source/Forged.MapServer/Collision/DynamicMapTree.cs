@@ -136,9 +136,7 @@ public class DynamicMapTree
                     resultHitPos = startPos;
             }
             else
-            {
                 resultHitPos += dir * modifyDist;
-            }
 
             result = true;
         }

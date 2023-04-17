@@ -88,7 +88,6 @@ internal class GenericMovementGenerator : MovementGenerator
         AddFlag(MovementGeneratorFlags.InformEnabled);
 
         return false;
-
     }
 
     private void MovementInform(Unit owner)

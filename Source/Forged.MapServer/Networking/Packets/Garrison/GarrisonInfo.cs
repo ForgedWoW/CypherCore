@@ -28,6 +28,7 @@ internal class GarrisonInfo
     public List<GarrisonPlotInfo> Plots = new();
     public List<GarrisonSpecGroup> SpecGroups = new();
     public List<GarrisonTalent> Talents = new();
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32((uint)GarrTypeID);

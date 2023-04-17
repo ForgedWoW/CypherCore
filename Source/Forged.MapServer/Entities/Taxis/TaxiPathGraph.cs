@@ -116,6 +116,7 @@ public class TaxiPathGraph
         for (var j = 0; j < edges.Count; ++j)
             _graph.AddEdge(new DirectedEdge(edges[j].Item1.Item1, edges[j].Item1.Item2, edges[j].Item2));
     }
+
     private void AddVerticeAndEdgeFromNodeInfo(TaxiNodesRecord from, TaxiNodesRecord to, uint pathId, List<Tuple<Tuple<uint, uint>, uint>> edges)
     {
         if (from.Id != to.Id)
@@ -190,6 +191,7 @@ public class TaxiPathGraph
         if (!_db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Adventure, false, out uiMapId, out uiMapPosition))
             _db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId, out uiMapPosition);
     }
+
     private uint GetVertexIDFromNodeID(TaxiNodesRecord node)
     {
         return _verticesByNode.ContainsKey(node.Id) ? _verticesByNode[node.Id] : uint.MaxValue;

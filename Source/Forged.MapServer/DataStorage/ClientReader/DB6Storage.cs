@@ -24,6 +24,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
     private readonly string _tableName = typeof(T).Name;
     private string _db2Name;
     private WDCHeader _header;
+
     public DB6Storage(HotfixDatabase hotfixDatabase, Locale defaultLocale = Locale.enUS)
     {
         _hotfixDatabase = hotfixDatabase;
@@ -40,65 +41,9 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
         return string.IsNullOrEmpty(_db2Name) ? _tableName : _db2Name;
     }
 
-    public uint GetNumRows()
-    {
-        return Keys.Max() + 1;
-    }
-
-    public uint GetTableHash()
-    {
-        return _header.TableHash;
-    }
-
     public bool HasRecord(uint id)
     {
         return ContainsKey(id);
-    }
-
-    public void LoadData(string fullFileName, string db2Name)
-    {
-        if (!File.Exists(fullFileName))
-        {
-            Log.Logger.Error($"File {fullFileName} not found.");
-
-            return;
-        }
-
-        _db2Name = db2Name;
-        DBReader reader = new();
-
-        using (var stream = new FileStream(fullFileName, FileMode.Open))
-        {
-            if (!reader.Load(stream))
-            {
-                Log.Logger.Error($"Error loading {fullFileName}.");
-
-                return;
-            }
-        }
-
-        _header = reader.Header;
-
-        foreach (var b in reader.Records)
-            Add((uint)b.Key, b.Value.As<T>());
-    }
-
-    public void LoadHotfixData(BitSet availableDb2Locales, HotfixStatements preparedStatement, HotfixStatements preparedStatementLocale)
-    {
-        LoadFromDB(false, preparedStatement);
-        LoadFromDB(true, preparedStatement);
-
-        if (preparedStatementLocale == 0)
-            return;
-
-        for (Locale locale = 0; locale < Locale.Total; ++locale)
-        {
-            if (!availableDb2Locales[(int)locale])
-                continue;
-
-            LoadStringsFromDB(false, locale, preparedStatementLocale);
-            LoadStringsFromDB(true, locale, preparedStatementLocale);
-        }
     }
 
     public void WriteRecord(uint id, Locale locale, ByteBuffer buffer)
@@ -213,6 +158,61 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
             }
         }
     }
+
+    public uint GetNumRows()
+    {
+        return Keys.Max() + 1;
+    }
+
+    public uint GetTableHash()
+    {
+        return _header.TableHash;
+    }
+
+    public void LoadData(string fullFileName, string db2Name)
+    {
+        if (!File.Exists(fullFileName))
+        {
+            Log.Logger.Error($"File {fullFileName} not found.");
+
+            return;
+        }
+
+        _db2Name = db2Name;
+        DBReader reader = new();
+
+        using (var stream = new FileStream(fullFileName, FileMode.Open))
+            if (!reader.Load(stream))
+            {
+                Log.Logger.Error($"Error loading {fullFileName}.");
+
+                return;
+            }
+
+        _header = reader.Header;
+
+        foreach (var b in reader.Records)
+            Add((uint)b.Key, b.Value.As<T>());
+    }
+
+    public void LoadHotfixData(BitSet availableDb2Locales, HotfixStatements preparedStatement, HotfixStatements preparedStatementLocale)
+    {
+        LoadFromDB(false, preparedStatement);
+        LoadFromDB(true, preparedStatement);
+
+        if (preparedStatementLocale == 0)
+            return;
+
+        for (Locale locale = 0; locale < Locale.Total; ++locale)
+        {
+            if (!availableDb2Locales[(int)locale])
+                continue;
+
+            LoadStringsFromDB(false, locale, preparedStatementLocale);
+            LoadStringsFromDB(true, locale, preparedStatementLocale);
+        }
+    }
+
     private void LoadFromDB(bool custom, HotfixStatements preparedStatement)
     {
         // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
@@ -413,7 +413,8 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
         do
         {
             var index = 0;
-            if (!this.TryGetValue(result.Read<uint>(index++), out var obj))
+
+            if (!TryGetValue(result.Read<uint>(index++), out var obj))
                 continue;
 
             foreach (var f in typeof(T).GetFields())

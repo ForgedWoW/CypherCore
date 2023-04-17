@@ -36,11 +36,14 @@ public class FeatureSystemStatus : ServerPacket
     public uint HiddenUIClubsPresenceUpdateTimer;
     public bool IsMuted;
     public bool ItemRestorationButtonEnabled;
+
     public bool KioskModeEnabled;
+
     // Timer for updating club presence when communities ui frame is hidden
     public uint KioskSessionMinutes;
 
     public bool LFGListCustomRequiresAuthenticator;
+
     // Currently active Classic season
     public short MaxPlayerNameQueriesPerPacket = 50;
 
@@ -57,7 +60,9 @@ public class FeatureSystemStatus : ServerPacket
     public long TokenBalanceAmount;
     public bool TokenBalanceEnabled;
     public uint TokenPollTimeSeconds;
+
     public bool TutorialsEnabled;
+
     // Implemented
     public bool TwitterEnabled;
 

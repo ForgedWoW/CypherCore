@@ -57,6 +57,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
             // this prevent cheating with landing  point at lags
             // when client side flight end early in comparison server side
             owner.StopMoving();
+
             // When the player reaches the last flight point, teleport to destination taxi node location
             if (owner.CliDB.TaxiNodesStorage.TryGetValue(taxiNodeId, out var node))
             {
@@ -320,9 +321,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
             endMap.LoadGrid(_endGridX, _endGridY);
         }
         else
-        {
             Log.Logger.Debug("FlightPathMovementGenerator::PreloadEndGrid: Unable to determine map to preload flightmaster grid");
-        }
     }
 
     private class TaxiNodeChangeInfo

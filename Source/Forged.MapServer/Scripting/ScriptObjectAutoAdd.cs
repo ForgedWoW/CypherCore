@@ -7,7 +7,5 @@ namespace Forged.MapServer.Scripting;
 
 public abstract class ScriptObjectAutoAdd : ScriptObject, IScriptAutoAdd
 {
-    protected ScriptObjectAutoAdd(string name) : base(name)
-    {
-    }
+    protected ScriptObjectAutoAdd(string name) : base(name) { }
 }

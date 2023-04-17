@@ -17,6 +17,7 @@ public class BroadcastTextBuilder : MessageBuilder
     private readonly WorldObject _source;
     private readonly WorldObject _target;
     private readonly uint _textId;
+
     public BroadcastTextBuilder(WorldObject obj, ChatMsg msgtype, uint textId, Gender gender, WorldObject target = null, uint achievementId = 0)
     {
         _source = obj;

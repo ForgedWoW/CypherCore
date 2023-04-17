@@ -92,6 +92,7 @@ public partial class Unit
 
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeavingCombat);
     }
+
     public bool Attack(Unit victim, bool meleeAttack)
     {
         if (victim == null || victim.GUID == GUID)
@@ -239,9 +240,7 @@ public partial class Unit
 
         // melee attack spell casted at main hand attack only - no normal melee dmg dealt
         if (attType == WeaponAttackType.BaseAttack && GetCurrentSpell(CurrentSpellTypes.Melee) != null && !extra)
-        {
             CurrentSpells[CurrentSpellTypes.Melee].Cast();
-        }
         else
         {
             // attack can be redirected to another target
@@ -378,7 +377,6 @@ public partial class Unit
             }
         }
         else
-        {
             switch (attType)
             {
                 case WeaponAttackType.RangedAttack:
@@ -409,7 +407,6 @@ public partial class Unit
 
                     break;
             }
-        }
 
         minDamage = Math.Max(0.0f, minDamage);
         maxDamage = Math.Max(0.0f, maxDamage);
@@ -461,9 +458,7 @@ public partial class Unit
             AsPlayer.SendAttackSwingCancelAttack(); // melee and ranged forced attack cancel
 
         if (mutualPvP)
-        {
             ClearInCombat();
-        }
         else
         {
             // vanish and brethren are weird
@@ -618,9 +613,7 @@ public partial class Unit
             if (includeWeapon)
             {
                 if (attType == WeaponAttackType.BaseAttack)
-                {
                     ap += Math.Max(UnitData.MainHandWeaponAttackPower, UnitData.RangedWeaponAttackPower);
-                }
                 else
                 {
                     ap += UnitData.OffHandWeaponAttackPower;
@@ -896,6 +889,7 @@ public partial class Unit
             }
         }
     }
+
     /// <summary>
     ///     enables / disables combat interaction of this unit
     /// </summary>
@@ -918,6 +912,7 @@ public partial class Unit
     {
         SetSilencedSchoolMask((uint)schoolMask);
     }
+
     public virtual void SetTarget(ObjectGuid guid) { }
 
     public void StopAttackFaction(uint factionId)
@@ -949,9 +944,7 @@ public partial class Unit
                 i = 0;
             }
             else
-            {
                 ++i;
-            }
         }
 
         List<CombatReference> refsToEnd = new();
@@ -986,6 +979,7 @@ public partial class Unit
             if (!WorldObjectCombat.IsValidAttackTarget(victim))
                 AttackStop();
     }
+
     private void _addAttacker(Unit pAttacker)
     {
         AttackerList.Add(pAttacker);
@@ -1074,9 +1068,7 @@ public partial class Unit
             damageInfo.CleanDamage += damage - damageInfo.Damage;
         }
         else
-        {
             damageInfo.Damage = damage;
-        }
 
         damageInfo.HitOutCome = RollMeleeOutcomeAgainst(damageInfo.Target, damageInfo.AttackType);
 
@@ -1206,9 +1198,7 @@ public partial class Unit
             damageInfo.Damage = dmgInfo.Damage;
         }
         else // Impossible get negative result but....
-        {
             damageInfo.Damage = 0;
-        }
     }
 
     private MeleeHitOutcome RollMeleeOutcomeAgainst(Unit victim, WeaponAttackType attType)

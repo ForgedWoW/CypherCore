@@ -15,6 +15,7 @@ public class PhaseShift
     private int _cosmeticReferences;
     private int _defaultReferences;
     private int _nonCosmeticReferences;
+
     public PhaseShift()
     {
         Flags = PhaseShiftFlags.Unphased;
@@ -35,12 +36,10 @@ public class PhaseShift
     }
 
     public PhaseShiftFlags Flags { get; set; }
+
     public bool HasPersonalPhase
     {
-        get
-        {
-            return Phases.Values.Any(phaseRef => phaseRef.IsPersonal());
-        }
+        get { return Phases.Values.Any(phaseRef => phaseRef.IsPersonal()); }
     }
 
     public bool IsDbPhaseShift { get; set; }
@@ -49,6 +48,7 @@ public class PhaseShift
     public Dictionary<uint, PhaseRef> Phases { get; set; } = new();
     public Dictionary<uint, UiMapPhaseIdRef> UiMapPhaseIds { get; set; } = new();
     public Dictionary<uint, VisibleMapIdRef> VisibleMapIds { get; set; } = new();
+
     public bool AddPhase(uint phaseId, PhaseFlags flags, List<Condition> areaConditions, int references = 1)
     {
         var newPhase = false;
@@ -220,8 +220,8 @@ public class PhaseShift
         Phases.Remove(phaseId);
 
         return true;
-
     }
+
     public bool RemoveUiMapPhaseId(uint uiWorldMapAreaId)
     {
         if (!UiMapPhaseIds.ContainsKey(uiWorldMapAreaId))
@@ -235,7 +235,6 @@ public class PhaseShift
         UiMapPhaseIds.Remove(uiWorldMapAreaId);
 
         return true;
-
     }
 
     public bool RemoveVisibleMapId(uint visibleMapId)
@@ -251,8 +250,8 @@ public class PhaseShift
         VisibleMapIds.Remove(visibleMapId);
 
         return true;
-
     }
+
     public void UpdateUnphasedFlag()
     {
         var unphasedFlag = !Flags.HasAnyFlag(PhaseShiftFlags.Inverse) ? PhaseShiftFlags.Unphased : PhaseShiftFlags.InverseUnphased;
@@ -263,6 +262,7 @@ public class PhaseShift
         else
             Flags |= unphasedFlag;
     }
+
     private void UpdatePersonalGuid()
     {
         if (PersonalReferences == 0)

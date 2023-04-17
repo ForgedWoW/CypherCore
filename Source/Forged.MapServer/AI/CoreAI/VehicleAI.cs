@@ -25,18 +25,16 @@ public class VehicleAI : CreatureAI
         _dismissTimer = VehicleDismissTime;
     }
 
-    public override void AttackStart(Unit victim)
-    { }
+    public override void AttackStart(Unit victim) { }
 
-    public override void MoveInLineOfSight(Unit who)
-    { }
+    public override void MoveInLineOfSight(Unit who) { }
 
     public override void OnCharmed(bool isNew)
     {
         var charmed = Me.IsCharmed;
 
         if (!Me.VehicleKit.IsVehicleInUse() && !charmed && _hasConditions) //was used and has conditions
-            _doDismiss = true;                                              //needs reset
+            _doDismiss = true;                                             //needs reset
         else if (charmed)
             _doDismiss = false; //in use again
 
@@ -55,9 +53,7 @@ public class VehicleAI : CreatureAI
                 Me.DespawnOrUnsummon();
             }
             else
-            {
                 _dismissTimer -= diff;
-            }
         }
     }
 
@@ -94,9 +90,7 @@ public class VehicleAI : CreatureAI
             _conditionsTimer = VehicleConditionCheckTime;
         }
         else
-        {
             _conditionsTimer -= diff;
-        }
     }
 
     private void LoadConditions()

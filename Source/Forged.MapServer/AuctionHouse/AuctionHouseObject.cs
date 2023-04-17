@@ -151,9 +151,7 @@ public class AuctionHouseObject
         uint quality;
 
         if (auction.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId) == 0)
-        {
             quality = (byte)auction.Items[0].Quality;
-        }
         else
         {
             quality = (auction.Items[0].GetModifier(ItemModifier.BattlePetBreedData) >> 24) & 0xFF;
@@ -231,6 +229,7 @@ public class AuctionHouseObject
     public void BuildListAuctionItems(AuctionListItemsResult listItemsResult, Player player, AuctionsBucketKey bucketKey, uint offset, AuctionSortDef[] sorts, int sortCount)
     {
         listItemsResult.TotalCount = 0;
+
         if (_buckets.TryGetValue(bucketKey, out var bucket))
         {
             var sorter = new AuctionPosting.Sorter(player.Session.SessionDbcLocale, sorts, sortCount);
@@ -261,6 +260,7 @@ public class AuctionHouseObject
         var builder = new AuctionsResultBuilder<AuctionPosting>(offset, sorter, AuctionHouseResultLimits.Items);
 
         listItemsResult.TotalCount = 0;
+
         if (_buckets.TryGetValue(new AuctionsBucketKey(itemId, 0, 0, 0), out var bucketData))
             foreach (var auction in bucketData.Auctions)
             {
@@ -292,10 +292,8 @@ public class AuctionHouseObject
         List<AuctionPosting> auctions = new();
 
         foreach (var auctionId in _playerBidderAuctions.LookupByKey(player.GUID))
-        {
             if (_itemsByAuctionId.TryGetValue(auctionId, out var auction))
                 auctions.Add(auction);
-        }
 
         AuctionPosting.Sorter sorter = new(player.Session.SessionDbcLocale, sorts, sortCount);
         auctions.Sort(sorter);
@@ -380,7 +378,6 @@ public class AuctionHouseObject
                     var hasAll = true;
 
                     foreach (var bucketAppearance in bucketData.ItemModifiedAppearanceId)
-                    {
                         if (_cliDB.ItemModifiedAppearanceStorage.TryGetValue(bucketAppearance.Item1, out var itemModifiedAppearance))
                             if (!knownAppearanceIds.Contains((uint)itemModifiedAppearance.ItemAppearanceID))
                             {
@@ -388,7 +385,6 @@ public class AuctionHouseObject
 
                                 break;
                             }
-                    }
 
                     if (hasAll)
                         continue;
@@ -462,10 +458,8 @@ public class AuctionHouseObject
         List<AuctionsBucketData> buckets = new();
 
         for (var i = 0; i < keysCount; ++i)
-        {
             if (_buckets.TryGetValue(new AuctionsBucketKey(keys[i]), out var bucketData))
                 buckets.Add(bucketData);
-        }
 
         AuctionsBucketData.Sorter sorter = new(player.Session.SessionDbcLocale, sorts, sortCount);
         buckets.Sort(sorter);
@@ -486,10 +480,8 @@ public class AuctionHouseObject
         List<AuctionPosting> auctions = new();
 
         foreach (var auctionId in _playerOwnedAuctions.LookupByKey(player.GUID))
-        {
             if (_itemsByAuctionId.TryGetValue(auctionId, out var auction))
                 auctions.Add(auction);
-        }
 
         AuctionPosting.Sorter sorter = new(player.Session.SessionDbcLocale, sorts, sortCount);
         auctions.Sort(sorter);
@@ -509,13 +501,11 @@ public class AuctionHouseObject
         var curTime = GameTime.Now;
 
         if (!_replicateThrottleMap.TryGetValue(player.GUID, out var throttleData))
-        {
             throttleData = new PlayerReplicateThrottleData
             {
                 NextAllowedReplication = curTime + TimeSpan.FromSeconds(_configuration.GetDefaultValue("Auction:ReplicateItemsCooldown", 900)),
                 Global = _auctionManager.GenerateReplicationId
             };
-        }
         else
         {
             if (throttleData.Global != global || throttleData.Cursor != cursor || throttleData.Tombstone != tombstone)
@@ -684,9 +674,9 @@ public class AuctionHouseObject
                 if (!_characterCache.GetCharacterNameByGuid(auction.Owner, out var ownerName))
                     ownerName = _objectManager.GetCypherString(CypherStrings.Unknown);
 
-                Log.Logger.ForContext<GMCommands>().Information(
-                               $"GM {player.GetName()} (Account: {bidderAccId}) bought commodity in auction: {items[0].Items[0].GetName(_worldManager.DefaultDbcLocale)} (Entry: {items[0].Items[0].Entry} " +
-                               $"Count: {boughtFromAuction}) and pay money: {auction.BuyoutOrUnitPrice * boughtFromAuction}. Original owner {ownerName} (Account: {_characterCache.GetCharacterAccountIdByGuid(auction.Owner)})");
+                Log.Logger.ForContext<GMCommands>()
+                   .Information($"GM {player.GetName()} (Account: {bidderAccId}) bought commodity in auction: {items[0].Items[0].GetName(_worldManager.DefaultDbcLocale)} (Entry: {items[0].Items[0].Entry} " +
+                                $"Count: {boughtFromAuction}) and pay money: {auction.BuyoutOrUnitPrice * boughtFromAuction}. Original owner {ownerName} (Account: {_characterCache.GetCharacterAccountIdByGuid(auction.Owner)})");
             }
 
             var auctionHouseCut = CalculateAuctionHouseCut(auction.BuyoutOrUnitPrice * boughtFromAuction);
@@ -736,9 +726,7 @@ public class AuctionHouseObject
 
         for (var i = 0; i < auctions.Count; ++i)
             if (removedItemsFromAuction[i] == auctions[i].Items.Count)
-            {
                 RemoveAuction(trans, auctions[i]); // bought all items
-            }
             else if (removedItemsFromAuction[i] != 0)
             {
                 var lastRemovedItemIndex = removedItemsFromAuction[i];
@@ -858,9 +846,7 @@ public class AuctionHouseObject
             uint quality;
 
             if (auction.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId) == 0)
-            {
                 quality = (uint)auction.Items[0].Quality;
-            }
             else
             {
                 quality = (auction.Items[0].GetModifier(ItemModifier.BattlePetBreedData) >> 24) & 0xFF;
@@ -887,9 +873,7 @@ public class AuctionHouseObject
                 bucket.QualityMask &= (AuctionHouseFilterMask)(~(1 << ((int)quality + 4)));
         }
         else
-        {
             _buckets.Remove(bucket.Key);
-        }
 
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_AUCTION);
         stmt.AddValue(0, auction.Id);
@@ -916,8 +900,8 @@ public class AuctionHouseObject
         // bidder exist
         if (bidder != null || _characterCache.HasCharacterCacheEntry(auction.Bidder)) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
             _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Removed, auction), "")
-                .AddMoney(auction.BidAmount)
-                .SendMailTo(trans, new MailReceiver(bidder, auction.Bidder), new MailSender(this), MailCheckMask.Copied);
+                         .AddMoney(auction.BidAmount)
+                         .SendMailTo(trans, new MailReceiver(bidder, auction.Bidder), new MailSender(this), MailCheckMask.Copied);
     }
 
     public void SendAuctionExpired(AuctionPosting auction, SQLTransaction trans)
@@ -943,11 +927,9 @@ public class AuctionHouseObject
             }
         }
         else
-        {
             // owner doesn't exist, delete the item
             foreach (var item in auction.Items)
                 _auctionManager.RemoveAItem(item.GUID, true, trans);
-        }
     }
 
     public void SendAuctionInvoice(AuctionPosting auction, Player owner, SQLTransaction trans)
@@ -1041,8 +1023,8 @@ public class AuctionHouseObject
 
         _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Sold, auction),
                                                    _auctionManager.BuildAuctionSoldMailBody(auction.Bidder, auction.BidAmount, auction.BuyoutOrUnitPrice, (uint)auction.Deposit, auctionHouseCut))
-            .AddMoney(profit)
-            .SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied, _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR));
+                     .AddMoney(profit)
+                     .SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied, _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR));
     }
 
     public void SendAuctionWon(AuctionPosting auction, Player bidder, SQLTransaction trans)
@@ -1074,15 +1056,16 @@ public class AuctionHouseObject
 
             var ownerAccId = _characterCache.GetCharacterAccountIdByGuid(auction.Owner);
 
-            Log.Logger.ForContext<GMCommands>().Information($"GM {bidderName} (Account: {bidderAccId}) won item in auction: {auction.Items[0].GetName(_worldManager.DefaultDbcLocale)} (Entry: {auction.Items[0].Entry}" +
-                           $" Count: {auction.TotalItemCount}) and pay money: {auction.BidAmount}. Original owner {ownerName} (Account: {ownerAccId})");
+            Log.Logger.ForContext<GMCommands>()
+               .Information($"GM {bidderName} (Account: {bidderAccId}) won item in auction: {auction.Items[0].GetName(_worldManager.DefaultDbcLocale)} (Entry: {auction.Items[0].Entry}" +
+                            $" Count: {auction.TotalItemCount}) and pay money: {auction.BidAmount}. Original owner {ownerName} (Account: {ownerAccId})");
         }
 
         // receiver exist
         if (bidder != null || bidderAccId != 0) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
         {
             var mail = _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Won, auction),
-                                                                        _auctionManager.BuildAuctionWonMailBody(auction.Owner, auction.BidAmount, auction.BuyoutOrUnitPrice));
+                                                                  _auctionManager.BuildAuctionWonMailBody(auction.Owner, auction.BidAmount, auction.BuyoutOrUnitPrice));
 
             // set owner to bidder (to prevent delete item with sender char deleting)
             // owner in `data` will set at mail receive and item extracting
@@ -1109,11 +1092,9 @@ public class AuctionHouseObject
             mail.SendMailTo(trans, new MailReceiver(bidder, auction.Bidder), new MailSender(this), MailCheckMask.Copied);
         }
         else
-        {
             // bidder doesn't exist, delete the item
             foreach (var item in auction.Items)
                 _auctionManager.RemoveAItem(item.GUID, true, trans);
-        }
     }
 
     public void Update()

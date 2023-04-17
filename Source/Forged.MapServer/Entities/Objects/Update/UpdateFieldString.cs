@@ -12,9 +12,11 @@ public class UpdateFieldString : IUpdateField<string>
         Value = "";
     }
 
+    public string Value { get; set; }
+
     public int Bit { get; set; }
     public int BlockBit { get; set; }
-    public string Value { get; set; }
+
     public static implicit operator string(UpdateFieldString updateField)
     {
         return updateField.Value;

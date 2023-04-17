@@ -53,7 +53,6 @@ public class WorldObjectCombat
                 return repRank;
 
             if (target.IsUnit && !target.AsUnit.HasUnitFlag2(UnitFlags2.IgnoreReputation))
-            {
                 if (_worldObject.CliDB.FactionStorage.TryGetValue(factionTemplateEntry.Faction, out var factionEntry))
                     if (factionEntry.CanHaveReputation())
                     {
@@ -65,7 +64,6 @@ public class WorldObjectCombat
 
                         return repRank1;
                     }
-            }
         }
 
         // common faction based check
@@ -88,6 +86,7 @@ public class WorldObjectCombat
     public FactionTemplateRecord GetFactionTemplateEntry()
     {
         var factionId = _worldObject.Faction;
+
         if (!_worldObject.CliDB.FactionTemplateStorage.TryGetValue(factionId, out var entry))
             switch (_worldObject.TypeId)
             {
@@ -144,9 +143,7 @@ public class WorldObjectCombat
                         aurEff.Base.DropChargeDelayed(delay, AuraRemoveMode.Expire);
                     }
                     else
-                    {
                         aurEff.Base.DropCharge(AuraRemoveMode.Expire);
-                    }
 
                     return magnet;
                 }
@@ -252,7 +249,6 @@ public class WorldObjectCombat
                             return repRank;
 
                         if (!selfPlayerOwner.HasUnitFlag2(UnitFlags2.IgnoreReputation))
-                        {
                             if (_worldObject.CliDB.FactionStorage.TryGetValue(targetFactionTemplateEntry.Faction, out var targetFactionEntry))
                                 if (targetFactionEntry.CanHaveReputation())
                                 {
@@ -266,7 +262,6 @@ public class WorldObjectCombat
 
                                     return ReputationRank.Friendly;
                                 }
-                        }
                     }
                 }
             }
@@ -423,7 +418,6 @@ public class WorldObjectCombat
         // PvC case - player can assist creature only if has specific type flags
         // !target.HasFlag(UNIT_FIELD_FLAGS, UnitFlags.PvpAttackable) &&
         else if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-        {
             if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
                 if (unitTarget is { IsPvP: false })
                 {
@@ -432,7 +426,6 @@ public class WorldObjectCombat
                     if (creatureTarget != null)
                         return creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist);
                 }
-        }
 
         return true;
     }
@@ -547,7 +540,6 @@ public class WorldObjectCombat
                 var factionTemplate = creature.WorldObjectCombat.GetFactionTemplateEntry();
 
                 if (factionTemplate != null && player != null && player.ReputationMgr.GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
-                {
                     if (_worldObject.CliDB.FactionStorage.TryGetValue(factionTemplate.Faction, out var factionEntry))
                     {
                         var repState = player.ReputationMgr.GetState(factionEntry);
@@ -556,7 +548,6 @@ public class WorldObjectCombat
                             if (!repState.Flags.HasFlag(ReputationFlags.AtWar))
                                 return false;
                     }
-                }
             }
         }
 
@@ -649,6 +640,7 @@ public class WorldObjectCombat
         else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
             duration = (int)(duration * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
     }
+
     public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
     {
         PlaySpellVisual playSpellVisual = new()
@@ -737,6 +729,7 @@ public class WorldObjectCombat
             _                    => SpellMissInfo.None
         };
     }
+
     private SpellMissInfo MagicSpellHitResult(Unit victim, SpellInfo spellInfo)
     {
         // Can`t miss on dead target (on skinning for example)
@@ -749,9 +742,7 @@ public class WorldObjectCombat
         double missChance;
 
         if (spellInfo.HasAttribute(SpellAttr7.NoAttackMiss))
-        {
             missChance = 0.0f;
-        }
         else
         {
             var schoolMask = spellInfo.GetSchoolMask();
@@ -785,9 +776,7 @@ public class WorldObjectCombat
                     modHitChance -= lchance * Math.Min(levelBasedHitDiff, 7);
             }
             else
-            {
                 modHitChance = 97 - levelBasedHitDiff;
-            }
 
             // Spellmod from SpellModOp::HitChance
             var modOwner = _worldObject.SpellModOwner;

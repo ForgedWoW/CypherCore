@@ -20,6 +20,7 @@ public sealed class MountRecord
     public string SourceText;
     public sbyte SourceTypeEnum;
     public int UiModelSceneID;
+
     public bool IsSelfMount()
     {
         return (Flags & MountFlags.SelfMount) != 0;

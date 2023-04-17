@@ -180,6 +180,7 @@ public class AzeriteEmpoweredItem : Item
 
         base.SaveToDB(trans);
     }
+
     public void SetSelectedAzeritePower(int tier, int azeritePowerId)
     {
         SetUpdateFieldValue(ref Values.ModifyValue(_azeriteEmpoweredItemData).ModifyValue(_azeriteEmpoweredItemData.Selections, tier), azeritePowerId);
@@ -187,6 +188,7 @@ public class AzeriteEmpoweredItem : Item
         // Not added to UF::ItemData::BonusListIDs, client fakes it on its own too
         BonusData.AddBonusList(CliDB.AzeritePowerStorage.LookupByKey(azeritePowerId).ItemBonusListID);
     }
+
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteEmpoweredItemMask, Player target)
     {
         var flags = GetUpdateFieldFlagsFor(target);
@@ -234,6 +236,7 @@ public class AzeriteEmpoweredItem : Item
         foreach (var bonusListID in GetBonusListIDs())
             BonusData.AddBonusList(bonusListID);
     }
+
     private void InitAzeritePowerData()
     {
         _azeritePowers = Global.DB2Mgr.GetAzeritePowers(Entry);
@@ -248,6 +251,7 @@ public class AzeriteEmpoweredItem : Item
         private readonly ItemData ItemMask = new();
         private readonly ObjectFieldData ObjectMask = new();
         private readonly AzeriteEmpoweredItem Owner;
+
         public ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem owner)
         {
             Owner = owner;

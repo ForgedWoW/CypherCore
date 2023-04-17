@@ -11,6 +11,14 @@ namespace Forged.MapServer.Movement;
 
 public class MoveSpline
 {
+    public enum UpdateResult
+    {
+        None = 0x01,
+        Arrived = 0x02,
+        NextCycle = 0x04,
+        NextSegment = 0x08
+    }
+
     private readonly DB2Manager _db2Manager;
 
     public MoveSpline(DB2Manager db2Manager)
@@ -26,14 +34,6 @@ public class MoveSpline
         OnTransport = false;
         SplineIsFacingOnly = false;
         Splineflags.Flags = SplineFlag.Done;
-    }
-
-    public enum UpdateResult
-    {
-        None = 0x01,
-        Arrived = 0x02,
-        NextCycle = 0x04,
-        NextSegment = 0x08
     }
 
     public AnimTier? Animation => AnimTier != null ? (AnimTier)AnimTier.AnimTier : null;
@@ -133,15 +133,13 @@ public class MoveSpline
             ComputeFallElevation(timePoint, ref c.Z);
 
         if (Splineflags.HasFlag(SplineFlag.Done) && Facing.Type != MonsterMoveType.Normal)
-        {
             orientation = Facing.Type switch
             {
                 MonsterMoveType.FacingAngle => Facing.Angle,
-                MonsterMoveType.FacingSpot => MathF.Atan2(Facing.F.Y - c.Y, Facing.F.X - c.X),
-                _ => orientation
+                MonsterMoveType.FacingSpot  => MathF.Atan2(Facing.F.Y - c.Y, Facing.F.X - c.X),
+                _                           => orientation
             };
-            //nothing to do for MoveSplineFlag.Final_Target Id
-        }
+        //nothing to do for MoveSplineFlag.Final_Target Id
         else
         {
             if (!Splineflags.HasFlag(SplineFlag.OrientationFixed | SplineFlag.Falling | SplineFlag.Unknown_0x8))
@@ -227,9 +225,7 @@ public class MoveSpline
                     VerticalAcceleration = args.ParabolicAmplitude * 8.0f / (fDuration * fDuration);
                 }
                 else if (args.VerticalAcceleration != 0.0f)
-                {
                     VerticalAcceleration = args.VerticalAcceleration;
-                }
             }
         }
     }
@@ -271,9 +267,7 @@ public class MoveSpline
             Spline.InitCyclicSpline(args.Path.ToArray(), args.Path.Count, modes[Convert.ToInt32(args.Flags.IsSmooth())], cyclicPoint, args.InitialOrientation);
         }
         else
-        {
             Spline.InitSpline(args.Path.ToArray(), args.Path.Count, modes[Convert.ToInt32(args.Flags.IsSmooth())], args.InitialOrientation);
-        }
 
         // init spline timestamps
         if (Splineflags.HasFlag(SplineFlag.Falling))
@@ -332,9 +326,7 @@ public class MoveSpline
         ++PointIdx;
 
         if (PointIdx < Spline.Last)
-        {
             result = UpdateResult.NextSegment;
-        }
         else
         {
             if (Spline.IsCyclic)

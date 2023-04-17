@@ -15,6 +15,7 @@ internal class PartyMemberPetStats
     public int MaxHealth;
     public short ModelId;
     public string Name;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(GUID);

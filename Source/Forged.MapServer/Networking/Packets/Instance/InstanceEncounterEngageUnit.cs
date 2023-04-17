@@ -9,7 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 internal class InstanceEncounterEngageUnit : ServerPacket
 {
     public byte TargetFramePriority;
+
     public ObjectGuid Unit;
+
     // used to set the initial position of the frame if multiple frames are sent
     public InstanceEncounterEngageUnit() : base(ServerOpcodes.InstanceEncounterEngageUnit, ConnectionType.Instance) { }
 

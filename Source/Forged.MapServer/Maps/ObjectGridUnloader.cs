@@ -16,6 +16,7 @@ internal class ObjectGridUnloader : IGridNotifierWorldObject
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<WorldObject> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

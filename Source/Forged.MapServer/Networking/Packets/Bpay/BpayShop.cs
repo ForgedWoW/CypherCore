@@ -15,6 +15,7 @@ public class BpayShop
     public uint ProductID { get; set; }
     public byte StoreDeliveryType { get; set; }
     public uint VasServiceType { get; set; }
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(EntryId);

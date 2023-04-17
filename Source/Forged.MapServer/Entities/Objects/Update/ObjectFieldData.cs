@@ -54,6 +54,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
                 data.WriteFloat(Scale);
         }
     }
+
     private uint GetViewerDependentDynamicFlags(ObjectFieldData objectData, WorldObject obj, Player receiver)
     {
         uint unitDynFlags = objectData.DynamicFlags;
@@ -113,9 +114,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
                                 dynFlags |= GameObjectDynamicLowFlags.Activate;
                         }
                         else if (receiver.IsGameMaster)
-                        {
                             dynFlags |= GameObjectDynamicLowFlags.Activate;
-                        }
 
                         break;
                     case GameObjectTypes.Generic:
@@ -146,7 +145,6 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
                             dynFlags |= GameObjectDynamicLowFlags.Depleted;
 
                         break;
-                    
                 }
 
                 if (!gameObject.MeetsInteractCondition(receiver))

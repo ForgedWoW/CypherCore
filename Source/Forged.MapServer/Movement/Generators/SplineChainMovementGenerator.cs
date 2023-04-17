@@ -168,7 +168,6 @@ public class SplineChainMovementGenerator : MovementGenerator
             AddFlag(MovementGeneratorFlags.InformEnabled);
 
             return false;
-
         }
 
         if (_msToNext <= diff)
@@ -225,8 +224,6 @@ public class SplineChainMovementGenerator : MovementGenerator
             duration = (uint)(actualDuration / (double)thisLink.ExpectedDuration * duration);
         }
         else
-        {
             Log.Logger.Debug($"SplineChainMovementGenerator::SendSplineFor: sent spline on index {index}, duration: {actualDuration} ms. ({owner.GUID})");
-        }
     }
 }

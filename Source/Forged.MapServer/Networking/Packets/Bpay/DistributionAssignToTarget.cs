@@ -14,6 +14,7 @@ public class DistributionAssignToTarget : ClientPacket
     public uint ProductID { get; set; } = 0;
     public ushort SpecializationID { get; set; } = 0;
     public ObjectGuid TargetCharacter { get; set; } = new();
+
     public override void Read()
     {
         ProductID = WorldPacket.ReadUInt32();

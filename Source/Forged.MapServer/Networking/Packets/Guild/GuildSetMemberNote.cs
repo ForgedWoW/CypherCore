@@ -8,6 +8,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 public class GuildSetMemberNote : ClientPacket
 {
     public bool IsPublic;
+
     // 0 == Officer, 1 == Public
     public string Note;
 

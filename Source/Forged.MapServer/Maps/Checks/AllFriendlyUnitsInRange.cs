@@ -10,6 +10,7 @@ internal class AllFriendlyUnitsInRange : ICheck<Unit>
 {
     private readonly float _range;
     private readonly Unit _unit;
+
     public AllFriendlyUnitsInRange(Unit obj, float range)
     {
         _unit = obj;

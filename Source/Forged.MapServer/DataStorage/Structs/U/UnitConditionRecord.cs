@@ -12,6 +12,7 @@ public sealed class UnitConditionRecord
     public sbyte[] Op = new sbyte[8];
     public int[] Value = new int[8];
     public byte[] Variable = new byte[8];
+
     public UnitConditionFlags GetFlags()
     {
         return (UnitConditionFlags)Flags;

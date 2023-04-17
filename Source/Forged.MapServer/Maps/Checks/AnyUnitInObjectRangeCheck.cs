@@ -12,6 +12,7 @@ public class AnyUnitInObjectRangeCheck : ICheck<Unit>
     private readonly bool _check3D;
     private readonly WorldObject _obj;
     private readonly float _range;
+
     public AnyUnitInObjectRangeCheck(WorldObject obj, float range, bool check3D = true)
     {
         _obj = obj;

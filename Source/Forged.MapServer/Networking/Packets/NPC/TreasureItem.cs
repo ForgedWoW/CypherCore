@@ -10,6 +10,7 @@ public struct TreasureItem
     public int ID;
     public int Quantity;
     public GossipOptionRewardType Type;
+
     public void Write(WorldPacket data)
     {
         data.WriteBits((byte)Type, 1);

@@ -7,6 +7,13 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPMatchInitialize : ServerPacket
 {
+    public enum MatchState
+    {
+        InProgress = 1,
+        Complete = 3,
+        Inactive = 4
+    }
+
     public bool AffectsRating;
 
     public byte ArenaFaction;
@@ -27,12 +34,6 @@ internal class PVPMatchInitialize : ServerPacket
 
     public PVPMatchInitialize() : base(ServerOpcodes.PvpMatchInitialize, ConnectionType.Instance) { }
 
-    public enum MatchState
-    {
-        InProgress = 1,
-        Complete = 3,
-        Inactive = 4
-    }
     public override void Write()
     {
         WorldPacket.WriteUInt32(MapID);

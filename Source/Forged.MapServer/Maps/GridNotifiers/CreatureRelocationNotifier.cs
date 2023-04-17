@@ -20,6 +20,7 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         if (!_creature.IsAlive)

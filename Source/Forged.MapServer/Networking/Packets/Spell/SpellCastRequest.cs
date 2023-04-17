@@ -22,6 +22,7 @@ public class SpellCastRequest
     public SpellTargetData Target = new();
     public SpellCastVisual Visual;
     public List<SpellWeight> Weight = new();
+
     public void Read(WorldPacket data)
     {
         CastID = data.ReadPackedGuid();

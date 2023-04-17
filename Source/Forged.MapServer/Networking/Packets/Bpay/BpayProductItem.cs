@@ -17,6 +17,7 @@ public class BpayProductItem
     public byte UnkByte { get; set; }
     public uint UnkInt1 { get; set; }
     public uint UnkInt2 { get; set; }
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(ID);

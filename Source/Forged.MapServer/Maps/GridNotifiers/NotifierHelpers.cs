@@ -18,9 +18,7 @@ public static class NotifierHelpers
             return;
 
         if (c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true))
-        {
             c.AI.MoveInLineOfSight_Safe(u);
-        }
         else
         {
             if (u.IsTypeId(TypeId.Player) && u.HasStealthAura && c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true, true))

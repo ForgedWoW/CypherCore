@@ -77,9 +77,7 @@ public class ObjectAccessor
     public Player FindConnectedPlayer(ObjectGuid guid)
     {
         lock (_lockObject)
-        {
             return _players.LookupByKey(guid);
-        }
     }
 
     public Player FindConnectedPlayerByName(string name)
@@ -189,9 +187,7 @@ public class ObjectAccessor
     public ICollection<Player> GetPlayers()
     {
         lock (_lockObject)
-        {
             return _players.Values;
-        }
     }
 
     public Unit GetUnit(WorldObject u, ObjectGuid guid)
@@ -223,6 +219,7 @@ public class ObjectAccessor
             _                      => null
         };
     }
+
     public void RemoveObject(Player obj)
     {
         lock (_lockObject)
@@ -235,11 +232,10 @@ public class ObjectAccessor
     public void SaveAllPlayers()
     {
         lock (_lockObject)
-        {
             foreach (var pl in GetPlayers())
                 pl.SaveToDB();
-        }
     }
+
     private static AreaTrigger GetAreaTrigger(WorldObject u, ObjectGuid guid)
     {
         return u.Location.Map.GetAreaTrigger(guid);
@@ -249,6 +245,7 @@ public class ObjectAccessor
     {
         return u.Location.Map.GetDynamicObject(guid);
     }
+
     private static SceneObject GetSceneObject(WorldObject u, ObjectGuid guid)
     {
         return u.Location.Map.GetSceneObject(guid);

@@ -27,6 +27,7 @@ public class PersistentInstanceScriptValueBase
     {
         return Name;
     }
+
     public void LoadValue(long value)
     {
         Value = value;

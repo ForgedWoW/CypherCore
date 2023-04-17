@@ -8,7 +8,9 @@ namespace Forged.MapServer.Networking.Packets.WorldState;
 public class UpdateWorldState : ServerPacket
 {
     public bool Hidden;
+
     public int Value;
+
     // @todo: research
     public uint VariableID;
     public UpdateWorldState() : base(ServerOpcodes.UpdateWorldState, ConnectionType.Instance) { }

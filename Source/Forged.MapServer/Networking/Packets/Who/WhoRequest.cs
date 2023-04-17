@@ -20,6 +20,7 @@ public class WhoRequest
     public bool ShowEnemies;
     public string VirtualRealmName;
     public List<string> Words = new();
+
     public void Read(WorldPacket data)
     {
         MinLevel = data.ReadInt32();

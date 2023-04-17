@@ -28,6 +28,7 @@ internal class EnterEncryptedMode : ServerPacket
     private static readonly byte[] expandedPrivateKey;
     private readonly bool Enabled;
     private readonly byte[] EncryptionKey;
+
     static EnterEncryptedMode()
     {
         expandedPrivateKey = Ed25519.ExpandedPrivateKeyFromSeed(EnterEncryptedModePrivateKey);

@@ -70,8 +70,7 @@ public class CriteriaHandler
         MapManager = mapManager;
     }
 
-    public virtual void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer)
-    { }
+    public virtual void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
 
     public virtual bool CanCompleteCriteriaTree(CriteriaTree tree)
     {
@@ -94,8 +93,7 @@ public class CriteriaHandler
         return true;
     }
 
-    public virtual void CompletedCriteriaTree(CriteriaTree tree, Player referencePlayer)
-    { }
+    public virtual void CompletedCriteriaTree(CriteriaTree tree, Player referencePlayer) { }
 
     public virtual List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
     {
@@ -288,17 +286,13 @@ public class CriteriaHandler
         CriteriaProgress.Clear();
     }
 
-    public virtual void SendAllData(Player receiver)
-    { }
+    public virtual void SendAllData(Player receiver) { }
 
-    public virtual void SendCriteriaProgressRemoved(uint criteriaId)
-    { }
+    public virtual void SendCriteriaProgressRemoved(uint criteriaId) { }
 
-    public virtual void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted)
-    { }
+    public virtual void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted) { }
 
-    public virtual void SendPacket(ServerPacket data)
-    { }
+    public virtual void SendPacket(ServerPacket data) { }
 
     public void SetCriteriaProgress(Criteria criteria, ulong changeValue, Player referencePlayer, ProgressType progressType = ProgressType.Set)
     {
@@ -636,9 +630,7 @@ public class CriteriaHandler
                 case CriteriaType.CompleteQuestsInZone:
                 {
                     if (miscValue1 != 0)
-                    {
                         SetCriteriaProgress(criteria, 1, referencePlayer, ProgressType.Accumulate);
-                    }
                     else // login case
                     {
                         uint counter = 0;
@@ -765,7 +757,6 @@ public class CriteriaHandler
                         SetCriteriaProgress(criteria, miscValue1, referencePlayer, ProgressType.Highest);
                     }
                     else // login case
-                    {
                         for (byte arenaSlot = 0; arenaSlot < SharedConst.MaxArenaSlot; ++arenaSlot)
                         {
                             var teamId = referencePlayer.GetArenaTeamId(arenaSlot);
@@ -787,7 +778,6 @@ public class CriteriaHandler
                                 break;
                             }
                         }
-                    }
 
                     break;
                 }
@@ -911,9 +901,7 @@ public class CriteriaHandler
                     TimeCriteriaTrees.Remove(key);
                 }
                 else
-                {
                     TimeCriteriaTrees[key] -= timeDiff;
-                }
             }
     }
 
@@ -1369,6 +1357,7 @@ public class CriteriaHandler
             case ModifierTreeType.PlayerIsInZone: // 41
             {
                 var zoneId = referencePlayer.Location.Area;
+
                 if (CliDB.AreaTableStorage.TryGetValue(zoneId, out var areaEntry))
                     if (areaEntry.HasFlag(AreaFlags.Unk9))
                         zoneId = areaEntry.ParentAreaID;
@@ -1384,6 +1373,7 @@ public class CriteriaHandler
                     return false;
 
                 var zoneId = refe.Location.Area;
+
                 if (CliDB.AreaTableStorage.TryGetValue(zoneId, out var areaEntry))
                     if (areaEntry.HasFlag(AreaFlags.Unk9))
                         zoneId = areaEntry.ParentAreaID;
@@ -2827,11 +2817,9 @@ public class CriteriaHandler
                     var artifact = referencePlayer.GetItemByGuid(artifactAura.CastItemGuid);
 
                     if (artifact != null)
-                    {
                         if (CliDB.ArtifactAppearanceStorage.TryGetValue(artifact.GetModifier(ItemModifier.ArtifactAppearanceId), out var artifactAppearance))
                             if (artifactAppearance.ArtifactAppearanceSetID == reqValue)
                                 break;
-                    }
                 }
 
                 return false;
@@ -3160,9 +3148,7 @@ public class CriteriaHandler
                     return false;
 
                 if (questLineQuests.Any(questLineQuest => !referencePlayer.GetQuestRewardStatus(questLineQuest.QuestID)))
-                {
                     return false;
-                }
 
                 break;
             }
@@ -3417,7 +3403,6 @@ public class CriteriaHandler
                     return level >= levels.Value.MinLevelWithDelta && level <= levels.Value.MaxLevelWithDelta;
 
                 return level >= levels.Value.MinLevel && level <= levels.Value.MaxLevel;
-
             }
             case ModifierTreeType.TargetLevelWithinContentTuning: // 269
             {
@@ -3434,7 +3419,6 @@ public class CriteriaHandler
                     return level >= levels.Value.MinLevelWithDelta && level <= levels.Value.MaxLevelWithDelta;
 
                 return level >= levels.Value.MinLevel && level <= levels.Value.MaxLevel;
-
             }
             case ModifierTreeType.PlayerIsScenarioInitiator: // 270 NYI
                 return false;
@@ -3666,9 +3650,7 @@ public class CriteriaHandler
                             return false;
                 }
                 else if (!referencePlayer.HasAchieved(reqValue))
-                {
                     return false;
-                }
 
                 break;
             }

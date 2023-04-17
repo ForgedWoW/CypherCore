@@ -70,13 +70,6 @@ public class InstanceScript : ZoneScript
         _instanceSpawnGroups = _objectManager.GetInstanceSpawnGroupsForMap(map.Id);
     }
 
-    private enum InstanceState
-    {
-        Block,
-        Spawn,
-        ForceBlock
-    };
-
     public InstanceMap Instance { get; set; }
 
     public void AddCombatResurrectionCharge()
@@ -121,8 +114,7 @@ public class InstanceScript : ZoneScript
     }
 
     // Override this function to validate all additional data loads
-    public virtual void AfterDataLoad()
-    { }
+    public virtual void AfterDataLoad() { }
 
     public virtual bool CheckAchievementCriteriaMeet(uint criteriaID, Player source, Unit target = null, uint miscvalue1 = 0)
     {
@@ -255,9 +247,7 @@ public class InstanceScript : ZoneScript
             go.SetRespawnTime((int)timeToDespawn.TotalSeconds);
         }
         else
-        {
             Log.Logger.Debug("InstanceScript: DoRespawnGameObject failed");
-        }
     }
 
     // Update Achievement Criteria for all players in instance
@@ -288,14 +278,10 @@ public class InstanceScript : ZoneScript
                     go.ResetDoorOrButton();
             }
             else
-            {
                 Log.Logger.Error("InstanceScript: DoUseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
-            }
         }
         else
-        {
             Log.Logger.Debug("InstanceScript: DoUseDoorOrButton failed");
-        }
     }
 
     public List<AreaBoundary> GetBossBoundary(uint id)
@@ -489,9 +475,7 @@ public class InstanceScript : ZoneScript
             AfterDataLoad();
         }
         else
-        {
             OutLoadInstDataFail();
-        }
 
         OutLoadInstDataComplete();
     }
@@ -579,12 +563,10 @@ public class InstanceScript : ZoneScript
     }
 
     // Called when a player successfully enters the instance.
-    public virtual void OnPlayerEnter(Player player)
-    { }
+    public virtual void OnPlayerEnter(Player player) { }
 
     // Called when a player successfully leaves the instance.
-    public virtual void OnPlayerLeave(Player player)
-    { }
+    public virtual void OnPlayerLeave(Player player) { }
 
     public void OutLoadInstData(string input)
     {
@@ -854,8 +836,7 @@ public class InstanceScript : ZoneScript
         GameEvents.TriggerForMap(gameEventId, Instance);
     }
 
-    public virtual void Update(uint diff)
-    { }
+    public virtual void Update(uint diff) { }
 
     public string UpdateAdditionalSaveData(string oldData, UpdateAdditionalSaveDataEvent saveEvent)
     {
@@ -906,10 +887,10 @@ public class InstanceScript : ZoneScript
 
             open = info.Type switch
             {
-                DoorType.Room => info.BossInfo.State != EncounterState.InProgress,
-                DoorType.Passage => info.BossInfo.State == EncounterState.Done,
+                DoorType.Room      => info.BossInfo.State != EncounterState.InProgress,
+                DoorType.Passage   => info.BossInfo.State == EncounterState.Done,
                 DoorType.SpawnHole => info.BossInfo.State == EncounterState.InProgress,
-                _ => true
+                _                  => true
             };
         }
 
@@ -948,9 +929,7 @@ public class InstanceScript : ZoneScript
     private void AddObject(WorldObject obj, uint type, bool add)
     {
         if (add)
-        {
             _objectGuids[type] = obj.GUID;
-        }
         else
         {
             var guid = _objectGuids.LookupByKey(type);
@@ -1112,4 +1091,11 @@ public class InstanceScript : ZoneScript
                 Instance.SetSpawnGroupInactive(groupId);
         }
     }
+
+    private enum InstanceState
+    {
+        Block,
+        Spawn,
+        ForceBlock
+    };
 }

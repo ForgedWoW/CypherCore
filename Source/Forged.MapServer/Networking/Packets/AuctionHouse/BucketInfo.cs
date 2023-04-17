@@ -18,6 +18,7 @@ public class BucketInfo
     public int RequiredLevel;
     public int TotalQuantity;
     public uint? Unk901_1;
+
     public void Write(WorldPacket data)
     {
         Key.Write(data);

@@ -186,9 +186,7 @@ public partial class Unit : WorldObject
 
         // If we ask for a specific exit position, use that one. Otherwise allow scripts to modify it
         if (exitPosition != null)
-        {
             pos = exitPosition;
-        }
         else
         {
             // Set exit position to vehicle position and use the current orientation
@@ -343,9 +341,7 @@ public partial class Unit : WorldObject
 
         if (ai != null)
             lock (UnitAis)
-            {
                 ai.UpdateAI(diff);
-            }
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -576,14 +572,10 @@ public partial class Unit : WorldObject
                 ExitVehicle();
             }
             else if (seatId >= 0 && seatId == MovementInfo.Transport.Seat)
-            {
                 return;
-            }
             else
-            {
                 //Exit the current vehicle because unit will reenter in a new seat.
                 Vehicle.GetBase().RemoveAurasByType(AuraType.ControlVehicle, GUID, aurApp.Base);
-            }
         }
 
         if (aurApp.HasRemoveMode)
@@ -645,7 +637,8 @@ public partial class Unit : WorldObject
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
         var cell = new Cell(p);
-        cell.Data.NoCreate = true;;
+        cell.Data.NoCreate = true;
+        ;
 
         var uCheck = new AnyUnitInObjectRangeCheck(this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -669,7 +662,8 @@ public partial class Unit : WorldObject
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
         var cell = new Cell(p);
-        cell.Data.NoCreate = true;;
+        cell.Data.NoCreate = true;
+        ;
 
         var uCheck = new NearestAttackableUnitInObjectRangeCheck(this, this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -730,7 +724,8 @@ public partial class Unit : WorldObject
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
         var cell = new Cell(p);
-        cell.Data.NoCreate = true;;
+        cell.Data.NoCreate = true;
+        ;
 
         var uCheck = new AnyFriendlyUnitInObjectRangeCheck(this, this, fMaxSearchRange, false, exceptSelf);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -832,11 +827,9 @@ public partial class Unit : WorldObject
                 var artifact = AsPlayer.GetItemByGuid(artifactAura.CastItemGuid);
 
                 if (artifact != null)
-                {
                     if (CliDB.ArtifactAppearanceStorage.TryGetValue(artifact.GetModifier(ItemModifier.ArtifactAppearanceId), out var artifactAppearance))
                         if ((ShapeShiftForm)artifactAppearance.OverrideShapeshiftFormID == form)
                             return artifactAppearance.OverrideShapeshiftDisplayID;
-                }
             }
 
             var formModelData = DB2Manager.GetShapeshiftFormModelData(Race, thisPlayer.NativeGender, form);
@@ -1076,9 +1069,7 @@ public partial class Unit : WorldObject
     public IUnitAI GetTopAI()
     {
         lock (UnitAis)
-        {
             return UnitAis.Count == 0 ? null : UnitAis.Peek();
-        }
     }
 
     public double GetTotalSpellPowerValue(SpellSchoolMask mask, bool heal)
@@ -1092,9 +1083,7 @@ public partial class Unit : WorldObject
                 if (ownerPlayer != null)
                 {
                     if (IsTotem)
-                    {
                         return OwnerUnit.GetTotalSpellPowerValue(mask, heal);
-                    }
                     else
                     {
                         if (IsPet)
@@ -1116,9 +1105,7 @@ public partial class Unit : WorldObject
         var sp = 0;
 
         if (heal)
-        {
             sp = thisPlayer.ActivePlayerData.ModHealingDonePos;
-        }
         else
         {
             var counter = 0;
@@ -1480,9 +1467,7 @@ public partial class Unit : WorldObject
                             maxModDamagePercentSchool = Math.Max(maxModDamagePercentSchool, thisPlayer.ActivePlayerData.ModDamageDonePercent[(int)i]);
                 }
                 else
-                {
                     maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentDone, (uint)schoolMask);
-                }
 
                 doneTotalMod *= maxModDamagePercentSchool;
             }
@@ -1579,9 +1564,7 @@ public partial class Unit : WorldObject
                 takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.MiscValue & (uint)spellProto.GetSchoolMask()) != 0);
         }
         else // melee attack
-        {
             takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GUID; });
-        }
 
         var cheatDeath = GetAuraEffect(45182, 0);
 
@@ -1683,8 +1666,7 @@ public partial class Unit : WorldObject
         return gain;
     }
 
-    public virtual void OnPhaseChange()
-    { }
+    public virtual void OnPhaseChange() { }
 
     public void PlayOneShotAnimKitId(ushort animKitId)
     {
@@ -1707,7 +1689,6 @@ public partial class Unit : WorldObject
     public bool PopAI()
     {
         lock (UnitAis)
-        {
             if (UnitAis.Count != 0)
             {
                 UnitAis.Pop();
@@ -1715,18 +1696,13 @@ public partial class Unit : WorldObject
                 return true;
             }
             else
-            {
                 return false;
-            }
-        }
     }
 
     public void PushAI(IUnitAI newAI)
     {
         lock (UnitAis)
-        {
             UnitAis.Push(newAI);
-        }
     }
 
     public void RecalculateObjectScale()
@@ -1740,12 +1716,10 @@ public partial class Unit : WorldObject
     public void RefreshAI()
     {
         lock (UnitAis)
-        {
             if (UnitAis.Count == 0)
                 Ai = null;
             else
                 Ai = UnitAis.Peek();
-        }
     }
 
     public void RegisterDynObject(DynamicObject dynObj)
@@ -2054,9 +2028,7 @@ public partial class Unit : WorldObject
                     if (handledAura == null)
                     {
                         if (!ignorePositiveAurasPreventingMounting)
-                        {
                             handledAura = eff;
-                        }
                         else
                         {
                             var ci = ObjectManager.GetCreatureTemplate((uint)eff.MiscValue);
@@ -2120,9 +2092,7 @@ public partial class Unit : WorldObject
         }
 
         if (IsTypeId(TypeId.Player))
-        {
             AsPlayer.SetFactionForRace(Race);
-        }
         else
         {
             if (HasUnitTypeMask(UnitTypeMask.Minion))
@@ -2189,9 +2159,7 @@ public partial class Unit : WorldObject
         var charmed = IsCharmed;
 
         if (charmed)
-        {
             PushAI(GetScheduledChangeAI());
-        }
         else
         {
             RestoreDisabledAI();
@@ -2376,9 +2344,7 @@ public partial class Unit : WorldObject
             zoneScript?.OnUnitDeath(this);
         }
         else if (s == DeathState.JustRespawned)
-        {
             RemoveUnitFlag(UnitFlags.Skinnable); // clear skinnable for creature and player (at Battleground)
-        }
     }
 
     public virtual void SetDisplayId(uint modelId, float displayScale = 1f)
@@ -2413,9 +2379,7 @@ public partial class Unit : WorldObject
                 CombatManager.EndAllCombat();
         }
         else
-        {
             RemoveUnitFlag(UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
-        }
     }
 
     public virtual void SetImmuneToAll(bool apply)
@@ -2447,9 +2411,7 @@ public partial class Unit : WorldObject
             }
         }
         else
-        {
             RemoveUnitFlag(UnitFlags.ImmuneToNpc);
-        }
     }
 
     public virtual void SetImmuneToNPC(bool apply)
@@ -2481,9 +2443,7 @@ public partial class Unit : WorldObject
             }
         }
         else
-        {
             RemoveUnitFlag(UnitFlags.ImmuneToPc);
-        }
     }
 
     public virtual void SetImmuneToPc(bool apply)
@@ -2858,10 +2818,10 @@ public partial class Unit : WorldObject
     {
         var unitMod = attackType switch
         {
-            WeaponAttackType.BaseAttack => UnitMods.DamageMainHand,
-            WeaponAttackType.OffAttack => UnitMods.DamageOffHand,
+            WeaponAttackType.BaseAttack   => UnitMods.DamageMainHand,
+            WeaponAttackType.OffAttack    => UnitMods.DamageOffHand,
             WeaponAttackType.RangedAttack => UnitMods.DamageRanged,
-            _ => throw new NotImplementedException(),
+            _                             => throw new NotImplementedException(),
         };
 
         var amount = GetTotalAuraModifier(AuraType.ModDamageDone,
@@ -2874,10 +2834,10 @@ public partial class Unit : WorldObject
     {
         (UnitMods unitMod, double factor) = attackType switch
         {
-            WeaponAttackType.BaseAttack => (UnitMods.DamageMainHand, 1.0f),
-            WeaponAttackType.OffAttack => (UnitMods.DamageOffHand, 0.5f),
+            WeaponAttackType.BaseAttack   => (UnitMods.DamageMainHand, 1.0f),
+            WeaponAttackType.OffAttack    => (UnitMods.DamageOffHand, 0.5f),
             WeaponAttackType.RangedAttack => (UnitMods.DamageRanged, 1.0f),
-            _ => throw new NotImplementedException(),
+            _                             => throw new NotImplementedException(),
         };
 
         factor *= GetTotalAuraMultiplier(AuraType.ModDamagePercentDone,
@@ -2922,7 +2882,6 @@ public partial class Unit : WorldObject
                     displayPower = (PowerType)powerTypeAura.MiscValue;
                 }
                 else
-                {
                     switch (TypeId)
                     {
                         case TypeId.Player:
@@ -2961,7 +2920,6 @@ public partial class Unit : WorldObject
                             break;
                         }
                     }
-                }
 
                 break;
             }
@@ -2973,9 +2931,7 @@ public partial class Unit : WorldObject
     public override void UpdateObjectVisibility(bool forced = true)
     {
         if (!forced)
-        {
             AddToNotify(NotifyFlags.VisibilityChanged);
-        }
         else
         {
             // ReSharper disable once RedundantArgumentDefaultValue
@@ -3154,9 +3110,7 @@ public partial class Unit : WorldObject
                 var percent60 = 3.0f * percent20;
 
                 if (offtime > percent20 && offtime <= percent60)
-                {
                     victim.SetAttackTimer(WeaponAttackType.OffAttack, (uint)percent20);
-                }
                 else if (offtime > percent60)
                 {
                     offtime -= 2.0f * percent20;
@@ -3169,9 +3123,7 @@ public partial class Unit : WorldObject
                 var percent60 = 3.0f * percent20;
 
                 if (basetime > percent20 && basetime <= percent60)
-                {
                     victim.SetAttackTimer(WeaponAttackType.BaseAttack, (uint)percent20);
-                }
                 else if (basetime > percent60)
                 {
                     basetime -= 2.0f * percent20;
@@ -3408,9 +3360,7 @@ public partial class Unit : WorldObject
                 }
             }
             else
-            {
                 _reactiveTimer[reactive] -= pTime;
-            }
         }
     }
 }

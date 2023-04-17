@@ -17,6 +17,7 @@ public class GuildNewsEvent
     public ObjectGuid MemberGuid;
     public List<ObjectGuid> MemberList = new();
     public int Type;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Id);

@@ -40,10 +40,8 @@ internal class PlayerPersonalPhasesTracker
 
         // loop over all owner phases. If any exist and marked for deletion - reset delete
         foreach (var phaseRef in phaseShift.Phases)
-        {
             if (_spawns.TryGetValue(phaseRef.Key, out var spawns))
                 spawns.DurationRemaining = null;
-        }
     }
 
     public void RegisterTrackedObject(uint phaseId, WorldObject obj)
@@ -76,6 +74,7 @@ internal class PlayerPersonalPhasesTracker
         foreach (var spawns in _spawns.Values)
             spawns.Objects.Remove(obj);
     }
+
     public void Update(Map map, uint diff)
     {
         foreach (var itr in _spawns.ToList())
@@ -90,6 +89,7 @@ internal class PlayerPersonalPhasesTracker
                 }
             }
     }
+
     private void DespawnPhase(Map map, PersonalPhaseSpawns spawns)
     {
         foreach (var obj in spawns.Objects)

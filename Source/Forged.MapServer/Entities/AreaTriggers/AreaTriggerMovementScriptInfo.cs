@@ -10,6 +10,7 @@ public struct AreaTriggerMovementScriptInfo
 {
     public Vector3 Center;
     public uint SpellScriptID;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(SpellScriptID);

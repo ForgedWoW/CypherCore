@@ -99,7 +99,7 @@ public class RASocket : ISocket
         Send("\r\n");
 
         // Read commands
-        for (; ; )
+        for (;;)
         {
             Send("\r\nForged>");
             var command = ReadString();

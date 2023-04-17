@@ -14,7 +14,9 @@ public class LootResponse : ServerPacket
     public bool AELooting;
     public uint Coins;
     public List<LootCurrency> Currencies = new();
+
     public LootError FailureReason = LootError.NoLoot;
+
     // Most common value
     public List<LootItemData> Items = new();
 

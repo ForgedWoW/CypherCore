@@ -35,7 +35,7 @@ public class InstanceMap : Map
 
     public InstanceMap(uint id, long expiry, uint instanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock, ClassFactory classFactory, IConfiguration configuration,
                        WorldStateManager worldStateManager, WorldManager worldManager, GameObjectManager gameObjectManager, ScriptManager scriptManager, InstanceLockManager instanceLockManager,
-                       CharacterDatabase characterDatabase) 
+                       CharacterDatabase characterDatabase)
         : base(id, expiry, instanceId, spawnMode, classFactory)
     {
         _configuration = configuration;
@@ -46,7 +46,7 @@ public class InstanceMap : Map
         _instanceLockManager = instanceLockManager;
         _characterDatabase = characterDatabase;
         InstanceLock = instanceLock;
-        
+
         //lets initialize visibility distance for dungeons
         InitVisibilityDistance();
 
@@ -62,11 +62,6 @@ public class InstanceMap : Map
 
         InstanceLock.SetInUse(true);
         _instanceExpireEvent = InstanceLock.GetExpiryTime(); // ignore extension state for reset event (will ask players to accept extended save on expiration)
-    }
-
-    ~InstanceMap()
-    {
-        InstanceLock?.SetInUse(false);
     }
 
     public InstanceLock InstanceLock { get; }
@@ -230,9 +225,7 @@ public class InstanceMap : Map
             InstanceScript.Load(lockData.Data);
         }
         else
-        {
             InstanceScript.Create();
-        }
     }
 
     public void CreateInstanceLockForPlayer(Player player)
@@ -282,6 +275,7 @@ public class InstanceMap : Map
         VisibleDistance = _worldManager.MaxVisibleDistanceInInstances;
         VisibilityNotifyPeriod = _worldManager.VisibilityNotifyPeriodInInstances;
     }
+
     public override void RemovePlayerFromMap(Player player, bool remove)
     {
         Log.Logger.Information("MAP: Removing player '{0}' from instance '{1}' of map '{2}' before relocating to another map", player.GetName(), InstanceId, MapName);
@@ -348,7 +342,6 @@ public class InstanceMap : Map
 
                     break;
                 }
-                
             }
 
             return InstanceResetResult.NotEmpty;
@@ -389,6 +382,7 @@ public class InstanceMap : Map
         Reset(InstanceResetMethod.Expire);
         _instanceExpireEvent = _instanceLockManager.GetNextResetTime(new MapDb2Entries(Entry, MapDifficulty));
     }
+
     public void UpdateInstanceLock(UpdateBossStateSaveDataEvent updateSaveDataEvent)
     {
         if (InstanceLock == null)
@@ -479,13 +473,13 @@ public class InstanceMap : Map
                 var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
                 var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans,
-                                                                                 player.GUID,
-                                                                                 entries,
-                                                                                 new InstanceLockUpdateEvent(InstanceId,
-                                                                                                             InstanceScript.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
-                                                                                                             instanceCompletedEncounters,
-                                                                                                             null,
-                                                                                                             null));
+                                                                               player.GUID,
+                                                                               entries,
+                                                                               new InstanceLockUpdateEvent(InstanceId,
+                                                                                                           InstanceScript.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
+                                                                                                           instanceCompletedEncounters,
+                                                                                                           null,
+                                                                                                           null));
 
                 if (!isNewLock)
                     continue;
@@ -502,5 +496,10 @@ public class InstanceMap : Map
 
             _characterDatabase.CommitTransaction(trans);
         }
+    }
+
+    ~InstanceMap()
+    {
+        InstanceLock?.SetInUse(false);
     }
 }

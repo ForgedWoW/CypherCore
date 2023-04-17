@@ -57,9 +57,7 @@ internal class BanInfoCommands
             }
         }
         else
-        {
             targetGuid = target.GUID;
-        }
 
         var charDb = handler.ClassFactory.Resolve<CharacterDatabase>();
         var stmt = charDb.GetPreparedStatement(CharStatements.SEL_BANINFO);

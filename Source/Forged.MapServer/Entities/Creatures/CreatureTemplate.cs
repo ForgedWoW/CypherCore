@@ -16,6 +16,7 @@ public class CreatureTemplate
 {
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
+
     public CreatureTemplate(IConfiguration configuration, GameObjectManager objectManager)
     {
         _configuration = configuration;
@@ -91,6 +92,7 @@ public class CreatureTemplate
     public uint VignetteID { get; set; } // @todo Read Vignette.db2
     public int WidgetSetID { get; set; }
     public int WidgetSetUnitConditionID { get; set; }
+
     public static int DifficultyIDToDifficultyEntryIndex(uint difficulty)
     {
         return (Difficulty)difficulty switch
@@ -187,6 +189,7 @@ public class CreatureTemplate
         // If only one element, ignore the Probability (even if 0)
         return Models.Count == 1 ? Models[0] : Models.SelectRandomElementByWeight(model => model.Probability);
     }
+
     public SkillType GetRequiredLootSkill()
     {
         if (TypeFlags.HasAnyFlag(CreatureTypeFlags.SkinWithHerbalism))

@@ -15,6 +15,7 @@ public class ConversationActorField
     public int Id;
     public uint NoActorObject;
     public ConversationActorType Type;
+
     public void WriteCreate(WorldPacket data, Conversation owner, Player receiver)
     {
         data.WriteUInt32(CreatureID);

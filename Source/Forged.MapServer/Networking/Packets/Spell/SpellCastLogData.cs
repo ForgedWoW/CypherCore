@@ -15,6 +15,7 @@ public class SpellCastLogData
     private double AttackPower;
     private long Health;
     private double SpellPower;
+
     public void Initialize(Unit unit)
     {
         Health = unit.Health;

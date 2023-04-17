@@ -12,6 +12,7 @@ public class StartPurchase : ClientPacket
     public uint ClientToken { get; set; } = 0;
     public uint ProductID { get; set; } = 0;
     public ObjectGuid TargetCharacter { get; set; } = new();
+
     public override void Read()
     {
         ClientToken = WorldPacket.ReadUInt32();

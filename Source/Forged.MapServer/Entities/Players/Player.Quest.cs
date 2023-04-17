@@ -27,7 +27,6 @@ using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
-using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -125,9 +124,7 @@ public partial class Player
             endTime = GameTime.CurrentTime + limittime;
         }
         else
-        {
             questStatusData.Timer = 0;
-        }
 
         if (quest.HasFlag(QuestFlags.Pvp))
         {
@@ -647,9 +644,7 @@ public partial class Player
                 SendQuestTimerFailed(questId);
             }
             else
-            {
                 SendQuestFailed(questId);
-            }
 
             // Destroy quest items on quest failure.
             foreach (var obj in quest.Objectives)
@@ -845,18 +840,12 @@ public partial class Player
                         result |= QuestGiverStatus.Quest;
                 }
                 else if (quest.IsDaily)
-                {
                     result |= QuestGiverStatus.TrivialDailyQuest;
-                }
                 else
-                {
                     result |= QuestGiverStatus.Trivial;
-                }
             }
             else
-            {
                 result |= QuestGiverStatus.Future;
-            }
         }
 
         return result;
@@ -882,7 +871,6 @@ public partial class Player
         var level = (int)Level;
 
         return level >= minLevel ? Math.Min(level, maxLevel) : minLevel;
-
     }
 
     public int GetQuestMinLevel(Quest.Quest quest)
@@ -1037,6 +1025,7 @@ public partial class Player
     {
         return _sharedQuestId;
     }
+
     public bool GiveQuestSourceItem(Quest.Quest quest)
     {
         var srcitem = quest.SourceItemId;
@@ -1267,10 +1256,8 @@ public partial class Player
                 return false;
         }
         else if (!previousSequencedObjectiveComplete && previousSequencedObjectiveIndex != -1)
-        {
             if (!IsQuestObjectiveCompletable(slot, quest, quest.Objectives[previousSequencedObjectiveIndex]))
                 return false;
-        }
 
         return true;
     }
@@ -1548,9 +1535,7 @@ public partial class Player
                 questInvolvedRelations = ObjectManager.GetGOQuestInvolvedRelations(gameObject.Entry);
             }
             else
-            {
                 return;
-            }
         }
 
         var qm = PlayerTalkClass.QuestMenu;
@@ -1753,9 +1738,7 @@ public partial class Player
                         SendNewItem(item, quest.RewardItemCount[i], true, false);
                     }
                     else if (quest.IsDfQuest)
-                    {
                         SendItemRetrievalMail(itemId, quest.RewardItemCount[i], ItemContext.QuestReward);
-                    }
                 }
             }
 
@@ -1844,10 +1827,8 @@ public partial class Player
 
         // title reward
         if (quest.RewardTitleId != 0)
-        {
             if (CliDB.CharTitlesStorage.TryGetValue(quest.RewardTitleId, out var titleEntry))
                 SetTitle(titleEntry);
-        }
 
         // Send reward mail
         var mailTemplateID = quest.RewardMailTemplateId;
@@ -1877,17 +1858,11 @@ public partial class Player
             }
         }
         else if (quest.IsWeekly)
-        {
             SetWeeklyQuestStatus(questId);
-        }
         else if (quest.IsMonthly)
-        {
             SetMonthlyQuestStatus(questId);
-        }
         else if (quest.IsSeasonal)
-        {
             SetSeasonalQuestStatus(questId);
-        }
 
         RemoveActiveQuest(questId, false);
 
@@ -1915,7 +1890,6 @@ public partial class Player
             caster.SpellFactory.CastSpell(this, spellInfo.Id, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetCastDifficulty(spellInfo.Difficulty));
         }
         else
-        {
             foreach (var displaySpell in quest.RewardDisplaySpell)
             {
                 if (CliDB.PlayerConditionStorage.TryGetValue(displaySpell.PlayerConditionId, out var playerCondition))
@@ -1935,7 +1909,6 @@ public partial class Player
 
                 caster.SpellFactory.CastSpell(this, spellInfo.Id, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetCastDifficulty(spellInfo.Difficulty));
             }
-        }
 
         if (quest.QuestSortID > 0)
             UpdateCriteria(CriteriaType.CompleteQuestsInZone, quest.Id);
@@ -2449,16 +2422,12 @@ public partial class Player
             if (quest != null)
             {
                 if (qmi0.QuestIcon == 4)
-                {
                     PlayerTalkClass.SendQuestGiverRequestItems(quest, source.GUID, CanRewardQuest(quest, false), true);
-                }
 
                 // Send completable on repeatable and autoCompletable quest if player don't have quest
                 // @todo verify if check for !quest.IsDaily() is really correct (possibly not)
                 else if (!source.HasQuest(questId) && !source.HasInvolvedQuest(questId))
-                {
                     PlayerTalkClass.SendCloseGossip();
-                }
                 else
                 {
                     if (quest.IsAutoAccept && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
@@ -2563,9 +2532,7 @@ public partial class Player
     public void SendQuestGiverStatusMultiple()
     {
         lock (ClientGuiDs)
-        {
             SendQuestGiverStatusMultiple(ClientGuiDs);
-        }
     }
 
     public void SendQuestGiverStatusMultiple(List<ObjectGuid> guids)
@@ -2607,9 +2574,7 @@ public partial class Player
         uint moneyReward;
 
         if (!IsMaxLevel)
-        {
             moneyReward = GetQuestMoneyReward(quest);
-        }
         else // At max level, increase gold reward
         {
             xp = 0;
@@ -2628,13 +2593,9 @@ public partial class Player
         if (questGiver)
         {
             if (questGiver.IsGossip)
-            {
                 packet.LaunchGossip = true;
-            }
             else if (questGiver.IsQuestGiver)
-            {
                 packet.LaunchQuest = true;
-            }
             else if (quest.NextQuestInChain != 0 && !quest.HasFlag(QuestFlags.AutoComplete))
             {
                 var rewardQuest = ObjectManager.GetQuestTemplate(quest.NextQuestInChain);
@@ -2744,6 +2705,7 @@ public partial class Player
         _playerSharingQuest = guid;
         _sharedQuestId = id;
     }
+
     public void SetQuestSlot(ushort slot, uint questID)
     {
         var questLogField = Values.ModifyValue(PlayerData).ModifyValue(PlayerData.QuestLog, slot);
@@ -2812,6 +2774,7 @@ public partial class Player
         _rewardedQuests.Add(questID);
         _rewardedQuestsSave[questID] = QuestSaveType.Default;
     }
+
     public bool TakeQuestSourceItem(uint questId, bool msg)
     {
         var quest = ObjectManager.GetQuestTemplate(questId);
@@ -2848,10 +2811,12 @@ public partial class Player
 
         return true;
     }
+
     public void TalkedToCreature(uint entry, ObjectGuid guid)
     {
         UpdateQuestObjectiveProgress(QuestObjectiveType.TalkTo, (int)entry, 1, guid);
     }
+
     public void UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int objectId, long addCount, ObjectGuid victimGuid = default)
     {
         var anyObjectiveChangedCompletionState = false;
@@ -2922,7 +2887,6 @@ public partial class Player
                     objectiveIsNowComplete = IsQuestObjectiveComplete(logSlot, quest, objective);
                 }
                 else
-                {
                     objectiveIsNowComplete = objectiveType switch
                     {
                         QuestObjectiveType.Currency      => GetCurrencyQuantity((uint)objectId) + addCount >= objective.Amount,
@@ -2933,7 +2897,6 @@ public partial class Player
                         QuestObjectiveType.ProgressBar   => IsQuestObjectiveProgressBarComplete(logSlot, quest),
                         _                                => objectiveIsNowComplete
                     };
-                }
 
                 if (objective.Flags.HasAnyFlag(QuestObjectiveFlags.PartOfProgressBar))
                     if (IsQuestObjectiveProgressBarComplete(logSlot, quest))
@@ -2961,6 +2924,7 @@ public partial class Player
 
         PhasingHandler.OnConditionChange(this);
     }
+
     public void UpdateVisibleGameobjectsOrSpellClicks()
     {
         if (ClientGuiDs.Empty())
@@ -2969,7 +2933,6 @@ public partial class Player
         UpdateData udata = new(Location.MapId);
 
         lock (ClientGuiDs)
-        {
             foreach (var guid in ClientGuiDs)
                 if (guid.IsGameObject)
                 {
@@ -3021,11 +2984,11 @@ public partial class Player
                     unitMask.MarkChanged(UnitData.NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
                     obj.BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), unitMask.GetUpdateMask(), this);
                 }
-        }
 
         udata.BuildPacket(out var packet);
         SendPacket(packet);
     }
+
     private void AddTimedQuest(uint questId)
     {
         _timedquests.Add(questId);
@@ -3042,6 +3005,7 @@ public partial class Player
     {
         return _ingametime;
     }
+
     private int GetQuestMinLevel(uint contentTuningId)
     {
         var questLevels = DB2Manager.GetContentTuningData(contentTuningId, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
@@ -3073,6 +3037,7 @@ public partial class Player
     {
         return _mQuestStatus;
     }
+
     private void PushQuests()
     {
         foreach (var quest in ObjectManager.GetQuestTemplatesAutoPush())
@@ -3110,7 +3075,6 @@ public partial class Player
         Log.Logger.Debug($"Player.SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: {qInfo.Id}) because target quest (QuestID: {breadcrumbTargetQuestId}) is not available to player '{GetName()}' ({GUID}).");
 
         return false;
-
     }
 
     private bool SatisfyQuestDependentBreadcrumbQuests(Quest.Quest qInfo, bool msg)
@@ -3125,7 +3089,6 @@ public partial class Player
         Log.Logger.Debug($"Player.SatisfyQuestDependentBreadcrumbQuests: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) has a breadcrumb quest towards this quest in the quest log.");
 
         return false;
-
     }
 
     private bool SatisfyQuestDependentPreviousQuests(Quest.Quest qInfo, bool msg)
@@ -3161,7 +3124,6 @@ public partial class Player
             Log.Logger.Debug($"Player.SatisfyQuestDependentPreviousQuests: Sent QUEST_ERR_NONE (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) doesn't have the required quest (1).");
 
             return false;
-
         }
 
         // Has only prev. quests in non-rewarded state
@@ -3178,6 +3140,7 @@ public partial class Player
     {
         return SatisfyQuestMinLevel(qInfo, msg) && SatisfyQuestMaxLevel(qInfo, msg);
     }
+
     private void SendDisplayToast(uint entry, DisplayToastType type, bool isBonusRoll, uint quantity, DisplayToastMethod method, uint questId, Item item = null)
     {
         DisplayToast displayToast = new()
@@ -3259,6 +3222,7 @@ public partial class Player
 
         return PhasingHandler.OnConditionChange(this, updateVisiblity);
     }
+
     private void SendQuestUpdateAddCredit(Quest.Quest quest, ObjectGuid guid, QuestObjective obj, uint count)
     {
         QuestUpdateAddCredit packet = new()
@@ -3324,6 +3288,7 @@ public partial class Player
         var questLog = Values.ModifyValue(PlayerData).ModifyValue(PlayerData.QuestLog, slot);
         SetUpdateFieldFlagValue(questLog.ModifyValue(questLog.ObjectiveFlags), 1u << objectiveIndex);
     }
+
     private void SetSeasonalQuestStatus(uint questID)
     {
         var quest = ObjectManager.GetQuestTemplate(questID);

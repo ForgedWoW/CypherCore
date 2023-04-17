@@ -24,10 +24,6 @@ public class CreatureLastSearcher : IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
-    public Creature GetTarget()
-    {
-        return _object;
-    }
 
     public void Visit(IList<Creature> objs)
     {
@@ -39,5 +35,10 @@ public class CreatureLastSearcher : IGridNotifierCreature
             if (_check.Invoke(creature))
                 _object = creature;
         }
+    }
+
+    public Creature GetTarget()
+    {
+        return _object;
     }
 }

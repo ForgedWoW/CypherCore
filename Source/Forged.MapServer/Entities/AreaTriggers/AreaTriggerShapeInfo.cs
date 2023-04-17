@@ -14,6 +14,7 @@ public class AreaTriggerShapeInfo : AreaTriggerData
     }
 
     public AreaTriggerTypes TriggerType { get; set; }
+
     public unsafe float GetMaxSearchRadius()
     {
         return TriggerType switch

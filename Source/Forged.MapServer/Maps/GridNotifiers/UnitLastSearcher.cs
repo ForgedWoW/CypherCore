@@ -26,10 +26,6 @@ public class UnitLastSearcher : IGridNotifierPlayer, IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
-    public Unit GetTarget()
-    {
-        return _object;
-    }
 
     public void Visit(IList<Creature> objs)
     {
@@ -53,5 +49,10 @@ public class UnitLastSearcher : IGridNotifierPlayer, IGridNotifierCreature
             if (_check.Invoke(player))
                 _object = player;
         }
+    }
+
+    public Unit GetTarget()
+    {
+        return _object;
     }
 }

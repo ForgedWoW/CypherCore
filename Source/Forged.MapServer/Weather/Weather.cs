@@ -29,6 +29,7 @@ public class Weather
 
     public uint ScriptId => _weatherChances.ScriptId;
     public uint Zone { get; }
+
     public static void SendFineWeatherUpdateToPlayer(Player player)
     {
         player.SendPacket(new WeatherPkt());
@@ -176,13 +177,9 @@ public class Weather
         // If fine 100% sun (no fog)
 
         if (_type == WeatherType.Fine)
-        {
             _intensity = 0.0f;
-        }
         else if (u < 90)
-        {
             _intensity = (float)RandomHelper.NextDouble() * 0.3333f;
-        }
         else
         {
             // Severe change, but how severe?
@@ -237,6 +234,7 @@ public class Weather
 
         return true;
     }
+
     public bool UpdateWeather()
     {
         var player = Global.WorldMgr.FindPlayerInZone(Zone);

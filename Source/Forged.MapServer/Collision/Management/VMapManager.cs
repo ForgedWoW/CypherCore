@@ -24,17 +24,17 @@ public class VMapManager
     private readonly object _loadedModelFilesLock = new();
     private readonly Dictionary<uint, uint> _parentMapData = new();
 
-    public bool IsHeightCalcEnabled { get; private set; }
-    public bool IsLineOfSightCalcEnabled { get; private set; }
-    public bool IsMapLoadingEnabled => IsLineOfSightCalcEnabled || IsHeightCalcEnabled;
-    public string VMapPath { get; }
-
     public VMapManager(IConfiguration configuration, DisableManager disableManager, DB2Manager db2Manager)
     {
         _disableManager = disableManager;
         _db2Manager = db2Manager;
         VMapPath = configuration.GetDefaultValue("DataDir", "./") + "/vmaps/";
     }
+
+    public bool IsHeightCalcEnabled { get; private set; }
+    public bool IsLineOfSightCalcEnabled { get; private set; }
+    public bool IsMapLoadingEnabled => IsLineOfSightCalcEnabled || IsHeightCalcEnabled;
+    public string VMapPath { get; }
 
     public static string GetMapFileName(uint mapId)
     {
@@ -46,6 +46,7 @@ public class VMapManager
         lock (_loadedModelFilesLock)
         {
             filename = filename.TrimEnd('\0');
+
             if (!_loadedModelFiles.TryGetValue(filename, out var model))
             {
                 model = new ManagedModel();
@@ -119,7 +120,6 @@ public class VMapManager
         groupId = 0;
 
         if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapAreaFlag))
-        {
             if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 var pos = ConvertPositionToInternalRep(x, y, z);
@@ -129,7 +129,6 @@ public class VMapManager
 
                 return result;
             }
-        }
 
         return false;
     }
@@ -137,7 +136,6 @@ public class VMapManager
     public float GetHeight(uint mapId, float x, float y, float z, float maxSearchDist)
     {
         if (IsHeightCalcEnabled && !_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapHeight))
-        {
             if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 var pos = ConvertPositionToInternalRep(x, y, z);
@@ -148,7 +146,6 @@ public class VMapManager
 
                 return height;
             }
-        }
 
         return MapConst.VMAPInvalidHeightValue;
     }
@@ -156,7 +153,6 @@ public class VMapManager
     public bool GetLiquidLevel(uint mapId, float x, float y, float z, uint reqLiquidType, ref float level, ref float floor, ref uint type, ref uint mogpFlags)
     {
         if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
-        {
             if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 LocationInfo info = new();
@@ -175,7 +171,6 @@ public class VMapManager
                         return true;
                 }
             }
-        }
 
         return false;
     }
@@ -183,7 +178,6 @@ public class VMapManager
     public bool GetObjectHitPos(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, out float rx, out float ry, out float rz, float modifyDist)
     {
         if (IsLineOfSightCalcEnabled && !_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
-        {
             if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 var pos1 = ConvertPositionToInternalRep(x1, y1, z1);
@@ -196,7 +190,6 @@ public class VMapManager
 
                 return result;
             }
-        }
 
         rx = x2;
         ry = y2;
@@ -263,6 +256,7 @@ public class VMapManager
         lock (_loadedModelFilesLock)
         {
             filename = filename.TrimEnd('\0');
+
             if (!_loadedModelFiles.TryGetValue(filename, out var model))
             {
                 Log.Logger.Error("VMapManager: trying to unload non-loaded file '{0}'", filename);

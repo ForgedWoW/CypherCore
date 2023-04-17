@@ -91,9 +91,7 @@ internal class GuildCommands
                 guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(args.NextString());
         }
         else if (target)
-        {
             guild = target.Guild;
-        }
 
         if (!guild)
             return false;

@@ -32,6 +32,7 @@ public class WorldStateManager
     private readonly WorldManager _worldManager;
     private readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
     private readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
+
     public WorldStateManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager,
                              CharacterDatabase characterDatabase, ScriptManager scriptManager, WorldManager worldManager, DB2Manager db2Manager)
     {
@@ -192,9 +193,7 @@ public class WorldStateManager
                 }
             }
             else if (!areaIds.IsEmpty())
-            {
                 Log.Logger.Error($"Table `world_state` contains a world state {id} with nonempty AreaIDs ({areaIds}) but is a realm wide world state, area requirement ignored");
-            }
 
             worldState.ScriptId = _objectManager.GetScriptId(result.Read<string>(4));
 
@@ -223,6 +222,7 @@ public class WorldStateManager
             do
             {
                 var worldStateId = result.Read<int>(0);
+
                 if (!_worldStateTemplates.TryGetValue(worldStateId, out var worldState))
                 {
                     Log.Logger.Error($"Table `world_state_value` contains a value for unknown world state {worldStateId}, ignored");
@@ -248,6 +248,7 @@ public class WorldStateManager
 
         Log.Logger.Information($"Loaded {savedValueCount} saved world state values {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
+
     public void SaveValueInDb(int worldStateId, int value)
     {
         if (GetWorldStateTemplate(worldStateId) == null)
@@ -314,6 +315,7 @@ public class WorldStateManager
 
         map.SetWorldStateValue(worldStateId, value, hidden);
     }
+
     public void SetValueAndSaveInDb(WorldStates worldStateId, int value, bool hidden, Map map)
     {
         SetValueAndSaveInDb((int)worldStateId, value, hidden, map);

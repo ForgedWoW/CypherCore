@@ -59,6 +59,7 @@ public class QueryGuildInfoResponse : ServerPacket
         public string GuildName = "";
         public List<RankInfo> Ranks = new();
         public uint VirtualRealmAddress; // a special identifier made from the Index, BattleGroup and Region.
+
         public struct RankInfo
         {
             public uint RankID;

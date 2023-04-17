@@ -10,7 +10,9 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 public class GuildMemberUpdateNote : ServerPacket
 {
     public bool IsPublic;
+
     public ObjectGuid Member;
+
     // 0 == Officer, 1 == Public
     public string Note;
     public GuildMemberUpdateNote() : base(ServerOpcodes.GuildMemberUpdateNote) { }

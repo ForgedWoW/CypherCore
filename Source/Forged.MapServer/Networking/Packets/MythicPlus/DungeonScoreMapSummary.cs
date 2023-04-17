@@ -10,6 +10,7 @@ public struct DungeonScoreMapSummary
     public int ChallengeModeID;
     public bool FinishedSuccess;
     public float MapScore;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(ChallengeModeID);

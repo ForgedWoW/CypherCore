@@ -20,6 +20,7 @@ public class GuildBankRightsAndSlots
     public int Slots { get; set; }
 
     public byte TabId { get; set; }
+
     public void SetGuildMasterValues()
     {
         Rights = GuildBankRights.Full;

@@ -31,6 +31,7 @@ internal class WardenWin : Warden
 
     private List<ushort> _currentChecks = new();
     private uint _serverTicks;
+
     public WardenWin(IConfiguration configuration, AccountManager accountManager, WorldManager worldManager, WardenCheckManager wardenCheckManager) : base(configuration, accountManager, worldManager, wardenCheckManager)
     {
         foreach (var category in Enum.GetValues<WardenCheckCategory>())
@@ -181,7 +182,7 @@ internal class WardenWin : Warden
         }
 
         // Set hold off timer, minimum timer should at least be 1 second
-        uint holdOff = Configuration.GetDefaultValue("Warden:ClientCheckHoldOff", 30u);
+        var holdOff = Configuration.GetDefaultValue("Warden:ClientCheckHoldOff", 30u);
         CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.IN_MILLISECONDS;
     }
 
@@ -307,6 +308,7 @@ internal class WardenWin : Warden
             Key = WardenModuleWin.ModuleKey
         };
     }
+
     public override void RequestChecks()
     {
         Log.Logger.Debug($"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player != null && !Session.PlayerLoading}");
@@ -449,7 +451,7 @@ internal class WardenWin : Warden
                     buff << uint8(wd.SectionLength);
                     break;
                 }*/
-                 // Should never happen
+                // Should never happen
             }
         }
 
@@ -499,6 +501,7 @@ internal class WardenWin : Warden
 
         Session.SendPacket(packet);
     }
+
     private static byte GetCheckPacketBaseSize(WardenCheckType type) => type switch
     {
         WardenCheckType.Driver  => 1,

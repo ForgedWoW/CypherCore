@@ -87,9 +87,7 @@ public class RotateMovementGenerator : MovementGenerator
         init.Launch();
 
         if (_duration > diff)
-        {
             _duration -= diff;
-        }
         else
         {
             AddFlag(MovementGeneratorFlags.InformEnabled);

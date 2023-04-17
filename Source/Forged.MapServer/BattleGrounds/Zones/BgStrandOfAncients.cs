@@ -320,7 +320,6 @@ public class BgStrandOfAncients : Battleground
                 }
             }
             else if (_status == SaStatus.RoundTwo)
-            {
                 if (_totalTime >= _endRoundTimer)
                 {
                     CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
@@ -337,7 +336,6 @@ public class BgStrandOfAncients : Battleground
 
                     return;
                 }
-            }
 
             if (_status is SaStatus.RoundOne or SaStatus.RoundTwo)
                 UpdateDemolisherSpawns();
@@ -416,7 +414,6 @@ public class BgStrandOfAncients : Battleground
                                         rewardHonor = false;
 
                                     break;
-                                
                             }
 
                             if (invoker)
@@ -440,16 +437,13 @@ public class BgStrandOfAncients : Battleground
                             UpdateObjectInteractionFlags();
                         }
                         else
-                        {
                             break;
-                        }
 
                         UpdateWorldState(gate.WorldState, (int)_gateStatus[gateId]);
                     }
 
                     break;
                 }
-                
             }
     }
 
@@ -487,7 +481,6 @@ public class BgStrandOfAncients : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)SaObjectives.GatesDestroyed);
 
                 break;
-            
         }
 
         return true;
@@ -1032,14 +1025,10 @@ public class BgStrandOfAncients : Battleground
                     player.TeleportTo(607, 2577.003f, 980.261f, 15.0f, 0.807f);
             }
             else
-            {
                 player.TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f);
-            }
         }
         else
-        {
             player.TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f);
-        }
     }
 
     /*
@@ -1141,9 +1130,7 @@ public class BgStrandOfAncients : Battleground
                     {
                         // Demolisher is not in list
                         if (!_demoliserRespawnList.ContainsKey(i))
-                        {
                             _demoliserRespawnList[i] = GameTime.CurrentTimeMS + 30000;
-                        }
                         else
                         {
                             if (_demoliserRespawnList[i] < GameTime.CurrentTimeMS)

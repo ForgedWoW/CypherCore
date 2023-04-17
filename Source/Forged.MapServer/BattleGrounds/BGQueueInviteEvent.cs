@@ -33,8 +33,7 @@ internal class BGQueueInviteEvent : BasicEvent
         _objectAccessor = objectAccessor;
     }
 
-    public override void Abort(ulong eTime)
-    { }
+    public override void Abort(ulong eTime) { }
 
     public override bool Execute(ulong etime, uint pTime)
     {

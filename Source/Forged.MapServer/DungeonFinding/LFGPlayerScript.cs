@@ -12,8 +12,8 @@ namespace Forged.MapServer.DungeonFinding;
 
 internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IPlayerOnMapChanged
 {
-    public PlayerClass PlayerClass { get; } = PlayerClass.None;
     public LFGPlayerScript() : base("LFGPlayerScript") { }
+    public PlayerClass PlayerClass { get; } = PlayerClass.None;
 
     public void OnLogin(Player player)
     {

@@ -11,7 +11,9 @@ public class NewWorld : ServerPacket
     public TeleportLocation Loc = new();
     public uint MapID;
     public Position MovementOffset;
+
     public uint Reason;
+
     // Adjusts all pending movement events by this offset
     public NewWorld() : base(ServerOpcodes.NewWorld) { }
 

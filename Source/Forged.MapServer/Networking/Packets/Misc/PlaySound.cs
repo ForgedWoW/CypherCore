@@ -11,6 +11,7 @@ internal class PlaySound : ServerPacket
     public uint BroadcastTextID;
     public uint SoundKitID;
     public ObjectGuid SourceObjectGuid;
+
     public PlaySound(ObjectGuid sourceObjectGuid, uint soundKitID, uint broadcastTextId) : base(ServerOpcodes.PlaySound)
     {
         SourceObjectGuid = sourceObjectGuid;

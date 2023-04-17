@@ -17,6 +17,7 @@ public class FormationMgr
     private readonly Dictionary<ulong, FormationInfo> _creatureGroupMap = new();
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
+
     public FormationMgr(IConfiguration configuration, WorldDatabase worldDatabase, GameObjectManager objectManager)
     {
         _configuration = configuration;

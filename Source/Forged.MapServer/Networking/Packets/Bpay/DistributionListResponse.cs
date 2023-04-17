@@ -12,6 +12,7 @@ public class DistributionListResponse : ServerPacket
 
     public List<BpayDistributionObject> DistributionObject { get; set; } = new();
     public uint Result { get; set; } = 0;
+
     public override void Write()
     {
         WorldPacket.Write(Result);

@@ -25,6 +25,7 @@ internal struct BracketInfo
     public int Unused4;
     public int WeeklyPlayed;
     public int WeeklyWon;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(PersonalRating);

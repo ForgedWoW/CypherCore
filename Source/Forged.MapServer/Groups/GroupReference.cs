@@ -13,12 +13,8 @@ public class GroupReference : Reference<PlayerGroup, Player>
         SubGroup = 0;
     }
 
-    ~GroupReference()
-    {
-        Unlink();
-    }
-
     public byte SubGroup { get; set; }
+
     public new GroupReference Next()
     {
         return (GroupReference)base.Next();
@@ -27,5 +23,10 @@ public class GroupReference : Reference<PlayerGroup, Player>
     public override void TargetObjectBuildLink()
     {
         Target.LinkMember(this);
+    }
+
+    ~GroupReference()
+    {
+        Unlink();
     }
 }

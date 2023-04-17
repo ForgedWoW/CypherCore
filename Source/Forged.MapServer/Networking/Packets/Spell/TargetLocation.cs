@@ -9,6 +9,7 @@ public class TargetLocation
 {
     public Position Location;
     public ObjectGuid Transport;
+
     public void Read(WorldPacket data)
     {
         Transport = data.ReadPackedGuid();

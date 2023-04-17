@@ -14,12 +14,14 @@ public class PositionFullTerrainStatus
     public LiquidData LiquidInfo { get; set; }
     public ZLiquidStatus LiquidStatus { get; set; }
     public bool Outdoors { get; set; } = true;
+
     public struct AreaInfoModel
     {
         public int AdtId;
         public int GroupId;
         public uint MogpFlags;
         public int RootId;
+
         public AreaInfoModel(int adtId, int rootId, int groupId, uint flags)
         {
             AdtId = adtId;

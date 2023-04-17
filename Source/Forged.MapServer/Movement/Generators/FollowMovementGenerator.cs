@@ -143,9 +143,7 @@ public class FollowMovementGenerator : MovementGenerator
                 var curAngle = target.Location.GetRelativeAngle(owner.Location);
 
                 if (_angle.IsAngleOkay(curAngle))
-                {
                     tAngle = curAngle;
-                }
                 else
                 {
                     var diffUpper = Position.NormalizeOrientation(curAngle - _angle.UpperBound());

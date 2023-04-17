@@ -176,9 +176,7 @@ public partial class Unit
             _oldFactionId = 0;
         }
         else
-        {
             RestoreFaction();
-        }
 
         //@todo Handle SLOT_IDLE motion resume
         MotionMaster.InitializeDefault();
@@ -315,9 +313,7 @@ public partial class Unit
                 charm.SetUnitFlag(UnitFlags.PlayerControlled);
             }
             else
-            {
                 charm.ControlledByPlayer = false;
-            }
 
             // PvP, FFAPvP
             charm.ReplaceAllPvpFlags(PvpFlags);
@@ -766,9 +762,7 @@ public partial class Unit
                             newAI = charmerAI.GetAIForCharmedPlayer(AsPlayer);
                     }
                     else
-                    {
                         Log.Logger.Error($"Attempt to assign charm AI to player {GUID} who is charmed by non-creature {CharmerGUID}.");
-                    }
                 }
 
                 if (newAI == null) // otherwise, we default to the generic one
@@ -795,6 +789,7 @@ public partial class Unit
             ai?.OnCharmed(true);
         }
     }
+
     public void UpdatePetCombatState()
     {
         var state = false;

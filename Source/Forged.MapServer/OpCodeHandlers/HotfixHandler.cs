@@ -59,7 +59,6 @@ public class HotfixHandler : IWorldSessionHandler
         HotfixConnect hotfixQueryResponse = new();
 
         foreach (var hotfixId in hotfixQuery.Hotfixes)
-        {
             if (hotfixes.TryGetValue(hotfixId, out var hotfixRecords))
                 foreach (var hotfixRecord in hotfixRecords)
                 {
@@ -99,15 +98,12 @@ public class HotfixHandler : IWorldSessionHandler
                             }
                             else
                                 // Do not send Status::Valid when we don't have a hotfix blob for current locale
-                            {
                                 hotfixData.Record.HotfixStatus = storage != null ? HotfixRecord.Status.RecordRemoved : HotfixRecord.Status.Invalid;
-                            }
                         }
                     }
 
                     hotfixQueryResponse.Hotfixes.Add(hotfixData);
                 }
-        }
 
         SendPacket(hotfixQueryResponse);
     }

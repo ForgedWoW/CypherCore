@@ -35,9 +35,7 @@ public class LocalizedDo : IDoWork<Player>
             _localizedCache[cacheIdx] = action;
         }
         else
-        {
             action = _localizedCache[cacheIdx];
-        }
 
         action.Invoke(player);
     }

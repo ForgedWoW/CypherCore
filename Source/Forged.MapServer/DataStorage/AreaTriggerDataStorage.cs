@@ -25,6 +25,7 @@ public class AreaTriggerDataStorage
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
+
     public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;

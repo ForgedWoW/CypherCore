@@ -10,6 +10,7 @@ namespace Forged.MapServer.Globals;
 public class PhaseInfoStruct
 {
     private readonly DB2Manager _db2Manager;
+
     public PhaseInfoStruct(uint id, DB2Manager db2Manager)
     {
         _db2Manager = db2Manager;
@@ -18,6 +19,7 @@ public class PhaseInfoStruct
 
     public List<uint> Areas { get; set; } = new();
     public uint Id { get; set; }
+
     public bool IsAllowedInArea(uint areaId)
     {
         return Areas.Any(areaToCheck => _db2Manager.IsInArea(areaId, areaToCheck));

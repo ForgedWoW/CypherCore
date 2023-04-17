@@ -15,6 +15,7 @@ public class GuildRoster : ServerPacket
     public List<GuildRosterMemberData> MemberData;
     public int NumAccounts;
     public string WelcomeText;
+
     public GuildRoster() : base(ServerOpcodes.GuildRoster)
     {
         MemberData = new List<GuildRosterMemberData>();

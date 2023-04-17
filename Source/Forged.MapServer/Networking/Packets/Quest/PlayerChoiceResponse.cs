@@ -25,6 +25,7 @@ internal class PlayerChoiceResponse
     public uint UiTextureAtlasElementID;
     public int UiTextureKitID;
     public uint WidgetSetID;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(ResponseID);

@@ -17,6 +17,7 @@ public class WorldWorldTextBuilder : MessageBuilder
     private readonly object[] _iArgs;
     private readonly GameObjectManager _objectManager;
     private readonly uint _iTextId;
+
     public WorldWorldTextBuilder(GameObjectManager objectManager, uint textId, params object[] args)
     {
         _objectManager = objectManager;

@@ -10,6 +10,7 @@ public struct TraitInspectInfo
     public int ChrSpecializationID;
     public TraitConfigPacket Config;
     public int Level;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Level);

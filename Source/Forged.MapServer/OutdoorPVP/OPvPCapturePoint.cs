@@ -8,7 +8,6 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
 using Framework.Constants;
@@ -18,6 +17,23 @@ namespace Forged.MapServer.OutdoorPVP;
 
 public class OPvPCapturePoint
 {
+    // maximum speed of capture
+    private float _maxSpeed;
+
+    private float _minValue;
+    private uint _team;
+
+    public OPvPCapturePoint(OutdoorPvP pvp)
+    {
+        _team = TeamIds.Neutral;
+        OldState = ObjectiveStates.Neutral;
+        State = ObjectiveStates.Neutral;
+        PvP = pvp;
+
+        ActivePlayers[0] = new HashSet<ObjectGuid>();
+        ActivePlayers[1] = new HashSet<ObjectGuid>();
+    }
+
     // active players in the area of the objective, 0 - alliance, 1 - horde
     public HashSet<ObjectGuid>[] ActivePlayers { get; set; } = new HashSet<ObjectGuid>[2];
 
@@ -34,12 +50,6 @@ public class OPvPCapturePoint
     // the status of the objective
     public float Value { get; set; }
 
-    // maximum speed of capture
-    private float _maxSpeed;
-
-    private float _minValue;
-    private uint _team;
-
     // objective states
     public ObjectiveStates OldState { get; set; }
 
@@ -48,22 +58,9 @@ public class OPvPCapturePoint
 
     public ObjectiveStates State { get; set; }
 
-    public OPvPCapturePoint(OutdoorPvP pvp)
-    {
-        _team = TeamIds.Neutral;
-        OldState = ObjectiveStates.Neutral;
-        State = ObjectiveStates.Neutral;
-        PvP = pvp;
+    public virtual void ChangeState() { }
 
-        ActivePlayers[0] = new HashSet<ObjectGuid>();
-        ActivePlayers[1] = new HashSet<ObjectGuid>();
-    }
-
-    public virtual void ChangeState()
-    { }
-
-    public virtual void ChangeTeam(uint oldTeam)
-    { }
+    public virtual void ChangeTeam(uint oldTeam) { }
 
     public virtual bool HandleCustomSpell(Player player, uint spellId, GameObject go)
     {
@@ -146,7 +143,6 @@ public class OPvPCapturePoint
         // send to all players present in the area
         foreach (var playerGuid in ActivePlayers[team])
             PvP.Map.ObjectAccessor.FindPlayer(playerGuid)?.KilledMonsterCredit(id, guid);
-        
     }
 
     public void SendUpdateWorldState(uint field, uint value)
@@ -205,9 +201,7 @@ public class OPvPCapturePoint
         PvP.Map.CellCalculator.VisitGrid(CapturePoint, searcher, radius);
 
         foreach (var player in from Player player in players where player.IsOutdoorPvPActive() where ActivePlayers[player.TeamId].Add(player.GUID) select player)
-        {
             HandlePlayerEnter(player);
-        }
 
         // get the difference of numbers
         var factDiff = (float)(ActivePlayers[0].Count - ActivePlayers[1].Count) * diff / 1000;
@@ -302,6 +296,5 @@ public class OPvPCapturePoint
         ChangeState();
 
         return true;
-
     }
 }

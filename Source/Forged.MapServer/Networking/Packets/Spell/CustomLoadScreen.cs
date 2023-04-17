@@ -9,6 +9,7 @@ internal class CustomLoadScreen : ServerPacket
 {
     private readonly uint LoadingScreenID;
     private readonly uint TeleportSpellID;
+
     public CustomLoadScreen(uint teleportSpellId, uint loadingScreenId) : base(ServerOpcodes.CustomLoadScreen)
     {
         TeleportSpellID = teleportSpellId;

@@ -17,6 +17,7 @@ public class BpayDistributionObject
     public uint TargetNativeRealm { get; set; } = 0;
     public ObjectGuid TargetPlayer { get; set; } = new();
     public uint TargetVirtualRealm { get; set; } = 0;
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(DistributionID);

@@ -10,6 +10,7 @@ public struct PassengerInfo
     public ObjectGuid Guid;
     public bool IsGravityDisabled;
     public bool IsUninteractible;
+
     public void Reset()
     {
         Guid = ObjectGuid.Empty;

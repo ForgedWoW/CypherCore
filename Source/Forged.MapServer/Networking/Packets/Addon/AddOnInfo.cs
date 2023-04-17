@@ -9,6 +9,7 @@ public struct AddOnInfo
     public bool Loaded;
     public string Name;
     public string Version;
+
     public void Read(WorldPacket data)
     {
         data.ResetBitPos();

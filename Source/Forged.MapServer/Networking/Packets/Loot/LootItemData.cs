@@ -15,6 +15,7 @@ public class LootItemData
     public uint Quantity;
     public byte Type;
     public LootSlotType UIType;
+
     public void Write(WorldPacket data)
     {
         data.WriteBits(Type, 2);

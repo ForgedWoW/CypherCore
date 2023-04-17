@@ -16,13 +16,13 @@ public class ObjectGUIDCheck : ICheck<WorldObject>
         _gUid = guid;
     }
 
-    public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)
-    {
-        return check.Invoke;
-    }
-
     public bool Invoke(WorldObject obj)
     {
         return obj.GUID == _gUid;
+    }
+
+    public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)
+    {
+        return check.Invoke;
     }
 }

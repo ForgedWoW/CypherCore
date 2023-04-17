@@ -7,6 +7,7 @@ public struct AuctionListFilterSubClass
 {
     public ulong InvTypeMask;
     public int ItemSubclass;
+
     public AuctionListFilterSubClass(WorldPacket data)
     {
         InvTypeMask = data.ReadUInt64();

@@ -14,7 +14,9 @@ public sealed class ChrCustomizationReqRecord
     public uint ItemModifiedAppearanceID;
     public int OverrideArchive;
     public int QuestID;
+
     public string ReqSource;
+
     // -1: allow any, otherwise must match OverrideArchive cvar
     public ChrCustomizationReqFlag GetFlags()
     {

@@ -38,5 +38,5 @@ internal struct VirtualRealmNameInfo
         data.WriteString(RealmNameNormalized);
     }
 
- // the name of the realm without spaces
+    // the name of the realm without spaces
 }

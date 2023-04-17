@@ -193,9 +193,7 @@ public class MMapManager
             var y = i.Key & 0x0000FFFF;
 
             if (Detour.dtStatusFailed(mmap.NavMesh.removeTile(i.Value, out _)))
-            {
                 Log.Logger.Error("MMAP:unloadMap: Could not unload {0:D4}{1:D2}{2:D2}.mmtile from navmesh", mapId, x, y);
-            }
             else
             {
                 --_loadedTiles;
@@ -232,6 +230,7 @@ public class MMapManager
 
         return true;
     }
+
     private MMapData GetMMapData(uint mapId)
     {
         return _loadedMMaps.LookupByKey(mapId);

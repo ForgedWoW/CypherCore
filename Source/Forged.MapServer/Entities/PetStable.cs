@@ -9,8 +9,10 @@ namespace Forged.MapServer.Entities;
 public class PetStable
 {
     public PetInfo[] ActivePets = new PetInfo[SharedConst.MaxActivePets];
-    public uint? CurrentPetIndex;                                          // index into ActivePets or UnslottedPets if highest bit is set
-                                                                           // PET_SAVE_FIRST_ACTIVE_SLOT - PET_SAVE_LAST_ACTIVE_SLOT
+
+    public uint? CurrentPetIndex; // index into ActivePets or UnslottedPets if highest bit is set
+
+    // PET_SAVE_FIRST_ACTIVE_SLOT - PET_SAVE_LAST_ACTIVE_SLOT
     public PetInfo[] StabledPets = new PetInfo[SharedConst.MaxPetStables]; // PET_SAVE_FIRST_STABLE_SLOT - PET_SAVE_LAST_STABLE_SLOT
     public List<PetInfo> UnslottedPets = new();                            // PET_SAVE_NOT_IN_SLOT
     private static readonly uint UnslottedPetIndexMask = 0x80000000;
@@ -37,6 +39,7 @@ public class PetStable
 
         return null;
     }
+
     public void SetCurrentActivePetIndex(uint index)
     {
         CurrentPetIndex = index;

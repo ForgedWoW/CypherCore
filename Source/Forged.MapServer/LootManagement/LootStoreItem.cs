@@ -25,6 +25,7 @@ public class LootStoreItem
     };
 
     private readonly IConfiguration _configuration;
+
     // quest drop (negative ChanceOrQuestChance in DB)
     // mincount for drop items
     // max drop count for the item mincount or Ref multiplicator
@@ -32,6 +33,7 @@ public class LootStoreItem
     private readonly GameObjectManager _objectManager;
 
     private readonly WorldDatabase _worldDatabase;
+
     public LootStoreItem(uint itemid, uint reference, float chance, bool needsQuest, ushort lootmode, byte groupid, byte mincount, byte maxcount, GameObjectManager objectManager, IConfiguration configuration, WorldDatabase worldDatabase)
     {
         Itemid = itemid;
@@ -61,6 +63,7 @@ public class LootStoreItem
     public byte Mincount { get; set; }
     public bool NeedsQuest { get; set; }
     public uint Reference { get; set; } // referenced TemplateleId
+
     public bool IsValid(LootStore store, uint entry)
     {
         if (Mincount == 0)
@@ -112,9 +115,7 @@ public class LootStoreItem
         else // mincountOrRef < 0
         {
             if (NeedsQuest)
-            {
                 Log.Logger.Error("Table '{0}' entry {1} item {2}: quest chance will be treated as non-quest chance", store.Name, entry, Itemid);
-            }
             else if (Chance == 0) // no chance for the reference
             {
                 Log.Logger.Error("Table '{0}' entry {1} item {2}: zero chance is specified for a reference, skipped", store.Name, entry, Itemid);

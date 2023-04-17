@@ -12,6 +12,7 @@ public sealed class TraitDefinitionEffectPointsRecord
     public uint Id;
     public int OperationType;
     public int TraitDefinitionID;
+
     public TraitPointsOperationType GetOperationType()
     {
         return (TraitPointsOperationType)OperationType;

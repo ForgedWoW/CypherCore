@@ -27,6 +27,7 @@ public class CombatLogServerPacket : ServerPacket
     }
 
     public override void Write() { }
+
     public void WriteLogData()
     {
         if (_includeLogData)

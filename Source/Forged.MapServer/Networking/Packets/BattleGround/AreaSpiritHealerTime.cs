@@ -11,9 +11,7 @@ public class AreaSpiritHealerTime : ServerPacket
     public ObjectGuid HealerGuid;
     public uint TimeLeft;
 
-    public AreaSpiritHealerTime() : base(ServerOpcodes.AreaSpiritHealerTime)
-    {
-    }
+    public AreaSpiritHealerTime() : base(ServerOpcodes.AreaSpiritHealerTime) { }
 
     public override void Write()
     {

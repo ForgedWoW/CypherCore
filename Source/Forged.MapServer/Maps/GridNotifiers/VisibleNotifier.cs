@@ -32,6 +32,16 @@ public class VisibleNotifier : IGridNotifierWorldObject
     internal Player Player { get; set; }
     internal List<ObjectGuid> VisGuids { get; set; }
     internal List<Unit> VisibleNow { get; set; }
+
+    public void Visit(IList<WorldObject> objs)
+    {
+        foreach (var obj in objs)
+        {
+            VisGuids.Remove(obj.GUID);
+            Player.UpdateVisibilityOf(obj, Data, VisibleNow);
+        }
+    }
+
     public void SendToSelf()
     {
         // at this moment i_clientGUIDs have guids that not iterate at grid level checks
@@ -69,7 +79,6 @@ public class VisibleNotifier : IGridNotifierWorldObject
                             Player.UpdateVisibilityOf(obj.AsAreaTrigger, Data, VisibleNow);
 
                             break;
-                        
                     }
                 }
 
@@ -95,14 +104,5 @@ public class VisibleNotifier : IGridNotifierWorldObject
 
         foreach (var obj in VisibleNow)
             Player.SendInitialVisiblePackets(obj);
-    }
-
-    public void Visit(IList<WorldObject> objs)
-    {
-        foreach (var obj in objs)
-        {
-            VisGuids.Remove(obj.GUID);
-            Player.UpdateVisibilityOf(obj, Data, VisibleNow);
-        }
     }
 }

@@ -135,6 +135,7 @@ public class SupportTicketSubmitComplaint : ClientPacket
     {
         public string Text;
         public long Timestamp;
+
         public SupportTicketChatLine(WorldPacket data)
         {
             Timestamp = data.ReadInt64();
@@ -373,6 +374,7 @@ public class SupportTicketSubmitComplaint : ClientPacket
                 ReportLineIndex = data.ReadUInt32();
         }
     }
+
     public class SupportTicketHorusChatLog
     {
         public List<SupportTicketHorusChatLine> Lines = new();

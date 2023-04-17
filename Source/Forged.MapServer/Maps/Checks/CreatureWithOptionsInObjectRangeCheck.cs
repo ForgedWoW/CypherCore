@@ -13,6 +13,7 @@ public class CreatureWithOptionsInObjectRangeCheck<T> : ICheck<Creature> where T
     private readonly FindCreatureOptions _args;
     private readonly T _customizer;
     private readonly WorldObject _obj;
+
     public CreatureWithOptionsInObjectRangeCheck(WorldObject obj, T customizer, FindCreatureOptions args)
     {
         _obj = obj;
@@ -46,10 +47,10 @@ public class CreatureWithOptionsInObjectRangeCheck<T> : ICheck<Creature> where T
         if (_args.IsInCombat.HasValue && u.IsInCombat != _args.IsInCombat)
             return false;
 
-        if ((_args.OwnerGuid.HasValue && u.OwnerGUID != _args.OwnerGuid) || 
-            (_args.CharmerGuid.HasValue && u.CharmerGUID != _args.CharmerGuid) || 
-            (_args.CreatorGuid.HasValue && u.CreatorGUID != _args.CreatorGuid) || 
-            (_args.DemonCreatorGuid.HasValue && u.DemonCreatorGUID != _args.DemonCreatorGuid) || 
+        if ((_args.OwnerGuid.HasValue && u.OwnerGUID != _args.OwnerGuid) ||
+            (_args.CharmerGuid.HasValue && u.CharmerGUID != _args.CharmerGuid) ||
+            (_args.CreatorGuid.HasValue && u.CreatorGUID != _args.CreatorGuid) ||
+            (_args.DemonCreatorGuid.HasValue && u.DemonCreatorGUID != _args.DemonCreatorGuid) ||
             (_args.PrivateObjectOwnerGuid.HasValue && u.PrivateObjectOwner != _args.PrivateObjectOwnerGuid))
             return false;
 

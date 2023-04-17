@@ -152,6 +152,7 @@ public class ItemData : BaseUpdateData<Item>
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
+
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Item owner, Player receiver)
     {
         data.WriteBits(changesMask.GetBlocksMask(0), 2);

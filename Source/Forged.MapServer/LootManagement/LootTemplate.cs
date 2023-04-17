@@ -102,9 +102,7 @@ public class LootTemplate
             _groups[item.Groupid - 1].AddEntry(item); // Adds new entry to the group
         }
         else // Non-grouped entries and references are stored together
-        {
             _entries.Add(item);
-        }
     }
 
     public void CheckLootRefs(Dictionary<uint, LootTemplate> store, List<uint> refSet)
@@ -159,9 +157,7 @@ public class LootTemplate
                     return true;
             }
             else if (item.NeedsQuest)
-            {
                 return true; // quest drop found
-            }
 
         // Now processing groups
         return _groups.Values.Any(group => group.HasQuestDrop());
@@ -191,9 +187,7 @@ public class LootTemplate
                     return true;
             }
             else if (player.HasQuestForItem(item.Itemid))
-            {
                 return true; // active quest drop found
-            }
 
         // Now checking groups
         return _groups.Values.Any(group => group.HasQuestDropForPlayer(player));
@@ -394,9 +388,7 @@ public class LootTemplate
                                                lootStoreItem.Conditions,
                                                _objectManager,
                                                _conditionManager))
-            {
                 return true; // active quest drop found
-            }
 
         // Now checking groups
         return _groups.Values.Any(group => group != null && group.HasDropForPlayer(player, strictUsabilityCheck));

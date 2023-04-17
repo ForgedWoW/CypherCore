@@ -19,6 +19,7 @@ public sealed class ContentTuningRecord
     public int TargetLevelMax;
     public int TargetLevelMaxDelta;
     public int TargetLevelMin;
+
     public ContentTuningFlag GetFlags()
     {
         return (ContentTuningFlag)Flags;

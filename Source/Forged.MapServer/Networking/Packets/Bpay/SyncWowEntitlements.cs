@@ -13,6 +13,7 @@ public class SyncWowEntitlements : ServerPacket
 
     public List<BpayProduct> Product { get; set; } = new();
     public List<uint> ProductCount { get; set; } = new();
+
     public List<uint> PurchaseCount { get; set; } = new();
     /*void WorldPackets::BattlePay::PurchaseProduct::Read()
     {

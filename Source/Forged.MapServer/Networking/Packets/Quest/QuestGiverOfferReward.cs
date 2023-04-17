@@ -15,6 +15,7 @@ public class QuestGiverOfferReward
     public ObjectGuid QuestGiverGUID;
     public uint QuestID = 0;
     public QuestRewards Rewards = new();
+
     public uint SuggestedPartyMembers = 0;
     // Flags and FlagsEx
 

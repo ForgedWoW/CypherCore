@@ -53,9 +53,7 @@ public class WmoLiquid
             Buffer.BlockCopy(other._height, 0, _height, 0, (int)((_tilesX + 1) * (_tilesY + 1)));
         }
         else
-        {
             _height = null;
-        }
 
         if (other._flags != null)
         {
@@ -63,9 +61,7 @@ public class WmoLiquid
             Buffer.BlockCopy(other._flags, 0, _flags, 0, (int)(_tilesX * _tilesY));
         }
         else
-        {
             _flags = null;
-        }
     }
 
     public static WmoLiquid ReadFromFile(BinaryReader reader)

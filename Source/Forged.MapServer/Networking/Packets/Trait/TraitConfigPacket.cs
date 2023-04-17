@@ -15,7 +15,9 @@ public class TraitConfigPacket
     public Dictionary<int, Dictionary<int, TraitEntryPacket>> Entries = new();
     public int ID;
     public int LocalIdentifier;
+
     public string Name = "";
+
     // Local to specialization
     public uint SkillLineID;
 
@@ -72,7 +74,6 @@ public class TraitConfigPacket
                 TraitSystemID = data.ReadInt32();
 
                 break;
-            
         }
 
         for (var i = 0; i < entriesCount; ++i)
@@ -108,7 +109,6 @@ public class TraitConfigPacket
                 data.WriteInt32(TraitSystemID);
 
                 break;
-            
         }
 
         foreach (var tkvp in Entries)

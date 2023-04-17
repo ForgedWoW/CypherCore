@@ -46,9 +46,7 @@ internal class InstanceScriptDataWriter
                         moreData.Add(data.Key, (long)data.Value);
                 }
                 else
-                {
                     moreData.Add(additionalValue.GetName(), null);
-                }
 
             _doc.Add("AdditionalData", moreData);
         }
@@ -71,12 +69,11 @@ internal class InstanceScriptDataWriter
         using var stream = new MemoryStream();
 
         using (var writer = new Utf8JsonWriter(stream))
-        {
             _doc.WriteTo(writer);
-        }
 
         return Encoding.UTF8.GetString(stream.ToArray());
     }
+
     public void SetAdditionalData(UpdateAdditionalSaveDataEvent data)
     {
         var jObject = _doc["AdditionalData"]?.AsObject();

@@ -25,6 +25,7 @@ public class HealInfo
     public Unit Healer { get; }
 
     public ProcFlagsHit HitMask { get; private set; }
+
     public bool IsCritical
     {
         get { return HitMask.HasFlag(ProcFlagsHit.Critical); }
@@ -34,6 +35,7 @@ public class HealInfo
     public SpellSchoolMask SchoolMask { get; }
     public SpellInfo SpellInfo { get; }
     public Unit Target { get; }
+
     public void AbsorbHeal(double amount)
     {
         amount = Math.Min(amount, Heal);

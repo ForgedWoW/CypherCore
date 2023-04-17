@@ -12,6 +12,7 @@ public class BattlePayAckFailed : ServerPacket
     public uint ClientToken { get; set; } = 0;
     public ulong PurchaseID { get; set; } = 0;
     public uint PurchaseResult { get; set; } = 0;
+
     public override void Write()
     {
         WorldPacket.Write(PurchaseID);

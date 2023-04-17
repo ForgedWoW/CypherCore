@@ -6,7 +6,9 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 public sealed class ChrModelRecord
 {
     public float BarberShopCameraHeightOffsetScale;
+
     public float BarberShopCameraOffsetScale;
+
     // applied after BarberShopCameraOffsetScale
     public float BarberShopCameraRotationOffset;
 

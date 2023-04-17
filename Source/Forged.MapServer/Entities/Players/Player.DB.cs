@@ -155,9 +155,7 @@ public partial class Player
         if (!IsAlive)
         {
             if (HasAtLoginFlag(AtLoginFlags.Resurrect))
-            {
                 ResurrectPlayer(0.5f);
-            }
             else if (!result.IsEmpty())
             {
                 CorpseLocation = new WorldLocation(result.Read<ushort>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
@@ -468,9 +466,7 @@ public partial class Player
                     relocateToHomebind();
                 }
                 else
-                {
                     Location.Relocate(loc);
-                }
 
                 // We are not in BG anymore
                 _bgData.BgInstanceId = 0;
@@ -498,9 +494,7 @@ public partial class Player
                         transport = transportMap.GetTransport(transGUID);
                 }
                 else
-                {
                     transport = transportOnMap;
-                }
             }
 
             if (transport)
@@ -587,10 +581,8 @@ public partial class Player
             }
         }
         else if (mapEntry.IsDungeon() && Location.Map != null && Location.Map.InstanceId != 0)
-        {
             // try finding instance by id first
             map = MapManager.FindMap(mapId, Location.Map.InstanceId);
-        }
 
         // Map could be changed before
         mapEntry = CliDB.MapStorage.LookupByKey(mapId);
@@ -1101,10 +1093,8 @@ public partial class Player
             StringBuilder ss = new();
 
             lock (Taxi.TaxiLock)
-            {
                 for (var i = 0; i < Taxi.Taximask.Length; ++i)
                     ss.Append(Taxi.Taximask[i] + " ");
-            }
 
             stmt.AddValue(index++, ss.ToString());
             stmt.AddValue(index++, _createTime);
@@ -1172,6 +1162,7 @@ public partial class Player
                 if (item != null)
                 {
                     ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
+
                     if (CliDB.SpellItemEnchantmentStorage.TryGetValue(item.GetVisibleEnchantmentId(this), out var enchant))
                         ss.Append(enchant.ItemVisual);
                     else
@@ -1180,9 +1171,7 @@ public partial class Player
                     ss.Append($" {CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
                 }
                 else
-                {
                     ss.Append("0 0 0 0 0 ");
-                }
             }
 
             stmt.AddValue(index++, ss.ToString());
@@ -1254,10 +1243,8 @@ public partial class Player
             StringBuilder ss = new();
 
             lock (Taxi.TaxiLock)
-            {
                 for (var i = 0; i < Taxi.Taximask.Length; ++i)
                     ss.Append(Taxi.Taximask[i] + " ");
-            }
 
             stmt.AddValue(index++, ss.ToString());
             stmt.AddValue(index++, Cinematic);
@@ -1331,6 +1318,7 @@ public partial class Player
                 if (item != null)
                 {
                     ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
+
                     if (CliDB.SpellItemEnchantmentStorage.TryGetValue(item.GetVisibleEnchantmentId(this), out var enchant))
                         ss.Append(enchant.ItemVisual);
                     else
@@ -1339,9 +1327,7 @@ public partial class Player
                     ss.Append($" {(uint)CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
                 }
                 else
-                {
                     ss.Append("0 0 0 0 0 ");
-                }
             }
 
             stmt.AddValue(index++, ss.ToString());
@@ -1461,9 +1447,7 @@ public partial class Player
                 var ab = AddActionButton(button, action, type);
 
                 if (ab != null)
-                {
                     ab.UState = ActionButtonUpdateState.UnChanged;
-                }
                 else
                 {
                     Log.Logger.Error($"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
@@ -1589,9 +1573,7 @@ public partial class Player
                         remainCharges = (byte)spellInfo.ProcCharges;
                 }
                 else
-                {
                     remainCharges = 0;
-                }
 
                 var info = effectInfo[key];
                 var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
@@ -1784,7 +1766,7 @@ public partial class Player
     private void _LoadGlyphAuras()
     {
         foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
-           SpellFactory.CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
+            SpellFactory.CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
     }
 
     private void _LoadGlyphs(SQLResult result)
@@ -1860,9 +1842,7 @@ public partial class Player
             if (GridDefines.IsValidMapCoord(Homebind) &&
                 !map.Instanceable() &&
                 Session.Expansion >= map.Expansion())
-            {
                 ok = true;
-            }
             else
             {
                 var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PLAYER_HOMEBIND);
@@ -1883,7 +1863,7 @@ public partial class Player
             stmt.AddValue(6, Homebind.Orientation);
             CharacterDatabase.Execute(stmt);
         }
-        
+
         if (!ok && HasAtLoginFlag(AtLoginFlags.FirstLogin))
         {
             var createPosition = CreateMode == PlayerCreateMode.NPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
@@ -2042,14 +2022,13 @@ public partial class Player
                             }
                         }
                         else if (PlayerComputators.IsBagPos(item.Pos))
-                        {
                             if (item.IsBag)
                                 invalidBagMap.Add(item.GUID, item);
-                        }
                     }
                     else
                     {
                         item.SetSlot(ItemConst.NullSlot);
+
                         // Item is in the bag, find the bag
                         if (bagMap.TryGetValue(bagGuid, out var bag))
                         {
@@ -2084,9 +2063,7 @@ public partial class Player
 
                     // Item's state may have changed after storing
                     if (err == InventoryResult.Ok)
-                    {
                         item.SetState(ItemUpdateState.Unchanged, this);
-                    }
                     else
                     {
                         Log.Logger.Error("LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which can't be loaded into inventory (Bag GUID: {4}, slot: {5}) by reason {6}. " +
@@ -2234,9 +2211,7 @@ public partial class Player
                             AddTradeableItem(item);
                         }
                         else
-                        {
                             item.ClearSoulboundTradeable(this);
-                        }
                     }
                     else
                     {
@@ -2385,10 +2360,8 @@ public partial class Player
         do
         {
             for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
-            {
                 if (CliDB.PvpTalentStorage.TryGetValue(result.Read<uint>(slot), out var talent))
                     AddPvpTalent(talent, result.Read<byte>(4), slot);
-            }
         } while (result.NextRow());
     }
 
@@ -2411,9 +2384,7 @@ public partial class Player
                     var qstatus = result.Read<byte>(1);
 
                     if (qstatus < (byte)QuestStatus.Max)
-                    {
                         questStatusData.Status = (QuestStatus)qstatus;
-                    }
                     else
                     {
                         questStatusData.Status = QuestStatus.Incomplete;
@@ -2440,9 +2411,7 @@ public partial class Player
                             questStatusData.Timer = (uint)((endTime - GameTime.CurrentTime) * Time.IN_MILLISECONDS);
                     }
                     else
-                    {
                         endTime = 0;
-                    }
 
                     // add to quest log
                     if (slot < SharedConst.MaxQuestLogSize && questStatusData.Status != QuestStatus.None)
@@ -2504,14 +2473,10 @@ public partial class Player
                             SetQuestSlotObjectiveFlag(questStatusData.Slot, (sbyte)storageIndex);
                     }
                     else
-                    {
                         Log.Logger.Error($"Player {GetName()} ({GUID}) has quest {questID} out of range objective index {storageIndex}.");
-                    }
                 }
                 else
-                {
                     Log.Logger.Error($"Player {GetName()} ({GUID}) does not have quest {questID} but has objective data for it.");
-                }
             } while (result.NextRow());
     }
 
@@ -2531,10 +2496,8 @@ public partial class Player
 
                     // set rewarded title if any
                     if (quest.RewardTitleId != 0)
-                    {
                         if (CliDB.CharTitlesStorage.TryGetValue(quest.RewardTitleId, out var titleEntry))
                             SetTitle(titleEntry);
-                    }
 
                     // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
                     // instead add them separately from load daily/weekly/monthly/seasonal
@@ -2656,8 +2619,6 @@ public partial class Player
                         max = GetMaxSkillValueForLevel();
 
                         break;
-
-                    
                 }
 
                 if (!_skillStatus.ContainsKey(skill))
@@ -3784,8 +3745,6 @@ public partial class Player
                     trans.Append(stmt);
 
                     break;
-
-                
             }
 
             pair.Value.State = SkillState.Unchanged;

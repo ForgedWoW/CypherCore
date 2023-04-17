@@ -7,6 +7,7 @@ public class ItemGemData
 {
     public ItemInstance Item = new();
     public byte Slot;
+
     public void Read(WorldPacket data)
     {
         Slot = data.ReadUInt8();

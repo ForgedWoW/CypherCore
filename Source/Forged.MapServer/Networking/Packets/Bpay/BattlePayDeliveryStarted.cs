@@ -10,6 +10,7 @@ public class BattlePayDeliveryStarted : ServerPacket
     public BattlePayDeliveryStarted() : base(ServerOpcodes.BattlePayDeliveryStarted) { }
 
     public ulong DistributionID { get; set; } = 0;
+
     public override void Write()
     {
         WorldPacket.Write(DistributionID);

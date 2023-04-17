@@ -405,6 +405,7 @@ public class AzeriteItem : Item
 
         base.SaveToDB(trans);
     }
+
     public void SetEssenceRank(uint azeriteEssenceId, uint rank)
     {
         var index = AzeriteItemData.UnlockedEssences.FindIndexIf(essence => { return essence.AzeriteEssenceID == azeriteEssenceId; });
@@ -435,6 +436,7 @@ public class AzeriteItem : Item
             SetUpdateFieldValue(ref actorField.Rank, rank);
         }
     }
+
     public void SetSelectedAzeriteEssence(int slot, uint azeriteEssenceId)
     {
         //ASSERT(slot < MAX_AZERITE_ESSENCE_SLOT);
@@ -462,10 +464,9 @@ public class AzeriteItem : Item
             SetUpdateFieldValue(selectedEssences.ModifyValue(selectedEssences.Enabled), true);
         }
         else
-        {
             CreateSelectedAzeriteEssences(specializationId);
-        }
     }
+
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteItemMask, Player target)
     {
         var flags = GetUpdateFieldFlagsFor(target);
@@ -528,6 +529,7 @@ public class AzeriteItem : Item
 
         return knowledge;
     }
+
     private void UnlockDefaultMilestones()
     {
         var hasPreviousMilestone = true;
@@ -549,9 +551,7 @@ public class AzeriteItem : Item
                 hasPreviousMilestone = true;
             }
             else
-            {
                 hasPreviousMilestone = false;
-            }
         }
     }
 
@@ -561,6 +561,7 @@ public class AzeriteItem : Item
         private readonly ItemData ItemMask = new();
         private readonly ObjectFieldData ObjectMask = new();
         private readonly AzeriteItem Owner;
+
         public ValuesUpdateForPlayerWithMaskSender(AzeriteItem owner)
         {
             Owner = owner;

@@ -11,6 +11,7 @@ public class ConfirmPurchase : ServerPacket
 
     public ulong PurchaseID { get; set; } = 0;
     public uint ServerToken { get; set; } = 0;
+
     public override void Write()
     {
         WorldPacket.Write(PurchaseID);

@@ -9,6 +9,7 @@ public class ItemMod
 {
     public ItemModifier Type;
     public uint Value;
+
     public ItemMod()
     {
         Type = ItemModifier.Max;

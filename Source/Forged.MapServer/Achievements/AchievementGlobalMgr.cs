@@ -163,6 +163,7 @@ public class AchievementGlobalMgr
         do
         {
             var achievementId = result.Read<uint>(0);
+
             if (!_cliDB.AchievementStorage.TryGetValue(achievementId, out var achievement))
             {
                 // Remove non-existing achievements from all characters
@@ -173,9 +174,7 @@ public class AchievementGlobalMgr
                 _characterDatabase.Execute(stmt);
             }
             else if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
-            {
                 _allCompletedAchievements[achievementId] = DateTime.MaxValue;
-            }
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} realm first completed achievements in {1} ms.", _allCompletedAchievements.Count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -243,6 +242,7 @@ public class AchievementGlobalMgr
         do
         {
             var id = result.Read<uint>(0);
+
             if (!_cliDB.AchievementStorage.TryGetValue(id, out var achievement))
             {
                 Log.Logger.Error($"Table `achievement_reward` contains a wrong achievement ID ({id}), ignored.");
@@ -276,22 +276,18 @@ public class AchievementGlobalMgr
                 Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains the title (A: {reward.TitleId[0]} H: {reward.TitleId[1]}) for only one team.");
 
             if (reward.TitleId[0] != 0)
-            {
                 if (!_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId[0]))
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[0]}) in `title_A`, set to 0");
                     reward.TitleId[0] = 0;
                 }
-            }
 
             if (reward.TitleId[1] != 0)
-            {
                 if (!_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId[1]))
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[1]}) in `title_H`, set to 0");
                     reward.TitleId[1] = 0;
                 }
-            }
 
             //check mail data before item for report including wrong item case
             if (reward.SenderCreatureId != 0)
@@ -325,9 +321,7 @@ public class AchievementGlobalMgr
                     reward.MailTemplateId = 0;
                 }
                 else if (!reward.Subject.IsEmpty() || !reward.Body.IsEmpty())
-                {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) is using MailTemplateId ({reward.MailTemplateId}) and mail subject/text.");
-                }
             }
 
             if (reward.ItemId != 0)

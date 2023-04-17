@@ -117,9 +117,7 @@ public class CreatureAI : UnitAI
     public virtual bool CheckInRoom()
     {
         if (IsInBoundary())
-        {
             return true;
-        }
         else
         {
             EnterEvadeMode(EvadeReason.Boundary);
@@ -129,8 +127,7 @@ public class CreatureAI : UnitAI
     }
 
     // called when the corpse of this creature gets removed
-    public virtual void CorpseRemoved(long respawnDelay)
-    { }
+    public virtual void CorpseRemoved(long respawnDelay) { }
 
     public Creature DoSummon(uint entry, Position pos, TimeSpan despawnTime, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
     {
@@ -275,8 +272,7 @@ public class CreatureAI : UnitAI
         return IsInBounds(Boundary, who) != _negateBoundary;
     }
 
-    public virtual void IsSummonedBy(WorldObject summoner)
-    { }
+    public virtual void IsSummonedBy(WorldObject summoner) { }
 
     // Called when creature appears in the world (spawn, respawn, grid load etc...)
     public virtual void JustAppeared()
@@ -301,12 +297,10 @@ public class CreatureAI : UnitAI
     }
 
     // Called when the creature is killed
-    public virtual void JustDied(Unit killer)
-    { }
+    public virtual void JustDied(Unit killer) { }
 
     // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
-    public virtual void JustEngagedWith(Unit who)
-    { }
+    public virtual void JustEngagedWith(Unit who) { }
 
     public override void JustEnteredCombat(Unit who)
     {
@@ -315,16 +309,13 @@ public class CreatureAI : UnitAI
     }
 
     // Called at reaching home after evade
-    public virtual void JustReachedHome()
-    { }
+    public virtual void JustReachedHome() { }
 
     // Called when the creature successfully registers an areatrigger
-    public virtual void JustRegisteredAreaTrigger(AreaTrigger areaTrigger)
-    { }
+    public virtual void JustRegisteredAreaTrigger(AreaTrigger areaTrigger) { }
 
     // Called when the creature successfully registers a dynamicobject
-    public virtual void JustRegisteredDynObject(DynamicObject dynObject)
-    { }
+    public virtual void JustRegisteredDynObject(DynamicObject dynObject) { }
 
     // Called for reaction whenever a new non-offline unit is added to the threat list
     public virtual void JustStartedThreateningMe(Unit who)
@@ -334,22 +325,17 @@ public class CreatureAI : UnitAI
     }
 
     // Called when the creature summon successfully other creature
-    public virtual void JustSummoned(Creature summon)
-    { }
+    public virtual void JustSummoned(Creature summon) { }
 
     // Called when the creature successfully summons a gameobject
-    public virtual void JustSummonedGameobject(GameObject gameobject)
-    { }
+    public virtual void JustSummonedGameobject(GameObject gameobject) { }
 
-    public virtual void JustUnregisteredAreaTrigger(AreaTrigger areaTrigger)
-    { }
+    public virtual void JustUnregisteredAreaTrigger(AreaTrigger areaTrigger) { }
 
-    public virtual void JustUnregisteredDynObject(DynamicObject dynObject)
-    { }
+    public virtual void JustUnregisteredDynObject(DynamicObject dynObject) { }
 
     // Called when the creature kills a unit
-    public virtual void KilledUnit(Unit victim)
-    { }
+    public virtual void KilledUnit(Unit victim) { }
 
     public virtual void MoveInLineOfSight(Unit who)
     {
@@ -371,12 +357,10 @@ public class CreatureAI : UnitAI
     }
 
     // Called at waypoint reached or point movement finished
-    public virtual void MovementInform(MovementGeneratorType type, uint id)
-    { }
+    public virtual void MovementInform(MovementGeneratorType type, uint id) { }
 
     // Called when a channeled spell finishes
-    public virtual void OnChannelFinished(SpellInfo spell)
-    { }
+    public virtual void OnChannelFinished(SpellInfo spell) { }
 
     public override void OnCharmed(bool isNew)
     {
@@ -416,27 +400,21 @@ public class CreatureAI : UnitAI
     }
 
     // Called when a player accepts a quest from the creature.
-    public virtual void OnQuestAccept(Player player, Quest.Quest quest)
-    { }
+    public virtual void OnQuestAccept(Player player, Quest.Quest quest) { }
 
     // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-    public virtual void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt)
-    { }
+    public virtual void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt) { }
 
     // Called when a spell finishes
-    public virtual void OnSpellCast(SpellInfo spell)
-    { }
+    public virtual void OnSpellCast(SpellInfo spell) { }
 
-    public virtual void OnSpellClick(Unit clicker, ref bool spellClickHandled)
-    { }
+    public virtual void OnSpellClick(Unit clicker, ref bool spellClickHandled) { }
 
     // Called when a spell fails
-    public virtual void OnSpellFailed(SpellInfo spell)
-    { }
+    public virtual void OnSpellFailed(SpellInfo spell) { }
 
     // Called when a spell starts
-    public virtual void OnSpellStart(SpellInfo spell)
-    { }
+    public virtual void OnSpellStart(SpellInfo spell) { }
 
     // Called when owner attacks something
     public virtual void OwnerAttacked(Unit target)
@@ -450,12 +428,10 @@ public class CreatureAI : UnitAI
         OnOwnerCombatInteraction(attacker);
     }
 
-    public virtual void PassengerBoarded(Unit passenger, sbyte seatId, bool apply)
-    { }
+    public virtual void PassengerBoarded(Unit passenger, sbyte seatId, bool apply) { }
 
     // Called at text emote receive from player
-    public virtual void ReceiveEmote(Player player, TextEmotes emoteId)
-    { }
+    public virtual void ReceiveEmote(Player player, TextEmotes emoteId) { }
 
     public void SetBoundary(List<AreaBoundary> boundary, bool negateBoundaries = false)
     {
@@ -465,21 +441,16 @@ public class CreatureAI : UnitAI
     }
 
     // Called when hit by a spell
-    public virtual void SpellHit(WorldObject caster, SpellInfo spellInfo)
-    { }
+    public virtual void SpellHit(WorldObject caster, SpellInfo spellInfo) { }
 
     // Called when spell hits a target
-    public virtual void SpellHitTarget(WorldObject target, SpellInfo spellInfo)
-    { }
+    public virtual void SpellHitTarget(WorldObject target, SpellInfo spellInfo) { }
 
-    public virtual void SummonedCreatureDespawn(Creature summon)
-    { }
+    public virtual void SummonedCreatureDespawn(Creature summon) { }
 
-    public virtual void SummonedCreatureDies(Creature summon, Unit killer)
-    { }
+    public virtual void SummonedCreatureDies(Creature summon, Unit killer) { }
 
-    public virtual void SummonedGameobjectDespawn(GameObject gameobject)
-    { }
+    public virtual void SummonedGameobjectDespawn(GameObject gameobject) { }
 
     public void Talk(uint id, WorldObject whisperTarget = null)
     {
@@ -538,9 +509,7 @@ public class CreatureAI : UnitAI
             return false;
         }
         else if (Me.Victim != null)
-        {
             Me.AttackStop();
-        }
 
         return true;
     }
@@ -604,9 +573,7 @@ public class CreatureAI : UnitAI
                     Position nextPos = new(startPosition.X + next.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.Y + next.Value * SharedConst.BoundaryVisualizeStepSize, startPosition.Z);
 
                     if (IsInBoundary(nextPos))
-                    {
                         q.Add(next);
-                    }
                     else
                     {
                         outOfBounds.Add(next);
@@ -616,9 +583,7 @@ public class CreatureAI : UnitAI
                     alreadyChecked.Add(next);
                 }
                 else if (outOfBounds.Contains(next))
-                {
                     hasOutOfBoundsNeighbor = true;
-                }
             }
 
             if (fill || hasOutOfBoundsNeighbor)
@@ -643,15 +608,12 @@ public class CreatureAI : UnitAI
         return boundsWarning ? CypherStrings.CreatureMovementMaybeUnbounded : 0;
     }
 
-    public virtual void WaypointPathEnded(uint nodeId, uint pathId)
-    { }
+    public virtual void WaypointPathEnded(uint nodeId, uint pathId) { }
 
-    public virtual void WaypointReached(uint nodeId, uint pathId)
-    { }
+    public virtual void WaypointReached(uint nodeId, uint pathId) { }
 
     /// == Waypoints system =============================
-    public virtual void WaypointStarted(uint nodeId, uint pathId)
-    { }
+    public virtual void WaypointStarted(uint nodeId, uint pathId) { }
 
     private void OnOwnerCombatInteraction(Unit target)
     {

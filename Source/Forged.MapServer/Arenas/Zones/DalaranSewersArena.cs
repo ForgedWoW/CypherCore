@@ -85,7 +85,7 @@ internal class DalaranSewersArena : Arena
                     Events.ScheduleEvent(eventId, DalaranSewersData.WaterfallKnockbackTimer);
                 }
 
-                break;
+                    break;
 
                 case DalaranSewersEvents.PIPE_KNOCKBACK:
                 {
@@ -98,7 +98,7 @@ internal class DalaranSewersArena : Arena
                     }
                 }
 
-                break;
+                    break;
             }
         });
     }

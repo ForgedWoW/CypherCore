@@ -48,5 +48,5 @@ internal struct PartyPlayerInfo
         if (!VoiceStateID.IsEmpty())
             data.WriteString(VoiceStateID);
     }
-     // same as bgs.protocol.club.v1.MemberVoiceState.id
+    // same as bgs.protocol.club.v1.MemberVoiceState.id
 }

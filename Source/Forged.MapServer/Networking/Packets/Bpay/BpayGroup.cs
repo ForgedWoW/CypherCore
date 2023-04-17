@@ -13,6 +13,7 @@ public class BpayGroup
     public string Name { get; set; } = "";
     public uint Ordering { get; set; }
     public uint Unk { get; set; }
+
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(GroupId);

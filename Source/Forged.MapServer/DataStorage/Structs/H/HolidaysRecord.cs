@@ -17,7 +17,9 @@ public sealed class HolidaysRecord
     public uint Id;
     public byte Looping;
     public byte Priority;
+
     public ushort Region;
+
     // dates in unix time starting at January, 1, 2000
     public int[] TextureFileDataID = new int[3];
 }

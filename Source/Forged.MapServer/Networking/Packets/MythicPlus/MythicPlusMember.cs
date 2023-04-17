@@ -18,6 +18,7 @@ public struct MythicPlusMember
     public short RaceID;
     public int SoulbindID;
     public uint VirtualRealmAddress;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(BnetAccountGUID);

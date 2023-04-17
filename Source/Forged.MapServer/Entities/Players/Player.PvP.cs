@@ -38,6 +38,7 @@ public partial class Player
     public WorldLocation BattlegroundEntryPoint => _bgData.JoinPos;
     public uint BattlegroundId => _bgData.BgInstanceId;
     public BattlegroundTypeId BattlegroundTypeId => _bgData.BgTypeId;
+
     public bool CanCaptureTowerPoint => !HasStealthAura &&      // not stealthed
                                         !HasInvisibilityAura && // not invisible
                                         IsAlive;
@@ -148,7 +149,7 @@ public partial class Player
         if (HasPvpRulesEnabled())
             return;
 
-        if (!HasSpell(195710))       // Honorable Medallion
+        if (!HasSpell(195710))                    // Honorable Medallion
             SpellFactory.CastSpell(this, 208682); // Learn Gladiator's Medallion
 
         SpellFactory.CastSpell(this, PlayerConst.SpellPvpRulesEnabled);
@@ -596,9 +597,7 @@ public partial class Player
                     _bgData.MountSpell = auras[0].Id;
             }
             else
-            {
                 _bgData.MountSpell = 0;
-            }
 
             // If map is dungeon find linked graveyard
             if (Location.Map.IsDungeon)
@@ -612,9 +611,7 @@ public partial class Player
             }
             // If new entry point is not BG or arena set it
             else if (!Location.Map.IsBattlegroundOrArena)
-            {
                 _bgData.JoinPos = new WorldLocation(Location.MapId, Location.X, Location.Y, Location.Z, Location.Orientation);
-            }
         }
 
         if (_bgData.JoinPos.MapId == 0xFFFFFFFF) // In error cases use homebind position
@@ -682,6 +679,7 @@ public partial class Player
 
         _lastHonorUpdateTime = now;
     }
+
     private void _InitHonorLevelOnLoadFromDB(uint honor, uint honorLevel)
     {
         SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.HonorLevel), honorLevel);

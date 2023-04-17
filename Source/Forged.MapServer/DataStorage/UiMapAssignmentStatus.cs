@@ -23,6 +23,7 @@ internal class UiMapAssignmentStatus
     public OutsideStruct Outside { get; set; }
     public UiMapAssignmentRecord UiMapAssignment { get; set; }
     public sbyte WmoPriority { get; set; }
+
     public static bool operator <(UiMapAssignmentStatus left, UiMapAssignmentStatus right)
     {
         var leftInside = left.IsInside();

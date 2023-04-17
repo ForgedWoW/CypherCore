@@ -17,6 +17,7 @@ public class MythicPlusRun
     public float RunScore;
     public int Season;
     public long StartDate;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(MapChallengeModeID);

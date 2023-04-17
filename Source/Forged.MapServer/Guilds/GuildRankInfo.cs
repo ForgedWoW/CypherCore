@@ -49,6 +49,7 @@ public class GuildRankInfo
     public string Name { get; set; }
 
     public GuildRankOrder Order { get; set; }
+
     public void CreateMissingTabsIfNeeded(byte tabs, SQLTransaction trans, bool logOnCreate = false)
     {
         for (byte i = 0; i < tabs; ++i)

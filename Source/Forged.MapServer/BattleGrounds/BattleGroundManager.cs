@@ -387,13 +387,9 @@ public class BattlegroundManager
                 var start = _objectManager.GetWorldSafeLoc(startId);
 
                 if (start != null)
-                {
                     bgTemplate.StartLocation[TeamIds.Alliance] = start;
-                }
                 else if (bgTemplate.StartLocation[TeamIds.Alliance] != null) // reload case
-                {
                     Log.Logger.Error($"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. Ignoring.");
-                }
                 else
                 {
                     Log.Logger.Error($"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. BG not created.");
@@ -405,13 +401,9 @@ public class BattlegroundManager
                 start = _objectManager.GetWorldSafeLoc(startId);
 
                 if (start != null)
-                {
                     bgTemplate.StartLocation[TeamIds.Horde] = start;
-                }
                 else if (bgTemplate.StartLocation[TeamIds.Horde] != null) // reload case
-                {
                     Log.Logger.Error($"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. Ignoring.");
-                }
                 else
                 {
                     Log.Logger.Error($"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. BG not created.");
@@ -577,9 +569,7 @@ public class BattlegroundManager
             player.TeleportTo(pos.Location);
         }
         else
-        {
             Log.Logger.Error($"BattlegroundMgr.SendToBattleground: Instance {instanceId} (bgType {bgTypeId}) not found while trying to teleport player {player.GetName()}");
-        }
     }
 
     public void SetHolidayActive(uint battlegroundId)
@@ -682,9 +672,7 @@ public class BattlegroundManager
                 _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena:RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
             }
             else
-            {
                 _nextRatedArenaUpdate -= diff;
-            }
         }
     }
 

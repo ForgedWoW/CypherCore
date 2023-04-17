@@ -28,6 +28,7 @@ public class PhasingHandler
     private readonly GridDefines _gridDefines;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
+
     public PhasingHandler(DB2Manager db2Manager, ObjectAccessor objectAccessor, CliDB cliDB, GridDefines gridDefines, GameObjectManager objectManager, ConditionManager conditionManager)
     {
         _db2Manager = db2Manager;
@@ -42,6 +43,7 @@ public class PhasingHandler
 
     public PhaseShift AlwaysVisible { get; }
     public PhaseShift EmptyPhaseShift { get; } = new();
+
     public void AddPhase(WorldObject obj, uint phaseId, bool updateVisibility)
     {
         ControlledUnitVisitor visitor = new(obj);
@@ -99,9 +101,7 @@ public class PhasingHandler
             return;
 
         foreach (var passenger in vehicle.Seats.Select(seat => _objectAccessor.GetUnit(unit, seat.Value.Passenger.Guid)).Where(passenger => passenger != null))
-        {
             func(passenger);
-        }
     }
 
     public string FormatPhases(PhaseShift phaseShift)
@@ -129,6 +129,7 @@ public class PhasingHandler
 
         return phase.Flags.HasAnyFlag(PhaseEntryFlags.Personal) ? PhaseFlags.Personal : PhaseFlags.None;
     }
+
     public uint GetTerrainMapId(PhaseShift phaseShift, uint mapId, TerrainInfo terrain, float x, float y)
     {
         if (phaseShift.VisibleMapIds.Empty())
@@ -180,9 +181,7 @@ public class PhasingHandler
             flags |= PhaseShiftFlags.Inverse;
 
         if (phaseId != 0)
-        {
             phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
-        }
         else
         {
             var phasesInGroup = _db2Manager.GetPhasesForGroup(phaseGroupId);
@@ -414,9 +413,7 @@ public class PhasingHandler
                     phaseShift.AddUiMapPhaseId(uiMapPhaseId);
             }
             else if (mapId == obj.Location.MapId)
-            {
                 suppressedPhaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
-            }
 
         UpdateVisibilityIfNeeded(obj, false, true);
     }
@@ -485,6 +482,7 @@ public class PhasingHandler
         ControlledUnitVisitor visitor = new(obj);
         RemovePhase(obj, phaseId, updateVisibility, visitor);
     }
+
     public void RemovePhaseGroup(WorldObject obj, uint phaseGroupId, bool updateVisibility)
     {
         var phasesInGroup = _db2Manager.GetPhasesForGroup(phaseGroupId);
@@ -495,6 +493,7 @@ public class PhasingHandler
         ControlledUnitVisitor visitor = new(obj);
         RemovePhaseGroup(obj, phasesInGroup, updateVisibility, visitor);
     }
+
     public void RemoveVisibleMapId(WorldObject obj, uint visibleMapId)
     {
         ControlledUnitVisitor visitor = new(obj);
@@ -506,6 +505,7 @@ public class PhasingHandler
         obj.Location.PhaseShift.Clear();
         obj.Location.SuppressedPhaseShift.Clear();
     }
+
     public void SendToPlayer(Player player, PhaseShift phaseShift)
     {
         PhaseShiftChange phaseShiftChange = new()
@@ -534,6 +534,7 @@ public class PhasingHandler
     {
         SendToPlayer(player, player.Location.PhaseShift);
     }
+
     public void SetAlwaysVisible(WorldObject obj, bool apply, bool updateVisibility)
     {
         if (apply)
@@ -555,6 +556,7 @@ public class PhasingHandler
 
         UpdateVisibilityIfNeeded(obj, updateVisibility, true);
     }
+
     private void AddPhase(WorldObject obj, uint phaseId, ObjectGuid personalGuid, bool updateVisibility, ControlledUnitVisitor visitor)
     {
         var changed = obj.Location.PhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
@@ -627,6 +629,7 @@ public class PhasingHandler
 
         UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
     }
+
     private void RemovePhaseGroup(WorldObject obj, List<uint> phasesInGroup, bool updateVisibility, ControlledUnitVisitor visitor)
     {
         var changed = false;
@@ -645,6 +648,7 @@ public class PhasingHandler
 
         UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
     }
+
     private void RemoveVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
     {
         var terrainSwapInfo = _objectManager.GetTerrainSwapInfo(visibleMapId);

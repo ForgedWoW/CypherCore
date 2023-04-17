@@ -8,6 +8,14 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class ReportPvPPlayerAFKResult : ServerPacket
 {
+    public enum ResultCode
+    {
+        Success = 0,
+        GenericFailure = 1, // there are more error codes but they are impossible to receive without modifying the client
+        AFKSystemEnabled = 5,
+        AFKSystemDisabled = 6
+    }
+
     public byte NumBlackMarksOnOffender = 0;
 
     public byte NumPlayersIHaveReported = 0;
@@ -18,13 +26,6 @@ internal class ReportPvPPlayerAFKResult : ServerPacket
 
     public ReportPvPPlayerAFKResult() : base(ServerOpcodes.ReportPvpPlayerAfkResult, ConnectionType.Instance) { }
 
-    public enum ResultCode
-    {
-        Success = 0,
-        GenericFailure = 1, // there are more error codes but they are impossible to receive without modifying the client
-        AFKSystemEnabled = 5,
-        AFKSystemDisabled = 6
-    }
     public override void Write()
     {
         WorldPacket.WritePackedGuid(Offender);

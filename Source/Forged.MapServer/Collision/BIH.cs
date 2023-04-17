@@ -589,9 +589,7 @@ public class BIH
             tempTree.Add(0);
         }
         else
-        {
             nextIndex -= 3;
-        }
 
         // allocate right node
         if (nr > 0)

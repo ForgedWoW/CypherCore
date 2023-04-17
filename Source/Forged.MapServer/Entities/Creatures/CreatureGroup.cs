@@ -27,6 +27,7 @@ public class CreatureGroup
     public Creature Leader { get; private set; }
 
     public ulong LeaderSpawnId { get; }
+
     public void AddMember(Creature member)
     {
         Log.Logger.Debug("CreatureGroup.AddMember: Adding {0}.", member.GUID.ToString());
@@ -110,9 +111,7 @@ public class CreatureGroup
                 return;
         }
         else if (!groupAI.HasFlag(GroupAIFlags.LeaderAssistsMember))
-        {
             return;
-        }
 
         _engaging = true;
 

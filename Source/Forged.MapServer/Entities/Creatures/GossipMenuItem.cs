@@ -8,6 +8,7 @@ namespace Forged.MapServer.Entities.Creatures;
 public class GossipMenuItem
 {
     public uint Action { get; set; }
+
     // action data
     public uint ActionMenuId { get; set; }
 
@@ -22,7 +23,9 @@ public class GossipMenuItem
     public GossipOptionNpc OptionNpc { get; set; }
     public string OptionText { get; set; }
     public uint OrderIndex { get; set; }
+
     public int? OverrideIconId { get; set; }
+
     // additional scripting identifiers
     public uint Sender { get; set; }
 

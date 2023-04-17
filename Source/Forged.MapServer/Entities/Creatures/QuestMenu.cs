@@ -49,6 +49,7 @@ public class QuestMenu
     {
         return _questMenuItems.Empty();
     }
+
     private bool HasItem(uint questId)
     {
         foreach (var item in _questMenuItems)

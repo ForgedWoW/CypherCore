@@ -121,6 +121,7 @@ public class DamageInfo
     public double Damage { get; private set; }
     public DamageEffectType DamageType { get; }
     public ProcFlagsHit HitMask { get; private set; }
+
     public bool IsAbsorb
     {
         get { return HitMask.HasFlag(ProcFlagsHit.Absorb); }
@@ -181,6 +182,7 @@ public class DamageInfo
     public SpellSchoolMask SchoolMask { get; }
     public SpellInfo SpellInfo { get; }
     public Unit Victim { get; }
+
     public void AbsorbDamage(double amount)
     {
         amount = Math.Min(amount, Damage);
@@ -194,6 +196,7 @@ public class DamageInfo
         amount = Math.Max(amount, -Damage);
         Damage += amount;
     }
+
     public void ResistDamage(double amount)
     {
         amount = Math.Min(amount, Damage);

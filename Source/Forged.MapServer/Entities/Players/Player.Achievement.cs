@@ -50,10 +50,12 @@ public partial class Player
     {
         _achievementSys.SendAchievementInfo(player);
     }
+
     public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
     {
         _achievementSys.StartCriteriaTimer(startEvent, entry, timeLost);
     }
+
     public void UpdateCriteria(CriteriaType type, double miscValue1, double miscValue2 = 0, double miscValue3 = 0, WorldObject refe = null)
     {
         UpdateCriteria(type, (ulong)miscValue1, (ulong)miscValue2, (ulong)miscValue3, refe);

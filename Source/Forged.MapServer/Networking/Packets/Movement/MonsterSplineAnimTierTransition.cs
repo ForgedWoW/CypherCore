@@ -9,6 +9,7 @@ public struct MonsterSplineAnimTierTransition
     public uint EndTime;
     public uint StartTime;
     public int TierTransitionID;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(TierTransitionID);

@@ -11,6 +11,7 @@ public class ChrCustomizationChoice : IComparable<ChrCustomizationChoice>
 {
     public uint ChrCustomizationChoiceID;
     public uint ChrCustomizationOptionID;
+
     public int CompareTo(ChrCustomizationChoice other)
     {
         return ChrCustomizationOptionID.CompareTo(other.ChrCustomizationOptionID);

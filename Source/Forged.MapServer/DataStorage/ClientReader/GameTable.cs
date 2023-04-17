@@ -15,6 +15,7 @@ public class GameTable<T> where T : new()
     {
         return row >= _data.Count ? default : _data[(int)row];
     }
+
     public void SetData(List<T> data)
     {
         _data = data;

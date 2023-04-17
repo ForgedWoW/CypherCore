@@ -13,6 +13,7 @@ public class MountCache
     public readonly Dictionary<uint, uint> FactionSpecificMounts = new();
     private readonly DB2Manager _db2Manager;
     private readonly WorldDatabase _worldDatabase;
+
     public MountCache(WorldDatabase worldDatabase, DB2Manager db2Manager)
     {
         _worldDatabase = worldDatabase;

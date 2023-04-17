@@ -10,9 +10,10 @@ public sealed class CinematicCameraRecord
     public uint ConversationID;
     public uint FileDataID;
     public uint Id;
-    public Vector3 Origin;     // Position in map used for basis for M2 co-ordinates
+    public Vector3 Origin; // Position in map used for basis for M2 co-ordinates
     public float OriginFacing;
-    public uint SoundID;       // Sound ID       (voiceover for cinematic)
-                               // Orientation in map used for basis for M2 co
-                               // Model
+
+    public uint SoundID; // Sound ID       (voiceover for cinematic)
+    // Orientation in map used for basis for M2 co
+    // Model
 }

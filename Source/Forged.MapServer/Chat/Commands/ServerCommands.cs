@@ -123,7 +123,7 @@ internal class ServerCommands
         var playerAmountLimit = handler.WorldManager.PlayerAmountLimit;
         var allowedAccountType = handler.WorldManager.PlayerSecurityLimit;
 
-        string secName = allowedAccountType switch
+        var secName = allowedAccountType switch
         {
             AccountTypes.Player        => "Player",
             AccountTypes.Moderator     => "Moderator",
@@ -197,9 +197,7 @@ internal class ServerCommands
 
         while (!(nextToken = args.NextString()).IsEmpty())
             if (nextToken.IsNumber())
-            {
                 exitCodeStr = nextToken;
-            }
             else
             {
                 reason = nextToken;

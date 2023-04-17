@@ -14,6 +14,7 @@ public class TransportAnimation
     public Dictionary<uint, TransportAnimationRecord> Path { get; } = new();
     public Dictionary<uint, TransportRotationRecord> Rotations { get; } = new();
     public uint TotalTime { get; set; }
+
     public TransportAnimationRecord GetNextAnimNode(uint time)
     {
         if (Path.Empty())

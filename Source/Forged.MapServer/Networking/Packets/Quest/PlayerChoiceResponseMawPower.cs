@@ -12,6 +12,7 @@ internal struct PlayerChoiceResponseMawPower
     public int TypeArtFileID;
     public int Unused901_1;
     public int Unused901_2;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Unused901_1);

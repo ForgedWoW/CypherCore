@@ -28,6 +28,7 @@ public abstract class ServerPacket
     public ConnectionType Connection { get; }
 
     public ServerOpcodes Opcode => (ServerOpcodes)WorldPacket.Opcode;
+
     public void Clear()
     {
         WorldPacket.Clear();

@@ -9,9 +9,11 @@ public class UndeleteCooldownStatusResponse : ServerPacket
 {
     public uint CurrentCooldown;
     public uint MaxCooldown;
-    public bool OnCooldown;      //
-                                 // Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
-                                 // Current cooldown until next free character restoration. (in sec)
+
+    public bool OnCooldown; //
+
+    // Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
+    // Current cooldown until next free character restoration. (in sec)
     public UndeleteCooldownStatusResponse() : base(ServerOpcodes.UndeleteCooldownStatusResponse) { }
 
     public override void Write()

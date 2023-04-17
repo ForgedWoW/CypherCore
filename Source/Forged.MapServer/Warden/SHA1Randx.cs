@@ -14,6 +14,7 @@ internal class Sha1Randx
     private byte[] _o0 = new byte[20];
     private SHA1 _sh;
     private uint _taken;
+
     public Sha1Randx(byte[] buff)
     {
         var halfSize = buff.Length / 2;

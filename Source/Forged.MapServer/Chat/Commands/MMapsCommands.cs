@@ -106,9 +106,7 @@ internal class MMapsCommands
         }
 
         if (polyRef == 0)
-        {
             handler.SendSysMessage("Dt     [??, ??] (invalid poly, probably no tile loaded)");
-        }
         else
         {
             Detour.dtMeshTile tile = new();
@@ -275,9 +273,7 @@ internal class MMapsCommands
             handler.SendSysMessage("Generated {0} paths in {1} ms", paths, uPathLoadTime);
         }
         else
-        {
             handler.SendSysMessage("No creatures in {0} yard range.", radius);
-        }
 
         return true;
     }

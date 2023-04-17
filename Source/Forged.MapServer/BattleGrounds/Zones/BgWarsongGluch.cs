@@ -425,21 +425,13 @@ internal class BgWarsongGluch : Battleground
                         EndBattleground(TeamFaction.Horde);
                 }
                 else if (GetTeamScore(TeamIds.Horde) == 0)
-                {
-                    EndBattleground(TeamFaction.Alliance); // Alliance has > 0, Horde has 0, alliance wins
-                }
+                    EndBattleground(TeamFaction.Alliance);                              // Alliance has > 0, Horde has 0, alliance wins
                 else if (GetTeamScore(TeamIds.Horde) == GetTeamScore(TeamIds.Alliance)) // Team score equal, winner is team that scored the last Id
-                {
                     EndBattleground((TeamFaction)_lastFlagCaptureTeam);
-                }
                 else if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance)) // Last but not least, check who has the higher score
-                {
                     EndBattleground(TeamFaction.Horde);
-                }
                 else
-                {
                     EndBattleground(TeamFaction.Alliance);
-                }
             }
 
             if (_flagState[TeamIds.Alliance] == WsgFlagState.WaitRespawn)
@@ -569,9 +561,7 @@ internal class BgWarsongGluch : Battleground
                 RespawnFlag(TeamFaction.Alliance, false);
             }
             else
-            {
                 EventPlayerDroppedFlag(player);
-            }
         }
 
         if (IsHordeFlagPickedup() && _mFlagKeepers[TeamIds.Horde] == guid)
@@ -583,9 +573,7 @@ internal class BgWarsongGluch : Battleground
                 RespawnFlag(TeamFaction.Horde, false);
             }
             else
-            {
                 EventPlayerDroppedFlag(player);
-            }
         }
     }
 
@@ -751,7 +739,6 @@ internal class BgWarsongGluch : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, WsObjectives.RETURN_FLAG);
 
                 break;
-            
         }
 
         return true;
@@ -852,9 +839,7 @@ internal class BgWarsongGluch : Battleground
             EndBattleground(winner);
         }
         else
-        {
             _flagsTimer[GetTeamIndexByTeamId(team)] = WsgTimerOrScore.FLAG_RESPAWN_TIME;
-        }
     }
 
     private ObjectGuid GetDroppedFlagGUID(TeamFaction team)

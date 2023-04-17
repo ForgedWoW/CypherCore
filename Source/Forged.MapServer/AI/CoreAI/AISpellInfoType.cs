@@ -14,8 +14,9 @@ public class AISpellInfoType
     public float MaxRange;
     public TimeSpan RealCooldown;
     public AITarget Target;
+
     public byte Targets; // set of enum SelectTarget
-     // set of enum SelectEffect
+    // set of enum SelectEffect
 
     public AISpellInfoType()
     {

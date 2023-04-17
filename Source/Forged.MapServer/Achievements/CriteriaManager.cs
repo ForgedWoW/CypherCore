@@ -184,9 +184,9 @@ public class CriteriaManager
             }
 
             var data = _classFactory.Resolve<CriteriaData>(new PositionalParameter(0, dataType),
-                                                                    new PositionalParameter(1, result.Read<uint>(2)),
-                                                                    new PositionalParameter(2, result.Read<uint>(3)),
-                                                                    new PositionalParameter(3, scriptId));
+                                                           new PositionalParameter(1, result.Read<uint>(2)),
+                                                           new PositionalParameter(2, result.Read<uint>(3)),
+                                                           new PositionalParameter(3, scriptId));
 
             if (!data.IsValid(criteria))
                 continue;
@@ -317,9 +317,7 @@ public class CriteriaManager
                     scenarioIds.Add(tree.ScenarioStep.ScenarioID);
                 }
                 else if (tree.QuestObjective != null)
-                {
                     criteria.FlagsCu |= CriteriaFlagsCu.QuestObjective;
-                }
             }
 
             if (criteria.FlagsCu.HasAnyFlag(CriteriaFlagsCu.Player | CriteriaFlagsCu.Account))
@@ -330,9 +328,7 @@ public class CriteriaManager
                 if (IsCriteriaTypeStoredByAsset(criteriaEntry.Type))
                 {
                     if (criteriaEntry.Type != CriteriaType.RevealWorldMapOverlay)
-                    {
                         _criteriasByAsset[(int)criteriaEntry.Type].Add(criteriaEntry.Asset, criteria);
-                    }
                     else
                     {
                         if (!_cliDB.WorldMapOverlayStorage.TryGetValue(criteriaEntry.Asset, out var worldOverlayEntry))

@@ -19,11 +19,14 @@ public sealed class MapRecord
     public uint Id;
     public MapTypes InstanceType;
     public short LoadingScreenID;
+
     public string MapDescription0;
+
     // Horde
     public string MapDescription1;
 
     public LocalizedString MapName;
+
     // entrance coordinates in ghost mode  (in most cases = normal entrance)
     public byte MapType;
 
@@ -44,7 +47,9 @@ public sealed class MapRecord
     public byte TimeOffset;
     public int WdtFileDataID;
     public short WindSettingsID;
+
     public int ZmpFileDataID;
+
     // Helpers
     public Expansion Expansion()
     {
@@ -140,10 +145,12 @@ public sealed class MapRecord
     {
         return InstanceType == MapTypes.Instance;
     }
+
     public bool IsRaid()
     {
         return InstanceType == MapTypes.Raid;
     }
+
     public bool IsScenario()
     {
         return InstanceType == MapTypes.Scenario;

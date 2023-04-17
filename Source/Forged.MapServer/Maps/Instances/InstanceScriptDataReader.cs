@@ -11,16 +11,6 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class InstanceScriptDataReader
 {
-    private readonly CliDB _cliDb;
-    private readonly InstanceScript _instance;
-    private JsonDocument _doc;
-
-    public InstanceScriptDataReader(InstanceScript instance)
-    {
-        _instance = instance;
-        _cliDb = instance.Instance.ClassFactory.Resolve<CliDB>();
-    }
-
     public enum Result
     {
         Ok,
@@ -36,6 +26,16 @@ internal class InstanceScriptDataReader
         BossStateValueIsNotANumber,
         AdditionalDataIsNotAnObject,
         AdditionalDataUnexpectedValueType
+    }
+
+    private readonly CliDB _cliDb;
+    private readonly InstanceScript _instance;
+    private JsonDocument _doc;
+
+    public InstanceScriptDataReader(InstanceScript instance)
+    {
+        _instance = instance;
+        _cliDb = instance.Instance.ClassFactory.Resolve<CliDB>();
     }
 
     private uint DifficultyId => (uint)_instance.Instance.DifficultyID;

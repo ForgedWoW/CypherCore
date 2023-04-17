@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
-using Forged.MapServer.DataStorage.Structs.H;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -32,6 +31,7 @@ public class CollectionMgr
     private readonly Dictionary<uint, MountStatusFlags> _mounts = new();
     private readonly GameObjectManager _objectManager;
     private readonly WorldSession _owner;
+
     private readonly uint[] _playerClassByArmorSubclass =
     {
         (int)PlayerClass.ClassMaskAllPlayable,                                                                                                                          //ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
@@ -485,6 +485,7 @@ public class CollectionMgr
         foreach (var pair in _toys)
             _owner.Player.AddToy(pair.Key, (uint)pair.Value);
     }
+
     public void LoadTransmogIllusions()
     {
         var owner = _owner.Player;
@@ -671,9 +672,7 @@ public class CollectionMgr
                 apperanceState = FavoriteAppearanceState.Removed;
         }
         else
-        {
             return;
-        }
 
         _favoriteAppearances[itemModifiedAppearanceId] = apperanceState;
 
@@ -706,6 +705,7 @@ public class CollectionMgr
         else
             _toys[itemId] &= ~ToyFlags.Favorite;
     }
+
     public void UpgradeHeirloom(uint itemId, uint castItem)
     {
         var player = _owner.Player;
@@ -742,6 +742,7 @@ public class CollectionMgr
         data.Flags = flags;
         data.BonusId = bonusId;
     }
+
     //todo  check this
     private void AddItemAppearance(ItemModifiedAppearanceRecord itemModifiedAppearance)
     {

@@ -9,7 +9,9 @@ public class EquipmentSetID : ServerPacket
 {
     public ulong GUID; // Set Identifier
     public uint SetID;
+
     public int Type;
+
     // Index
     public EquipmentSetID() : base(ServerOpcodes.EquipmentSetId, ConnectionType.Instance) { }
 

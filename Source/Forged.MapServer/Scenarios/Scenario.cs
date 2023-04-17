@@ -56,16 +56,6 @@ public class Scenario : CriteriaHandler
             Log.Logger.Error("Scenario.Scenario: Could not launch Scenario (id: {0}), found no valid scenario step", Data.Entry.Id);
     }
 
-    ~Scenario()
-    {
-        foreach (var player in _players.Select(guid => _objectAccessor.FindPlayer(guid)).Where(player => player != null))
-        {
-            SendBootPlayer(player);
-        }
-
-        _players.Clear();
-    }
-
     public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
 
     public override bool CanCompleteCriteriaTree(CriteriaTree tree)
@@ -392,5 +382,13 @@ public class Scenario : CriteriaHandler
         ScenarioState scenarioState = new();
         BuildScenarioState(scenarioState);
         SendPacket(scenarioState);
+    }
+
+    ~Scenario()
+    {
+        foreach (var player in _players.Select(guid => _objectAccessor.FindPlayer(guid)).Where(player => player != null))
+            SendBootPlayer(player);
+
+        _players.Clear();
     }
 }

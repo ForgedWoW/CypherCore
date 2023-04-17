@@ -259,9 +259,7 @@ internal class TicketCommands
         var assignedPlayer = ticket.AssignedPlayer;
 
         if (assignedPlayer && assignedPlayer.Location.IsInWorld)
-        {
             security = assignedPlayer.Session.Security;
-        }
         else
         {
             var guid = ticket.AssignedToGUID;

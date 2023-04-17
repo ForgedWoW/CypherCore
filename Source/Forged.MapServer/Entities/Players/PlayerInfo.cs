@@ -32,6 +32,7 @@ public class PlayerInfo
     public List<PlayerCreateInfoItem> Items { get; set; } = new();
     public PlayerLevelInfo[] LevelInfo { get; set; } = new PlayerLevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
     public List<SkillRaceClassInfoRecord> Skills { get; set; } = new();
+
     public struct CreatePositionModel
     {
         public WorldLocation Loc;

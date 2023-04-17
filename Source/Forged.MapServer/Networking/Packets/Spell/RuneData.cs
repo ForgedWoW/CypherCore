@@ -10,6 +10,7 @@ public class RuneData
     public List<byte> Cooldowns = new();
     public byte Count;
     public byte Start;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(Start);

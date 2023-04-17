@@ -36,16 +36,16 @@ public class CinematicManager : IDisposable
     public uint CinematicLength { get; set; }
     public uint LastCinematicCheck { get; set; }
 
-    public void BeginCinematic(CinematicSequencesRecord cinematic)
-    {
-        ActiveCinematic = cinematic;
-        ActiveCinematicCameraIndex = -1;
-    }
-
     public virtual void Dispose()
     {
         if (CinematicCamera != null && ActiveCinematic != null)
             EndCinematic();
+    }
+
+    public void BeginCinematic(CinematicSequencesRecord cinematic)
+    {
+        ActiveCinematic = cinematic;
+        ActiveCinematicCameraIndex = -1;
     }
 
     public void EndCinematic()

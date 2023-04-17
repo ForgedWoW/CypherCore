@@ -15,6 +15,7 @@ public struct PerksVendorItem
     public int Price;
     public int TransmogSetID;
     public int VendorItemID;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(VendorItemID);

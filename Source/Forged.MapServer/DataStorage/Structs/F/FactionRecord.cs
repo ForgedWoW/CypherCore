@@ -24,6 +24,7 @@ public sealed class FactionRecord
     public ushort[] ReputationFlags = new ushort[4];
     public short ReputationIndex;
     public int[] ReputationMax = new int[4];
+
     public long[] ReputationRaceMask = new long[4];
     // Faction outputs rep * ParentFactionModOut as spillover reputation
     // The highest rank the faction will profit from incoming spillover

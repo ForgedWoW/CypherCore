@@ -177,7 +177,6 @@ public class SmartAI : CreatureAI
                     }
             }
             else
-            {
                 foreach (var obj in targets)
                     if (GetScript().IsPlayer(obj))
                     {
@@ -188,7 +187,6 @@ public class SmartAI : CreatureAI
                         else if (fail)
                             player.FailQuest(EscortQuestID);
                     }
-            }
         }
 
         // End Path events should be only processed if it was SUCCESSFUL stop or stop called by SMART_ACTION_WAYPOINT_STOP
@@ -204,9 +202,7 @@ public class SmartAI : CreatureAI
                 StartPath(_run, GetScript().GetPathId(), _repeatWaypointPath);
         }
         else if (pathid == GetScript().GetPathId()) // if it's not the same pathid, our script wants to start another path; don't override it
-        {
             GetScript().SetPathId(0);
-        }
 
         if (_despawnState == 1)
             StartDespawn();
@@ -260,9 +256,7 @@ public class SmartAI : CreatureAI
                 Me.ClearUnitState(UnitState.Evade);
             }
             else
-            {
                 Me.MotionMaster.MoveTargetedHome();
-            }
         }
 
         if (!Me.HasUnitState(UnitState.Evade))
@@ -359,9 +353,7 @@ public class SmartAI : CreatureAI
             Me.ResumeMovement();
         }
         else if (formation.IsFormed)
-        {
             Me.MotionMaster.MoveIdle(); // wait the order of leader
-        }
     }
 
     public override void JustSummoned(Creature summon)
@@ -548,9 +540,7 @@ public class SmartAI : CreatureAI
             Me.HomePosition = Me.Location;
         }
         else
-        {
             _waypointReached = false;
-        }
 
         AddEscortState(SmartEscortState.Paused);
         GetScript().ProcessEventsFor(SmartEvents.WaypointPaused, null, _currentWaypointNode, GetScript().GetPathId());
@@ -674,8 +664,7 @@ public class SmartAI : CreatureAI
         _gossipReturn = val;
     }
 
-    public override void SetGUID(ObjectGuid guid, int id)
-    { }
+    public override void SetGUID(ObjectGuid guid, int id) { }
 
     public void SetInvincibilityHpLevel(uint level)
     {
@@ -986,9 +975,7 @@ public class SmartAI : CreatureAI
             _conditionsTimer = 1000;
         }
         else
-        {
             _conditionsTimer -= diff;
-        }
     }
 
     private bool IsAIControlled()
@@ -1023,12 +1010,10 @@ public class SmartAI : CreatureAI
                     }
             }
             else
-            {
                 foreach (var obj in targets)
                     if (GetScript().IsPlayer(obj))
                         if (Me.Location.GetDistance(obj.AsPlayer) <= checkDist)
                             return true;
-            }
 
             // no valid target found
             return false;
@@ -1090,14 +1075,10 @@ public class SmartAI : CreatureAI
                 _despawnState++;
             }
             else
-            {
                 Me.DespawnOrUnsummon();
-            }
         }
         else
-        {
             _despawnTime -= diff;
-        }
     }
 
     private void UpdateFollow(uint diff)
@@ -1116,9 +1097,7 @@ public class SmartAI : CreatureAI
                 _followArrivedTimer = 1000;
             }
             else
-            {
                 _followArrivedTimer -= diff;
-            }
         }
     }
 
@@ -1143,9 +1122,7 @@ public class SmartAI : CreatureAI
             _escortInvokerCheckTimer = 1000;
         }
         else
-        {
             _escortInvokerCheckTimer -= diff;
-        }
 
         // handle pause
         if (HasEscortState(SmartEscortState.Paused) && (_waypointReached || _waypointPauseForced))

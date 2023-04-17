@@ -10,6 +10,7 @@ public sealed class CharacterLoadoutRecord
     public sbyte ItemContext;
     public int Purpose;
     public long RaceMask;
+
     public bool IsForNewCharacter()
     {
         return Purpose == 9;

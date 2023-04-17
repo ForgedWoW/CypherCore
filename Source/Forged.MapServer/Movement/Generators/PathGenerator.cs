@@ -2,10 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Drawing;
 using System.Numerics;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Serilog;
@@ -92,6 +90,7 @@ public class PathGenerator
 
         return true;
     }
+
     public bool IsInvalidDestinationZ(WorldObject target)
     {
         return target.Location.Z - ActualEndPosition.Z > 5.0f;
@@ -207,7 +206,6 @@ public class PathGenerator
         }
 
         if (_useStraightPath)
-        {
             dtResult = _navMeshQuery.findStraightPath(startPoint, // start position
                                                       endPoint,   // end position
                                                       _pathPolyRefs,
@@ -218,9 +216,7 @@ public class PathGenerator
                                                       ref pointCount,
                                                       (int)_pointPathLimit,
                                                       0); // maximum number of points/polygons to use
-        }
         else
-        {
             dtResult = FindSmoothPath(startPoint,     // start position
                                       endPoint,       // end position
                                       _pathPolyRefs,  // current path
@@ -228,7 +224,6 @@ public class PathGenerator
                                       out pathPoints, // [out] path corner points
                                       out pointCount,
                                       _pointPathLimit); // maximum number of points
-        }
 
         // Special case with start and end positions very close to each other
         if (_polyLength == 1 && pointCount == 1)
@@ -429,9 +424,7 @@ public class PathGenerator
                 AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
             }
             else
-            {
                 PathType = PathType.Normal;
-            }
 
             BuildPointPath(startPoint, endPoint);
 
@@ -649,9 +642,7 @@ public class PathGenerator
                     AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
                 }
                 else
-                {
                     PathType = PathType.Normal;
-                }
 
                 return;
             }
@@ -729,9 +720,7 @@ public class PathGenerator
                 includeFlags |= NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime;
         }
         else
-        {
             includeFlags = NavTerrainFlag.Ground | NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime;
-        }
 
         _filter.setIncludeFlags((ushort)includeFlags);
         _filter.setExcludeFlags((ushort)excludeFlags);

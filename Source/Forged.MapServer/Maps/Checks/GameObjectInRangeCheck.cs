@@ -10,6 +10,7 @@ internal class GameObjectInRangeCheck : ICheck<GameObject>
 {
     private readonly uint _entry;
     private readonly float _x, _y, _z, _range;
+
     public GameObjectInRangeCheck(float x, float y, float z, float range, uint entry = 0)
     {
         _x = x;

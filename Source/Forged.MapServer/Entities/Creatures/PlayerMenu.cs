@@ -22,6 +22,7 @@ public class PlayerMenu
     private readonly GameObjectManager _objectManager;
     private readonly WorldSession _session;
     private readonly SpellManager _spellManager;
+
     public PlayerMenu(WorldSession session, GossipMenu gossipMenu, GameObjectManager objectManager, IConfiguration configuration, SpellManager spellManager, QuestMenu questMenu)
     {
         _session = session;
@@ -46,6 +47,7 @@ public class PlayerMenu
         GossipMenu.ClearMenu();
         QuestMenu.ClearMenu();
     }
+
     public uint GetGossipOptionAction(uint selection)
     {
         return GossipMenu.GetMenuItemAction(selection);
@@ -55,6 +57,7 @@ public class PlayerMenu
     {
         return GossipMenu.GetMenuItemSender(selection);
     }
+
     public bool IsGossipOptionCoded(uint selection)
     {
         return GossipMenu.IsMenuItemCoded(selection);
@@ -144,6 +147,7 @@ public class PlayerMenu
 
         _session.SendPacket(packet);
     }
+
     public void SendPointOfInterest(uint id)
     {
         var pointOfInterest = _objectManager.GetPointOfInterest(id);
@@ -505,7 +509,6 @@ public class PlayerMenu
                     packet.MoneyToGet += obj.Amount;
 
                     break;
-                
             }
 
         packet.AutoLaunched = autoLaunched;
@@ -526,18 +529,18 @@ public class PlayerMenu
 
         _session.SendPacket(packet);
     }
+
     public void SendQuestQueryResponse(Quest.Quest quest)
     {
         if (_configuration.GetDefaultValue("CacheDataQueries", true))
-        {
             _session.SendPacket(quest.Response[(int)_session.SessionDbLocaleIndex]);
-        }
         else
         {
             var queryPacket = quest.BuildQueryData(_session.SessionDbLocaleIndex, _session.Player);
             _session.SendPacket(queryPacket);
         }
     }
+
     private bool IsEmpty()
     {
         return GossipMenu.IsEmpty() && QuestMenu.IsEmpty();

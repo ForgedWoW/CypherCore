@@ -131,9 +131,7 @@ public class PetHandler : IWorldSessionHandler
             return;
 
         if (Player.Controlled.Count == 1)
-        {
             HandlePetActionHelper(pet, guid1, spellid, flag, guid2, packet.ActionPosition.X, packet.ActionPosition.Y, packet.ActionPosition.Z);
-        }
         else
         {
             //If a pet is dismissed, m_Controlled will change
@@ -261,9 +259,7 @@ public class PetHandler : IWorldSessionHandler
                     }
                     case CommandStates.Abandon: // abandon (hunter pet) or dismiss (summoned pet)
                         if (pet.CharmerGUID == Player.GUID)
-                        {
                             Player.StopCastingCharm();
-                        }
                         else if (pet.OwnerGUID == Player.GUID)
                         {
                             if (pet.IsPet)
@@ -274,9 +270,7 @@ public class PetHandler : IWorldSessionHandler
                                     Player.RemovePet(pet.AsPet, PetSaveMode.NotInSlot);
                             }
                             else if (pet.HasUnitTypeMask(UnitTypeMask.Minion))
-                            {
                                 ((Minion)pet).UnSummon();
-                            }
                         }
 
                         break;
@@ -794,9 +788,7 @@ public class PetHandler : IWorldSessionHandler
 
         // Packet sent when player has a pet
         if (_player.CurrentPet)
-        {
             _player.PetSpellInitialize();
-        }
         else
         {
             var charm = _player.Charmed;

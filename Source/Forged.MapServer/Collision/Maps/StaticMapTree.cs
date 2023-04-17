@@ -36,10 +36,8 @@ public class StaticMapTree
             return LoadResult.FileNotFound;
 
         using (BinaryReader reader = new(new FileStream(fullname, FileMode.Open, FileAccess.Read)))
-        {
             if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
                 return LoadResult.VersionMismatch;
-        }
 
         var stream = OpenMapTileFile(vmapPath, mapID, tileX, tileY, vm).File;
 
@@ -47,10 +45,8 @@ public class StaticMapTree
             return LoadResult.FileNotFound;
 
         using (BinaryReader reader = new(stream))
-        {
             if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
                 return LoadResult.VersionMismatch;
-        }
 
         return LoadResult.Success;
     }
@@ -134,9 +130,7 @@ public class StaticMapTree
                     pResultHitPos = pPos1;
             }
             else
-            {
                 pResultHitPos += dir * pModifyDist;
-            }
 
             result = true;
         }
@@ -262,9 +256,7 @@ public class StaticMapTree
                                     _loadedSpawns.TryAdd(referencedVal, 1);
                                 }
                                 else
-                                {
                                     ++_loadedSpawns[referencedVal];
-                                }
                             }
                             else if (_mapId == fileResult.UsedMapId)
                             {
@@ -285,9 +277,7 @@ public class StaticMapTree
                 _loadedTiles[PackTileID(tileX, tileY)] = true;
             }
             else
-            {
                 _loadedTiles[PackTileID(tileX, tileY)] = false;
-            }
 
             return result;
         }
@@ -296,9 +286,7 @@ public class StaticMapTree
     public int NumLoadedTiles()
     {
         lock (_loadedTiles)
-        {
             return _loadedTiles.Count;
-        }
     }
 
     public void UnloadMap(VMapManager vm)
@@ -358,9 +346,7 @@ public class StaticMapTree
                                 }
                             }
                             else if (_mapId == fileResult.UsedMapId) // logic documented in StaticMapTree::LoadMapTile
-                            {
                                 result = false;
-                            }
                         }
                     }
                 }

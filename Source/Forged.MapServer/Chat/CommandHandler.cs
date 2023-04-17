@@ -39,6 +39,19 @@ public class CommandHandler
         "Hglyph",   // glyph
     };
 
+    public CommandHandler(ClassFactory classFactory, WorldSession session = null)
+    {
+        ClassFactory = classFactory;
+        Configuration = classFactory.Resolve<IConfiguration>();
+        WorldManager = classFactory.Resolve<WorldManager>();
+        AccountManager = classFactory.Resolve<AccountManager>();
+        ObjectManager = classFactory.Resolve<GameObjectManager>();
+        CliDB = classFactory.Resolve<CliDB>();
+        CharacterCache = classFactory.Resolve<CharacterCache>();
+        ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
+        Session = session;
+    }
+
     public AccountManager AccountManager { get; }
     public CharacterCache CharacterCache { get; }
     public ClassFactory ClassFactory { get; private set; }
@@ -148,19 +161,6 @@ public class CommandHandler
         }
     }
 
-    public CommandHandler(ClassFactory classFactory, WorldSession session = null)
-    {
-        ClassFactory = classFactory;
-        Configuration = classFactory.Resolve<IConfiguration>();
-        WorldManager = classFactory.Resolve<WorldManager>();
-        AccountManager = classFactory.Resolve<AccountManager>();
-        ObjectManager = classFactory.Resolve<GameObjectManager>();
-        CliDB = classFactory.Resolve<CliDB>();
-        CharacterCache = classFactory.Resolve<CharacterCache>();
-        ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
-        Session = session;
-    }
-
     public bool _ParseCommands(string text)
     {
         if (ChatCommandNode.TryExecuteCommand(this, text))
@@ -207,9 +207,7 @@ public class CommandHandler
                 return null;
         }
         else
-        {
             args.NextChar();
-        }
 
         var cLinkType = args.NextString(":");
 

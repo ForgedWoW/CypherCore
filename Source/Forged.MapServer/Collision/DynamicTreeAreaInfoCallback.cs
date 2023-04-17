@@ -12,13 +12,13 @@ public class DynamicTreeAreaInfoCallback : WorkerCallback
 {
     private readonly PhaseShift _phaseShift;
 
-    public AreaInfo AreaInfo { get; }
-
     public DynamicTreeAreaInfoCallback(PhaseShift phaseShift)
     {
         _phaseShift = phaseShift;
         AreaInfo = new AreaInfo();
     }
+
+    public AreaInfo AreaInfo { get; }
 
     public override void Invoke(Vector3 p, GameObjectModel obj)
     {

@@ -157,12 +157,10 @@ internal class DBReader
                     refData.Entries[entry.Index] = entry.Id;
             }
             else
-            {
                 refData = new ReferenceData
                 {
                     Entries = new Dictionary<int, int>()
                 };
-            }
 
             if (sections[sectionIndex].NumSparseRecords > 0)
             {

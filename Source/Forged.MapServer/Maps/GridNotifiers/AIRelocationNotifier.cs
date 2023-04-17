@@ -13,6 +13,7 @@ public class AIRelocationNotifier : IGridNotifierCreature
 {
     private readonly bool _isCreature;
     private readonly Unit _unit;
+
     public AIRelocationNotifier(Unit unit, GridType gridType)
     {
         _unit = unit;
@@ -21,6 +22,7 @@ public class AIRelocationNotifier : IGridNotifierCreature
     }
 
     public GridType GridType { get; set; }
+
     public void Visit(IList<Creature> objs)
     {
         foreach (var creature in objs)

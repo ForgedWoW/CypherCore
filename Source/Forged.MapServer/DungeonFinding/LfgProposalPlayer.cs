@@ -8,14 +8,14 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgProposalPlayer
 {
-    public LfgAnswer Accept { get; set; }
-    public ObjectGuid Group { get; set; }
-    public LfgRoles Role { get; set; }
-
     public LfgProposalPlayer()
     {
         Role = 0;
         Accept = LfgAnswer.Pending;
         Group = ObjectGuid.Empty;
     }
+
+    public LfgAnswer Accept { get; set; }
+    public ObjectGuid Group { get; set; }
+    public LfgRoles Role { get; set; }
 }

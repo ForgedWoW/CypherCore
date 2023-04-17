@@ -8,7 +8,6 @@ namespace Forged.MapServer.Scripting;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class GameObjectScriptAttribute : ScriptAttribute
 {
-    public uint[] GameObjectIds { get; private set; }
     public GameObjectScriptAttribute(string name = "", params object[] args) : base(name, args) { }
 
     public GameObjectScriptAttribute(uint gameObjectId, string name = "", params object[] args) : base(name, args)
@@ -23,4 +22,6 @@ public class GameObjectScriptAttribute : ScriptAttribute
     {
         GameObjectIds = gameObjectIds;
     }
+
+    public uint[] GameObjectIds { get; private set; }
 }

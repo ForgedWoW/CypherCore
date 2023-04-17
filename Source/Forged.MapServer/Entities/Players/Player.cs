@@ -115,6 +115,7 @@ public partial class Player : Unit
         LootFactory = classFactory.Resolve<LootFactory>();
         SkillDiscovery = classFactory.Resolve<SkillDiscovery>();
         Session = session;
+
         // players always accept
         if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))
             _extraFlags |= PlayerExtraFlags.AcceptWhispers;
@@ -369,9 +370,7 @@ public partial class Player : Unit
             Taxi.SetFlightMasterFactionTemplateId(npc.Faction);
         }
         else
-        {
             Taxi.SetFlightMasterFactionTemplateId(0);
-        }
 
         if (money < totalcost)
         {
@@ -781,12 +780,11 @@ public partial class Player : Unit
     public int CalculateReputationGain(ReputationSource source, uint creatureOrQuestLevel, int rep, int faction, bool noQuestBonus = false)
     {
         var noBonuses = false;
+
         if (CliDB.FactionStorage.TryGetValue((uint)faction, out var factionEntry))
-        {
             if (CliDB.FriendshipReputationStorage.TryGetValue(factionEntry.FriendshipRepID, out var friendshipReputation))
                 if (friendshipReputation.Flags.HasAnyFlag(FriendshipReputationFlags.NoRepGainModifiers))
                     noBonuses = true;
-        }
 
         double percent = 100.0f;
 
@@ -966,7 +964,7 @@ public partial class Player : Unit
         while (!JoinedChannels.Empty())
         {
             var ch = JoinedChannels.FirstOrDefault();
-            JoinedChannels.RemoveAt(0);   // remove from player's channel list
+            JoinedChannels.RemoveAt(0); // remove from player's channel list
 
             if (ch == null)
                 continue;
@@ -1358,7 +1356,7 @@ public partial class Player : Unit
             Roller = GUID,
             RollerWowAccount = Session.AccountGUID
         };
-        
+
         if (Group != null)
             Group.BroadcastPacket(randomRoll, false);
         else
@@ -1488,9 +1486,7 @@ public partial class Player : Unit
                 return PlayerConst.copseReclaimDelay[0];
         }
         else if (!Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvE", true))
-        {
             return 0;
-        }
 
         var now = GameTime.CurrentTime;
         // 0..2 full period
@@ -1644,7 +1640,7 @@ public partial class Player : Unit
 
             return creature.HasNpcFlag2(npcFlags2);
         }
-        
+
         if (!HasNpcFlags())
             return null;
 
@@ -1764,9 +1760,7 @@ public partial class Player : Unit
                     startLevel = Math.Max(charTemplate.Level, startLevel);
             }
             else
-            {
                 Log.Logger.Warning($"Account: {Session.AccountId} (IP: {Session.RemoteAddress}) tried to use a character template without given permission. Possible cheating attempt.");
-            }
         }
 
         if (Session.HasPermission(RBACPermissions.UseStartGmLevel))
@@ -1869,36 +1863,29 @@ public partial class Player : Unit
             {
                 // @todo find some better solution
                 [
-
                  0] = (int)basemana - (int)GetCreateMana(),
 
                 [
-
                  1] = 0,
 
                 [
-
                  2] = 0,
 
                 [
-
                  3] = 0,
 
                 [
-
                  4] = 0,
 
                 [
-
                  5] = 0,
 
                 [
-
                  6] = 0
             }
         };
 
-        for(var i = Stats.Strength; i < Stats.Max; ++i)
+        for (var i = Stats.Strength; i < Stats.Max; ++i)
             packet.StatDelta[(int)i] = info.Stats[(int)i] - (int)GetCreateStat(i);
 
         packet.NumNewTalents = (int)(DB2Manager.GetNumTalentsAtLevel(level, Class) - DB2Manager.GetNumTalentsAtLevel(oldLevel, Class));
@@ -1948,7 +1935,7 @@ public partial class Player : Unit
 
         // update level to hunter/summon pet
         var pet = CurrentPet;
-        
+
         pet?.SynchronizeLevelWithOwner();
 
         var mailReward = ObjectManager.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
@@ -2215,9 +2202,7 @@ public partial class Player : Unit
             _currencyStorage[id] = playerCurrency;
         }
         else
-        {
             playerCurrency.IncreasedCapQuantity += amount;
-        }
 
         if (playerCurrency.State != PlayerCurrencyState.New)
             playerCurrency.State = PlayerCurrencyState.Changed;
@@ -2229,7 +2214,7 @@ public partial class Player : Unit
             Flags = CurrencyGainFlags.None
         };
 
-        if(playerCurrency.WeeklyQuantity / currency.GetScaler() > 0)
+        if (playerCurrency.WeeklyQuantity / currency.GetScaler() > 0)
             packet.WeeklyQuantity = (int)playerCurrency.WeeklyQuantity;
 
         if (currency.IsTrackingQuantity())
@@ -2252,9 +2237,7 @@ public partial class Player : Unit
             SetBaseAttackTime(WeaponAttackType.RangedAttack, SharedConst.BaseAttackTime);
         }
         else
-        {
             SetRegularAttackTime();
-        }
 
         UpdateDisplayPower();
 
@@ -2783,8 +2766,8 @@ public partial class Player : Unit
                 return;
         }
 
-        var isGainOnRefund = gainSource is CurrencyGainSource.ItemRefund or 
-                                           CurrencyGainSource.GarrisonBuildingRefund or 
+        var isGainOnRefund = gainSource is CurrencyGainSource.ItemRefund or
+                                           CurrencyGainSource.GarrisonBuildingRefund or
                                            CurrencyGainSource.PlayerTraitRefund;
 
         if (amount > 0 && !isGainOnRefund && gainSource != CurrencyGainSource.Vendor)
@@ -2904,15 +2887,11 @@ public partial class Player : Unit
         ScriptManager.ForEach<IPlayerOnMoneyChanged>(p => p.OnMoneyChanged(this, amount));
 
         if (amount < 0)
-        {
             Money = (ulong)(Money > (ulong)-amount ? (long)Money + amount : 0);
-        }
         else
         {
             if (Money <= PlayerConst.MaxMoneyAmount - (ulong)amount)
-            {
                 Money = Money + (ulong)amount;
-            }
             else
             {
                 if (sendError)
@@ -3179,7 +3158,7 @@ public partial class Player : Unit
             PetGUID = charm.GUID
         };
 
-        for(byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
+        for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
             petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
 
         // Cooldowns
@@ -3204,10 +3183,8 @@ public partial class Player : Unit
                 PrepareQuestMenu(source.GUID);
         }
         else if (source.IsTypeId(TypeId.GameObject))
-        {
             if (source.AsGameObject.GoType == GameObjectTypes.QuestGiver)
                 PrepareQuestMenu(source.GUID);
-        }
 
         foreach (var gossipMenuItem in menuItemBounds)
         {
@@ -3621,9 +3598,7 @@ public partial class Player : Unit
         var bg = Battleground;
 
         if (bg != null)
-        {
             closestGrave = bg.GetClosestGraveYard(this);
-        }
         else
         {
             var bf = BattleFieldManager.GetBattlefieldToZoneId(Location.Map, Location.Zone);
@@ -3652,9 +3627,7 @@ public partial class Player : Unit
             }
         }
         else if (Location.Z < Location.Map.GetMinHeight(Location.PhaseShift, Location.X, Location.Y))
-        {
             TeleportTo(Homebind);
-        }
 
         RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
     }
@@ -4013,9 +3986,7 @@ public partial class Player : Unit
             SendRaidDifficulty((difficulty.Flags & DifficultyFlags.Legacy) != 0, (int)mapDifficulty);
         }
         else if (Location.Map.IsNonRaidDungeon)
-        {
             SendDungeonDifficulty((int)Location.Map.DifficultyID);
-        }
 
         PhasingHandler.OnMapChange(this);
 
@@ -4182,9 +4153,7 @@ public partial class Player : Unit
         };
 
         if (mailError == MailResponseResult.EquipError)
-        {
             result.BagResult = (int)equipError;
-        }
         else if (mailAction == MailResponseType.ItemTaken)
         {
             result.AttachID = itemGuid;
@@ -4744,9 +4713,7 @@ public partial class Player : Unit
                      ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
                      ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
                  }))
-        {
             AddDynamicUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.Customizations), newChoice);
-        }
     }
 
     public override void SetDeathState(DeathState s)
@@ -4814,9 +4781,7 @@ public partial class Player : Unit
             Visibility.InvisibilityDetect.SetValue(InvisibilityType.Drunk, drunkPercent);
         }
         else if (!HasAuraType(AuraType.ModFakeInebriate) && newDrunkValue == 0)
-        {
             Visibility.InvisibilityDetect.DelFlag(InvisibilityType.Drunk);
-        }
 
         var newDrunkenState = PlayerComputators.GetDrunkenstateByValue(newDrunkValue);
         SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.Inebriation), newDrunkValue);
@@ -5063,7 +5028,7 @@ public partial class Player : Unit
         {
             Guid = caster.GUID
         };
-        
+
         _resurrectionData.Location.WorldRelocate(caster.Location);
         _resurrectionData.Health = health;
         _resurrectionData.Mana = mana;
@@ -5092,8 +5057,7 @@ public partial class Player : Unit
 
     //Target
     // Used for serverside target changes, does not apply to players
-    public override void SetTarget(ObjectGuid guid)
-    { }
+    public override void SetTarget(ObjectGuid guid) { }
 
     public void SetTaxiCheater(bool on)
     {
@@ -5235,8 +5199,8 @@ public partial class Player : Unit
         if (Location.Map.ConvertCorpseToBones(GUID) == null)
             return;
 
-        if (triggerSave && !Session.PlayerLogoutWithSave)     // at logout we will already store the player
-            SaveToDB();                                       // prevent loading as ghost without corpse
+        if (triggerSave && !Session.PlayerLogoutWithSave) // at logout we will already store the player
+            SaveToDB();                                   // prevent loading as ghost without corpse
     }
 
     public void StopCastingCharm()
@@ -5247,9 +5211,7 @@ public partial class Player : Unit
         if (Charmed.IsTypeId(TypeId.Unit))
         {
             if (Charmed.AsCreature.HasUnitTypeMask(UnitTypeMask.Puppet))
-            {
                 ((Puppet)Charmed).UnSummon();
-            }
             else if (Charmed.IsVehicle)
             {
                 ExitVehicle();
@@ -5496,9 +5458,7 @@ public partial class Player : Unit
             return false; // normal client can't teleport to this map...
         }
         else
-        {
             Log.Logger.Debug("Player {0} is being teleported to map {1}", GetName(), mapid);
-        }
 
         if (Vehicle != null)
             ExitVehicle();
@@ -5845,9 +5805,7 @@ public partial class Player : Unit
                 var qStatus = _mQuestStatus[id];
 
                 if (qStatus.Timer <= diff)
-                {
                     FailQuest(id);
-                }
                 else
                 {
                     qStatus.Timer -= diff;
@@ -5907,13 +5865,9 @@ public partial class Player : Unit
                 if (!IsInFeralForm && HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
                 {
                     if (!IsWithinMeleeRange(victim))
-                    {
                         SetAttackTimer(WeaponAttackType.OffAttack, 100);
-                    }
                     else if (!IsWithinBoundaryRadius(victim) && !Location.HasInArc(2 * MathFunctions.PI / 3, victim.Location))
-                    {
                         SetAttackTimer(WeaponAttackType.BaseAttack, 100);
-                    }
                     else
                     {
                         // prevent base and off attack in same time, delay attack at 0.2 sec
@@ -5953,9 +5907,7 @@ public partial class Player : Unit
                 }
 
                 if (_zoneUpdateId != Location.Zone)
-                {
                     UpdateZone(Location.Zone, Location.Area); // also update area
-                }
                 else
                 {
                     // use area updates as well
@@ -5967,9 +5919,7 @@ public partial class Player : Unit
                 }
             }
             else
-            {
                 _zoneUpdateTimer -= diff;
-            }
         }
 
         if (IsAlive)
@@ -5991,9 +5941,7 @@ public partial class Player : Unit
                 Log.Logger.Debug("Player '{0}' (GUID: {1}) saved", GetName(), GUID.ToString());
             }
             else
-            {
                 SaveTimer -= diff;
-            }
         }
 
         //Handle Water/drowning
@@ -6027,9 +5975,7 @@ public partial class Player : Unit
                 SetPendingBind(0, 0);
             }
             else
-            {
                 _pendingBindTimer -= diff;
-            }
         }
 
         // not auto-free ghost from body in instances
@@ -6042,9 +5988,7 @@ public partial class Player : Unit
                 RepopAtGraveyard();
             }
             else
-            {
                 DeathTimer -= diff;
-            }
         }
 
         UpdateEnchantTime(diff);
@@ -6079,9 +6023,7 @@ public partial class Player : Unit
                     CombatManager.EndCombatBeyondRange(Visibility.VisibilityRange, true);
             }
             else
-            {
                 _hostileReferenceCheckTimer -= diff;
-            }
         }
 
         //we should execute delayed teleports only for alive(!) players
@@ -6096,10 +6038,10 @@ public partial class Player : Unit
 
         var unitMod = attackType switch
         {
-            WeaponAttackType.BaseAttack => UnitMods.DamageMainHand,
-            WeaponAttackType.OffAttack => UnitMods.DamageOffHand,
+            WeaponAttackType.BaseAttack   => UnitMods.DamageMainHand,
+            WeaponAttackType.OffAttack    => UnitMods.DamageOffHand,
             WeaponAttackType.RangedAttack => UnitMods.DamageRanged,
-            _ => throw new NotImplementedException(),
+            _                             => throw new NotImplementedException(),
         };
 
         var amount = 0.0f;
@@ -6163,9 +6105,7 @@ public partial class Player : Unit
                     _nextMailDelivereTime = mail.DeliverTime;
             }
             else if ((mail.CheckMask & MailCheckMask.Read) == 0)
-            {
                 ++UnReadMails;
-            }
     }
 
     public void UpdateTriggerVisibility()
@@ -6179,7 +6119,6 @@ public partial class Player : Unit
         UpdateData udata = new(Location.MapId);
 
         lock (ClientGuiDs)
-        {
             foreach (var guid in ClientGuiDs)
                 if (guid.IsCreatureOrVehicle)
                 {
@@ -6205,7 +6144,6 @@ public partial class Player : Unit
                     go.ForceUpdateFieldChange();
                     go.BuildValuesUpdateBlockForPlayer(udata, this);
                 }
-        }
 
         if (!udata.HasData())
             return;
@@ -6314,7 +6252,7 @@ public partial class Player : Unit
             Flag = 0x8
         };
 
-        for(uint i = 0; i < SharedConst.MaxSpellControlBar; ++i)
+        for (uint i = 0; i < SharedConst.MaxSpellControlBar; ++i)
             petSpells.ActionButtons[i] = UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(0, i + 8);
 
         for (uint i = 0; i < SharedConst.MaxCreatureSpells; ++i)
@@ -6366,9 +6304,7 @@ public partial class Player : Unit
         var channel = channelMgr.GetCustomChannel(chatChannel);
 
         if (channel != null)
-        {
             channel.JoinChannel(this);
-        }
         else
         {
             channel = channelMgr.CreateCustomChannel(chatChannel);
@@ -6458,9 +6394,7 @@ public partial class Player : Unit
             delay = (uint)(expectedTime - now);
         }
         else
-        {
             delay = GetCorpseReclaimDelay(pvp);
-        }
 
         return (int)(delay * Time.IN_MILLISECONDS);
     }
@@ -6502,6 +6436,7 @@ public partial class Player : Unit
             {
                 var itemDisplayId = _items[i].GetDisplayId(this);
                 uint itemInventoryType;
+
                 if (CliDB.ItemStorage.TryGetValue(_items[i].GetVisibleEntry(this), out var itemEntry))
                     itemInventoryType = (uint)itemEntry.inventoryType;
                 else
@@ -6540,7 +6475,6 @@ public partial class Player : Unit
         Log.Logger.Error($"Player.GetBaseModValue: Invalid BaseModGroup/BaseModType ({modGroup}/{modType}) for player '{GetName()}' ({GUID})");
 
         return 0.0f;
-
     }
 
     private uint GetChampioningFaction()
@@ -6609,7 +6543,6 @@ public partial class Player : Unit
         Log.Logger.Error($"Player.GetTotalBaseModValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GUID})");
 
         return 0.0f;
-
     }
 
     private void HandleDrowning(uint timeDiff)
@@ -6644,9 +6577,7 @@ public partial class Player : Unit
                     EnvironmentalDamage(EnviromentalDamage.Drowning, damage);
                 }
                 else if (!_mirrorTimerFlagsLast.HasAnyFlag(PlayerUnderwaterState.InWater)) // Update time in client if need
-                {
                     SendMirrorTimer(MirrorTimerType.Breath, GetMaxTimer(MirrorTimerType.Breath), _mirrorTimer[breathTimer], -1);
-                }
             }
         }
         else if (_mirrorTimer[breathTimer] != -1) // Regen timer
@@ -6685,14 +6616,10 @@ public partial class Player : Unit
                         EnvironmentalDamage(EnviromentalDamage.Exhausted, damage);
                     }
                     else if (HasPlayerFlag(PlayerFlags.Ghost)) // Teleport ghost to graveyard
-                    {
                         RepopAtGraveyard();
-                    }
                 }
                 else if (!_mirrorTimerFlagsLast.HasAnyFlag(PlayerUnderwaterState.InDarkWater))
-                {
                     SendMirrorTimer(MirrorTimerType.Fatigue, GetMaxTimer(MirrorTimerType.Fatigue), _mirrorTimer[fatigueTimer], -1);
-                }
             }
         }
         else if (_mirrorTimer[fatigueTimer] != -1) // Regen timer
@@ -6710,9 +6637,7 @@ public partial class Player : Unit
         {
             // Breath timer not activated - activate it
             if (_mirrorTimer[fireTimer] == -1)
-            {
                 _mirrorTimer[fireTimer] = GetMaxTimer(MirrorTimerType.Fire);
-            }
             else
             {
                 _mirrorTimer[fireTimer] -= (int)timeDiff;
@@ -6734,9 +6659,7 @@ public partial class Player : Unit
             }
         }
         else
-        {
             _mirrorTimer[fireTimer] = -1;
-        }
 
         // Recheck timers Id
         _mirrorTimerFlags &= ~PlayerUnderwaterState.ExistTimers;
@@ -6916,9 +6839,7 @@ public partial class Player : Unit
             addvalue = (powerType.RegenPeace + UnitData.PowerRegenFlatModifier[(int)powerIndex]) * 0.001f * RegenTimer;
         }
         else
-        {
             addvalue = (powerType.RegenCombat + UnitData.PowerRegenInterruptedFlatModifier[(int)powerIndex]) * 0.001f * RegenTimer;
-        }
 
         string[] ratesForPower =
         {
@@ -6960,9 +6881,7 @@ public partial class Player : Unit
                 maxPower = powerType.CenterPower;
             }
             else
-            {
                 return;
-            }
         }
 
         addvalue += _powerFraction[powerIndex];
@@ -6981,9 +6900,7 @@ public partial class Player : Unit
                 return;
         }
         else
-        {
             return;
-        }
 
         if (addvalue < 0.0f)
         {
@@ -7054,9 +6971,7 @@ public partial class Player : Unit
                     ++regenIndex;
                 }
                 else
-                {
                     SetRuneCooldown(runeToRegen, 0);
-                }
 
                 ++regeneratedRunes;
             }
@@ -7114,9 +7029,7 @@ public partial class Player : Unit
 
         // polymorphed case
         if (IsPolymorphed)
-        {
             addValue = MaxHealth / 3f;
-        }
         // normal regen case (maybe partly in combat case)
         else if (!IsInCombat || HasAuraType(AuraType.ModRegenDuringCombat))
         {
@@ -7133,9 +7046,7 @@ public partial class Player : Unit
                 addValue += GetTotalAuraModifier(AuraType.ModRegen) * 2 * Time.IN_MILLISECONDS / (5 * Time.IN_MILLISECONDS);
             }
             else if (HasAuraType(AuraType.ModRegenDuringCombat))
-            {
                 MathFunctions.ApplyPct(ref addValue, GetTotalAuraModifier(AuraType.ModRegenDuringCombat));
-            }
 
             if (!IsStandState)
                 addValue *= 1.5f;
@@ -7197,6 +7108,7 @@ public partial class Player : Unit
             else
             {
                 var row = (uint)(quest.RewardFactionValue[i] < 0 ? 1 : 0) + 1;
+
                 if (CliDB.QuestFactionRewardStorage.TryGetValue(row, out var questFactionRewEntry))
                 {
                     var field = (uint)Math.Abs(quest.RewardFactionValue[i]);
@@ -7272,7 +7184,7 @@ public partial class Player : Unit
             UnitGUID = target.GUID
         };
 
-        foreach(var auraApp in visibleAuras.ToList())
+        foreach (var auraApp in visibleAuras.ToList())
         {
             AuraInfo auraInfo = new();
             auraApp.BuildUpdatePacket(ref auraInfo, false);
@@ -7412,8 +7324,6 @@ public partial class Player : Unit
                 UpdateCritPercentage(WeaponAttackType.OffAttack);
 
                 break;
-
-            
         }
     }
 
@@ -7438,9 +7348,7 @@ public partial class Player : Unit
                 _deathExpireTime = now + PlayerConst.MaxDeathCount * PlayerConst.DeathExpireStep;
         }
         else
-        {
             _deathExpireTime = now + PlayerConst.DeathExpireStep;
-        }
     }
 
     private void UpdateHomebindTime(uint time)
@@ -7521,20 +7429,14 @@ public partial class Player : Unit
                             sendRemove = false; // Do not send leave channel, it already replaced at client
                         }
                         else
-                        {
                             joinChannel = null;
-                        }
                     }
                 }
                 else
-                {
                     joinChannel = cMgr.GetSystemChannel(channelEntry.Id);
-                }
             }
             else
-            {
                 removeChannel = usedChannel;
-            }
 
             joinChannel?.JoinChannel(this); // Changed Channel: ... or Joined Channel: ...
 
@@ -7706,9 +7608,7 @@ public partial class Player : Unit
             return;
 
         if (!forced)
-        {
             AddToNotify(NotifyFlags.VisibilityChanged);
-        }
         else
         {
             base.UpdateObjectVisibility();
@@ -7828,9 +7728,7 @@ public partial class Player : Unit
                     target.DestroyForPlayer(this);
 
                 lock (ClientGuiDs)
-                {
                     ClientGuiDs.Remove(target.GUID);
-                }
             }
         }
         else
@@ -7840,9 +7738,7 @@ public partial class Player : Unit
                 target.SendUpdateToPlayer(this);
 
                 lock (ClientGuiDs)
-                {
                     ClientGuiDs.Add(target.GUID);
-                }
 
                 // target aura duration for caster show only if target exist at caster client
                 // send data at target visibility change (adding to client)
@@ -7947,9 +7843,7 @@ public partial class Player : Unit
             return;
 
         if (IsMaxLevel)
-        {
             SendExplorationExperience(areaId, 0);
-        }
         else
         {
             var areaLevel = (ushort)Math.Min(Math.Max((ushort)Level, areaLevels.Value.MinLevel), areaLevels.Value.MaxLevel);
@@ -7957,9 +7851,7 @@ public partial class Player : Unit
             uint xp;
 
             if (diff < -5)
-            {
                 xp = (uint)(ObjectManager.GetBaseXP(Level + 5) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
-            }
             else if (diff > 5)
             {
                 var explorationPercent = 100 - (diff - 5) * 5;
@@ -7970,9 +7862,7 @@ public partial class Player : Unit
                 xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * explorationPercent / 100f * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             }
             else
-            {
                 xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
-            }
 
             if (Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0) != 0)
             {

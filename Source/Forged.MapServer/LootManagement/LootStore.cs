@@ -37,7 +37,7 @@ public class LootStore
     public string EntryName { get; }
     public bool IsRatesAllowed { get; }
     public string Name { get; }
-    
+
     public void CheckLootRefs(List<uint> refSet = null)
     {
         foreach (var pair in _lootTemplates)
@@ -105,7 +105,7 @@ public class LootStore
     {
         _lootTemplates.Clear();
     }
-    
+
     private uint LoadLootTable()
     {
         // Clearing store (for reloading case)

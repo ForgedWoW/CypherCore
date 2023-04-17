@@ -12,7 +12,6 @@ using Forged.MapServer.Scripting.Interfaces;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Scripting;
@@ -21,6 +20,15 @@ public class AuraScript : BaseSpellScript, IAuraScript
 {
     private readonly Stack<ScriptStateStore> _scriptStates = new();
     private bool _defaultActionPrevented;
+
+    // AuraScript interface - functions which are redirecting to Aura class
+
+    public AuraScript()
+    {
+        Aura = null;
+        TargetApplication = null;
+        _defaultActionPrevented = false;
+    }
 
     // returns aura object of script
     public Aura Aura { get; private set; }
@@ -142,15 +150,6 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
     // permament - has infinite duration
     public bool IsPermanent => Aura.IsPermanent;
-
-    // AuraScript interface - functions which are redirecting to Aura class
-
-    public AuraScript()
-    {
-        Aura = null;
-        TargetApplication = null;
-        _defaultActionPrevented = false;
-    }
 
     public void _FinishScriptCall()
     {

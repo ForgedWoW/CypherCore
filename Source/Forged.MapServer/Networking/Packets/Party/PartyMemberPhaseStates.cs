@@ -11,6 +11,7 @@ public class PartyMemberPhaseStates
     public List<PartyMemberPhase> List = new();
     public ObjectGuid PersonalGUID;
     public int PhaseShiftFlags;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(PhaseShiftFlags);

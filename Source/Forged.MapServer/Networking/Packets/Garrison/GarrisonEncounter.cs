@@ -14,6 +14,7 @@ internal class GarrisonEncounter
     public int Health;
     public int MaxHealth;
     public List<int> Mechanics = new();
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(GarrEncounterID);

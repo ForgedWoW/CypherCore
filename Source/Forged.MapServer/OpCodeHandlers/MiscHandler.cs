@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
@@ -11,7 +10,6 @@ using Forged.MapServer.DataStorage.Structs.U;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Achievements;
@@ -201,9 +199,7 @@ public class MiscHandler : IWorldSessionHandler
                     Log.Logger.Debug($"MAP: Player '{player.GetName()}' has corpse in instance {at.target_mapId} and can enter.");
                 }
                 else
-                {
                     Log.Logger.Debug($"Map::CanPlayerEnter - player '{player.GetName()}' is dead but does not have a corpse!");
-                }
             }
 
             var denyReason = player.Location.PlayerCannotEnter(at.target_mapId, player);
@@ -444,9 +440,7 @@ public class MiscHandler : IWorldSessionHandler
         // Client received values update after destroying object
         // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
         lock (Player.ClientGuiDs)
-        {
             Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.RequestAccountData, Status = SessionStatus.Authed)]
@@ -511,9 +505,7 @@ public class MiscHandler : IWorldSessionHandler
             group.ResetInstances(InstanceResetMethod.Manual, _player);
         }
         else
-        {
             Player.ResetInstances(InstanceResetMethod.Manual);
-        }
     }
 
     [WorldPacketHandler(ClientOpcodes.SaveCufProfiles, Processing = PacketProcessing.Inplace)]
@@ -599,9 +591,7 @@ public class MiscHandler : IWorldSessionHandler
                 return;
         }
         else
-        {
             packet.TitleID = 0;
-        }
 
         Player.SetChosenTitle((uint)packet.TitleID);
     }

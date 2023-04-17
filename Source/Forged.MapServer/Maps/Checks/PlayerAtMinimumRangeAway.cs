@@ -11,6 +11,7 @@ internal class PlayerAtMinimumRangeAway : ICheck<Player>
 {
     private readonly float _fRange;
     private readonly Unit _unit;
+
     public PlayerAtMinimumRangeAway(Unit unit, float fMinRange)
     {
         _unit = unit;

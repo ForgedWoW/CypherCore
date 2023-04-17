@@ -8,6 +8,7 @@ internal class RatedMatchDeserterPenalty
     public int PersonalRatingChange;
     public int QueuePenaltyDuration;
     public int QueuePenaltySpellID;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(PersonalRatingChange);

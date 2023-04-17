@@ -96,9 +96,10 @@ public class CalendarManager
 
     public List<CalendarEvent> GetEventsCreatedBy(ObjectGuid guid, bool includeGuildEvents = false)
     {
-        return _events.Where(calendarEvent => calendarEvent.OwnerGuid == guid && 
-                                              (includeGuildEvents || 
-                                               (!calendarEvent.IsGuildEvent && !calendarEvent.IsGuildAnnouncement))).ToList();
+        return _events.Where(calendarEvent => calendarEvent.OwnerGuid == guid &&
+                                              (includeGuildEvents ||
+                                               (!calendarEvent.IsGuildEvent && !calendarEvent.IsGuildAnnouncement)))
+                      .ToList();
     }
 
     public ulong GetFreeEventId()
@@ -253,6 +254,7 @@ public class CalendarManager
             if (GetInvite(i) == null)
                 _freeInviteIds.Add(i);
     }
+
     public void RemoveAllPlayerEventsAndInvites(ObjectGuid guid)
     {
         foreach (var calendarEvent in _events.Where(calendarEvent => calendarEvent.OwnerGuid == guid))
@@ -525,6 +527,7 @@ public class CalendarManager
         stmt.AddValue(7, invite.Note);
         _characterDatabase.ExecuteOrAppend(trans, stmt);
     }
+
     private void RemoveEvent(CalendarEvent calendarEvent, ObjectGuid remover)
     {
         if (calendarEvent == null)
@@ -643,6 +646,7 @@ public class CalendarManager
 
         SendPacketToAllEventRelatives(packet, calendarEvent);
     }
+
     private void SendPacketToAllEventRelatives(ServerPacket packet, CalendarEvent calendarEvent)
     {
         // Send packet to all guild members

@@ -17,7 +17,7 @@ public class MovementSpline
     public ObjectGuid FaceGUID;
     public Vector3 FaceSpot;
     public uint FadeObjectTime;
-    public uint Flags;           // Spline flags
+    public uint Flags; // Spline flags
     public bool Interpolate;
 
     public MonsterSplineJumpExtraData? JumpExtraData;
@@ -39,6 +39,7 @@ public class MovementSpline
     // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
     public bool VehicleExitVoluntary;
     public sbyte VehicleSeat = -1;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Flags);

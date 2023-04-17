@@ -13,7 +13,9 @@ public class AuctionsBucketData
 {
     public List<AuctionPosting> Auctions = new();
     public string[] FullName = new string[(int)Locale.Total];
+
     public byte InventoryType;
+
     // filter helpers
     public byte ItemClass;
 
@@ -24,11 +26,14 @@ public class AuctionsBucketData
     public byte MinBattlePetLevel = 0;
     public ulong MinPrice;
     public uint[] QualityCounts = new uint[(int)ItemQuality.Max];
+
     public AuctionHouseFilterMask QualityMask;
+
     // for sort
     // for uncollected search
-    public byte RequiredLevel = 0;                                                          // for usable search
+    public byte RequiredLevel = 0; // for usable search
     public byte SortLevel = 0;
+
     public void BuildBucketInfo(BucketInfo bucketInfo, Player player)
     {
         bucketInfo.Key = new AuctionBucketKey(Key);
@@ -75,6 +80,7 @@ public class AuctionsBucketData
         private readonly Locale _locale;
         private readonly int _sortCount;
         private readonly AuctionSortDef[] _sorts;
+
         public Sorter(Locale locale, AuctionSortDef[] sorts, int sortCount)
         {
             _locale = locale;

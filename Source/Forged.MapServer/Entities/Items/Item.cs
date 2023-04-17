@@ -70,6 +70,7 @@ public class Item : WorldObject
 
     private List<ObjectGuid> _allowedGuiDs = new();
     private long _lastPlayedTimeUpdate;
+
     public Item() : base(false)
     {
         ObjectTypeMask |= TypeMask.Item;
@@ -109,6 +110,7 @@ public class Item : WorldObject
     public bool IsInTrade { get; private set; }
     public bool IsInUpdateQueue => QueuePos != -1;
     public bool IsLocked => !HasItemFlag(ItemFieldFlags.Unlocked);
+
     public bool IsNotEmptyBag
     {
         get
@@ -141,6 +143,7 @@ public class Item : WorldObject
 
     public uint PaidExtendedCost { get; private set; }
     public ulong PaidMoney { get; private set; }
+
     public uint PlayedTime
     {
         get
@@ -159,6 +162,7 @@ public class Item : WorldObject
     public float RepairCostMultiplier => BonusData.RepairCostMultiplier;
     public uint ScalingContentTuningId => BonusData.ContentTuningId;
     public uint ScriptId => Template.ScriptId;
+
     public SkillType Skill
     {
         get
@@ -174,6 +178,7 @@ public class Item : WorldObject
     public ItemTemplate Template => Global.ObjectMgr.GetItemTemplate(Entry);
     public string Text { get; private set; }
     private bool IsInBag => Container != null;
+
     public static void AddItemsSetItem(Player player, Item item)
     {
         var proto = item.Template;
@@ -422,15 +427,14 @@ public class Item : WorldObject
             return 1;
 
         var itemLevel = itemTemplate.BaseItemLevel;
+
         if (CliDB.AzeriteLevelInfoStorage.TryGetValue(azeriteLevel, out var azeriteLevelInfo))
             itemLevel = azeriteLevelInfo.ItemLevel;
 
         if (bonusData.PlayerLevelToItemLevelCurveId != 0)
         {
             if (fixedLevel != 0)
-            {
                 level = fixedLevel;
-            }
             else
             {
                 var levels = Global.DB2Mgr.GetContentTuningData(bonusData.ContentTuningId, 0, true);
@@ -485,9 +489,7 @@ public class Item : WorldObject
             return 0;
         }
         else
-        {
             return proto.SellPrice;
-        }
     }
 
     //Static
@@ -787,6 +789,7 @@ public class Item : WorldObject
             return 0;
 
         var durabilityQualityEntryId = ((uint)Quality + 1) * 2;
+
         if (!CliDB.DurabilityQualityStorage.TryGetValue(durabilityQualityEntryId, out var durabilityQualityEntry))
             return 0;
 
@@ -988,7 +991,6 @@ public class Item : WorldObject
             InitArtifactPowers(itemProto.ArtifactID, 0);
 
             foreach (var artifactAppearance in CliDB.ArtifactAppearanceStorage.Values)
-            {
                 if (CliDB.ArtifactAppearanceSetStorage.TryGetValue(artifactAppearance.ArtifactAppearanceSetID, out var artifactAppearanceSet))
                 {
                     if (itemProto.ArtifactID != artifactAppearanceSet.ArtifactID)
@@ -1003,7 +1005,6 @@ public class Item : WorldObject
 
                     break;
                 }
-            }
 
             CheckArtifactRelicSlotUnlock(owner ?? OwnerUnit);
         }
@@ -1057,10 +1058,8 @@ public class Item : WorldObject
             var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
 
             if (gemProto != null)
-            {
                 if (CliDB.GemPropertiesStorage.TryGetValue(gemProto.GemProperties, out var gemProperty))
                     GemColor = gemProperty.Type;
-            }
 
             if (!GemColor.HasAnyFlag(ItemConst.SocketColorToGemTypeMask[(int)SocketColor])) // bad gem color on this socket
                 return false;
@@ -1108,10 +1107,8 @@ public class Item : WorldObject
             itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
 
         if (CliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var transmog))
-        {
             if (CliDB.ItemAppearanceStorage.TryGetValue(transmog.ItemAppearanceID, out var itemAppearance))
                 return itemAppearance.ItemDisplayInfoID;
-        }
 
         return Global.DB2Mgr.GetItemDisplayId(Entry, AppearanceModId);
     }
@@ -1201,7 +1198,6 @@ public class Item : WorldObject
             case ItemModType.Corruption:
             case ItemModType.CorruptionResistance:
                 return BonusData.StatPercentEditor[index];
-            
         }
 
         var itemLevel = GetItemLevel(owner);
@@ -1239,6 +1235,7 @@ public class Item : WorldObject
     public override string GetName(Locale locale = Locale.enUS)
     {
         var itemTemplate = Template;
+
         if (CliDB.ItemNameDescriptionStorage.TryGetValue(BonusData.Suffix, out var suffix))
             return $"{itemTemplate.GetName(locale)} {suffix.Description[locale]}";
 
@@ -1551,7 +1548,6 @@ public class Item : WorldObject
             var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(power.ArtifactPowerId);
 
             for (var e = EnchantmentSlot.Sock1; e <= EnchantmentSlot.Sock3; ++e)
-            {
                 if (CliDB.SpellItemEnchantmentStorage.TryGetValue(GetEnchantmentId(e), out var enchant))
                     for (uint i = 0; i < ItemConst.MaxItemEnchantmentEffects; ++i)
                         switch (enchant.Effect[i])
@@ -1568,7 +1564,6 @@ public class Item : WorldObject
                                 break;
                             case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
                                 if (BonusData.GemRelicType[e - EnchantmentSlot.Sock1] != -1)
-                                {
                                     if (CliDB.ArtifactPowerPickerStorage.TryGetValue(enchant.EffectArg[i], out var artifactPowerPicker))
                                     {
                                         var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
@@ -1577,12 +1572,9 @@ public class Item : WorldObject
                                             if (artifactPower.Label == BonusData.GemRelicType[e - EnchantmentSlot.Sock1])
                                                 power.CurrentRankWithBonus += (byte)enchant.EffectPointsMin[i];
                                     }
-                                }
 
                                 break;
-                            
                         }
-            }
 
             SetArtifactPower((ushort)power.ArtifactPowerId, power.PurchasedRank, power.CurrentRankWithBonus);
         }
@@ -2263,9 +2255,7 @@ public class Item : WorldObject
         var gemTemplate = Global.ObjectMgr.GetItemTemplate(gem.ItemId);
 
         if (gemTemplate != null)
-        {
             if (CliDB.GemPropertiesStorage.TryGetValue(gemTemplate.GemProperties, out var gemProperties))
-            {
                 if (CliDB.SpellItemEnchantmentStorage.TryGetValue(gemProperties.EnchantId, out var gemEnchant))
                 {
                     BonusData gemBonus = new(gemTemplate);
@@ -2316,11 +2306,8 @@ public class Item : WorldObject
 
                                 break;
                             }
-                            
                         }
                 }
-            }
-        }
 
         SocketedGem gemField = Values.ModifyValue(ItemData).ModifyValue(ItemData.Gems, slot);
         SetUpdateFieldValue(gemField.ModifyValue(gemField.ItemId), gem.ItemId);
@@ -2531,6 +2518,7 @@ public class Item : WorldObject
         SetExpiration(duration - diff);
         SetState(ItemUpdateState.Changed, owner); // save new time in database
     }
+
     public void UpdatePlayedTime(Player owner)
     {
         // Get current played time
@@ -2557,6 +2545,7 @@ public class Item : WorldObject
         // Yes
         SetNotRefundable(owner);
     }
+
     private static void AddItemToUpdateQueueOf(Item item, Player player)
     {
         if (item.IsInUpdateQueue)
@@ -2717,7 +2706,6 @@ public class Item : WorldObject
                     return ItemTransmogrificationWeaponCategory.Dagger;
                 case ItemSubClassWeapon.Fist:
                     return ItemTransmogrificationWeaponCategory.Fist;
-                
             }
 
         return ItemTransmogrificationWeaponCategory.Invalid;
@@ -2782,7 +2770,7 @@ public class Item : WorldObject
                         }
                     }
 
-                    break;
+                        break;
                     case ItemEnchantmentType.ArtifactPowerBonusRankByID:
                     {
                         if (_artifactPowerIdToIndex.TryGetValue(enchant.EffectArg[i], out var artifactPowerIndex))
@@ -2807,10 +2795,9 @@ public class Item : WorldObject
                         }
                     }
 
-                    break;
+                        break;
                     case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
                         if (slot is >= EnchantmentSlot.Sock1 and <= EnchantmentSlot.Sock3 && BonusData.GemRelicType[slot - EnchantmentSlot.Sock1] != -1)
-                        {
                             if (CliDB.ArtifactPowerPickerStorage.TryGetValue(enchant.EffectArg[i], out var artifactPowerPicker))
                             {
                                 var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
@@ -2842,10 +2829,8 @@ public class Item : WorldObject
                                         }
                                     }
                             }
-                        }
 
                         break;
-                    
                 }
     }
 
@@ -2895,11 +2880,9 @@ public class Item : WorldObject
             var enchant_id = GetEnchantmentId(enchant_slot);
 
             if (enchant_id != 0)
-            {
                 if (CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var enchantEntry))
                     if (enchantEntry.MinLevel > level)
                         level = enchantEntry.MinLevel;
-            }
         }
 
         return level;
@@ -2913,15 +2896,14 @@ public class Item : WorldObject
             var enchant_id = GetEnchantmentId(enchant_slot);
 
             if (enchant_id != 0)
-            {
                 if (CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var enchantEntry))
                     if (enchantEntry.RequiredSkillID != 0 && player.GetSkillValue((SkillType)enchantEntry.RequiredSkillID) < enchantEntry.RequiredSkillRank)
                         return false;
-            }
         }
 
         return true;
     }
+
     private bool HasStats()
     {
         var proto = Template;
@@ -2942,15 +2924,14 @@ public class Item : WorldObject
             var enchant_id = GetEnchantmentId(enchant_slot);
 
             if (enchant_id != 0)
-            {
                 if (CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var enchantEntry))
                     if (enchantEntry.GetFlags().HasFlag(SpellItemEnchantmentFlags.Soulbound))
                         return true;
-            }
         }
 
         return false;
     }
+
     private bool IsValidTransmogrificationTarget()
     {
         var proto = Template;
@@ -2973,6 +2954,7 @@ public class Item : WorldObject
 
         return true;
     }
+
     private void SetExpiration(uint expiration)
     {
         SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Expiration), expiration);
@@ -2983,6 +2965,7 @@ public class Item : WorldObject
         private readonly ItemData _itemMask = new();
         private readonly ObjectFieldData _objectMask = new();
         private readonly Item _owner;
+
         public ValuesUpdateForPlayerWithMaskSender(Item owner)
         {
             _owner = owner;

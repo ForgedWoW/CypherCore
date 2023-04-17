@@ -375,14 +375,12 @@ public class ScriptManager
 
                         if (activatedObj == null)
                             if (attribute.Args.Empty())
-                            {
                                 activatedObj = numArgsMin switch
                                 {
-                                    0 or 99 => Activator.CreateInstance(type) as IScriptObject,
+                                    0 or 99                                                 => Activator.CreateInstance(type) as IScriptObject,
                                     1 when paramType != null && paramType == typeof(string) => Activator.CreateInstance(type, name) as IScriptObject,
-                                    _ => activatedObj
+                                    _                                                       => activatedObj
                                 };
-                            }
                             else
                             {
                                 if (numArgsMin == 1 &&
@@ -474,9 +472,7 @@ public class ScriptManager
 
         if (resultMeta.IsEmpty() ||
             resultWp.IsEmpty())
-        {
             Log.Logger.Information("Loaded spline chain _data for 0 chains, consisting of 0 splines with 0 waypoints. DB tables `script_spline_chain_meta` and `script_spline_chain_waypoints` are empty.");
-        }
         else
         {
             uint chainCount = 0, splineCount = 0, wpCount = 0;
@@ -521,6 +517,7 @@ public class ScriptManager
                 var posX = resultWp.Read<float>(4);
                 var posY = resultWp.Read<float>(5);
                 var posZ = resultWp.Read<float>(6);
+
                 if (!_mSplineChainsMap.TryGetValue(Tuple.Create(entry, chainId), out var chain))
                 {
                     Log.Logger.Warning("Creature #{0} has waypoint _data for spline chain {1}. No such chain exists - entry skipped.", entry, chainId);

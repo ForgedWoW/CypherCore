@@ -8,6 +8,7 @@ public struct MonsterSplineJumpExtraData
     public uint Duration;
     public float JumpGravity;
     public uint StartTime;
+
     public void Write(WorldPacket data)
     {
         data.WriteFloat(JumpGravity);

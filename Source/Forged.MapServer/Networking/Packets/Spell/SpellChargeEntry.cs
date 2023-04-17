@@ -9,6 +9,7 @@ public class SpellChargeEntry
     public float ChargeModRate = 1.0f;
     public byte ConsumedCharges;
     public uint NextRecoveryTime;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Category);

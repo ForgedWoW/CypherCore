@@ -3554,9 +3554,9 @@ public partial class Unit
             doneTotal = otherSpellEffectInfo.ApplyAuraName switch
             {
                 // Bonus healing does not apply to these spells
-                AuraType.PeriodicLeech => 0,
+                AuraType.PeriodicLeech        => 0,
                 AuraType.PeriodicHealthFunnel => 0,
-                _ => doneTotal
+                _                             => doneTotal
             };
 
             if (otherSpellEffectInfo.IsEffect(SpellEffectName.HealthLeech))
@@ -4016,13 +4016,13 @@ public partial class Unit
     {
         return unitMod switch
         {
-            UnitMods.ResistanceHoly => SpellSchools.Holy,
-            UnitMods.ResistanceFire => SpellSchools.Fire,
+            UnitMods.ResistanceHoly   => SpellSchools.Holy,
+            UnitMods.ResistanceFire   => SpellSchools.Fire,
             UnitMods.ResistanceNature => SpellSchools.Nature,
-            UnitMods.ResistanceFrost => SpellSchools.Frost,
+            UnitMods.ResistanceFrost  => SpellSchools.Frost,
             UnitMods.ResistanceShadow => SpellSchools.Shadow,
             UnitMods.ResistanceArcane => SpellSchools.Arcane,
-            _ => SpellSchools.Normal
+            _                         => SpellSchools.Normal
         };
     }
 

@@ -17,6 +17,7 @@ public class QuestPoolManager
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, QuestPool> _poolLookup = new();
     private readonly List<QuestPool> _weeklyPools = new();
+
     private readonly WorldDatabase _worldDatabase;
     // questId -> pool
 
@@ -326,6 +327,7 @@ public class QuestPoolManager
             trans.Append(insStmt);
         }
     }
+
     private void Regenerate(List<QuestPool> pools)
     {
         var trans = new SQLTransaction();

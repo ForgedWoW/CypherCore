@@ -40,9 +40,7 @@ internal class ChannelSayBuilder : MessageBuilder
         var player = _objectAccessor.FindConnectedPlayer(_guid);
 
         if (player)
-        {
             packet.Data.Initialize(ChatMsg.Channel, _lang, player, player, _what, 0, _source.GetName(localeIdx));
-        }
         else
         {
             packet.Data.Initialize(ChatMsg.Channel, _lang, null, null, _what, 0, _source.GetName(localeIdx));

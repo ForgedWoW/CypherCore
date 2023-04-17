@@ -22,11 +22,14 @@ public class DynamicObject : WorldObject
     private readonly DynamicObjectData _dynamicObjectData;
     private Aura _aura;
     private Unit _caster;
+
     private int _duration;
+
     // for non-aura dynobjects
     private bool _isViewpoint;
 
     private Aura _removedAura;
+
     public DynamicObject(bool isWorldObject) : base(isWorldObject)
     {
         ObjectTypeMask |= TypeMask.DynamicObject;
@@ -43,6 +46,7 @@ public class DynamicObject : WorldObject
     }
 
     public override ObjectGuid OwnerGUID => GetCasterGUID();
+
     public override void AddToWorld()
     {
         // Register the dynamicObject for guid lookup and for caster
@@ -160,6 +164,7 @@ public class DynamicObject : WorldObject
 
         base.Dispose();
     }
+
     public Unit GetCaster()
     {
         return _caster;
@@ -211,6 +216,7 @@ public class DynamicObject : WorldObject
             Location.Map.ObjectsStore.TryRemove(GUID, out _);
         }
     }
+
     public void SetAura(Aura aura)
     {
         _aura = aura;
@@ -262,6 +268,7 @@ public class DynamicObject : WorldObject
         else
             ScriptManager.ForEach<IDynamicObjectOnUpdate>(p => p.OnUpdate(this, diff));
     }
+
     private void BindToCaster()
     {
         _caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
@@ -323,16 +330,19 @@ public class DynamicObject : WorldObject
             _isViewpoint = false;
         }
     }
+
     private void UnbindFromCaster()
     {
         _caster.UnregisterDynObject(this);
         _caster = null;
     }
+
     private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
     {
         private readonly DynamicObjectData _dynamicObjectData = new();
         private readonly ObjectFieldData _objectMask = new();
         private readonly DynamicObject _owner;
+
         public ValuesUpdateForPlayerWithMaskSender(DynamicObject owner)
         {
             _owner = owner;

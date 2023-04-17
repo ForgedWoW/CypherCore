@@ -108,10 +108,8 @@ public class PlayerAchievementMgr : AchievementManager
         var titleId = reward.TitleId[achievement.Id == 1793 ? (int)_owner.NativeGender : _owner.Team == TeamFaction.Alliance ? 0 : 1];
 
         if (titleId != 0)
-        {
             if (CliDB.CharTitlesStorage.TryGetValue(titleId, out var titleEntry))
                 _owner.SetTitle(titleEntry);
-        }
 
         // mail
         if (reward.SenderCreatureId == 0)
@@ -210,10 +208,8 @@ public class PlayerAchievementMgr : AchievementManager
                     var titleId = reward.TitleId[Player.TeamForRace(_owner.Race, CliDB) == TeamFaction.Alliance ? 0 : 1];
 
                     if (titleId != 0)
-                    {
                         if (CliDB.CharTitlesStorage.TryGetValue(titleId, out var titleEntry))
                             _owner.SetTitle(titleEntry);
-                    }
                 }
 
                 CompletedAchievements[achievementid] = ca;

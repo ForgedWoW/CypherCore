@@ -10,6 +10,7 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 internal class PlayOrphanSpellVisual : ServerPacket
 {
     public float LaunchDelay;
+
     // Always zero
     public float MinDuration;
 
@@ -17,11 +18,14 @@ internal class PlayOrphanSpellVisual : ServerPacket
     public Vector3 SourceRotation;
     public bool SpeedAsTime;
     public uint SpellVisualID;
+
     public ObjectGuid Target; // Exclusive with TargetLocation
-                              // Vector of rotations, Orientation is z
+
+    // Vector of rotations, Orientation is z
     public Vector3 TargetLocation;
 
     public float TravelSpeed;
+
     // Exclusive with Target
     public PlayOrphanSpellVisual() : base(ServerOpcodes.PlayOrphanSpellVisual) { }
 

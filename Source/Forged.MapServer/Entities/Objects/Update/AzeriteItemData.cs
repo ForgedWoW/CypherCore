@@ -98,6 +98,7 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
+
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, AzeriteItem owner, Player receiver)
     {
         data.WriteBits(changesMask.GetBlock(0), 10);

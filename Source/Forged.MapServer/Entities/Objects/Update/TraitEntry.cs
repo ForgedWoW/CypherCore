@@ -13,6 +13,7 @@ public class TraitEntry : IEquatable<TraitEntry>
     public int Rank;
     public int TraitNodeEntryID;
     public int TraitNodeID;
+
     public bool Equals(TraitEntry right)
     {
         return TraitNodeID == right.TraitNodeID && TraitNodeEntryID == right.TraitNodeEntryID && Rank == right.Rank && GrantedRanks == right.GrantedRanks;

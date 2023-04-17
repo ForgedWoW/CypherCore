@@ -31,9 +31,7 @@ public class Grid
         }
     }
 
-    public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.Id, cell.Data.GridX, cell.Data.GridY, expiry, unload)
-    {
-    }
+    public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.Id, cell.Data.GridX, cell.Data.GridY, expiry, unload) { }
 
     public uint GridId { get; }
 
@@ -85,9 +83,7 @@ public class Grid
                                          map.Id);
                     }
                     else
-                    {
                         map.ResetGridExpiry(this, 0.1f);
-                    }
                 }
 
                 break;
