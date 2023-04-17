@@ -13,6 +13,7 @@ public class CustomChatTextBuilder : MessageBuilder
     private readonly WorldObject _source;
     private readonly WorldObject _target;
     private readonly string _text;
+
     public CustomChatTextBuilder(WorldObject obj, ChatMsg msgType, string text, Language language = Language.Universal, WorldObject target = null)
     {
         _source = obj;
@@ -22,7 +23,7 @@ public class CustomChatTextBuilder : MessageBuilder
         _target = target;
     }
 
-    public override ChatPacketSender Invoke(Locale locale)
+    public override ChatPacketSender Invoke(Locale locale = Locale.enUS)
     {
         return new ChatPacketSender(_msgType, _language, _source, _target, _text, 0, locale);
     }

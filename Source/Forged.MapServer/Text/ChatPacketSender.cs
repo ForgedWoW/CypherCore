@@ -22,6 +22,7 @@ public class ChatPacketSender : IDoWork<Player>
     private readonly WorldObject _sender;
     private readonly string _text;
     private readonly ChatMsg _type;
+
     public ChatPacketSender(ChatMsg chatType, Language language, WorldObject sender, WorldObject receiver, string message, uint achievementId = 0, Locale locale = Locale.enUS)
     {
         _type = chatType;
@@ -49,7 +50,7 @@ public class ChatPacketSender : IDoWork<Player>
         if (TranslatedPacket == null)
         {
             TranslatedPacket = new ChatPkt();
-            TranslatedPacket.Initialize(_type, _language, _sender, _receiver, Global.LanguageMgr.Translate(_text, (uint)_language, player.Session.SessionDbcLocale), _achievementId, "", _locale);
+            TranslatedPacket.Initialize(_type, _language, _sender, _receiver, player.LanguageManager.Translate(_text, (uint)_language, player.Session.SessionDbcLocale), _achievementId, "", _locale);
             TranslatedPacket.Write();
         }
 

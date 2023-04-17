@@ -12,6 +12,7 @@ public class CreatureTextLocalizer : IDoWork<Player>
     private readonly MessageBuilder _builder;
     private readonly ChatMsg _msgType;
     private readonly Dictionary<Locale, ChatPacketSender> _packetCache = new();
+
     public CreatureTextLocalizer(MessageBuilder builder, ChatMsg msgType)
     {
         _builder = builder;
@@ -20,18 +21,18 @@ public class CreatureTextLocalizer : IDoWork<Player>
 
     public void Invoke(Player player)
     {
-        var loc_idx = player.Session.SessionDbLocaleIndex;
+        var locIdx = player.Session.SessionDbLocaleIndex;
         ChatPacketSender sender;
 
         // create if not cached yet
-        if (!_packetCache.ContainsKey(loc_idx))
+        if (!_packetCache.ContainsKey(locIdx))
         {
-            sender = _builder.Invoke(loc_idx);
-            _packetCache[loc_idx] = sender;
+            sender = _builder.Invoke(locIdx);
+            _packetCache[locIdx] = sender;
         }
         else
         {
-            sender = _packetCache[loc_idx];
+            sender = _packetCache[locIdx];
         }
 
         switch (_msgType)
@@ -39,11 +40,10 @@ public class CreatureTextLocalizer : IDoWork<Player>
             case ChatMsg.MonsterWhisper:
             case ChatMsg.RaidBossWhisper:
                 var message = sender.UntranslatedPacket;
-                message.SetReceiver(player, loc_idx);
+                message.SetReceiver(player, locIdx);
                 player.SendPacket(message);
 
                 break;
-            
         }
 
         sender.Invoke(player);

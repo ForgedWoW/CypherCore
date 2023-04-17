@@ -25,16 +25,18 @@ namespace Forged.MapServer.Text;
 
 public sealed class CreatureTextManager
 {
+    private readonly CellCalculator _cellCalculator;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
     private readonly LanguageManager _languageManager;
     private readonly Dictionary<CreatureTextId, CreatureTextLocale> _localeTextMap = new();
+    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
     private readonly WorldDatabase _worldDatabase;
     private readonly WorldManager _worldManager;
     public CreatureTextManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, LanguageManager languageManager,
-                               DB2Manager db2Manager, WorldManager worldManager)
+                               DB2Manager db2Manager, WorldManager worldManager, GameObjectManager objectManager, CellCalculator cellCalculator)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -42,6 +44,8 @@ public sealed class CreatureTextManager
         _languageManager = languageManager;
         _db2Manager = db2Manager;
         _worldManager = worldManager;
+        _objectManager = objectManager;
+        _cellCalculator = cellCalculator;
     }
 
     public string GetLocalizedChatString(uint entry, Gender gender, byte textGroup, uint id, Locale locale = Locale.enUS)
@@ -58,7 +62,7 @@ public sealed class CreatureTextManager
         {
             creatureTextEntry = creatureTextEntryList[i];
 
-            if (creatureTextEntry.id == id)
+            if (creatureTextEntry.ID == id)
                 break;
         }
 
@@ -69,16 +73,15 @@ public sealed class CreatureTextManager
             locale = Locale.enUS;
 
         string baseText;
+
         if (_cliDB.BroadcastTextStorage.TryGetValue(creatureTextEntry.BroadcastTextId, out var bct))
             baseText = _db2Manager.GetBroadcastTextValue(bct, locale, gender);
         else
-            baseText = creatureTextEntry.text;
+            baseText = creatureTextEntry.Text;
 
         if (locale != Locale.enUS && bct == null)
-        {
             if (_localeTextMap.TryGetValue(new CreatureTextId(entry, textGroup, id), out var creatureTextLocale))
-                GameObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
-        }
+                _objectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
 
         return baseText;
     }
@@ -124,7 +127,7 @@ public sealed class CreatureTextManager
                 _localeTextMap[key] = new CreatureTextLocale();
 
             var data = _localeTextMap[key];
-            GameObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
+            _objectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -154,80 +157,80 @@ public sealed class CreatureTextManager
         {
             CreatureTextEntry temp = new()
             {
-                creatureId = result.Read<uint>(0),
-                groupId = result.Read<byte>(1),
-                id = result.Read<byte>(2),
-                text = result.Read<string>(3),
-                type = (ChatMsg)result.Read<byte>(4),
-                lang = (Language)result.Read<byte>(5),
-                probability = result.Read<float>(6),
-                emote = (Emote)result.Read<uint>(7),
-                duration = result.Read<uint>(8),
-                sound = result.Read<uint>(9),
+                CreatureId = result.Read<uint>(0),
+                GroupId = result.Read<byte>(1),
+                ID = result.Read<byte>(2),
+                Text = result.Read<string>(3),
+                Type = (ChatMsg)result.Read<byte>(4),
+                Lang = (Language)result.Read<byte>(5),
+                Probability = result.Read<float>(6),
+                Emote = (Emote)result.Read<uint>(7),
+                Duration = result.Read<uint>(8),
+                Sound = result.Read<uint>(9),
                 SoundPlayType = (SoundKitPlayType)result.Read<byte>(10),
                 BroadcastTextId = result.Read<uint>(11),
                 TextRange = (CreatureTextRange)result.Read<byte>(12)
             };
 
-            if (temp.sound != 0)
-                if (!_cliDB.SoundKitStorage.ContainsKey(temp.sound))
+            if (temp.Sound != 0)
+                if (!_cliDB.SoundKitStorage.ContainsKey(temp.Sound))
                 {
                     if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE creature_text SET Sound = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+                        _worldDatabase.Execute($"UPDATE creature_text SET Sound = 0 WHERE CreatureID = {temp.CreatureId} AND GroupID = {temp.GroupId}");
                     else
-                        Log.Logger.Error($"GossipManager: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Sound {temp.sound} but sound does not exist.");
+                        Log.Logger.Error($"GossipManager: Entry {temp.CreatureId}, Group {temp.GroupId} in table `creature_texts` has Sound {temp.Sound} but sound does not exist.");
 
-                    temp.sound = 0;
+                    temp.Sound = 0;
                 }
 
             if (temp.SoundPlayType >= SoundKitPlayType.Max)
             {
                 if (_configuration.GetDefaultValue("load:autoclean", false))
-                    _worldDatabase.Execute($"UPDATE creature_text SET SoundPlayType = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+                    _worldDatabase.Execute($"UPDATE creature_text SET SoundPlayType = 0 WHERE CreatureID = {temp.CreatureId} AND GroupID = {temp.GroupId}");
                 else
-                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_text` has PlayType {temp.SoundPlayType} but does not exist.");
+                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.CreatureId}, Group {temp.GroupId} in table `creature_text` has PlayType {temp.SoundPlayType} but does not exist.");
 
                 temp.SoundPlayType = SoundKitPlayType.Normal;
             }
 
-            if (temp.lang != Language.Universal && !_languageManager.IsLanguageExist(temp.lang))
+            if (temp.Lang != Language.Universal && !_languageManager.IsLanguageExist(temp.Lang))
             {
                 if (_configuration.GetDefaultValue("load:autoclean", false))
-                    _worldDatabase.Execute($"UPDATE creature_text SET Language = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+                    _worldDatabase.Execute($"UPDATE creature_text SET Language = 0 WHERE CreatureID = {temp.CreatureId} AND GroupID = {temp.GroupId}");
                 else
-                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` using Language {temp.lang} but Language does not exist.");
+                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.CreatureId}, Group {temp.GroupId} in table `creature_texts` using Language {temp.Lang} but Language does not exist.");
 
-                temp.lang = Language.Universal;
+                temp.Lang = Language.Universal;
             }
 
-            if (temp.type >= ChatMsg.Max)
+            if (temp.Type >= ChatMsg.Max)
             {
                 if (_configuration.GetDefaultValue("load:autoclean", false))
-                    _worldDatabase.Execute($"UPDATE creature_text SET Type = {ChatMsg.Say} WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+                    _worldDatabase.Execute($"UPDATE creature_text SET Type = {ChatMsg.Say} WHERE CreatureID = {temp.CreatureId} AND GroupID = {temp.GroupId}");
                 else
-                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Type {temp.type} but this Chat Type does not exist.");
+                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.CreatureId}, Group {temp.GroupId} in table `creature_texts` has Type {temp.Type} but this Chat Type does not exist.");
 
-                temp.type = ChatMsg.Say;
+                temp.Type = ChatMsg.Say;
             }
 
-            if (temp.emote != 0)
-                if (!_cliDB.EmotesStorage.ContainsKey((uint)temp.emote))
+            if (temp.Emote != 0)
+                if (!_cliDB.EmotesStorage.ContainsKey((uint)temp.Emote))
                 {
                     if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE creature_text SET Emote = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+                        _worldDatabase.Execute($"UPDATE creature_text SET Emote = 0 WHERE CreatureID = {temp.CreatureId} AND GroupID = {temp.GroupId}");
                     else
-                        Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Emote {temp.emote} but emote does not exist.");
+                        Log.Logger.Error($"CreatureTextMgr: Entry {temp.CreatureId}, Group {temp.GroupId} in table `creature_texts` has Emote {temp.Emote} but emote does not exist.");
 
-                    temp.emote = Emote.OneshotNone;
+                    temp.Emote = Emote.OneshotNone;
                 }
 
             if (temp.BroadcastTextId != 0)
                 if (!_cliDB.BroadcastTextStorage.ContainsKey(temp.BroadcastTextId))
                 {
                     if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE creature_text SET BroadcastTextId = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+                        _worldDatabase.Execute($"UPDATE creature_text SET BroadcastTextId = 0 WHERE CreatureID = {temp.CreatureId} AND GroupID = {temp.GroupId}");
                     else
-                        Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_texts` has non-existing or incompatible BroadcastTextId {temp.BroadcastTextId}.");
+                        Log.Logger.Error($"CreatureTextMgr: Entry {temp.CreatureId}, Group {temp.GroupId}, Id {temp.ID} in table `creature_texts` has non-existing or incompatible BroadcastTextId {temp.BroadcastTextId}.");
 
                     temp.BroadcastTextId = 0;
                 }
@@ -235,25 +238,26 @@ public sealed class CreatureTextManager
             if (temp.TextRange > CreatureTextRange.Personal)
             {
                 if (_configuration.GetDefaultValue("load:autoclean", false))
-                    _worldDatabase.Execute($"UPDATE creature_text SET TextRange = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+                    _worldDatabase.Execute($"UPDATE creature_text SET TextRange = 0 WHERE CreatureID = {temp.CreatureId} AND GroupID = {temp.GroupId}");
                 else
-                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_text` has incorrect TextRange {temp.TextRange}.");
+                    Log.Logger.Error($"CreatureTextMgr: Entry {temp.CreatureId}, Group {temp.GroupId}, Id {temp.ID} in table `creature_text` has incorrect TextRange {temp.TextRange}.");
 
                 temp.TextRange = CreatureTextRange.Normal;
             }
 
-            if (!_textMap.ContainsKey(temp.creatureId))
+            if (!_textMap.ContainsKey(temp.CreatureId))
             {
-                _textMap[temp.creatureId] = new MultiMap<byte, CreatureTextEntry>();
+                _textMap[temp.CreatureId] = new MultiMap<byte, CreatureTextEntry>();
                 ++creatureCount;
             }
 
-            _textMap[temp.creatureId].Add(temp.groupId, temp);
+            _textMap[temp.CreatureId].Add(temp.GroupId, temp);
             ++textCount;
         } while (result.NextRow());
 
         Log.Logger.Information($"Loaded {textCount} creature texts for {creatureCount} creatures in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
+
     public uint SendChat(Creature source, byte textGroup, WorldObject whisperTarget = null, ChatMsg msgType = ChatMsg.Addon, Language language = Language.Addon,
                          CreatureTextRange range = CreatureTextRange.Normal, uint sound = 0, SoundKitPlayType playType = SoundKitPlayType.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, Player srcPlr = null)
     {
@@ -278,7 +282,7 @@ public sealed class CreatureTextManager
         var repeatGroup = source.GetTextRepeatGroup(textGroup);
 
         foreach (var entry in textGroupContainer)
-            if (!repeatGroup.Contains(entry.id))
+            if (!repeatGroup.Contains(entry.ID))
                 tempGroup.Add(entry);
 
         if (tempGroup.Empty())
@@ -287,11 +291,11 @@ public sealed class CreatureTextManager
             tempGroup = textGroupContainer;
         }
 
-        var textEntry = tempGroup.SelectRandomElementByWeight(t => t.probability);
+        var textEntry = tempGroup.SelectRandomElementByWeight(t => t.Probability);
 
-        var finalType = msgType == ChatMsg.Addon ? textEntry.type : msgType;
-        var finalLang = language == Language.Addon ? textEntry.lang : language;
-        var finalSound = textEntry.sound;
+        var finalType = msgType == ChatMsg.Addon ? textEntry.Type : msgType;
+        var finalLang = language == Language.Addon ? textEntry.Lang : language;
+        var finalSound = textEntry.Sound;
         var finalPlayType = textEntry.SoundPlayType;
 
         if (sound != 0)
@@ -318,30 +322,28 @@ public sealed class CreatureTextManager
 
         Unit finalSource = source;
 
-        if (srcPlr)
+        if (srcPlr != null)
             finalSource = srcPlr;
 
-        if (finalSource == null)
-            return 0;
+        if (textEntry.Emote != 0)
+            SendEmote(finalSource, textEntry.Emote);
 
-        if (textEntry.emote != 0)
-            SendEmote(finalSource, textEntry.emote);
-
-        if (srcPlr)
+        if (srcPlr != null)
         {
-            PlayerTextBuilder builder = new(source, finalSource, finalSource.Gender, finalType, textEntry.groupId, textEntry.id, finalLang, whisperTarget);
+            PlayerTextBuilder builder = new(source, finalSource, finalSource.Gender, finalType, textEntry.GroupId, textEntry.ID, finalLang, whisperTarget);
             SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
         }
         else
         {
-            CreatureTextBuilder builder = new(finalSource, finalSource.Gender, finalType, textEntry.groupId, textEntry.id, finalLang, whisperTarget);
+            CreatureTextBuilder builder = new(finalSource, finalSource.Gender, finalType, textEntry.GroupId, textEntry.ID, finalLang, whisperTarget);
             SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
         }
 
-        source.SetTextRepeatId(textGroup, textEntry.id);
+        source.SetTextRepeatId(textGroup, textEntry.ID);
 
-        return textEntry.duration;
+        return textEntry.Duration;
     }
+
     public void SendChatPacket(WorldObject source, MessageBuilder builder, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false)
     {
         if (source == null)
@@ -376,7 +378,7 @@ public sealed class CreatureTextManager
                 var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
-                    if (pl.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
+                    if (pl.Location.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                         localizer.Invoke(pl);
 
                 return;
@@ -387,7 +389,7 @@ public sealed class CreatureTextManager
                 var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
-                    if (pl.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
+                    if (pl.Location.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                         localizer.Invoke(pl);
 
                 return;
@@ -425,17 +427,18 @@ public sealed class CreatureTextManager
 
                 return;
             case CreatureTextRange.Normal:
-            
+            default:
+                break;
         }
 
         var dist = GetRangeForChatType(msgType);
         var worker = new PlayerDistWorker(source, dist, localizer, GridType.World);
-        CellCalculator.VisitGrid(source, worker, dist);
+        _cellCalculator.VisitGrid(source, worker, dist);
     }
 
     public void SendSound(Creature source, uint sound, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, uint keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType.Normal)
     {
-        if (sound == 0 || !source)
+        if (sound == 0 || source == null)
             return;
 
         switch (playType)
@@ -483,12 +486,10 @@ public sealed class CreatureTextManager
 
         return true;
     }
+
     private void SendEmote(Unit source, Emote emote)
     {
-        if (!source)
-            return;
-
-        source.HandleEmoteCommand(emote);
+        source?.HandleEmoteCommand(emote);
     }
 
     private void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, TeamFaction team, bool gmOnly)
@@ -498,18 +499,7 @@ public sealed class CreatureTextManager
         switch (msgType)
         {
             case ChatMsg.MonsterParty:
-                if (!whisperTarget)
-                    return;
-
-                var whisperPlayer = whisperTarget.AsPlayer;
-
-                if (whisperPlayer)
-                {
-                    var group = whisperPlayer.Group;
-
-                    if (group)
-                        group.BroadcastWorker(player => player.SendPacket(data));
-                }
+                whisperTarget?.AsPlayer?.Group?.BroadcastWorker(player => player.SendPacket(data));
 
                 return;
             case ChatMsg.MonsterWhisper:
@@ -517,10 +507,7 @@ public sealed class CreatureTextManager
             {
                 if (range == CreatureTextRange.Normal) //ignores team and gmOnly
                 {
-                    if (!whisperTarget || !whisperTarget.IsTypeId(TypeId.Player))
-                        return;
-
-                    whisperTarget.AsPlayer.SendPacket(data);
+                    whisperTarget?.AsPlayer?.SendPacket(data);
 
                     return;
                 }
@@ -537,7 +524,7 @@ public sealed class CreatureTextManager
                 var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
-                    if (pl.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
+                    if (pl.Location.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                         pl.SendPacket(data);
 
                 return;
@@ -548,7 +535,7 @@ public sealed class CreatureTextManager
                 var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
-                    if (pl.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
+                    if (pl.Location.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                         pl.SendPacket(data);
 
                 return;
@@ -586,7 +573,8 @@ public sealed class CreatureTextManager
 
                 return;
             case CreatureTextRange.Normal:
-            
+            default:
+                break;
         }
 
         source.SendMessageToSetInRange(data, dist, true);

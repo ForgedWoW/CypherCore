@@ -18,6 +18,8 @@ public class PlayerTextBuilder : MessageBuilder
     private readonly WorldObject _target;
     private readonly byte _textGroup;
     private readonly uint _textId;
+    private readonly CreatureTextManager _textManager;
+
     public PlayerTextBuilder(WorldObject obj, WorldObject speaker, Gender gender, ChatMsg msgtype, byte textGroup, uint id, Language language, WorldObject target)
     {
         _source = obj;
@@ -28,13 +30,14 @@ public class PlayerTextBuilder : MessageBuilder
         _textId = id;
         _language = language;
         _target = target;
+        _textManager = obj.ClassFactory.Resolve<CreatureTextManager>();
     }
 
-    public override PacketSenderOwning<ChatPkt> Invoke(Locale loc_idx = Locale.enUS)
+    public override PacketSenderOwning<ChatPkt> Invoke(Locale locIdx = Locale.enUS)
     {
-        var text = Global.CreatureTextMgr.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, loc_idx);
+        var text = _textManager.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, locIdx);
         PacketSenderOwning<ChatPkt> chat = new();
-        chat.Data.Initialize(_msgType, _language, _talker, _target, text, 0, "", loc_idx);
+        chat.Data.Initialize(_msgType, _language, _talker, _target, text, 0, "", locIdx);
 
         return chat;
     }
