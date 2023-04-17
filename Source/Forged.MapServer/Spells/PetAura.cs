@@ -8,21 +8,24 @@ namespace Forged.MapServer.Spells;
 public class PetAura
 {
     private readonly Dictionary<uint, uint> _auras = new();
-    private readonly double _damage;
-    private readonly bool _removeOnChangePet;
+
     public PetAura()
     {
-        _removeOnChangePet = false;
-        _damage = 0;
+        IsRemovedOnChangePet = false;
+        Damage = 0;
     }
 
     public PetAura(uint petEntry, uint aura, bool removeOnChangePet, double damage)
     {
-        _removeOnChangePet = removeOnChangePet;
-        _damage = damage;
+        IsRemovedOnChangePet = removeOnChangePet;
+        Damage = damage;
 
         _auras[petEntry] = aura;
     }
+
+    public double Damage { get; }
+
+    public bool IsRemovedOnChangePet { get; }
 
     public void AddAura(uint petEntry, uint aura)
     {
@@ -36,18 +39,6 @@ public class PetAura
 
         auraId = _auras.LookupByKey(0);
 
-        if (auraId != 0)
-            return auraId;
-
-        return 0;
-    }
-    public double GetDamage()
-    {
-        return _damage;
-    }
-
-    public bool IsRemovedOnChangePet()
-    {
-        return _removeOnChangePet;
+        return auraId != 0 ? auraId : (uint)0;
     }
 }

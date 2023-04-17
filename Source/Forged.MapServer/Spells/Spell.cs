@@ -9191,5 +9191,3 @@ public partial class Spell : IDisposable
             _channelTargetEffectMask.Clear();
     }
 }
-
-// Spell modifier (used for modify other spells)

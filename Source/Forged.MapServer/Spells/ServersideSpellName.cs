@@ -9,7 +9,7 @@ namespace Forged.MapServer.Spells;
 
 internal struct ServersideSpellName
 {
-    public SpellNameRecord Name;
+    public SpellNameRecord Name { get; set; }
 
     public ServersideSpellName(uint id, string name)
     {

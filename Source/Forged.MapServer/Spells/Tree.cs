@@ -13,5 +13,5 @@ internal class Tree
     public List<TraitCostRecord> Costs = new();
     public List<TraitCurrencyRecord> Currencies = new();
     public TraitTreeRecord Data;
-    public List<Node> Nodes = new();
+    public List<TraitNode> Nodes = new();
 }

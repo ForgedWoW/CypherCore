@@ -7,10 +7,6 @@ namespace Forged.MapServer.Spells;
 
 public class SpellDestination
 {
-    public WorldLocation Position;
-    public ObjectGuid TransportGuid;
-    public Position TransportOffset;
-
     public SpellDestination()
     {
         Position = new WorldLocation();
@@ -20,30 +16,33 @@ public class SpellDestination
 
     public SpellDestination(float x, float y, float z, float orientation = 0.0f, uint mapId = 0xFFFFFFFF) : this()
     {
-        Position.Relocate(x, y, z, orientation);
+        Position = new WorldLocation(mapId, x, y, z, orientation);
         TransportGuid = ObjectGuid.Empty;
-        Position.MapId = mapId;
     }
 
     public SpellDestination(Position pos) : this()
     {
-        Position.Relocate(pos);
+        Position = new WorldLocation(pos);
         TransportGuid = ObjectGuid.Empty;
     }
 
     public SpellDestination(WorldLocation loc) : this()
     {
-        Position.WorldRelocate(loc);
+        Position = new WorldLocation(loc);
         TransportGuid.Clear();
-        TransportOffset.Relocate(0, 0, 0, 0);
+        TransportOffset = new Position();
     }
 
     public SpellDestination(WorldObject wObj) : this()
     {
         TransportGuid = wObj.GetTransGUID();
-        TransportOffset.Relocate(wObj.MovementInfo.Transport.Pos.X, wObj.MovementInfo.Transport.Pos.Y, wObj.MovementInfo.Transport.Pos.Z, wObj.MovementInfo.Transport.Pos.Orientation);
-        Position.Relocate(wObj.Location);
+        TransportOffset = new Position(wObj.MovementInfo.Transport.Pos.X, wObj.MovementInfo.Transport.Pos.Y, wObj.MovementInfo.Transport.Pos.Z, wObj.MovementInfo.Transport.Pos.Orientation);
+        Position = new WorldLocation(wObj.Location);
     }
+
+    public WorldLocation Position { get; set; }
+    public ObjectGuid TransportGuid { get; set; }
+    public Position TransportOffset { get; set; }
 
     public void Relocate(Position pos)
     {

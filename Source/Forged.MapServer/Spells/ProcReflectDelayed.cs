@@ -12,6 +12,7 @@ internal class ProcReflectDelayed : BasicEvent
 {
     private readonly ObjectGuid _casterGuid;
     private readonly Unit _victim;
+
     public ProcReflectDelayed(Unit owner, ObjectGuid casterGuid)
     {
         _victim = owner;
@@ -20,18 +21,18 @@ internal class ProcReflectDelayed : BasicEvent
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        var caster = Global.ObjAccessor.GetUnit(_victim, _casterGuid);
+        var caster = _victim.ObjectAccessor.GetUnit(_victim, _casterGuid);
 
-        if (!caster)
+        if (caster == null)
             return true;
 
-        var typeMaskActor = ProcFlags.None;
-        var typeMaskActionTarget = ProcFlags.TakeHarmfulSpell | ProcFlags.TakeHarmfulAbility;
-        var spellTypeMask = ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal;
-        var spellPhaseMask = ProcFlagsSpellPhase.None;
-        var hitMask = ProcFlagsHit.Reflect;
+        const ProcFlags typeMaskActor = ProcFlags.None;
+        const ProcFlags typeMaskActionTarget = ProcFlags.TakeHarmfulSpell | ProcFlags.TakeHarmfulAbility;
+        const ProcFlagsSpellType spellTypeMask = ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal;
+        const ProcFlagsSpellPhase spellPhaseMask = ProcFlagsSpellPhase.None;
+        const ProcFlagsHit hitMask = ProcFlagsHit.Reflect;
 
-        UnitCombatHelpers.ProcSkillsAndAuras(caster, _victim, new ProcFlagsInit(typeMaskActor), new ProcFlagsInit(typeMaskActionTarget), spellTypeMask, spellPhaseMask, hitMask, null, null, null);
+        _victim.UnitCombatHelpers.ProcSkillsAndAuras(caster, _victim, new ProcFlagsInit(), new ProcFlagsInit(typeMaskActionTarget), spellTypeMask, spellPhaseMask, hitMask, null, null, null);
 
         return true;
     }

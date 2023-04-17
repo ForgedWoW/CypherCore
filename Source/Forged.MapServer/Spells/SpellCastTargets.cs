@@ -22,6 +22,7 @@ public class SpellCastTargets
 
     // object GUID/etc, can be used always
     private ObjectGuid _objectTargetGuid;
+
     public SpellCastTargets()
     {
         TargetString = "";
@@ -43,12 +44,8 @@ public class SpellCastTargets
         if (spellCastRequest.Target.SrcLocation != null)
         {
             Src.TransportGuid = spellCastRequest.Target.SrcLocation.Transport;
-            Position pos;
 
-            if (!Src.TransportGuid.IsEmpty)
-                pos = Src.TransportOffset;
-            else
-                pos = Src.Position;
+            var pos = !Src.TransportGuid.IsEmpty ? Src.TransportOffset : Src.Position;
 
             pos.Relocate(spellCastRequest.Target.SrcLocation.Location);
 
@@ -59,12 +56,8 @@ public class SpellCastTargets
         if (spellCastRequest.Target.DstLocation != null)
         {
             _dst.TransportGuid = spellCastRequest.Target.DstLocation.Transport;
-            Position pos;
 
-            if (!_dst.TransportGuid.IsEmpty)
-                pos = _dst.TransportOffset;
-            else
-                pos = _dst.Position;
+            var pos = !_dst.TransportGuid.IsEmpty ? _dst.TransportOffset : _dst.Position;
 
             pos.Relocate(spellCastRequest.Target.DstLocation.Location);
 
@@ -78,13 +71,7 @@ public class SpellCastTargets
         Update(caster);
     }
 
-    public Corpse CorpseTarget
-    {
-        get
-        {
-            return ObjectTarget?.AsCorpse;
-        }
-    }
+    public Corpse CorpseTarget => ObjectTarget?.AsCorpse;
 
     public ObjectGuid CorpseTargetGUID
     {
@@ -98,6 +85,7 @@ public class SpellCastTargets
     }
 
     public float Dist2d => Src.Position.GetExactDist2d(_dst.Position);
+
     public SpellDestination Dst
     {
         get => _dst;
@@ -109,12 +97,10 @@ public class SpellCastTargets
     }
 
     public WorldLocation DstPos => _dst.Position;
+
     public GameObject GOTarget
     {
-        get
-        {
-            return ObjectTarget?.AsGameObject;
-        }
+        get => ObjectTarget?.AsGameObject;
 
         set
         {
@@ -130,6 +116,7 @@ public class SpellCastTargets
     public bool HasDst => Convert.ToBoolean(TargetMask & SpellCastTargetFlags.DestLocation);
     public bool HasSrc => Convert.ToBoolean(TargetMask & SpellCastTargetFlags.SourceLocation);
     public bool HasTraj => Speed != 0;
+
     public Item ItemTarget
     {
         get => _itemTarget;
@@ -160,13 +147,7 @@ public class SpellCastTargets
 
     public Unit UnitTarget
     {
-        get
-        {
-            if (ObjectTarget)
-                return ObjectTarget.AsUnit;
-
-            return null;
-        }
+        get => ObjectTarget?.AsUnit;
 
         set
         {
@@ -179,26 +160,8 @@ public class SpellCastTargets
         }
     }
 
-    public ObjectGuid UnitTargetGUID
-    {
-        get
-        {
-            if (_objectTargetGuid.IsUnit)
-                return _objectTargetGuid;
+    public ObjectGuid UnitTargetGUID => _objectTargetGuid.IsUnit ? _objectTargetGuid : ObjectGuid.Empty;
 
-            return ObjectGuid.Empty;
-        }
-    }
-    private ObjectGuid GOTargetGUID
-    {
-        get
-        {
-            if (_objectTargetGuid.IsAnyTypeGameObject)
-                return _objectTargetGuid;
-
-            return ObjectGuid.Empty;
-        }
-    }
     public void ModDst(Position pos)
     {
         _dst.Relocate(pos);
@@ -277,7 +240,7 @@ public class SpellCastTargets
 
     public void Update(WorldObject caster)
     {
-        ObjectTarget = _objectTargetGuid == caster.GUID ? caster : Global.ObjAccessor.GetWorldObject(caster, _objectTargetGuid);
+        ObjectTarget = _objectTargetGuid == caster.GUID ? caster : caster.ObjectAccessor.GetWorldObject(caster, _objectTargetGuid);
 
         _itemTarget = null;
 
@@ -303,7 +266,7 @@ public class SpellCastTargets
         // update positions by transport move
         if (HasSrc && !Src.TransportGuid.IsEmpty)
         {
-            var transport = Global.ObjAccessor.GetWorldObject(caster, Src.TransportGuid);
+            var transport = caster.ObjectAccessor.GetWorldObject(caster, Src.TransportGuid);
 
             if (transport != null)
             {
@@ -312,25 +275,25 @@ public class SpellCastTargets
             }
         }
 
-        if (HasDst && !_dst.TransportGuid.IsEmpty)
-        {
-            var transport = Global.ObjAccessor.GetWorldObject(caster, _dst.TransportGuid);
+        if (!HasDst || _dst.TransportGuid.IsEmpty)
+            return;
 
-            if (transport != null)
-            {
-                _dst.Position.Relocate(transport.Location);
-                _dst.Position.RelocateOffset(_dst.TransportOffset);
-            }
-        }
+        var destTransport = caster.ObjectAccessor.GetWorldObject(caster, _dst.TransportGuid);
+
+        if (destTransport == null)
+            return;
+
+        _dst.Position.Relocate(destTransport.Location);
+        _dst.Position.RelocateOffset(_dst.TransportOffset);
     }
 
     public void UpdateTradeSlotItem()
     {
-        if (_itemTarget != null && Convert.ToBoolean(TargetMask & SpellCastTargetFlags.TradeItem))
-        {
-            ItemTargetGuid = _itemTarget.GUID;
-            ItemTargetEntry = _itemTarget.Entry;
-        }
+        if (_itemTarget == null || !Convert.ToBoolean(TargetMask & SpellCastTargetFlags.TradeItem))
+            return;
+
+        ItemTargetGuid = _itemTarget.GUID;
+        ItemTargetEntry = _itemTarget.Entry;
     }
 
     public void Write(SpellTargetData data)
@@ -340,20 +303,17 @@ public class SpellCastTargets
         if (TargetMask.HasAnyFlag(SpellCastTargetFlags.Unit | SpellCastTargetFlags.CorpseAlly | SpellCastTargetFlags.Gameobject | SpellCastTargetFlags.CorpseEnemy | SpellCastTargetFlags.UnitMinipet))
             data.Unit = _objectTargetGuid;
 
-        if (TargetMask.HasAnyFlag(SpellCastTargetFlags.Item | SpellCastTargetFlags.TradeItem) && _itemTarget)
+        if (TargetMask.HasAnyFlag(SpellCastTargetFlags.Item | SpellCastTargetFlags.TradeItem) && _itemTarget != null)
             data.Item = _itemTarget.GUID;
 
         if (TargetMask.HasAnyFlag(SpellCastTargetFlags.SourceLocation))
         {
             TargetLocation target = new()
             {
-                Transport = Src.TransportGuid // relative position guid here - transport for example
+                Transport = Src.TransportGuid,
+                Location = !Src.TransportGuid.IsEmpty ? Src.TransportOffset : Src.Position
+                // relative position guid here - transport for example
             };
-
-            if (!Src.TransportGuid.IsEmpty)
-                target.Location = Src.TransportOffset;
-            else
-                target.Location = Src.Position;
 
             data.SrcLocation = target;
         }
@@ -362,29 +322,15 @@ public class SpellCastTargets
         {
             TargetLocation target = new()
             {
-                Transport = _dst.TransportGuid // relative position guid here - transport for example
+                Transport = _dst.TransportGuid,
+                Location = !_dst.TransportGuid.IsEmpty ? _dst.TransportOffset : _dst.Position
+                // relative position guid here - transport for example
             };
-
-            if (!_dst.TransportGuid.IsEmpty)
-                target.Location = _dst.TransportOffset;
-            else
-                target.Location = _dst.Position;
 
             data.DstLocation = target;
         }
 
         if (Convert.ToBoolean(TargetMask & SpellCastTargetFlags.String))
             data.Name = TargetString;
-    }
-    private void SetSrc(float x, float y, float z)
-    {
-        Src = new SpellDestination(x, y, z);
-        TargetMask |= SpellCastTargetFlags.SourceLocation;
-    }
-
-    private void SetSrc(Position pos)
-    {
-        Src = new SpellDestination(pos);
-        TargetMask |= SpellCastTargetFlags.SourceLocation;
     }
 }

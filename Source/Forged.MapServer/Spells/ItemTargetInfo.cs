@@ -8,7 +8,7 @@ namespace Forged.MapServer.Spells;
 
 public class ItemTargetInfo : TargetInfoBase
 {
-    public Item TargetItem;
+    public Item TargetItem { get; set; }
 
     public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
     {

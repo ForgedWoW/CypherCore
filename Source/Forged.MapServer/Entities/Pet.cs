@@ -228,7 +228,7 @@ public class Pet : Guardian
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 
         if (auraId == 35696) // Demonic Knowledge
-            args.AddSpellMod(SpellValueMod.BasePoint0, MathFunctions.CalculatePct(aura.GetDamage(), GetStat(Stats.Stamina) + GetStat(Stats.Intellect)));
+            args.AddSpellMod(SpellValueMod.BasePoint0, MathFunctions.CalculatePct(aura.Damage, GetStat(Stats.Stamina) + GetStat(Stats.Intellect)));
 
         CastSpell(this, auraId, args);
     }
@@ -1458,7 +1458,7 @@ public class Pet : Guardian
             return;
 
         foreach (var pa in owner.PetAuras)
-            if (!current && pa.IsRemovedOnChangePet())
+            if (!current && pa.IsRemovedOnChangePet)
                 owner.RemovePetAura(pa);
             else
                 CastPetAura(pa);

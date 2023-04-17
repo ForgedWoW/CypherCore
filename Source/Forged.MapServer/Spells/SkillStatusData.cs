@@ -7,8 +7,8 @@ namespace Forged.MapServer.Spells;
 
 public class SkillStatusData
 {
-    public byte Pos;
-    public SkillState State;
+    public byte Pos { get; set; }
+    public SkillState State { get; set; }
 
     public SkillStatusData(uint pos, SkillState state)
     {

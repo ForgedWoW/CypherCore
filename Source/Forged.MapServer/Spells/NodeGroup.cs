@@ -11,5 +11,5 @@ internal class NodeGroup
     public List<TraitCondRecord> Conditions = new();
     public List<TraitCostRecord> Costs = new();
     public TraitNodeGroupRecord Data;
-    public List<Node> Nodes = new();
+    public List<TraitNode> Nodes = new();
 }

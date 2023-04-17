@@ -16,33 +16,34 @@ namespace Forged.MapServer.Spells;
 
 public class SpellEffectInfo
 {
-    public double Amplitude;
-    public AuraType ApplyAuraName;
-    public uint ApplyAuraPeriod;
-    public double BasePoints;
-    public double BonusCoefficient;
-    public double BonusCoefficientFromAp;
-    public double ChainAmplitude;
-    public int ChainTargets;
-    public SpellEffectName Effect;
-    public SpellEffectAttributes EffectAttributes;
-    public int EffectIndex;
-    public List<Condition> ImplicitTargetConditions;
-    public uint ItemType;
-    public SpellRadiusRecord MaxRadiusEntry;
-    public Mechanics Mechanic;
-    public int MiscValue;
-    public int MiscValueB;
-    public double PointsPerResource;
-    public float PositionFacing;
-    public SpellRadiusRecord RadiusEntry;
-    public double RealPointsPerLevel;
+    public double Amplitude { get; set; }
+    public AuraType ApplyAuraName { get; set; }
+    public uint ApplyAuraPeriod { get; set; }
+    public double BasePoints { get; set; }
+    public double BonusCoefficient { get; set; }
+    public double BonusCoefficientFromAp { get; set; }
+    public double ChainAmplitude { get; set; }
+    public int ChainTargets { get; set; }
+    public SpellEffectName Effect { get; set; }
+    public SpellEffectAttributes EffectAttributes { get; set; }
+    public int EffectIndex { get; set; }
+    public List<Condition> ImplicitTargetConditions { get; set; }
+    public uint ItemType { get; set; }
+    public SpellRadiusRecord MaxRadiusEntry { get; set; }
+    public Mechanics Mechanic { get; set; }
+    public int MiscValue { get; set; }
+    public int MiscValueB { get; set; }
+    public double PointsPerResource { get; set; }
+    public float PositionFacing { get; set; }
+    public SpellRadiusRecord RadiusEntry { get; set; }
+    public double RealPointsPerLevel { get; set; }
     public ScalingInfo Scaling;
-    public FlagArray128 SpellClassMask;
-    public SpellImplicitTargetInfo TargetA = new();
-    public SpellImplicitTargetInfo TargetB = new();
-    public uint TriggerSpell;
-    private static readonly StaticData[] _data = new StaticData[(int)SpellEffectName.TotalSpellEffects]
+    public FlagArray128 SpellClassMask { get; set; }
+    public SpellImplicitTargetInfo TargetA { get; set; } = new();
+    public SpellImplicitTargetInfo TargetB { get; set; } = new();
+    public uint TriggerSpell { get; set; }
+
+    private static readonly StaticData[] Data = new StaticData[]
     {
         // implicit target type           used target object type
         new(SpellEffectImplicitTargetTypes.None, SpellTargetObjectTypes.None),            // 0
@@ -399,7 +400,7 @@ public class SpellEffectInfo
     public bool HasMaxRadius => MaxRadiusEntry != null && (MaxRadiusEntry.RadiusMin != 0 || MaxRadiusEntry.RadiusMax != 0);
     public bool HasRadius => RadiusEntry != null && (RadiusEntry.RadiusMin != 0 || RadiusEntry.RadiusMax != 0);
     public ImmunityInfo ImmunityInfo { get; }
-    public SpellEffectImplicitTargetTypes ImplicitTargetType => _data[(int)Effect].ImplicitTargetType;
+    public SpellEffectImplicitTargetTypes ImplicitTargetType => Data[(int)Effect].ImplicitTargetType;
     public bool IsAreaAuraEffect
     {
         get
@@ -414,7 +415,7 @@ public class SpellEffectInfo
     public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
     public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect is SpellEffectName.ApplyAura or SpellEffectName.ApplyAuraOnPet;
     public SpellCastTargetFlags ProvidedTargetMask => SpellInfo.GetTargetFlagMask(TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(TargetB.ObjectType);
-    public SpellTargetObjectTypes UsedTargetObjectType => _data[(int)Effect].UsedTargetObjectType;
+    public SpellTargetObjectTypes UsedTargetObjectType => Data[(int)Effect].UsedTargetObjectType;
     public double CalcBaseValue(WorldObject caster, Unit target, uint itemId, int itemLevel)
     {
         if (Scaling.Coefficient != 0.0f)

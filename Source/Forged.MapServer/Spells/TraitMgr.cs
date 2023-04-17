@@ -24,7 +24,7 @@ public class TraitMgr
     private readonly MultiMap<int, TraitCurrencySourceRecord> _traitCurrencySourcesByCurrency = new();
     private readonly MultiMap<int, TraitDefinitionEffectPointsRecord> _traitDefinitionEffectPointModifiers = new();
     private readonly Dictionary<int, NodeGroup> _traitGroups = new();
-    private readonly Dictionary<int, Node> _traitNodes = new();
+    private readonly Dictionary<int, TraitNode> _traitNodes = new();
     private readonly MultiMap<int, TraitTreeLoadoutEntryRecord> _traitTreeLoadoutsByChrSpecialization = new();
     private readonly Dictionary<int, Tree> _traitTrees = new();
     private readonly MultiMap<int, Tree> _traitTreesBySkillLine = new();
@@ -481,7 +481,7 @@ public class TraitMgr
 
         foreach (var traitNode in _cliDB.TraitNodeStorage.Values)
         {
-            Node node = new()
+            TraitNode node = new()
             {
                 Data = traitNode
             };
@@ -595,7 +595,7 @@ public class TraitMgr
      * @param traitConfig config data
      * @return Trait tree data
      */
-    public bool MeetsTraitCondition(TraitConfigPacket traitConfig, Player player, TraitCondRecord condition, Node node)
+    public bool MeetsTraitCondition(TraitConfigPacket traitConfig, Player player, TraitCondRecord condition, TraitNode node)
     {
         if (condition.QuestID != 0 && !player.IsQuestRewarded(condition.QuestID))
             return false;
@@ -666,7 +666,7 @@ public class TraitMgr
             return traitConfig.Entries.LookupByKey((int)traitNodeId)?.LookupByKey((int)traitNodeEntryId);
         }
 
-        bool IsNodeFullyFilled(Node node)
+        bool IsNodeFullyFilled(TraitNode node)
         {
             if (node.Data.GetNodeType() == TraitNodeType.Selection)
                 return node.Entries.Any(nodeEntry =>
@@ -687,7 +687,7 @@ public class TraitMgr
         Dictionary<int, int> spentCurrencies = new();
         FillSpentCurrenciesMap(traitConfig, spentCurrencies);
 
-        bool MeetsConditions(List<TraitCondRecord> conditions, Node node)
+        bool MeetsConditions(List<TraitCondRecord> conditions, TraitNode node)
         {
             var hasConditions = false;
 

@@ -9,8 +9,8 @@ namespace Forged.MapServer.Spells;
 
 public class GOTargetInfo : TargetInfoBase
 {
-    public ObjectGuid TargetGUID;
-    public ulong TimeDelay;
+    public ObjectGuid TargetGUID { get; set; }
+    public ulong TimeDelay { get; set; }
 
     public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
     {

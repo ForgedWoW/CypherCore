@@ -7,40 +7,32 @@ namespace Forged.MapServer.Spells;
 
 public class DispelableAura
 {
-    private readonly Aura _aura;
     private readonly int _chance;
-    private byte _charges;
 
     public DispelableAura(Aura aura, int dispelChance, byte dispelCharges)
     {
-        _aura = aura;
+        Aura = aura;
         _chance = dispelChance;
-        _charges = dispelCharges;
+        DispelCharges = dispelCharges;
     }
+
+    public Aura Aura { get; }
+
+    public byte DispelCharges { get; private set; }
 
     public bool DecrementCharge(byte charges)
     {
-        if (_charges == 0)
+        if (DispelCharges == 0)
             return false;
 
-        _charges -= charges;
+        DispelCharges -= charges;
 
-        return _charges > 0;
-    }
-
-    public Aura GetAura()
-    {
-        return _aura;
-    }
-
-    public byte GetDispelCharges()
-    {
-        return _charges;
+        return DispelCharges > 0;
     }
 
     public void IncrementCharges()
     {
-        ++_charges;
+        ++DispelCharges;
     }
 
     public bool RollDispel()
