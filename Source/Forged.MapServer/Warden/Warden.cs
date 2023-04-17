@@ -4,17 +4,25 @@
 using System;
 using System.Numerics;
 using System.Security.Cryptography;
+using Forged.MapServer.Accounts;
 using Forged.MapServer.Networking.Packets.Warden;
 using Forged.MapServer.Server;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Warden;
 
 public abstract class Warden
 {
+    public IConfiguration Configuration { get; }
+    public AccountManager AccountManager { get; }
+    public WorldManager WorldManager { get; }
+    public WardenCheckManager WardenCheckManager { get; }
     internal readonly SARC4 InputCrypto;
     internal readonly SARC4 OutputCrypto;
     internal uint CheckTimer;
@@ -30,8 +38,13 @@ public abstract class Warden
     internal byte[] OutputKey = new byte[16];
     internal byte[] Seed = new byte[16];
     internal WorldSession Session;
-    protected Warden()
+
+    protected Warden(IConfiguration configuration, AccountManager accountManager, WorldManager worldManager, WardenCheckManager wardenCheckManager)
     {
+        Configuration = configuration;
+        AccountManager = accountManager;
+        WorldManager = worldManager;
+        WardenCheckManager = wardenCheckManager;
         InputCrypto = new SARC4();
         OutputCrypto = new SARC4();
         CheckTimer = 10 * Time.IN_MILLISECONDS;
@@ -44,7 +57,7 @@ public abstract class Warden
         if (check != null)
             action = check.Action;
         else
-            action = (WardenActions)GetDefaultValue("Warden:ClientCheckFailAction", 0);
+            action = (WardenActions)Configuration.GetDefaultValue("Warden:ClientCheckFailAction", 0);
 
         switch (action)
         {
@@ -54,14 +67,14 @@ public abstract class Warden
                 break;
             case WardenActions.Ban:
             {
-                Global.AccountMgr.GetName(Session.AccountId, out var accountName);
+                AccountManager.GetName(Session.AccountId, out var accountName);
                 var banReason = "Warden Anticheat Violation";
 
                 // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
                 if (check != null)
                     banReason += ": " + check.Comment + " (CheckId: " + check.CheckId + ")";
 
-                Global.WorldMgr.BanAccount(BanMode.Account, accountName, GetDefaultValue("Warden:BanDuration", 86400u), banReason, "Server");
+                WorldManager.BanAccount(BanMode.Account, accountName, Configuration.GetDefaultValue("Warden:BanDuration", 86400u), banReason, "Server");
 
                 break;
             }
@@ -213,11 +226,10 @@ public abstract class Warden
 
         var sizeLeft = Module.CompressedSize;
         var pos = 0;
-        uint burstSize;
 
         while (sizeLeft > 0)
         {
-            burstSize = sizeLeft < 500 ? sizeLeft : 500u;
+            var burstSize = sizeLeft < 500 ? sizeLeft : 500u;
             packet.Command = WardenOpcodes.SmsgModuleCache;
             packet.DataSize = (ushort)burstSize;
             Buffer.BlockCopy(Module.CompressedData, pos, packet.Data, 0, (int)burstSize);
@@ -239,7 +251,7 @@ public abstract class Warden
 
         if (DataSent)
         {
-            var maxClientResponseDelay = GetDefaultValue("Warden:ClientResponseDelay", 600);
+            var maxClientResponseDelay = Configuration.GetDefaultValue("Warden:ClientResponseDelay", 600u);
 
             if (maxClientResponseDelay > 0)
             {
@@ -270,17 +282,17 @@ public abstract class Warden
     }
     private bool ProcessLuaCheckResponse(string msg)
     {
-        var WARDEN_TOKEN = "_TW\t";
+        var wardenToken = "_TW\t";
 
-        if (!msg.StartsWith(WARDEN_TOKEN))
+        if (!msg.StartsWith(wardenToken))
             return false;
 
         ushort id = 0;
-        ushort.Parse(msg.Substring(WARDEN_TOKEN.Length - 1, 10));
+        ushort.Parse(msg.Substring(wardenToken.Length - 1, 10));
 
-        if (id < Global.WardenCheckMgr.MaxValidCheckId)
+        if (id < WardenCheckManager.MaxValidCheckId)
         {
-            var check = Global.WardenCheckMgr.GetCheckData(id);
+            var check = WardenCheckManager.GetCheckData(id);
 
             if (check.Type == WardenCheckType.LuaEval)
             {

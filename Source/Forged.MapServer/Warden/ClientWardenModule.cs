@@ -5,8 +5,8 @@ namespace Forged.MapServer.Warden;
 
 public class ClientWardenModule
 {
-    public byte[] CompressedData;
-    public uint CompressedSize;
-    public byte[] Id = new byte[16];
-    public byte[] Key = new byte[16];
+    public byte[] CompressedData { get; set; }
+    public uint CompressedSize { get; set; }
+    public byte[] Id { get; set; } = new byte[16];
+    public byte[] Key { get; set; } = new byte[16];
 }

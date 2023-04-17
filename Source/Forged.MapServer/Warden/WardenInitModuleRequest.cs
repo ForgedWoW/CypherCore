@@ -8,30 +8,31 @@ namespace Forged.MapServer.Warden;
 
 internal class WardenInitModuleRequest
 {
-    public uint CheckSumm1;
-    public uint CheckSumm2;
-    public uint CheckSumm3;
-    public WardenOpcodes Command1;
-    public WardenOpcodes Command2;
-    public WardenOpcodes Command3;
-    public uint[] Function1 = new uint[4];
-    public uint Function2;
-    public byte Function2_set;
-    public uint Function3;
-    public byte Function3_set;
-    public ushort Size1;
-    public ushort Size2;
-    public ushort Size3;
-    public byte String_library1;
-    public byte String_library2;
-    public byte String_library3;
-    public byte Type;
-    public byte Unk1;
-    public byte Unk2;
-    public byte Unk3;
-    public byte Unk4;
-    public byte Unk5;
-    public byte Unk6;
+    public uint CheckSumm1 { get; set; }
+    public uint CheckSumm2 { get; set; }
+    public uint CheckSumm3 { get; set; }
+    public WardenOpcodes Command1 { get; set; }
+    public WardenOpcodes Command2 { get; set; }
+    public WardenOpcodes Command3 { get; set; }
+    public uint[] Function1 { get; set; } = new uint[4];
+    public uint Function2 { get; set; }
+    public byte Function2Set { get; set; }
+    public uint Function3 { get; set; }
+    public byte Function3Set { get; set; }
+    public ushort Size1 { get; set; }
+    public ushort Size2 { get; set; }
+    public ushort Size3 { get; set; }
+    public byte StringLibrary1 { get; set; }
+    public byte StringLibrary2 { get; set; }
+    public byte StringLibrary3 { get; set; }
+    public byte Type { get; set; }
+    public byte Unk1 { get; set; }
+    public byte Unk2 { get; set; }
+    public byte Unk3 { get; set; }
+    public byte Unk4 { get; set; }
+    public byte Unk5 { get; set; }
+    public byte Unk6 { get; set; }
+
     public static implicit operator byte[](WardenInitModuleRequest request)
     {
         var buffer = new ByteBuffer();
@@ -41,7 +42,7 @@ internal class WardenInitModuleRequest
         buffer.WriteUInt8(request.Unk1);
         buffer.WriteUInt8(request.Unk2);
         buffer.WriteUInt8(request.Type);
-        buffer.WriteUInt8(request.String_library1);
+        buffer.WriteUInt8(request.StringLibrary1);
 
         foreach (var function in request.Function1)
             buffer.WriteUInt32(function);
@@ -51,18 +52,18 @@ internal class WardenInitModuleRequest
         buffer.WriteUInt32(request.CheckSumm2);
         buffer.WriteUInt8(request.Unk3);
         buffer.WriteUInt8(request.Unk4);
-        buffer.WriteUInt8(request.String_library2);
+        buffer.WriteUInt8(request.StringLibrary2);
         buffer.WriteUInt32(request.Function2);
-        buffer.WriteUInt8(request.Function2_set);
+        buffer.WriteUInt8(request.Function2Set);
 
         buffer.WriteUInt8((byte)request.Command3);
         buffer.WriteUInt16(request.Size3);
         buffer.WriteUInt32(request.CheckSumm3);
         buffer.WriteUInt8(request.Unk5);
         buffer.WriteUInt8(request.Unk6);
-        buffer.WriteUInt8(request.String_library3);
+        buffer.WriteUInt8(request.StringLibrary3);
         buffer.WriteUInt32(request.Function3);
-        buffer.WriteUInt8(request.Function3_set);
+        buffer.WriteUInt8(request.Function3Set);
 
         return buffer.GetData();
     }

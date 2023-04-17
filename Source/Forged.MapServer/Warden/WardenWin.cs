@@ -5,32 +5,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.Accounts;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Networking.Packets.Warden;
+using Forged.MapServer.Server;
 using Forged.MapServer.Warden.Modules;
+using Forged.MapServer.World;
 using Framework.Cryptography;
 using Framework.IO;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
-using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Warden;
 
 internal class WardenWin : Warden
 {
-    private static readonly string _luaEvalMidfix = " end R=S and T()if R then S('_TW',";
+    private static readonly string LuaEvalMidfix = " end R=S and T()if R then S('_TW',";
 
-    private static readonly string _luaEvalPostfix = ",'GUILD')end";
+    private static readonly string LuaEvalPostfix = ",'GUILD')end";
 
     // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
-    private static readonly string _luaEvalPrefix = "local S,T,R=SendAddonMessage,function()";
+    private static readonly string LuaEvalPrefix = "local S,T,R=SendAddonMessage,function()";
     private readonly CategoryCheck[] _checks = new CategoryCheck[(int)WardenCheckCategory.Max];
 
     private List<ushort> _currentChecks = new();
     private uint _serverTicks;
-    public WardenWin()
+    public WardenWin(IConfiguration configuration, AccountManager accountManager, WorldManager worldManager, WardenCheckManager wardenCheckManager) : base(configuration, accountManager, worldManager, wardenCheckManager)
     {
         foreach (var category in Enum.GetValues<WardenCheckCategory>())
-            _checks[(int)category] = new CategoryCheck(Global.WardenCheckMgr.GetAvailableChecks(category).Shuffle().ToList());
+            _checks[(int)category] = new CategoryCheck(wardenCheckManager.GetAvailableChecks(category).Shuffle().ToList());
     }
 
     public override void HandleCheckResult(ByteBuffer buff)
@@ -40,10 +44,10 @@ internal class WardenWin : Warden
         DataSent = false;
         ClientResponseTimer = 0;
 
-        var Length = buff.ReadUInt16();
-        var Checksum = buff.ReadUInt32();
+        var length = buff.ReadUInt16();
+        var checksum = buff.ReadUInt32();
 
-        if (!IsValidCheckSum(Checksum, buff.GetData(), Length))
+        if (!IsValidCheckSum(checksum, buff.GetData(), length))
         {
             var penalty = ApplyPenalty();
             Log.Logger.Warning("{0} failed checksum. Action: {1}", Session.GetPlayerInfo(), penalty);
@@ -82,7 +86,7 @@ internal class WardenWin : Warden
 
         foreach (var id in _currentChecks)
         {
-            var check = Global.WardenCheckMgr.GetCheckData(id);
+            var check = WardenCheckManager.GetCheckData(id);
 
             switch (check.Type)
             {
@@ -98,7 +102,7 @@ internal class WardenWin : Warden
                         continue;
                     }
 
-                    var expected = Global.WardenCheckMgr.GetCheckResult(id);
+                    var expected = WardenCheckManager.GetCheckResult(id);
 
                     if (buff.ReadBytes((uint)expected.Length).Compare(expected))
                     {
@@ -152,7 +156,7 @@ internal class WardenWin : Warden
                         continue;
                     }
 
-                    if (!buff.ReadBytes(20).Compare(Global.WardenCheckMgr.GetCheckResult(id))) // SHA1
+                    if (!buff.ReadBytes(20).Compare(WardenCheckManager.GetCheckResult(id))) // SHA1
                     {
                         Log.Logger.Debug($"RESULT MPQ_CHECK fail, CheckId {id} account Id {Session.AccountId}");
                         checkFailed = id;
@@ -171,13 +175,13 @@ internal class WardenWin : Warden
 
         if (checkFailed > 0)
         {
-            var check = Global.WardenCheckMgr.GetCheckData(checkFailed);
+            var check = WardenCheckManager.GetCheckData(checkFailed);
             var penalty = ApplyPenalty(check);
             Log.Logger.Warning($"{Session.GetPlayerInfo()} failed Warden check {checkFailed}. Action: {penalty}");
         }
 
         // Set hold off timer, minimum timer should at least be 1 second
-        uint holdOff = GetDefaultValue("Warden:ClientCheckHoldOff", 30u);
+        uint holdOff = Configuration.GetDefaultValue("Warden:ClientCheckHoldOff", 30u);
         CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.IN_MILLISECONDS;
     }
 
@@ -208,9 +212,9 @@ internal class WardenWin : Warden
     {
         Session = session;
         // Generate Warden Key
-        SessionKeyGenerator WK = new(k.ToByteArray());
-        WK.Generate(InputKey, 16);
-        WK.Generate(OutputKey, 16);
+        SessionKeyGenerator wk = new(k.ToByteArray());
+        wk.Generate(InputKey, 16);
+        wk.Generate(OutputKey, 16);
 
         Seed = WardenModuleWin.Seed;
 
@@ -234,14 +238,14 @@ internal class WardenWin : Warden
         Log.Logger.Debug("Initialize module");
 
         // Create packet structure
-        WardenInitModuleRequest Request = new()
+        WardenInitModuleRequest request = new()
         {
             Command1 = WardenOpcodes.SmsgModuleInitialize,
             Size1 = 20,
             Unk1 = 1,
             Unk2 = 0,
             Type = 1,
-            String_library1 = 0,
+            StringLibrary1 = 0,
             Function1 =
             {
                 [0] = 0x00024F80, // 0x00400000 + 0x00024F80 SFileOpenFile
@@ -251,43 +255,43 @@ internal class WardenWin : Warden
             }
         };
 
-        Request.CheckSumm1 = BuildChecksum(new[]
+        request.CheckSumm1 = BuildChecksum(new[]
                                            {
-                                               Request.Unk1
+                                               request.Unk1
                                            },
                                            20);
 
-        Request.Command2 = WardenOpcodes.SmsgModuleInitialize;
-        Request.Size2 = 8;
-        Request.Unk3 = 4;
-        Request.Unk4 = 0;
-        Request.String_library2 = 0;
-        Request.Function2 = 0x00419D40; // 0x00400000 + 0x00419D40 FrameScript::GetText
-        Request.Function2_set = 1;
+        request.Command2 = WardenOpcodes.SmsgModuleInitialize;
+        request.Size2 = 8;
+        request.Unk3 = 4;
+        request.Unk4 = 0;
+        request.StringLibrary2 = 0;
+        request.Function2 = 0x00419D40; // 0x00400000 + 0x00419D40 FrameScript::GetText
+        request.Function2Set = 1;
 
-        Request.CheckSumm2 = BuildChecksum(new[]
+        request.CheckSumm2 = BuildChecksum(new[]
                                            {
-                                               Request.Unk2
+                                               request.Unk2
                                            },
                                            8);
 
-        Request.Command3 = WardenOpcodes.SmsgModuleInitialize;
-        Request.Size3 = 8;
-        Request.Unk5 = 1;
-        Request.Unk6 = 1;
-        Request.String_library3 = 0;
-        Request.Function3 = 0x0046AE20; // 0x00400000 + 0x0046AE20 PerformanceCounter
-        Request.Function3_set = 1;
+        request.Command3 = WardenOpcodes.SmsgModuleInitialize;
+        request.Size3 = 8;
+        request.Unk5 = 1;
+        request.Unk6 = 1;
+        request.StringLibrary3 = 0;
+        request.Function3 = 0x0046AE20; // 0x00400000 + 0x0046AE20 PerformanceCounter
+        request.Function3Set = 1;
 
-        Request.CheckSumm3 = BuildChecksum(new[]
+        request.CheckSumm3 = BuildChecksum(new[]
                                            {
-                                               Request.Unk5
+                                               request.Unk5
                                            },
                                            8);
 
         Warden3DataServer packet = new()
         {
-            Data = EncryptData(Request)
+            Data = EncryptData(request)
         };
 
         Session.SendPacket(packet);
@@ -305,18 +309,18 @@ internal class WardenWin : Warden
     }
     public override void RequestChecks()
     {
-        Log.Logger.Debug($"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player && !Session.PlayerLoading}");
+        Log.Logger.Debug($"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player != null && !Session.PlayerLoading}");
 
         // If all checks for a category are done, fill its todo list again
         foreach (var category in Enum.GetValues<WardenCheckCategory>())
         {
             var checks = _checks[(int)category];
 
-            if (checks.IsAtEnd() && !checks.Empty())
-            {
-                Log.Logger.Debug($"Finished all {category} checks, re-shuffling");
-                checks.Shuffle();
-            }
+            if (!checks.IsAtEnd() || checks.Empty())
+                continue;
+
+            Log.Logger.Debug($"Finished all {category} checks, re-shuffling");
+            checks.Shuffle();
         }
 
         _serverTicks = GameTime.CurrentTimeMS;
@@ -328,12 +332,12 @@ internal class WardenWin : Warden
 
         foreach (var category in Enum.GetValues<WardenCheckCategory>())
         {
-            if (WardenCheckManager.IsWardenCategoryInWorldOnly(category) && !Session.Player)
+            if (WardenCheckManager.IsWardenCategoryInWorldOnly(category) && Session.Player == null)
                 continue;
 
             var checks = _checks[(int)category];
 
-            for (uint i = 0, n = GetDefaultValue(WardenCheckManager.GetWardenCategoryCountConfig(category)); i < n; ++i)
+            for (uint i = 0, n = Configuration.GetDefaultValue(WardenCheckManager.GetWardenCategoryCountConfig(category), 0u); i < n; ++i)
             {
                 if (checks.IsAtEnd()) // all checks were already sent, list will be re-filled on next Update() run
                     break;
@@ -348,7 +352,7 @@ internal class WardenWin : Warden
 
         _currentChecks.RemoveAll(id =>
         {
-            var thisSize = GetCheckPacketSize(Global.WardenCheckMgr.GetCheckData(id));
+            var thisSize = GetCheckPacketSize(WardenCheckManager.GetCheckData(id));
 
             if (expectedSize + thisSize > 450) // warden packets are truncated to 512 bytes clientside
                 return true;
@@ -360,16 +364,16 @@ internal class WardenWin : Warden
 
         foreach (var id in _currentChecks)
         {
-            var check = Global.WardenCheckMgr.GetCheckData(id);
+            var check = WardenCheckManager.GetCheckData(id);
 
             if (check.Type == WardenCheckType.LuaEval)
             {
-                buff.WriteUInt8((byte)(_luaEvalPrefix.Length - 1 + check.Str.Length + _luaEvalMidfix.Length - 1 + check.IdStr.Length + _luaEvalPostfix.Length - 1));
-                buff.WriteString(_luaEvalPrefix);
+                buff.WriteUInt8((byte)(LuaEvalPrefix.Length - 1 + check.Str.Length + LuaEvalMidfix.Length - 1 + check.IdStr.Length + LuaEvalPostfix.Length - 1));
+                buff.WriteString(LuaEvalPrefix);
                 buff.WriteString(check.Str);
-                buff.WriteString(_luaEvalMidfix);
+                buff.WriteString(LuaEvalMidfix);
                 buff.WriteString(check.IdStr.ToString());
-                buff.WriteString(_luaEvalPostfix);
+                buff.WriteString(LuaEvalPostfix);
             }
             else if (!check.Str.IsEmpty())
             {
@@ -388,7 +392,7 @@ internal class WardenWin : Warden
 
         foreach (var checkId in _currentChecks)
         {
-            var check = Global.WardenCheckMgr.GetCheckData(checkId);
+            var check = WardenCheckManager.GetCheckData(checkId);
 
             var type = check.Type;
             buff.WriteUInt8((byte)((int)type ^ xorByte));
@@ -482,7 +486,7 @@ internal class WardenWin : Warden
         Log.Logger.Debug("Request hash");
 
         // Create packet structure
-        WardenHashRequest Request = new()
+        WardenHashRequest request = new()
         {
             Command = WardenOpcodes.SmsgHashRequest,
             Seed = Seed
@@ -490,7 +494,7 @@ internal class WardenWin : Warden
 
         Warden3DataServer packet = new()
         {
-            Data = EncryptData(Request)
+            Data = EncryptData(request)
         };
 
         Session.SendPacket(packet);
@@ -498,7 +502,7 @@ internal class WardenWin : Warden
     private static byte GetCheckPacketBaseSize(WardenCheckType type) => type switch
     {
         WardenCheckType.Driver  => 1,
-        WardenCheckType.LuaEval => (byte)(1 + _luaEvalPrefix.Length - 1 + _luaEvalMidfix.Length - 1 + 4 + _luaEvalPostfix.Length - 1),
+        WardenCheckType.LuaEval => (byte)(1 + LuaEvalPrefix.Length - 1 + LuaEvalMidfix.Length - 1 + 4 + LuaEvalPostfix.Length - 1),
         WardenCheckType.Mpq     => 1,
         WardenCheckType.PageA   => 4 + 1,
         WardenCheckType.PageB   => 4 + 1,

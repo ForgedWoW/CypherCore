@@ -496,6 +496,8 @@ void RegisterInstanced()
     builder.RegisterType<AccountInfoQueryHolder>();
     builder.RegisterType<AccountInfoQueryHolderPerRealm>();
     builder.RegisterType<DosProtection>();
+    builder.RegisterType<Warden>();
+    builder.RegisterType<WardenWin>();
 }
 
 void RegisterHandlers()

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Warden;
 
 internal class CategoryCheck
 {
-    public List<ushort> Checks = new();
-    public ushort CurrentIndex;
+    public List<ushort> Checks { get; set; }
+    public ushort CurrentIndex { get; set; }
 
     public CategoryCheck(List<ushort> checks)
     {

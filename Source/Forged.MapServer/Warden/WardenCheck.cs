@@ -5,19 +5,19 @@ namespace Forged.MapServer.Warden;
 
 public class WardenCheck
 {
-    public WardenActions Action;
-    public uint Address;
-    public ushort CheckId;
-    public string Comment;
-    public byte[] Data;
-    public char[] IdStr = new char[4];
+    public WardenActions Action { get; set; }
+    public uint Address { get; set; }
+    public ushort CheckId { get; set; }
+    public string Comment { get; set; }
+    public byte[] Data { get; set; }
+    public char[] IdStr { get; set; } = new char[4];
     // PROC_CHECK, MEM_CHECK, PAGE_CHECK
-    public byte Length;
+    public byte Length { get; set; }
 
     // PROC_CHECK, MEM_CHECK, PAGE_CHECK
-    public string Str;
+    public string Str { get; set; }
 
-    public WardenCheckType Type;
+    public WardenCheckType Type { get; set; }
     // LUA, MPQ, DRIVER
     // LUA
 }

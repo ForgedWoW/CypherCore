@@ -32,9 +32,9 @@ public class WardenCheckManager
     public ushort MaxValidCheckId => (ushort)_checks.Count;
     public static string GetWardenCategoryCountConfig(WardenCheckCategory category) => category switch
     {
-        WardenCheckCategory.Inject => "Warden.NumInjectionChecks",
-        WardenCheckCategory.Lua => "Warden.NumLuaSandboxChecks",
-        WardenCheckCategory.Modded => "Warden.NumClientModChecks",
+        WardenCheckCategory.Inject => "Warden:NumInjectionChecks",
+        WardenCheckCategory.Lua => "Warden:NumLuaSandboxChecks",
+        WardenCheckCategory.Modded => "Warden:NumClientModChecks",
         _ => "",
     };
 
@@ -67,10 +67,7 @@ public class WardenCheckManager
 
     public WardenCheck GetCheckData(ushort id)
     {
-        if (id < _checks.Count)
-            return _checks[id];
-
-        return null;
+        return id < _checks.Count ? _checks[id] : null;
     }
 
     public byte[] GetCheckResult(ushort id)

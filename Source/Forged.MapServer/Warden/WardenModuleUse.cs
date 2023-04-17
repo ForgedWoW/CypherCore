@@ -8,10 +8,10 @@ namespace Forged.MapServer.Warden;
 
 internal class WardenModuleUse
 {
-    public WardenOpcodes Command;
-    public byte[] ModuleId = new byte[16];
-    public byte[] ModuleKey = new byte[16];
-    public uint Size;
+    public WardenOpcodes Command { get; set; }
+    public byte[] ModuleId { get; set; } = new byte[16];
+    public byte[] ModuleKey { get; set; } = new byte[16];
+    public uint Size { get; set; }
 
     public static implicit operator byte[](WardenModuleUse use)
     {

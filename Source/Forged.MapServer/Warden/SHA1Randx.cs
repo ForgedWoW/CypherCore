@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace Forged.MapServer.Warden;
 
-internal class SHA1Randx
+internal class Sha1Randx
 {
     private readonly byte[] _o1 = new byte[20];
     private readonly byte[] _o2 = new byte[20];
@@ -14,7 +14,7 @@ internal class SHA1Randx
     private byte[] _o0 = new byte[20];
     private SHA1 _sh;
     private uint _taken;
-    public SHA1Randx(byte[] buff)
+    public Sha1Randx(byte[] buff)
     {
         var halfSize = buff.Length / 2;
         Span<byte> span = buff;
