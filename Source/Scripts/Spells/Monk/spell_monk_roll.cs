@@ -33,8 +33,8 @@ internal class SpellMonkRoll : SpellScript, ISpellCheckCast, IHasSpellEffects
     {
         Caster
             .SpellFactory.CastSpell(Caster,
-                       Caster.HasUnitMovementFlag(MovementFlag.Backward) ? MonkSpells.RollBackward : MonkSpells.ROLL_FORWARD,
-                       new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+                                    Caster.HasUnitMovementFlag(MovementFlag.Backward) ? MonkSpells.RollBackward : MonkSpells.ROLL_FORWARD,
+                                    new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
 
         Caster.SpellFactory.CastSpell(Caster, MonkSpells.NO_FEATHER_FALL, true);
     }

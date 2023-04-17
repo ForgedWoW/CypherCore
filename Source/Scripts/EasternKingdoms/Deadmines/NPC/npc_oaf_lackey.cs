@@ -31,9 +31,7 @@ public class NPCOafLackey : ScriptedAI
             AxeHeadTimer = RandomHelper.URand(18000, 21000);
         }
         else
-        {
             AxeHeadTimer -= diff;
-        }
 
         if (HealthBelowPct(35) && !Below)
         {

@@ -25,8 +25,8 @@ internal class SpellPriPowerWordSolace : SpellScript, IHasSpellEffects
     {
         Caster
             .SpellFactory.CastSpell(Caster,
-                       PriestSpells.POWER_WORD_SOLACE_ENERGIZE,
-                       new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell)
-                                                                                    .AddSpellMod(SpellValueMod.BasePoint0, EffectValue / 100));
+                                    PriestSpells.POWER_WORD_SOLACE_ENERGIZE,
+                                    new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell)
+                                                                                                 .AddSpellMod(SpellValueMod.BasePoint0, EffectValue / 100));
     }
 }

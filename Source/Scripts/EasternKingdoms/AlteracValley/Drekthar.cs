@@ -16,9 +16,9 @@ internal struct SpellIds
     public const uint KNOCKDOWN = 19128;
     public const uint FRENZY = 8269;
     public const uint SWEEPING_STRIKES = 18765; // not sure
-    public const uint CLEAVE = 20677;          // not sure
-    public const uint WINDFURY = 35886;        // not sure
-    public const uint STORMPIKE = 51876;       // not sure
+    public const uint CLEAVE = 20677;           // not sure
+    public const uint WINDFURY = 35886;         // not sure
+    public const uint STORMPIKE = 51876;        // not sure
 }
 
 internal struct TextIds

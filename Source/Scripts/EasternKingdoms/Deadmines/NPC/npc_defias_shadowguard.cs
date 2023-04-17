@@ -42,9 +42,7 @@ public class NPCDefiasShadowguard : ScriptedAI
             SinisterTimer = RandomHelper.URand(5000, 7000);
         }
         else
-        {
             SinisterTimer -= diff;
-        }
 
         if (WhirlingBladesTimer <= diff)
         {
@@ -52,9 +50,7 @@ public class NPCDefiasShadowguard : ScriptedAI
             WhirlingBladesTimer = RandomHelper.URand(6400, 8200);
         }
         else
-        {
             WhirlingBladesTimer -= diff;
-        }
 
         if (HealthBelowPct(35) && !Below)
         {
@@ -72,9 +68,7 @@ public class NPCDefiasShadowguard : ScriptedAI
             ShadowstepTimer = RandomHelper.URand(6400, 8200);
         }
         else
-        {
             ShadowstepTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }

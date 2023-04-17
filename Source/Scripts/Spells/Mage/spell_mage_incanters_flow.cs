@@ -45,8 +45,6 @@ internal class SpellMageIncantersFlow : AuraScript, IHasAuraEffects
             aura.ModStackAmount(_modifier);
         }
         else
-        {
             Target.SpellFactory.CastSpell(Target, MageSpells.INCANTERS_FLOW, true);
-        }
     }
 }

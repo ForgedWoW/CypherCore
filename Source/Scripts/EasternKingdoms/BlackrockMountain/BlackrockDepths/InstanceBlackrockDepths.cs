@@ -45,11 +45,11 @@ internal struct GameObjectIds
     public const uint TOMB_ENTER = 170576;
     public const uint TOMB_EXIT = 170577;
     public const uint LYCEUM = 170558;
-    public const uint SF_N = 174745;        // Shadowforge Brazier North
-    public const uint SF_S = 174744;        // Shadowforge Brazier South
+    public const uint SF_N = 174745;         // Shadowforge Brazier North
+    public const uint SF_S = 174744;         // Shadowforge Brazier South
     public const uint GOLEM_ROOM_N = 170573; // Magmus door North
     public const uint GOLEM_ROOM_S = 170574; // Magmus door Soutsh
-    public const uint THRONE_ROOM = 170575; // Throne door
+    public const uint THRONE_ROOM = 170575;  // Throne door
     public const uint SPECTRAL_CHALICE = 164869;
     public const uint CHEST_SEVEN = 169243;
 }
@@ -459,9 +459,7 @@ internal class InstanceBlackrockDepths : InstanceMapScript, IInstanceMapGetInsta
                     }
                 }
                 else
-                {
                     _tombTimer -= diff;
-                }
             }
 
             if (_ghostKillCount >= MiscConst.TOMB_OF_SEVEN_BOSS_NUM &&

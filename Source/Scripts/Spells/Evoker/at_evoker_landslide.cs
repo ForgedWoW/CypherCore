@@ -49,8 +49,6 @@ public class AtEvokerLandslide : AreaTriggerScript, IAreaTriggerOverrideCreatePr
             _castInterval += 100;
         }
         else
-        {
             _castInterval -= diff;
-        }
     }
 }

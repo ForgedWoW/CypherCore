@@ -165,9 +165,7 @@ internal class SpellMidsummerTestRibbonPoleChannel : AuraScript, IHasAuraEffects
                 target.SpellFactory.CastSpell(target, SpellIds.BURNING_HOT_POLE_DANCE, true);
         }
         else
-        {
             target.SpellFactory.CastSpell(target, SpellIds.RIBBON_DANCE, true);
-        }
     }
 }
 

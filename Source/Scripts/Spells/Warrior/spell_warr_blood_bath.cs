@@ -75,9 +75,7 @@ public class SpellWarrBloodBath : AuraScript, IHasAuraEffects
                 lActualBloodBath.SetDuration(lActualBloodBath.MaxDuration);
         }
         else
-        {
             lCaster.SpellFactory.CastSpell(lTarget, ESpells.BLOOD_BATH_DAMAGE, true);
-        }
 
         var lNewBloodBath = lTarget.GetAuraEffect(ESpells.BLOOD_BATH_DAMAGE, 0, lCaster.GUID);
 

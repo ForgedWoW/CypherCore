@@ -36,15 +36,15 @@ internal struct SpellIds
     public const uint ENFEEBLE = 30843; //Enfeeble during phase 1 and 2
     public const uint ENFEEBLE_EFFECT = 41624;
 
-    public const uint SHADOWNOVA = 30852;    //Shadownova used during all phases
+    public const uint SHADOWNOVA = 30852;     //Shadownova used during all phases
     public const uint SW_PAIN = 30854;        //Shadow word pain during phase 1 and 3 (different targeting rules though)
     public const uint THRASH_PASSIVE = 12787; //Extra attack chance during phase 2
     public const uint SUNDER_ARMOR = 30901;   //Sunder armor during phase 2
     public const uint THRASH_AURA = 12787;    //Passive proc chance for thrash
     public const uint EQUIP_AXES = 30857;     //Visual for axe equiping
     public const uint AMPLIFY_DAMAGE = 39095; //Amplifiy during phase 3
-    public const uint CLEAVE = 30131;        //Same as Nightbane.
-    public const uint HELLFIRE = 30859;      //Infenals' hellfire aura
+    public const uint CLEAVE = 30131;         //Same as Nightbane.
+    public const uint HELLFIRE = 30859;       //Infenals' hellfire aura
 
     public const uint INFERNAL_RELAY = 30834;
 }
@@ -209,9 +209,7 @@ internal class BossMalchezaar : ScriptedAI
             _enfeebleResetTimer = 0;
         }
         else
-        {
             _enfeebleResetTimer -= diff;
-        }
 
         if (Me.HasUnitState(UnitState.Stunned)) // While shifting to phase 2 malchezaar stuns himself
             return;
@@ -291,9 +289,7 @@ internal class BossMalchezaar : ScriptedAI
                 _sunderArmorTimer = RandomHelper.URand(10000, 18000);
             }
             else
-            {
                 _sunderArmorTimer -= diff;
-            }
 
             if (_cleaveTimer <= diff)
             {
@@ -301,9 +297,7 @@ internal class BossMalchezaar : ScriptedAI
                 _cleaveTimer = RandomHelper.URand(6000, 12000);
             }
             else
-            {
                 _cleaveTimer -= diff;
-            }
         }
         else
         {
@@ -328,9 +322,7 @@ internal class BossMalchezaar : ScriptedAI
                     }
             }
             else
-            {
                 _axesTargetSwitchTimer -= diff;
-            }
 
             if (_amplifyDamageTimer <= diff)
             {
@@ -342,9 +334,7 @@ internal class BossMalchezaar : ScriptedAI
                 _amplifyDamageTimer = RandomHelper.URand(20000, 30000);
             }
             else
-            {
                 _amplifyDamageTimer -= diff;
-            }
         }
 
         //Time for global and double timers
@@ -354,9 +344,7 @@ internal class BossMalchezaar : ScriptedAI
             _infernalTimer = _phase == 3 ? 14500 : 44500u; // 15 secs in phase 3, 45 otherwise
         }
         else
-        {
             _infernalTimer -= diff;
-        }
 
         if (_shadowNovaTimer <= diff)
         {
@@ -364,9 +352,7 @@ internal class BossMalchezaar : ScriptedAI
             _shadowNovaTimer = _phase == 3 ? 31000 : uint.MaxValue;
         }
         else
-        {
             _shadowNovaTimer -= diff;
-        }
 
         if (_phase != 2)
         {
@@ -385,9 +371,7 @@ internal class BossMalchezaar : ScriptedAI
                 _swPainTimer = 20000;
             }
             else
-            {
                 _swPainTimer -= diff;
-            }
         }
 
         if (_phase != 3)
@@ -400,9 +384,7 @@ internal class BossMalchezaar : ScriptedAI
                 _enfeebleResetTimer = 9000;
             }
             else
-            {
                 _enfeebleTimer -= diff;
-            }
         }
 
         if (_phase == 2)
@@ -546,9 +528,7 @@ internal class BossMalchezaar : ScriptedAI
 
         if ((Me.Location.MapId != 532) ||
             _positions.Empty())
-        {
             pos = Me.GetRandomNearPosition(60);
-        }
         else
         {
             point = _positions.SelectRandom();

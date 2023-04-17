@@ -78,8 +78,6 @@ public class NPCMagmaPull : ScriptedAI
             }
         }
         else
-        {
             PongTimer -= diff;
-        }
     }
 }

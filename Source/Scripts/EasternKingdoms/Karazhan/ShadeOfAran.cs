@@ -158,9 +158,7 @@ internal class BossAran : ScriptedAI
                 _closeDoorTimer = 0;
             }
             else
-            {
                 _closeDoorTimer -= diff;
-            }
         }
 
         //Cooldowns for casts
@@ -218,9 +216,7 @@ internal class BossAran : ScriptedAI
         if (_drinking && !_drinkInturrupted)
         {
             if (_drinkInterruptTimer >= diff)
-            {
                 _drinkInterruptTimer -= diff;
-            }
             else
             {
                 Me.SetStandState(UnitStandStateType.Stand);
@@ -278,9 +274,7 @@ internal class BossAran : ScriptedAI
             _normalCastTimer = 1000;
         }
         else
-        {
             _normalCastTimer -= diff;
-        }
 
         if (_secondarySpellTimer <= diff)
         {
@@ -302,9 +296,7 @@ internal class BossAran : ScriptedAI
             _secondarySpellTimer = RandomHelper.URand(5000, 20000);
         }
         else
-        {
             _secondarySpellTimer -= diff;
-        }
 
         if (_superCastTimer <= diff)
         {
@@ -379,9 +371,7 @@ internal class BossAran : ScriptedAI
             _superCastTimer = RandomHelper.URand(35000, 40000);
         }
         else
-        {
             _superCastTimer -= diff;
-        }
 
         if (!_elementalsSpawned &&
             HealthBelowPct(40))
@@ -420,9 +410,7 @@ internal class BossAran : ScriptedAI
             _berserkTimer = 60000;
         }
         else
-        {
             _berserkTimer -= diff;
-        }
 
         //Flame Wreath check
         if (_flameWreathTimer != 0)
@@ -443,9 +431,9 @@ internal class BossAran : ScriptedAI
                     if (unit && !unit.IsWithinDist2d(_fwTargPosX[i], _fwTargPosY[i], 3))
                     {
                         unit.SpellFactory.CastSpell(unit,
-                                       20476,
-                                       new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                           .SetOriginalCaster(Me.GUID));
+                                                    20476,
+                                                    new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                                        .SetOriginalCaster(Me.GUID));
 
                         unit.SpellFactory.CastSpell(unit, 11027, true);
                         _flameWreathTarget[i].Clear();
@@ -455,9 +443,7 @@ internal class BossAran : ScriptedAI
                 _flameWreathCheckTime = 500;
             }
             else
-            {
                 _flameWreathCheckTime -= diff;
-            }
         }
 
         if (_arcaneCooldown != 0 &&

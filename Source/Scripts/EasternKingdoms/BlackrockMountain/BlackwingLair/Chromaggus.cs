@@ -44,7 +44,7 @@ internal struct SpellIds
     public const uint BROODAF_BRONZE = 23170; //Bronze Affliction  23170
     public const uint BROODAF_GREEN = 23169;  //Brood Affliction Green 23169
     public const uint CHROMATIC_MUT1 = 23174; //Spell cast on player if they get all 5 debuffs
-    public const uint FRENZY = 28371;        //The frenzy spell may be wrong
+    public const uint FRENZY = 28371;         //The frenzy spell may be wrong
     public const uint ENRAGE = 28747;
 }
 

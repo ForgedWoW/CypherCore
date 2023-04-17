@@ -43,8 +43,6 @@ public class NPCHelixCrew : PassiveAI
             }
         }
         else
-        {
             ThrowBombTimer -= diff;
-        }
     }
 }

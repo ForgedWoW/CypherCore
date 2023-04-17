@@ -43,9 +43,7 @@ public class SpellDkHowlingBlast : SpellScript, IHasSpellEffects
                     return target.GUID == (ObjectGuid)Spell.CustomArg;
             }
             else
-            {
                 return ExplTargetUnit != target;
-            }
 
             return false;
         });

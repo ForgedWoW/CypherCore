@@ -34,13 +34,11 @@ internal class AuraWarlSoulLeechAbsorb : AuraScript, IHasAuraEffects
                 dmgDelayRemaining.GetEffect(1).SetAmount(damageToDistribute);
             }
             else
-            {
                 player.SpellFactory.CastSpell(player,
-                                 WarlockSpells.FEL_ARMOR_DMG_DELAY_REMAINING,
-                                 new CastSpellExtraArgs(true)
-                                     .SetSpellValueMod(SpellValueMod.BasePoint0, damageToDistribute)
-                                     .SetSpellValueMod(SpellValueMod.BasePoint1, damageToDistribute));
-            }
+                                              WarlockSpells.FEL_ARMOR_DMG_DELAY_REMAINING,
+                                              new CastSpellExtraArgs(true)
+                                                  .SetSpellValueMod(SpellValueMod.BasePoint0, damageToDistribute)
+                                                  .SetSpellValueMod(SpellValueMod.BasePoint1, damageToDistribute));
 
             if (player.TryGetAura(WarlockSpells.FEL_ARMOR_DMG_DELAY_REMAINING, out dmgDelayRemaining) &&
                 SpellManager.Instance.TryGetSpellInfo(WarlockSpells.FEL_ARMOR_DMG_DELAY, out var si) &&
@@ -56,9 +54,7 @@ internal class AuraWarlSoulLeechAbsorb : AuraScript, IHasAuraEffects
                     pDamageAura.SetDuration(duration);
                 }
                 else
-                {
                     player.SpellFactory.CastSpell(player, WarlockSpells.FEL_ARMOR_DMG_DELAY, damageToDistribute / numTicks, true);
-                }
             }
         }
 

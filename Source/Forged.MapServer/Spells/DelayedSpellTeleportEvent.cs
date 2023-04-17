@@ -15,6 +15,7 @@ internal class DelayedSpellTeleportEvent : BasicEvent
     private readonly uint _spellId;
     private readonly Unit _target;
     private readonly WorldLocation _targetDest;
+
     public DelayedSpellTeleportEvent(Unit target, WorldLocation targetDest, TeleportToOptions options, uint spellId)
     {
         _target = target;
@@ -26,9 +27,7 @@ internal class DelayedSpellTeleportEvent : BasicEvent
     public override bool Execute(ulong etime, uint pTime)
     {
         if (_targetDest.MapId == _target.Location.MapId)
-        {
             _target.NearTeleportTo(_targetDest, (_options & TeleportToOptions.Spell) != 0);
-        }
         else
         {
             var player = _target.AsPlayer;

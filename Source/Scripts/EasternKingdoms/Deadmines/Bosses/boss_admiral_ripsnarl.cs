@@ -215,13 +215,11 @@ public class BossAdmiralRipsnarl : BossAI
             _below25 = true;
         }
         else if (Me.HealthPct < 10 && !_below10)
-        {
             if (IsHeroic())
             {
                 SummonFinalVapors();
                 _below10 = true;
             }
-        }
 
         uint eventId;
 
@@ -267,9 +265,7 @@ public class BossAdmiralRipsnarl : BossAI
                     Events.ScheduleEvent(BossEvents.EVENT_FLEE_TO_FROG, TimeSpan.FromMilliseconds(100));
 
                     if (_vaporCount > 0)
-                    {
                         Talk(Says.SAY_FOG_2);
-                    }
                     else
                     {
                         var victim2 = Me.Victim;

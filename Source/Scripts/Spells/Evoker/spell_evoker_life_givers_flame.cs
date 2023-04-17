@@ -26,9 +26,7 @@ internal class SpellEvokerLifeGiversFlame : SpellScript, ISpellAfterHit
                 aurEff.SetAmount(0);
             }
             else
-            {
                 aurEff = aura.GetEffect(0);
-            }
 
             var maxHits = SpellManager.Instance.GetSpellInfo(EvokerSpells.LIFE_GIVERS_FLAME).GetEffect(1).BasePoints;
             var update = false;

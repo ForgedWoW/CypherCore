@@ -36,9 +36,7 @@ public class AtDhArtifactInnerDemons : AreaTriggerScript, IAreaTriggerOnCreate, 
             At.InitSplines(splinePoints, 1000);
         }
         else
-        {
             caster.VariableStorage.Remove("Spells.InnerDemonsTarget");
-        }
     }
 
     public void OnRemove()

@@ -27,9 +27,7 @@ internal class SpellWarlHandOfGuldanDamage : SpellScript, IHasSpellEffects
             _soulshards = 4;
         }
         else
-        {
             Caster.SetPower(PowerType.SoulShards, 0);
-        }
 
         return true;
     }

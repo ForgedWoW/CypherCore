@@ -15,21 +15,21 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.PyroguardEmbe
 
 internal struct SpellIds
 {
-    public const uint ENCAGED_EMBERSEER = 15282;        // Self on spawn
+    public const uint ENCAGED_EMBERSEER = 15282;         // Self on spawn
     public const uint FIRE_SHIELD_TRIGGER = 13377;       // Self on spawn missing from 335 dbc triggers public const uint FireShield every 3 sec
-    public const uint FIRE_SHIELD = 13376;              // Triggered by public const uint FireShieldTrigger
-    public const uint FREEZE_ANIM = 16245;              // Self on event start
-    public const uint EMBERSEER_GROWING = 16048;        // Self on event start
+    public const uint FIRE_SHIELD = 13376;               // Triggered by public const uint FireShieldTrigger
+    public const uint FREEZE_ANIM = 16245;               // Self on event start
+    public const uint EMBERSEER_GROWING = 16048;         // Self on event start
     public const uint EMBERSEER_GROWING_TRIGGER = 16049; // Triggered by public const uint EmberseerGrowing
     public const uint EMBERSEER_FULL_STRENGTH = 16047;   // Emberseer Full Strength
-    public const uint FIRENOVA = 23462;                // Combat
-    public const uint FLAMEBUFFET = 23341;             // Combat
+    public const uint FIRENOVA = 23462;                  // Combat
+    public const uint FLAMEBUFFET = 23341;               // Combat
 
     public const uint PYROBLAST = 17274; // Combat
 
     // Blackhand Incarcerator public const uint s
     public const uint ENCAGE_EMBERSEER = 15281; // Emberseer on spawn
-    public const uint STRIKE = 15580;          // Combat
+    public const uint STRIKE = 15580;           // Combat
 
     public const uint ENCAGE = 16045; // Combat
 

@@ -30,9 +30,7 @@ public class NPCDefiasBloodwizard : ScriptedAI
             BloodboltTimer = RandomHelper.URand(6400, 8000);
         }
         else
-        {
             BloodboltTimer -= diff;
-        }
 
         if (BloodWashTimer <= diff)
         {
@@ -44,9 +42,7 @@ public class NPCDefiasBloodwizard : ScriptedAI
             BloodWashTimer = RandomHelper.URand(15000, 21000);
         }
         else
-        {
             BloodWashTimer -= diff;
-        }
 
         if (RagezoneTimer <= diff)
         {
@@ -54,9 +50,7 @@ public class NPCDefiasBloodwizard : ScriptedAI
             RagezoneTimer = RandomHelper.URand(11000, 15000);
         }
         else
-        {
             RagezoneTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }

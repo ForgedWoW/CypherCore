@@ -70,9 +70,7 @@ public class NPCGlubtokDm : BossAI
             Me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
         }
         else
-        {
             FlagResetTimer -= diff;
-        }
 
         Events.Update(diff);
 

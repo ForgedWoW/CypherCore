@@ -32,9 +32,7 @@ public class NPCMonkSefSpirit : ScriptedAI
         var target = ObjectAccessor.Instance.GetUnit(summoner, summoner.AsUnit.Target);
 
         if (target != null)
-        {
             Me.SpellFactory.CastSpell(target, StormEarthAndFireSpells.SEF_CHARGE, true);
-        }
         else
         {
             if (Me.Entry == StormEarthAndFireSpells.NPC_FIRE_SPIRIT)

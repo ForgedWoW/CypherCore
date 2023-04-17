@@ -41,8 +41,6 @@ internal class SpellItemNitroBoostsBackfire : AuraScript, IHasAuraEffects
             Aura.Remove();
         }
         else
-        {
             _lastZ = curZ;
-        }
     }
 }

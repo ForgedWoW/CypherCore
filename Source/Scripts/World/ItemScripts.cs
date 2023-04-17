@@ -201,9 +201,7 @@ internal class ItemCapturedFrog : ScriptObjectAutoAddDBBound, IItemOnUse
                 player.SendEquipError(InventoryResult.OutOfRange, item, null);
         }
         else
-        {
             player.SendEquipError(InventoryResult.ClientLockedOut, item, null);
-        }
 
         return true;
     }

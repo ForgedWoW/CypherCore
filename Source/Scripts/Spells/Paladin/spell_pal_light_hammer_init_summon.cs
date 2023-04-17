@@ -20,12 +20,12 @@ internal class SpellPalLightHammerInitSummon : SpellScript, ISpellAfterCast
             if (hammer != null)
             {
                 hammer.SpellFactory.CastSpell(hammer,
-                                 PaladinSpells.LIGHT_HAMMER_COSMETIC,
-                                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
+                                              PaladinSpells.LIGHT_HAMMER_COSMETIC,
+                                              new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
 
                 hammer.SpellFactory.CastSpell(hammer,
-                                 PaladinSpells.LIGHT_HAMMER_PERIODIC,
-                                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
+                                              PaladinSpells.LIGHT_HAMMER_PERIODIC,
+                                              new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
             }
         }
     }

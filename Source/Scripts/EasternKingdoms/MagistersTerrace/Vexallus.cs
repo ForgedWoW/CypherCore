@@ -26,7 +26,7 @@ internal struct SpellIds
     public const uint OVERLOAD = 44353;
     public const uint ARCANE_SHOCK = 44319;
 
-    public const uint SUMMON_PURE_ENERGY = 44322;   // mod scale -10
+    public const uint SUMMON_PURE_ENERGY = 44322;    // mod scale -10
     public const uint H_SUMMON_PURE_ENERGY1 = 46154; // mod scale -5
     public const uint H_SUMMON_PURE_ENERGY2 = 46159; // mod scale -5
 
@@ -128,9 +128,7 @@ internal class BossVexallus : BossAI
                 return;
             }
             else
-            {
                 ++_intervalHealthAmount;
-            }
 
             Talk(TextIds.SAY_ENERGY);
             Talk(TextIds.EMOTE_DISCHARGE_ENERGY);
@@ -141,9 +139,7 @@ internal class BossVexallus : BossAI
                 DoCast(Me, SpellIds.H_SUMMON_PURE_ENERGY2);
             }
             else
-            {
                 DoCast(Me, SpellIds.SUMMON_PURE_ENERGY);
-            }
         }
     }
 

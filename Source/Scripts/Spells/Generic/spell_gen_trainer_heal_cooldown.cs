@@ -42,9 +42,7 @@ internal class SpellGenTrainerHealCooldown : AuraScript, IHasAuraEffects
                     target.SpellHistory.ModifyCooldown(reviveBattlePetSpellInfo, expectedCooldown - remainingCooldown);
             }
             else
-            {
                 target.SpellHistory.StartCooldown(reviveBattlePetSpellInfo, 0, null, false, expectedCooldown);
-            }
         }
     }
 }

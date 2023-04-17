@@ -44,11 +44,11 @@ public class SpellEvokerStasisOverrideCast : SpellScript, ISpellOnCast
                 var spell = (Spell)obj;
 
                 player.SpellFactory.CastSpell(spell.Targets,
-                                 spell.SpellInfo.Id,
-                                 new CastSpellExtraArgs(true)
-                                 {
-                                     EmpowerStage = spell.EmpoweredStage
-                                 });
+                                              spell.SpellInfo.Id,
+                                              new CastSpellExtraArgs(true)
+                                              {
+                                                  EmpowerStage = spell.EmpoweredStage
+                                              });
             }
         });
 

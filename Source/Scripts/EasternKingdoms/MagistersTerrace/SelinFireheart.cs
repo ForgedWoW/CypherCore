@@ -211,9 +211,7 @@ internal class BossSelinFireheart : BossAI
                     Events.ScheduleEvent(EventIds.DRAIN_MANA, timer + TimeSpan.FromSeconds(5), 0, PhaseIds.NORMAL);
                 }
                 else
-                {
                     Events.ScheduleEvent(EventIds.DRAIN_CRYSTAL, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(25), 0, PhaseIds.NORMAL);
-                }
             }
 
         DoMeleeAttackIfReady();

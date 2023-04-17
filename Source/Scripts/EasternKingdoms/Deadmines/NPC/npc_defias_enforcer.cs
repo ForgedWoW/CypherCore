@@ -43,9 +43,7 @@ public class NPCDefiasEnforcer : ScriptedAI
             BloodBathTimer = RandomHelper.URand(8000, 11000);
         }
         else
-        {
             BloodBathTimer -= diff;
-        }
 
         if (RecklessnessTimer <= diff)
         {
@@ -53,9 +51,7 @@ public class NPCDefiasEnforcer : ScriptedAI
             RecklessnessTimer = 20000;
         }
         else
-        {
             RecklessnessTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }

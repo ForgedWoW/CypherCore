@@ -127,9 +127,7 @@ internal class SpellMonkStagger : AuraScript, IHasAuraEffects
             }
         }
         else
-        {
             AddNewStagger(target, GetStaggerSpellId(target, amount), amount);
-        }
     }
 
     private uint GetStaggerSpellId(Unit unit, double amount)

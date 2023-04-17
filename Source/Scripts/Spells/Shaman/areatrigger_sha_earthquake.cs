@@ -40,9 +40,9 @@ internal class AreatriggerShaEarthquake : AreaTriggerScript, IAreaTriggerOnCreat
             var caster = At.GetCaster();
 
             caster?.SpellFactory.CastSpell(At.Location,
-                              ShamanSpells.EarthquakeTick,
-                              new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                  .SetOriginalCaster(At.GUID));
+                                           ShamanSpells.EarthquakeTick,
+                                           new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                               .SetOriginalCaster(At.GUID));
 
             _refreshTimer += _period;
         }

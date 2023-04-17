@@ -29,8 +29,8 @@ internal class SpellShaLightningBolt : SpellScript, IHasSpellEffects
         if (energizeAmount != null)
             Caster
                 .SpellFactory.CastSpell(Caster,
-                           ShamanSpells.LIGHTNING_BOLT_ENERGIZE,
-                           new CastSpellExtraArgs(energizeAmount)
-                               .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
+                                        ShamanSpells.LIGHTNING_BOLT_ENERGIZE,
+                                        new CastSpellExtraArgs(energizeAmount)
+                                            .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
     }
 }

@@ -18,9 +18,7 @@ public class SpellDruWildChargeMoonkin : SpellScript, ISpellCheckCast
                 return SpellCastResult.DontReport;
         }
         else
-        {
             return SpellCastResult.DontReport;
-        }
 
         return SpellCastResult.SpellCastOk;
     }

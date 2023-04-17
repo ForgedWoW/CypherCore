@@ -75,9 +75,7 @@ public class BossHelixGearbreaker : BossAI
             _oaf = Me.FindNearestCreature(DmCreatures.NPC_OAF, 30.0f);
 
             if (_oaf != null && _oaf.IsAlive)
-            {
                 Me.SpellFactory.CastSpell(_oaf, ESpels.RIDE_VEHICLE_HARDCODED);
-            }
             else
             {
                 _oaf = Me.SummonCreature(DmCreatures.NPC_OAF, Me.HomePosition);

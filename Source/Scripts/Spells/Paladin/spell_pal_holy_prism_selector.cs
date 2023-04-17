@@ -53,9 +53,7 @@ internal class SpellPalHolyPrismSelector : SpellScript, IHasSpellEffects
                 targets.Resize(maxTargets);
             }
             else
-            {
                 targets.RandomResize(maxTargets);
-            }
         }
 
         _sharedTargets = targets;

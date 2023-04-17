@@ -38,8 +38,6 @@ public class NPCLightningOrbs : NullCreatureAI
             _turnTimer = 100;
         }
         else
-        {
             _turnTimer -= diff;
-        }
     }
 }

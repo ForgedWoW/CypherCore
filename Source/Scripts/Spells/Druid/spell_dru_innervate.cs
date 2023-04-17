@@ -39,10 +39,10 @@ internal class SpellDruInnervate : SpellScript, ISpellCheckCast, ISpellOnHit
 
             if (innervateR2 != null)
                 caster.SpellFactory.CastSpell(caster,
-                                 DruidSpellIds.Innervate,
-                                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
-                                     .SetTriggeringSpell(Spell)
-                                     .AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.Amount));
+                                              DruidSpellIds.Innervate,
+                                              new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
+                                                  .SetTriggeringSpell(Spell)
+                                                  .AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.Amount));
         }
     }
 }

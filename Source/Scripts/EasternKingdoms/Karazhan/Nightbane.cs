@@ -163,7 +163,6 @@ internal class BossNightbane : BossAI
     public override void MovementInform(MovementGeneratorType type, uint pointId)
     {
         if (type == MovementGeneratorType.SplineChain)
-        {
             switch (pointId)
             {
                 case PointIds.INTRO_START:
@@ -205,7 +204,6 @@ internal class BossNightbane : BossAI
 
                     break;
             }
-        }
         else if (type == MovementGeneratorType.Point)
         {
             if (pointId == PointIds.PHASE_TWO_FLY)
@@ -272,9 +270,7 @@ internal class BossNightbane : BossAI
                                             });
             }
             else if (pointId == PointIds.PHASE_TWO_PRE_FLY)
-            {
                 SchedulerProtected.Schedule(TimeSpan.FromMilliseconds(1), task => { Me.MotionMaster.MovePoint(PointIds.PHASE_TWO_FLY, MiscConst.FlyPosition, true); });
-            }
         }
     }
 

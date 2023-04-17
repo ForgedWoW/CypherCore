@@ -49,10 +49,10 @@ public class SpellShaSpiritLink : SpellScript, ISpellOnHit
 
             Caster
                 .SpellFactory.CastSpell(target,
-                           98021,
-                           new CastSpellExtraArgs(TriggerCastFlags.None)
-                               .AddSpellMod(SpellValueMod.BasePoint0, (int)bp0)
-                               .AddSpellMod(SpellValueMod.BasePoint1, (int)bp1));
+                                        98021,
+                                        new CastSpellExtraArgs(TriggerCastFlags.None)
+                                            .AddSpellMod(SpellValueMod.BasePoint0, (int)bp0)
+                                            .AddSpellMod(SpellValueMod.BasePoint1, (int)bp1));
         }
     }
 

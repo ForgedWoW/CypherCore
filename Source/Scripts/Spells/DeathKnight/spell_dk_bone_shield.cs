@@ -101,9 +101,7 @@ public class SpellDkBoneShield : AuraScript, IHasAuraEffects
                     target.SpellFactory.CastSpell(target, 219788, true);
             }
             else
-            {
                 target.RemoveAura(219788);
-            }
         }
     }
 }

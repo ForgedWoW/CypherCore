@@ -148,9 +148,7 @@ internal class NPCGuardGeneric : GuardAI
                                           task.Repeat(TimeSpan.FromSeconds(5));
                                       }
                                       else
-                                      {
                                           task.Repeat(TimeSpan.FromSeconds(1));
-                                      }
                                   });
     }
 
@@ -246,9 +244,7 @@ internal class NPCGuardShattrathFaction : GuardAI
                                                  });
                                }
                                else
-                               {
                                    task.Repeat();
-                               }
                            });
     }
 }

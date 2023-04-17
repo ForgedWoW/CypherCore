@@ -46,13 +46,11 @@ internal class SpellPalAwakening : AuraScript, IHasAuraEffects
             avengingWrath.SetMaxDuration((int)(avengingWrath.MaxDuration + extraDuration.TotalMilliseconds));
         }
         else
-        {
             Target
                 .SpellFactory.CastSpell(Target,
-                           PaladinSpells.AVENGING_WRATH,
-                           new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress | TriggerCastFlags.IgnoreSpellAndCategoryCD)
-                               .SetTriggeringSpell(eventInfo.ProcSpell)
-                               .AddSpellMod(SpellValueMod.Duration, (int)extraDuration.TotalMilliseconds));
-        }
+                                        PaladinSpells.AVENGING_WRATH,
+                                        new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress | TriggerCastFlags.IgnoreSpellAndCategoryCD)
+                                            .SetTriggeringSpell(eventInfo.ProcSpell)
+                                            .AddSpellMod(SpellValueMod.Duration, (int)extraDuration.TotalMilliseconds));
     }
 }

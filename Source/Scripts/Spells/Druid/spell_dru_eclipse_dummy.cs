@@ -69,9 +69,7 @@ internal class SpellDruEclipseDummy : AuraScript, IAuraOnProc, IAuraEnterLeaveCo
                 return;
 
             if (remaining > 1)
-            {
                 aura.SetStackAmount((byte)(remaining - 1));
-            }
             else
             {
                 // cast eclipse

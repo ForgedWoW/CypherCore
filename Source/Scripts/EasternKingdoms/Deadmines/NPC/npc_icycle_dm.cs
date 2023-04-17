@@ -33,8 +33,6 @@ public class NPCIcycleDm : NullCreatureAI
             DoCast(Me, 62453);
         }
         else
-        {
             HitTimer -= diff;
-        }
     }
 }

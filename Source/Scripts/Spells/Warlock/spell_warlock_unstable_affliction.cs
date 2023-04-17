@@ -55,9 +55,7 @@ public class SpellWarlockUnstableAffliction : SpellScript, IHasSpellEffects
                 }
             }
             else
-            {
                 spellToCast = spellId;
-            }
         }
 
         if (spellToCast == 0)

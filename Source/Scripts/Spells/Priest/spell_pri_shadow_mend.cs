@@ -29,9 +29,7 @@ internal class SpellPriShadowMend : SpellScript, ISpellAfterHit
             // Handle Masochism talent
             if (caster.HasAura(PriestSpells.MASOCHISM_TALENT) &&
                 caster.GUID == target.GUID)
-            {
                 caster.SpellFactory.CastSpell(caster, PriestSpells.MASOCHISM_PERIODIC_HEAL, new CastSpellExtraArgs(Spell).AddSpellMod(SpellValueMod.BasePoint0, periodicAmount));
-            }
             else if (target.IsInCombat &&
                      periodicAmount != 0)
             {

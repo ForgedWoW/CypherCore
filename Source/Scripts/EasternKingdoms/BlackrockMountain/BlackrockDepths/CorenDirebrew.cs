@@ -111,9 +111,7 @@ internal class BossCorenDirebrew : BossAI
             DoAction(ActionIds.START_FIGHT);
         }
         else if (gossipListId == MiscConst.GOSSIP_OPTION_APOLOGIZE)
-        {
             player.CloseGossipMenu();
-        }
 
         return false;
     }

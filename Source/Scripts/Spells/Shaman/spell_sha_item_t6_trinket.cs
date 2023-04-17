@@ -53,9 +53,7 @@ internal class SpellShaItemT6Trinket : AuraScript, IHasAuraEffects
             chance = 50;
         }
         else
-        {
             return;
-        }
 
         if (RandomHelper.randChance(chance))
             eventInfo.Actor.SpellFactory.CastSpell((Unit)null, spellId, true);

@@ -76,9 +76,7 @@ public class NPCMiningMonkey : ScriptedAI
                             UiTimer = 2000;
                         }
                         else
-                        {
                             UiTimer -= diff;
-                        }
                     }
                     else
                     {

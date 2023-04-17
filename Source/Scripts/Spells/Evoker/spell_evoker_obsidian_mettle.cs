@@ -12,9 +12,7 @@ public class SpellEvokerObsidianMettle : SpellScript, ISpellBeforeCast
     public void BeforeCast()
     {
         if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.OBSIDIAN_METTLE))
-        {
             Spell.SetSpellValue(Framework.Constants.SpellValueMod.BasePoint3, 0f);
-        }
         else
         {
             Spell.SetSpellValue(Framework.Constants.SpellValueMod.BasePoint1, 0f);

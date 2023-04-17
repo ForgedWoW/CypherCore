@@ -63,9 +63,7 @@ public class SpellHunKillCommand : SpellScript, IHasSpellEffects, ISpellCheckCas
                     pet.AsCreature.AI.AttackStart(ExplTargetUnit);
                 }
                 else
-                {
                     pet.AsCreature.AI.AttackStart(ExplTargetUnit);
-                }
                 //pet->CastSpell(GetExplTargetUnit(), KILL_COMMAND_CHARGE, true);
 
                 //191384 Aspect of the Beast

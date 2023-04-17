@@ -35,9 +35,7 @@ public class NPCDefiasEnvokerAI : ScriptedAI
             HolyfireTimer = RandomHelper.URand(8000, 11000);
         }
         else
-        {
             HolyfireTimer -= diff;
-        }
 
         if (ShieldTimer <= diff)
         {
@@ -48,9 +46,7 @@ public class NPCDefiasEnvokerAI : ScriptedAI
             }
         }
         else
-        {
             ShieldTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }

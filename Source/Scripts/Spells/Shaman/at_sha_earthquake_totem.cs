@@ -47,9 +47,9 @@ public class AtShaEarthquakeTotem : AreaTriggerScript, IAreaTriggerOnCreate, IAr
             PhasingHandler.InheritPhaseShift(tempSumm, caster);
 
             tempSumm.SpellFactory.CastSpell(caster,
-                               UsedSpells.EARTHQUAKE_DAMAGE,
-                               new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                   .AddSpellMod(SpellValueMod.BasePoint0, (int)(caster.GetTotalSpellPowerValue(SpellSchoolMask.Normal, false) * 0.3)));
+                                            UsedSpells.EARTHQUAKE_DAMAGE,
+                                            new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                                .AddSpellMod(SpellValueMod.BasePoint0, (int)(caster.GetTotalSpellPowerValue(SpellSchoolMask.Normal, false) * 0.3)));
         }
 
         TimeInterval -= 1000;

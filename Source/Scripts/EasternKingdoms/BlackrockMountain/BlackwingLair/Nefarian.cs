@@ -36,15 +36,15 @@ internal struct SpellIds
     public const uint CLEAVE = 20691;
     public const uint TAILLASH = 23364;
 
-    public const uint MAGE = 23410;        // wild magic
-    public const uint WARRIOR = 23397;     // beserk
-    public const uint DRUID = 23398;       // cat form
-    public const uint PRIEST = 23401;      // corrupted healing
-    public const uint PALADIN = 23418;     // syphon blessing
-    public const uint SHAMAN = 23425;      // totems
-    public const uint WARLOCK = 23427;     // infernals
-    public const uint HUNTER = 23436;      // bow broke
-    public const uint ROGUE = 23414;       // Paralise
+    public const uint MAGE = 23410;         // wild magic
+    public const uint WARRIOR = 23397;      // beserk
+    public const uint DRUID = 23398;        // cat form
+    public const uint PRIEST = 23401;       // corrupted healing
+    public const uint PALADIN = 23418;      // syphon blessing
+    public const uint SHAMAN = 23425;       // totems
+    public const uint WARLOCK = 23427;      // infernals
+    public const uint HUNTER = 23436;       // bow broke
+    public const uint ROGUE = 23414;        // Paralise
     public const uint DEATH_KNIGHT = 49576; // Death Grip
 
     // 19484
@@ -503,9 +503,7 @@ internal class BossNefarian : BossAI
                 creature.DespawnOrUnsummon();
         }
         else
-        {
             _despawnTimer -= diff;
-        }
 
         if (!UpdateVictim())
             return;

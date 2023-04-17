@@ -106,9 +106,7 @@ public class NPCDefiasCannon : ScriptedAI
                 CannonBlastTimer = (uint)RandomHelper.IRand(3000, 5000);
             }
             else
-            {
                 CannonBlastTimer -= uiDiff;
-            }
         }
     }
 }

@@ -81,7 +81,7 @@ internal struct GameObjectsIds
 
     // Doors
     public const uint EMBERSEER_IN = 175244;  // First door to Pyroguard Emberseer
-    public const uint DOORS = 175705;        // Second door to Pyroguard Emberseer
+    public const uint DOORS = 175705;         // Second door to Pyroguard Emberseer
     public const uint EMBERSEER_OUT = 175153; // Door after Pyroguard Emberseer event
     public const uint GYTH_ENTRY_DOOR = 164726;
     public const uint GYTH_COMBAT_DOOR = 175185;

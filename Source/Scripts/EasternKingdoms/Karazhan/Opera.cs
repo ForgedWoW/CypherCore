@@ -173,9 +173,7 @@ internal struct MiscConst
             target.AI.AttackStart(target.Victim);
         }
         else
-        {
             target.MotionMaster.Initialize();
-        }
     }
 }
 
@@ -252,9 +250,7 @@ internal class BossDorothee : ScriptedAI
                 _aggroTimer = 0;
             }
             else
-            {
                 _aggroTimer -= diff;
-            }
         }
 
         if (!UpdateVictim())
@@ -266,9 +262,7 @@ internal class BossDorothee : ScriptedAI
             _waterBoltTimer = TitoDied ? 1500 : 5000u;
         }
         else
-        {
             _waterBoltTimer -= diff;
-        }
 
         if (_fearTimer <= diff)
         {
@@ -276,9 +270,7 @@ internal class BossDorothee : ScriptedAI
             _fearTimer = 30000;
         }
         else
-        {
             _fearTimer -= diff;
-        }
 
         if (!SummonedTito)
         {
@@ -360,9 +352,7 @@ internal class NPCTito : ScriptedAI
             _yipTimer = 10000;
         }
         else
-        {
             _yipTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }
@@ -448,9 +438,7 @@ internal class BossStrawman : ScriptedAI
                 _aggroTimer = 0;
             }
             else
-            {
                 _aggroTimer -= diff;
-            }
         }
 
         if (!UpdateVictim())
@@ -462,9 +450,7 @@ internal class BossStrawman : ScriptedAI
             _brainBashTimer = 15000;
         }
         else
-        {
             _brainBashTimer -= diff;
-        }
 
         if (_brainWipeTimer <= diff)
         {
@@ -476,9 +462,7 @@ internal class BossStrawman : ScriptedAI
             _brainWipeTimer = 20000;
         }
         else
-        {
             _brainWipeTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }
@@ -560,9 +544,7 @@ internal class BossTinhead : ScriptedAI
                 _aggroTimer = 0;
             }
             else
-            {
                 _aggroTimer -= diff;
-            }
         }
 
         if (!UpdateVictim())
@@ -574,9 +556,7 @@ internal class BossTinhead : ScriptedAI
             _cleaveTimer = 5000;
         }
         else
-        {
             _cleaveTimer -= diff;
-        }
 
         if (_rustCount < 8)
         {
@@ -588,9 +568,7 @@ internal class BossTinhead : ScriptedAI
                 _rustTimer = 6000;
             }
             else
-            {
                 _rustTimer -= diff;
-            }
         }
 
         DoMeleeAttackIfReady();
@@ -675,9 +653,7 @@ internal class BossRoar : ScriptedAI
                 _aggroTimer = 0;
             }
             else
-            {
                 _aggroTimer -= diff;
-            }
         }
 
         if (!UpdateVictim())
@@ -689,9 +665,7 @@ internal class BossRoar : ScriptedAI
             _mangleTimer = RandomHelper.URand(5000, 8000);
         }
         else
-        {
             _mangleTimer -= diff;
-        }
 
         if (_shredTimer <= diff)
         {
@@ -699,9 +673,7 @@ internal class BossRoar : ScriptedAI
             _shredTimer = RandomHelper.URand(10000, 15000);
         }
         else
-        {
             _shredTimer -= diff;
-        }
 
         if (_screamTimer <= diff)
         {
@@ -709,9 +681,7 @@ internal class BossRoar : ScriptedAI
             _screamTimer = RandomHelper.URand(20000, 30000);
         }
         else
-        {
             _screamTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }
@@ -780,9 +750,7 @@ internal class BossCrone : ScriptedAI
             _cycloneTimer = 30000;
         }
         else
-        {
             _cycloneTimer -= diff;
-        }
 
         if (_chainLightningTimer <= diff)
         {
@@ -790,9 +758,7 @@ internal class BossCrone : ScriptedAI
             _chainLightningTimer = 15000;
         }
         else
-        {
             _chainLightningTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }
@@ -842,9 +808,7 @@ internal class NPCCyclone : ScriptedAI
             _moveTimer = RandomHelper.URand(5000, 8000);
         }
         else
-        {
             _moveTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -971,9 +935,7 @@ internal class BossBigbadwolf : ScriptedAI
             }
         }
         else
-        {
             _chaseTimer -= diff;
-        }
 
         if (_isChasing)
             return;
@@ -984,9 +946,7 @@ internal class BossBigbadwolf : ScriptedAI
             _fearTimer = RandomHelper.URand(25000, 35000);
         }
         else
-        {
             _fearTimer -= diff;
-        }
 
         if (_swipeTimer <= diff)
         {
@@ -994,9 +954,7 @@ internal class BossBigbadwolf : ScriptedAI
             _swipeTimer = RandomHelper.URand(25000, 30000);
         }
         else
-        {
             _swipeTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -1179,9 +1137,7 @@ internal class BossJulianne : ScriptedAI
                 _entryYellTimer = 0;
             }
             else
-            {
                 _entryYellTimer -= diff;
-            }
         }
 
         if (_aggroYellTimer != 0)
@@ -1194,9 +1150,7 @@ internal class BossJulianne : ScriptedAI
                 _aggroYellTimer = 0;
             }
             else
-            {
                 _aggroYellTimer -= diff;
-            }
         }
 
         if (_drinkPoisonTimer != 0)
@@ -1210,9 +1164,7 @@ internal class BossJulianne : ScriptedAI
                 _drinkPoisonTimer = 0;
             }
             else
-            {
                 _drinkPoisonTimer -= diff;
-            }
         }
 
         if (_phase == RajPhase.Romulo &&
@@ -1235,9 +1187,7 @@ internal class BossJulianne : ScriptedAI
                 _summonedRomulo = true;
             }
             else
-            {
                 _summonRomuloTimer -= diff;
-            }
         }
 
         if (ResurrectSelfTimer != 0)
@@ -1255,9 +1205,7 @@ internal class BossJulianne : ScriptedAI
                 ResurrectTimer = 1000;
             }
             else
-            {
                 ResurrectSelfTimer -= diff;
-            }
         }
 
         if (!UpdateVictim() || IsFakingDeath)
@@ -1279,9 +1227,7 @@ internal class BossJulianne : ScriptedAI
                 }
             }
             else
-            {
                 ResurrectTimer -= diff;
-            }
         }
 
         if (_blindingPassionTimer <= diff)
@@ -1294,9 +1240,7 @@ internal class BossJulianne : ScriptedAI
             _blindingPassionTimer = RandomHelper.URand(30000, 45000);
         }
         else
-        {
             _blindingPassionTimer -= diff;
-        }
 
         if (_devotionTimer <= diff)
         {
@@ -1304,9 +1248,7 @@ internal class BossJulianne : ScriptedAI
             _devotionTimer = RandomHelper.URand(15000, 45000);
         }
         else
-        {
             _devotionTimer -= diff;
-        }
 
         if (_powerfulAttractionTimer <= diff)
         {
@@ -1314,9 +1256,7 @@ internal class BossJulianne : ScriptedAI
             _powerfulAttractionTimer = RandomHelper.URand(5000, 30000);
         }
         else
-        {
             _powerfulAttractionTimer -= diff;
-        }
 
         if (_eternalAffectionTimer <= diff)
         {
@@ -1330,16 +1270,12 @@ internal class BossJulianne : ScriptedAI
                     DoCast(romulo, SpellIds.ETERNAL_AFFECTION);
             }
             else
-            {
                 DoCast(Me, SpellIds.ETERNAL_AFFECTION);
-            }
 
             _eternalAffectionTimer = RandomHelper.URand(45000, 60000);
         }
         else
-        {
             _eternalAffectionTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }
@@ -1511,9 +1447,7 @@ internal class BossRomulo : ScriptedAI
                 }
             }
             else
-            {
                 ResurrectTimer -= diff;
-            }
         }
 
         if (_backwardLungeTimer <= diff)
@@ -1527,9 +1461,7 @@ internal class BossRomulo : ScriptedAI
             }
         }
         else
-        {
             _backwardLungeTimer -= diff;
-        }
 
         if (_daringTimer <= diff)
         {
@@ -1537,9 +1469,7 @@ internal class BossRomulo : ScriptedAI
             _daringTimer = RandomHelper.URand(20000, 40000);
         }
         else
-        {
             _daringTimer -= diff;
-        }
 
         if (_deadlySwatheTimer <= diff)
         {
@@ -1551,9 +1481,7 @@ internal class BossRomulo : ScriptedAI
             _deadlySwatheTimer = RandomHelper.URand(15000, 25000);
         }
         else
-        {
             _deadlySwatheTimer -= diff;
-        }
 
         if (_poisonThrustTimer <= diff)
         {
@@ -1561,9 +1489,7 @@ internal class BossRomulo : ScriptedAI
             _poisonThrustTimer = RandomHelper.URand(10000, 20000);
         }
         else
-        {
             _poisonThrustTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }

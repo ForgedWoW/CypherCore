@@ -30,9 +30,7 @@ public class SpellDruPredatorySwiftness : SpellScript, ISpellCheckCast, ISpellOn
                 return SpellCastResult.NoComboPoints;
         }
         else
-        {
             return SpellCastResult.DontReport;
-        }
 
         return SpellCastResult.SpellCastOk;
     }

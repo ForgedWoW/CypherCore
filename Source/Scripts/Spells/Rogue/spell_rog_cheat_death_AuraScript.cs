@@ -39,9 +39,7 @@ public class SpellRogCheatDeathAuraScript : AuraScript, IHasAuraEffects
         var target = Target.AsPlayer;
 
         if (target.HasAura(CheatDeath.CheatDeathDmgReduc))
-        {
             return MathFunctions.CalculatePct(dmgInfo.Damage, 85);
-        }
         else
         {
             if (dmgInfo.Damage < target.Health || target.HasAura(RogueSpells.CHEAT_DEATH_COOLDOWN))

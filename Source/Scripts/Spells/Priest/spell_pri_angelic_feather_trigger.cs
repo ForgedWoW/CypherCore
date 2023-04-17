@@ -28,9 +28,7 @@ internal class SpellPriAngelicFeatherTrigger : SpellScript, IHasSpellEffects
 
         // Caster is prioritary
         if (Caster.IsWithinDist2d(destPos, radius))
-        {
             Caster.SpellFactory.CastSpell(Caster, PriestSpells.ANGELIC_FEATHER_AURA, true);
-        }
         else
         {
             CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);

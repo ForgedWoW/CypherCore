@@ -61,9 +61,7 @@ internal class NPCInnkeeper : ScriptedAI
             player.SpellFactory.CastSpell(player, SpellIds.TRICK_OR_TREATED, true);
 
             if (RandomHelper.IRand(0, 1) != 0)
-            {
                 player.SpellFactory.CastSpell(player, SpellIds.TREAT, true);
-            }
             else
             {
                 uint trickspell = 0;

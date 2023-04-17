@@ -33,9 +33,7 @@ internal class PlayerWarlScript : ScriptObjectAutoAdd, IPlayerOnModifyPower, IPl
             (spellProto.Id == WarlockSpells.CHAOS_BOLT ||
              spellProto.Id == WarlockSpells.SHADOWBURN ||
              spellProto.Id == WarlockSpells.RAIN_OF_FIRE_DAMAGE))
-        {
             MathFunctions.AddPct(ref damage, dmgPct);
-        }
         else
         {
             var rand = RandomHelper.DRand(0, dmgPct);

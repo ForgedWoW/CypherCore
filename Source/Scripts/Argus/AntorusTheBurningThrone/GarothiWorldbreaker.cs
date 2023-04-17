@@ -122,9 +122,7 @@ internal struct MiscConst
 
         // We have less available nontank targets than we want, include tanks
         if (targetsCopy.Count < preferedSize)
-        {
             targets.RandomResize(preferedSize);
-        }
         else
         {
             // Our Target list has enough alternative targets, resize

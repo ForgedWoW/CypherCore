@@ -30,9 +30,7 @@ public class SpellPriSpiritShell : SpellScript, ISpellOnHit
                     var shell = player.GetAuraEffect(114908, 0);
 
                     if (shell != null)
-                    {
                         shell.SetAmount(Math.Min(shell.Amount + bp, (int)player.CountPctFromMaxHealth(60)));
-                    }
                     else
                     {
                         var args = new CastSpellExtraArgs();

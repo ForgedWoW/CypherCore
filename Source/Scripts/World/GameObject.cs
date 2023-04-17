@@ -482,9 +482,7 @@ internal class GOAmberpineOuthouse : GameObjectAI
             player.SendGossipMenu(GossipConst.GOSSIP_OUTHOUSE_VACANT, Me.GUID);
         }
         else
-        {
             player.SendGossipMenu(GossipConst.GOSSIP_OUTHOUSE_INUSE, Me.GUID);
-        }
 
         return true;
     }

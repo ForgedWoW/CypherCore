@@ -26,9 +26,7 @@ internal class SpellItemPygmyOil : SpellScript, IHasSpellEffects
         var aura = caster.GetAura(ItemSpellIds.PYGMY_OIL_PYGMY_AURA);
 
         if (aura != null)
-        {
             aura.RefreshDuration();
-        }
         else
         {
             aura = caster.GetAura(ItemSpellIds.PYGMY_OIL_SMALLER_AURA);
@@ -36,9 +34,7 @@ internal class SpellItemPygmyOil : SpellScript, IHasSpellEffects
             if (aura == null ||
                 aura.StackAmount < 5 ||
                 !RandomHelper.randChance(50))
-            {
                 caster.SpellFactory.CastSpell(caster, ItemSpellIds.PYGMY_OIL_SMALLER_AURA, true);
-            }
             else
             {
                 aura.Remove();

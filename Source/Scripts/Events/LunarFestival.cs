@@ -122,9 +122,7 @@ internal class NPCFirework : ScriptedAI
             Me.Location.Orientation = launcher.Location.Orientation + MathF.PI / 2;
         }
         else
-        {
             return;
-        }
 
         if (IsCluster())
         {
@@ -160,9 +158,7 @@ internal class NPCFirework : ScriptedAI
         }
         else
             //me.SpellFactory.CastSpell(me, GetFireworkSpell(me.GetEntry()), true);
-        {
             Me.SpellFactory.CastSpell(Me.Location, GetFireworkSpell(Me.Entry), new CastSpellExtraArgs(true));
-        }
     }
 
     private bool IsCluster()

@@ -32,9 +32,7 @@ public class SpellMonkTeachingsOfTheMonasteryPassive : AuraScript, IHasAuraEffec
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
     {
         if (eventInfo.SpellInfo.Id == MonkSpells.TIGER_PALM)
-        {
             Target.SpellFactory.CastSpell(Target, MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
-        }
         else if (RandomHelper.randChance(aurEff.Amount))
         {
             var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);

@@ -39,9 +39,7 @@ public class NPCEarthGrabTotem : ScriptedAI
                                                      Me.SpellFactory.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
                                                  }
                                                  else
-                                                 {
                                                      Me.SpellFactory.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
-                                                 }
                                              }
 
                                              return time;

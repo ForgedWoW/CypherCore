@@ -28,9 +28,7 @@ public class NPCOgreHenchman : ScriptedAI
             UppercutTimer = RandomHelper.URand(8000, 11000);
         }
         else
-        {
             UppercutTimer -= diff;
-        }
 
         DoMeleeAttackIfReady();
     }

@@ -64,8 +64,6 @@ public class AtMageFrozenOrb : AreaTriggerScript, IAreaTriggerOnInitialize, IAre
             DamageInterval = 500;
         }
         else
-        {
             DamageInterval -= diff;
-        }
     }
 }

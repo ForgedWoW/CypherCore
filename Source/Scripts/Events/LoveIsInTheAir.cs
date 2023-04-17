@@ -24,7 +24,7 @@ internal struct SpellIds
     public const uint MEAL_EAT_VISUAL = 45120; // Holiday - Valentine - Romantic Picnic Meal Eat Visual
 
     //public const uint MealParticle = 45114; // Holiday - Valentine - Romantic Picnic Meal Particle - Unused
-    public const uint DRINK_VISUAL = 45121;          // Holiday - Valentine - Romantic Picnic Drink Visual
+    public const uint DRINK_VISUAL = 45121;           // Holiday - Valentine - Romantic Picnic Drink Visual
     public const uint ROMANTIC_PICNIC_ACHIEV = 45123; // Romantic Picnic Periodic = 5000
 
     //CreateHeartCandy

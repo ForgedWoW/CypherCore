@@ -17,11 +17,11 @@ namespace Scripts.DragonIsles;
 internal struct SpellIds
 {
     // Spells
-    public const uint DRACTHYR_LOGIN = 369728;       // teleports to random room, plays scene for the room, binds the home position
-    public const uint STASIS1 = 369735;             // triggers 366620
-    public const uint STASIS2 = 366620;             // triggers 366636
-    public const uint STASIS3 = 366636;             // removes 365560, sends first quest (64864)
-    public const uint STASIS4 = 365560;             // freeze the Target
+    public const uint DRACTHYR_LOGIN = 369728;        // teleports to random room, plays scene for the room, binds the home position
+    public const uint STASIS1 = 369735;               // triggers 366620
+    public const uint STASIS2 = 366620;               // triggers 366636
+    public const uint STASIS3 = 366636;               // removes 365560, sends first quest (64864)
+    public const uint STASIS4 = 365560;               // freeze the Target
     public const uint DRACTHYR_MOVIE_ROOM01 = 394245; // scene for room 1
     public const uint DRACTHYR_MOVIE_ROOM02 = 394279; // scene for room 2
     public const uint DRACTHYR_MOVIE_ROOM03 = 394281; // scene for room 3

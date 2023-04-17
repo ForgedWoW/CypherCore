@@ -42,9 +42,7 @@ internal class SpellWarrHeroicLeap : SpellScript, ISpellCheckCast, IHasSpellEffe
                     return SpellCastResult.NoPath;
             }
             else if (dest.Z > Caster.Location.Z + 4.0f)
-            {
                 return SpellCastResult.NoPath;
-            }
 
             return SpellCastResult.SpellCastOk;
         }

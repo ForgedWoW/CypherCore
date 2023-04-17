@@ -193,9 +193,9 @@ internal class SpellPilgrimsBountyFeastOnSpellScript : SpellScript, IHasSpellEff
                     player.SpellFactory.CastSpell(player, SpellIds.ON_PLATE_EAT_VISUAL, true);
 
                     caster.SpellFactory.CastSpell(player,
-                                     spellId,
-                                     new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                         .SetOriginalCaster(player.GUID));
+                                                  spellId,
+                                                  new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                                      .SetOriginalCaster(player.GUID));
                 }
             }
         }

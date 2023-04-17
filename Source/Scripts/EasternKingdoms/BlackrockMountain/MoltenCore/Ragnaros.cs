@@ -17,9 +17,9 @@ internal struct SpellIds
     public const uint HAND_OF_RAGNAROS = 19780;
     public const uint WRATH_OF_RAGNAROS = 20566;
     public const uint LAVA_BURST = 21158;
-    public const uint MAGMA_BLAST = 20565;       // Ranged attack
+    public const uint MAGMA_BLAST = 20565;         // Ranged attack
     public const uint SONS_OF_FLAME_DUMMY = 21108; // Server side effect
-    public const uint RAGSUBMERGE = 21107;      // Stealth aura
+    public const uint RAGSUBMERGE = 21107;         // Stealth aura
     public const uint RAGEMERGE = 20568;
     public const uint MELT_WEAPON = 21388;
     public const uint ELEMENTAL_FIRE = 20564;

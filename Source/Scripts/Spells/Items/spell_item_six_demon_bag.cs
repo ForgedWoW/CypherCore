@@ -32,17 +32,11 @@ internal class SpellItemSixDemonBag : SpellScript, IHasSpellEffects
             var rand = RandomHelper.URand(0, 99);
 
             if (rand < 25) // Fireball (25% chance)
-            {
                 spellId = ItemSpellIds.FIREBALL;
-            }
             else if (rand < 50) // Frostball (25% chance)
-            {
                 spellId = ItemSpellIds.FROSTBOLT;
-            }
             else if (rand < 70) // Chain Lighting (20% chance)
-            {
                 spellId = ItemSpellIds.CHAIN_LIGHTNING;
-            }
             else if (rand < 80) // Polymorph (10% chance)
             {
                 spellId = ItemSpellIds.POLYMORPH;
@@ -51,9 +45,7 @@ internal class SpellItemSixDemonBag : SpellScript, IHasSpellEffects
                     target = caster;
             }
             else if (rand < 95) // Enveloping Winds (15% chance)
-            {
                 spellId = ItemSpellIds.ENVELOPING_WINDS;
-            }
             else // Summon Felhund minion (5% chance)
             {
                 spellId = ItemSpellIds.SUMMON_FELHOUND_MINION;

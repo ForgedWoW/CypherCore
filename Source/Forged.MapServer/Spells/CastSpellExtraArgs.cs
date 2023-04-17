@@ -11,17 +11,6 @@ namespace Forged.MapServer.Spells;
 
 public class CastSpellExtraArgs
 {
-    public Difficulty CastDifficulty;
-    public Item CastItem;
-    public object CustomArg;
-    public byte? EmpowerStage;
-    public ObjectGuid OriginalCaster = ObjectGuid.Empty;
-    public ObjectGuid OriginalCastId = ObjectGuid.Empty;
-    public int? OriginalCastItemLevel;
-    public Dictionary<SpellValueMod, double> SpellValueOverrides = new();
-    public TriggerCastFlags TriggerFlags;
-    public AuraEffect TriggeringAura;
-    public Spell TriggeringSpell;
     public CastSpellExtraArgs() { }
 
     public CastSpellExtraArgs(bool triggered)
@@ -61,6 +50,18 @@ public class CastSpellExtraArgs
     {
         SpellValueOverrides.Add(mod, val);
     }
+
+    public Difficulty CastDifficulty { get; set; }
+    public Item CastItem { get; set; }
+    public object CustomArg { get; set; }
+    public byte? EmpowerStage { get; set; }
+    public ObjectGuid OriginalCaster { get; set; } = ObjectGuid.Empty;
+    public ObjectGuid OriginalCastId { get; set; } = ObjectGuid.Empty;
+    public int? OriginalCastItemLevel { get; set; }
+    public Dictionary<SpellValueMod, double> SpellValueOverrides { get; set; } = new();
+    public TriggerCastFlags TriggerFlags { get; set; }
+    public AuraEffect TriggeringAura { get; set; }
+    public Spell TriggeringSpell { get; set; }
 
     public CastSpellExtraArgs AddSpellMod(SpellValueMod mod, double val)
     {
@@ -124,6 +125,7 @@ public class CastSpellExtraArgs
 
         return this;
     }
+
     public CastSpellExtraArgs SetTriggeringAura(AuraEffect triggeringAura)
     {
         TriggeringAura = triggeringAura;
@@ -138,11 +140,11 @@ public class CastSpellExtraArgs
     {
         TriggeringSpell = triggeringSpell;
 
-        if (triggeringSpell != null)
-        {
-            OriginalCastItemLevel = triggeringSpell.CastItemLevel;
-            OriginalCastId = triggeringSpell.CastId;
-        }
+        if (triggeringSpell == null)
+            return this;
+
+        OriginalCastItemLevel = triggeringSpell.CastItemLevel;
+        OriginalCastId = triggeringSpell.CastId;
 
         return this;
     }

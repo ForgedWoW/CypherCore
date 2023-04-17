@@ -42,9 +42,7 @@ public class SpellWarrIntercept : SpellScript, ISpellCheckCast, IHasSpellEffects
             return;
 
         if (target.IsFriendlyTo(caster))
-        {
             caster.SpellFactory.CastSpell(target, WarriorSpells.INTERVENE_TRIGGER, true);
-        }
         else
         {
             caster.SpellFactory.CastSpell(target, WarriorSpells.CHARGE_EFFECT, true);

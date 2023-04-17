@@ -49,9 +49,7 @@ public class NPCDeadminesBird : ScriptedAI
             return;
         }
         else
-        {
             UiTimerEyeGouge -= uiDiff;
-        }
 
         if (IiTimerEyePeck <= uiDiff)
         {
@@ -65,9 +63,7 @@ public class NPCDeadminesBird : ScriptedAI
             return;
         }
         else
-        {
             IiTimerEyePeck -= uiDiff;
-        }
 
         DoMeleeAttackIfReady();
     }

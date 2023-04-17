@@ -55,9 +55,7 @@ internal class SpellGenCloneWeaponAuraScript : AuraScript, IHasAuraEffects
                         target.SetVirtualItem(0, mainItem.Entry);
                 }
                 else
-                {
                     target.SetVirtualItem(0, caster.GetVirtualItemId(0));
-                }
 
                 break;
             }
@@ -76,9 +74,7 @@ internal class SpellGenCloneWeaponAuraScript : AuraScript, IHasAuraEffects
                         target.SetVirtualItem(1, offItem.Entry);
                 }
                 else
-                {
                     target.SetVirtualItem(1, caster.GetVirtualItemId(1));
-                }
 
                 break;
             }
@@ -96,9 +92,7 @@ internal class SpellGenCloneWeaponAuraScript : AuraScript, IHasAuraEffects
                         target.SetVirtualItem(2, rangedItem.Entry);
                 }
                 else
-                {
                     target.SetVirtualItem(2, caster.GetVirtualItemId(2));
-                }
 
                 break;
             }

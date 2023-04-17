@@ -26,8 +26,6 @@ public class AtWarlockArtifactThalkielsDiscord : AreaTriggerScript, IAreaTrigger
             caster.SpellFactory.CastSpell(At, WarlockSpells.THALKIES_DISCORD_DAMAGE, true);
         }
         else
-        {
             At.VariableStorage.Set("_timer", timer);
-        }
     }
 }

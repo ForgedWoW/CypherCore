@@ -73,9 +73,7 @@ internal class SpellHunTameBeast : SpellScript, ISpellCheckCast
             }
         }
         else
-        {
             return SpellCastResult.BadImplicitTargets;
-        }
 
         return SpellCastResult.SpellCastOk;
     }

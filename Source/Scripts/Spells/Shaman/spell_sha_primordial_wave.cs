@@ -18,9 +18,7 @@ public class SpellShaPrimordialWave : SpellScript, ISpellOnHit
             return;
 
         if (player.IsFriendlyTo(victim))
-        {
             player.SpellFactory.CastSpell(victim, ShamanSpells.PRIMORDIAL_WAVE_HEALING, true);
-        }
         else
         {
             player.SpellFactory.CastSpell(victim, ShamanSpells.PRIMORDIAL_WAVE_DAMAGE, true);

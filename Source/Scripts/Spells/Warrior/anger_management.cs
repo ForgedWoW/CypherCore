@@ -16,10 +16,10 @@ namespace Scripts.Spells.Warrior;
 //152278 Anger Management
 [Script]
 public class AngerManagement : ScriptObjectAutoAdd, IPlayerOnSpellCast,
-                                IClassRescriction,
-                                IPlayerOnLogout,
-                                IPlayerOnMapChanged,
-                                IPlayerOnDeath
+                               IClassRescriction,
+                               IPlayerOnLogout,
+                               IPlayerOnMapChanged,
+                               IPlayerOnDeath
 
 {
     public static Dictionary<Player, int> RageSpent = new();

@@ -21,9 +21,7 @@ public class SpellHunGlaiveTossMissile : SpellScript, ISpellOnHit, ISpellAfterCa
             var plr = Caster.AsPlayer;
 
             if (plr != null)
-            {
                 plr.SpellFactory.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
-            }
             else if (OriginalCaster)
             {
                 var caster = OriginalCaster.AsPlayer;
@@ -37,9 +35,7 @@ public class SpellHunGlaiveTossMissile : SpellScript, ISpellOnHit, ISpellAfterCa
             var plr = Caster.AsPlayer;
 
             if (plr != null)
-            {
                 plr.SpellFactory.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
-            }
             else if (OriginalCaster)
             {
                 var caster = OriginalCaster.AsPlayer;

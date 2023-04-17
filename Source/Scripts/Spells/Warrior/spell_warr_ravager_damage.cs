@@ -29,7 +29,7 @@ public class SpellWarrRavagerDamage : SpellScript, IHasSpellEffects
             _alreadyProc = true;
         }
 
-        if (Caster.HasAura(262304))                  // Deep Wounds
+        if (Caster.HasAura(262304))                               // Deep Wounds
             Caster.SpellFactory.CastSpell(HitUnit, 262115, true); // Deep Wounds
     }
 }

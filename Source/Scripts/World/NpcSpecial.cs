@@ -532,9 +532,7 @@ internal class NPCChickenCluck : ScriptedAI
                 return;
             }
             else
-            {
                 _resetFlagTimer -= diff;
-            }
         }
 
         if (UpdateVictim())
@@ -669,9 +667,7 @@ internal class NPCTorchTossingTargetBunnyController : ScriptedAI
             _targetTimer = 3000;
         }
         else
-        {
             _targetTimer -= diff;
-        }
     }
 
     private ObjectGuid DoSearchForTargets(ObjectGuid lastTargetGUID)
@@ -855,9 +851,7 @@ internal class NPCDoctor : ScriptedAI
         }
         else
             // If no player or player abandon quest in progress
-        {
             Reset();
-        }
     }
 
     public void PatientSaved(Creature soldier, Player player, Position point)
@@ -947,9 +941,7 @@ internal class NPCDoctor : ScriptedAI
                 ++_summonPatientCount;
             }
             else
-            {
                 _summonPatientTimer -= diff;
-            }
         }
     }
 
@@ -1238,16 +1230,12 @@ internal class NPCGarmentsOfQuests : EscortAI
                     Start(false, true);
                 }
                 else
-                {
                     EnterEvadeMode(); //something went wrong
-                }
 
                 _runAwayTimer = 30000;
             }
             else
-            {
                 _runAwayTimer -= diff;
-            }
         }
 
         base.UpdateAI(diff);
@@ -1307,9 +1295,7 @@ internal class NPCSteamTonk : ScriptedAI
             Me.ReactState = ReactStates.Passive;
         }
         else
-        {
             Me.ReactState = ReactStates.Aggressive;
-        }
     }
 }
 
@@ -1552,9 +1538,7 @@ internal class NPCSpringRabbit : ScriptedAI
                 _jumpTimer = RandomHelper.URand(5000, 10000);
             }
             else
-            {
                 _jumpTimer -= diff;
-            }
 
             if (_bunnyTimer <= diff)
             {
@@ -1562,9 +1546,7 @@ internal class NPCSpringRabbit : ScriptedAI
                 _bunnyTimer = RandomHelper.URand(20000, 40000);
             }
             else
-            {
                 _bunnyTimer -= diff;
-            }
         }
         else
         {
@@ -1589,9 +1571,7 @@ internal class NPCSpringRabbit : ScriptedAI
                 _searchTimer = RandomHelper.URand(5000, 10000);
             }
             else
-            {
                 _searchTimer -= diff;
-            }
         }
     }
 
@@ -1668,9 +1648,7 @@ internal class NPCTrainWrecker : NullCreatureAI
         if (_isSearching)
         {
             if (diff < _timer)
-            {
                 _timer -= diff;
-            }
             else
             {
                 var target = Me.FindNearestGameObject(GameobjectIds.TOY_TRAIN, 15.0f);
@@ -1683,13 +1661,10 @@ internal class NPCTrainWrecker : NullCreatureAI
                     Me.MotionMaster.MovePoint(TrainWrecker.MOVEID_CHASE, target.GetNearPosition(3.0f, target.Location.GetAbsoluteAngle(Me.Location)));
                 }
                 else
-                {
                     _timer = 3 * Time.IN_MILLISECONDS;
-                }
             }
         }
         else
-        {
             switch (_nextAction)
             {
                 case TrainWrecker.EVENT_DO_JUMP:
@@ -1715,9 +1690,7 @@ internal class NPCTrainWrecker : NullCreatureAI
                         _nextAction = TrainWrecker.EVENT_DO_WRECK;
                     }
                     else
-                    {
                         _nextAction = 0;
-                    }
                 }
 
                     break;
@@ -1739,9 +1712,7 @@ internal class NPCTrainWrecker : NullCreatureAI
                         _nextAction = TrainWrecker.EVENT_DO_DANCE;
                     }
                     else
-                    {
                         _nextAction = 0;
-                    }
                 }
 
                     break;
@@ -1760,7 +1731,6 @@ internal class NPCTrainWrecker : NullCreatureAI
 
                     break;
             }
-        }
     }
 
     public override void MovementInform(MovementGeneratorType type, uint id)

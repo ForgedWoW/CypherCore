@@ -29,9 +29,7 @@ public class SpellPriSmiteAbsorb : AuraScript, IHasAuraEffects
             return absorbAmount;
 
         if (!attacker.HasAura(PriestSpells.SMITE_AURA, caster.GUID))
-        {
             absorbAmount = 0;
-        }
         else
         {
             var aur = attacker.GetAura(PriestSpells.SMITE_AURA, caster.GUID);

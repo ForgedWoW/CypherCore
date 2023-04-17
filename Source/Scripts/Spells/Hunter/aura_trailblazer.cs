@@ -53,7 +53,6 @@ public class AuraTrailblazer : AuraScript, IHasAuraEffects
             _ts = TimeSpan.FromSeconds(SpellInfo.GetEffect(0).BasePoints);
         }
         else
-        {
             caster.Events.ScheduleAbortOnFirstMatchingEvent(e =>
             {
                 if (e is DelayedCastEvent dce)
@@ -61,7 +60,6 @@ public class AuraTrailblazer : AuraScript, IHasAuraEffects
 
                 return false;
             });
-        }
 
         caster.Events.AddEventAtOffset(_event, _ts);
     }

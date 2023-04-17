@@ -48,9 +48,7 @@ internal class SpellWarlDemonicCircleSummon : AuraScript, IHasAuraEffects
                     Target.SpellFactory.CastSpell(Target, WarlockSpells.DEMONIC_CIRCLE_ALLOW_CAST, true);
             }
             else
-            {
                 Target.RemoveAura(WarlockSpells.DEMONIC_CIRCLE_ALLOW_CAST);
-            }
         }
     }
 }

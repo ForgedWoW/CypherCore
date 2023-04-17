@@ -79,9 +79,7 @@ namespace Scripts.Pets
                     _fireBlastTimer = MiscConst.TIMER_MIRROR_IMAGE_FIRE_BLAST;
                 }
                 else
-                {
                     DoCastVictim(SpellIds.MAGE_FROST_BOLT);
-                }
             }
 
             public override bool CanAIAttack(Unit who)

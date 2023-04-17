@@ -33,16 +33,16 @@ internal struct CreatureIds
 
 internal struct SpellIds
 {
-    public const uint TAIL_SWEEP = 15847;       // Tail Sweep - Slap Everything Behind Dragon (2 Seconds Interval)
-    public const uint SUMMON_PLAYER = 24776;    // Teleport Highest Threat Player In Front Of Dragon If Wandering Off
-    public const uint DREAM_FOG = 24777;        // Auraspell For Dream Fog Npc (15224)
-    public const uint SLEEP = 24778;           // Sleep Triggerspell (Used For Dream Fog)
+    public const uint TAIL_SWEEP = 15847;        // Tail Sweep - Slap Everything Behind Dragon (2 Seconds Interval)
+    public const uint SUMMON_PLAYER = 24776;     // Teleport Highest Threat Player In Front Of Dragon If Wandering Off
+    public const uint DREAM_FOG = 24777;         // Auraspell For Dream Fog Npc (15224)
+    public const uint SLEEP = 24778;             // Sleep Triggerspell (Used For Dream Fog)
     public const uint SEEPING_FOG_LEFT = 24813;  // Dream Fog - Summon Left
     public const uint SEEPING_FOG_RIGHT = 24814; // Dream Fog - Summon Right
     public const uint NOXIOUS_BREATH = 24818;
-    public const uint MARK_OF_NATURE = 25040;     // Mark Of Nature Trigger (Applied On Target Death - 15 Minutes Of Being Suspectible To Aura Of Nature)
+    public const uint MARK_OF_NATURE = 25040;      // Mark Of Nature Trigger (Applied On Target Death - 15 Minutes Of Being Suspectible To Aura Of Nature)
     public const uint MARK_OF_NATURE_AURA = 25041; // Mark Of Nature (Passive Marker-Test; Ticks Every 10 Seconds From Boss; Triggers Spellid 25042 (Scripted)
-    public const uint AURA_OF_NATURE = 25043;     // Stun For 2 Minutes (Used When public const uint MarkOfNature Exists On The Target)
+    public const uint AURA_OF_NATURE = 25043;      // Stun For 2 Minutes (Used When public const uint MarkOfNature Exists On The Target)
 
     //Ysondre
     public const uint LIGHTNING_WAVE = 24819;
@@ -197,9 +197,7 @@ internal class NPCDreamFog : ScriptedAI
             Me.SetSpeedRate(UnitMoveType.Walk, 0.75f);
         }
         else
-        {
             _roamTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -487,9 +485,7 @@ internal class BossTaerar : EmeraldDragonAI
             }
             // _banishtimer has not expired, and we still have active shades:
             else
-            {
                 _banishedTimer -= diff;
-            }
 
             // Update the Scheduler before we return (handled under emerald_dragonAI.UpdateAI(diff); if we're not inside this check)
             Scheduler.Update(diff);

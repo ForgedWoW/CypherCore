@@ -27,9 +27,7 @@ internal class SpellMonkProvoke : SpellScript, ISpellCheckCast, IHasSpellEffects
                 return singleTargetExplicitResult;
         }
         else if (ExplTargetUnit.OwnerGUID != Caster.GUID)
-        {
             return SpellCastResult.BadTargets;
-        }
 
         return SpellCastResult.SpellCastOk;
     }

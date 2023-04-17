@@ -27,15 +27,15 @@ internal struct ItemSpellIds
     public const uint MANIFEST_ANGER_OFF_HAND = 71434;
 
     //Auraofmadness
-    public const uint SOCIOPATH = 39511;     // Sociopath: +35 Strength(Paladin; Rogue; Druid; Warrior)
-    public const uint DELUSIONAL = 40997;    // Delusional: +70 Attack Power(Rogue; Hunter; Paladin; Warrior; Druid)
-    public const uint KLEPTOMANIA = 40998;   // Kleptomania: +35 Agility(Warrior; Rogue; Paladin; Hunter; Druid)
-    public const uint MEGALOMANIA = 40999;   // Megalomania: +41 Damage / Healing(Druid; Shaman; Priest; Warlock; Mage; Paladin)
-    public const uint PARANOIA = 41002;      // Paranoia: +35 Spell / Melee / Ranged Crit Strike Rating(All Classes)
-    public const uint MANIC = 41005;         // Manic: +35 Haste(Spell; Melee And Ranged) (All Classes)
-    public const uint NARCISSISM = 41009;    // Narcissism: +35 Intellect(Druid; Shaman; Priest; Warlock; Mage; Paladin; Hunter)
+    public const uint SOCIOPATH = 39511;      // Sociopath: +35 Strength(Paladin; Rogue; Druid; Warrior)
+    public const uint DELUSIONAL = 40997;     // Delusional: +70 Attack Power(Rogue; Hunter; Paladin; Warrior; Druid)
+    public const uint KLEPTOMANIA = 40998;    // Kleptomania: +35 Agility(Warrior; Rogue; Paladin; Hunter; Druid)
+    public const uint MEGALOMANIA = 40999;    // Megalomania: +41 Damage / Healing(Druid; Shaman; Priest; Warlock; Mage; Paladin)
+    public const uint PARANOIA = 41002;       // Paranoia: +35 Spell / Melee / Ranged Crit Strike Rating(All Classes)
+    public const uint MANIC = 41005;          // Manic: +35 Haste(Spell; Melee And Ranged) (All Classes)
+    public const uint NARCISSISM = 41009;     // Narcissism: +35 Intellect(Druid; Shaman; Priest; Warlock; Mage; Paladin; Hunter)
     public const uint MARTYR_COMPLEX = 41011; // Martyr Complex: +35 Stamina(All Classes)
-    public const uint DEMENTIA = 41404;      // Dementia: Every 5 Seconds Either Gives You +5/-5%  Damage/Healing. (Druid; Shaman; Priest; Warlock; Mage; Paladin)
+    public const uint DEMENTIA = 41404;       // Dementia: Every 5 Seconds Either Gives You +5/-5%  Damage/Healing. (Druid; Shaman; Priest; Warlock; Mage; Paladin)
     public const uint DEMENTIA_POS = 41406;
     public const uint DEMENTIA_NEG = 41409;
 
@@ -49,16 +49,16 @@ internal struct ItemSpellIds
     public const uint DEADLY_PRECISION = 71564;
 
     //Deathbringerswill
-    public const uint STRENGTH_OF_THE_TAUNKA = 71484;     // +600 Strength
-    public const uint AGILITY_OF_THE_VRYKUL = 71485;      // +600 Agility
-    public const uint POWER_OF_THE_TAUNKA = 71486;        // +1200 Attack Power
-    public const uint AIM_OF_THE_IRON_DWARVES = 71491;     // +600 Critical
-    public const uint SPEED_OF_THE_VRYKUL = 71492;        // +600 Haste
-    public const uint AGILITY_OF_THE_VRYKUL_HERO = 71556;  // +700 Agility
-    public const uint POWER_OF_THE_TAUNKA_HERO = 71558;    // +1400 Attack Power
+    public const uint STRENGTH_OF_THE_TAUNKA = 71484;       // +600 Strength
+    public const uint AGILITY_OF_THE_VRYKUL = 71485;        // +600 Agility
+    public const uint POWER_OF_THE_TAUNKA = 71486;          // +1200 Attack Power
+    public const uint AIM_OF_THE_IRON_DWARVES = 71491;      // +600 Critical
+    public const uint SPEED_OF_THE_VRYKUL = 71492;          // +600 Haste
+    public const uint AGILITY_OF_THE_VRYKUL_HERO = 71556;   // +700 Agility
+    public const uint POWER_OF_THE_TAUNKA_HERO = 71558;     // +1400 Attack Power
     public const uint AIM_OF_THE_IRON_DWARVES_HERO = 71559; // +700 Critical
-    public const uint SPEED_OF_THE_VRYKUL_HERO = 71560;    // +700 Haste
-    public const uint STRENGTH_OF_THE_TAUNKA_HERO = 71561; // +700 Strength
+    public const uint SPEED_OF_THE_VRYKUL_HERO = 71560;     // +700 Haste
+    public const uint STRENGTH_OF_THE_TAUNKA_HERO = 71561;  // +700 Strength
 
     //GoblinBombDispenser
     public const uint SUMMON_GOBLIN_BOMB = 13258;

@@ -40,7 +40,7 @@ internal class SpellPalDivinePurpose : AuraScript, IHasAuraEffects
     {
         eventInfo.Actor
                  .SpellFactory.CastSpell(eventInfo.Actor,
-                            PaladinSpells.DIVINE_PURPOSE_TRIGGERRED,
-                            new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(eventInfo.ProcSpell));
+                                         PaladinSpells.DIVINE_PURPOSE_TRIGGERRED,
+                                         new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(eventInfo.ProcSpell));
     }
 }

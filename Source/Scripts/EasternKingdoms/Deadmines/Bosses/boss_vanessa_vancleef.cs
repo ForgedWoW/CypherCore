@@ -199,9 +199,7 @@ public class BossVanessaVancleef : BossAI
             Killed = true;
         }
         else if (Me.HealthBelowPctDamaged(25, damage))
-        {
             Events.ScheduleEvent(BossEvents.EVENT_VENGEANCE, TimeSpan.FromMilliseconds(4000));
-        }
 
         if (!Under2 && Me.HealthBelowPctDamaged(26, damage))
         {

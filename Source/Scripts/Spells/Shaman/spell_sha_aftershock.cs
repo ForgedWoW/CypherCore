@@ -46,8 +46,8 @@ internal class SpellShaAftershock : AuraScript, IHasAuraEffects
 
         eventInfo.Actor
                  .SpellFactory.CastSpell(eventInfo.Actor,
-                            ShamanSpells.AFTERSHOCK_ENERGIZE,
-                            new CastSpellExtraArgs(energize != 0)
-                                .AddSpellMod(SpellValueMod.BasePoint0, energize.Value));
+                                         ShamanSpells.AFTERSHOCK_ENERGIZE,
+                                         new CastSpellExtraArgs(energize != 0)
+                                             .AddSpellMod(SpellValueMod.BasePoint0, energize.Value));
     }
 }

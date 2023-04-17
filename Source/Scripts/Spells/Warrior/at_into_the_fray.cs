@@ -37,13 +37,9 @@ public class AtIntoTheFray : AreaTriggerScript, IAreaTriggerOnUpdate
                     itf.SetStackAmount((byte)Math.Min(itf.CalcMaxStackAmount(), count));
             }
             else
-            {
                 caster.RemoveAura(WarriorSpells.INTO_THE_FRAY);
-            }
         }
         else
-        {
             At.VariableStorage.Set("_timer", timer);
-        }
     }
 }

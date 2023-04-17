@@ -42,9 +42,7 @@ public class NPCWarrRavager : ScriptedAI
                     Me.SetVirtualItem(0, lProto.Id);
             }
             else
-            {
                 Me.SetVirtualItem(0, item.Template.Id);
-            }
 
             item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
@@ -56,9 +54,7 @@ public class NPCWarrRavager : ScriptedAI
                     Me.SetVirtualItem(2, lProto.Id);
             }
             else
-            {
                 Me.SetVirtualItem(2, item.Template.Id);
-            }
         }
     }
 }

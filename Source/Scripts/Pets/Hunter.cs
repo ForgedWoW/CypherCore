@@ -16,7 +16,7 @@ namespace Scripts.Pets
     {
         internal struct SpellIds
         {
-            public const uint CRIPPLING_POISON = 30981;     // Viper
+            public const uint CRIPPLING_POISON = 30981;      // Viper
             public const uint DEADLY_POISON_PASSIVE = 34657; // Venomous Snake
             public const uint MIND_NUMBING_POISON = 25810;   // Viper
         }
@@ -113,9 +113,7 @@ namespace Scripts.Pets
                         _spellTimer = 3000;
                     }
                     else
-                    {
                         _spellTimer -= diff;
-                    }
                 }
 
                 DoMeleeAttackIfReady();

@@ -297,16 +297,16 @@ internal struct WgAchievements
     public const uint WIN_WG100 = 1718;         // @Todo: Has To Be Implemented
     public const uint WG_GNOMESLAUGHTER = 1723; // @Todo: Has To Be Implemented
     public const uint WG_TOWER_DESTROY = 1727;
-    public const uint DESTRUCTION_DERBY_A = 1737; // @Todo: Has To Be Implemented
+    public const uint DESTRUCTION_DERBY_A = 1737;  // @Todo: Has To Be Implemented
     public const uint WG_TOWER_CANNON_KILL = 1751; // @Todo: Has To Be Implemented
-    public const uint WG_MASTER_A = 1752;         // @Todo: Has To Be Implemented
+    public const uint WG_MASTER_A = 1752;          // @Todo: Has To Be Implemented
     public const uint WIN_WG_TIMER10 = 1755;
-    public const uint STONE_KEEPER50 = 2085;     // @Todo: Has To Be Implemented
-    public const uint STONE_KEEPER100 = 2086;    // @Todo: Has To Be Implemented
-    public const uint STONE_KEEPER250 = 2087;    // @Todo: Has To Be Implemented
-    public const uint STONE_KEEPER500 = 2088;    // @Todo: Has To Be Implemented
-    public const uint STONE_KEEPER1000 = 2089;   // @Todo: Has To Be Implemented
-    public const uint WG_RANGER = 2199;          // @Todo: Has To Be Implemented
+    public const uint STONE_KEEPER50 = 2085;      // @Todo: Has To Be Implemented
+    public const uint STONE_KEEPER100 = 2086;     // @Todo: Has To Be Implemented
+    public const uint STONE_KEEPER250 = 2087;     // @Todo: Has To Be Implemented
+    public const uint STONE_KEEPER500 = 2088;     // @Todo: Has To Be Implemented
+    public const uint STONE_KEEPER1000 = 2089;    // @Todo: Has To Be Implemented
+    public const uint WG_RANGER = 2199;           // @Todo: Has To Be Implemented
     public const uint DESTRUCTION_DERBY_H = 2476; // @Todo: Has To Be Implemented
     public const uint WG_MASTER_H = 2776;         // @Todo: Has To Be Implemented
 }

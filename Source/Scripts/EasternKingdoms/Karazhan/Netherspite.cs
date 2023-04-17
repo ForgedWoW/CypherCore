@@ -140,9 +140,7 @@ internal class BossNetherspite : ScriptedAI
             _voidZoneTimer = 15000;
         }
         else
-        {
             _voidZoneTimer -= diff;
-        }
 
         // NetherInfusion Berserk
         if (!_berserk &&
@@ -153,9 +151,7 @@ internal class BossNetherspite : ScriptedAI
             _berserk = true;
         }
         else
-        {
             _netherInfusionTimer -= diff;
-        }
 
         if (_portalPhase) // Portal Phase
         {
@@ -166,9 +162,7 @@ internal class BossNetherspite : ScriptedAI
                 _portalTimer = 1000;
             }
             else
-            {
                 _portalTimer -= diff;
-            }
 
             // Empowerment & Nether Burn
             if (_empowermentTimer <= diff)
@@ -178,9 +172,7 @@ internal class BossNetherspite : ScriptedAI
                 _empowermentTimer = 90000;
             }
             else
-            {
                 _empowermentTimer -= diff;
-            }
 
             if (_phaseTimer <= diff)
             {
@@ -192,9 +184,7 @@ internal class BossNetherspite : ScriptedAI
                 }
             }
             else
-            {
                 _phaseTimer -= diff;
-            }
         }
         else // Banish Phase
         {
@@ -209,9 +199,7 @@ internal class BossNetherspite : ScriptedAI
                 _netherbreathTimer = RandomHelper.URand(5000, 7000);
             }
             else
-            {
                 _netherbreathTimer -= diff;
-            }
 
             if (_phaseTimer <= diff)
             {
@@ -223,9 +211,7 @@ internal class BossNetherspite : ScriptedAI
                 }
             }
             else
-            {
                 _phaseTimer -= diff;
-            }
         }
 
         DoMeleeAttackIfReady();

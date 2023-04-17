@@ -30,9 +30,7 @@ public class SpellFeralFrenzy : SpellScript
                                                      _strikes++;
 
                                                      if (_strikes < 5)
-                                                     {
                                                          return TimeSpan.FromMilliseconds(200);
-                                                     }
                                                      else if (_strikes == 5)
                                                      {
                                                          caster.SpellFactory.CastSpell(target, DruidSpells.FeralFrenzyBleed, true);

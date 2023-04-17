@@ -36,9 +36,7 @@ public class NPCGoblinOverseer : ScriptedAI
             MotivateTimer = RandomHelper.URand(8000, 11000);
         }
         else
-        {
             MotivateTimer -= diff;
-        }
 
         if (HealthBelowPct(50) && !_threat)
         {

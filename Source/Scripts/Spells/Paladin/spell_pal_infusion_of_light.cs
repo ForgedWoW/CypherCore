@@ -42,7 +42,7 @@ internal class SpellPalInfusionOfLight : AuraScript, IHasAuraEffects
     {
         eventInfo.Actor
                  .SpellFactory.CastSpell(eventInfo.Actor,
-                            PaladinSpells.INFUSION_OF_LIGHT_ENERGIZE,
-                            new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetTriggeringSpell(eventInfo.ProcSpell));
+                                         PaladinSpells.INFUSION_OF_LIGHT_ENERGIZE,
+                                         new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetTriggeringSpell(eventInfo.ProcSpell));
     }
 }

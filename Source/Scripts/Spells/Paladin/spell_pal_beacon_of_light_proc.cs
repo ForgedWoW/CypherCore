@@ -41,10 +41,10 @@ public class SpellPalBeaconOfLightProc : AuraScript, IHasAuraEffects, IAuraCheck
 
         switch (spellID)
         {
-            case PaladinSpells.ARCING_LIGHT_HEAL:   // Light's Hammer
+            case PaladinSpells.ARCING_LIGHT_HEAL:      // Light's Hammer
             case PaladinSpells.HOLY_PRISM_TARGET_ALLY: // Holy Prism
-            case PaladinSpells.LIGHT_OF_DAWN:       // Light of Dawn
-                pct = 15;                           // 15% heal from these spells
+            case PaladinSpells.LIGHT_OF_DAWN:          // Light of Dawn
+                pct = 15;                              // 15% heal from these spells
 
                 break;
             default:

@@ -14,10 +14,10 @@ namespace Scripts.m_Events.HallowsEnd;
 internal struct SpellIds
 {
     //HallowEndCandysSpells
-    public const uint CANDY_ORANGE_GIANT = 24924;        // Effect 1: Apply Aura: Mod Size, Value: 30%
-    public const uint CANDY_SKELETON = 24925;           // Effect 1: Apply Aura: Change Model (Skeleton). Effect 2: Apply Aura: Underwater Breathing
-    public const uint CANDY_PIRATE = 24926;             // Effect 1: Apply Aura: Increase Swim Speed, Value: 50%
-    public const uint CANDY_GHOST = 24927;              // Effect 1: Apply Aura: Levitate / Hover. Effect 2: Apply Aura: Slow Fall, Effect 3: Apply Aura: Water Walking
+    public const uint CANDY_ORANGE_GIANT = 24924;         // Effect 1: Apply Aura: Mod Size, Value: 30%
+    public const uint CANDY_SKELETON = 24925;             // Effect 1: Apply Aura: Change Model (Skeleton). Effect 2: Apply Aura: Underwater Breathing
+    public const uint CANDY_PIRATE = 24926;               // Effect 1: Apply Aura: Increase Swim Speed, Value: 50%
+    public const uint CANDY_GHOST = 24927;                // Effect 1: Apply Aura: Levitate / Hover. Effect 2: Apply Aura: Slow Fall, Effect 3: Apply Aura: Water Walking
     public const uint CANDY_FEMALE_DEFIAS_PIRATE = 44742; // Effect 1: Apply Aura: Change Model (Defias Pirate, Female). Effect 2: Increase Swim Speed, Value: 50%
     public const uint CANDY_MALE_DEFIAS_PIRATE = 44743;   // Effect 1: Apply Aura: Change Model (Defias Pirate, Male).   Effect 2: Increase Swim Speed, Value: 50%
 

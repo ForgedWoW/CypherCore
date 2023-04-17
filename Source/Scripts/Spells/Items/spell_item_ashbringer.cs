@@ -31,17 +31,17 @@ internal class SpellItemAshbringer : SpellScript, IHasSpellEffects
         var player = Caster.AsPlayer;
 
         var soundID = RandomHelper.RAND(SoundIds.ASHBRINGER1,
-                                         SoundIds.ASHBRINGER2,
-                                         SoundIds.ASHBRINGER3,
-                                         SoundIds.ASHBRINGER4,
-                                         SoundIds.ASHBRINGER5,
-                                         SoundIds.ASHBRINGER6,
-                                         SoundIds.ASHBRINGER7,
-                                         SoundIds.ASHBRINGER8,
-                                         SoundIds.ASHBRINGER9,
-                                         SoundIds.ASHBRINGER10,
-                                         SoundIds.ASHBRINGER11,
-                                         SoundIds.ASHBRINGER12);
+                                        SoundIds.ASHBRINGER2,
+                                        SoundIds.ASHBRINGER3,
+                                        SoundIds.ASHBRINGER4,
+                                        SoundIds.ASHBRINGER5,
+                                        SoundIds.ASHBRINGER6,
+                                        SoundIds.ASHBRINGER7,
+                                        SoundIds.ASHBRINGER8,
+                                        SoundIds.ASHBRINGER9,
+                                        SoundIds.ASHBRINGER10,
+                                        SoundIds.ASHBRINGER11,
+                                        SoundIds.ASHBRINGER12);
 
         // Ashbringers effect (SpellIds.ID 28441) retriggers every 5 seconds, with a chance of making it say one of the above 12 sounds
         if (RandomHelper.URand(0, 60) < 1)

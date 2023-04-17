@@ -17,7 +17,7 @@ namespace Scripts.Spells.Priest;
 
 [Script] // 110744 - Divine Star
 internal class AreatriggerPriDivineStar : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate,
-                                             IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnDestinationReached
+                                          IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnDestinationReached
 {
     private readonly List<ObjectGuid> _affectedUnits = new();
     private readonly TaskScheduler _scheduler = new();
@@ -61,9 +61,7 @@ internal class AreatriggerPriDivineStar : AreaTriggerScript, IAreaTriggerOnCreat
             ReturnToCaster();
         }
         else
-        {
             At.Remove();
-        }
     }
 
     public void OnUnitEnter(Unit unit)
@@ -107,25 +105,25 @@ internal class AreatriggerPriDivineStar : AreaTriggerScript, IAreaTriggerOnCreat
     private void ReturnToCaster()
     {
         _scheduler.Schedule(TimeSpan.FromMilliseconds(0),
-                           task =>
-                           {
-                               var caster = At.GetCaster();
+                            task =>
+                            {
+                                var caster = At.GetCaster();
 
-                               if (caster != null)
-                               {
-                                   _casterCurrentPosition = caster.Location;
+                                if (caster != null)
+                                {
+                                    _casterCurrentPosition = caster.Location;
 
-                                   List<Vector3> returnSplinePoints = new();
+                                    List<Vector3> returnSplinePoints = new();
 
-                                   returnSplinePoints.Add(At.Location);
-                                   returnSplinePoints.Add(At.Location);
-                                   returnSplinePoints.Add(caster.Location);
-                                   returnSplinePoints.Add(caster.Location);
+                                    returnSplinePoints.Add(At.Location);
+                                    returnSplinePoints.Add(At.Location);
+                                    returnSplinePoints.Add(caster.Location);
+                                    returnSplinePoints.Add(caster.Location);
 
-                                   At.InitSplines(returnSplinePoints, (uint)At.GetDistance(caster) / 24 * 1000);
+                                    At.InitSplines(returnSplinePoints, (uint)At.GetDistance(caster) / 24 * 1000);
 
-                                   task.Repeat(TimeSpan.FromMilliseconds(250));
-                               }
-                           });
+                                    task.Repeat(TimeSpan.FromMilliseconds(250));
+                                }
+                            });
     }
 }

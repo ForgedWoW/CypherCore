@@ -59,9 +59,7 @@ public class NPCWarrBanner : ScriptedAI
                     }
             }
             else
-            {
                 _timer -= diff;
-            }
         }
     }
 

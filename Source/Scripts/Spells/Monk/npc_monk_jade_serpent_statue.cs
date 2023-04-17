@@ -24,9 +24,7 @@ public class NPCMonkJadeSerpentStatue : ScriptedAI
             if (player != null)
             {
                 if (player.Class != PlayerClass.Monk)
-                {
                     return;
-                }
                 else
                 {
                     if (player.GetPrimarySpecialization() != TalentSpecialization.MonkMistweaver && Me.IsInWorld)

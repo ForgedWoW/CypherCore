@@ -43,10 +43,8 @@ internal class SpellWarrSweepingStrikes : AuraScript, IAuraCheckProc, IHasAuraEf
 
             if (spellInfo != null &&
                 (spellInfo.Id == WarriorSpells.BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo.Id == WarriorSpells.EXECUTE && !_procTarget.HasAuraState(AuraStateType.Wounded20Percent))))
-            {
                 // If triggered by Execute (while Target is not under 20% hp) or Bladestorm deals normalized weapon Damage
                 Target.SpellFactory.CastSpell(_procTarget, WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_2, new CastSpellExtraArgs(aurEff));
-            }
             else
             {
                 CastSpellExtraArgs args = new(aurEff);

@@ -22,23 +22,19 @@ public class CastSpellTargetArg
             var unitTarget = target.AsUnit;
 
             if (unitTarget != null)
-            {
                 Targets = new SpellCastTargets
                 {
                     UnitTarget = unitTarget
                 };
-            }
             else
             {
                 var goTarget = target.AsGameObject;
 
                 if (goTarget != null)
-                {
                     Targets = new SpellCastTargets
                     {
                         GOTarget = goTarget
                     };
-                }
                 else
                 {
                     var itemTarget = target.AsItem;
@@ -53,9 +49,7 @@ public class CastSpellTargetArg
             }
         }
         else
-        {
             Targets = new SpellCastTargets(); // nullptr is allowed
-        }
     }
 
     public CastSpellTargetArg(Item itemTarget)

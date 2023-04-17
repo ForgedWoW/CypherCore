@@ -192,9 +192,7 @@ internal class BattlefieldWg : BattleField
             _titansRelicGUID = relic.GUID;
         }
         else
-        {
             Log.Logger.Error("WG: Failed to spawn titan relic.");
-        }
 
         Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgAttacker, (int)GetAttackerTeam(), false, m_Map);
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgDefender, (int)GetDefenderTeam(), false, m_Map);
@@ -613,9 +611,7 @@ internal class BattlefieldWg : BattleField
         if (player.Zone != m_ZoneId)
         {
             if (player.TeamId == GetDefenderTeam())
-            {
                 player.TeleportTo(571, 5345, 2842, 410, 3.14f);
-            }
             else
             {
                 if (player.TeamId == TeamIds.Horde)
@@ -891,9 +887,7 @@ internal class BattlefieldWg : BattleField
                     Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RANK_CORPORAL, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
             }
             else
-            {
                 killer.SpellFactory.CastSpell(killer, WgSpells.RECRUIT, true);
-            }
         }
         else if ((aur = killer.GetAura(WgSpells.CORPORAL)) != null)
         {
@@ -907,9 +901,7 @@ internal class BattlefieldWg : BattleField
                     Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RANK_FIRST_LIEUTENANT, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
             }
             else
-            {
                 killer.SpellFactory.CastSpell(killer, WgSpells.CORPORAL, true);
-            }
         }
     }
 
@@ -1033,9 +1025,7 @@ internal class BattlefieldWg : BattleField
             }
         }
         else
-        {
             _tenacityTeam = TeamIds.Neutral;
-        }
     }
 
     // Define relic object

@@ -12,7 +12,7 @@ namespace Scripts.Spells.Evoker;
 /// </summary>
 [AreaTriggerScript(EvokerAreaTriggers.RED_FIRE_STORM)]
 public class AtEvokerFirestorm : AreaTriggerScript, IAreaTriggerOverrideCreateProperties,
-                                   IAreaTriggerOnUpdate, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnRemove
+                                 IAreaTriggerOnUpdate, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
     uint _timer = 0;
     int _hits = 7;

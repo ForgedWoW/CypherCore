@@ -302,15 +302,11 @@ internal class BossPriestessDelrissa : BossAI
                                Unit target = null;
 
                                if (RandomHelper.URand(0, 1) != 0)
-                               {
                                    target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
-                               }
                                else
                                {
                                    if (RandomHelper.URand(0, 1) != 0)
-                                   {
                                        target = Me;
-                                   }
                                    else
                                    {
                                        var pAdd = Global.ObjAccessor.GetUnit(Me, AuiLackeyGUID[RandomHelper.Rand32() % AuiLackeyGUID.Length]);
@@ -373,7 +369,6 @@ internal class BossPriestessDelrissa : BossAI
             }
         }
         else
-        {
             foreach (var guid in _lackeyEntryList)
             {
                 var pAdd = Global.ObjAccessor.GetUnit(Me, AuiLackeyGUID[j]);
@@ -389,7 +384,6 @@ internal class BossPriestessDelrissa : BossAI
 
                 ++j;
             }
-        }
     }
 }
 
@@ -1020,9 +1014,7 @@ internal class BossGaraxxas : BossPriestessLackeyCommon
 
                                //if we have a go, we need to wait (only one trap at a Time)
                                if (go)
-                               {
                                    task.Repeat(TimeSpan.FromSeconds(2.5));
-                               }
                                else
                                {
                                    //if go does not exist, then we can cast

@@ -38,9 +38,7 @@ public class SpellDruRegrowth : SpellScript, IHasSpellEffects
                     Caster.RemoveAura(DruidSpells.Clearcasting);
             }
             else
-            {
                 Caster.RemoveAura(DruidSpells.Clearcasting);
-            }
         }
     }
 }

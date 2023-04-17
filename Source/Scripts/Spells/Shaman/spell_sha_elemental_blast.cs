@@ -42,8 +42,8 @@ internal class SpellShaElementalBlast : SpellScript, ISpellAfterCast, IHasSpellE
         if (energizeAmount != null)
             Caster
                 .SpellFactory.CastSpell(Caster,
-                           ShamanSpells.ELEMENTAL_BLAST_ENERGIZE,
-                           new CastSpellExtraArgs(energizeAmount)
-                               .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
+                                        ShamanSpells.ELEMENTAL_BLAST_ENERGIZE,
+                                        new CastSpellExtraArgs(energizeAmount)
+                                            .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
     }
 }

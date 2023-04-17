@@ -33,9 +33,7 @@ internal class SpellPalHolyShock : SpellScript, ISpellCheckCast, IHasSpellEffect
             }
         }
         else
-        {
             return SpellCastResult.BadTargets;
-        }
 
         return SpellCastResult.SpellCastOk;
     }

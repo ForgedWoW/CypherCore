@@ -29,9 +29,7 @@ public class PlayerscriptMageArcane : ScriptObjectAutoAdd, IPlayerOnAfterModifyP
                 arcaneCharge.SetStackAmount((byte)newValue);
         }
         else
-        {
             player.RemoveAura(MageSpells.ARCANE_CHARGE);
-        }
 
         if (player.HasAura(MageSpells.RULE_OF_THREES))
             if (newValue == 3 && oldValue == 2)

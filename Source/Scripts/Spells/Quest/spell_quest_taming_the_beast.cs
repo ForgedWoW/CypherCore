@@ -31,25 +31,25 @@ internal class SpellQuestTamingTheBeast : AuraScript, IHasAuraEffects
 
         uint finalSpellId = Id switch
         {
-            QuestSpellIds.TAME_ICE_CLAW_BEAR          => QuestSpellIds.TAME_ICE_CLAW_BEAR1,
-            QuestSpellIds.TAME_LARGE_CRAG_BOAR        => QuestSpellIds.TAME_LARGE_CRAG_BOAR1,
+            QuestSpellIds.TAME_ICE_CLAW_BEAR         => QuestSpellIds.TAME_ICE_CLAW_BEAR1,
+            QuestSpellIds.TAME_LARGE_CRAG_BOAR       => QuestSpellIds.TAME_LARGE_CRAG_BOAR1,
             QuestSpellIds.TAME_SNOW_LEOPARD          => QuestSpellIds.TAME_SNOW_LEOPARD1,
             QuestSpellIds.TAME_ADULT_PLAINSTRIDER    => QuestSpellIds.TAME_ADULT_PLAINSTRIDER1,
             QuestSpellIds.TAME_PRAIRIE_STALKER       => QuestSpellIds.TAME_PRAIRIE_STALKER1,
-            QuestSpellIds.TAME_SWOOP                => QuestSpellIds.TAME_SWOOP1,
+            QuestSpellIds.TAME_SWOOP                 => QuestSpellIds.TAME_SWOOP1,
             QuestSpellIds.TAME_WEBWOOD_LURKER        => QuestSpellIds.TAME_WEBWOOD_LURKER1,
-            QuestSpellIds.TAME_DIRE_MOTTLED_BOAR      => QuestSpellIds.TAME_DIRE_MOTTLED_BOAR1,
+            QuestSpellIds.TAME_DIRE_MOTTLED_BOAR     => QuestSpellIds.TAME_DIRE_MOTTLED_BOAR1,
             QuestSpellIds.TAME_SURF_CRAWLER          => QuestSpellIds.TAME_SURF_CRAWLER1,
             QuestSpellIds.TAME_ARMORED_SCORPID       => QuestSpellIds.TAME_ARMORED_SCORPID1,
             QuestSpellIds.TAME_NIGHTSABER_STALKER    => QuestSpellIds.TAME_NIGHTSABER_STALKER1,
             QuestSpellIds.TAME_STRIGID_SCREECHER     => QuestSpellIds.TAME_STRIGID_SCREECHER1,
             QuestSpellIds.TAME_BARBED_CRAWLER        => QuestSpellIds.TAME_BARBED_CRAWLER1,
             QuestSpellIds.TAME_GREATER_TIMBERSTRIDER => QuestSpellIds.TAME_GREATER_TIMBERSTRIDER1,
-            QuestSpellIds.TAME_NIGHTSTALKER         => QuestSpellIds.TAME_NIGHTSTALKER1,
+            QuestSpellIds.TAME_NIGHTSTALKER          => QuestSpellIds.TAME_NIGHTSTALKER1,
             QuestSpellIds.TAME_CRAZED_DRAGONHAWK     => QuestSpellIds.TAME_CRAZED_DRAGONHAWK1,
             QuestSpellIds.TAME_ELDER_SPRINGPAW       => QuestSpellIds.TAME_ELDER_SPRINGPAW1,
-            QuestSpellIds.TAME_MISTBAT              => QuestSpellIds.TAME_MISTBAT1,
-            _                                      => 0
+            QuestSpellIds.TAME_MISTBAT               => QuestSpellIds.TAME_MISTBAT1,
+            _                                        => 0
         };
 
         if (finalSpellId != 0)

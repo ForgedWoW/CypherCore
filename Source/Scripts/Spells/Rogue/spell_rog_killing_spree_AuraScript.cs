@@ -50,9 +50,7 @@ internal class SpellRogKillingSpreeAuraScript : AuraScript, IHasAuraEffects
                 break;
             }
             else
-            {
                 _targets.Remove(guid);
-            }
         }
     }
 

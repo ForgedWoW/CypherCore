@@ -76,9 +76,7 @@ public class SpellShaFulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
                                 gatheringVortex.Remove();
                         }
                         else
-                        {
                             caster.SpellFactory.CastSpell(caster, ShamanSpells.ITEM_T18_GATHERING_VORTEX, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, (int)stacks));
-                        }
                     }
 
                     var t182P = caster.GetAuraEffect(ShamanSpells.ITEM_T18_ELEMENTAL_2_P_BONUS, 0);

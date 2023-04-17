@@ -14,8 +14,8 @@ internal struct SpellIds
 {
     public const uint REND_MOUNTS = 16167;    // Change model
     public const uint CORROSIVE_ACID = 16359; // Combat (self cast)
-    public const uint FLAMEBREATH = 16390;   // Combat (Self cast)
-    public const uint FREEZE = 16350;        // Combat (Self cast)
+    public const uint FLAMEBREATH = 16390;    // Combat (Self cast)
+    public const uint FREEZE = 16350;         // Combat (Self cast)
     public const uint KNOCK_AWAY = 10101;     // Combat
     public const uint SUMMON_REND = 16328;    // Summons Rend near death
 }

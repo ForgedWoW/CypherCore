@@ -52,14 +52,10 @@ internal class SpellMageRingOfFrost : AuraScript, IHasAuraEffects
                     _ringOfFrostGUID = summon.GUID;
                 }
                 else
-                {
                     summon.DespawnOrUnsummon();
-                }
             }
             else
-            {
                 _ringOfFrostGUID = summon.GUID;
-            }
         }
     }
 

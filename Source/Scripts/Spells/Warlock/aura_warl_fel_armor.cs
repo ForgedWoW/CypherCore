@@ -33,9 +33,7 @@ internal class AuraWarlFelArmor : AuraScript, IHasAuraEffects
                 player.RemoveAura(eff.Base);
             }
             else
-            {
                 remaining.SetAmount(rem);
-            }
         }
     }
 }

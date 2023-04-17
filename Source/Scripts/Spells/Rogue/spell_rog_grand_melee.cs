@@ -41,9 +41,7 @@ internal class SpellRogGrandMelee : AuraScript, IAuraCheckProc, IHasAuraEffects
             var aura = target.GetAura(RogueSpells.SliceAndDice);
 
             if (aura != null)
-            {
                 aura.SetDuration(aura.Duration + amount);
-            }
             else
             {
                 CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);

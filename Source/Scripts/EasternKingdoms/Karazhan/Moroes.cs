@@ -234,7 +234,6 @@ internal class BossMoroes : BossAI
             }
         }
         else
-        {
             for (byte i = 0; i < 4; ++i)
             {
                 Creature creature = Me.SummonCreature(_addId[i], MiscConst.Locations[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(10));
@@ -242,7 +241,6 @@ internal class BossMoroes : BossAI
                 if (creature)
                     AddGUID[i] = creature.GUID;
             }
-        }
     }
 
     private bool IsAddlistEmpty()
@@ -279,9 +277,7 @@ internal class BossMoroes : BossAI
                     DoZoneInCombat(temp);
                 }
                 else
-                {
                     EnterEvadeMode();
-                }
             }
     }
 }
@@ -375,9 +371,7 @@ internal class BossBaronessDorotheaMillstipe : BossMoroesGuest
             _mindFlayTimer = 12000; // 3 sec channeled
         }
         else
-        {
             _mindFlayTimer -= diff;
-        }
 
         if (_manaBurnTimer <= diff)
         {
@@ -390,9 +384,7 @@ internal class BossBaronessDorotheaMillstipe : BossMoroesGuest
             _manaBurnTimer = 5000; // 3 sec cast
         }
         else
-        {
             _manaBurnTimer -= diff;
-        }
 
         if (_shadowWordPainTimer <= diff)
         {
@@ -405,9 +397,7 @@ internal class BossBaronessDorotheaMillstipe : BossMoroesGuest
             }
         }
         else
-        {
             _shadowWordPainTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -453,9 +443,7 @@ internal class BossBaronRafeDreuger : BossMoroesGuest
             _judgementOfCommandTimer = 29000;
         }
         else
-        {
             _sealOfCommandTimer -= diff;
-        }
 
         if (_judgementOfCommandTimer <= diff)
         {
@@ -463,9 +451,7 @@ internal class BossBaronRafeDreuger : BossMoroesGuest
             _judgementOfCommandTimer = _sealOfCommandTimer + 29000;
         }
         else
-        {
             _judgementOfCommandTimer -= diff;
-        }
 
         if (_hammerOfJusticeTimer <= diff)
         {
@@ -473,9 +459,7 @@ internal class BossBaronRafeDreuger : BossMoroesGuest
             _hammerOfJusticeTimer = 12000;
         }
         else
-        {
             _hammerOfJusticeTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -523,9 +507,7 @@ internal class BossLadyCatrionaVonIndi : BossMoroesGuest
             _powerWordShieldTimer = 15000;
         }
         else
-        {
             _powerWordShieldTimer -= diff;
-        }
 
         if (_greaterHealTimer <= diff)
         {
@@ -535,9 +517,7 @@ internal class BossLadyCatrionaVonIndi : BossMoroesGuest
             _greaterHealTimer = 17000;
         }
         else
-        {
             _greaterHealTimer -= diff;
-        }
 
         if (_holyFireTimer <= diff)
         {
@@ -545,9 +525,7 @@ internal class BossLadyCatrionaVonIndi : BossMoroesGuest
             _holyFireTimer = 22000;
         }
         else
-        {
             _holyFireTimer -= diff;
-        }
 
         if (_dispelMagicTimer <= diff)
         {
@@ -559,9 +537,7 @@ internal class BossLadyCatrionaVonIndi : BossMoroesGuest
             _dispelMagicTimer = 25000;
         }
         else
-        {
             _dispelMagicTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -610,9 +586,7 @@ internal class BossLadyKeiraBerrybuck : BossMoroesGuest
             _divineShieldTimer = 31000;
         }
         else
-        {
             _divineShieldTimer -= diff;
-        }
 
         if (_holyLightTimer <= diff)
         {
@@ -622,9 +596,7 @@ internal class BossLadyKeiraBerrybuck : BossMoroesGuest
             _holyLightTimer = 10000;
         }
         else
-        {
             _holyLightTimer -= diff;
-        }
 
         if (_greaterBlessTimer <= diff)
         {
@@ -635,9 +607,7 @@ internal class BossLadyKeiraBerrybuck : BossMoroesGuest
             _greaterBlessTimer = 50000;
         }
         else
-        {
             _greaterBlessTimer -= diff;
-        }
 
         if (_cleanseTimer <= diff)
         {
@@ -648,9 +618,7 @@ internal class BossLadyKeiraBerrybuck : BossMoroesGuest
             _cleanseTimer = 10000;
         }
         else
-        {
             _cleanseTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -696,9 +664,7 @@ internal class BossLordRobinDaris : BossMoroesGuest
             _hamstringTimer = 12000;
         }
         else
-        {
             _hamstringTimer -= diff;
-        }
 
         if (_mortalStrikeTimer <= diff)
         {
@@ -706,9 +672,7 @@ internal class BossLordRobinDaris : BossMoroesGuest
             _mortalStrikeTimer = 18000;
         }
         else
-        {
             _mortalStrikeTimer -= diff;
-        }
 
         if (_whirlWindTimer <= diff)
         {
@@ -716,9 +680,7 @@ internal class BossLordRobinDaris : BossMoroesGuest
             _whirlWindTimer = 21000;
         }
         else
-        {
             _whirlWindTimer -= diff;
-        }
     }
 
     private void Initialize()
@@ -764,9 +726,7 @@ internal class BossLordCrispinFerence : BossMoroesGuest
             _disarmTimer = 12000;
         }
         else
-        {
             _disarmTimer -= diff;
-        }
 
         if (_heroicStrikeTimer <= diff)
         {
@@ -774,9 +734,7 @@ internal class BossLordCrispinFerence : BossMoroesGuest
             _heroicStrikeTimer = 10000;
         }
         else
-        {
             _heroicStrikeTimer -= diff;
-        }
 
         if (_shieldBashTimer <= diff)
         {
@@ -784,9 +742,7 @@ internal class BossLordCrispinFerence : BossMoroesGuest
             _shieldBashTimer = 13000;
         }
         else
-        {
             _shieldBashTimer -= diff;
-        }
 
         if (_shieldWallTimer <= diff)
         {
@@ -794,9 +750,7 @@ internal class BossLordCrispinFerence : BossMoroesGuest
             _shieldWallTimer = 21000;
         }
         else
-        {
             _shieldWallTimer -= diff;
-        }
     }
 
     private void Initialize()

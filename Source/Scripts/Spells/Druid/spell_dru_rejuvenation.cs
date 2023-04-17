@@ -84,9 +84,7 @@ public class SpellDruRejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterHit
                     var rejuvenationDuration = rejuvenationAura.Duration;
 
                     if (germinationDuration > rejuvenationDuration)
-                    {
                         caster.AddAura(DruidSpells.Rejuvenation, target);
-                    }
                     else
                     {
                         caster.SpellFactory.CastSpell(target, 155777, true);

@@ -81,8 +81,6 @@ public class NPCStickyBomb : NullCreatureAI
             _phase++;
         }
         else
-        {
             _uiTimer -= uiDiff;
-        }
     }
 }
