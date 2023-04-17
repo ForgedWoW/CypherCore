@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Text;
@@ -14,16 +15,18 @@ namespace Forged.MapServer.World;
 public class WorldWorldTextBuilder : MessageBuilder
 {
     private readonly object[] _iArgs;
+    private readonly GameObjectManager _objectManager;
     private readonly uint _iTextId;
-    public WorldWorldTextBuilder(uint textId, params object[] args)
+    public WorldWorldTextBuilder(GameObjectManager objectManager, uint textId, params object[] args)
     {
+        _objectManager = objectManager;
         _iTextId = textId;
         _iArgs = args;
     }
 
-    public override MultiplePacketSender Invoke(Locale locale)
+    public override MultiplePacketSender Invoke(Locale locale = Locale.enUS)
     {
-        var text = Global.ObjectMgr.GetCypherString(_iTextId, locale);
+        var text = _objectManager.GetCypherString(_iTextId, locale);
 
         if (_iArgs != null)
             text = string.Format(text, _iArgs);

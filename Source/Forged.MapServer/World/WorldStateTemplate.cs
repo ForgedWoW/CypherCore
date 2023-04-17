@@ -7,9 +7,9 @@ namespace Forged.MapServer.World;
 
 public class WorldStateTemplate
 {
-    public List<uint> AreaIds = new();
-    public int DefaultValue;
-    public int Id;
-    public List<int> MapIds = new();
-    public uint ScriptId;
+    public List<uint> AreaIds { get; set; } = new();
+    public int DefaultValue { get; set; }
+    public int Id { get; set; }
+    public List<int> MapIds { get; set; } = new();
+    public uint ScriptId { get; set; }
 }

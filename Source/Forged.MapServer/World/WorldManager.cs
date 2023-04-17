@@ -77,6 +77,7 @@ public class WorldManager
     private long _blackmarketTimer;
     private CalendarManager _calendarManager;
     private CharacterCache _characterCache;
+    private GameObjectManager _gameObjectManager;
     private GameEventManager _eventManager;
     private ShutdownExitCode _exitCode;
     private string _guidWarningMsg;
@@ -457,9 +458,8 @@ public class WorldManager
         MaxPlayerCount = Math.Max(MaxPlayerCount, PlayerCount);
     }
 
-    public void Inject(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
-                                                                                   QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
-                           WorldStateManager worldStateManager, GameEventManager eventManager)
+    public void Inject(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor, QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
+                        WorldStateManager worldStateManager, GameEventManager eventManager, GameObjectManager objectManager)
     {
         _accountManager = accountManager;
         _characterCache = characterCache;
@@ -469,7 +469,7 @@ public class WorldManager
         _guildManager = guildManager;
         _worldStateManager = worldStateManager;
         _eventManager = eventManager;
-
+        _gameObjectManager = objectManager;
         // not send custom type REALM_FFA_PVP to realm list
         var serverType = IsFFAPvPRealm ? RealmType.PVP : (RealmType)_configuration.GetDefaultValue("GameType", 0);
         var realmZone = _configuration.GetDefaultValue("RealmZone", (int)RealmZones.Development);
@@ -949,7 +949,7 @@ public class WorldManager
     // Send a System Message to all GMs (except self if mentioned)
     public void SendGMText(CypherStrings stringID, params object[] args)
     {
-        var wtBuilder = new WorldWorldTextBuilder((uint)stringID, args);
+        var wtBuilder = new WorldWorldTextBuilder(_gameObjectManager, (uint)stringID, args);
         var wtDo = new LocalizedDo(wtBuilder);
 
         foreach (var session in _sessions.Values)
@@ -987,7 +987,7 @@ public class WorldManager
     // Send a System Message to all players (except self if mentioned)
     public void SendWorldText(CypherStrings stringID, params object[] args)
     {
-        WorldWorldTextBuilder wtBuilder = new((uint)stringID, args);
+        WorldWorldTextBuilder wtBuilder = new(_gameObjectManager, (uint)stringID, args);
         var wtDo = new LocalizedDo(wtBuilder);
 
         foreach (var session in _sessions.Values)
