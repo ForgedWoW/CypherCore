@@ -21,6 +21,7 @@ public class SkillDiscovery
     private readonly MultiMap<int, SkillDiscoveryEntry> _skillDiscoveryStorage = new();
     private readonly SpellManager _spellManager;
     private readonly WorldDatabase _worldDatabase;
+
     public SkillDiscovery(WorldDatabase worldDatabase, SpellManager spellManager, CliDB cliDB, IConfiguration configuration)
     {
         _worldDatabase = worldDatabase;
@@ -92,42 +93,26 @@ public class SkillDiscovery
         // check skill line case
         tab = _skillDiscoveryStorage.LookupByKey(-(int)skillId);
 
-        if (!tab.Empty())
-        {
-            foreach (var itemIter in tab)
-                if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate:Skill:Discovery", 1.0f)) &&
-                    itemIter.ReqSkillValue <= skillvalue &&
-                    !player.HasSpell(itemIter.SpellId))
-                    return itemIter.SpellId;
-
+        if (tab.Empty())
             return 0;
-        }
+
+        foreach (var itemIter in tab)
+            if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate:Skill:Discovery", 1.0f)) &&
+                itemIter.ReqSkillValue <= skillvalue &&
+                !player.HasSpell(itemIter.SpellId))
+                return itemIter.SpellId;
 
         return 0;
     }
 
     public bool HasDiscoveredAllSpells(uint spellId, Player player)
     {
-        if (_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab))
-            return true;
-
-        foreach (var itemIter in tab)
-            if (!player.HasSpell(itemIter.SpellId))
-                return false;
-
-        return true;
+        return _skillDiscoveryStorage.TryGetValue((int)spellId, out var tab) || tab.All(itemIter => player.HasSpell(itemIter.SpellId));
     }
 
     public bool HasDiscoveredAnySpell(uint spellId, Player player)
     {
-        if (_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab))
-            return false;
-
-        foreach (var itemIter in tab)
-            if (player.HasSpell(itemIter.SpellId))
-                return true;
-
-        return false;
+        return !_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab) && tab.Any(itemIter => player.HasSpell(itemIter.SpellId));
     }
 
     public void LoadSkillDiscoveryTable()
@@ -165,61 +150,68 @@ public class SkillDiscovery
                 continue;
             }
 
-            if (reqSkillOrSpell > 0) // spell case
+            switch (reqSkillOrSpell)
             {
-                var absReqSkillOrSpell = (uint)reqSkillOrSpell;
-                var reqSpellInfo = _spellManager.GetSpellInfo(absReqSkillOrSpell);
-
-                if (reqSpellInfo == null)
+                // spell case
+                case > 0:
                 {
-                    if (!reportedReqSpells.Contains(absReqSkillOrSpell))
+                    var absReqSkillOrSpell = (uint)reqSkillOrSpell;
+                    var reqSpellInfo = _spellManager.GetSpellInfo(absReqSkillOrSpell);
+
+                    if (reqSpellInfo == null)
                     {
-                        Log.Logger.Error("Spell (ID: {0}) have not existed spell (ID: {1}) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
-                        reportedReqSpells.Add(absReqSkillOrSpell);
+                        if (!reportedReqSpells.Contains(absReqSkillOrSpell))
+                        {
+                            Log.Logger.Error("Spell (ID: {0}) have not existed spell (ID: {1}) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
+                            reportedReqSpells.Add(absReqSkillOrSpell);
+                        }
+
+                        continue;
                     }
 
-                    continue;
-                }
-
-                // mechanic discovery
-                if (reqSpellInfo.Mechanic != Mechanics.Discovery &&
-                    // explicit discovery ability
-                    !reqSpellInfo.IsExplicitDiscovery)
-                {
-                    if (!reportedReqSpells.Contains(absReqSkillOrSpell))
+                    // mechanic discovery
+                    if (reqSpellInfo.Mechanic != Mechanics.Discovery &&
+                        // explicit discovery ability
+                        !reqSpellInfo.IsExplicitDiscovery)
                     {
-                        Log.Logger.Error("Spell (ID: {0}) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc" +
-                                         " and not 100%% chance random discovery ability but listed for spellId {1} (and maybe more) in `skill_discovery_template` table",
-                                         absReqSkillOrSpell,
-                                         spellId);
+                        if (!reportedReqSpells.Contains(absReqSkillOrSpell))
+                        {
+                            Log.Logger.Error("Spell (ID: {0}) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc" +
+                                             " and not 100%% chance random discovery ability but listed for spellId {1} (and maybe more) in `skill_discovery_template` table",
+                                             absReqSkillOrSpell,
+                                             spellId);
 
-                        reportedReqSpells.Add(absReqSkillOrSpell);
+                            reportedReqSpells.Add(absReqSkillOrSpell);
+                        }
+
+                        continue;
                     }
 
-                    continue;
+                    _skillDiscoveryStorage.Add(reqSkillOrSpell, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
+
+                    break;
                 }
-
-                _skillDiscoveryStorage.Add(reqSkillOrSpell, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
-            }
-            else if (reqSkillOrSpell == 0) // skill case
-            {
-                var bounds = _spellManager.GetSkillLineAbilityMapBounds(spellId);
-
-                if (bounds.Empty())
+                // skill case
+                case 0:
                 {
-                    Log.Logger.Error("Spell (ID: {0}) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
+                    var bounds = _spellManager.GetSkillLineAbilityMapBounds(spellId);
+
+                    if (bounds.Empty())
+                    {
+                        Log.Logger.Error("Spell (ID: {0}) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
+
+                        continue;
+                    }
+
+                    foreach (var spellIdx in bounds)
+                        _skillDiscoveryStorage.Add(-spellIdx.SkillLine, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
+
+                    break;
+                }
+                default:
+                    Log.Logger.Error("Spell (ID: {0}) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
 
                     continue;
-                }
-
-                foreach (var spellIdx in bounds)
-                    _skillDiscoveryStorage.Add(-spellIdx.SkillLine, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
-            }
-            else
-            {
-                Log.Logger.Error("Spell (ID: {0}) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
-
-                continue;
             }
 
             ++count;
@@ -233,12 +225,10 @@ public class SkillDiscovery
         {
             var spellEntry = _spellManager.GetSpellInfo(spellNameEntry.Id);
 
-            if (spellEntry == null)
+            if (spellEntry is not { IsExplicitDiscovery: true })
                 continue;
 
             // skip not explicit discovery spells
-            if (!spellEntry.IsExplicitDiscovery)
-                continue;
 
             if (!_skillDiscoveryStorage.ContainsKey((int)spellEntry.Id))
                 Log.Logger.Error("Spell (ID: {0}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spellEntry.Id);

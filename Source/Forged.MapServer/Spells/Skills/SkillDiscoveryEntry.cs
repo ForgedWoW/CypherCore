@@ -5,11 +5,8 @@ namespace Forged.MapServer.Spells.Skills;
 
 public class SkillDiscoveryEntry
 {
-    public double Chance;
-    public uint ReqSkillValue;
-    public uint SpellId;       // discavered spell
-                               // skill level limitation
-                               // chance
+    // skill level limitation
+    // chance
 
     public SkillDiscoveryEntry(uint spellId = 0, uint reqSkillVal = 0, double chance = 0)
     {
@@ -17,4 +14,8 @@ public class SkillDiscoveryEntry
         ReqSkillValue = reqSkillVal;
         Chance = chance;
     }
+
+    public double Chance { get; set; }
+    public uint ReqSkillValue { get; set; }
+    public uint SpellId { get; set; } // discavered spell
 }

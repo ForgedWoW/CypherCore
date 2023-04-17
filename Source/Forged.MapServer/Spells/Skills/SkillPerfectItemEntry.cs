@@ -5,18 +5,19 @@ namespace Forged.MapServer.Spells.Skills;
 
 internal class SkillPerfectItemEntry
 {
+    public SkillPerfectItemEntry(uint requiredSpecialization = 0, double perfectCreateChance = 0f, uint perfectItemType = 0)
+    {
+        RequiredSpecialization = requiredSpecialization;
+        PerfectCreateChance = perfectCreateChance;
+        PerfectItemType = perfectItemType;
+    }
+
     // perfection proc chance
-    public double PerfectCreateChance;
+    public double PerfectCreateChance { get; set; }
 
     // itemid of the resulting perfect item
-    public uint PerfectItemType;
+    public uint PerfectItemType { get; set; }
 
     // the spell id of the spell required - it's named "specialization" to conform with SkillExtraItemEntry
-    public uint RequiredSpecialization;
-    public SkillPerfectItemEntry(uint rS = 0, double pCC = 0f, uint pIT = 0)
-    {
-        RequiredSpecialization = rS;
-        PerfectCreateChance = pCC;
-        PerfectItemType = pIT;
-    }
+    public uint RequiredSpecialization { get; set; }
 }

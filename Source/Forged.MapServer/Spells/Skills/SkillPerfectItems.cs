@@ -15,6 +15,7 @@ public class SkillPerfectItems
     private readonly Dictionary<uint, SkillPerfectItemEntry> _skillPerfectItemStorage = new();
     private readonly SpellManager _spellManager;
     private readonly WorldDatabase _worldDatabase;
+
     public SkillPerfectItems(WorldDatabase worldDatabase, SpellManager spellManager, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;

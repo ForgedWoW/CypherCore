@@ -13,6 +13,7 @@ public class SkillExtraItems
     private readonly Dictionary<uint, SkillExtraItemEntry> _skillExtraItemStorage = new();
     private readonly SpellManager _spellManager;
     private readonly WorldDatabase _worldDatabase;
+
     public SkillExtraItems(WorldDatabase worldDatabase, SpellManager spellManager)
     {
         _worldDatabase = worldDatabase;
@@ -108,6 +109,3 @@ public class SkillExtraItems
         Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 }
-
-// struct to store information about perfection procs
-// one entry per spell

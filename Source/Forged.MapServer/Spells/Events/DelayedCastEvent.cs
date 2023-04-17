@@ -20,9 +20,10 @@ public class DelayedCastEvent : BasicEvent
     public uint SpellId { get; set; }
     public Unit Target { get; set; }
     public Unit Trigger { get; set; }
+
     public override bool Execute(ulong etime, uint pTime)
     {
-        Trigger.CastSpell(Target, SpellId, CastFlags);
+        Trigger.SpellFactory.CastSpell(Target, SpellId, CastFlags);
 
         return true;
     }
