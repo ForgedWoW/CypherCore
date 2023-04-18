@@ -107,7 +107,7 @@ public class CollectionMgr
     {
         var player = _owner.Player;
 
-        if (!player)
+        if (player == null)
             return false;
 
         var mount = _db2Manager.GetMount(spellId);
@@ -131,14 +131,14 @@ public class CollectionMgr
                 return false;
         }
 
-        if (!learned)
-        {
-            if (!factionMount)
-                SendSingleMountUpdate(spellId, flags);
+        if (learned)
+            return true;
 
-            if (!player.HasSpell(spellId))
-                player.LearnSpell(spellId, true);
-        }
+        if (!factionMount)
+            SendSingleMountUpdate(spellId, flags);
+
+        if (!player.HasSpell(spellId))
+            player.LearnSpell(spellId, true);
 
         return true;
     }
@@ -194,7 +194,7 @@ public class CollectionMgr
     {
         var player = _owner.Player;
 
-        if (!player)
+        if (player == null)
             return;
 
         // Check already owned heirloom for upgrade kits
@@ -211,7 +211,7 @@ public class CollectionMgr
 
             while (_db2Manager.GetHeirloomByItemId(heirloomItemId) is { } heirloomDiff)
             {
-                if (player.GetItemByEntry(heirloomDiff.ItemID))
+                if (player.GetItemByEntry(heirloomDiff.ItemID) != null)
                     newItemId = heirloomDiff.ItemID;
 
                 var heirloomSub = _db2Manager.GetHeirloomByItemId(heirloomDiff.StaticUpgradedItemID);

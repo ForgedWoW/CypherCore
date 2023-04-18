@@ -23,7 +23,7 @@ public class Conversation : WorldObject
     private readonly TimeSpan[] _lastLineEndTimes = new TimeSpan[(int)Locale.Total];
     private readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
     private readonly Position _stationaryPosition = new();
-    private readonly ConversationData m_conversationData;
+    private readonly ConversationData _conversationData;
     private ObjectGuid _creatorGuid;
     private TimeSpan _duration;
     private uint _textureKitId;
@@ -36,7 +36,7 @@ public class Conversation : WorldObject
         UpdateFlag.Stationary = true;
         UpdateFlag.Conversation = true;
 
-        m_conversationData = new ConversationData();
+        _conversationData = new ConversationData();
     }
 
     public override uint Faction => 0;
@@ -62,7 +62,7 @@ public class Conversation : WorldObject
 
     public void AddActor(int actorId, uint actorIdx, ObjectGuid actorGuid)
     {
-        ConversationActorField actorField = Values.ModifyValue(m_conversationData).ModifyValue(m_conversationData.Actors, (int)actorIdx);
+        ConversationActorField actorField = Values.ModifyValue(_conversationData).ModifyValue(_conversationData.Actors, (int)actorIdx);
         SetUpdateFieldValue(ref actorField.CreatureID, 0u);
         SetUpdateFieldValue(ref actorField.CreatureDisplayInfoID, 0u);
         SetUpdateFieldValue(ref actorField.ActorGUID, actorGuid);
@@ -73,7 +73,7 @@ public class Conversation : WorldObject
 
     public void AddActor(int actorId, uint actorIdx, ConversationActorType type, uint creatureId, uint creatureDisplayInfoId)
     {
-        ConversationActorField actorField = Values.ModifyValue(m_conversationData).ModifyValue(m_conversationData.Actors, (int)actorIdx);
+        ConversationActorField actorField = Values.ModifyValue(_conversationData).ModifyValue(_conversationData.Actors, (int)actorIdx);
         SetUpdateFieldValue(ref actorField.CreatureID, creatureId);
         SetUpdateFieldValue(ref actorField.CreatureDisplayInfoID, creatureDisplayInfoId);
         SetUpdateFieldValue(ref actorField.ActorGUID, ObjectGuid.Empty);
@@ -98,7 +98,7 @@ public class Conversation : WorldObject
         WorldPacket buffer = new();
 
         ObjectData.WriteCreate(buffer, flags, this, target);
-        m_conversationData.WriteCreate(buffer, flags, this, target);
+        _conversationData.WriteCreate(buffer, flags, this, target);
 
         data.WriteUInt32(buffer.GetSize());
         data.WriteUInt8((byte)flags);
@@ -116,7 +116,7 @@ public class Conversation : WorldObject
             ObjectData.WriteUpdate(buffer, flags, this, target);
 
         if (Values.HasChanged(TypeId.Conversation))
-            m_conversationData.WriteUpdate(buffer, flags, this, target);
+            _conversationData.WriteUpdate(buffer, flags, this, target);
 
         data.WriteUInt32(buffer.GetSize());
         data.WriteBytes(buffer);
@@ -124,7 +124,7 @@ public class Conversation : WorldObject
 
     public override void ClearUpdateMask(bool remove)
     {
-        Values.ClearChangesMask(m_conversationData);
+        Values.ClearChangesMask(_conversationData);
         base.ClearUpdateMask(remove);
     }
 
@@ -178,8 +178,8 @@ public class Conversation : WorldObject
             DoWithSuppressingObjectUpdates(() =>
             {
                 // Only sent in CreateObject
-                ApplyModUpdateFieldValue(Values.ModifyValue(m_conversationData).ModifyValue(m_conversationData.Progress), diff, true);
-                m_conversationData.ClearChanged(m_conversationData.Progress);
+                ApplyModUpdateFieldValue(Values.ModifyValue(_conversationData).ModifyValue(_conversationData.Progress), diff, true);
+                _conversationData.ClearChanged(_conversationData.Progress);
             });
         }
         else
@@ -209,7 +209,7 @@ public class Conversation : WorldObject
             ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
 
         if (valuesMask[(int)TypeId.Conversation])
-            m_conversationData.WriteUpdate(buffer, requestedConversationMask, true, this, target);
+            _conversationData.WriteUpdate(buffer, requestedConversationMask, true, this, target);
 
         WorldPacket buffer1 = new();
         buffer1.WriteUInt8((byte)UpdateType.Values);
@@ -288,8 +288,8 @@ public class Conversation : WorldObject
         }
 
         _duration = _lastLineEndTimes.Max();
-        SetUpdateFieldValue(Values.ModifyValue(m_conversationData).ModifyValue(m_conversationData.LastLineEndTime), (uint)_duration.TotalMilliseconds);
-        SetUpdateFieldValue(Values.ModifyValue(m_conversationData).ModifyValue(m_conversationData.Lines), lines);
+        SetUpdateFieldValue(Values.ModifyValue(_conversationData).ModifyValue(_conversationData.LastLineEndTime), (uint)_duration.TotalMilliseconds);
+        SetUpdateFieldValue(Values.ModifyValue(_conversationData).ModifyValue(_conversationData.Lines), lines);
 
         // conversations are despawned 5-20s after LastLineEndTime
         _duration += TimeSpan.FromSeconds(10);
@@ -309,9 +309,9 @@ public class Conversation : WorldObject
 
     private bool Start()
     {
-        foreach (var line in m_conversationData.Lines.Value)
+        foreach (var line in _conversationData.Lines.Value)
         {
-            var actor = line.ActorIndex < m_conversationData.Actors.Size() ? m_conversationData.Actors[line.ActorIndex] : null;
+            var actor = line.ActorIndex < _conversationData.Actors.Size() ? _conversationData.Actors[line.ActorIndex] : null;
 
             if (actor == null || (actor.CreatureID == 0 && actor.ActorGUID.IsEmpty && actor.NoActorObject == 0))
             {

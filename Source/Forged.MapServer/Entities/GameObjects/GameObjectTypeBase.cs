@@ -19,9 +19,4 @@ internal class GameObjectTypeBase
     public virtual void OnStateChanged(GameObjectState oldState, GameObjectState newState) { }
 
     public virtual void Update(uint diff) { }
-
-    public class CustomCommand
-    {
-        public virtual void Execute(GameObjectTypeBase type) { }
-    }
 }

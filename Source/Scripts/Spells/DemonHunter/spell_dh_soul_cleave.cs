@@ -66,7 +66,7 @@ public class SpellDhSoulCleave : SpellScript, IHasSpellEffects
                     tempSumm.SetSummonerGUID(caster.GUID);
                     var bp = 0;
 
-                    switch (at.GetTemplate().Id.Id)
+                    switch (at.Template.Id.Id)
                     {
                         case 6007:
                         case 5997:
@@ -81,7 +81,7 @@ public class SpellDhSoulCleave : SpellScript, IHasSpellEffects
 
                     caster.SpellFactory.CastSpell(tempSumm, ShatteredSoulsSpells.CONSUME_SOUL_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
 
-                    if (at.GetTemplate().Id.Id == 6007)
+                    if (at.Template.Id.Id == 6007)
                         caster.SpellFactory.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
 
                     if (caster.HasAura(DemonHunterSpells.FEED_THE_DEMON))

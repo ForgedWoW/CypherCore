@@ -139,7 +139,7 @@ public class WorldLocation : Position
 
         _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
-        return searcher.GetTarget();
+        return searcher.Target;
     }
 
     public Creature FindNearestCreatureWithOptions(float range, FindCreatureOptions options)
@@ -153,7 +153,7 @@ public class WorldLocation : Position
 
         _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
-        return searcher.GetTarget();
+        return searcher.Target;
     }
 
     public GameObject FindNearestGameObject(uint entry, float range, bool spawnedOnly = true)

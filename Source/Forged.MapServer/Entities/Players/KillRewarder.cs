@@ -6,6 +6,7 @@ using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Groups;
+using Forged.MapServer.Guilds;
 using Forged.MapServer.Miscellaneous;
 using Framework.Constants;
 
@@ -13,6 +14,9 @@ namespace Forged.MapServer.Entities.Players;
 
 public class KillRewarder
 {
+    private readonly CliDB _cliDB;
+    private readonly Formulas _formulas;
+    private readonly GuildManager _guildManager;
     private readonly bool _isBattleground;
     private readonly bool _isPvP;
     private readonly Player[] _killers;
@@ -38,6 +42,9 @@ public class KillRewarder
         _maxLevel = 0;
         _isBattleground = isBattleground;
         _isPvP = false;
+        _guildManager = victim.ClassFactory.Resolve<GuildManager>();
+        _formulas = victim.ClassFactory.Resolve<Formulas>();
+        _cliDB = victim.ClassFactory.Resolve<CliDB>();
 
         // mark the credit as pvp if victim is player
         if (victim.IsTypeId(TypeId.Player))
@@ -86,28 +93,27 @@ public class KillRewarder
         // 7. Credit scenario criterias
         var victim = _victim.AsCreature;
 
-        if (victim != null)
+        if (victim == null)
+            return;
+
+        if (victim.IsDungeonBoss)
         {
-            if (victim.IsDungeonBoss)
-            {
-                var instance = _victim.Location.InstanceScript;
+            var instance = _victim.Location.InstanceScript;
 
-                instance?.UpdateEncounterStateForKilledCreature(_victim.Entry, _victim);
-            }
-
-            if (!_killers.Empty())
-            {
-                var guildId = victim.Location.Map.GetOwnerGuildId();
-                var guild = Global.GuildMgr.GetGuildById(guildId);
-
-                if (guild != null)
-                    guild.UpdateCriteria(CriteriaType.KillCreature, victim.Entry, 1, 0, victim, _killers.First());
-
-                var scenario = victim.Scenario;
-
-                scenario?.UpdateCriteria(CriteriaType.KillCreature, victim.Entry, 1, 0, victim, _killers.First());
-            }
+            instance?.UpdateEncounterStateForKilledCreature(_victim.Entry, _victim);
         }
+
+        if (_killers.Empty())
+            return;
+
+        var guildId = victim.Location.Map.GetOwnerGuildId();
+        var guild = _guildManager.GetGuildById(guildId);
+
+        guild?.UpdateCriteria(CriteriaType.KillCreature, victim.Entry, 1, 0, victim, _killers.First());
+
+        var scenario = victim.Scenario;
+
+        scenario?.UpdateCriteria(CriteriaType.KillCreature, victim.Entry, 1, 0, victim, _killers.First());
     }
 
     private void _InitGroupData(Player killer)
@@ -121,31 +127,33 @@ public class KillRewarder
             {
                 var member = refe.Source;
 
-                if (member != null)
-                    if (killer == member || (member.IsAtGroupRewardDistance(_victim) && member.IsAlive))
-                    {
-                        var lvl = member.Level;
-                        // 2.1. _count - number of alive group members within reward distance;
-                        ++_count;
-                        // 2.2. _sumLevel - sum of levels of alive group members within reward distance;
-                        _sumLevel += lvl;
+                if (member == null)
+                    continue;
 
-                        // 2.3. _maxLevel - maximum level of alive group member within reward distance;
-                        if (_maxLevel < lvl)
-                            _maxLevel = (byte)lvl;
+                if (killer != member && (!member.IsAtGroupRewardDistance(_victim) || !member.IsAlive))
+                    continue;
 
-                        // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
-                        //      for whom victim is not gray;
-                        var grayLevel = Formulas.GetGrayLevel(lvl);
+                var lvl = member.Level;
+                // 2.1. _count - number of alive group members within reward distance;
+                ++_count;
+                // 2.2. _sumLevel - sum of levels of alive group members within reward distance;
+                _sumLevel += lvl;
 
-                        if (_victim.GetLevelForTarget(member) > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember.Level < lvl))
-                            _maxNotGrayMember = member;
-                    }
+                // 2.3. _maxLevel - maximum level of alive group member within reward distance;
+                if (_maxLevel < lvl)
+                    _maxLevel = (byte)lvl;
+
+                // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
+                //      for whom victim is not gray;
+                var grayLevel = _formulas.GetGrayLevel(lvl);
+
+                if (_victim.GetLevelForTarget(member) > grayLevel && (_maxNotGrayMember == null || _maxNotGrayMember.Level < lvl))
+                    _maxNotGrayMember = member;
             }
 
             // 2.5. _isFullXP - Id identifying that for all group members victim is not gray,
             //      so 100% XP will be rewarded (50% otherwise).
-            _isFullXp = _maxNotGrayMember && _maxLevel == _maxNotGrayMember.Level;
+            _isFullXp = _maxNotGrayMember != null && _maxLevel == _maxNotGrayMember.Level;
         }
         else
             _count = 1;
@@ -159,43 +167,45 @@ public class KillRewarder
         // * otherwise, not in PvP;
         // * not if killer is on vehicle.
         if (_isBattleground || (!_isPvP && killer.Vehicle == null))
-            _xp = Formulas.XPGain(player, _victim, _isBattleground);
+            _xp = _formulas.XPGain(player, _victim, _isBattleground);
     }
 
     private void _RewardGroup(PlayerGroup group, Player killer)
     {
-        if (_maxLevel != 0)
+        if (_maxLevel == 0)
+            return;
+
+        if (_maxNotGrayMember != null)
+            // 3.1.1. Initialize initial XP amount based on maximum level of group member,
+            //        for whom victim is not gray.
+            _InitXP(_maxNotGrayMember, killer);
+
+        // To avoid unnecessary calculations and calls,
+        // proceed only if XP is not ZERO or player is not on Battleground
+        // (Battlegroundrewards only XP, that's why).
+        if (_isBattleground && _xp == 0)
+            return;
+
+        var isDungeon = !_isPvP && _cliDB.MapStorage.LookupByKey(killer.Location.MapId).IsDungeon();
+
+        if (!_isBattleground)
         {
-            if (_maxNotGrayMember != null)
-                // 3.1.1. Initialize initial XP amount based on maximum level of group member,
-                //        for whom victim is not gray.
-                _InitXP(_maxNotGrayMember, killer);
+            // 3.1.2. Alter group rate if group is in raid (not for Battlegrounds).
+            var isRaid = !_isPvP && _cliDB.MapStorage.LookupByKey(killer.Location.MapId).IsRaid() && group.IsRaidGroup;
+            _groupRate = _formulas.XPInGroupRate(_count, isRaid);
+        }
 
-            // To avoid unnecessary calculations and calls,
-            // proceed only if XP is not ZERO or player is not on Battleground
-            // (Battlegroundrewards only XP, that's why).
-            if (!_isBattleground || _xp != 0)
-            {
-                var isDungeon = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.MapId).IsDungeon();
+        // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
+        for (var refe = group.FirstMember; refe != null; refe = refe.Next())
+        {
+            var member = refe.Source;
 
-                if (!_isBattleground)
-                {
-                    // 3.1.2. Alter group rate if group is in raid (not for Battlegrounds).
-                    var isRaid = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.MapId).IsRaid() && group.IsRaidGroup;
-                    _groupRate = Formulas.XPInGroupRate(_count, isRaid);
-                }
+            if (member == null)
+                continue;
 
-                // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
-                for (var refe = group.FirstMember; refe != null; refe = refe.Next())
-                {
-                    var member = refe.Source;
-
-                    if (member)
-                        // Killer may not be at reward distance, check directly
-                        if (killer == member || member.IsAtGroupRewardDistance(_victim))
-                            _RewardPlayer(member, isDungeon);
-                }
-            }
+            // Killer may not be at reward distance, check directly
+            if (killer == member || member.IsAtGroupRewardDistance(_victim))
+                _RewardPlayer(member, isDungeon);
         }
     }
 
@@ -209,16 +219,16 @@ public class KillRewarder
     private void _RewardKillCredit(Player player)
     {
         // 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
-        if (player.Group == null || player.IsAlive || player.GetCorpse() == null)
-        {
-            var target = _victim.AsCreature;
+        if (player.Group != null && !player.IsAlive && player.GetCorpse() != null)
+            return;
 
-            if (target != null)
-            {
-                player.KilledMonster(target.Template, target.GUID);
-                player.UpdateCriteria(CriteriaType.KillAnyCreature, (ulong)target.CreatureType, 1, 0, target);
-            }
-        }
+        var target = _victim.AsCreature;
+
+        if (target == null)
+            return;
+
+        player.KilledMonster(target.Template, target.GUID);
+        player.UpdateCriteria(CriteriaType.KillAnyCreature, (ulong)target.CreatureType, 1, 0, target);
     }
 
     private void _RewardPlayer(Player player, bool isDungeon)
@@ -236,20 +246,20 @@ public class KillRewarder
 
         // Give XP only in PvE or in Battlegrounds.
         // Give reputation and kill credit only in PvE.
-        if (!_isPvP || _isBattleground)
+        if (_isPvP && !_isBattleground)
+            return;
+
+        var rate = player.Group != null ? _groupRate * player.Level / _sumLevel : 1.0f;
+
+        if (_xp != 0)
+            // 4.2. Give XP.
+            _RewardXP(player, rate);
+
+        if (!_isBattleground)
         {
-            var rate = player.Group != null ? _groupRate * player.Level / _sumLevel : 1.0f;
-
-            if (_xp != 0)
-                // 4.2. Give XP.
-                _RewardXP(player, rate);
-
-            if (!_isBattleground)
-            {
-                // If killer is in dungeon then all members receive full reputation at kill.
-                _RewardReputation(player, isDungeon ? 1.0f : rate);
-                _RewardKillCredit(player);
-            }
+            // If killer is in dungeon then all members receive full reputation at kill.
+            _RewardReputation(player, isDungeon ? 1.0f : rate);
+            _RewardKillCredit(player);
         }
     }
 
@@ -280,19 +290,15 @@ public class KillRewarder
                 xp = 0;
         }
 
-        if (xp != 0)
-        {
-            // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT and SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE).
-            xp = (uint)(xp * player.GetTotalAuraMultiplier(AuraType.ModXpPct));
-            xp = (uint)(xp * player.GetTotalAuraMultiplierByMiscValue(AuraType.ModXpFromCreatureType, (int)_victim.CreatureType));
+        if (xp == 0)
+            return;
 
-            // 4.2.3. Give XP to player.
-            player.GiveXP(xp, _victim, _groupRate);
-            var pet = player.CurrentPet;
+        // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT and SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE).
+        xp = (uint)(xp * player.GetTotalAuraMultiplier(AuraType.ModXpPct));
+        xp = (uint)(xp * player.GetTotalAuraMultiplierByMiscValue(AuraType.ModXpFromCreatureType, (int)_victim.CreatureType));
 
-            if (pet)
-                // 4.2.4. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-                pet.GivePetXP(player.Group != null ? xp / 2 : xp);
-        }
+        // 4.2.3. Give XP to player.
+        player.GiveXP(xp, _victim, _groupRate);
+        player.CurrentPet?.GivePetXP(player.Group != null ? xp / 2 : xp);
     }
 }

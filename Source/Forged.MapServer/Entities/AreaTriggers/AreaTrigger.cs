@@ -38,7 +38,6 @@ public class AreaTrigger : WorldObject
     private readonly Dictionary<Type, List<IAreaTriggerScript>> _scriptsByType = new();
 
     private uint _areaTriggerId;
-    private AreaTriggerTemplate _areaTriggerTemplate;
     private uint _basePeriodicProcTimer;
     private int _lastSplineIndex;
     private List<AreaTriggerScript> _loadedScripts = new();
@@ -87,14 +86,14 @@ public class AreaTrigger : WorldObject
         {
             var caster = GetCaster();
 
-            return caster ? caster.Faction : 0;
+            return caster?.Faction ?? 0;
         }
     }
 
     public bool HasSplines => !Spline.IsEmpty;
     public HashSet<ObjectGuid> InsideUnits { get; } = new();
     public bool IsRemoved { get; private set; }
-    public bool IsServerSide => _areaTriggerTemplate.Id.IsServerSide;
+    public bool IsServerSide => Template.Id.IsServerSide;
     public override ObjectGuid OwnerGUID => CasterGuid;
     public Vector3 RollPitchYaw { get; set; }
     public AreaTriggerShapeInfo Shape { get; private set; }
@@ -225,15 +224,9 @@ public class AreaTrigger : WorldObject
         return ObjectAccessor.GetUnit(this, CasterGuid);
     }
 
-    public AreaTriggerTemplate GetTemplate()
-    {
-        return _areaTriggerTemplate;
-    }
+    public AreaTriggerTemplate Template { get; private set; }
 
-    public bool HasOrbit()
-    {
-        return CircularMovementInfo != null;
-    }
+    public bool HasOrbit => CircularMovementInfo != null;
 
     public void InitSplines(List<Vector3> splinePoints, uint timeToTarget)
     {
@@ -315,9 +308,7 @@ public class AreaTrigger : WorldObject
         IsRemoved = true;
 
         var caster = GetCaster();
-
-        if (caster)
-            caster._UnregisterAreaTrigger(this);
+        caster?._UnregisterAreaTrigger(this);
 
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
         HandleUnitEnterExit(new List<Unit>());
@@ -368,13 +359,13 @@ public class AreaTrigger : WorldObject
         if (!IsServerSide)
         {
             // "If" order matter here, Orbit > Attached > Splines
-            if (HasOrbit())
+            if (HasOrbit)
                 UpdateOrbitPosition();
-            else if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
+            else if (Template != null && Template.HasFlag(AreaTriggerFlags.HasAttached))
             {
                 var target = Target;
 
-                if (target)
+                if (target != null)
                     Location.Map.AreaTriggerRelocation(this, target.Location.X, target.Location.Y, target.Location.Z, target.Location.Orientation);
             }
             else
@@ -535,7 +526,7 @@ public class AreaTrigger : WorldObject
         LoadScripts();
         ForEachAreaTriggerScript<IAreaTriggerOnInitialize>(a => a.OnInitialize());
 
-        _targetGuid = target ? target.GUID : ObjectGuid.Empty;
+        _targetGuid = target?.GUID ?? ObjectGuid.Empty;
         AuraEff = aurEff;
 
         Location.WorldRelocate(caster.Location.Map, pos);
@@ -562,12 +553,12 @@ public class AreaTrigger : WorldObject
             }
         }
 
-        _areaTriggerTemplate = CreateProperties.Template;
+        Template = CreateProperties.Template;
 
-        Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.Location.Map.GenerateLowGuid(HighGuid.AreaTrigger)));
+        Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, Template != null ? Template.Id.Id : 0, caster.Location.Map.GenerateLowGuid(HighGuid.AreaTrigger)));
 
-        if (GetTemplate() != null)
-            Entry = GetTemplate().Id.Id;
+        if (Template != null)
+            Entry = Template.Id.Id;
 
         SetDuration(duration);
 
@@ -621,12 +612,12 @@ public class AreaTrigger : WorldObject
         SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.AnimationDataID), CreateProperties.AnimId);
         SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.AnimKitID), CreateProperties.AnimKitId);
 
-        if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.Unk3))
+        if (Template != null && Template.HasFlag(AreaTriggerFlags.Unk3))
             SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.Field_C), true);
 
         PhasingHandler.InheritPhaseShift(this, caster);
 
-        if (target && GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
+        if (target != null && Template != null && Template.HasFlag(AreaTriggerFlags.HasAttached))
             MovementInfo.Transport.Guid = target.GUID;
 
         Location.UpdatePositionData();
@@ -640,7 +631,7 @@ public class AreaTrigger : WorldObject
         {
             var orbit = CreateProperties.OrbitInfo;
 
-            if (target && GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
+            if (target != null && Template != null && Template.HasFlag(AreaTriggerFlags.HasAttached))
                 orbit.PathTarget = target.GUID;
             else
                 orbit.Center = new Vector3(pos.X, pos.Y, pos.Z);
@@ -664,7 +655,7 @@ public class AreaTrigger : WorldObject
         }
 
         // Relocate areatriggers with circular movement again
-        if (HasOrbit())
+        if (HasOrbit)
             Location.Relocate(CalculateOrbitPosition());
 
         if (!Location.Map.AddToMap(this))
@@ -694,7 +685,7 @@ public class AreaTrigger : WorldObject
             return false;
         }
 
-        _areaTriggerTemplate = areaTriggerTemplate;
+        Template = areaTriggerTemplate;
 
         Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, areaTriggerTemplate.Id.Id, Location.Map.GenerateLowGuid(HighGuid.AreaTrigger)));
 
@@ -720,24 +711,23 @@ public class AreaTrigger : WorldObject
     {
         var caster = GetCaster();
 
-        if (caster)
-        {
-            var player = caster.AsPlayer;
+        var player = caster?.AsPlayer;
 
-            if (player)
-                if (player.IsDebugAreaTriggers)
-                    player.SummonCreature(1, Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(TimeToTarget));
-        }
+        if (player == null)
+            return;
+
+        if (player.IsDebugAreaTriggers)
+            player.SummonCreature(1, Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(TimeToTarget));
     }
 
     private void DoActions(Unit unit)
     {
         var caster = IsServerSide ? unit : GetCaster();
 
-        if (caster == null || GetTemplate() == null)
+        if (caster == null || Template == null)
             return;
 
-        foreach (var action in GetTemplate().Actions.Where(action => IsServerSide || UnitFitToActionRequirement(unit, caster, action)))
+        foreach (var action in Template.Actions.Where(action => IsServerSide || UnitFitToActionRequirement(unit, caster, action)))
             switch (action.ActionType)
             {
                 case AreaTriggerActionTypes.Cast:
@@ -766,13 +756,13 @@ public class AreaTrigger : WorldObject
         if (CircularMovementInfo == null)
             return null;
 
-        if (CircularMovementInfo.PathTarget.HasValue)
-        {
-            var center = ObjectAccessor.GetWorldObject(this, CircularMovementInfo.PathTarget.Value);
+        if (!CircularMovementInfo.PathTarget.HasValue)
+            return CircularMovementInfo.Center.HasValue ? new Position(CircularMovementInfo.Center.Value) : null;
 
-            if (center)
-                return center.Location;
-        }
+        var center = ObjectAccessor.GetWorldObject(this, CircularMovementInfo.PathTarget.Value);
+
+        if (center != null)
+            return center.Location;
 
         return CircularMovementInfo.Center.HasValue ? new Position(CircularMovementInfo.Center.Value) : null;
     }
@@ -797,7 +787,7 @@ public class AreaTrigger : WorldObject
         {
             var player = unit.AsPlayer;
 
-            if (player)
+            if (player != null)
             {
                 if (player.IsDebugAreaTriggers)
                     player.SendSysMessage(CypherStrings.DebugAreatriggerEntered, Entry);
@@ -813,12 +803,12 @@ public class AreaTrigger : WorldObject
         {
             var leavingUnit = ObjectAccessor.GetUnit(this, exitUnitGuid);
 
-            if (!leavingUnit)
+            if (leavingUnit == null)
                 continue;
 
             var player = leavingUnit.AsPlayer;
 
-            if (player)
+            if (player != null)
             {
                 if (player.IsDebugAreaTriggers)
                     player.SendSysMessage(CypherStrings.DebugAreatriggerLeft, Entry);
@@ -977,7 +967,7 @@ public class AreaTrigger : WorldObject
     {
         var radius = Shape.SphereDatas.Radius;
 
-        if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasDynamicShape))
+        if (Template != null && Template.HasFlag(AreaTriggerFlags.HasDynamicShape))
             if (CreateProperties.MorphCurveId != 0)
                 radius = MathFunctions.Lerp(Shape.SphereDatas.Radius, Shape.SphereDatas.RadiusTarget, _db2Manager.GetCurveValueAt(CreateProperties.MorphCurveId, Progress));
 
@@ -1002,10 +992,10 @@ public class AreaTrigger : WorldObject
 
     private void UndoActions(Unit unit)
     {
-        if (GetTemplate() == null)
+        if (Template == null)
             return;
 
-        foreach (var action in GetTemplate().Actions.Where(action => action.ActionType is AreaTriggerActionTypes.Cast or AreaTriggerActionTypes.AddAura))
+        foreach (var action in Template.Actions.Where(action => action.ActionType is AreaTriggerActionTypes.Cast or AreaTriggerActionTypes.AddAura))
             unit.RemoveAurasDueToSpell(action.Param, CasterGuid);
     }
 
@@ -1108,7 +1098,7 @@ public class AreaTrigger : WorldObject
 
         var orientation = Location.Orientation;
 
-        if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasFaceMovementDir))
+        if (Template != null && Template.HasFlag(AreaTriggerFlags.HasFaceMovementDir))
         {
             var nextPoint = Spline.GetPoint(lastPositionIndex + 1);
             orientation = Location.GetAbsoluteAngle(nextPoint.X, nextPoint.Y);
@@ -1157,9 +1147,9 @@ public class AreaTrigger : WorldObject
                 break;
         }
 
-        if (GetTemplate() != null)
+        if (Template != null)
         {
-            var conditions = ConditionManager.GetConditionsForAreaTrigger(GetTemplate().Id.Id, GetTemplate().Id.IsServerSide);
+            var conditions = ConditionManager.GetConditionsForAreaTrigger(Template.Id.Id, Template.Id.IsServerSide);
 
             if (!conditions.Empty())
                 targetList.RemoveAll(target => !ConditionManager.IsObjectMeetToConditions(target, conditions));

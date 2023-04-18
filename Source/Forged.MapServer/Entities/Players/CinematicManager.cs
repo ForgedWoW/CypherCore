@@ -58,12 +58,12 @@ public class CinematicManager : IDisposable
         ActiveCinematic = null;
         ActiveCinematicCameraIndex = -1;
 
-        if (!_cinematicObject)
+        if (_cinematicObject == null)
             return;
 
         var vpObject = _player.Viewpoint;
 
-        if (vpObject)
+        if (vpObject != null)
             if (vpObject == _cinematicObject)
                 _player.SetViewpoint(_cinematicObject, false);
 
@@ -111,7 +111,7 @@ public class CinematicManager : IDisposable
         _player.Location.Map.LoadGridForActiveObject(pos.X, pos.Y, _player);
         _cinematicObject = _player.SummonCreature(1, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
-        if (_cinematicObject)
+        if (_cinematicObject != null)
         {
             _cinematicObject.SetActive(true);
             _player.SetViewpoint(_cinematicObject, true);
@@ -204,7 +204,7 @@ public class CinematicManager : IDisposable
 
         // Advance (at speed) to this position. The remote sight object is used
         // to send update information to player in cinematic
-        if (_cinematicObject && interPosition.IsPositionValid)
+        if (_cinematicObject != null && interPosition.IsPositionValid)
             _cinematicObject.MonsterMoveWithSpeed(interPosition.X, interPosition.Y, interPosition.Z, 500.0f, false, true);
 
         // If we never received an end packet 10 seconds after the final timestamp then force an end

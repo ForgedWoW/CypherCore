@@ -8,13 +8,13 @@ namespace Forged.MapServer.Entities.Players;
 
 public class FriendInfo
 {
-    public uint Area;
-    public PlayerClass Class;
-    public SocialFlag Flags;
-    public uint Level;
-    public string Note;
-    public FriendStatus Status;
-    public ObjectGuid WowAccountGuid;
+    public uint Area { get; set; }
+    public PlayerClass Class { get; set; }
+    public SocialFlag Flags { get; set; }
+    public uint Level { get; set; }
+    public string Note { get; set; }
+    public FriendStatus Status { get; set; }
+    public ObjectGuid WowAccountGuid { get; set; }
 
     public FriendInfo()
     {

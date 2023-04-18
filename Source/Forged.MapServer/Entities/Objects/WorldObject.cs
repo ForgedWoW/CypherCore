@@ -657,7 +657,7 @@ public abstract class WorldObject : IDisposable
         {
             var areaTrigger = AsAreaTrigger;
             var createProperties = areaTrigger.CreateProperties;
-            var areaTriggerTemplate = areaTrigger.GetTemplate();
+            var areaTriggerTemplate = areaTrigger.Template;
             var shape = areaTrigger.Shape;
 
             data.WriteUInt32(areaTrigger.TimeSinceCreated);
@@ -683,7 +683,7 @@ public abstract class WorldObject : IDisposable
             var hasDisk = shape.TriggerType == AreaTriggerTypes.Disk;
             var hasBoundedPlane = shape.TriggerType == AreaTriggerTypes.BoundedPlane;
             var hasAreaTriggerSpline = areaTrigger.HasSplines;
-            var hasOrbit = areaTrigger.HasOrbit();
+            var hasOrbit = areaTrigger.HasOrbit;
             var hasMovementScript = false;
 
             data.WriteBit(hasAbsoluteOrientation);

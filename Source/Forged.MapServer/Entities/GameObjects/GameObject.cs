@@ -22,14 +22,12 @@ using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
-using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Artifact;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.GameObject;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.OutdoorPVP;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Spells;
 using Framework.Constants;
@@ -83,7 +81,7 @@ public class GameObject : WorldObject
     // used as internal reaction delay time store (not state change reaction).
     // For traps this: spell casting cooldown, for doors/buttons: reset time.
 
-    public GameObject(LootFactory lootFactory, ClassFactory classFactory, GameObjectFactory gameObjectFactory, LootStoreBox lootStoreBox, PoolManager poolManager,
+    public GameObject(LootFactory lootFactory, ClassFactory classFactory, LootStoreBox lootStoreBox, PoolManager poolManager,
                       DB2Manager db2Manager, WorldDatabase worldDatabase, LootManager lootManager, OutdoorPvPManager outdoorPvPManager) : base(false, classFactory)
     {
         _lootFactory = lootFactory;
@@ -93,7 +91,6 @@ public class GameObject : WorldObject
         _worldDatabase = worldDatabase;
         _lootManager = lootManager;
         _outdoorPvPManager = outdoorPvPManager;
-        GameObjectFactory = gameObjectFactory;
         ObjectTypeMask |= TypeMask.GameObject;
         ObjectTypeId = TypeId.GameObject;
 
@@ -144,8 +141,7 @@ public class GameObject : WorldObject
     }
 
     public GameObjectData GameObjectData { get; private set; }
-
-    public GameObjectFactory GameObjectFactory { get; }
+    
 
     // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
     // What state to set whenever resetting
@@ -155,15 +151,12 @@ public class GameObject : WorldObject
     {
         get
         {
-            if (SpawnId != 0)
-            {
-                var goOverride = ObjectManager.GetGameObjectOverride(SpawnId);
+            if (SpawnId == 0)
+                return GoTemplateAddonProtected;
 
-                if (goOverride != null)
-                    return goOverride;
-            }
+            var goOverride = ObjectManager.GetGameObjectOverride(SpawnId);
 
-            return GoTemplateAddonProtected;
+            return goOverride ?? GoTemplateAddonProtected;
         }
     }
 
@@ -346,7 +339,7 @@ public class GameObject : WorldObject
 
                 break;
             case GameObjectActions.Disturb: // What's the difference with Open?
-                if (unitCaster)
+                if (unitCaster != null)
                     Use(unitCaster);
 
                 break;
@@ -359,12 +352,12 @@ public class GameObject : WorldObject
 
                 break;
             case GameObjectActions.Open:
-                if (unitCaster)
+                if (unitCaster != null)
                     Use(unitCaster);
 
                 break;
             case GameObjectActions.OpenAndUnlock:
-                if (unitCaster)
+                if (unitCaster != null)
                     UseDoorOrButton(0, false, unitCaster);
 
                 RemoveFlag(GameObjectFlags.Locked);
@@ -378,7 +371,7 @@ public class GameObject : WorldObject
                 // No use cases, implementation unknown
                 break;
             case GameObjectActions.Destroy:
-                if (unitCaster)
+                if (unitCaster != null)
                     UseDoorOrButton(0, true, unitCaster);
 
                 break;
@@ -449,7 +442,7 @@ public class GameObject : WorldObject
 
                 break;
             case GameObjectActions.OpenAndPlayAnimKit:
-                if (unitCaster)
+                if (unitCaster != null)
                     UseDoorOrButton(0, false, unitCaster);
 
                 SetAnimKitId((ushort)param, false);
@@ -469,7 +462,7 @@ public class GameObject : WorldObject
 
                 break;
             case GameObjectActions.OpenAndStopAnimKit:
-                if (unitCaster)
+                if (unitCaster != null)
                     UseDoorOrButton(0, false, unitCaster);
 
                 SetAnimKitId(0, false);
@@ -568,7 +561,7 @@ public class GameObject : WorldObject
             {
                 var trans = AsTransport;
 
-                if (trans)
+                if (trans != null)
                     trans.SetDelayedAddModelToMap();
                 else
                     Location.Map.InsertGameObjectModel(Model);
@@ -1055,7 +1048,7 @@ public class GameObject : WorldObject
 
     public SpellInfo GetSpellForLock(Player player)
     {
-        if (!player)
+        if (player == null)
             return null;
 
         var lockId = Template.GetLockId();
@@ -1068,15 +1061,19 @@ public class GameObject : WorldObject
 
         for (byte i = 0; i < SharedConst.MaxLockCase; ++i)
         {
-            if (lockEntry.LockType[i] == 0)
-                continue;
-
-            if (lockEntry.LockType[i] == (byte)LockKeyType.Spell)
+            switch (lockEntry.LockType[i])
             {
-                var spell = SpellManager.GetSpellInfo((uint)lockEntry.Index[i], Location.Map.DifficultyID);
+                case 0:
+                    continue;
+                case (byte)LockKeyType.Spell:
+                {
+                    var spell = SpellManager.GetSpellInfo((uint)lockEntry.Index[i], Location.Map.DifficultyID);
 
-                if (spell != null)
-                    return spell;
+                    if (spell != null)
+                        return spell;
+
+                    break;
+                }
             }
 
             if (lockEntry.LockType[i] != (byte)LockKeyType.Skill)
@@ -1959,10 +1956,7 @@ public class GameObject : WorldObject
         if (trapSpell == null) // checked at load already
             return;
 
-        var trapGO = LinkedTrap;
-
-        if (trapGO)
-            trapGO.SpellFactory.CastSpell(target, trapSpell.Id);
+        LinkedTrap?.SpellFactory.CastSpell(target, trapSpell.Id);
     }
 
     public override void Update(uint diff)
@@ -1999,7 +1993,7 @@ public class GameObject : WorldObject
 
                 _perPlayerState.Remove(guid);
 
-                if (!seer)
+                if (seer == null)
                     continue;
 
                 if (despawned)
@@ -2033,7 +2027,7 @@ public class GameObject : WorldObject
 
                         if (goInfo.Trap.charges == 2)
                             _cooldownTime = GameTime.CurrentTimeMS + 10 * Time.IN_MILLISECONDS; // Hardcoded tooltip value
-                        else if (owner)
+                        else if (owner != null)
                             if (owner.IsInCombat)
                                 _cooldownTime = GameTime.CurrentTimeMS + goInfo.Trap.startDelay * Time.IN_MILLISECONDS;
 
@@ -2215,7 +2209,7 @@ public class GameObject : WorldObject
                             target = searcher.GetTarget();
                         }
 
-                        if (target)
+                        if (target != null)
                             SetLootState(LootState.Activated, target);
                     }
                     else if (goInfo.type == GameObjectTypes.CapturePoint)
@@ -2324,7 +2318,7 @@ public class GameObject : WorldObject
                             SpellFactory.CastSpell(goInfo.Trap.spell);
                             SetLootState(LootState.JustDeactivated);
                         }
-                        else if (target)
+                        else if (target != null)
                         {
                             // Some traps do not have a spell but should be triggered
                             CastSpellExtraArgs args = new();
@@ -2362,10 +2356,7 @@ public class GameObject : WorldObject
             case LootState.JustDeactivated:
             {
                 // If nearby linked trap exists, despawn it
-                var linkedTrap = LinkedTrap;
-
-                if (linkedTrap)
-                    linkedTrap.DespawnOrUnsummon();
+                LinkedTrap?.DespawnOrUnsummon();
 
                 //if Gameobject should cast spell, then this, but some GOs (type = 10) should be destroyed
                 if (GoType == GameObjectTypes.Goober)
@@ -2557,7 +2548,7 @@ public class GameObject : WorldObject
             {
                 var player = user.AsPlayer;
 
-                if (!player)
+                if (player == null)
                     return;
 
                 var bg = player.Battleground;
@@ -2811,14 +2802,16 @@ public class GameObject : WorldObject
 
                     var group = player.Group;
 
-                    if (group)
+                    if (group != null)
                         for (var refe = group.FirstMember; refe != null; refe = refe.Next())
                         {
                             var member = refe.Source;
 
-                            if (member)
-                                if (member.IsAtGroupRewardDistance(this))
-                                    member.KillCreditGO(info.entry, GUID);
+                            if (member == null)
+                                continue;
+
+                            if (member.IsAtGroupRewardDistance(this))
+                                member.KillCreditGO(info.entry, GUID);
                         }
                     else
                         player.KillCreditGO(info.entry, GUID);
@@ -2933,14 +2926,14 @@ public class GameObject : WorldObject
 
                         // If fishing skill is high enough, or if fishing on a pool, send correct loot.
                         // Fishing pools have no skill requirement as of patch 3.3.0 (undocumented change).
-                        if (chance >= roll || fishingPool)
+                        if (chance >= roll || fishingPool != null)
                         {
                             // @todo I do not understand this hack. Need some explanation.
                             // prevent removing GO at spell cancel
                             RemoveFromOwner();
                             SetOwnerGUID(player.GUID);
 
-                            if (fishingPool)
+                            if (fishingPool != null)
                             {
                                 fishingPool.Use(player);
                                 SetLootState(LootState.JustDeactivated);
@@ -3146,7 +3139,7 @@ public class GameObject : WorldObject
                     // in Battlegroundcheck
                     var bg = player.Battleground;
 
-                    if (!bg)
+                    if (bg == null)
                         return;
 
                     if (player.Vehicle != null)
@@ -3198,7 +3191,7 @@ public class GameObject : WorldObject
                     // in Battlegroundcheck
                     var bg = player.Battleground;
 
-                    if (!bg)
+                    if (bg == null)
                         return;
 
                     if (player.Vehicle != null)
@@ -3321,7 +3314,7 @@ public class GameObject : WorldObject
                     {
                         var item = player.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-                        if (!item)
+                        if (item == null)
                             return;
 
                         GameObjectInteraction openHeartForge = new()
@@ -3342,7 +3335,7 @@ public class GameObject : WorldObject
             {
                 var player = user.AsPlayer;
 
-                if (!player)
+                if (player == null)
                     return;
 
                 GameObjectInteraction gameObjectUiLink = new()
@@ -3454,7 +3447,7 @@ public class GameObject : WorldObject
 
         var player1 = user.AsPlayer;
 
-        if (player1)
+        if (player1 != null)
             _outdoorPvPManager.HandleCustomSpell(player1, spellId, this);
 
         if (spellCaster != null)
@@ -3792,7 +3785,7 @@ public class GameObject : WorldObject
 
         var owner = ObjectAccessor.GetUnit(this, ownerGUID);
 
-        if (owner)
+        if (owner != null)
         {
             owner.RemoveGameObject(this, false);
 

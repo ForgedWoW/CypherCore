@@ -12,16 +12,13 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
-using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
-using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Networking.Packets.Misc;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Text;
@@ -36,7 +33,9 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public partial class Creature : Unit
 {
-    public Creature(ClassFactory classFactory) : this(false, classFactory) { }
+    public Creature(ClassFactory classFactory) : this(false, classFactory)
+    {
+    }
 
     public Creature(bool worldObject, ClassFactory classFactory) : base(worldObject, classFactory)
     {
@@ -476,19 +475,16 @@ public partial class Creature : Unit
         if (!CanFly && Location.GetDistanceZ(who) > SharedConst.CreatureAttackRangeZ + CombatDistance)
             return false;
 
-        if (!force)
-        {
-            if (!_IsTargetAcceptable(who))
-                return false;
+        if (force)
+            return CanCreatureAttack(who) && Location.IsWithinLOSInMap(who);
 
-            if (WorldObjectCombat.IsNeutralToAll() || !Location.IsWithinDistInMap(who, (float)GetAttackDistance(who) + CombatDistance))
-                return false;
-        }
-
-        if (!CanCreatureAttack(who, force))
+        if (!_IsTargetAcceptable(who))
             return false;
 
-        return Location.IsWithinLOSInMap(who);
+        if (WorldObjectCombat.IsNeutralToAll() || !Location.IsWithinDistInMap(who, (float)GetAttackDistance(who) + CombatDistance))
+            return false;
+
+        return CanCreatureAttack(who, false) && Location.IsWithinLOSInMap(who);
     }
 
     public void ClearTextRepeatGroup(byte textGroup)
@@ -556,11 +552,11 @@ public partial class Creature : Unit
 
         CorpseDelay = cinfo.Rank switch
         {
-            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Corpse:Decay:RARE", 300u),
-            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Corpse:Decay:ELITE", 300u),
+            CreatureEliteType.Rare => Configuration.GetDefaultValue("Corpse:Decay:RARE", 300u),
+            CreatureEliteType.Elite => Configuration.GetDefaultValue("Corpse:Decay:ELITE", 300u),
             CreatureEliteType.RareElite => Configuration.GetDefaultValue("Corpse:Decay:RAREELITE", 300u),
             CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Corpse:Decay:WORLDBOSS", 3600u),
-            _                           => Configuration.GetDefaultValue("Corpse:Decay:NORMAL", 60u)
+            _ => Configuration.GetDefaultValue("Corpse:Decay:NORMAL", 60u)
         };
 
         LoadCreaturesAddon();
@@ -607,7 +603,7 @@ public partial class Creature : Unit
 
     public void DoFleeToGetAssistance()
     {
-        if (!Victim)
+        if (Victim == null)
             return;
 
         if (HasAuraType(AuraType.PreventsFleeing))
@@ -621,11 +617,11 @@ public partial class Creature : Unit
             var searcher = new CreatureLastSearcher(this, uCheck, GridType.Grid);
             CellCalculator.VisitGrid(this, searcher, radius);
 
-            var creature = searcher.GetTarget();
+            var creature = searcher.Target;
 
             SetNoSearchAssistance(true);
 
-            if (!creature)
+            if (creature == null)
                 SetControlled(true, UnitState.Fleeing);
             else
                 MotionMaster.MoveSeekAssistance(creature.Location.X, creature.Location.Y, creature.Location.Z);
@@ -852,12 +848,12 @@ public partial class Creature : Unit
     {
         return rank switch // define rates for each elite rank
         {
-            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate:Creature:Normal:HP", 1.0f),
-            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:HP", 1.0f),
+            CreatureEliteType.Normal => Configuration.GetDefaultValue("Rate:Creature:Normal:HP", 1.0f),
+            CreatureEliteType.Elite => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:HP", 1.0f),
             CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:HP", 1.0f),
             CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate:Creature:Elite:WORLDBOSS:HP", 1.0f),
-            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate:Creature:Elite:RARE:HP", 1.0f),
-            _                           => Configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:HP", 1.0f)
+            CreatureEliteType.Rare => Configuration.GetDefaultValue("Rate:Creature:Elite:RARE:HP", 1.0f),
+            _ => Configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:HP", 1.0f)
         };
     }
 
@@ -878,49 +874,47 @@ public partial class Creature : Unit
     {
         var unitTarget = target.AsUnit;
 
-        if (unitTarget)
+        if (unitTarget == null)
+            return base.GetLevelForTarget(target);
+
+        if (IsWorldBoss)
         {
-            if (IsWorldBoss)
-            {
-                var level = (int)(unitTarget.Level + Configuration.GetDefaultValue("WorldBossLevelDiff", 3));
+            var level = (int)(unitTarget.Level + Configuration.GetDefaultValue("WorldBossLevelDiff", 3));
 
-                return (uint)MathFunctions.RoundToInterval(ref level, 1u, 255u);
-            }
-
-            // If this creature should scale level, adapt level depending of target level
-            // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
-            if (HasScalableLevels)
-            {
-                int scalingLevelMin = UnitData.ScalingLevelMin;
-                int scalingLevelMax = UnitData.ScalingLevelMax;
-                int scalingLevelDelta = UnitData.ScalingLevelDelta;
-                int scalingFactionGroup = UnitData.ScalingFactionGroup;
-                int targetLevel = unitTarget.UnitData.EffectiveLevel;
-
-                if (targetLevel == 0)
-                    targetLevel = (int)unitTarget.Level;
-
-                var targetLevelDelta = 0;
-
-                var playerTarget = target.AsPlayer;
-
-                if (playerTarget != null)
-                {
-                    if (scalingFactionGroup != 0 && CliDB.FactionTemplateStorage.LookupByKey((uint)CliDB.ChrRacesStorage.LookupByKey((uint)playerTarget.Race).FactionID).FactionGroup != scalingFactionGroup)
-                        scalingLevelMin = scalingLevelMax;
-
-                    int maxCreatureScalingLevel = playerTarget.ActivePlayerData.MaxCreatureScalingLevel;
-                    targetLevelDelta = Math.Min(maxCreatureScalingLevel > 0 ? maxCreatureScalingLevel - targetLevel : 0, playerTarget.ActivePlayerData.ScalingPlayerLevelDelta);
-                }
-
-                var levelWithDelta = targetLevel + targetLevelDelta;
-                var level = MathFunctions.RoundToInterval(ref levelWithDelta, scalingLevelMin, scalingLevelMax) + scalingLevelDelta;
-
-                return (uint)MathFunctions.RoundToInterval(ref level, 1, SharedConst.MaxLevel + 3);
-            }
+            return (uint)MathFunctions.RoundToInterval(ref level, 1u, 255u);
         }
 
-        return base.GetLevelForTarget(target);
+        // If this creature should scale level, adapt level depending of target level
+        // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
+        if (!HasScalableLevels)
+            return base.GetLevelForTarget(target);
+
+        int scalingLevelMin = UnitData.ScalingLevelMin;
+        int scalingLevelMax = UnitData.ScalingLevelMax;
+        int scalingLevelDelta = UnitData.ScalingLevelDelta;
+        int scalingFactionGroup = UnitData.ScalingFactionGroup;
+        int targetLevel = unitTarget.UnitData.EffectiveLevel;
+
+        if (targetLevel == 0)
+            targetLevel = (int)unitTarget.Level;
+
+        var targetLevelDelta = 0;
+
+        var playerTarget = target.AsPlayer;
+
+        if (playerTarget != null)
+        {
+            if (scalingFactionGroup != 0 && CliDB.FactionTemplateStorage.LookupByKey((uint)CliDB.ChrRacesStorage.LookupByKey((uint)playerTarget.Race).FactionID).FactionGroup != scalingFactionGroup)
+                scalingLevelMin = scalingLevelMax;
+
+            int maxCreatureScalingLevel = playerTarget.ActivePlayerData.MaxCreatureScalingLevel;
+            targetLevelDelta = Math.Min(maxCreatureScalingLevel > 0 ? maxCreatureScalingLevel - targetLevel : 0, playerTarget.ActivePlayerData.ScalingPlayerLevelDelta);
+        }
+
+        var levelWithDelta = targetLevel + targetLevelDelta;
+        var scaledLevel = MathFunctions.RoundToInterval(ref levelWithDelta, scalingLevelMin, scalingLevelMax) + scalingLevelDelta;
+
+        return (uint)MathFunctions.RoundToInterval(ref scaledLevel, 1, SharedConst.MaxLevel + 3);
     }
 
     public override LootManagement.Loot GetLootForPlayer(Player player)
@@ -945,14 +939,16 @@ public partial class Creature : Unit
 
     public override string GetName(Locale locale = Locale.enUS)
     {
-        if (locale != Locale.enUS)
-        {
-            var cl = ObjectManager.GetCreatureLocale(Entry);
+        if (locale == Locale.enUS)
+            return base.GetName(locale);
 
-            if (cl != null)
-                if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
-                    return cl.Name[(int)locale];
-        }
+        var cl = ObjectManager.GetCreatureLocale(Entry);
+
+        if (cl == null)
+            return base.GetName(locale);
+
+        if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
+            return cl.Name[(int)locale];
 
         return base.GetName(locale);
     }
@@ -1031,12 +1027,12 @@ public partial class Creature : Unit
     {
         return rank switch // define rates for each elite rank
         {
-            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate:Creature:Normal:SpellDamage", 1.0f),
-            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:SpellDamage", 1.0f),
+            CreatureEliteType.Normal => Configuration.GetDefaultValue("Rate:Creature:Normal:SpellDamage", 1.0f),
+            CreatureEliteType.Elite => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:SpellDamage", 1.0f),
             CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:SpellDamage", 1.0f),
             CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate:Creature:Elite:WORLDBOSS:SpellDamage", 1.0f),
-            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate:Creature:Elite:RARE:SpellDamage", 1.0f),
-            _                           => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:SpellDamage", 1.0f)
+            CreatureEliteType.Rare => Configuration.GetDefaultValue("Rate:Creature:Elite:RARE:SpellDamage", 1.0f),
+            _ => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:SpellDamage", 1.0f)
         };
     }
 
@@ -1110,7 +1106,7 @@ public partial class Creature : Unit
             return false;
         }
 
-        if (focusSpell)
+        if (focusSpell != null)
             return focusSpell == _spellFocusInfo.Spell;
         else
             return _spellFocusInfo.Spell != null || _spellFocusInfo.Delay != 0;
@@ -1173,7 +1169,7 @@ public partial class Creature : Unit
             return false;
         }
 
-        var model = GameObjectManager.ChooseDisplayId(cInfo, data);
+        var model = ObjectManager.ChooseDisplayId(cInfo, data);
         var minfo = ObjectManager.GetCreatureModelRandomGender(ref model, cInfo);
 
         if (minfo == null) // Cancel load if no model defined
@@ -1627,7 +1623,7 @@ public partial class Creature : Unit
             return;
 
         // focused to something else
-        if (focusSpell && focusSpell != _spellFocusInfo.Spell)
+        if (focusSpell != null && focusSpell != _spellFocusInfo.Spell)
             return;
 
         if (_spellFocusInfo.Spell.SpellInfo.HasAttribute(SpellAttr5.AiDoesntFaceTarget))
@@ -2072,7 +2068,7 @@ public partial class Creature : Unit
             // We're a player pet, probably
             target = GetAttackerForHelper();
 
-            if (!target && IsSummon)
+            if (target == null && IsSummon)
             {
                 var owner = ToTempSummon().OwnerUnit;
 
@@ -2081,13 +2077,13 @@ public partial class Creature : Unit
                     if (owner.IsInCombat)
                         target = owner.GetAttackerForHelper();
 
-                    if (!target)
+                    if (target == null)
                         foreach (var itr in owner.Controlled)
                             if (itr.IsInCombat)
                             {
                                 target = itr.GetAttackerForHelper();
 
-                                if (target)
+                                if (target != null)
                                     break;
                             }
                 }
@@ -2096,7 +2092,7 @@ public partial class Creature : Unit
         else
             return null;
 
-        if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
+        if (target != null && _IsTargetAcceptable(target) && CanCreatureAttack(target))
         {
             if (!HasSpellFocus())
                 SetInFront(target);
@@ -2105,7 +2101,7 @@ public partial class Creature : Unit
         }
 
         // @todo a vehicle may eat some mob, so mob should not evade
-        if (Vehicle)
+        if (Vehicle != null)
             return null;
 
         var iAuras = GetAuraEffectsByType(AuraType.ModInvisibility);
@@ -2255,7 +2251,7 @@ public partial class Creature : Unit
                 var creatureData = CreatureData;
                 var cInfo = Template;
 
-                GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, creatureData);
+                ObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, creatureData);
 
                 if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
                     npcFlags |= GameEventManager.GetNPCFlag(this);
@@ -2434,7 +2430,7 @@ public partial class Creature : Unit
             SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Target), newTarget);
 
         // If we are not allowed to turn during cast but have a focus target, face the target
-        if (!turnDisabled && noTurnDuringCast && target)
+        if (!turnDisabled && noTurnDuringCast && target != null)
             SetFacingToObject(target, false);
 
         if (!noTurnDuringCast)
@@ -2764,7 +2760,7 @@ public partial class Creature : Unit
 
         Faction = cInfo.Faction;
 
-        GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, data);
+        ObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, data);
 
         if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
             npcFlags |= GameEventManager.GetNPCFlag(this);
@@ -3106,7 +3102,7 @@ public partial class Creature : Unit
             {
                 var objTarget = ObjectAccessor.GetWorldObject(this, _spellFocusInfo.Target);
 
-                if (objTarget)
+                if (objTarget != null)
                     SetFacingToObject(objTarget, false);
             }
             else
@@ -3147,16 +3143,16 @@ public partial class Creature : Unit
 
     private void SelectWildBattlePetLevel()
     {
-        if (IsWildBattlePet)
-        {
-            byte wildBattlePetLevel = 1;
+        if (!IsWildBattlePet)
+            return;
 
-            var areaTable = CliDB.AreaTableStorage.LookupByKey(Location.Zone);
+        byte wildBattlePetLevel = 1;
 
-            if (areaTable is { WildBattlePetLevelMin: > 0 })
-                wildBattlePetLevel = (byte)RandomHelper.URand(areaTable.WildBattlePetLevelMin, areaTable.WildBattlePetLevelMax);
+        var areaTable = CliDB.AreaTableStorage.LookupByKey(Location.Zone);
 
-            WildBattlePetLevel = wildBattlePetLevel;
-        }
+        if (areaTable is { WildBattlePetLevelMin: > 0 })
+            wildBattlePetLevel = (byte)RandomHelper.URand(areaTable.WildBattlePetLevelMin, areaTable.WildBattlePetLevelMax);
+
+        WildBattlePetLevel = wildBattlePetLevel;
     }
 }

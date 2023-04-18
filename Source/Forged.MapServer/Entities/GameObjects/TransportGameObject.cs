@@ -27,7 +27,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
 
     public TransportGameObject(GameObject owner) : base(owner)
     {
-        _animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.Template.entry);
+        _animationInfo = owner.ClassFactory.Resolve<TransportManager>().GetTransportAnimInfo(owner.Template.entry);
         _pathProgress = GameTime.CurrentTimeMS % GetTransportPeriod();
         _stateChangeTime = GameTime.CurrentTimeMS;
         _stateChangeProgress = _pathProgress;

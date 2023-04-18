@@ -113,8 +113,8 @@ public class TaxiPathGraph
         // create graph
         _graph = new EdgeWeightedDigraph(_nodesByVertex.Count);
 
-        for (var j = 0; j < edges.Count; ++j)
-            _graph.AddEdge(new DirectedEdge(edges[j].Item1.Item1, edges[j].Item1.Item2, edges[j].Item2));
+        foreach (var edge in edges)
+            _graph.AddEdge(new DirectedEdge(edge.Item1.Item1, edge.Item1.Item2, edge.Item2));
     }
 
     private void AddVerticeAndEdgeFromNodeInfo(TaxiNodesRecord from, TaxiNodesRecord to, uint pathId, List<Tuple<Tuple<uint, uint>, uint>> edges)
@@ -169,21 +169,18 @@ public class TaxiPathGraph
 
     private uint CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesRecord node)
     {
-        if (!_verticesByNode.ContainsKey(node.Id))
-        {
-            _verticesByNode.Add(node.Id, (uint)_nodesByVertex.Count);
-            _nodesByVertex.Add(node);
-        }
+        if (_verticesByNode.ContainsKey(node.Id))
+            return _verticesByNode[node.Id];
+
+        _verticesByNode.Add(node.Id, (uint)_nodesByVertex.Count);
+        _nodesByVertex.Add(node);
 
         return _verticesByNode[node.Id];
     }
 
     private uint GetNodeIDFromVertexID(uint vertexID)
     {
-        if (vertexID < _nodesByVertex.Count)
-            return _nodesByVertex[(int)vertexID].Id;
-
-        return uint.MaxValue;
+        return vertexID < _nodesByVertex.Count ? _nodesByVertex[(int)vertexID].Id : uint.MaxValue;
     }
 
     private void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
