@@ -112,16 +112,15 @@ public class LootStoreItem
 
             return false;
         }
-        else // mincountOrRef < 0
-        {
-            if (NeedsQuest)
-                Log.Logger.Error("Table '{0}' entry {1} item {2}: quest chance will be treated as non-quest chance", store.Name, entry, Itemid);
-            else if (Chance == 0) // no chance for the reference
-            {
-                Log.Logger.Error("Table '{0}' entry {1} item {2}: zero chance is specified for a reference, skipped", store.Name, entry, Itemid);
 
-                return false;
-            }
+        // mincountOrRef < 0
+        if (NeedsQuest)
+            Log.Logger.Error("Table '{0}' entry {1} item {2}: quest chance will be treated as non-quest chance", store.Name, entry, Itemid);
+        else if (Chance == 0) // no chance for the reference
+        {
+            Log.Logger.Error("Table '{0}' entry {1} item {2}: zero chance is specified for a reference, skipped", store.Name, entry, Itemid);
+
+            return false;
         }
 
         return true; // Referenced template existence is checked at whole store level

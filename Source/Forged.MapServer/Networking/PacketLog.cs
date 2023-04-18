@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,7 +61,7 @@ public class PacketLog
                         writer.Write(20);
                         var socketIPBytes = new byte[16];
 
-                        Buffer.BlockCopy(packet.Item3.Address.GetAddressBytes(), 0, socketIPBytes, 0, packet.Item3.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork ? 4 : 16);
+                        Buffer.BlockCopy(packet.Item3.Address.GetAddressBytes(), 0, socketIPBytes, 0, packet.Item3.AddressFamily == AddressFamily.InterNetwork ? 4 : 16);
 
                         var size = packet.Item1.Length;
 

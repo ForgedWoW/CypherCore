@@ -16,11 +16,9 @@ using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
-using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Trait;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Spells;
@@ -81,7 +79,7 @@ public partial class Player
             do
             {
                 var mailId = mailItemsResult.Read<ulong>(52);
-                PlayerComputators._LoadMailedItem(GUID, this, mailId, mailById[mailId], mailItemsResult.GetFields(), additionalData.LookupByKey(mailItemsResult.Read<ulong>(0)));
+                PlayerComputators.LoadMailedItem(GUID, this, mailId, mailById[mailId], mailItemsResult.GetFields(), additionalData.LookupByKey(mailItemsResult.Read<ulong>(0)));
             } while (mailItemsResult.NextRow());
         }
 
@@ -277,7 +275,7 @@ public partial class Player
         SetName(name);
 
         // check name limitations
-        if (Globals.GameObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
+        if (GameObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
             (!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && GameObjectManager.IsReservedName(GetName())))
         {
             var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
@@ -389,9 +387,9 @@ public partial class Player
         // init saved position, and fix it later if problematic
         Location.Relocate(positionX, positionY, positionZ, orientation);
 
-        DungeonDifficultyId = CheckLoadedDungeonDifficultyId(dungeonDifficulty);
-        RaidDifficultyId = CheckLoadedRaidDifficultyId(raidDifficulty);
-        LegacyRaidDifficultyId = CheckLoadedLegacyRaidDifficultyId(legacyRaidDifficulty);
+        DungeonDifficultyId = PlayerComputators.CheckLoadedDungeonDifficultyId(dungeonDifficulty);
+        RaidDifficultyId = PlayerComputators.CheckLoadedRaidDifficultyId(raidDifficulty);
+        LegacyRaidDifficultyId = PlayerComputators.CheckLoadedLegacyRaidDifficultyId(legacyRaidDifficulty);
 
         var relocateToHomebind = new Action(() =>
         {
@@ -490,14 +488,14 @@ public partial class Player
                     InstanceId = 0;
                     transportMap = MapManager.CreateMap(mapId, this);
 
-                    if (transportMap)
+                    if (transportMap != null)
                         transport = transportMap.GetTransport(transGUID);
                 }
                 else
                     transport = transportOnMap;
             }
 
-            if (transport)
+            if (transport != null)
             {
                 var pos = new Position(transX, transY, transZ, transO);
 
@@ -536,7 +534,7 @@ public partial class Player
             instanceID = 0;
 
             // Not finish taxi flight path
-            if (_bgData.HasTaxiPath())
+            if (_bgData.HasTaxiPath)
                 for (var i = 0; i < 2; ++i)
                     Taxi.AddTaxiDestination(_bgData.TaxiPath[i]);
 
@@ -597,13 +595,12 @@ public partial class Player
 
         // NOW player must have valid map
         // load the player's map here if it's not already loaded
-        if (!map)
-            map = MapManager.CreateMap(mapId, this);
+        map ??= MapManager.CreateMap(mapId, this);
 
         AreaTriggerStruct areaTrigger = null;
         var check = false;
 
-        if (!map)
+        if (map == null)
         {
             areaTrigger = GameObjectManager.GetGoBackTrigger(mapId);
             check = true;
@@ -618,7 +615,7 @@ public partial class Player
                 areaTrigger = GameObjectManager.GetGoBackTrigger(mapId);
                 check = true;
             }
-            else if (instanceID != 0 && InstanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID)) != null) // ... and instance is reseted then look for entrance.
+            else if (instanceID != 0 && InstanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID, CliDB, DB2Manager)) != null) // ... and instance is reseted then look for entrance.
             {
                 areaTrigger = GameObjectManager.GetMapEntranceTrigger(mapId);
                 check = true;
@@ -637,12 +634,12 @@ public partial class Player
                 }
             }
 
-        if (!map)
+        if (map == null)
         {
             relocateToHomebind();
             map = MapManager.CreateMap(mapId, this);
 
-            if (!map)
+            if (map == null)
             {
                 Log.Logger.Error("Player {0} {1} Map: {2}, {3}. Invalid default map coordinates or instance couldn't be created.", GetName(), guid.ToString(), mapId, Location);
 
@@ -938,7 +935,7 @@ public partial class Player
 
         _LoadCUFProfiles(holder.GetResult(PlayerLoginQueryLoad.CufProfiles));
 
-        var garrison = new Garrison(this);
+        var garrison = ClassFactory.ResolvePositional<Garrison>(this);
 
         if (garrison.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.Garrison),
                                 holder.GetResult(PlayerLoginQueryLoad.GarrisonBlueprints),
@@ -982,7 +979,7 @@ public partial class Player
             if (Session.CollectionMgr.HasTransmogIllusion(transmogIllusion.Id))
                 continue;
 
-            if (CliDB.PlayerConditionStorage.TryGetValue(transmogIllusion.UnlockConditionID, out var playerCondition))
+            if (CliDB.PlayerConditionStorage.TryGetValue((uint)transmogIllusion.UnlockConditionID, out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                     continue;
 
@@ -1427,38 +1424,37 @@ public partial class Player
         loginTransaction.Append(stmt);
 
         // save pet (hunter pet level and experience and all type pets health/mana).
-        var pet = CurrentPet;
-
-        if (pet)
-            pet.SavePetToDB(PetSaveMode.AsCurrent);
+        CurrentPet?.SavePetToDB(PetSaveMode.AsCurrent);
     }
 
     private void _LoadActions(SQLResult result)
     {
         _actionButtons.Clear();
 
-        if (!result.IsEmpty())
-            do
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            var button = result.Read<byte>(0);
+            var action = result.Read<ulong>(1);
+            var type = result.Read<byte>(2);
+
+            var ab = AddActionButton(button, action, type);
+
+            if (ab != null)
+                ab.UState = ActionButtonUpdateState.UnChanged;
+            else
             {
-                var button = result.Read<byte>(0);
-                var action = result.Read<ulong>(1);
-                var type = result.Read<byte>(2);
+                Log.Logger.Error($"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
 
-                var ab = AddActionButton(button, action, type);
-
-                if (ab != null)
-                    ab.UState = ActionButtonUpdateState.UnChanged;
-                else
+                // Will deleted in DB at next save (it can create data until save but marked as deleted)
+                _actionButtons[button] = new ActionButton
                 {
-                    Log.Logger.Error($"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
-
-                    // Will deleted in DB at next save (it can create data until save but marked as deleted)
-                    _actionButtons[button] = new ActionButton
-                    {
-                        UState = ActionButtonUpdateState.Deleted
-                    };
-                }
-            } while (result.NextRow());
+                    UState = ActionButtonUpdateState.Deleted
+                };
+            }
+        } while (result.NextRow());
     }
 
     private void _LoadArenaTeamInfo(SQLResult result)
@@ -1797,7 +1793,7 @@ public partial class Player
         {
             var group = GroupManager.GetGroupByDbStoreId(result.Read<uint>(0));
 
-            if (group)
+            if (group != null)
             {
                 if (group.IsLeader(GUID))
                     SetPlayerFlag(PlayerFlags.GroupLeader);
@@ -1814,7 +1810,7 @@ public partial class Player
             }
         }
 
-        if (!Group || !Group.IsLeader(GUID))
+        if (Group == null || !Group.IsLeader(GUID))
             RemovePlayerFlag(PlayerFlags.GroupLeader);
     }
 
@@ -1965,7 +1961,7 @@ public partial class Player
                     {
                         var parent = GetItemByGuid(item.Creator);
 
-                        if (parent)
+                        if (parent != null)
                         {
                             parent.SetChildItem(item.GUID);
                             item.CopyArtifactDataFromParent(parent);
@@ -2088,7 +2084,7 @@ public partial class Player
             while (problematicItems.Count != 0)
             {
                 var subject = GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
-                MailDraft draft = new(subject, "There were problems with equipping item(s).");
+                var draft = ClassFactory.ResolvePositional<MailDraft>(subject, "There were problems with equipping item(s).");
 
                 for (var i = 0; problematicItems.Count != 0 && i < SharedConst.MaxMailItems; ++i)
                     draft.AddItem(problematicItems.Dequeue());
@@ -2420,7 +2416,7 @@ public partial class Player
 
                         foreach (var obj in quest.Objectives)
                             _questObjectiveStatus.Add((obj.Type, obj.ObjectID),
-                                                      new QuestObjectiveStatusData()
+                                                      new QuestObjectiveStatusData
                                                       {
                                                           QuestStatusPair = (questId, questStatusData),
                                                           Objective = obj
@@ -3456,11 +3452,9 @@ public partial class Player
 
                 continue;
             }
-            else
-            {
-                Log.Logger.Error("Can't find item guid {0} but is in refundable storage for player {1} ! Removing.", guid, GUID.ToString());
-                _refundableItems.Remove(guid);
-            }
+
+            Log.Logger.Error("Can't find item guid {0} but is in refundable storage for player {1} ! Removing.", guid, GUID.ToString());
+            _refundableItems.Remove(guid);
         }
 
         // update enchantment durations
@@ -3542,7 +3536,7 @@ public partial class Player
                 case ItemUpdateState.Changed:
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_INVENTORY_ITEM);
                     stmt.AddValue(0, GUID.Counter);
-                    stmt.AddValue(1, container ? container.GUID.Counter : 0);
+                    stmt.AddValue(1, container != null ? container.GUID.Counter : 0);
                     stmt.AddValue(2, item.Slot);
                     stmt.AddValue(3, item.GUID.Counter);
                     trans.Append(stmt);

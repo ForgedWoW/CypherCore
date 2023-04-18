@@ -130,8 +130,8 @@ public class AuctionManager
 
         if (--throttleObject.QueriesRemaining == 0)
             return new AuctionThrottleResult(throttleObject.PeriodEnd - now, false);
-        else
-            return new AuctionThrottleResult(TimeSpan.FromMilliseconds(_configuration.GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay", 300)), false);
+
+        return new AuctionThrottleResult(TimeSpan.FromMilliseconds(_configuration.GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay", 300)), false);
     }
 
     public Item GetAItem(ObjectGuid itemGuid)
@@ -208,12 +208,14 @@ public class AuctionManager
         // teams have linked auction houses
         if (!_cliDB.FactionTemplateStorage.TryGetValue(factionTemplateId, out var uEntry))
             return _neutralAuctions;
-        else if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Alliance))
+
+        if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Alliance))
             return _allianceAuctions;
-        else if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Horde))
+
+        if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Horde))
             return _hordeAuctions;
-        else
-            return _neutralAuctions;
+
+        return _neutralAuctions;
     }
 
     public ulong GetCommodityAuctionDeposit(ItemTemplate item, TimeSpan time, uint quantity)

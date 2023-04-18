@@ -313,13 +313,13 @@ public class ItemTemplate
             case ItemClass.Weapon:
                 if (SubClass >= (int)ItemSubClassWeapon.Max)
                     return 0;
-                else
-                    return ItemWeaponSkills[SubClass];
+
+                return ItemWeaponSkills[SubClass];
             case ItemClass.Armor:
                 if (SubClass >= (int)ItemSubClassArmor.Max)
                     return 0;
-                else
-                    return ItemArmorSkills[SubClass];
+
+                return ItemArmorSkills[SubClass];
 
             case ItemClass.Profession:
 
@@ -328,10 +328,11 @@ public class ItemTemplate
                         return 0;
                     else
                         return _itemProfessionSkills[SubClass];
-                else if (SubClass >= (int)ItemSubclassProfession.Max)
+
+                if (SubClass >= (int)ItemSubclassProfession.Max)
                     return 0;
-                else
-                    return ItemProfessionSkills[SubClass];
+
+                return ItemProfessionSkills[SubClass];
 
             default:
                 return 0;

@@ -9,7 +9,7 @@ using Framework.Database;
 
 namespace Forged.MapServer.Entities.Items;
 
-internal class ItemAdditionalLoadInfo
+public class ItemAdditionalLoadInfo
 {
     public ArtifactData Artifact { get; set; }
     public AzeriteEmpoweredData AzeriteEmpoweredItem { get; set; }

@@ -203,12 +203,10 @@ internal class QuestCommands
 
             return true;
         }
-        else
-        {
-            handler.SendSysMessage(CypherStrings.CommandQuestNotfound, quest.Id);
 
-            return false;
-        }
+        handler.SendSysMessage(CypherStrings.CommandQuestNotfound, quest.Id);
+
+        return false;
     }
 
     [Command("reward", RBACPermissions.CommandQuestReward)]

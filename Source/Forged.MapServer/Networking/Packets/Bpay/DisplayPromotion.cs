@@ -12,7 +12,7 @@ public class DisplayPromotion : ServerPacket
         PromotionID = ID;
     }
 
-    public uint PromotionID { get; set; } = 0;
+    public uint PromotionID { get; set; }
     /*void WorldPackets::BattlePay::PurchaseDetailsResponse::Read()
     {
         _worldPacket >> UnkByte;

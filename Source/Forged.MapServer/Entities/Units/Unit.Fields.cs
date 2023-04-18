@@ -394,8 +394,8 @@ public partial class Unit
 
             if (u != null)
                 return u.IsPossessed;
-            else
-                return false;
+
+            return false;
         }
     }
 

@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -79,8 +80,8 @@ public partial class Creature : Unit
             // some creatures can detect fake death
             if (CanIgnoreFeignDeath && target.HasUnitFlag2(UnitFlags2.FeignDeath))
                 return true;
-            else
-                return false;
+
+            return false;
         }
 
         // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
@@ -393,17 +394,15 @@ public partial class Creature : Unit
 
         if (unit != null)
             return victim.Location.IsWithinDist(unit, dist);
-        else
-        {
-            // include sizes for huge npcs
-            dist += CombatReach + victim.CombatReach;
 
-            // to prevent creatures in air ignore attacks because distance is already too high...
-            if (MovementTemplate.IsFlightAllowed)
-                return victim.Location.IsInDist2d(_homePosition, dist);
-            else
-                return victim.Location.IsInDist(_homePosition, dist);
-        }
+        // include sizes for huge npcs
+        dist += CombatReach + victim.CombatReach;
+
+        // to prevent creatures in air ignore attacks because distance is already too high...
+        if (MovementTemplate.IsFlightAllowed)
+            return victim.Location.IsInDist2d(_homePosition, dist);
+
+        return victim.Location.IsInDist(_homePosition, dist);
     }
 
     public bool CanInteractWithBattleMaster(Player player, bool msg)
@@ -917,7 +916,7 @@ public partial class Creature : Unit
         return (uint)MathFunctions.RoundToInterval(ref scaledLevel, 1, SharedConst.MaxLevel + 3);
     }
 
-    public override LootManagement.Loot GetLootForPlayer(Player player)
+    public override Loot GetLootForPlayer(Player player)
     {
         if (PersonalLoot.Empty())
             return Loot;
@@ -957,8 +956,8 @@ public partial class Creature : Unit
     {
         if (pos >= SharedConst.MaxSpellCharm || GetCharmInfo() == null || GetCharmInfo().GetCharmSpell(pos).ActiveState != ActiveStates.Enabled)
             return 0;
-        else
-            return GetCharmInfo().GetCharmSpell(pos).Action;
+
+        return GetCharmInfo().GetCharmSpell(pos).Action;
     }
 
     public float GetPetChaseDistance()
@@ -992,12 +991,10 @@ public partial class Creature : Unit
 
             return CreatureData.SpawnPoint.Copy();
         }
-        else
-        {
-            dist = 0;
 
-            return HomePosition.Copy();
-        }
+        dist = 0;
+
+        return HomePosition.Copy();
     }
 
     public uint GetScriptId()
@@ -1108,8 +1105,8 @@ public partial class Creature : Unit
 
         if (focusSpell != null)
             return focusSpell == _spellFocusInfo.Spell;
-        else
-            return _spellFocusInfo.Spell != null || _spellFocusInfo.Delay != 0;
+
+        return _spellFocusInfo.Spell != null || _spellFocusInfo.Delay != 0;
     }
 
     public bool HasStringId(string id)

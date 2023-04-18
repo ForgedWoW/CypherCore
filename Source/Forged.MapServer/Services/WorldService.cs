@@ -2,6 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Net;
+using Bgs.Protocol;
 using Bgs.Protocol.GameUtilities.V1;
 using Framework.Constants;
 using Framework.Serialization;
@@ -29,8 +31,8 @@ public class WorldService
     [Service(OriginalHash.GameUtilitiesService, 1)]
     private BattlenetRpcErrorCode HandleProcessClientRequest(ClientRequest request, ClientResponse response)
     {
-        Bgs.Protocol.Attribute command = null;
-        Dictionary<string, Bgs.Protocol.Variant> Params = new();
+        Attribute command = null;
+        Dictionary<string, Variant> Params = new();
 
         string removeSuffix(string str)
         {
@@ -70,12 +72,12 @@ public class WorldService
         };
     }
 
-    private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
+    private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Variant> Params, ClientResponse response)
     {
         if (Params.TryGetValue("Param_RealmAddress", out var realmAddress))
             return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue,
                                              Global.WorldMgr.Realm.Build,
-                                             System.Net.IPAddress.Parse((string)RemoteAddress),
+                                             IPAddress.Parse((string)RemoteAddress),
                                              RealmListSecret,
                                              SessionDbcLocale,
                                              OS,
@@ -85,7 +87,7 @@ public class WorldService
         return BattlenetRpcErrorCode.Ok;
     }
 
-    private BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
+    private BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Variant> Params, ClientResponse response)
     {
         var subRegionId = "";
 
@@ -97,10 +99,10 @@ public class WorldService
         if (compressed.Empty())
             return BattlenetRpcErrorCode.UtilServerFailedToSerializeResponse;
 
-        Bgs.Protocol.Attribute attribute = new()
+        Attribute attribute = new()
         {
             Name = "Param_RealmList",
-            Value = new Bgs.Protocol.Variant
+            Value = new Variant
             {
                 BlobValue = ByteString.CopyFrom(compressed)
             }
@@ -123,10 +125,10 @@ public class WorldService
 
         compressed = Json.Deflate("JSONRealmCharacterCountList", realmCharacterCounts);
 
-        attribute = new Bgs.Protocol.Attribute
+        attribute = new Attribute
         {
             Name = "Param_CharacterCountList",
-            Value = new Bgs.Protocol.Variant
+            Value = new Variant
             {
                 BlobValue = ByteString.CopyFrom(compressed)
             }

@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Calendar;
@@ -292,8 +293,8 @@ public class WorldManager
         {
             if (mode == BanMode.IP)
                 return BanReturn.Success; // ip correctly banned but nobody affected (yet)
-            else
-                return BanReturn.Notfound; // Nobody to ban
+
+            return BanReturn.Notfound;     // Nobody to ban
         }
 
         // Disconnect all affected players (for IP it can be several)
@@ -774,9 +775,9 @@ public class WorldManager
             return false;
 
         Realm.SetName(result.Read<string>(1));
-        Realm.ExternalAddress = System.Net.IPAddress.Parse(result.Read<string>(2));
-        Realm.LocalAddress = System.Net.IPAddress.Parse(result.Read<string>(3));
-        Realm.LocalSubnetMask = System.Net.IPAddress.Parse(result.Read<string>(4));
+        Realm.ExternalAddress = IPAddress.Parse(result.Read<string>(2));
+        Realm.LocalAddress = IPAddress.Parse(result.Read<string>(3));
+        Realm.LocalSubnetMask = IPAddress.Parse(result.Read<string>(4));
         Realm.Port = result.Read<ushort>(5);
         Realm.Type = result.Read<byte>(6);
         Realm.Flags = (RealmFlags)result.Read<byte>(7);

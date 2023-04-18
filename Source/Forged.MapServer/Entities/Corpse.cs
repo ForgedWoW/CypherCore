@@ -7,10 +7,10 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Networking;
-using Forged.MapServer.Phasing;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -47,7 +47,7 @@ public class Corpse : WorldObject
         set => SetFactionTemplate((int)value);
     }
 
-    public LootManagement.Loot Loot { get; set; }
+    public Loot Loot { get; set; }
     public Player LootRecipient { get; set; }
 
     public override ObjectGuid OwnerGUID => CorpseData.Owner;
@@ -171,7 +171,7 @@ public class Corpse : WorldObject
         return _time;
     }
 
-    public override LootManagement.Loot GetLootForPlayer(Player player)
+    public override Loot GetLootForPlayer(Player player)
     {
         return Loot;
     }
@@ -189,8 +189,8 @@ public class Corpse : WorldObject
 
         if (_type == CorpseType.Bones)
             return _time < t - 60 * Time.MINUTE;
-        else
-            return _time < t - 3 * Time.DAY;
+
+        return _time < t - 3 * Time.DAY;
     }
 
     public bool LoadCorpseFromDB(ulong guid, SQLFields field)

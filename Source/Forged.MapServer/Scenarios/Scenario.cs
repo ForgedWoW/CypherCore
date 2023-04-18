@@ -305,7 +305,7 @@ public class Scenario : CriteriaHandler
         if (CriteriaProgress.Empty())
             return criteriasProgress;
 
-        criteriasProgress.AddRange(CriteriaProgress.Select(pair => new CriteriaProgressPkt()
+        criteriasProgress.AddRange(CriteriaProgress.Select(pair => new CriteriaProgressPkt
         {
             Id = pair.Key,
             Quantity = pair.Value.Counter,

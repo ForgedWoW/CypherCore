@@ -133,7 +133,7 @@ internal class LearnCommands
         {
             foreach (var skillSpell in handler.ClassFactory.Resolve<SpellManager>().GetSkillLineAbilityMapBounds((uint)SkillType.Internal))
             {
-                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(skillSpell.Spell, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(skillSpell.Spell);
 
                 if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, handler.Session.Player, false))
                     continue;
@@ -253,7 +253,7 @@ internal class LearnCommands
                 if (talentInfo.SpecID != 0 && player.GetPrimarySpecialization() != talentInfo.SpecID)
                     continue;
 
-                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(talentInfo.SpellID);
 
                 if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, handler.Session.Player, false))
                     continue;
@@ -308,7 +308,7 @@ internal class LearnCommands
                 if (skillLine.ClassMask != 0 && (skillLine.ClassMask & classmask) == 0)
                     continue;
 
-                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(skillLine.Spell, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(skillLine.Spell);
 
                 if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, player, false))
                     continue;
@@ -343,7 +343,7 @@ internal class LearnCommands
 
             foreach (var (_, entry) in handler.CliDB.SkillLineAbilityStorage)
             {
-                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(entry.Spell, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(entry.Spell);
 
                 if (spellInfo == null)
                     continue;

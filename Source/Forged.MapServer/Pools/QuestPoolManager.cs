@@ -154,7 +154,7 @@ public class QuestPoolManager
                 {
                     var poolList = quest.IsDaily ? _dailyPools : quest.IsWeekly ? _weeklyPools : _monthlyPools;
 
-                    poolList.Add(new QuestPool()
+                    poolList.Add(new QuestPool
                     {
                         PoolId = poolId,
                         NumActive = numActive

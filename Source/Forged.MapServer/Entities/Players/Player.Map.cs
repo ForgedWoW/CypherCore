@@ -13,7 +13,6 @@ using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Instance;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Movement;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
 using Framework.Util;
@@ -173,29 +172,26 @@ public partial class Player
             var map = MapManager.FindMap(mapId, instanceId);
             var forgetInstance = false;
 
-            if (map)
-            {
-                var instance = map.ToInstanceMap;
+            var instance = map?.ToInstanceMap;
 
-                if (instance != null)
-                    switch (instance.Reset(method))
-                    {
-                        case InstanceResetResult.Success:
-                            SendResetInstanceSuccess(map.Id);
+            if (instance != null)
+                switch (instance.Reset(method))
+                {
+                    case InstanceResetResult.Success:
+                        SendResetInstanceSuccess(map.Id);
+                        forgetInstance = true;
+
+                        break;
+                    case InstanceResetResult.NotEmpty:
+                        if (method == InstanceResetMethod.Manual)
+                            SendResetInstanceFailed(ResetFailedReason.Failed, map.Id);
+                        else if (method == InstanceResetMethod.OnChangeDifficulty)
                             forgetInstance = true;
 
-                            break;
-                        case InstanceResetResult.NotEmpty:
-                            if (method == InstanceResetMethod.Manual)
-                                SendResetInstanceFailed(ResetFailedReason.Failed, map.Id);
-                            else if (method == InstanceResetMethod.OnChangeDifficulty)
-                                forgetInstance = true;
-
-                            break;
-                        case InstanceResetResult.CannotReset:
-                            break;
-                    }
-            }
+                        break;
+                    case InstanceResetResult.CannotReset:
+                        break;
+                }
 
             if (forgetInstance)
                 _recentInstances.Remove(mapId);
@@ -473,13 +469,13 @@ public partial class Player
         }
 
         // group update
-        if (Group)
+        if (Group != null)
         {
             SetGroupUpdateFlag(GroupUpdateFlags.Full);
 
             var pet = CurrentPet;
 
-            if (pet)
+            if (pet != null)
                 pet.GroupUpdateFlag = GroupUpdatePetFlags.Full;
         }
 
@@ -526,16 +522,14 @@ public partial class Player
         // call enter script hooks after everyting else has processed
         ScriptManager.ForEach<IPlayerOnUpdateZone>(p => p.OnUpdateZone(this, newZone, newArea));
 
-        if (oldZone != newZone)
-        {
-            OutdoorPvPManager.HandlePlayerEnterZone(this, newZone);
-            BattleFieldManager.HandlePlayerEnterZone(this, newZone);
-            SendInitWorldStates(newZone, newArea); // only if really enters to new zone, not just area change, works strange...
-            var guild = Guild;
+        if (oldZone == newZone)
+            return;
 
-            if (guild)
-                guild.UpdateMemberData(this, GuildMemberData.ZoneId, newZone);
-        }
+        OutdoorPvPManager.HandlePlayerEnterZone(this, newZone);
+        BattleFieldManager.HandlePlayerEnterZone(this, newZone);
+        SendInitWorldStates(newZone, newArea); // only if really enters to new zone, not just area change, works strange...
+
+        Guild?.UpdateMemberData(this, GuildMemberData.ZoneId, newZone);
     }
 
     private bool IsInstanceLoginGameMasterException()

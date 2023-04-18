@@ -36,7 +36,7 @@ internal class SceneCommands
         if (player)
         {
             player.SceneMgr.ToggleDebugSceneMode();
-            handler.SendSysMessage(player.SceneMgr.IsInDebugSceneMode() ? CypherStrings.CommandSceneDebugOn : CypherStrings.CommandSceneDebugOff);
+            handler.SendSysMessage(player.SceneMgr.IsInDebugSceneMode ? CypherStrings.CommandSceneDebugOn : CypherStrings.CommandSceneDebugOff);
         }
 
         return true;

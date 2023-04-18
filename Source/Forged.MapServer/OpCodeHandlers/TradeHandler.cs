@@ -392,7 +392,8 @@ public class TradeHandler : IWorldSessionHandler
 
                 return;
             }
-            else if (hisCanCompleteInfo.BagResult != InventoryResult.Ok)
+
+            if (hisCanCompleteInfo.BagResult != InventoryResult.Ok)
             {
                 ClearAcceptTradeMode(my_trade, his_trade);
 

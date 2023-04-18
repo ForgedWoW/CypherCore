@@ -12,7 +12,6 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Movement.Generators;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Networking.Packets.Pet;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Serilog;

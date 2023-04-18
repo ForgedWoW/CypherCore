@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 public class JoinSkirmish : ClientPacket
 {
     public BracketType Bracket = 0;
-    public bool JoinAsGroup = false;
-    public byte Roles = 0;
-    public bool UnkBool = false;
+    public bool JoinAsGroup;
+    public byte Roles;
+    public bool UnkBool;
 
     public JoinSkirmish(WorldPacket worldPacket) : base(worldPacket) { }
 

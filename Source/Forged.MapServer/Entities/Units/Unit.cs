@@ -1083,13 +1083,12 @@ public partial class Unit : WorldObject
             {
                 if (IsTotem)
                     return OwnerUnit.GetTotalSpellPowerValue(mask, heal);
-                else
-                {
-                    if (IsPet)
-                        return ownerPlayer.ActivePlayerData.PetSpellPower.Value;
-                    else if (IsGuardian)
-                        return ((Guardian)this).GetBonusDamage();
-                }
+
+                if (IsPet)
+                    return ownerPlayer.ActivePlayerData.PetSpellPower.Value;
+
+                if (IsGuardian)
+                    return ((Guardian)this).GetBonusDamage();
             }
 
             return heal ? SpellBaseHealingBonusDone(mask) : SpellBaseDamageBonusDone(mask);
@@ -1326,8 +1325,9 @@ public partial class Unit : WorldObject
 
         if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
             return u1.AsPlayer.IsInSameGroupWith(u2.AsPlayer);
-        else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-                 (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+
+        if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+            (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
             return true;
 
         return u1.TypeId == TypeId.Unit && u2.TypeId == TypeId.Unit && u1.Faction == u2.Faction;
@@ -1346,8 +1346,9 @@ public partial class Unit : WorldObject
 
         if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
             return u1.AsPlayer.IsInSameRaidWith(u2.AsPlayer);
-        else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-                 (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+
+        if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+            (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
             return true;
 
         // else u1.GetTypeId() == u2.GetTypeId() == TYPEID_UNIT
@@ -1604,7 +1605,7 @@ public partial class Unit : WorldObject
         }
 
         if (dVal < 0)
-            CharmerOrOwnerPlayerOrPlayerItself?.SendPacket(new HealthUpdate()
+            CharmerOrOwnerPlayerOrPlayerItself?.SendPacket(new HealthUpdate
             {
                 Guid = GUID,
                 Health = Health
@@ -2001,7 +2002,8 @@ public partial class Unit : WorldObject
             return;
         }
         // we've found shapeshift
-        else if (!shapeshiftAura.Empty()) // we've found shapeshift
+
+        if (!shapeshiftAura.Empty()) // we've found shapeshift
         {
             // only one such aura possible at a time
             var modelId = GetModelForForm(ShapeshiftForm, shapeshiftAura[0].Id);

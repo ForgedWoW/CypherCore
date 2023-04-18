@@ -243,8 +243,8 @@ public partial class Unit
     {
         if (Location.IsInWater)
             return c.CanEnterWater;
-        else
-            return c.CanWalk || c.CanFly;
+
+        return c.CanWalk || c.CanFly;
     }
 
     public bool IsInBackInMap(Unit target, float distance, float arc = MathFunctions.PI)
@@ -1730,7 +1730,7 @@ public partial class Unit
     {
         var player = AsPlayer;
 
-        player?.SendPacket(new MoveSetVehicleRecID()
+        player?.SendPacket(new MoveSetVehicleRecID
         {
             MoverGUID = GUID,
             SequenceIndex = MovementCounter++,

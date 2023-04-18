@@ -1641,7 +1641,8 @@ public class SmartAIManager
 
                             return false;
                         }
-                        else if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(e.Action.MorphOrMount.Model))
+
+                        if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(e.Action.MorphOrMount.Model))
                         {
                             Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Model id {e.Action.MorphOrMount.Model}, skipped.");
 
@@ -1776,7 +1777,8 @@ public class SmartAIManager
                     {
                         if (targetType == SmartTargets.CreatureGuid && !IsCreatureValid(e, e.Action.CrossCast.TargetParam2))
                             return false;
-                        else if (targetType == SmartTargets.GameobjectGuid && !IsGameObjectValid(e, e.Action.CrossCast.TargetParam2))
+
+                        if (targetType == SmartTargets.GameobjectGuid && !IsGameObjectValid(e, e.Action.CrossCast.TargetParam2))
                             return false;
                     }
 
@@ -1790,7 +1792,8 @@ public class SmartAIManager
 
                         return false;
                     }
-                    else if (e.Action.CrossCast.TargetParam2 != 0 && e.Action.CrossCast.TargetParam2 != data.Id)
+
+                    if (e.Action.CrossCast.TargetParam2 != 0 && e.Action.CrossCast.TargetParam2 != data.Id)
                     {
                         Log.Logger.Error($"SmartAIMgr: {e} specifies invalid entry {e.Action.CrossCast.TargetParam2} (expected {data.Id}) for CasterTargetType guid ({spawnType},{guid})");
 
@@ -1858,7 +1861,8 @@ public class SmartAIManager
 
                     return false;
                 }
-                else if (e.Action.IncEventPhase.Inc > (uint)SmartPhase.Max || e.Action.IncEventPhase.Dec > (uint)SmartPhase.Max)
+
+                if (e.Action.IncEventPhase.Inc > (uint)SmartPhase.Max || e.Action.IncEventPhase.Dec > (uint)SmartPhase.Max)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} attempts to increment phase by too large value, skipped.");
 
@@ -2125,7 +2129,8 @@ public class SmartAIManager
 
                     return false;
                 }
-                else if (e.Action.SetInstanceData is { Type: 1, Data: > (int)EncounterState.ToBeDecided })
+
+                if (e.Action.SetInstanceData is { Type: 1, Data: > (int)EncounterState.ToBeDecided })
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.SetInstanceData.Data} (value range 0-5), skipped.");
 
@@ -2701,7 +2706,8 @@ public class SmartAIManager
 
                     return false;
                 }
-                else if (e.Target.UnitGUID.Entry != 0 && e.Target.UnitGUID.Entry != data.Id)
+
+                if (e.Target.UnitGUID.Entry != 0 && e.Target.UnitGUID.Entry != data.Id)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} using invalid creature entry {e.Target.UnitGUID.Entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
 
@@ -2724,7 +2730,8 @@ public class SmartAIManager
 
                     return false;
                 }
-                else if (e.Target.GoGUID.Entry != 0 && e.Target.GoGUID.Entry != data.Id)
+
+                if (e.Target.GoGUID.Entry != 0 && e.Target.GoGUID.Entry != data.Id)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} using invalid gameobject entry {e.Target.GoGUID.Entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
 
@@ -2856,8 +2863,8 @@ public class SmartAIManager
 
                             return false;
                         }
-                        else
-                            entry = data.Id;
+
+                        entry = data.Id;
                     }
                     else
                         entry = (uint)e.EntryOrGuid;

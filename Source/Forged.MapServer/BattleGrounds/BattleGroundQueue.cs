@@ -477,9 +477,9 @@ public class BattlegroundQueue
         //check if there is enought values(we always add values > 0)
         if (_waitTimes[teamIndex][(int)bracketId][SharedConst.CountOfPlayersToAverageWaitTime - 1] != 0)
             return _sumOfWaitTimes[teamIndex][(int)bracketId] / SharedConst.CountOfPlayersToAverageWaitTime;
-        else
-            //if there aren't enough values return 0 - not available
-            return 0;
+
+        //if there aren't enough values return 0 - not available
+        return 0;
     }
 
     public bool GetPlayerGroupInfoData(ObjectGuid guid, out GroupQueueInfo ginfo)

@@ -16,7 +16,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Maps;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.ITransport;
 using Framework.Constants;
 using Serilog;
@@ -693,29 +692,27 @@ public class Transport : GameObject, ITransport
 
             return true;
         }
-        else
-        {
-            UpdatePosition(x, y, z, o);
 
-            // Teleport players, they need to know it
-            foreach (var obj in _passengers)
-                if (obj.IsTypeId(TypeId.Player))
-                {
-                    // will be relocated in UpdatePosition of the vehicle
-                    var veh = obj.AsUnit.VehicleBase;
+        UpdatePosition(x, y, z, o);
 
-                    if (veh)
-                        if (veh.Transport == this)
-                            continue;
+        // Teleport players, they need to know it
+        foreach (var obj in _passengers)
+            if (obj.IsTypeId(TypeId.Player))
+            {
+                // will be relocated in UpdatePosition of the vehicle
+                var veh = obj.AsUnit.VehicleBase;
 
-                    var pos = obj.MovementInfo.Transport.Pos.Copy();
-                    ITransport.CalculatePassengerPosition(pos, x, y, z, o);
+                if (veh)
+                    if (veh.Transport == this)
+                        continue;
 
-                    obj.AsUnit.NearTeleportTo(pos);
-                }
+                var pos = obj.MovementInfo.Transport.Pos.Copy();
+                ITransport.CalculatePassengerPosition(pos, x, y, z, o);
 
-            return false;
-        }
+                obj.AsUnit.NearTeleportTo(pos);
+            }
+
+        return false;
     }
 
     private void UnloadStaticPassengers()

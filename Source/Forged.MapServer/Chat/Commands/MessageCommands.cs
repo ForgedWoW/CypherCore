@@ -110,17 +110,15 @@ internal class MessageCommands
 
             return true;
         }
-        else
-        {
-            // Remove all players from the Gamemaster's whisper whitelist
-            handler.Session. // Remove all players from the Gamemaster's whisper whitelist
-                    Player.ClearWhisperWhiteList();
 
-            handler.Session.Player.SetAcceptWhispers(false);
-            handler.SendSysMessage(CypherStrings.CommandWhisperoff);
+        // Remove all players from the Gamemaster's whisper whitelist
+        handler.Session. // Remove all players from the Gamemaster's whisper whitelist
+                Player.ClearWhisperWhiteList();
 
-            return true;
-        }
+        handler.Session.Player.SetAcceptWhispers(false);
+        handler.SendSysMessage(CypherStrings.CommandWhisperoff);
+
+        return true;
 
         //todo fix me
         /*if (operationArg->holds_alternative < EXACT_SEQUENCE("remove") > ())

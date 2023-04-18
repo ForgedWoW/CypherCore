@@ -271,8 +271,8 @@ public partial class Unit
 
         if (UnitData.Stats.Values.Length > st)
             return UnitData.Stats[st];
-        else
-            return 0;
+
+        return 0;
     }
 
     public double GetTotalStatValue(Stats stat)

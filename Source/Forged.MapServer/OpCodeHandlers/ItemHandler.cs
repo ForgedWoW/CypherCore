@@ -345,8 +345,8 @@ public class ItemHandler : IWorldSessionHandler
 
             return;
         }
-        else
-            _player.SendBuyError(BuyResult.CantFindItem, creature, 0);
+
+        _player.SendBuyError(BuyResult.CantFindItem, creature, 0);
     }
 
     [WorldPacketHandler(ClientOpcodes.BuyItem, Processing = PacketProcessing.Inplace)]
@@ -670,8 +670,6 @@ public class ItemHandler : IWorldSessionHandler
         }
 
         pl.SendSellError(SellResult.CantSellItem, creature, packet.ItemGUID);
-
-        return;
     }
 
     [WorldPacketHandler(ClientOpcodes.SocketGems, Processing = PacketProcessing.Inplace)]

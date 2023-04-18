@@ -24,9 +24,6 @@ internal class ChannelPlayerCommand : ClientPacket
             case ClientOpcodes.ChatChannelUnmoderator:
             case ClientOpcodes.ChatChannelUnsilenceAll:
                 break;
-            default:
-                //ABORT();
-                break;
         }
     }
 

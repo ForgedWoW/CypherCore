@@ -30,7 +30,7 @@ public class CreateCharacter : ClientPacket
             CreateInfo.TemplateSet = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < customizationCount; ++i)
-            CreateInfo.Customizations[i] = new ChrCustomizationChoice()
+            CreateInfo.Customizations[i] = new ChrCustomizationChoice
             {
                 ChrCustomizationOptionID = WorldPacket.ReadUInt32(),
                 ChrCustomizationChoiceID = WorldPacket.ReadUInt32()

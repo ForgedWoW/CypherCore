@@ -6,6 +6,7 @@ using System.Linq;
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -13,22 +14,21 @@ namespace Forged.MapServer.Entities.Players;
 public class PetitionManager
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
 
-    public PetitionManager(CharacterDatabase characterDatabase)
+    public PetitionManager(CharacterDatabase characterDatabase, ClassFactory classFactory)
     {
         _characterDatabase = characterDatabase;
+        _classFactory = classFactory;
     }
 
     public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)
     {
-        Petition p = new()
-        {
-            PetitionGuid = petitionGuid,
-            OwnerGuid = ownerGuid,
-            PetitionName = name
-        };
-
+        var p = _classFactory.Resolve<Petition>();
+        p.PetitionGuid = petitionGuid;
+        p.OwnerGuid = ownerGuid;
+        p.PetitionName = name;
         p.Signatures.Clear();
 
         _petitionStorage[petitionGuid] = p;

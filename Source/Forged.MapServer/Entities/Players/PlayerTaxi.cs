@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Taxi;
 using Framework.Collections;
 using Framework.Constants;
@@ -15,8 +16,17 @@ namespace Forged.MapServer.Entities.Players;
 public class PlayerTaxi
 {
     public byte[] Taximask;
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _gameObjectManager;
     private readonly List<uint> _taxiDestinations = new();
     private uint _flightMasterFactionId;
+
+    public PlayerTaxi(CliDB cliDB, GameObjectManager gameObjectManager)
+    {
+        _cliDB = cliDB;
+        _gameObjectManager = gameObjectManager;
+    }
+
     public object TaxiLock { get; } = new();
 
     public void AddTaxiDestination(uint dest)
@@ -26,13 +36,13 @@ public class PlayerTaxi
 
     public void AppendTaximaskTo(ShowTaxiNodes data, bool all)
     {
-        data.CanLandNodes = new byte[CliDB.TaxiNodesMask.Length];
-        data.CanUseNodes = new byte[CliDB.TaxiNodesMask.Length];
+        data.CanLandNodes = new byte[_cliDB.TaxiNodesMask.Length];
+        data.CanUseNodes = new byte[_cliDB.TaxiNodesMask.Length];
 
         if (all)
         {
-            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // all existed nodes
-            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
+            Buffer.BlockCopy(_cliDB.TaxiNodesMask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // all existed nodes
+            Buffer.BlockCopy(_cliDB.TaxiNodesMask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
         }
         else
             lock (TaxiLock)
@@ -57,15 +67,14 @@ public class PlayerTaxi
         if (_taxiDestinations.Count < 2)
             return 0;
 
-
-        ObjectManager.GetTaxiPath(_taxiDestinations[0], _taxiDestinations[1], out var path, out _);
+        _gameObjectManager.GetTaxiPath(_taxiDestinations[0], _taxiDestinations[1], out var path, out _);
 
         return path;
     }
 
     public FactionTemplateRecord GetFlightMasterFactionTemplate()
     {
-        return CliDB.FactionTemplateStorage.LookupByKey(_flightMasterFactionId);
+        return _cliDB.FactionTemplateStorage.LookupByKey(_flightMasterFactionId);
     }
 
     public List<uint> GetPath()
@@ -87,16 +96,16 @@ public class PlayerTaxi
     {
         lock (TaxiLock)
         {
-            Taximask = new byte[(CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8 + 1];
+            Taximask = new byte[(_cliDB.TaxiNodesStorage.GetNumRows() - 1) / 8 + 1];
 
             // class specific initial known nodes
             if (chrClass == PlayerClass.Deathknight)
             {
-                var factionMask = Player.TeamForRace(race) == TeamFaction.Horde ? CliDB.HordeTaxiNodesMask : CliDB.AllianceTaxiNodesMask;
+                var factionMask = Player.TeamForRace(race, _cliDB) == TeamFaction.Horde ? _cliDB.HordeTaxiNodesMask : _cliDB.AllianceTaxiNodesMask;
                 Taximask = new byte[factionMask.Length];
 
                 for (var i = 0; i < factionMask.Length; ++i)
-                    Taximask[i] |= (byte)(CliDB.OldContinentsNodesMask[i] & factionMask[i]);
+                    Taximask[i] |= (byte)(_cliDB.OldContinentsNodesMask[i] & factionMask[i]);
             }
 
             // race specific initial known nodes: capital and taxi hub masks
@@ -124,6 +133,7 @@ public class PlayerTaxi
                     SetTaximaskNode(624); // Azure Watch, Azuremyst Isle
 
                     break;
+
                 case Race.Orc:
                 case Race.Undead:
                 case Race.Tauren:
@@ -148,12 +158,13 @@ public class PlayerTaxi
             }
 
             // new continent starting masks (It will be accessible only at new map)
-            switch (Player.TeamForRace(race))
+            switch (Player.TeamForRace(race, _cliDB))
             {
                 case TeamFaction.Alliance:
                     SetTaximaskNode(100);
 
                     break;
+
                 case TeamFaction.Horde:
                     SetTaximaskNode(99);
 
@@ -197,24 +208,21 @@ public class PlayerTaxi
 
         for (var i = 1; i < _taxiDestinations.Count; ++i)
         {
-            ObjectManager.GetTaxiPath(_taxiDestinations[i - 1], _taxiDestinations[i], out var path, out _);
+            _gameObjectManager.GetTaxiPath(_taxiDestinations[i - 1], _taxiDestinations[i], out var path, out _);
 
             if (path == 0)
                 return false;
         }
 
         // can't load taxi path without mount set (quest taxi path?)
-        if (ObjectManager.GetTaxiMountDisplayId(GetTaxiSource(), team, true) == 0)
-            return false;
-
-        return true;
+        return _gameObjectManager.GetTaxiMountDisplayId(GetTaxiSource(), team, true) != 0;
     }
 
     public void LoadTaxiMask(string data)
     {
         lock (TaxiLock)
         {
-            Taximask = new byte[(CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8 + 1];
+            Taximask = new byte[(_cliDB.TaxiNodesStorage.GetNumRows() - 1) / 8 + 1];
 
             var split = new StringArray(data, ' ');
 
@@ -223,7 +231,7 @@ public class PlayerTaxi
             for (var i = 0; index < Taximask.Length && i != split.Length; ++i, ++index)
                 // load and set bits only for existing taxi nodes
                 if (uint.TryParse(split[i], out var id))
-                    Taximask[index] = (byte)(CliDB.TaxiNodesMask[index] & id);
+                    Taximask[index] = (byte)(_cliDB.TaxiNodesMask[index] & id);
         }
     }
 
@@ -287,11 +295,5 @@ public class PlayerTaxi
             }
             else
                 return false;
-    }
-
-    private void SetTaxiDestination(List<uint> nodes)
-    {
-        _taxiDestinations.Clear();
-        _taxiDestinations.AddRange(nodes);
     }
 }

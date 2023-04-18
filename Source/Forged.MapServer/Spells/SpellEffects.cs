@@ -414,7 +414,7 @@ public partial class Spell
 
         if (aurApp == null)
             aurApp = UnitTarget._CreateAuraApplication(SpellAura,
-                                                       new HashSet<int>()
+                                                       new HashSet<int>
                                                        {
                                                            EffectInfo.EffectIndex
                                                        });
@@ -2619,7 +2619,7 @@ public partial class Spell
 
         UnitTarget.KnockbackFrom(origin, speedxy, (float)speedz);
 
-        _combatHelpers.ProcSkillsAndAuras(UnitCasterForEffectHandlers, UnitTarget, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.None, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, null, null);
+        _combatHelpers.ProcSkillsAndAuras(UnitCasterForEffectHandlers, UnitTarget, new ProcFlagsInit(), new ProcFlagsInit(ProcFlags.None, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, null, null);
     }
 
     [SpellEffectHandler(SpellEffectName.LaunchQuestChoice)]
@@ -2742,7 +2742,7 @@ public partial class Spell
         if (pet == null)
             return;
 
-        var learnSpellproto = _spellManager.GetSpellInfo(EffectInfo.TriggerSpell, Difficulty.None);
+        var learnSpellproto = _spellManager.GetSpellInfo(EffectInfo.TriggerSpell);
 
         if (learnSpellproto == null)
             return;
@@ -2929,7 +2929,7 @@ public partial class Spell
         UnitTarget.SpellHistory
                   .ModifyCoooldowns(itr =>
                                     {
-                                        var spellOnCooldown = _spellManager.GetSpellInfo(itr.SpellId, Difficulty.None);
+                                        var spellOnCooldown = _spellManager.GetSpellInfo(itr.SpellId);
 
                                         if ((int)spellOnCooldown.SpellFamilyName != EffectInfo.MiscValue)
                                             return false;
@@ -2955,7 +2955,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        UnitTarget.SpellHistory.ModifyCoooldowns(itr => _spellManager.GetSpellInfo(itr.SpellId, Difficulty.None).CategoryId == EffectInfo.MiscValue, TimeSpan.FromMilliseconds(Damage));
+        UnitTarget.SpellHistory.ModifyCoooldowns(itr => _spellManager.GetSpellInfo(itr.SpellId).CategoryId == EffectInfo.MiscValue, TimeSpan.FromMilliseconds(Damage));
     }
 
     [SpellEffectHandler(SpellEffectName.ModifyCharges)]
@@ -3206,7 +3206,7 @@ public partial class Spell
         {
             creature.StartPickPocketRefillTimer();
 
-            creature.Loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Pickpocketing, null);
+            creature.Loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Pickpocketing);
             var lootid = creature.Template.PickPocketId;
 
             if (lootid != 0)
@@ -3903,7 +3903,7 @@ public partial class Spell
         var mana = (uint)MathFunctions.CalculatePct(target.GetMaxPower(PowerType.Mana), Damage);
         uint resurrectAura = 0;
 
-        if (_spellManager.HasSpellInfo(EffectInfo.TriggerSpell, Difficulty.None))
+        if (_spellManager.HasSpellInfo(EffectInfo.TriggerSpell))
             resurrectAura = EffectInfo.TriggerSpell;
 
         if (resurrectAura != 0 && target.HasAura(resurrectAura))
@@ -4312,7 +4312,7 @@ public partial class Spell
 
         creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
         creature.SetDynamicFlag(UnitDynFlags.Lootable);
-        var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Skinning, null);
+        var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Skinning);
 
         if (loot != null)
             creature.PersonalLoot[player.GUID] = loot;
@@ -4607,8 +4607,6 @@ public partial class Spell
                 player.StoreItem(dest, pNewItem, true);
                 player.SendNewItem(pNewItem, 1, true, false);
                 player.ItemAddedQuestCheck(newitemid, 1);
-
-                return;
             }
         }
         else if (_playerComputators.IsBankPos(pos))
@@ -4630,8 +4628,6 @@ public partial class Spell
                 CastItemLevel = -1;
 
                 player.BankItem(dest, pNewItem, true);
-
-                return;
             }
         }
         else if (_playerComputators.IsEquipmentPos(pos))
@@ -4658,8 +4654,6 @@ public partial class Spell
                 player.AutoUnequipOffhandIfNeed();
                 player.SendNewItem(pNewItem, 1, true, false);
                 player.ItemAddedQuestCheck(newitemid, 1);
-
-                return;
             }
         }
     }
@@ -4897,7 +4891,7 @@ public partial class Spell
             }
 
             if (owner.IsTypeId(TypeId.Player))
-                owner.AsPlayer.RemovePet(oldSummon, PetSaveMode.NotInSlot, false);
+                owner.AsPlayer.RemovePet(oldSummon, PetSaveMode.NotInSlot);
             else
                 return;
         }
@@ -5875,7 +5869,7 @@ public partial class Spell
 
         battlePetMgr.AddPet(speciesId, displayId, breed, quality, level);
 
-        player.WorldObjectCombat.SendPlaySpellVisual(player, SharedConst.SpellVisualUncagePet, 0, 0, 0.0f, false);
+        player.WorldObjectCombat.SendPlaySpellVisual(player, SharedConst.SpellVisualUncagePet, 0, 0, 0.0f);
 
         player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
         CastItem = null;

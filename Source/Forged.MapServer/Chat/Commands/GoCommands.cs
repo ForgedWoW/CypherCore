@@ -103,7 +103,7 @@ internal class GoCommands
             }
 
             // remove any matches without spawns
-            matches.RemoveIfMatching((pair) => spawnLookup[pair.Value.Entry].Empty());
+            matches.RemoveIfMatching(pair => spawnLookup[pair.Value.Entry].Empty());
         }
 
         // check if we even have any matches left
@@ -315,12 +315,10 @@ internal class GoCommands
 
                 return true;
             }
-            else
-            {
-                var parentMapId = exit.TargetMapId;
-                var parentMapName = handler.CliDB.MapStorage.LookupByKey(parentMapId).MapName[handler.SessionDbcLocale];
-                handler.SendSysMessage(CypherStrings.CommandGoInstanceGateFailed, mapName, mapId, parentMapName, parentMapId);
-            }
+
+            var parentMapId = exit.TargetMapId;
+            var parentMapName = handler.CliDB.MapStorage.LookupByKey(parentMapId).MapName[handler.SessionDbcLocale];
+            handler.SendSysMessage(CypherStrings.CommandGoInstanceGateFailed, mapName, mapId, parentMapName, parentMapId);
         }
         else
             handler.SendSysMessage(CypherStrings.CommandInstanceNoExit, mapName, mapId);
@@ -336,8 +334,8 @@ internal class GoCommands
 
                 return true;
             }
-            else
-                handler.SendSysMessage(CypherStrings.CommandGoInstanceStartFailed, mapName, mapId);
+
+            handler.SendSysMessage(CypherStrings.CommandGoInstanceStartFailed, mapName, mapId);
         }
         else
             handler.SendSysMessage(CypherStrings.CommandInstanceNoEntrance, mapName, mapId);

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Forged.MapServer.Entities.Units;
+using Framework.Constants;
 using Serilog;
 
 namespace Forged.MapServer.Movement;
@@ -79,7 +80,7 @@ public class MoveSplineInitArgs
 
     private bool _checkPathLengths()
     {
-        if (Path.Count <= 2 && Facing.Type != Framework.Constants.MonsterMoveType.Normal)
+        if (Path.Count <= 2 && Facing.Type != MonsterMoveType.Normal)
             return true;
 
         for (var i = 0; i < Path.Count - 1; ++i)

@@ -20,6 +20,7 @@ using Forged.MapServer.Cache;
 using Forged.MapServer.Calendar;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Chat.Channels;
+using Forged.MapServer.Collision;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
@@ -39,17 +40,23 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
+using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Networking;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.OutdoorPVP;
+using Forged.MapServer.Phasing;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IServer;
+using Forged.MapServer.Server;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Skills;
@@ -64,13 +71,6 @@ using Framework.Constants;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
-using Forged.MapServer.OpCodeHandlers;
-using Forged.MapServer.Mails;
-using Forged.MapServer.Maps.Grids;
-using Forged.MapServer.Collision;
-using Forged.MapServer.Miscellaneous;
-using Forged.MapServer.Phasing;
-using Forged.MapServer.Server;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -500,6 +500,8 @@ void RegisterInstanced()
     builder.RegisterType<WardenWin>();
     builder.RegisterType<SpellInfo>();
     builder.RegisterType<SpellEffectInfo>();
+    builder.RegisterType<Petition>();
+    builder.RegisterType<PlayerTaxi>();
 }
 
 void RegisterHandlers()

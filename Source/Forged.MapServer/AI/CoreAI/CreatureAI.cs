@@ -118,12 +118,10 @@ public class CreatureAI : UnitAI
     {
         if (IsInBoundary())
             return true;
-        else
-        {
-            EnterEvadeMode(EvadeReason.Boundary);
 
-            return false;
-        }
+        EnterEvadeMode(EvadeReason.Boundary);
+
+        return false;
     }
 
     // called when the corpse of this creature gets removed
@@ -502,13 +500,15 @@ public class CreatureAI : UnitAI
 
             return Me.Victim != null;
         }
-        else if (!Me.IsInCombat)
+
+        if (!Me.IsInCombat)
         {
             EnterEvadeMode(EvadeReason.NoHostiles);
 
             return false;
         }
-        else if (Me.Victim != null)
+
+        if (Me.Victim != null)
             Me.AttackStop();
 
         return true;
@@ -551,7 +551,7 @@ public class CreatureAI : UnitAI
             var front = q.First();
             var hasOutOfBoundsNeighbor = false;
 
-            foreach (var off in new List<KeyValuePair<int, int>>()
+            foreach (var off in new List<KeyValuePair<int, int>>
                      {
                          new(1, 0),
                          new(0, 1),

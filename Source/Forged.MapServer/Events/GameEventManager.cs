@@ -997,8 +997,8 @@ public class GameEventManager
         {
             if (_gameEvent[entry].Length != 0)
                 return _gameEvent[entry].Length * 60;
-            else
-                return Time.DAY;
+
+            return Time.DAY;
         }
 
         // outdated event: we return max
@@ -1021,8 +1021,8 @@ public class GameEventManager
         // In case the end is before next check
         if (_gameEvent[entry].End < currenttime + delay)
             return (uint)(_gameEvent[entry].End - currenttime);
-        else
-            return delay;
+
+        return delay;
     }
 
     public void StartArenaSeason()
@@ -1069,30 +1069,28 @@ public class GameEventManager
 
             return false;
         }
-        else
-        {
-            if (data.State == GameEventState.WorldInactive)
-                // set to conditions phase
-                data.State = GameEventState.WorldConditions;
 
-            // add to active events
-            AddActiveEvent(eventID);
-            // add spawns
-            ApplyNewEvent(eventID);
+        if (data.State == GameEventState.WorldInactive)
+            // set to conditions phase
+            data.State = GameEventState.WorldConditions;
 
-            // check if can go to next state
-            var conditionsMet = CheckOneGameEventConditions(eventID);
-            // save to db
-            SaveWorldEventStateToDB(eventID);
+        // add to active events
+        AddActiveEvent(eventID);
+        // add spawns
+        ApplyNewEvent(eventID);
 
-            // force GameInfo event update to set the update timer if conditions were met from a command
-            // this update is needed to possibly start events dependent on the started one
-            // or to scedule another update where the next event will be started
-            if (overwrite && conditionsMet)
-                _worldManager.ForceGameEventUpdate();
+        // check if can go to next state
+        var conditionsMet = CheckOneGameEventConditions(eventID);
+        // save to db
+        SaveWorldEventStateToDB(eventID);
 
-            return conditionsMet;
-        }
+        // force GameInfo event update to set the update timer if conditions were met from a command
+        // this update is needed to possibly start events dependent on the started one
+        // or to scedule another update where the next event will be started
+        if (overwrite && conditionsMet)
+            _worldManager.ForceGameEventUpdate();
+
+        return conditionsMet;
     }
 
     public uint StartSystem() // return the next event delay in ms
@@ -1174,7 +1172,8 @@ public class GameEventManager
                     // go to next event, this no longer needs an event update timer
                     continue;
                 }
-                else if (_gameEvent[id].State == GameEventState.WorldConditions && CheckOneGameEventConditions(id))
+
+                if (_gameEvent[id].State == GameEventState.WorldConditions && CheckOneGameEventConditions(id))
                     // changed, save to DB the gameevent state, will be updated in next update cycle
                     SaveWorldEventStateToDB(id);
 
@@ -1738,18 +1737,16 @@ public class GameEventManager
 
                 break;
             }
-            else if (singleDate)
+
+            if (singleDate)
             {
                 var tmCopy = timeInfo.AddYears(Time.UnixTimeToDateTime(curTime).ToLocalTime().Year); // This year
                 gameEvent.Start = Time.DateTimeToUnixTime(tmCopy) + stageOffset;
 
                 break;
             }
-            else
-            {
-                // date is due and not a singleDate event, try with next DBC date (modified by holiday_dates)
-                // if none is found we don't modify start date and use the one in game_event
-            }
+            // date is due and not a singleDate event, try with next DBC date (modified by holiday_dates)
+            // if none is found we don't modify start date and use the one in game_event
         }
     }
 

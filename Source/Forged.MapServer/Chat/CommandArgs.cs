@@ -20,10 +20,11 @@ internal class CommandArgs
     {
         if (offset < tuple.Length)
             return TryConsumeTo(tuple, offset, parameterInfos, handler, args);
-        else if (!args.IsEmpty()) /* the entire string must be consumed */
+
+        if (!args.IsEmpty()) /* the entire string must be consumed */
             return default;
-        else
-            return new ChatCommandResult(args);
+
+        return new ChatCommandResult(args);
     }
 
     public static ChatCommandResult TryConsume(out dynamic val, Type type, CommandHandler handler, string args)
@@ -231,8 +232,8 @@ internal class CommandArgs
 
                         if (tempVal is uint)
                             return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserGameTeleIdNoExist, tempVal));
-                        else
-                            return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserGameTeleNoExist, tempVal));
+
+                        return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserGameTeleNoExist, tempVal));
                     }
                     case nameof(ItemTemplate):
                     {
@@ -290,24 +291,22 @@ internal class CommandArgs
 
             if (thisResult.IsSuccessful)
                 return thisResult;
-            else
-            {
-                var nestedResult = TryAtIndex(out val, types, index + 1, handler, args);
 
-                if (nestedResult.IsSuccessful || !thisResult.HasErrorMessage)
-                    return nestedResult;
+            var nestedResult = TryAtIndex(out val, types, index + 1, handler, args);
 
-                if (!nestedResult.HasErrorMessage)
-                    return thisResult;
+            if (nestedResult.IsSuccessful || !thisResult.HasErrorMessage)
+                return nestedResult;
 
-                if (nestedResult.ErrorMessage.StartsWith("\""))
-                    return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} {nestedResult.ErrorMessage}");
-                else
-                    return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} \"{nestedResult.ErrorMessage}\"");
-            }
+            if (!nestedResult.HasErrorMessage)
+                return thisResult;
+
+            if (nestedResult.ErrorMessage.StartsWith("\""))
+                return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} {nestedResult.ErrorMessage}");
+
+            return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} \"{nestedResult.ErrorMessage}\"");
         }
-        else
-            return default;
+
+        return default;
     }
 
     private static ChatCommandResult TryConsumeTo(dynamic[] tuple, int offset, ParameterInfo[] parameterInfos, CommandHandler handler, string args)
@@ -339,21 +338,19 @@ internal class CommandArgs
                 _                                 => result2
             };
         }
+
+        ChatCommandResult next;
+
+        var variantArgAttribute = parameterInfos[offset].GetCustomAttribute<VariantArgAttribute>(true);
+
+        if (variantArgAttribute != null)
+            next = TryConsumeVariant(out tuple[offset], variantArgAttribute.Types, handler, args);
         else
-        {
-            ChatCommandResult next;
+            next = TryConsume(out tuple[offset], parameterInfos[offset].ParameterType, handler, args);
 
-            var variantArgAttribute = parameterInfos[offset].GetCustomAttribute<VariantArgAttribute>(true);
+        if (next.IsSuccessful)
+            return ConsumeFromOffset(tuple, offset + 1, parameterInfos, handler, next);
 
-            if (variantArgAttribute != null)
-                next = TryConsumeVariant(out tuple[offset], variantArgAttribute.Types, handler, args);
-            else
-                next = TryConsume(out tuple[offset], parameterInfos[offset].ParameterType, handler, args);
-
-            if (next.IsSuccessful)
-                return ConsumeFromOffset(tuple, offset + 1, parameterInfos, handler, next);
-            else
-                return next;
-        }
+        return next;
     }
 }

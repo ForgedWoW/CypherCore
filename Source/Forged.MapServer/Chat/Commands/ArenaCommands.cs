@@ -166,8 +166,6 @@ internal class ArenaCommands
                 {
                     handler.SendSysMessage(CypherStrings.ArenaLookup, team.GetName(), team.GetId(), team.GetArenaType(), team.GetArenaType());
                     found = true;
-
-                    continue;
                 }
 
         if (!found)

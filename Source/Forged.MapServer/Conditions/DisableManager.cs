@@ -127,15 +127,17 @@ public class DisableManager
 
                             return false; // Spell is disabled in another area, but not this one, return false
                         }
-                        else
-                            return true; // Spell disabled for all maps
+
+                        return true;     // Spell disabled for all maps
                     }
 
                     return false;
                 }
-                else if (spellFlags.HasFlag(DisableFlags.SpellDeprecatedSpell)) // call not from spellcast
+
+                if (spellFlags.HasFlag(DisableFlags.SpellDeprecatedSpell)) // call not from spellcast
                     return true;
-                else if (flags.HasAnyFlag((byte)DisableFlags.SpellLOS))
+
+                if (flags.HasAnyFlag((byte)DisableFlags.SpellLOS))
                     return spellFlags.HasFlag(DisableFlags.SpellLOS);
 
                 break;
@@ -163,7 +165,8 @@ public class DisableManager
                             _                   => false
                         };
                     }
-                    else if (mapEntry.InstanceType == MapTypes.Common)
+
+                    if (mapEntry.InstanceType == MapTypes.Common)
                         return true;
                 }
 

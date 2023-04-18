@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.DataStorage.Structs.R;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Units;
-using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.OutdoorPVP;
@@ -23,46 +21,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    //BGs
-    public Battleground Battleground
-    {
-        get
-        {
-            if (BattlegroundId == 0)
-                return null;
-
-            return BattlegroundManager.GetBattleground(BattlegroundId, _bgData.BgTypeId);
-        }
-    }
-
-    public WorldLocation BattlegroundEntryPoint => _bgData.JoinPos;
-    public uint BattlegroundId => _bgData.BgInstanceId;
-    public BattlegroundTypeId BattlegroundTypeId => _bgData.BgTypeId;
-
-    public bool CanCaptureTowerPoint => !HasStealthAura &&      // not stealthed
-                                        !HasInvisibilityAura && // not invisible
-                                        IsAlive;
-
-    public bool HasFreeBattlegroundQueueId
-    {
-        get
-        {
-            for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
-                if (_battlegroundQueueIdRecs[i].BgQueueTypeId == default)
-                    return true;
-
-            return false;
-        }
-    }
-
-    public uint HonorLevel => PlayerData.HonorLevel;
-
-    public bool InBattleground => _bgData.BgInstanceId != 0;
-    public bool IsMaxHonorLevel => HonorLevel == PlayerConst.MaxHonorLevel;
-
-    public bool IsUsingPvpItemLevels { get; private set; }
-    // live player
-
     public void ActivatePvpItemLevels(bool activate)
     {
         IsUsingPvpItemLevels = activate;
@@ -123,14 +81,16 @@ public partial class Player
     public bool CanUseBattlegroundObject(GameObject gameobject)
     {
         // It is possible to call this method with a null pointer, only skipping faction check.
-        if (gameobject)
-        {
-            var playerFaction = WorldObjectCombat.GetFactionTemplateEntry();
-            var faction = CliDB.FactionTemplateStorage.LookupByKey(gameobject.Faction);
+        if (gameobject == null)
+            return !IsTotalImmune &&                                       // Damage immune
+                   !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held Id debuff
+                   IsAlive;                                                // Alive
 
-            if (playerFaction != null && faction != null && !playerFaction.IsFriendlyTo(faction))
-                return false;
-        }
+        var playerFaction = WorldObjectCombat.GetFactionTemplateEntry();
+        var faction = CliDB.FactionTemplateStorage.LookupByKey(gameobject.Faction);
+
+        if (playerFaction != null && faction != null && !playerFaction.IsFriendlyTo(faction))
+            return false;
 
         // BUG: sometimes when player clicks on Id in AB - client won't send gameobject_use, only gameobject_report_use packet
         // Note: Mount, stealth and invisibility will be removed when used
@@ -216,7 +176,7 @@ public partial class Player
         // get a template bg instead of running one
         var bg = BattlegroundManager.GetBattlegroundTemplate(bgTypeId);
 
-        if (!bg)
+        if (bg == null)
             return false;
 
         // limit check leel to dbc compatible level range
@@ -319,25 +279,27 @@ public partial class Player
     {
         var bg = Battleground;
 
-        if (bg)
+        if (bg == null)
+            return;
+
+        bg.RemovePlayerAtLeave(GUID, teleportToEntryPoint, true);
+
+        // call after remove to be sure that player resurrected for correct cast
+        if (!bg.IsBattleground || IsGameMaster || !Configuration.GetDefaultValue("Battleground:CastDeserter", true))
+            return;
+
+        if (bg.Status != BattlegroundStatus.InProgress && bg.Status != BattlegroundStatus.WaitJoin)
+            return;
+
+        //lets check if player was teleported from BG and schedule delayed Deserter spell cast
+        if (IsBeingTeleportedFar)
         {
-            bg.RemovePlayerAtLeave(GUID, teleportToEntryPoint, true);
+            ScheduleDelayedOperation(PlayerDelayedOperations.SpellCastDeserter);
 
-            // call after remove to be sure that player resurrected for correct cast
-            if (bg.IsBattleground && !IsGameMaster && Configuration.GetDefaultValue("Battleground:CastDeserter", true))
-                if (bg.Status == BattlegroundStatus.InProgress || bg.Status == BattlegroundStatus.WaitJoin)
-                {
-                    //lets check if player was teleported from BG and schedule delayed Deserter spell cast
-                    if (IsBeingTeleportedFar)
-                    {
-                        ScheduleDelayedOperation(PlayerDelayedOperations.SpellCastDeserter);
-
-                        return;
-                    }
-
-                    SpellFactory.CastSpell(this, 26013, true); // Deserter
-                }
+            return;
         }
+
+        SpellFactory.CastSpell(this, 26013, true); // Deserter
     }
 
     public void RemoveBattlegroundQueueId(BattlegroundQueueTypeId val)
@@ -368,7 +330,7 @@ public partial class Player
         var bg = Battleground;
 
         // Battleground also must be in progress!
-        if (!bg || bg != reporter.Battleground || EffectiveTeam != reporter.EffectiveTeam || bg.Status != BattlegroundStatus.InProgress)
+        if (bg == null || bg != reporter.Battleground || EffectiveTeam != reporter.EffectiveTeam || bg.Status != BattlegroundStatus.InProgress)
         {
             reporter.SendPacket(reportAfkResult);
 
@@ -407,7 +369,7 @@ public partial class Player
         // do not reward honor in arenas, but enable onkill spellproc
         if (InArena)
         {
-            if (!victim || victim == this || !victim.IsTypeId(TypeId.Player))
+            if (victim == null || victim == this || !victim.IsTypeId(TypeId.Player))
                 return false;
 
             return GetBgTeam() != victim.AsPlayer.GetBgTeam();
@@ -424,7 +386,7 @@ public partial class Player
         UpdateHonorFields();
 
         // do not reward honor in arenas, but return true to enable onkill spellproc
-        if (InBattleground && Battleground && Battleground.IsArena)
+        if (InBattleground && Battleground != null && Battleground.IsArena)
             return true;
 
         // Promote to float for calculations
@@ -432,13 +394,13 @@ public partial class Player
 
         if (honorF <= 0)
         {
-            if (!victim || victim == this || victim.HasAuraType(AuraType.NoPvpCredit))
+            if (victim == null || victim == this || victim.HasAuraType(AuraType.NoPvpCredit))
                 return false;
 
             victimGuid = victim.GUID;
             var plrVictim = victim.AsPlayer;
 
-            if (plrVictim)
+            if (plrVictim != null)
             {
                 if (EffectiveTeam == plrVictim.EffectiveTeam && !WorldMgr.IsFFAPvPRealm)
                     return false;
@@ -537,7 +499,7 @@ public partial class Player
         if (!Configuration.GetDefaultValue("PvPToken:Enable", false) || !pvptoken)
             return true;
 
-        if (victim != null && (!victim || victim == this || victim.HasAuraType(AuraType.NoPvpCredit)))
+        if (victim != null && (victim == this || victim.HasAuraType(AuraType.NoPvpCredit)))
             return true;
 
         if (victim == null || !victim.IsTypeId(TypeId.Player))
@@ -747,32 +709,6 @@ public partial class Player
     private bool IsInAreaThatActivatesPvpTalents()
     {
         return IsAreaThatActivatesPvpTalents(Location.Area);
-    }
-
-    private void RewardPlayerWithRewardPack(uint rewardPackId)
-    {
-        RewardPlayerWithRewardPack(CliDB.RewardPackStorage.LookupByKey(rewardPackId));
-    }
-
-    private void RewardPlayerWithRewardPack(RewardPackRecord rewardPackEntry)
-    {
-        if (rewardPackEntry == null)
-            return;
-
-        if (CliDB.CharTitlesStorage.TryGetValue(rewardPackEntry.CharTitleID, out var charTitlesEntry))
-            SetTitle(charTitlesEntry);
-
-        ModifyMoney(rewardPackEntry.Money);
-
-        var rewardCurrencyTypes = DB2Manager.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry.Id);
-
-        foreach (var currency in rewardCurrencyTypes)
-            AddCurrency(currency.CurrencyTypeID, (uint)currency.Quantity /* TODO: CurrencyGainSource */);
-
-        var rewardPackXItems = DB2Manager.GetRewardPackItemsByRewardID(rewardPackEntry.Id);
-
-        foreach (var rewardPackXItem in rewardPackXItems)
-            AddItem(rewardPackXItem.ItemID, rewardPackXItem.ItemQuantity);
     }
 
     private void SetHonorLevel(byte level)

@@ -219,7 +219,7 @@ public class KillRewarder
     private void _RewardKillCredit(Player player)
     {
         // 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
-        if (player.Group != null && !player.IsAlive && player.GetCorpse() != null)
+        if (player.Group != null && !player.IsAlive && player.Corpse != null)
             return;
 
         var target = _victim.AsCreature;
@@ -255,12 +255,12 @@ public class KillRewarder
             // 4.2. Give XP.
             _RewardXP(player, rate);
 
-        if (!_isBattleground)
-        {
-            // If killer is in dungeon then all members receive full reputation at kill.
-            _RewardReputation(player, isDungeon ? 1.0f : rate);
-            _RewardKillCredit(player);
-        }
+        if (_isBattleground)
+            return;
+
+        // If killer is in dungeon then all members receive full reputation at kill.
+        _RewardReputation(player, isDungeon ? 1.0f : rate);
+        _RewardKillCredit(player);
     }
 
     private void _RewardReputation(Player player, float rate)

@@ -30,9 +30,9 @@ namespace Forged.MapServer.Entities.Players;
 public class PlayerComputators
 {
     private readonly ArenaTeamManager _arenaTeamManager;
-    private readonly ClassFactory _classFactory;
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
@@ -41,6 +41,7 @@ public class PlayerComputators
     private readonly LoginDatabase _loginDatabase;
     private readonly ObjectAccessor _objectAccessor;
     private readonly PetitionManager _petitionManager;
+    private readonly PhasingHandler _phasingHandler;
     private readonly SocialManager _socialManager;
     private readonly TerrainManager _terrainManager;
     private readonly WorldManager _worldManager;
@@ -48,7 +49,7 @@ public class PlayerComputators
     public PlayerComputators(CliDB cliDB, IConfiguration configuration, CharacterCache characterCache, GuildManager guildManager,
                              CharacterDatabase characterDatabase, GroupManager groupManager, ObjectAccessor objectAccessor, SocialManager socialManager,
                              LoginDatabase loginDatabase, WorldManager worldManager, TerrainManager terrainManager, PetitionManager petitionManager,
-                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager, ClassFactory classFactory)
+                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager, ClassFactory classFactory, PhasingHandler phasingHandler)
     {
         _cliDB = cliDB;
         _configuration = configuration;
@@ -65,11 +66,48 @@ public class PlayerComputators
         _gameObjectManager = gameObjectManager;
         _arenaTeamManager = arenaTeamManager;
         _classFactory = classFactory;
+        _phasingHandler = phasingHandler;
     }
 
     public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
     {
         group?.RemoveMember(guid, method, kicker, reason);
+    }
+
+    public Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
+    {
+        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
+
+        if (difficultyEntry is not { InstanceType: MapTypes.Instance })
+            return Difficulty.Normal;
+
+        return !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) ? Difficulty.Normal : difficulty;
+    }
+
+    public Difficulty CheckLoadedLegacyRaidDifficultyId(Difficulty difficulty)
+    {
+        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
+
+        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
+            return Difficulty.Raid10N;
+
+        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+            return Difficulty.Raid10N;
+
+        return difficulty;
+    }
+
+    public Difficulty CheckLoadedRaidDifficultyId(Difficulty difficulty)
+    {
+        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
+
+        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
+            return Difficulty.NormalRaid;
+
+        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+            return Difficulty.NormalRaid;
+
+        return difficulty;
     }
 
     public void DeleteFromDB(ObjectGuid playerGuid, uint accountId, bool updateRealmChars = true, bool deleteFinally = false)
@@ -650,7 +688,7 @@ public class PlayerComputators
             if (!_cliDB.MapStorage.ContainsKey(map))
                 return 0;
 
-            zone = _terrainManager.GetZoneId(PhasingHandler.EmptyPhaseShift, map, posx, posy, posz);
+            zone = _terrainManager.GetZoneId(_phasingHandler.EmptyPhaseShift, map, posx, posy, posz);
 
             if (zone <= 0)
                 return zone;
@@ -784,44 +822,6 @@ public class PlayerComputators
     {
         return Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(race) & SharedConst.RaceMaskAllPlayable);
     }
-
-
-    public Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
-    {
-        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
-
-        if (difficultyEntry is not { InstanceType: MapTypes.Instance })
-            return Difficulty.Normal;
-
-        return !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) ? Difficulty.Normal : difficulty;
-    }
-
-    public Difficulty CheckLoadedLegacyRaidDifficultyId(Difficulty difficulty)
-    {
-        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
-
-        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
-            return Difficulty.Raid10N;
-
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
-            return Difficulty.Raid10N;
-
-        return difficulty;
-    }
-
-    public Difficulty CheckLoadedRaidDifficultyId(Difficulty difficulty)
-    {
-        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
-
-        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
-            return Difficulty.NormalRaid;
-
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
-            return Difficulty.NormalRaid;
-
-        return difficulty;
-    }
-
     public void LeaveAllArenaTeams(ObjectGuid guid)
     {
         var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);
@@ -842,77 +842,7 @@ public class PlayerComputators
         }
     }
 
-    public bool LoadPositionFromDB(out WorldLocation loc, out bool inFlight, ObjectGuid guid)
-    {
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION);
-        stmt.AddValue(0, guid.Counter);
-        var result = _characterDatabase.Query(stmt);
-        inFlight = false;
-
-        if (result.IsEmpty())
-        {
-            loc = new WorldLocation();
-
-            return false;
-        }
-
-        loc = new WorldLocation(result.Read<ushort>(4), result.Read<float>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3));
-        inFlight = !string.IsNullOrEmpty(result.Read<string>(5));
-
-        return true;
-    }
-
-    public void OfflineResurrect(ObjectGuid guid, SQLTransaction trans)
-    {
-        Corpse.DeleteFromDB(guid, trans);
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
-        stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
-        stmt.AddValue(1, guid.Counter);
-        _characterDatabase.ExecuteOrAppend(trans, stmt);
-    }
-
-    public void RemovePetitionsAndSigns(ObjectGuid guid)
-    {
-        _petitionManager.RemoveSignaturesBySigner(guid);
-        _petitionManager.RemovePetitionsByOwner(guid);
-    }
-
-    public void SaveCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
-    {
-        SavePlayerCustomizations(trans, guid, customizations);
-    }
-
-    public void SavePlayerCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
-    {
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_CUSTOMIZATIONS);
-        stmt.AddValue(0, guid);
-        trans.Append(stmt);
-
-        foreach (var customization in customizations)
-        {
-            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_CUSTOMIZATION);
-            stmt.AddValue(0, guid);
-            stmt.AddValue(1, customization.ChrCustomizationOptionID);
-            stmt.AddValue(2, customization.ChrCustomizationChoiceID);
-            trans.Append(stmt);
-        }
-    }
-
-    public void SavePositionInDB(WorldLocation loc, uint zoneId, ObjectGuid guid, SQLTransaction trans = null)
-    {
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_POSITION);
-        stmt.AddValue(0, loc.X);
-        stmt.AddValue(1, loc.Y);
-        stmt.AddValue(2, loc.Z);
-        stmt.AddValue(3, loc.Orientation);
-        stmt.AddValue(4, (ushort)loc.MapId);
-        stmt.AddValue(5, zoneId);
-        stmt.AddValue(6, guid.Counter);
-
-        _characterDatabase.ExecuteOrAppend(trans, stmt);
-    }
-
-    private Item LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
+    public Item LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
     {
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);
@@ -985,5 +915,75 @@ public class PlayerComputators
         player?.AddMItem(item);
 
         return item;
+    }
+
+    public bool LoadPositionFromDB(out WorldLocation loc, out bool inFlight, ObjectGuid guid)
+    {
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION);
+        stmt.AddValue(0, guid.Counter);
+        var result = _characterDatabase.Query(stmt);
+        inFlight = false;
+
+        if (result.IsEmpty())
+        {
+            loc = new WorldLocation();
+
+            return false;
+        }
+
+        loc = new WorldLocation(result.Read<ushort>(4), result.Read<float>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3));
+        inFlight = !string.IsNullOrEmpty(result.Read<string>(5));
+
+        return true;
+    }
+
+    public void OfflineResurrect(ObjectGuid guid, SQLTransaction trans)
+    {
+        Corpse.DeleteFromDB(guid, trans);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+        stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
+        stmt.AddValue(1, guid.Counter);
+        _characterDatabase.ExecuteOrAppend(trans, stmt);
+    }
+
+    public void RemovePetitionsAndSigns(ObjectGuid guid)
+    {
+        _petitionManager.RemoveSignaturesBySigner(guid);
+        _petitionManager.RemovePetitionsByOwner(guid);
+    }
+
+    public void SaveCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
+    {
+        SavePlayerCustomizations(trans, guid, customizations);
+    }
+
+    public void SavePlayerCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
+    {
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_CUSTOMIZATIONS);
+        stmt.AddValue(0, guid);
+        trans.Append(stmt);
+
+        foreach (var customization in customizations)
+        {
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_CUSTOMIZATION);
+            stmt.AddValue(0, guid);
+            stmt.AddValue(1, customization.ChrCustomizationOptionID);
+            stmt.AddValue(2, customization.ChrCustomizationChoiceID);
+            trans.Append(stmt);
+        }
+    }
+
+    public void SavePositionInDB(WorldLocation loc, uint zoneId, ObjectGuid guid, SQLTransaction trans = null)
+    {
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_POSITION);
+        stmt.AddValue(0, loc.X);
+        stmt.AddValue(1, loc.Y);
+        stmt.AddValue(2, loc.Z);
+        stmt.AddValue(3, loc.Orientation);
+        stmt.AddValue(4, (ushort)loc.MapId);
+        stmt.AddValue(5, zoneId);
+        stmt.AddValue(6, guid.Counter);
+
+        _characterDatabase.ExecuteOrAppend(trans, stmt);
     }
 }

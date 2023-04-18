@@ -21,11 +21,11 @@ public class GenericAreaTriggerScript<AI> : ScriptObjectAutoAddDBBound, IAreaTri
     {
         if (me.Location.InstanceScript != null)
             return GetInstanceAI<AI>(me);
-        else
-            return (AI)Activator.CreateInstance(typeof(AI),
-                                                new object[]
-                                                {
-                                                    me
-                                                }.Combine(_args));
+
+        return (AI)Activator.CreateInstance(typeof(AI),
+                                            new object[]
+                                            {
+                                                me
+                                            }.Combine(_args));
     }
 }

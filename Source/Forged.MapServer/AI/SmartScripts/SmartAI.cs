@@ -156,7 +156,7 @@ public class SmartAI : CreatureAI
             {
                 var player = targets.First().AsPlayer;
 
-                if (!fail && player.IsAtGroupRewardDistance(Me) && player.GetCorpse() == null)
+                if (!fail && player.IsAtGroupRewardDistance(Me) && player.Corpse == null)
                     player.GroupEventHappens(EscortQuestID, Me);
 
                 if (fail)
@@ -170,7 +170,7 @@ public class SmartAI : CreatureAI
                         if (!groupGuy.Location.IsInMap(player))
                             continue;
 
-                        if (!fail && groupGuy.IsAtGroupRewardDistance(Me) && groupGuy.GetCorpse() == null)
+                        if (!fail && groupGuy.IsAtGroupRewardDistance(Me) && groupGuy.Corpse == null)
                             groupGuy.AreaExploredOrEventHappens(EscortQuestID);
                         else if (fail)
                             groupGuy.FailQuest(EscortQuestID);
@@ -182,7 +182,7 @@ public class SmartAI : CreatureAI
                     {
                         var player = obj.AsPlayer;
 
-                        if (!fail && player.IsAtGroupRewardDistance(Me) && player.GetCorpse() == null)
+                        if (!fail && player.IsAtGroupRewardDistance(Me) && player.Corpse == null)
                             player.AreaExploredOrEventHappens(EscortQuestID);
                         else if (fail)
                             player.FailQuest(EscortQuestID);

@@ -8,18 +8,17 @@ namespace Forged.MapServer.Entities.Players;
 
 public class EquipmentSetInfo
 {
-    public enum EquipmentSetType
-    {
-        Equipment = 0,
-        Transmog = 1
-    }
-
     public EquipmentSetInfo()
     {
         State = EquipmentSetUpdateState.New;
         Data = new EquipmentSetData();
     }
 
+    public enum EquipmentSetType
+    {
+        Equipment = 0,
+        Transmog = 1
+    }
     public EquipmentSetData Data { get; set; }
 
     public EquipmentSetUpdateState State { get; set; }

@@ -34,7 +34,7 @@ public class SendMail : ClientPacket
 
         for (var i = 0; i < count; ++i)
         {
-            var att = new StructSendMail.MailAttachment()
+            var att = new StructSendMail.MailAttachment
             {
                 AttachPosition = WorldPacket.ReadUInt8(),
                 ItemGUID = WorldPacket.ReadPackedGuid()

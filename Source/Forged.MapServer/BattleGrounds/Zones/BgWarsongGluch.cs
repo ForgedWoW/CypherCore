@@ -309,16 +309,14 @@ internal class BgWarsongGluch : Battleground
         {
             if (Status == BattlegroundStatus.InProgress)
                 return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
-            else
-                return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_ALLIANCE);
+
+            return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_ALLIANCE);
         }
-        else
-        {
-            if (Status == BattlegroundStatus.InProgress)
-                return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
-            else
-                return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_HORDE);
-        }
+
+        if (Status == BattlegroundStatus.InProgress)
+            return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
+
+        return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_HORDE);
     }
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
@@ -338,7 +336,8 @@ internal class BgWarsongGluch : Battleground
     {
         if (GetTeamScore(TeamIds.Alliance) > GetTeamScore(TeamIds.Horde))
             return TeamFaction.Alliance;
-        else if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance))
+
+        if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance))
             return TeamFaction.Horde;
 
         return base.GetPrematureWinner();

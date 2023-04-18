@@ -10,7 +10,7 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 public class TraitConfigPacket
 {
-    public int ChrSpecializationID = 0;
+    public int ChrSpecializationID;
     public TraitCombatConfigFlags CombatConfigFlags;
     public Dictionary<int, Dictionary<int, TraitEntryPacket>> Entries = new();
     public int ID;

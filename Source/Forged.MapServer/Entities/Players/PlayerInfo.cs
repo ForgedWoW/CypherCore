@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -13,8 +15,10 @@ public class PlayerInfo
     public CreatePositionModel CreatePosition;
     public CreatePositionModel? CreatePositionNpe;
 
-    public PlayerInfo()
+    public PlayerInfo(IConfiguration configuration)
     {
+        LevelInfo = new PlayerLevelInfo[configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
+
         for (var i = 0; i < CastSpells.Length; ++i)
             CastSpells[i] = new List<uint>();
 
@@ -30,7 +34,7 @@ public class PlayerInfo
     public uint? IntroSceneIdNpe { get; set; }
     public ItemContext ItemContext { get; set; }
     public List<PlayerCreateInfoItem> Items { get; set; } = new();
-    public PlayerLevelInfo[] LevelInfo { get; set; } = new PlayerLevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
+    public PlayerLevelInfo[] LevelInfo { get; set; } 
     public List<SkillRaceClassInfoRecord> Skills { get; set; } = new();
 
     public struct CreatePositionModel

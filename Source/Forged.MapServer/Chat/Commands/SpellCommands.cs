@@ -139,7 +139,7 @@ internal class SpellCommands
             return true;
         }
 
-        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId);
 
         if (spellInfo != null)
         {

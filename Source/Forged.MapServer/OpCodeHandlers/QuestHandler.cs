@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
@@ -315,7 +316,7 @@ public class QuestHandler : IWorldSessionHandler
         else
             obj = Global.ObjAccessor.FindPlayer(packet.QuestGiverGUID);
 
-        var CLOSE_GOSSIP_CLEAR_SHARING_INFO = new System.Action(() =>
+        var CLOSE_GOSSIP_CLEAR_SHARING_INFO = new Action(() =>
         {
             _player.PlayerTalkClass.SendCloseGossip();
             _player.ClearQuestSharingInfo();

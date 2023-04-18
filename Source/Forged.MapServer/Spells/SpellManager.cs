@@ -1423,7 +1423,7 @@ public sealed class SpellManager
             _spellGroupSpell.Add((SpellGroup)groupID, spellID);
         } while (result.NextRow());
 
-        _spellGroupSpell.RemoveIfMatching((group) =>
+        _spellGroupSpell.RemoveIfMatching(group =>
         {
             if (group.Value < 0)
             {

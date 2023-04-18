@@ -6,7 +6,6 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Networking.Packets.Duel;
 using Forged.MapServer.Networking.Packets.Item;
@@ -44,8 +43,8 @@ public partial class Player
             SetBaseWeaponDamage(attType, WeaponDamageRange.MaxDamage, damage);
         }
 
-        if (CliDB.SpellShapeshiftFormStorage.ContainsKey((uint)ShapeshiftForm)))
-        SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
+        if (CliDB.SpellShapeshiftFormStorage.ContainsKey((uint)ShapeshiftForm))
+            SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
 
         var weaponBasedAttackPower = apply ? (int)(proto.GetDPS(itemLevel) * 6.0f) : 0;
 
@@ -188,7 +187,7 @@ public partial class Player
         //Remove Duel Flag object
         var obj = Location.Map.GetGameObject(PlayerData.DuelArbiter);
 
-        if (obj)
+        if (obj != null)
             Duel.Initiator.RemoveGameObject(obj, true);
 
         //remove auras
@@ -285,19 +284,19 @@ public partial class Player
         // prepare data for near group iteration
         var group = Group;
 
-        if (group)
+        if (group != null)
             for (var refe = group.FirstMember; refe != null; refe = refe.Next())
             {
                 var player = refe.Source;
 
-                if (!player)
+                if (player == null)
                     continue;
 
                 if (!player.IsAtGroupRewardDistance(pRewardSource))
                     continue; // member (alive or dead) or his corpse at req. distance
 
                 // quest objectives updated only for alive group member or dead but with not released body
-                if (player.IsAlive || !player.GetCorpse())
+                if (player.IsAlive || player.Corpse == null)
                     player.KilledMonsterCredit(creatureID, creatureGUID);
             }
         else
@@ -522,16 +521,16 @@ public partial class Player
         ObjectGuid duelFlagGuid = PlayerData.DuelArbiter;
         var obj = Location.Map.GetGameObject(duelFlagGuid);
 
-        if (!obj)
+        if (obj == null)
             return;
 
         if (Duel.OutOfBoundsTime == 0)
         {
-            if (!Location.IsWithinDistInMap(obj, 50))
-            {
-                Duel.OutOfBoundsTime = currTime + 10;
-                SendPacket(new DuelOutOfBounds());
-            }
+            if (Location.IsWithinDistInMap(obj, 50))
+                return;
+
+            Duel.OutOfBoundsTime = currTime + 10;
+            SendPacket(new DuelOutOfBounds());
         }
         else
         {
@@ -641,7 +640,7 @@ public partial class Player
     {
         var mainItem = GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-        if (!mainItem)
+        if (mainItem == null)
             return false;
 
         var itemTemplate = mainItem.Template;
@@ -655,18 +654,15 @@ public partial class Player
     {
         var offItem = GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-        if (offItem && offItem.Template.InventoryType == InventoryType.Weapon2Hand)
+        if (offItem != null && offItem.Template.InventoryType == InventoryType.Weapon2Hand)
             return true;
 
         var mainItem = GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-        if (!mainItem || mainItem.Template.InventoryType == InventoryType.Weapon2Hand)
+        if (mainItem == null || mainItem.Template.InventoryType == InventoryType.Weapon2Hand)
             return false;
 
-        if (!offItem)
-            return false;
-
-        return true;
+        return offItem != null;
     }
 
     private void SetDuelTeam(uint duelTeam)

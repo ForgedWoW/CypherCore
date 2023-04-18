@@ -60,7 +60,8 @@ internal class ContentTuningParams
 
             if (playerTarget)
                 return GenerateDataPlayerToPlayer(playerAttacker, playerTarget);
-            else if (creatureTarget)
+
+            if (creatureTarget)
                 if (creatureTarget.HasScalableLevels)
                     return GenerateDataPlayerToCreature(playerAttacker, creatureTarget);
         }

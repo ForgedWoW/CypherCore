@@ -7,9 +7,9 @@ public class ConfirmPurchaseResponse : ClientPacket
 {
     public ConfirmPurchaseResponse(WorldPacket packet) : base(packet) { }
 
-    public ulong ClientCurrentPriceFixedPoint { get; set; } = 0;
-    public bool ConfirmPurchase { get; set; } = false;
-    public uint ServerToken { get; set; } = 0;
+    public ulong ClientCurrentPriceFixedPoint { get; set; }
+    public bool ConfirmPurchase { get; set; }
+    public uint ServerToken { get; set; }
 
     public override void Read()
     {

@@ -535,11 +535,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in Effects)
-                if (effectInfo.IsEffectName(SpellEffectName.Skill) && _spellManager.IsPrimaryProfessionSkill((uint)effectInfo.MiscValue))
-                    return true;
-
-            return false;
+            return Effects.Any(effectInfo => effectInfo.IsEffectName(SpellEffectName.Skill) && _spellManager.IsPrimaryProfessionSkill((uint)effectInfo.MiscValue));
         }
     }
 

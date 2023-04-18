@@ -565,7 +565,7 @@ internal class GameObjectCommands
 
             // fill the gameobject data and save to the db
             obj.SaveToDB(map.Id,
-                         new List<Difficulty>()
+                         new List<Difficulty>
                          {
                              map.DifficultyID
                          });

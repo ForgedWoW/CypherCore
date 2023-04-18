@@ -151,7 +151,7 @@ public class Map : IDisposable
             BattleFieldManager.CreateBattlefieldsForMap(this);
 
             _processRelocationQueue = new ActionBlock<uint>(ProcessRelocationNotifies,
-                                                            new ExecutionDataflowBlockOptions()
+                                                            new ExecutionDataflowBlockOptions
                                                             {
                                                                 MaxDegreeOfParallelism = 1,
                                                                 EnsureOrdered = true,
@@ -2085,7 +2085,7 @@ public class Map : IDisposable
 
         SendZoneWeather(zoneInfo, player);
 
-        foreach (var overrideLight in zoneInfo.LightOverrides.Select(lightOverride => new OverrideLight()
+        foreach (var overrideLight in zoneInfo.LightOverrides.Select(lightOverride => new OverrideLight
                  {
                      AreaLightID = lightOverride.AreaLightId,
                      OverrideLightID = lightOverride.OverrideLightId,

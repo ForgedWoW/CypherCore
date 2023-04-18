@@ -39,6 +39,6 @@ public class PetAura
 
         auraId = _auras.LookupByKey(0);
 
-        return auraId != 0 ? auraId : (uint)0;
+        return auraId != 0 ? auraId : 0;
     }
 }

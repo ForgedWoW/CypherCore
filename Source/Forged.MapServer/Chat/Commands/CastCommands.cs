@@ -13,7 +13,7 @@ internal class CastCommands
 {
     private static bool CheckSpellExistsAndIsValid(CommandHandler handler, uint spellId)
     {
-        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId);
 
         if (spellInfo == null)
         {
@@ -36,8 +36,8 @@ internal class CastCommands
         {
             if (triggeredStr.StartsWith("triggered")) // check if "triggered" starts with *triggeredStr (e.g. "trig", "trigger", etc.)
                 return TriggerCastFlags.FullDebugMask;
-            else
-                return null;
+
+            return null;
         }
 
         return TriggerCastFlags.None;

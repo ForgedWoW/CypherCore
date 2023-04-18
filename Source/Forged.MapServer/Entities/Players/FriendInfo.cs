@@ -8,14 +8,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public class FriendInfo
 {
-    public uint Area { get; set; }
-    public PlayerClass Class { get; set; }
-    public SocialFlag Flags { get; set; }
-    public uint Level { get; set; }
-    public string Note { get; set; }
-    public FriendStatus Status { get; set; }
-    public ObjectGuid WowAccountGuid { get; set; }
-
     public FriendInfo()
     {
         Status = FriendStatus.Offline;
@@ -29,4 +21,12 @@ public class FriendInfo
         Flags = flags;
         Note = note;
     }
+
+    public uint Area { get; set; }
+    public PlayerClass Class { get; set; }
+    public SocialFlag Flags { get; set; }
+    public uint Level { get; set; }
+    public string Note { get; set; }
+    public FriendStatus Status { get; set; }
+    public ObjectGuid WowAccountGuid { get; set; }
 }

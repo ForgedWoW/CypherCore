@@ -11,8 +11,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    public uint AchievementPoints => _achievementSys.AchievementPoints;
-
     public ICollection<uint> CompletedAchievementIds => _achievementSys.CompletedAchievementIds;
 
     public void CompletedAchievement(AchievementRecord entry)
@@ -75,9 +73,6 @@ public partial class Player
 
         scenario?.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
 
-        var guild = Global.GuildMgr.GetGuildById(GuildId);
-
-        if (guild)
-            guild.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
+        GuildMgr.GetGuildById(GuildId)?.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
     }
 }

@@ -36,10 +36,7 @@ public abstract class ScriptObject : IScriptObject
 
         if (instance is { InstanceScript: { } })
             return (T)Activator.CreateInstance(typeof(T),
-                                               new object[]
-                                               {
-                                                   obj
-                                               });
+                                               obj);
 
         return null;
     }

@@ -9,7 +9,6 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Framework.Constants;
 using Serilog;
@@ -99,7 +98,7 @@ public class TempSummon : Creature
                 if (summonedData.CreatureIdVisibleToSummoner.HasValue)
                 {
                     var creatureTemplateVisibleToSummoner = Global.ObjectMgr.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
-                    DisplayIdVisibleToSummoner = Globals.GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner).CreatureDisplayId;
+                    DisplayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner).CreatureDisplayId;
                 }
             }
         }
@@ -299,8 +298,6 @@ public class TempSummon : Creature
                 if (DeathState == DeathState.Corpse)
                 {
                     UnSummon();
-
-                    return;
                 }
 
                 break;
@@ -322,8 +319,8 @@ public class TempSummon : Creature
 
                         return;
                     }
-                    else
-                        Timer -= diff;
+
+                    Timer -= diff;
                 }
                 else if (Timer != _lifetime)
                     Timer = _lifetime;
@@ -340,8 +337,8 @@ public class TempSummon : Creature
 
                         return;
                     }
-                    else
-                        Timer -= diff;
+
+                    Timer -= diff;
                 }
                 else if (Timer != _lifetime)
                     Timer = _lifetime;

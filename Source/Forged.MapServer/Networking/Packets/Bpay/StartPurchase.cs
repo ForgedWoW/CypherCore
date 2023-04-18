@@ -9,9 +9,9 @@ public class StartPurchase : ClientPacket
 {
     public StartPurchase(WorldPacket packet) : base(packet) { }
 
-    public uint ClientToken { get; set; } = 0;
-    public uint ProductID { get; set; } = 0;
-    public ObjectGuid TargetCharacter { get; set; } = new();
+    public uint ClientToken { get; set; }
+    public uint ProductID { get; set; }
+    public ObjectGuid TargetCharacter { get; set; }
 
     public override void Read()
     {

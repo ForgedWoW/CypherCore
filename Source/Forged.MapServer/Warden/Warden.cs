@@ -175,12 +175,10 @@ public abstract class Warden
 
             return false;
         }
-        else
-        {
-            Log.Logger.Debug("CHECKSUM IS VALID");
 
-            return true;
-        }
+        Log.Logger.Debug("CHECKSUM IS VALID");
+
+        return true;
     }
 
     public void MakeModuleForClient()

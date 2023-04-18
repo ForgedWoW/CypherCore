@@ -239,7 +239,8 @@ internal class BgEyeofStorm : Battleground
     {
         if (GetTeamScore(TeamIds.Alliance) > GetTeamScore(TeamIds.Horde))
             return TeamFaction.Alliance;
-        else if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance))
+
+        if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance))
             return TeamFaction.Horde;
 
         return base.GetPrematureWinner();

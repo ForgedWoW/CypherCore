@@ -274,8 +274,8 @@ internal class WDC3Row
 
                 if (bitSize > 0)
                     return _data.Read<T>(bitSize);
-                else
-                    return _data.Read<T>(columnMeta.Immediate.BitWidth);
+
+                return _data.Read<T>(columnMeta.Immediate.BitWidth);
             case DB2ColumnCompression.Immediate:
                 return _data.Read<T>(columnMeta.Immediate.BitWidth);
             case DB2ColumnCompression.SignedImmediate:
@@ -283,8 +283,8 @@ internal class WDC3Row
             case DB2ColumnCompression.Common:
                 if (_commonData[fieldIndex].TryGetValue(Id, out var val))
                     return val.As<T>();
-                else
-                    return columnMeta.Common.DefaultValue.As<T>();
+
+                return columnMeta.Common.DefaultValue.As<T>();
             case DB2ColumnCompression.Pallet:
             case DB2ColumnCompression.PalletArray:
                 var palletIndex = _data.Read<uint>(columnMeta.Pallet.BitWidth);

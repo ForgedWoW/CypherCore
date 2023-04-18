@@ -24,8 +24,8 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
         {
             if (High == HighGuid.Transport)
                 return (HighValue >> 38) & 0xFFFFF;
-            else
-                return LowValue & 0xFFFFFFFFFF;
+
+            return LowValue & 0xFFFFFFFFFF;
         }
     }
 
@@ -299,7 +299,8 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
     {
         if (left.HighValue < right.HighValue)
             return true;
-        else if (left.HighValue > right.HighValue)
+
+        if (left.HighValue > right.HighValue)
             return false;
 
         return left.LowValue < right.LowValue;
@@ -314,7 +315,8 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
     {
         if (left.HighValue > right.HighValue)
             return true;
-        else if (left.HighValue < right.HighValue)
+
+        if (left.HighValue < right.HighValue)
             return false;
 
         return left.LowValue > right.LowValue;

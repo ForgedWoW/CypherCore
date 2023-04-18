@@ -20,6 +20,7 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -165,7 +166,7 @@ public abstract class WorldObject : IDisposable
             if (!IsActive)
                 return AsCreature?.SightDistance ?? 0.0f;
 
-            if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
+            if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic)
                 return Math.Max(SharedConst.DefaultVisibilityInstance, Location.Map.VisibilityRange);
 
             return Location.Map.VisibilityRange;
@@ -222,7 +223,7 @@ public abstract class WorldObject : IDisposable
     }
 
     public TypeMask ObjectTypeMask { get; set; }
-    public OutdoorPvPManager OutdoorPvPManager { get; }
+    public OutdoorPvPManager OutdoorPvPManager { get; set; }
     public virtual ObjectGuid OwnerGUID => default;
     public virtual Unit OwnerUnit => ObjectAccessor.GetUnit(this, OwnerGUID);
     public PhasingHandler PhasingHandler { get; }
@@ -848,7 +849,7 @@ public abstract class WorldObject : IDisposable
         {
             var player = AsPlayer;
 
-            var hasSceneInstanceIDs = !player.SceneMgr.GetSceneTemplateByInstanceMap().Empty();
+            var hasSceneInstanceIDs = !player.SceneMgr.SceneTemplateByInstanceMap.Empty();
             var hasRuneState = AsUnit.GetPowerIndex(PowerType.Runes) != (int)PowerType.Max;
 
             data.WriteBit(hasSceneInstanceIDs);
@@ -857,9 +858,9 @@ public abstract class WorldObject : IDisposable
 
             if (hasSceneInstanceIDs)
             {
-                data.WriteInt32(player.SceneMgr.GetSceneTemplateByInstanceMap().Count);
+                data.WriteInt32(player.SceneMgr.SceneTemplateByInstanceMap.Count);
 
-                foreach (var pair in player.SceneMgr.GetSceneTemplateByInstanceMap())
+                foreach (var pair in player.SceneMgr.SceneTemplateByInstanceMap)
                     data.WriteUInt32(pair.Key);
             }
 
@@ -1080,7 +1081,7 @@ public abstract class WorldObject : IDisposable
         return 1;
     }
 
-    public virtual LootManagement.Loot GetLootForPlayer(Player player)
+    public virtual Loot GetLootForPlayer(Player player)
     {
         return null;
     }

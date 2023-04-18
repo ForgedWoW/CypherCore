@@ -663,7 +663,8 @@ public class SmartScript
         if (baseObject != null)
             return _objectAccessor.GetUnit(baseObject, LastInvoker);
         // used for area triggers invoker cast
-        else if (invoker != null)
+
+        if (invoker != null)
             return _objectAccessor.GetUnit(invoker, LastInvoker);
 
         return null;

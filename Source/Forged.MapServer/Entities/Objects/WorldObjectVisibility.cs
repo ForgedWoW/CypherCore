@@ -89,7 +89,7 @@ public class WorldObjectVisibility
                     thisPlayer.Health > 0 && // Cheap way to check for ghost state
                     !Convert.ToBoolean((uint)(obj.Visibility.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & (uint)GhostVisibilityType.Ghost)))
                 {
-                    var corpse = thisPlayer.GetCorpse();
+                    var corpse = thisPlayer.Corpse;
 
                     if (corpse != null)
                     {
@@ -201,7 +201,7 @@ public class WorldObjectVisibility
             {
                 { Visibility: { IsVisibilityOverridden: true, _visibilityDistanceOverride: { } }, IsPlayer: true } => target.Visibility._visibilityDistanceOverride.Value,
                 { Visibility: { IsFarVisible: true, _worldObject.IsPlayer: false } }                               => SharedConst.MaxVisibilityDistance,
-                _                                                                                                  => _worldObject.AsPlayer.CinematicMgr.IsOnCinematic() ? SharedConst.DefaultVisibilityInstance : _worldObject.Location.Map.VisibilityRange
+                _                                                                                                  => _worldObject.AsPlayer.CinematicMgr.IsOnCinematic ? SharedConst.DefaultVisibilityInstance : _worldObject.Location.Map.VisibilityRange
             };
         }
 

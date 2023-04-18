@@ -805,11 +805,8 @@ public class Battleground : ZoneScript, IDisposable
                         player.SetRandomWinner(true);
                     // TODO: win honor xp
                 }
-                else
-                {
-                    // TODO: lose honor xp
-                }
 
+                // TODO: lose honor xp
                 player.UpdateCriteria(CriteriaType.WinBattleground, player.Location.MapId);
 
                 if (!guildAwarded)
@@ -1438,7 +1435,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public void RemovePlayerFromResurrectQueue(ObjectGuid playerGUID)
     {
-        _reviveQueue.RemoveIfMatching((pair) =>
+        _reviveQueue.RemoveIfMatching(pair =>
         {
             if (pair.Value == playerGUID)
             {

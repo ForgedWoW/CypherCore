@@ -25,10 +25,8 @@ public class CollectionMgr
     private readonly ConditionManager _conditionManager;
     private readonly DB2Manager _db2Manager;
     private readonly Dictionary<uint, FavoriteAppearanceState> _favoriteAppearances = new();
-    private readonly Dictionary<uint, HeirloomData> _heirlooms = new();
     private readonly LoginDatabase _loginDatabase;
     private readonly MountCache _mountCache;
-    private readonly Dictionary<uint, MountStatusFlags> _mounts = new();
     private readonly GameObjectManager _objectManager;
     private readonly WorldSession _owner;
 
@@ -49,7 +47,6 @@ public class CollectionMgr
     };
 
     private readonly MultiMap<uint, ObjectGuid> _temporaryAppearances = new();
-    private readonly Dictionary<uint, ToyFlags> _toys = new();
     private BitSet _appearances;
     private BitSet _transmogIllusions;
 
@@ -66,6 +63,14 @@ public class CollectionMgr
         _appearances = new BitSet(0);
         _transmogIllusions = new BitSet(0);
     }
+
+    public Dictionary<uint, HeirloomData> AccountHeirlooms { get; } = new();
+
+    public Dictionary<uint, MountStatusFlags> AccountMounts { get; } = new();
+
+    public Dictionary<uint, ToyFlags> AccountToys { get; } = new();
+
+    public List<uint> AppearanceIds => (from int id in _appearances select (uint)_cliDB.ItemModifiedAppearanceStorage.LookupByKey((uint)id).ItemAppearanceID).ToList();
 
     public void AddHeirloom(uint itemId, HeirloomPlayerFlags flags)
     {
@@ -120,7 +125,7 @@ public class CollectionMgr
         if (value != 0 && !factionMount)
             AddMount(value, flags, true, learned);
 
-        _mounts[spellId] = flags;
+        AccountMounts[spellId] = flags;
 
         // Mount condition only applies to using it, should still learn it.
         if (mount.PlayerConditionID != 0)
@@ -200,92 +205,59 @@ public class CollectionMgr
         // Check already owned heirloom for upgrade kits
         var heirloom = _db2Manager.GetHeirloomByItemId(item.Entry);
 
-        if (heirloom != null)
+        if (heirloom == null)
+            return;
+
+        if (!AccountHeirlooms.TryGetValue(item.Entry, out var data))
+            return;
+
+        // Check for heirloom pairs (normal - heroic, heroic - mythic)
+        var heirloomItemId = heirloom.StaticUpgradedItemID;
+        uint newItemId = 0;
+
+        while (_db2Manager.GetHeirloomByItemId(heirloomItemId) is { } heirloomDiff)
         {
-            if (!_heirlooms.TryGetValue(item.Entry, out var data))
-                return;
+            if (player.GetItemByEntry(heirloomDiff.ItemID) != null)
+                newItemId = heirloomDiff.ItemID;
 
-            // Check for heirloom pairs (normal - heroic, heroic - mythic)
-            var heirloomItemId = heirloom.StaticUpgradedItemID;
-            uint newItemId = 0;
+            var heirloomSub = _db2Manager.GetHeirloomByItemId(heirloomDiff.StaticUpgradedItemID);
 
-            while (_db2Manager.GetHeirloomByItemId(heirloomItemId) is { } heirloomDiff)
+            if (heirloomSub != null)
             {
-                if (player.GetItemByEntry(heirloomDiff.ItemID) != null)
-                    newItemId = heirloomDiff.ItemID;
+                heirloomItemId = heirloomSub.ItemID;
 
-                var heirloomSub = _db2Manager.GetHeirloomByItemId(heirloomDiff.StaticUpgradedItemID);
-
-                if (heirloomSub != null)
-                {
-                    heirloomItemId = heirloomSub.ItemID;
-
-                    continue;
-                }
-
-                break;
+                continue;
             }
 
-            if (newItemId != 0)
-            {
-                List<uint> heirlooms = player.ActivePlayerData.Heirlooms;
-                var offset = heirlooms.IndexOf(item.Entry);
-
-                player.SetHeirloom(offset, newItemId);
-                player.SetHeirloomFlags(offset, 0);
-
-                _heirlooms.Remove(item.Entry);
-                _heirlooms[newItemId] = null;
-
-                return;
-            }
-
-            var bonusListIDs = item.GetBonusListIDs();
-
-            foreach (var bonusId in bonusListIDs)
-                if (bonusId != data.BonusId)
-                {
-                    item.ClearBonuses();
-
-                    break;
-                }
-
-            if (!bonusListIDs.Contains(data.BonusId))
-                item.AddBonuses(data.BonusId);
+            break;
         }
-    }
 
-    public Dictionary<uint, HeirloomData> GetAccountHeirlooms()
-    {
-        return _heirlooms;
-    }
+        if (newItemId != 0)
+        {
+            List<uint> heirlooms = player.ActivePlayerData.Heirlooms;
+            var offset = heirlooms.IndexOf(item.Entry);
 
-    public Dictionary<uint, MountStatusFlags> GetAccountMounts()
-    {
-        return _mounts;
-    }
+            player.SetHeirloom(offset, newItemId);
+            player.SetHeirloomFlags(offset, 0);
 
-    public Dictionary<uint, ToyFlags> GetAccountToys()
-    {
-        return _toys;
-    }
+            AccountHeirlooms.Remove(item.Entry);
+            AccountHeirlooms[newItemId] = null;
 
-    public List<uint> GetAppearanceIds()
-    {
-        List<uint> appearances = new();
+            return;
+        }
 
-        foreach (int id in _appearances)
-            appearances.Add((uint)_cliDB.ItemModifiedAppearanceStorage.LookupByKey((uint)id).ItemAppearanceID);
+        var bonusListIDs = item.GetBonusListIDs();
 
-        return appearances;
+        if (bonusListIDs.Any(bonusId => bonusId != data.BonusId))
+            item.ClearBonuses();
+
+        if (!bonusListIDs.Contains(data.BonusId))
+            item.AddBonuses(data.BonusId);
     }
 
     public uint GetHeirloomBonus(uint itemId)
     {
-        if (_heirlooms.TryGetValue(itemId, out var data))
-            return data.BonusId;
-
-        return 0;
+        return AccountHeirlooms.TryGetValue(itemId, out var data) ? data.BonusId : 0;
     }
 
     public List<ObjectGuid> GetItemsProvidingTemporaryAppearance(uint itemModifiedAppearanceId)
@@ -298,15 +270,12 @@ public class CollectionMgr
         if (itemModifiedAppearanceId < _appearances.Count && _appearances.Get((int)itemModifiedAppearanceId))
             return (true, false);
 
-        if (_temporaryAppearances.ContainsKey(itemModifiedAppearanceId))
-            return (true, true);
-
-        return (false, false);
+        return _temporaryAppearances.ContainsKey(itemModifiedAppearanceId) ? (true, true) : (false, false);
     }
 
     public bool HasToy(uint itemId)
     {
-        return _toys.ContainsKey(itemId);
+        return AccountToys.ContainsKey(itemId);
     }
 
     public bool HasTransmogIllusion(uint transmogIllusionId)
@@ -339,7 +308,7 @@ public class CollectionMgr
                     break;
                 }
 
-            _heirlooms[itemId] = new HeirloomData(flags, bonusId);
+            AccountHeirlooms[itemId] = new HeirloomData(flags, bonusId);
         } while (result.NextRow());
     }
 
@@ -408,7 +377,7 @@ public class CollectionMgr
             if (_db2Manager.GetMount(mountSpellId) == null)
                 continue;
 
-            _mounts[mountSpellId] = flags;
+            AccountMounts[mountSpellId] = flags;
         } while (result.NextRow());
     }
 
@@ -420,7 +389,7 @@ public class CollectionMgr
         do
         {
             var itemId = result.Read<uint>(0);
-            _toys.Add(itemId, GetToyFlags(result.Read<bool>(1), result.Read<bool>(2)));
+            AccountToys.Add(itemId, GetToyFlags(result.Read<bool>(1), result.Read<bool>(2)));
         } while (result.NextRow());
     }
 
@@ -459,7 +428,7 @@ public class CollectionMgr
 
     public void LoadHeirlooms()
     {
-        foreach (var item in _heirlooms)
+        foreach (var item in AccountHeirlooms)
             _owner.Player.AddHeirloom(item.Key, (uint)item.Value.Flags);
     }
 
@@ -476,13 +445,13 @@ public class CollectionMgr
 
     public void LoadMounts()
     {
-        foreach (var m in _mounts.ToList())
+        foreach (var m in AccountMounts.ToList())
             AddMount(m.Key, m.Value);
     }
 
     public void LoadToys()
     {
-        foreach (var pair in _toys)
+        foreach (var pair in AccountToys)
             _owner.Player.AddToy(pair.Key, (uint)pair.Value);
     }
 
@@ -496,15 +465,15 @@ public class CollectionMgr
 
     public void MountSetFavorite(uint spellId, bool favorite)
     {
-        if (!_mounts.ContainsKey(spellId))
+        if (!AccountMounts.ContainsKey(spellId))
             return;
 
         if (favorite)
-            _mounts[spellId] |= MountStatusFlags.IsFavorite;
+            AccountMounts[spellId] |= MountStatusFlags.IsFavorite;
         else
-            _mounts[spellId] &= ~MountStatusFlags.IsFavorite;
+            AccountMounts[spellId] &= ~MountStatusFlags.IsFavorite;
 
-        SendSingleMountUpdate(spellId, _mounts[spellId]);
+        SendSingleMountUpdate(spellId, AccountMounts[spellId]);
     }
 
     public void OnItemAdded(Item item)
@@ -536,7 +505,7 @@ public class CollectionMgr
 
     public void SaveAccountHeirlooms(SQLTransaction trans)
     {
-        foreach (var heirloom in _heirlooms)
+        foreach (var heirloom in AccountHeirlooms)
         {
             var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_HEIRLOOMS);
             stmt.AddValue(0, _owner.BattlenetAccountId);
@@ -579,6 +548,7 @@ public class CollectionMgr
                     _favoriteAppearances[key] = FavoriteAppearanceState.Unchanged;
 
                     break;
+
                 case FavoriteAppearanceState.Removed:
                     stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_ITEM_FAVORITE_APPEARANCE);
                     stmt.AddValue(0, _owner.BattlenetAccountId);
@@ -587,6 +557,7 @@ public class CollectionMgr
                     _favoriteAppearances.Remove(key);
 
                     break;
+
                 case FavoriteAppearanceState.Unchanged:
                     break;
             }
@@ -595,7 +566,7 @@ public class CollectionMgr
 
     public void SaveAccountMounts(SQLTransaction trans)
     {
-        foreach (var mount in _mounts)
+        foreach (var mount in AccountMounts)
         {
             var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_MOUNTS);
             stmt.AddValue(0, _owner.BattlenetAccountId);
@@ -607,7 +578,7 @@ public class CollectionMgr
 
     public void SaveAccountToys(SQLTransaction trans)
     {
-        foreach (var pair in _toys)
+        foreach (var pair in AccountToys)
         {
             var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_TOYS);
             stmt.AddValue(0, _owner.BattlenetAccountId);
@@ -689,21 +660,21 @@ public class CollectionMgr
 
     public void ToyClearFanfare(uint itemId)
     {
-        if (!_toys.ContainsKey(itemId))
+        if (!AccountToys.ContainsKey(itemId))
             return;
 
-        _toys[itemId] &= ~ToyFlags.HasFanfare;
+        AccountToys[itemId] &= ~ToyFlags.HasFanfare;
     }
 
     public void ToySetFavorite(uint itemId, bool favorite)
     {
-        if (!_toys.ContainsKey(itemId))
+        if (!AccountToys.ContainsKey(itemId))
             return;
 
         if (favorite)
-            _toys[itemId] |= ToyFlags.Favorite;
+            AccountToys[itemId] |= ToyFlags.Favorite;
         else
-            _toys[itemId] &= ~ToyFlags.Favorite;
+            AccountToys[itemId] &= ~ToyFlags.Favorite;
     }
 
     public void UpgradeHeirloom(uint itemId, uint castItem)
@@ -718,7 +689,7 @@ public class CollectionMgr
         if (heirloom == null)
             return;
 
-        if (!_heirlooms.TryGetValue(itemId, out var data))
+        if (!AccountHeirlooms.TryGetValue(itemId, out var data))
             return;
 
         var flags = data.Flags;
@@ -847,6 +818,7 @@ public class CollectionMgr
                     case InventoryType.Tabard:
                     case InventoryType.Holdable:
                         break;
+
                     case InventoryType.Head:
                     case InventoryType.Shoulders:
                     case InventoryType.Chest:
@@ -860,6 +832,7 @@ public class CollectionMgr
                             return false;
 
                         break;
+
                     default:
                         return false;
                 }
@@ -874,14 +847,13 @@ public class CollectionMgr
                 return false;
         }
 
-        if (itemTemplate.Quality < ItemQuality.Uncommon)
-            if (!itemTemplate.HasFlag(ItemFlags2.IgnoreQualityForItemVisualSource) || !itemTemplate.HasFlag(ItemFlags3.ActsAsTransmogHiddenVisualOption))
-                return false;
+        if (itemTemplate.Quality >= ItemQuality.Uncommon)
+            return itemModifiedAppearance.Id >= _appearances.Count || !_appearances.Get((int)itemModifiedAppearance.Id);
 
-        if (itemModifiedAppearance.Id < _appearances.Count && _appearances.Get((int)itemModifiedAppearance.Id))
+        if (!itemTemplate.HasFlag(ItemFlags2.IgnoreQualityForItemVisualSource) || !itemTemplate.HasFlag(ItemFlags3.ActsAsTransmogHiddenVisualOption))
             return false;
 
-        return true;
+        return itemModifiedAppearance.Id >= _appearances.Count || !_appearances.Get((int)itemModifiedAppearance.Id);
     }
 
     private ToyFlags GetToyFlags(bool isFavourite, bool hasFanfare)
@@ -948,20 +920,20 @@ public class CollectionMgr
 
     private bool UpdateAccountHeirlooms(uint itemId, HeirloomPlayerFlags flags)
     {
-        if (_heirlooms.ContainsKey(itemId))
+        if (AccountHeirlooms.ContainsKey(itemId))
             return false;
 
-        _heirlooms.Add(itemId, new HeirloomData(flags));
+        AccountHeirlooms.Add(itemId, new HeirloomData(flags));
 
         return true;
     }
 
     private bool UpdateAccountToys(uint itemId, bool isFavourite, bool hasFanfare)
     {
-        if (_toys.ContainsKey(itemId))
+        if (AccountToys.ContainsKey(itemId))
             return false;
 
-        _toys.Add(itemId, GetToyFlags(isFavourite, hasFanfare));
+        AccountToys.Add(itemId, GetToyFlags(isFavourite, hasFanfare));
 
         return true;
     }

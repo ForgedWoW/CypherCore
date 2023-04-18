@@ -258,24 +258,22 @@ internal class FollowerAI : ScriptedAI
         {
             if (player.IsAlive)
                 return player;
-            else
-            {
-                var group = player.Group;
 
-                if (group)
-                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
+            var group = player.Group;
+
+            if (group)
+                for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
+                {
+                    var member = groupRef.Source;
+
+                    if (member && Me.Location.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
                     {
-                        var member = groupRef.Source;
+                        Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({Me.GUID})");
+                        _leaderGUID = member.GUID;
 
-                        if (member && Me.Location.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
-                        {
-                            Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({Me.GUID})");
-                            _leaderGUID = member.GUID;
-
-                            return member;
-                        }
+                        return member;
                     }
-            }
+                }
         }
 
         Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. ({Me.GUID})");

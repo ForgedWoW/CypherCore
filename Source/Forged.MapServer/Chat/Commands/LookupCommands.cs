@@ -1320,7 +1320,7 @@ internal class LookupCommands
             // Search in SpellName.dbc
             foreach (var spellName in handler.CliDB.SpellNameStorage.Values)
             {
-                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellName.Id, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellName.Id);
 
                 if (spellInfo != null)
                 {
@@ -1424,7 +1424,7 @@ internal class LookupCommands
             // can be NULL at console call
             var target = handler.SelectedPlayer;
 
-            var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(id, Difficulty.None);
+            var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(id);
 
             if (spellInfo != null)
             {
@@ -1441,7 +1441,7 @@ internal class LookupCommands
                 var known = target && target.HasSpell(id);
                 var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffectName(SpellEffectName.LearnSpell));
 
-                var learnSpellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell, Difficulty.None);
+                var learnSpellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell);
 
                 var talent = spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
                 var passive = spellInfo.IsPassive;

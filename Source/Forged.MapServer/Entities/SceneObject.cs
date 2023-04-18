@@ -9,7 +9,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
-using Forged.MapServer.Phasing;
 using Framework.Constants;
 
 namespace Forged.MapServer.Entities;

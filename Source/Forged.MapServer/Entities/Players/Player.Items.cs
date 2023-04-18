@@ -30,6 +30,8 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
+    private delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
+
     public void _ApplyAllLevelScaleItemMods(bool apply)
     {
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
@@ -847,7 +849,8 @@ public partial class Player
 
                     return false;
                 }
-                else if (!HasCurrency(iece.CurrencyID[i], iece.CurrencyCount[i] * stacks))
+
+                if (!HasCurrency(iece.CurrencyID[i], iece.CurrencyCount[i] * stacks))
                 {
                     SendEquipError(InventoryResult.VendorMissingTurnins); // Find correct error
 
@@ -1061,7 +1064,8 @@ public partial class Player
 
                     return false;
                 }
-                else if (!HasCurrency(iece.CurrencyID[i], iece.CurrencyCount[i] * stacks))
+
+                if (!HasCurrency(iece.CurrencyID[i], iece.CurrencyCount[i] * stacks))
                 {
                     SendEquipError(InventoryResult.VendorMissingTurnins);
 
@@ -1576,7 +1580,8 @@ public partial class Player
                     // Do not allow polearm to be equipped in the offhand (rare case for the only 1h polearm 41750)
                     if (type == InventoryType.Weapon && pProto.SubClass == (uint)ItemSubClassWeapon.Polearm)
                         return InventoryResult.TwoHandSkillNotFound;
-                    else if (type == InventoryType.Weapon)
+
+                    if (type == InventoryType.Weapon)
                     {
                         if (!CanDualWield)
                             return InventoryResult.TwoHandSkillNotFound;
@@ -1681,7 +1686,8 @@ public partial class Player
             // there is an equip limit on this item
             if (HasItemWithLimitCategoryEquipped(itemProto.ItemLimitCategory, limitQuantity - limitCount + 1, exceptSlot))
                 return InventoryResult.ItemMaxLimitCategoryEquippedExceededIs;
-            else if (HasGemWithLimitCategoryEquipped(itemProto.ItemLimitCategory, limitQuantity - limitCount + 1, exceptSlot))
+
+            if (HasGemWithLimitCategoryEquipped(itemProto.ItemLimitCategory, limitQuantity - limitCount + 1, exceptSlot))
                 return InventoryResult.ItemMaxCountEquippedSocketed;
         }
 
@@ -1714,7 +1720,8 @@ public partial class Player
         {
             if (GetSkillValue((SkillType)proto.RequiredSkill) == 0)
                 return InventoryResult.ProficiencyNeeded;
-            else if (GetSkillValue((SkillType)proto.RequiredSkill) < proto.RequiredSkillRank)
+
+            if (GetSkillValue((SkillType)proto.RequiredSkill) < proto.RequiredSkillRank)
                 return InventoryResult.CantEquipSkill;
         }
 
@@ -2102,7 +2109,8 @@ public partial class Player
         {
             if (GetSkillValue((SkillType)proto.RequiredSkill) == 0)
                 return InventoryResult.ProficiencyNeeded;
-            else if (GetSkillValue((SkillType)proto.RequiredSkill) < proto.RequiredSkillRank)
+
+            if (GetSkillValue((SkillType)proto.RequiredSkill) < proto.RequiredSkillRank)
                 return InventoryResult.CantEquipSkill;
         }
 
@@ -4390,7 +4398,7 @@ public partial class Player
 
         if (error == 0)
         {
-            itemPurchaseRefundResult.Contents = new ItemPurchaseContents()
+            itemPurchaseRefundResult.Contents = new ItemPurchaseContents
             {
                 Money = item.PaidMoney
             };
@@ -5770,45 +5778,43 @@ public partial class Player
 
             return pItem;
         }
-        else
+
+        if (pItem2.Bonding is ItemBondingType.OnAcquire or ItemBondingType.Quest ||
+            (pItem2.Bonding == ItemBondingType.OnEquip && PlayerComputators.IsBagPos(pos)))
+            pItem2.SetBinding(true);
+
+        pItem2.SetCount(pItem2.Count + count);
+
+        if (Location.IsInWorld && update)
+            pItem2.SendUpdateToPlayer(this);
+
+        if (!clone)
         {
-            if (pItem2.Bonding is ItemBondingType.OnAcquire or ItemBondingType.Quest ||
-                (pItem2.Bonding == ItemBondingType.OnEquip && PlayerComputators.IsBagPos(pos)))
-                pItem2.SetBinding(true);
-
-            pItem2.SetCount(pItem2.Count + count);
-
+            // delete item (it not in any slot currently)
             if (Location.IsInWorld && update)
-                pItem2.SendUpdateToPlayer(this);
-
-            if (!clone)
             {
-                // delete item (it not in any slot currently)
-                if (Location.IsInWorld && update)
-                {
-                    pItem.RemoveFromWorld();
-                    pItem.DestroyForPlayer(this);
-                }
-
-                RemoveEnchantmentDurations(pItem);
-                RemoveItemDurations(pItem);
-
-                pItem.SetOwnerGUID(GUID); // prevent error at next SetState in case trade/mail/buy from vendor
-                pItem.SetNotRefundable(this);
-                pItem.ClearSoulboundTradeable(this);
-                RemoveTradeableItem(pItem);
-                pItem.SetState(ItemUpdateState.Removed, this);
+                pItem.RemoveFromWorld();
+                pItem.DestroyForPlayer(this);
             }
 
-            AddEnchantmentDurations(pItem2);
+            RemoveEnchantmentDurations(pItem);
+            RemoveItemDurations(pItem);
 
-            pItem2.SetState(ItemUpdateState.Changed, this);
-
-            if (bag is InventorySlots.Bag0 or >= InventorySlots.BagStart and < InventorySlots.BagEnd)
-                ApplyItemObtainSpells(pItem2, true);
-
-            return pItem2;
+            pItem.SetOwnerGUID(GUID); // prevent error at next SetState in case trade/mail/buy from vendor
+            pItem.SetNotRefundable(this);
+            pItem.ClearSoulboundTradeable(this);
+            RemoveTradeableItem(pItem);
+            pItem.SetState(ItemUpdateState.Removed, this);
         }
+
+        AddEnchantmentDurations(pItem2);
+
+        pItem2.SetState(ItemUpdateState.Changed, this);
+
+        if (bag is InventorySlots.Bag0 or >= InventorySlots.BagStart and < InventorySlots.BagEnd)
+            ApplyItemObtainSpells(pItem2, true);
+
+        return pItem2;
     }
 
     private bool _StoreOrEquipNewItem(uint vendorslot, uint item, byte count, byte bag, byte slot, long price, ItemTemplate pProto, Creature pVendor, VendorItem crItem, bool bStore)
@@ -7516,6 +7522,4 @@ public partial class Player
 
         pItem.SetState(ItemUpdateState.Changed, this);
     }
-
-    private delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
 }

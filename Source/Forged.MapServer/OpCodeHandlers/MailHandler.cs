@@ -423,7 +423,7 @@ public class MailHandler : IWorldSessionHandler
 
             foreach (var mail in Player.Mails)
             {
-                if (Extensions.HasAnyFlag(mail.CheckMask, MailCheckMask.Read))
+                if (mail.CheckMask.HasAnyFlag(MailCheckMask.Read))
                     continue;
 
                 // and already delivered

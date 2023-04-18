@@ -2,7 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Database;
 
 namespace Forged.MapServer.Entities.Players;
@@ -13,6 +15,14 @@ public class Petition
     public ObjectGuid PetitionGuid;
     public string PetitionName;
     public List<(uint AccountId, ObjectGuid PlayerGuid)> Signatures = new();
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly ObjectAccessor _objectAccessor;
+
+    public Petition(CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
+    {
+        _characterDatabase = characterDatabase;
+        _objectAccessor = objectAccessor;
+    }
 
     public void AddSignature(uint accountId, ObjectGuid playerGuid, bool isLoading)
     {
@@ -21,22 +31,18 @@ public class Petition
         if (isLoading)
             return;
 
-        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
         stmt.AddValue(0, OwnerGuid.Counter);
         stmt.AddValue(1, PetitionGuid.Counter);
         stmt.AddValue(2, playerGuid.Counter);
         stmt.AddValue(3, accountId);
 
-        CharacterDatabase.Execute(stmt);
+        _characterDatabase.Execute(stmt);
     }
 
     public bool IsPetitionSignedByAccount(uint accountId)
     {
-        foreach (var signature in Signatures)
-            if (signature.AccountId == accountId)
-                return true;
-
-        return false;
+        return Signatures.Any(signature => signature.AccountId == accountId);
     }
 
     public void RemoveSignatureBySigner(ObjectGuid playerGuid)
@@ -47,7 +53,7 @@ public class Petition
                 Signatures.Remove(itr);
 
                 // notify owner
-                var owner = ObjectAccessor.FindConnectedPlayer(OwnerGuid);
+                var owner = _objectAccessor.FindConnectedPlayer(OwnerGuid);
 
                 if (owner != null)
                     owner.Session.SendPetitionQuery(PetitionGuid);
@@ -60,9 +66,9 @@ public class Petition
     {
         PetitionName = newName;
 
-        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
         stmt.AddValue(0, newName);
         stmt.AddValue(1, PetitionGuid.Counter);
-        CharacterDatabase.Execute(stmt);
+        _characterDatabase.Execute(stmt);
     }
 }

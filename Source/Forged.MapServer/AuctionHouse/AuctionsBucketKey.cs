@@ -50,8 +50,8 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
                                          (ushort)Item.GetItemLevel(itemTemplate, item.BonusData, 0, (uint)item.GetRequiredLevel(), 0, 0, 0, false, 0),
                                          (ushort)item.GetModifier(ItemModifier.BattlePetSpeciesId),
                                          (ushort)item.BonusData.Suffix);
-        else
-            return ForCommodity(itemTemplate);
+
+        return ForCommodity(itemTemplate);
     }
 
     public static bool operator !=(AuctionsBucketKey right, AuctionsBucketKey left)

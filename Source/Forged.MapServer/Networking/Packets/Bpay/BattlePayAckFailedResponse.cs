@@ -7,7 +7,7 @@ public class BattlePayAckFailedResponse : ClientPacket
 {
     public BattlePayAckFailedResponse(WorldPacket packet) : base(packet) { }
 
-    public uint ServerToken { get; set; } = 0;
+    public uint ServerToken { get; set; }
 
     public override void Read()
     {

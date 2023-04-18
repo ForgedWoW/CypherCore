@@ -27,7 +27,7 @@ public class TerrainInfo
 
     private readonly BitSet _gridFileExists = new(MapConst.MaxGrids * MapConst.MaxGrids);
     private readonly GridMap[][] _gridMap = new GridMap[MapConst.MaxGrids][];
-    private readonly bool _keepLoaded = false;
+    private readonly bool _keepLoaded;
     private readonly BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
     private readonly object _loadLock = new();
     private readonly uint _mapId;

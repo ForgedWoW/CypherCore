@@ -26,15 +26,14 @@ public class WorldServiceHandler
             _responseType = parameters[1].ParameterType;
 
         if (_responseType != null)
-            _methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
-            {
-                typeof(WorldSession), _requestType, _responseType, info.ReturnType
-            }));
+            _methodCaller = info.CreateDelegate(Expression.GetDelegateType(typeof(WorldSession),
+                                                                           _requestType,
+                                                                           _responseType,
+                                                                           info.ReturnType));
         else
-            _methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
-            {
-                typeof(WorldSession), _requestType, info.ReturnType
-            }));
+            _methodCaller = info.CreateDelegate(Expression.GetDelegateType(typeof(WorldSession),
+                                                                           _requestType,
+                                                                           info.ReturnType));
     }
 
     public void Invoke(WorldSession session, MethodCall methodCall, CodedInputStream stream)

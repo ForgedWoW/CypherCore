@@ -322,7 +322,7 @@ public class Position
 
     public Vector3 ToVector3()
     {
-        return new Vector3()
+        return new Vector3
         {
             X = X,
             Y = Y,
@@ -332,7 +332,7 @@ public class Position
 
     public Vector4 ToVector4()
     {
-        return new Vector4()
+        return new Vector4
         {
             X = X,
             Y = Y,

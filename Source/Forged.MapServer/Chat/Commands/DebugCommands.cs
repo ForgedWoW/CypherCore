@@ -419,16 +419,12 @@ internal class DebugCommands
                             {
                                 handler.SendSysMessage("The item in bag {0} at slot {1} having guid {2} has a queuepos ({3}) that points to another item in the queue (bag: {4}, slot: {5}, guid: {6})", bag.Slot, item2.Slot, item2.GUID.ToString(), qp, updateQueue[qp].BagSlot, updateQueue[qp].Slot, updateQueue[qp].GUID.ToString());
                                 error = true;
-
-                                continue;
                             }
                         }
                         else if (item2.State != ItemUpdateState.Unchanged)
                         {
                             handler.SendSysMessage("The item in bag {0} at slot {1} having guid {2} is not in queue but should be (state: {3})!", bag.Slot, item2.Slot, item2.GUID.ToString(), item2.State);
                             error = true;
-
-                            continue;
                         }
                     }
             }
@@ -473,8 +469,6 @@ internal class DebugCommands
                 {
                     handler.SendSysMessage("queue({0}): The bag({1}) and slot({2}) values for the item with guid {3} are incorrect, an item which guid is {4} is there instead!", i, item.BagSlot, item.Slot, item.GUID.ToString(), test.GUID.ToString());
                     error = true;
-
-                    continue;
                 }
             }
 

@@ -47,8 +47,8 @@ public class LFGGroupData
     {
         if (asId)
             return _mDungeon & 0x00FFFFFF;
-        else
-            return _mDungeon;
+
+        return _mDungeon;
     }
 
     public byte GetKicksLeft()

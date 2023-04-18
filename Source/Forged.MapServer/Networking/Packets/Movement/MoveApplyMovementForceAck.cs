@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveApplyMovementForceAck : ClientPacket
 {
-    public MovementAck Ack = new();
+    public MovementAck Ack;
     public MovementForce Force = new();
     public MoveApplyMovementForceAck(WorldPacket packet) : base(packet) { }
 

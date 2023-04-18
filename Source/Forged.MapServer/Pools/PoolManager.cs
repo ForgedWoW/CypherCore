@@ -452,8 +452,6 @@ public class PoolManager
             if (IsEmpty(poolId))
             {
                 Log.Logger.Error($"Pool Id {poolId} is empty (has no creatures and no gameobects and either no child pools or child pools are all empty. The pool will not be spawned");
-
-                continue;
             }
 
         // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks

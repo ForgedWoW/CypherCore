@@ -64,8 +64,8 @@ public class TaxiHandler : IWorldSessionHandler
 
             return true;
         }
-        else
-            return false;
+
+        return false;
     }
 
     public void SendTaxiMenu(Creature unit)

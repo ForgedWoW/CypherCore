@@ -197,7 +197,8 @@ public class GarrisonManager
             {
                 if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.HordeOnly) && faction != GarrisonFactionIndex.Horde)
                     continue;
-                else if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.AllianceOnly) && faction != GarrisonFactionIndex.Alliance)
+
+                if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.AllianceOnly) && faction != GarrisonFactionIndex.Alliance)
                     continue;
 
                 if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.CannotRemove))
@@ -210,7 +211,8 @@ public class GarrisonManager
             {
                 if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.HordeOnly) && faction != GarrisonFactionIndex.Horde)
                     continue;
-                else if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.AllianceOnly) && faction != GarrisonFactionIndex.Alliance)
+
+                if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.AllianceOnly) && faction != GarrisonFactionIndex.Alliance)
                     continue;
 
                 if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.CannotRemove))
@@ -261,7 +263,8 @@ public class GarrisonManager
             {
                 if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.HordeOnly) && faction != GarrisonFactionIndex.Horde)
                     continue;
-                else if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.AllianceOnly) && faction != GarrisonFactionIndex.Alliance)
+
+                if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.AllianceOnly) && faction != GarrisonFactionIndex.Alliance)
                     continue;
 
                 // forced exclusive trait exists, skip other ones entirely

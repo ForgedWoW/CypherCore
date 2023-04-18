@@ -68,7 +68,8 @@ internal class MiscCommands
                     return false;
                 }
                 // if both players are in different bgs
-                else if (player.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
+
+                if (player.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
                     player.LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
 
                 // all's well, set bg id
@@ -556,31 +557,31 @@ internal class MiscCommands
 
             return true;
         }
-        else if (player == handler.Session.Player)
+
+        if (player == handler.Session.Player)
         {
             // Can't freeze himself
             handler.SendSysMessage(CypherStrings.CommandFreezeError);
 
             return true;
         }
-        else // Apply the effect
+
+        // Apply the effect
+        // Add the freeze aura and set the proper duration
+        // Player combat status and flags are now handled
+        // in Freeze Spell AuraScript (OnApply)
+        var freeze = player.AddAura(9454, player);
+
+        if (freeze != null)
         {
-            // Add the freeze aura and set the proper duration
-            // Player combat status and flags are now handled
-            // in Freeze Spell AuraScript (OnApply)
-            var freeze = player.AddAura(9454, player);
+            if (freezeDuration != 0)
+                freeze.SetDuration(freezeDuration * Time.IN_MILLISECONDS);
 
-            if (freeze != null)
-            {
-                if (freezeDuration != 0)
-                    freeze.SetDuration(freezeDuration * Time.IN_MILLISECONDS);
+            handler.SendSysMessage(CypherStrings.CommandFreeze, player.GetName());
+            // save player
+            player.SaveToDB();
 
-                handler.SendSysMessage(CypherStrings.CommandFreeze, player.GetName());
-                // save player
-                player.SaveToDB();
-
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -1975,7 +1976,8 @@ internal class MiscCommands
                     return false;
                 }
                 // if both players are in different bgs
-                else if (target.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
+
+                if (target.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
                     target.LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
 
                 // all's well, set bg id
@@ -2115,12 +2117,10 @@ internal class MiscCommands
 
                 return true;
             }
-            else
-            {
-                handler.SendSysMessage(CypherStrings.CommandFreezeWrong);
 
-                return true;
-            }
+            handler.SendSysMessage(CypherStrings.CommandFreezeWrong);
+
+            return true;
         }
 
         return true;
@@ -2203,7 +2203,7 @@ internal class MiscCommands
             var player1 = handler.Session.Player;
 
             if (player1)
-                player1.SpellFactory.CastSpell(player1, spellUnstuckID, false);
+                player1.SpellFactory.CastSpell(player1, spellUnstuckID);
 
             return true;
         }
@@ -2238,7 +2238,7 @@ internal class MiscCommands
 
         if (player.IsInFlight || player.IsInCombat)
         {
-            var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellUnstuckID, Difficulty.None);
+            var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellUnstuckID);
 
             if (spellInfo == null)
                 return false;

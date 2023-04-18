@@ -152,11 +152,9 @@ internal class TicketCommands
 
             return true;
         }
-        else
-        {
-            handler.ClassFactory.Resolve<SupportManager>().ResetTickets<T>();
-            handler.SendSysMessage(CypherStrings.CommandTicketreset);
-        }
+
+        handler.ClassFactory.Resolve<SupportManager>().ResetTickets<T>();
+        handler.SendSysMessage(CypherStrings.CommandTicketreset);
 
         return true;
     }
@@ -404,13 +402,11 @@ internal class TicketCommands
 
                 return true;
             }
-            else
-            {
-                handler.ClassFactory.Resolve<SupportManager>().ResetTickets<BugTicket>();
-                handler.ClassFactory.Resolve<SupportManager>().ResetTickets<ComplaintTicket>();
-                handler.ClassFactory.Resolve<SupportManager>().ResetTickets<SuggestionTicket>();
-                handler.SendSysMessage(CypherStrings.CommandTicketreset);
-            }
+
+            handler.ClassFactory.Resolve<SupportManager>().ResetTickets<BugTicket>();
+            handler.ClassFactory.Resolve<SupportManager>().ResetTickets<ComplaintTicket>();
+            handler.ClassFactory.Resolve<SupportManager>().ResetTickets<SuggestionTicket>();
+            handler.SendSysMessage(CypherStrings.CommandTicketreset);
 
             return true;
         }

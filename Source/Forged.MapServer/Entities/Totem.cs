@@ -185,8 +185,8 @@ public class Totem : Minion
 
             return;
         }
-        else
-            _duration -= diff;
+
+        _duration -= diff;
 
         base.Update(diff);
     }

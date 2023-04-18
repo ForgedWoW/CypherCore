@@ -49,8 +49,7 @@ public sealed class GameObjectManager
     private readonly MultiMap<uint, uint> _areaTriggerScriptStorage = new();
     private readonly Dictionary<uint, AreaTriggerStruct> _areaTriggerStorage = new();
 
-    private readonly float[] _armorMultipliers = new float[]
-    {
+    private readonly float[] _armorMultipliers = {
         0.00f, // INVTYPE_NON_EQUIP
         0.60f, // INVTYPE_HEAD
         0.00f, // INVTYPE_NECK
@@ -155,8 +154,7 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, PointOfInterestLocale> _pointOfInterestLocaleStorage = new();
     private readonly Dictionary<uint, PointOfInterest> _pointsOfInterestStorage = new();
 
-    private readonly float[] _qualityMultipliers = new float[]
-    {
+    private readonly float[] _qualityMultipliers = {
         0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f
     };
 
@@ -196,8 +194,7 @@ public sealed class GameObjectManager
     private readonly MultiMap<uint, VehicleAccessory> _vehicleTemplateAccessoryStore = new();
     private readonly Dictionary<uint, VehicleTemplate> _vehicleTemplateStore = new();
 
-    private readonly float[] _weaponMultipliers = new float[]
-    {
+    private readonly float[] _weaponMultipliers = {
         0.91f, // ITEM_SUBCLASS_WEAPON_AXE
         1.00f, // ITEM_SUBCLASS_WEAPON_AXE2
         1.00f, // ITEM_SUBCLASS_WEAPON_BOW
@@ -1401,8 +1398,8 @@ public sealed class GameObjectManager
 
         if (id == -1)
             return equip[RandomHelper.IRand(0, equip.Count - 1)].Item2;
-        else
-            return equip.Find(p => p.Item1 == id)?.Item2;
+
+        return equip.Find(p => p.Item1 == id)?.Item2;
     }
 
     public List<uint> GetExclusiveQuestGroupBounds(int exclusiveGroupId)
@@ -1807,8 +1804,8 @@ public sealed class GameObjectManager
 
         if (level <= _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
             return pInfo.LevelInfo[level - 1];
-        else
-            return BuildPlayerLevelInfo(race, @class, level);
+
+        return BuildPlayerLevelInfo(race, @class, level);
     }
 
     public PointOfInterest GetPointOfInterest(uint id)
@@ -2027,8 +2024,8 @@ public sealed class GameObjectManager
     {
         if (SpawnMetadata.TypeHasData(type))
             return GetSpawnData(type, spawnId);
-        else
-            return null;
+
+        return null;
     }
 
     public List<SpawnMetadata> GetSpawnMetadataForGroup(uint groupId)
@@ -2521,7 +2518,7 @@ public sealed class GameObjectManager
             _areaTriggerScriptStorage.AddUnique(id, GetScriptId(scriptName));
         } while (result.NextRow());
 
-        _areaTriggerScriptStorage.RemoveIfMatching((script) =>
+        _areaTriggerScriptStorage.RemoveIfMatching(script =>
         {
             var areaTriggerScriptLoaders = _scriptManager.CreateAreaTriggerScriptLoaders(script.Key);
 
@@ -6487,7 +6484,8 @@ public sealed class GameObjectManager
 
                 continue;
             }
-            else if (currentlevel < 1)
+
+            if (currentlevel < 1)
             {
                 Log.Logger.Error("Wrong (<1) level {0} in `pet_levelstats` table, ignoring.", currentlevel);
 
@@ -7185,7 +7183,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                PlayerInfo info = new();
+                PlayerInfo info = new(_configuration);
                 info.CreatePosition.Loc = new WorldLocation(mapId, positionX, positionY, positionZ, orientation);
 
                 if (!result.IsNull(7))
@@ -9855,7 +9853,8 @@ public sealed class GameObjectManager
 
                 continue;
             }
-            else if (data.SpawnGroupData.GroupId != 0)
+
+            if (data.SpawnGroupData.GroupId != 0)
             {
                 if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
@@ -11052,7 +11051,7 @@ public sealed class GameObjectManager
 
         uint count = 0;
 
-        _spellScriptsStorage.RemoveIfMatching((script) =>
+        _spellScriptsStorage.RemoveIfMatching(script =>
         {
             var spellEntry = _spellManager.GetSpellInfo(script.Key);
 
@@ -12303,7 +12302,8 @@ public sealed class GameObjectManager
 
                         continue;
                     }
-                    else if ((int)tmp.CastSpell.Flags == 4 && GetCreatureTemplate((uint)tmp.CastSpell.CreatureEntry) == null)
+
+                    if ((int)tmp.CastSpell.Flags == 4 && GetCreatureTemplate((uint)tmp.CastSpell.CreatureEntry) == null)
                     {
                         if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");

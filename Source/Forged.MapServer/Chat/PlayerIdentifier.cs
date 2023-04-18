@@ -51,8 +51,8 @@ internal class PlayerIdentifier
 
         if (fromTarget != null)
             return fromTarget;
-        else
-            return FromSelf(handler);
+
+        return FromSelf(handler);
     }
 
     public Player GetConnectedPlayer()
@@ -96,19 +96,17 @@ internal class PlayerIdentifier
 
             return next;
         }
-        else
-        {
-            _name = tempVal;
 
-            if (!GameObjectManager.NormalizePlayerName(ref _name))
-                return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameInvalid, _name));
+        _name = tempVal;
 
-            if ((_player = Global.ObjAccessor.FindPlayerByName(_name)) != null)
-                _guid = _player.GUID;
-            else if ((_guid = Global.CharacterCacheStorage.GetCharacterGuidByName(_name)).IsEmpty)
-                return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameNoExist, _name));
+        if (!GameObjectManager.NormalizePlayerName(ref _name))
+            return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameInvalid, _name));
 
-            return next;
-        }
+        if ((_player = Global.ObjAccessor.FindPlayerByName(_name)) != null)
+            _guid = _player.GUID;
+        else if ((_guid = Global.CharacterCacheStorage.GetCharacterGuidByName(_name)).IsEmpty)
+            return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameNoExist, _name));
+
+        return next;
     }
 }

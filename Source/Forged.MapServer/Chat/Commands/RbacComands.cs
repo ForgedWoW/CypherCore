@@ -15,7 +15,7 @@ internal class RbacComands
     private static RBACCommandData GetRBACData(AccountIdentifier account, CommandHandler handler)
     {
         if (account.IsConnected())
-            return new RBACCommandData()
+            return new RBACCommandData
             {
                 RBAC = account.GetConnectedSession().RBACData,
                 NeedDelete = false
@@ -24,7 +24,7 @@ internal class RbacComands
         RBACData rbac = new(account.GetID(), account.GetName(), (int)WorldManager.Realm.Id.Index, handler.AccountManager, handler.ClassFactory.Resolve<LoginDatabase>(), (byte)handler.AccountManager.GetSecurity(account.GetID(), (int)WorldManager.Realm.Id.Index));
         rbac.LoadFromDB();
 
-        return new RBACCommandData()
+        return new RBACCommandData
         {
             RBAC = rbac,
             NeedDelete = true

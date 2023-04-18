@@ -16,7 +16,7 @@ internal class LootItemPkt : ClientPacket
 
         for (uint i = 0; i < Count; ++i)
         {
-            var loot = new LootRequest()
+            var loot = new LootRequest
             {
                 Object = WorldPacket.ReadPackedGuid(),
                 LootListID = WorldPacket.ReadUInt8()

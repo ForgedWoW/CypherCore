@@ -24,6 +24,9 @@ public class TradeData
 
     public uint ClientStateIndex { get; private set; }
 
+    public bool HasSpellCastItem => !_spellCastItem.IsEmpty;
+    public bool IsAccepted { get; private set; }
+    public bool IsInAcceptProcess { get; private set; }
     public ulong Money { get; private set; }
 
     public uint ServerStateIndex { get; private set; }
@@ -35,13 +38,6 @@ public class TradeData
     public Player Trader { get; }
 
     public TradeData TraderData => Trader.TradeData;
-
-    public bool HasSpellCastItem => !_spellCastItem.IsEmpty;
-
-    public bool IsAccepted { get; private set; }
-
-    public bool IsInAcceptProcess { get; private set; }
-
     public Item GetItem(TradeSlots slot)
     {
         return !_items[(int)slot].IsEmpty ? _player.GetItemByGuid(_items[(int)slot]) : null;

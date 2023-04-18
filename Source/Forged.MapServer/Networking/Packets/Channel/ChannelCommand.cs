@@ -19,9 +19,6 @@ internal class ChannelCommand : ClientPacket
             case ClientOpcodes.ChatChannelList:
             case ClientOpcodes.ChatChannelOwner:
                 break;
-            default:
-                //ABORT();
-                break;
         }
     }
 

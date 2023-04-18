@@ -135,24 +135,22 @@ public class Weather
 
                 return true;
             }
-            else
+
+            if (_intensity > 0.6666667f)
             {
-                if (_intensity > 0.6666667f)
+                // Severe change, but how severe?
+                var rnd = RandomHelper.URand(0, 99);
+
+                if (rnd < 50)
                 {
-                    // Severe change, but how severe?
-                    var rnd = RandomHelper.URand(0, 99);
+                    _intensity -= 0.6666667f;
 
-                    if (rnd < 50)
-                    {
-                        _intensity -= 0.6666667f;
-
-                        return true;
-                    }
+                    return true;
                 }
-
-                _type = WeatherType.Fine; // clear up
-                _intensity = 0;
             }
+
+            _type = WeatherType.Fine; // clear up
+            _intensity = 0;
         }
 
         // At this point, only weather that isn't doing anything remains but that have weather data

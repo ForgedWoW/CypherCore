@@ -338,7 +338,7 @@ public partial class Spell : IDisposable
     public List<SpellPowerCost> PowerCost { get; private set; } = new();
     public Spell SelfContainer { get; set; }
     public SpellInfo SpellInfo { get; set; }
-    public SpellMisc SpellMisc { get; set; }
+    public SpellMisc SpellMisc;
     public SpellValue SpellValue { get; set; }
     public SpellState State { get; set; }
     public SpellMissInfo TargetMissInfo { get; set; }
@@ -2117,7 +2117,7 @@ public partial class Spell : IDisposable
     public void DoSpellEffectHit(Unit unit, SpellEffectInfo spellEffectInfo, TargetInfo hitInfo)
     {
         var auraEffmask = Aura.BuildEffectMaskForOwner(SpellInfo,
-                                                       new HashSet<int>()
+                                                       new HashSet<int>
                                                        {
                                                            spellEffectInfo.EffectIndex
                                                        },
@@ -2741,7 +2741,7 @@ public partial class Spell : IDisposable
                                 target,
                                 duration,
                                 positive,
-                                new HashSet<int>()
+                                new HashSet<int>
                                 {
                                     effIndex
                                 });
@@ -4074,7 +4074,7 @@ public partial class Spell : IDisposable
     private void AddCorpseTarget(Corpse corpse, int effIndex)
     {
         AddCorpseTarget(corpse,
-                        new HashSet<int>()
+                        new HashSet<int>
                         {
                             effIndex
                         });
@@ -4146,7 +4146,7 @@ public partial class Spell : IDisposable
     private void AddGOTarget(GameObject go, int effIndex)
     {
         AddGOTarget(go,
-                    new HashSet<int>()
+                    new HashSet<int>
                     {
                         effIndex
                     });
@@ -4214,7 +4214,7 @@ public partial class Spell : IDisposable
     private void AddItemTarget(Item item, int effectIndex)
     {
         AddItemTarget(item,
-                      new HashSet<int>()
+                      new HashSet<int>
                       {
                           effectIndex
                       });
@@ -4274,7 +4274,7 @@ public partial class Spell : IDisposable
     private void AddUnitTarget(Unit target, int effIndex, bool checkIfValid = true, bool @implicit = true, Position losPosition = null)
     {
         AddUnitTarget(target,
-                      new HashSet<int>()
+                      new HashSet<int>
                       {
                           effIndex
                       },
@@ -7381,7 +7381,7 @@ public partial class Spell : IDisposable
         SelectImplicitChainTargets(spellEffectInfo,
                                    targetType,
                                    target,
-                                   new HashSet<int>()
+                                   new HashSet<int>
                                    {
                                        effIndex
                                    });
@@ -8805,7 +8805,7 @@ public partial class Spell : IDisposable
             {
                 ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
 
-                var stageZero = new SpellEmpowerSetStage()
+                var stageZero = new SpellEmpowerSetStage
                 {
                     Stage = 0,
                     Caster = p.GUID,
@@ -8828,7 +8828,7 @@ public partial class Spell : IDisposable
                     _empoweredSpellStage = nextStageId;
                     _empoweredSpellDelta -= stageinfo.DurationMs;
 
-                    var stageUpdate = new SpellEmpowerSetStage()
+                    var stageUpdate = new SpellEmpowerSetStage
                     {
                         Stage = 0,
                         Caster = p.GUID,

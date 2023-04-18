@@ -66,13 +66,13 @@ internal class MoveSetCompoundState : ServerPacket
             data.WriteBit(KnockBack.HasValue);
             data.WriteBit(VehicleRecID.HasValue);
             data.WriteBit(CollisionHeight.HasValue);
-            data.WriteBit(@MovementForce != null);
+            data.WriteBit(MovementForce != null);
             data.WriteBit(MovementForceGUID.HasValue);
             data.WriteBit(MovementInertiaID.HasValue);
             data.WriteBit(MovementInertiaLifetimeMs.HasValue);
             data.FlushBits();
 
-            @MovementForce?.Write(data);
+            MovementForce?.Write(data);
 
             if (Speed.HasValue)
                 data.WriteFloat(Speed.Value);

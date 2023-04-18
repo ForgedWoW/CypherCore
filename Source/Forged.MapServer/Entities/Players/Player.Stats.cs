@@ -133,7 +133,7 @@ public partial class Player
 
         MathFunctions.AddPct(ref versaDmgMod, GetRatingBonusValue(CombatRating.VersatilityDamageDone) + (float)GetTotalAuraModifier(AuraType.ModVersatility));
 
-        if (CliDB.SpellShapeshiftFormStorage.TryGetValue(ShapeshiftForm, out var shapeshift))
+        if (CliDB.SpellShapeshiftFormStorage.TryGetValue((uint)ShapeshiftForm, out var shapeshift))
         {
             weaponMinDamage = weaponMinDamage * shapeshift.CombatRoundTime / 1000.0f / attackPowerMod;
             weaponMaxDamage = weaponMaxDamage * shapeshift.CombatRoundTime / 1000.0f / attackPowerMod;
@@ -249,10 +249,7 @@ public partial class Player
 
         SetArmor((int)value, (int)(value - baseValue));
 
-        var pet = CurrentPet;
-
-        if (pet)
-            pet.UpdateArmor();
+        CurrentPet?.UpdateArmor();
 
         UpdateAttackPowerAndDamage(); // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
     }
@@ -328,7 +325,7 @@ public partial class Player
             UpdateDamagePhysical(WeaponAttackType.BaseAttack);
             var offhand = GetWeaponForAttack(WeaponAttackType.OffAttack, true);
 
-            if (offhand)
+            if (offhand != null)
                 if (CanDualWield || offhand.Template.HasFlag(ItemFlags3.AlwaysAllowDualWield))
                     UpdateDamagePhysical(WeaponAttackType.OffAttack);
 
@@ -1043,7 +1040,7 @@ public partial class Player
                 continue;
             }
 
-            if (CliDB.PlayerConditionStorage.TryGetValue(corruptionEffect.PlayerConditionID, out var playerCondition))
+            if (CliDB.PlayerConditionStorage.TryGetValue((uint)corruptionEffect.PlayerConditionID, out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                 {
                     RemoveAura(corruptionEffect.Aura);

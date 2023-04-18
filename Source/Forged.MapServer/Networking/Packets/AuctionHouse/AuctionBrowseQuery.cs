@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
@@ -37,7 +38,7 @@ internal class AuctionBrowseQuery : ClientPacket
         var sizeLimit = CliDB.BattlePetSpeciesStorage.GetNumRows() / 8 + 1;
 
         if (knownPetSize >= sizeLimit)
-            throw new global::System.Exception($"Attempted to read more array elements from packet {knownPetSize} than allowed {sizeLimit}");
+            throw new Exception($"Attempted to read more array elements from packet {knownPetSize} than allowed {sizeLimit}");
 
         KnownPets = new byte[knownPetSize];
 

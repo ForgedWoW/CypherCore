@@ -18,10 +18,8 @@ public class SceneMgr
 {
     private readonly List<ServerPacket> _delayedScenes = new();
     private readonly GameObjectManager _gameObjectManager;
-    private readonly Dictionary<uint, SceneTemplate> _scenesByInstance = new();
     private readonly DB6Storage<SceneScriptPackageRecord> _sceneScriptPackageRecords;
     private readonly ScriptManager _scriptManager;
-    private bool _isDebuggingScenes;
     private uint _standaloneSceneInstanceId;
 
     public SceneMgr(Player player, ScriptManager scriptManager, GameObjectManager gameObjectManager, DB6Storage<SceneScriptPackageRecord> sceneScriptPackageRecords)
@@ -31,16 +29,18 @@ public class SceneMgr
         _sceneScriptPackageRecords = sceneScriptPackageRecords;
         Player = player;
         _standaloneSceneInstanceId = 0;
-        _isDebuggingScenes = false;
+        IsInDebugSceneMode = false;
     }
 
+    public bool IsInDebugSceneMode { get; private set; }
+    public Dictionary<uint, SceneTemplate> SceneTemplateByInstanceMap { get; } = new();
     private Player Player { get; }
 
     public void CancelSceneByPackageId(uint sceneScriptPackageId)
     {
         List<uint> instancesIds = new();
 
-        foreach (var sceneTemplate in _scenesByInstance)
+        foreach (var sceneTemplate in SceneTemplateByInstanceMap)
             if (sceneTemplate.Value.ScenePackageId == sceneScriptPackageId)
                 instancesIds.Add(sceneTemplate.Key);
 
@@ -52,7 +52,7 @@ public class SceneMgr
     {
         List<uint> instancesIds = new();
 
-        foreach (var pair in _scenesByInstance)
+        foreach (var pair in SceneTemplateByInstanceMap)
             if (pair.Value.SceneId == sceneId)
                 instancesIds.Add(pair.Key);
 
@@ -64,21 +64,11 @@ public class SceneMgr
     {
         uint activeSceneCount = 0;
 
-        foreach (var sceneTemplate in _scenesByInstance.Values)
+        foreach (var sceneTemplate in SceneTemplateByInstanceMap.Values)
             if (sceneScriptPackageId == 0 || sceneTemplate.ScenePackageId == sceneScriptPackageId)
                 ++activeSceneCount;
 
         return activeSceneCount;
-    }
-
-    public Dictionary<uint, SceneTemplate> GetSceneTemplateByInstanceMap()
-    {
-        return _scenesByInstance;
-    }
-
-    public bool IsInDebugSceneMode()
-    {
-        return _isDebuggingScenes;
     }
 
     public void OnSceneCancel(uint sceneInstanceId)
@@ -86,7 +76,7 @@ public class SceneMgr
         if (!HasScene(sceneInstanceId))
             return;
 
-        if (_isDebuggingScenes)
+        if (IsInDebugSceneMode)
             Player.SendSysMessage(CypherStrings.CommandSceneDebugCancel, sceneInstanceId);
 
         var sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceId);
@@ -111,7 +101,7 @@ public class SceneMgr
         if (!HasScene(sceneInstanceId))
             return;
 
-        if (_isDebuggingScenes)
+        if (IsInDebugSceneMode)
             Player.SendSysMessage(CypherStrings.CommandSceneDebugComplete, sceneInstanceId);
 
         var sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceId);
@@ -133,7 +123,7 @@ public class SceneMgr
         if (!HasScene(sceneInstanceId))
             return;
 
-        if (_isDebuggingScenes)
+        if (IsInDebugSceneMode)
             Player.SendSysMessage(CypherStrings.CommandSceneDebugTrigger, sceneInstanceId, triggerName);
 
         var sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceId);
@@ -174,7 +164,7 @@ public class SceneMgr
 
         var sceneInstanceId = GetNewStandaloneSceneInstanceId();
 
-        if (_isDebuggingScenes)
+        if (IsInDebugSceneMode)
             Player.SendSysMessage(CypherStrings.CommandSceneDebugPlay, sceneInstanceId, sceneTemplate.ScenePackageId, sceneTemplate.PlaybackFlags);
 
         PlayScene playScene = new()
@@ -204,7 +194,7 @@ public class SceneMgr
 
     public void ToggleDebugSceneMode()
     {
-        _isDebuggingScenes = !_isDebuggingScenes;
+        IsInDebugSceneMode = !IsInDebugSceneMode;
     }
 
     public void TriggerDelayedScenes()
@@ -217,7 +207,7 @@ public class SceneMgr
 
     private void AddInstanceIdToSceneMap(uint sceneInstanceId, SceneTemplate sceneTemplate)
     {
-        _scenesByInstance[sceneInstanceId] = sceneTemplate;
+        SceneTemplateByInstanceMap[sceneInstanceId] = sceneTemplate;
     }
 
     private void CancelScene(uint sceneInstanceId, bool removeFromMap = true)
@@ -240,12 +230,12 @@ public class SceneMgr
 
     private SceneTemplate GetSceneTemplateFromInstanceId(uint sceneInstanceId)
     {
-        return _scenesByInstance.LookupByKey(sceneInstanceId);
+        return SceneTemplateByInstanceMap.LookupByKey(sceneInstanceId);
     }
 
     private bool HasScene(uint sceneInstanceId, uint sceneScriptPackageId = 0)
     {
-        if (_scenesByInstance.TryGetValue(sceneInstanceId, out var sceneTempalte))
+        if (SceneTemplateByInstanceMap.TryGetValue(sceneInstanceId, out var sceneTempalte))
             return sceneScriptPackageId == 0 || sceneScriptPackageId == sceneTempalte.ScenePackageId;
 
         return false;
@@ -266,6 +256,6 @@ public class SceneMgr
 
     private void RemoveSceneInstanceId(uint sceneInstanceId)
     {
-        _scenesByInstance.Remove(sceneInstanceId);
+        SceneTemplateByInstanceMap.Remove(sceneInstanceId);
     }
 }

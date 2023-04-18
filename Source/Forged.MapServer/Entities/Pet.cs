@@ -14,7 +14,6 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.Pet;
 using Forged.MapServer.Networking.Packets.Spell;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
@@ -345,8 +344,8 @@ public class Pet : Guardian
     {
         if (pos >= _autospells.Count)
             return 0;
-        else
-            return _autospells[pos];
+
+        return _autospells[pos];
     }
 
     public void GivePetLevel(int level)
@@ -729,7 +728,7 @@ public class Pet : Guardian
                  {
                      var result = holder.GetResult(PetLoginQueryLoad.DeclinedNames);
 
-                     if (!SQLEx.IsEmpty(result))
+                     if (!result.IsEmpty())
                      {
                          _declinedname = new DeclinedName();
 
@@ -1432,8 +1431,8 @@ public class Pet : Guardian
                         break;
                     }
                     // ignore new lesser rank
-                    else
-                        return false;
+
+                    return false;
                 }
             }
 

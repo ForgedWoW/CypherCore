@@ -178,8 +178,8 @@ internal class Hyperlink
 
         if (token.IsEmpty()) /* empty token = first character is delimiter, skip past it */
             return new ChatCommandResult(next);
-        else
-            return new ChatCommandResult(info.Tail);
+
+        return new ChatCommandResult(info.Tail);
     }
 
     private static byte ToHex(char c)

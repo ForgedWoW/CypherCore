@@ -1091,12 +1091,10 @@ public class PlayerGroup
             return true;
         }
         // If group size before player removal <= 2 then disband it
-        else
-        {
-            Disband();
 
-            return false;
-        }
+        Disband();
+
+        return false;
     }
 
     public void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag)

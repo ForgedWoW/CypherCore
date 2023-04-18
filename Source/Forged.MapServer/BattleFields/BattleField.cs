@@ -286,8 +286,8 @@ public class BattleField : ZoneScript
 
             if (graveyard != null)
                 return graveyard;
-            else
-                Log.Logger.Error("Battlefield:GetGraveyardById Id: {0} not existed", id);
+
+            Log.Logger.Error("Battlefield:GetGraveyardById Id: {0} not existed", id);
         }
         else
         {
@@ -754,10 +754,7 @@ public class BattleField : ZoneScript
                 {
                     InvitePlayerToWar(player);
                 }
-                else
-                {
-                    //Full
-                }
+                //Full
             }
 
             PlayersInQueue[team].Clear();

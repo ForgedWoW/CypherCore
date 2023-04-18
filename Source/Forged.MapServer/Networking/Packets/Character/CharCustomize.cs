@@ -22,7 +22,7 @@ public class CharCustomize : ClientPacket
         var customizationCount = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < customizationCount; ++i)
-            CustomizeInfo.Customizations[i] = new ChrCustomizationChoice()
+            CustomizeInfo.Customizations[i] = new ChrCustomizationChoice
             {
                 ChrCustomizationOptionID = WorldPacket.ReadUInt32(),
                 ChrCustomizationChoiceID = WorldPacket.ReadUInt32()

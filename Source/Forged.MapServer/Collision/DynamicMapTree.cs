@@ -90,8 +90,8 @@ public class DynamicMapTree
 
         if (callback.DidHit)
             return v.Z - maxSearchDist;
-        else
-            return float.NegativeInfinity;
+
+        return float.NegativeInfinity;
     }
 
     public bool GetIntersectionTime(Ray ray, Vector3 endPos, PhaseShift phaseShift, ref float maxDist)

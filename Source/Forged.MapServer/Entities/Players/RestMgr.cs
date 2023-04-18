@@ -3,6 +3,7 @@
 
 using Forged.MapServer.Chrono;
 using Framework.Constants;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -11,7 +12,6 @@ public class RestMgr
 {
     private readonly Player _player;
     private readonly double[] _restBonus = new double[(int)RestTypes.Max];
-    private uint _innAreaTriggerId;
     private RestFlag _restFlagMask;
     private long _restTime;
 
@@ -20,10 +20,12 @@ public class RestMgr
         _player = player;
     }
 
+    public uint InnTriggerId { get; private set; }
+
     public void AddRestBonus(RestTypes restType, double restBonus)
     {
         // Don't add extra rest bonus to max level players. Note: Might need different condition in next expansion for honor XP (PLAYER_LEVEL_MIN_HONOR perhaps).
-        if (_player.Level >= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+        if (_player.Level >= _player.Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
             restBonus = 0;
 
         var totalRestBonus = GetRestBonus(restType) + restBonus;
@@ -38,11 +40,6 @@ public class RestMgr
             RestTypes.XP    => _player.ActivePlayerData.NextLevelXP / 72000.0f * bubble,
             _               => 0.0f
         };
-    }
-
-    public uint GetInnTriggerId()
-    {
-        return _innAreaTriggerId;
     }
 
     public double GetRestBonus(RestTypes restType)
@@ -91,11 +88,11 @@ public class RestMgr
         var oldRestMask = _restFlagMask;
         _restFlagMask &= ~restFlag;
 
-        if (oldRestMask != 0 && _restFlagMask == 0) // only remove Id/time on the last rest state remove
-        {
-            _restTime = 0;
-            _player.RemovePlayerFlag(PlayerFlags.Resting);
-        }
+        if (oldRestMask == 0 || _restFlagMask != 0) // only remove Id/time on the last rest state remove
+            return;
+
+        _restTime = 0;
+        _player.RemovePlayerFlag(PlayerFlags.Resting);
     }
 
     public void SetRestBonus(RestTypes restType, double restBonus)
@@ -107,13 +104,14 @@ public class RestMgr
         {
             case RestTypes.XP:
                 // Reset restBonus (XP only) for max level players
-                if (_player.Level >= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+                if (_player.Level >= _player.Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
                     restBonus = 0;
 
                 nextLevelXp = _player.ActivePlayerData.NextLevelXP;
                 affectedByRaF = true;
 
                 break;
+
             case RestTypes.Honor:
                 // Reset restBonus (Honor only) for players with max honor level.
                 if (_player.IsMaxHonorLevel)
@@ -122,6 +120,7 @@ public class RestMgr
                 nextLevelXp = _player.ActivePlayerData.HonorNextLevel;
 
                 break;
+
             default:
                 return;
         }
@@ -165,22 +164,22 @@ public class RestMgr
         }
 
         if (triggerId != 0)
-            _innAreaTriggerId = triggerId;
+            InnTriggerId = triggerId;
     }
 
     public void Update(uint now)
     {
-        if (RandomHelper.randChance(3) && _restTime > 0) // freeze update
-        {
-            var timeDiff = now - _restTime;
+        if (!RandomHelper.randChance(3) || _restTime <= 0) // freeze update
+            return;
 
-            if (timeDiff >= 10)
-            {
-                _restTime = now;
+        var timeDiff = now - _restTime;
 
-                var bubble = 0.125f * GetDefaultValue("Rate:Rest:InGame", 1.0f);
-                AddRestBonus(RestTypes.XP, timeDiff * CalcExtraPerSec(RestTypes.XP, bubble));
-            }
-        }
+        if (timeDiff < 10)
+            return;
+
+        _restTime = now;
+
+        var bubble = 0.125f * _player.Configuration.GetDefaultValue("Rate:Rest:InGame", 1.0f);
+        AddRestBonus(RestTypes.XP, timeDiff * CalcExtraPerSec(RestTypes.XP, bubble));
     }
 }

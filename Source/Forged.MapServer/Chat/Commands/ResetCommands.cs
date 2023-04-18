@@ -225,7 +225,8 @@ internal class ResetCommands
             */
             return true;
         }
-        else if (!player.GetGUID().IsEmpty)
+
+        if (!player.GetGUID().IsEmpty)
         {
             var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
             stmt.AddValue(0, (ushort)(AtLoginFlags.None | AtLoginFlags.ResetPetTalents));

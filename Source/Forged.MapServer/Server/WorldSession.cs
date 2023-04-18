@@ -5,6 +5,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +22,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Guilds;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
@@ -142,7 +145,7 @@ public class WorldSession : IDisposable
         _antiDos = _classFactory.ResolvePositional<DosProtection>(this);
 
         _recvQueue = new ActionBlock<WorldPacket>(ProcessQueue,
-                                                  new ExecutionDataflowBlockOptions()
+                                                  new ExecutionDataflowBlockOptions
                                                   {
                                                       MaxDegreeOfParallelism = 10,
                                                       EnsureOrdered = true,
@@ -237,8 +240,8 @@ public class WorldSession : IDisposable
     {
         if (_configuration.GetDefaultValue("CharacterCreating:DisableAlliedRaceAchievementRequirement", false))
             return true;
-        else
-            return AccountExpansion >= Expansion.BattleForAzeroth;
+
+        return AccountExpansion >= Expansion.BattleForAzeroth;
     }
 
     public bool DisallowHyperlinksAndMaybeKick(string str)
@@ -254,7 +257,7 @@ public class WorldSession : IDisposable
         return false;
     }
 
-    public void DoLootRelease(LootManagement.Loot loot)
+    public void DoLootRelease(Loot loot)
     {
         var lguid = loot.OwnerGuid;
         var player = Player;
@@ -812,7 +815,7 @@ public class WorldSession : IDisposable
 
     public void SendConnectToInstance(ConnectToSerial serial)
     {
-        var instanceAddress = _realm.GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
+        var instanceAddress = _realm.GetAddressForClient(IPAddress.Parse(RemoteAddress));
 
         _instanceConnectKey.AccountId = AccountId;
         _instanceConnectKey.ConnectionType = ConnectionType.Instance;
@@ -829,7 +832,7 @@ public class WorldSession : IDisposable
             Con = (byte)ConnectionType.Instance
         };
 
-        if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+        if (instanceAddress.AddressFamily == AddressFamily.InterNetwork)
         {
             connectTo.Payload.Where.IPv4 = instanceAddress.Address.GetAddressBytes();
             connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv4;

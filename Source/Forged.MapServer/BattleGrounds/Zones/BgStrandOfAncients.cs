@@ -251,7 +251,8 @@ public class BgStrandOfAncients : Battleground
 
             return;
         }
-        else if (_status == SaStatus.SecondWarmup)
+
+        if (_status == SaStatus.SecondWarmup)
         {
             if (_roundScores[0].Time < SaTimers.ROUND_LENGTH)
                 _endRoundTimer = _roundScores[0].Time;
@@ -295,7 +296,8 @@ public class BgStrandOfAncients : Battleground
 
             return;
         }
-        else if (Status == BattlegroundStatus.InProgress)
+
+        if (Status == BattlegroundStatus.InProgress)
         {
             if (_status == SaStatus.RoundOne)
             {
@@ -506,9 +508,6 @@ public class BgStrandOfAncients : Battleground
                     return false;
 
                 break;
-            default:
-                //ABORT();
-                break;
         }
 
         return true;
@@ -641,9 +640,6 @@ public class BgStrandOfAncients : Battleground
             }
 
                 break;
-            default:
-                //ABORT();
-                break;
         }
     }
 
@@ -739,8 +735,6 @@ public class BgStrandOfAncients : Battleground
             if (!AddObject(i, SaMiscConst.ObjEntries[i], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn BG_SA_PORTAL_DEFFENDER_RED, Entry: {SaMiscConst.ObjEntries[i]}");
-
-                continue;
             }
 
         for (var i = SaObjectTypes.BOAT_ONE; i <= SaObjectTypes.BOAT_TWO; i++)
@@ -765,8 +759,6 @@ public class BgStrandOfAncients : Battleground
                            BattlegroundConst.RespawnOneDay))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn one of the BG_SA_BOAT, Entry: {boatid}");
-
-                continue;
             }
         }
 
@@ -774,8 +766,6 @@ public class BgStrandOfAncients : Battleground
             if (!AddObject(i, SaMiscConst.ObjEntries[i], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn Sigil, Entry: {SaMiscConst.ObjEntries[i]}");
-
-                continue;
             }
 
         // MAD props for Kiper for discovering those values - 4 hours of his work.
@@ -790,8 +780,6 @@ public class BgStrandOfAncients : Battleground
             if (!AddCreature(SaMiscConst.NpcEntries[i], i, SaMiscConst.NpcSpawnlocs[i], _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn Cannon or demolisher, Entry: {SaMiscConst.NpcEntries[i]}, Attackers: {(_attackers == TeamIds.Alliance ? "Horde(1)" : "Alliance(0)")}");
-
-                continue;
             }
 
         OverrideGunFaction();

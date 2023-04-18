@@ -53,7 +53,7 @@ public class CliDB
     public BitSet LoadStores(string dataPath, Locale defaultLocale, ContainerBuilder builder)
     {
         ActionBlock<Action> taskManager = new(a => a(),
-                                              new ExecutionDataflowBlockOptions()
+                                              new ExecutionDataflowBlockOptions
                                               {
                                                   MaxDegreeOfParallelism = 20
                                               });
@@ -425,7 +425,7 @@ public class CliDB
 
         _db2Manager.LoadStores(this);
 #if DEBUG
-        Log.Logger.Information($"DB2  TableHash");
+        Log.Logger.Information("DB2  TableHash");
 
         foreach (var kvp in _db2Manager.Storage)
             if (kvp.Value != null)

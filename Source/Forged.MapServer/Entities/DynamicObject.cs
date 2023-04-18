@@ -8,7 +8,6 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Networking;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IDynamicObject;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
@@ -307,8 +306,8 @@ public class DynamicObject : WorldObject
     {
         if (_aura == null)
             return _duration;
-        else
-            return _aura.Duration;
+
+        return _aura.Duration;
     }
 
     private void RemoveAura()

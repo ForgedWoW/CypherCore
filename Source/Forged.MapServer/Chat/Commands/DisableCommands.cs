@@ -64,7 +64,7 @@ internal class DisableCommands
             {
                 case DisableType.Spell:
                 {
-                    if (!handler.ClassFactory.Resolve<SpellManager>().HasSpellInfo(entry, Difficulty.None))
+                    if (!handler.ClassFactory.Resolve<SpellManager>().HasSpellInfo(entry))
                     {
                         handler.SendSysMessage(CypherStrings.CommandNospellfound);
 

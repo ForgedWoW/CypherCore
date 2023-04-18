@@ -20,13 +20,11 @@ public class BgData
     public long BgAfkReportedTimer { get; set; }
     public List<ObjectGuid> BgAfkReporter { get; set; } = new();
     public uint BgInstanceId { get; set; } //< This variable is set to bg.m_InstanceID,
-
     public uint BgTeam { get; set; }
 
     //  when player is teleported to BG - (it is Battleground's GUID)
     public BattlegroundTypeId BgTypeId { get; set; }
-    //< What side the player will be added to
-
+    public bool HasTaxiPath => TaxiPath[0] != 0 && TaxiPath[1] != 0;
     public WorldLocation JoinPos { get; set; }
     public uint MountSpell { get; set; }
     public uint[] TaxiPath { get; set; } = new uint[2];
@@ -35,10 +33,5 @@ public class BgData
     public void ClearTaxiPath()
     {
         TaxiPath[0] = TaxiPath[1] = 0;
-    }
-
-    public bool HasTaxiPath()
-    {
-        return TaxiPath[0] != 0 && TaxiPath[1] != 0;
     }
 }

@@ -169,8 +169,6 @@ internal class WardenWin : Warden
 
                     break;
                 }
-                default: // Should never happen
-                    break;
             }
         }
 

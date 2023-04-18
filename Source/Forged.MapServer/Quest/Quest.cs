@@ -807,7 +807,7 @@ public class Quest
         var spellId = fields.Read<uint>(1);
         var playerConditionId = fields.Read<uint>(2);
 
-        if (!_spellManager.HasSpellInfo(spellId, Difficulty.None))
+        if (!_spellManager.HasSpellInfo(spellId))
         {
             Log.Logger.Error($"Table `quest_reward_display_spell` has non-existing Spell ({spellId}) set for quest {Id}. Skipped.");
 

@@ -28,7 +28,7 @@ public class CharRaceOrFactionChange : ClientPacket
         RaceOrFactionChangeInfo.Name = WorldPacket.ReadString(nameLength);
 
         for (var i = 0; i < customizationCount; ++i)
-            RaceOrFactionChangeInfo.Customizations[i] = new ChrCustomizationChoice()
+            RaceOrFactionChangeInfo.Customizations[i] = new ChrCustomizationChoice
             {
                 ChrCustomizationOptionID = WorldPacket.ReadUInt32(),
                 ChrCustomizationChoiceID = WorldPacket.ReadUInt32()

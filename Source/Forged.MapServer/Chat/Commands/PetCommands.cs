@@ -99,7 +99,7 @@ internal class PetCommands
             return false;
         }
 
-        if (spellId == 0 || !handler.ClassFactory.Resolve<SpellManager>().HasSpellInfo(spellId, Difficulty.None))
+        if (spellId == 0 || !handler.ClassFactory.Resolve<SpellManager>().HasSpellInfo(spellId))
             return false;
 
         // Check if pet already has it
@@ -111,7 +111,7 @@ internal class PetCommands
         }
 
         // Check if spell is valid
-        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId);
 
         if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo))
         {

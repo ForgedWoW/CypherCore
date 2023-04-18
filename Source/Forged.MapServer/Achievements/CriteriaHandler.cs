@@ -2665,7 +2665,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerHasMount: // 183
             {
-                foreach (var pair in referencePlayer.Session.CollectionMgr.GetAccountMounts())
+                foreach (var pair in referencePlayer.Session.CollectionMgr.AccountMounts)
                 {
                     var mount = DB2Manager.GetMount(pair.Key);
 
@@ -2751,7 +2751,7 @@ public class CriteriaHandler
                 return false;
 
             case ModifierTreeType.PlayerHasHeirloom: // 197
-                if (!referencePlayer.Session.CollectionMgr.GetAccountHeirlooms().ContainsKey(reqValue))
+                if (!referencePlayer.Session.CollectionMgr.AccountHeirlooms.ContainsKey(reqValue))
                     return false;
 
                 break;

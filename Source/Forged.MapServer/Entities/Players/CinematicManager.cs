@@ -17,8 +17,7 @@ public class CinematicManager : IDisposable
 
     // Remote location information
     private readonly Player _player;
-
-    private readonly Position _remoteSightPosition;
+    
     private TempSummon _cinematicObject;
 
     public CinematicManager(Player playerref, M2Storage m2Storage)
@@ -26,7 +25,6 @@ public class CinematicManager : IDisposable
         _player = playerref;
         _m2Storage = m2Storage;
         ActiveCinematicCameraIndex = -1;
-        _remoteSightPosition = new Position();
     }
 
     public CinematicSequencesRecord ActiveCinematic { get; set; }
@@ -34,13 +32,8 @@ public class CinematicManager : IDisposable
     public List<FlyByCamera> CinematicCamera { get; set; }
     public uint CinematicDiff { get; set; }
     public uint CinematicLength { get; set; }
+    public bool IsOnCinematic => CinematicCamera != null;
     public uint LastCinematicCheck { get; set; }
-
-    public virtual void Dispose()
-    {
-        if (CinematicCamera != null && ActiveCinematic != null)
-            EndCinematic();
-    }
 
     public void BeginCinematic(CinematicSequencesRecord cinematic)
     {
@@ -48,6 +41,11 @@ public class CinematicManager : IDisposable
         ActiveCinematicCameraIndex = -1;
     }
 
+    public virtual void Dispose()
+    {
+        if (CinematicCamera != null && ActiveCinematic != null)
+            EndCinematic();
+    }
     public void EndCinematic()
     {
         if (ActiveCinematic == null)
@@ -68,11 +66,6 @@ public class CinematicManager : IDisposable
                 _player.SetViewpoint(_cinematicObject, false);
 
         _cinematicObject.Location.AddObjectToRemoveList();
-    }
-
-    public bool IsOnCinematic()
-    {
-        return CinematicCamera != null;
     }
 
     public void NextCinematicCamera()

@@ -582,7 +582,6 @@ public class Guardian : Minion
                     mod = 0.7f;
 
                     break; // Default Owner's Strength scale
-                default: break;
             }
 
             ownersBonus = owner.GetStat(stat) * mod;

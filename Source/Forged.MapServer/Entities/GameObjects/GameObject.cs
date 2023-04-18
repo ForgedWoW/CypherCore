@@ -2404,7 +2404,8 @@ public class GameObject : WorldObject
 
                     return;
                 }
-                else if (!OwnerGUID.IsEmpty || SpellId != 0)
+
+                if (!OwnerGUID.IsEmpty || SpellId != 0)
                 {
                     SetRespawnTime(0);
                     Delete();

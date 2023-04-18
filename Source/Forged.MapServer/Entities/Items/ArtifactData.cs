@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Entities.Items;
 
-internal class ArtifactData
+public class ArtifactData
 {
     public uint ArtifactAppearanceId { get; set; }
     public List<ArtifactPowerData> ArtifactPowers { get; set; } = new();

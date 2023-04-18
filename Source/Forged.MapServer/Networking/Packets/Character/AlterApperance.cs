@@ -20,7 +20,7 @@ public class AlterApperance : ClientPacket
         CustomizedRace = WorldPacket.ReadInt32();
 
         for (var i = 0; i < customizationCount; ++i)
-            Customizations[i] = new ChrCustomizationChoice()
+            Customizations[i] = new ChrCustomizationChoice
             {
                 ChrCustomizationOptionID = WorldPacket.ReadUInt32(),
                 ChrCustomizationChoiceID = WorldPacket.ReadUInt32()

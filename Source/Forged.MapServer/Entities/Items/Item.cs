@@ -10,6 +10,7 @@ using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Artifact;
 using Forged.MapServer.Networking.Packets.Item;
@@ -95,7 +96,7 @@ public class Item : WorldObject
     public Bag Container { get; private set; }
     public uint Count => ItemData.StackCount;
     public ObjectGuid Creator => ItemData.Creator;
-    public ItemEffectRecord[] Effects => BonusData.Effects[0..BonusData.EffectCount];
+    public ItemEffectRecord[] Effects => BonusData.Effects[..BonusData.EffectCount];
     public ObjectGuid GiftCreator => ItemData.GiftCreator;
     public bool IsAzeriteEmpoweredItem => TypeId == TypeId.AzeriteEmpoweredItem;
     public bool IsAzeriteItem => TypeId == TypeId.AzeriteItem;
@@ -134,7 +135,7 @@ public class Item : WorldObject
     public ItemData ItemData { get; set; }
 
     public uint ItemRandomBonusListId { get; private set; }
-    public LootManagement.Loot Loot { get; set; }
+    public Loot Loot { get; set; }
     public bool LootGenerated { get; set; }
     public uint MaxStackCount => Template.MaxStackSize;
     public override ObjectGuid OwnerGUID => ItemData.Owner;
@@ -488,8 +489,8 @@ public class Item : WorldObject
 
             return 0;
         }
-        else
-            return proto.SellPrice;
+
+        return proto.SellPrice;
     }
 
     //Static
@@ -1217,7 +1218,7 @@ public class Item : WorldObject
         return 0f;
     }
 
-    public override LootManagement.Loot GetLootForPlayer(Player player)
+    public override Loot GetLootForPlayer(Player player)
     {
         return Loot;
     }
@@ -1510,7 +1511,8 @@ public class Item : WorldObject
                 Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponMainhand)) ||
                 Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponOffhand)))
                 return true;
-            else if ((spellInfo.EquippedItemInventoryTypeMask & (1 << (int)proto.InventoryType)) == 0)
+
+            if ((spellInfo.EquippedItemInventoryTypeMask & (1 << (int)proto.InventoryType)) == 0)
                 return false; // inventory type not present in mask
         }
 

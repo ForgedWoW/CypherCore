@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Forged.MapServer.DataStorage;
@@ -17,7 +18,6 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Movement.Generators;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.AreaTrigger;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces;
 using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
@@ -706,7 +706,7 @@ public class AreaTrigger : WorldObject
         return true;
     }
 
-    [System.Diagnostics.Conditional("DEBUG")]
+    [Conditional("DEBUG")]
     private void DebugVisualizePosition()
     {
         var caster = GetCaster();

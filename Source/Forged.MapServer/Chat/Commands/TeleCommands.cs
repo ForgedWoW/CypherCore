@@ -35,7 +35,7 @@ internal class TeleCommands
 
             var chrNameLink = handler.PlayerLink(target.GetName());
 
-            if (target.IsBeingTeleported == true)
+            if (target.IsBeingTeleported)
             {
                 handler.SendSysMessage(CypherStrings.IsTeleported, chrNameLink);
 

@@ -13,14 +13,12 @@ public partial class Player
 {
     public PartyResult CanUninviteFromGroup(ObjectGuid guidMember = default)
     {
-        var grp = Group;
-
-        if (!grp)
+        if (Group == null)
             return PartyResult.NotInGroup;
 
-        if (grp.IsLFGGroup)
+        if (Group.IsLFGGroup)
         {
-            var gguid = grp.GUID;
+            var gguid = Group.GUID;
 
             if (LFGManager.GetKicksLeft(gguid) == 0)
                 return PartyResult.PartyLfgBootLimit;
@@ -30,7 +28,7 @@ public partial class Player
             if (LFGManager.IsVoteKickActive(gguid))
                 return PartyResult.PartyLfgBootInProgress;
 
-            if (grp.MembersCount <= SharedConst.LFGKickVotesNeeded)
+            if (Group.MembersCount <= SharedConst.LFGKickVotesNeeded)
                 return PartyResult.PartyLfgBootTooFewPlayers;
 
             if (state == LfgState.FinishedDungeon)
@@ -42,8 +40,8 @@ public partial class Player
                 return PartyResult.PartyLfgBootLootRolls;
 
             // @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
-            for (var refe = grp.FirstMember; refe != null; refe = refe.Next())
-                if (refe.Source && refe.Source.Location.IsInMap(this) && refe.Source.IsInCombat)
+            for (var refe = Group.FirstMember; refe != null; refe = refe.Next())
+                if (refe.Source != null && refe.Source.Location.IsInMap(this) && refe.Source.IsInCombat)
                     return PartyResult.PartyLfgBootInCombat;
 
             /* Missing support for these types
@@ -53,13 +51,13 @@ public partial class Player
         }
         else
         {
-            if (!grp.IsLeader(GUID) && !grp.IsAssistant(GUID))
+            if (!Group.IsLeader(GUID) && !Group.IsAssistant(GUID))
                 return PartyResult.NotLeader;
 
             if (InBattleground)
                 return PartyResult.InviteRestricted;
 
-            if (grp.IsLeader(guidMember))
+            if (Group.IsLeader(guidMember))
                 return PartyResult.NotLeader;
         }
 
@@ -68,12 +66,12 @@ public partial class Player
 
     public bool IsAtGroupRewardDistance(WorldObject pRewardSource)
     {
-        if (!pRewardSource || !Location.IsInMap(pRewardSource))
+        if (pRewardSource == null || !Location.IsInMap(pRewardSource))
             return false;
 
-        WorldObject player = GetCorpse();
+        WorldObject player = Corpse;
 
-        if (!player || IsAlive)
+        if (player == null || IsAlive)
             player = this;
 
         if (player.Location.Map.IsDungeon)
@@ -112,7 +110,7 @@ public partial class Player
     public bool IsInSameGroupWith(Player p)
     {
         return p == this ||
-               (Group &&
+               (Group != null &&
                 Group == p.Group &&
                 Group.SameSubGroup(this, p));
     }
@@ -133,7 +131,7 @@ public partial class Player
         GroupRef.Unlink();
         var group = OriginalGroup;
 
-        if (group)
+        if (group != null)
         {
             GroupRef.Link(group, this);
             GroupRef.SubGroup = OriginalSubGroup;
@@ -178,7 +176,7 @@ public partial class Player
 
     public void SetGroup(PlayerGroup group, byte subgroup = 0)
     {
-        if (!group)
+        if (group == null)
             GroupRef.Unlink();
         else
         {
@@ -196,7 +194,7 @@ public partial class Player
 
     public void SetOriginalGroup(PlayerGroup group, byte subgroup = 0)
     {
-        if (!group)
+        if (group == null)
             OriginalGroupRef.Unlink();
         else
         {
@@ -217,7 +215,7 @@ public partial class Player
     {
         var group = GroupInvite;
 
-        if (!group)
+        if (group == null)
             return;
 
         group.RemoveInvite(this);
@@ -234,51 +232,13 @@ public partial class Player
         }
     }
 
-    private Player GetNextRandomRaidMember(float radius)
-    {
-        var group = Group;
-
-        if (!group)
-            return null;
-
-        List<Player> nearMembers = new();
-
-        for (var refe = group.FirstMember; refe != null; refe = refe.Next())
-        {
-            var target = refe.Source;
-
-            // IsHostileTo check duel and controlled by enemy
-            if (target &&
-                target != this &&
-                Location.IsWithinDistInMap(target, radius) &&
-                !target.HasInvisibilityAura &&
-                !WorldObjectCombat.IsHostileTo(target))
-                nearMembers.Add(target);
-        }
-
-        if (nearMembers.Empty())
-            return null;
-
-        var randTarget = RandomHelper.IRand(0, nearMembers.Count - 1);
-
-        return nearMembers[randTarget];
-    }
-
     private void SendUpdateToOutOfRangeGroupMembers()
     {
         if (GroupUpdateFlag == GroupUpdateFlags.None)
             return;
 
-        var group = Group;
-
-        if (group)
-            group.UpdatePlayerOutOfRange(this);
-
+        Group?.UpdatePlayerOutOfRange(this);
         GroupUpdateFlag = GroupUpdateFlags.None;
-
-        var pet = CurrentPet;
-
-        if (pet)
-            pet.ResetGroupUpdateFlag();
+        CurrentPet?.ResetGroupUpdateFlag();
     }
 }

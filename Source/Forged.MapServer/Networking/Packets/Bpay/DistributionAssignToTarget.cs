@@ -9,11 +9,11 @@ public class DistributionAssignToTarget : ClientPacket
 {
     public DistributionAssignToTarget(WorldPacket packet) : base(packet) { }
 
-    public ushort ChoiceID { get; set; } = 0;
-    public ulong DistributionID { get; set; } = 0;
-    public uint ProductID { get; set; } = 0;
-    public ushort SpecializationID { get; set; } = 0;
-    public ObjectGuid TargetCharacter { get; set; } = new();
+    public ushort ChoiceID { get; set; }
+    public ulong DistributionID { get; set; }
+    public uint ProductID { get; set; }
+    public ushort SpecializationID { get; set; }
+    public ObjectGuid TargetCharacter { get; set; }
 
     public override void Read()
     {

@@ -242,7 +242,7 @@ public class WorldLocation : Position
     {
         GetAlliesWithinRange(unitList, maxSearchRange, includeSelf);
 
-        unitList.RemoveIf((creature) => !creature.HasAura(auraId, _worldObject.GUID));
+        unitList.RemoveIf(creature => !creature.HasAura(auraId, _worldObject.GUID));
     }
 
     public void GetClosePoint(Position pos, float size, float distance2d = 0, float relAngle = 0)
@@ -396,7 +396,7 @@ public class WorldLocation : Position
     {
         GetEnemiesWithinRange(unitList, maxSearchRange);
 
-        unitList.RemoveIf((unit) => !unit.HasAura(auraId, _worldObject.GUID));
+        unitList.RemoveIf(unit => !unit.HasAura(auraId, _worldObject.GUID));
     }
 
     public Position GetFirstCollisionPosition(float dist, float angle)

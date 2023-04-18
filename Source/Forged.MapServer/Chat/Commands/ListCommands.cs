@@ -362,8 +362,8 @@ internal class ListCommands
 
             return true;
         }
-        else
-            handler.SendSysMessage(CypherStrings.ListMailNotFound);
+
+        handler.SendSysMessage(CypherStrings.ListMailNotFound);
 
         return true;
     }
@@ -526,7 +526,7 @@ internal class ListCommands
             return false;
         }
 
-        var instanceByPackageMap = target.SceneMgr.GetSceneTemplateByInstanceMap();
+        var instanceByPackageMap = target.SceneMgr.SceneTemplateByInstanceMap;
 
         handler.SendSysMessage(CypherStrings.DebugSceneObjectList, target.SceneMgr.GetActiveSceneCount());
 

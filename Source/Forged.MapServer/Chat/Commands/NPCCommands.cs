@@ -646,7 +646,7 @@ internal class NPCCommands
                 if (creaturePassenger != null)
                 {
                     creaturePassenger.SaveToDB((uint)trans.Template.MoTransport.SpawnMap,
-                                               new List<Difficulty>()
+                                               new List<Difficulty>
                                                {
                                                    map.DifficultyID
                                                });
@@ -665,7 +665,7 @@ internal class NPCCommands
             PhasingHandler.InheritPhaseShift(creature, chr);
 
             creature.SaveToDB(map.Id,
-                              new List<Difficulty>()
+                              new List<Difficulty>
                               {
                                   map.DifficultyID
                               });

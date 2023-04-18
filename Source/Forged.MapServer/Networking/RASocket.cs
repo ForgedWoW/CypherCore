@@ -167,7 +167,8 @@ public class RASocket : ISocket
 
             return false;
         }
-        else if (result.Read<int>(1) != -1)
+
+        if (result.Read<int>(1) != -1)
         {
             Log.Logger.Information($"User {email} has to be assigned on all realms (with RealmID = '-1')");
 

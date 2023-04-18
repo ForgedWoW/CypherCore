@@ -316,7 +316,7 @@ public class AuctionHouseObject
 
         // prepare uncollected filter for more efficient searches
         if (filters.HasFlag(AuctionHouseFilterMask.UncollectedOnly))
-            knownAppearanceIds = player.Session.CollectionMgr.GetAppearanceIds();
+            knownAppearanceIds = player.Session.CollectionMgr.AppearanceIds;
 
         //todo fix me
         //if (knownPetSpecies.SectionLength < _cliDB.BattlePetSpeciesStorage.GetNumRows())

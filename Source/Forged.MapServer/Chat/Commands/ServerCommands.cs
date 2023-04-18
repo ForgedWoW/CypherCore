@@ -308,7 +308,8 @@ internal class ServerCommands
 
                 return true;
             }
-            else if (arg1.Equals("off", StringComparison.OrdinalIgnoreCase))
+
+            if (arg1.Equals("off", StringComparison.OrdinalIgnoreCase))
             {
                 handler.SendSysMessage(CypherStrings.WorldOpened);
                 handler.WorldManager.SetClosed(false);

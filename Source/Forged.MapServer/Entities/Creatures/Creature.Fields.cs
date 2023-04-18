@@ -8,6 +8,7 @@ using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Events;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Text;
@@ -174,7 +175,7 @@ public partial class Creature
     public long LastDamagedTime { get; set; }
 
     // (msecs)timer for death or corpse disappearance
-    public LootManagement.Loot Loot { get; set; }
+    public Loot Loot { get; set; }
 
     public uint LootId
     {
@@ -221,7 +222,7 @@ public partial class Creature
     public uint WaypointPath { get; private set; }
     public WorldDatabase WorldDatabase { get; }
     public WorldManager WorldManager { get; }
-    internal Dictionary<ObjectGuid, LootManagement.Loot> PersonalLoot { get; set; } = new();
+    internal Dictionary<ObjectGuid, Loot> PersonalLoot { get; set; } = new();
     private bool CannotReachTarget { get; set; }
 
     private CreatureAddon CreatureAddon

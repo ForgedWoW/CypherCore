@@ -397,7 +397,8 @@ internal class BgArathiBasin : Battleground
 
         if (ally > horde)
             return TeamFaction.Alliance;
-        else if (horde > ally)
+
+        if (horde > ally)
             return TeamFaction.Horde;
 
         // If the values are equal, fall back to the original result (based on number of players on each team)

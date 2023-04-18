@@ -908,7 +908,7 @@ public class SpellHistory
 
         _spellCooldowns.ExecuteRemove();
 
-        _categoryCharges.RemoveIfMatching((pair) => pair.Value.RechargeEnd <= now);
+        _categoryCharges.RemoveIfMatching(pair => pair.Value.RechargeEnd <= now);
     }
 
     public void WritePacket(SendSpellHistory sendSpellHistory)

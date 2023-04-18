@@ -6,6 +6,7 @@ using System.Linq;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
+using Framework.Constants;
 using Serilog;
 
 namespace Forged.MapServer.Phasing;
@@ -19,7 +20,7 @@ public class MultiPersonalPhaseTracker
         if (!phaseShift.HasPersonalPhase)
             return;
 
-        PersonalPhaseGridLoader loader = new(grid, map, cell, phaseShift.PersonalGuid, Framework.Constants.GridType.Grid);
+        PersonalPhaseGridLoader loader = new(grid, map, cell, phaseShift.PersonalGuid, GridType.Grid);
         var playerTracker = _playerData[phaseShift.PersonalGuid];
 
         foreach (var phaseRef in phaseShift.Phases)

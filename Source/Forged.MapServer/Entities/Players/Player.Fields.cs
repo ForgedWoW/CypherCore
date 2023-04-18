@@ -28,6 +28,7 @@ using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Server;
@@ -187,14 +188,24 @@ public partial class Player
     private uint _zoneUpdateId;
     private uint _zoneUpdateTimer;
     public AccountManager AccountManager { get; }
+    public uint AchievementPoints => _achievementSys.AchievementPoints;
     public ActivePlayerData ActivePlayerData { get; set; }
     public override PlayerAI AI => Ai as PlayerAI;
     public ArenaTeamManager ArenaTeamManager { get; }
     public bool AutoAcceptQuickJoin { get; set; }
     public string AutoReplyMsg { get; set; }
+    public Battleground Battleground => BattlegroundId == 0 ? null : BattlegroundManager.GetBattleground(BattlegroundId, _bgData.BgTypeId);
+    public WorldLocation BattlegroundEntryPoint => _bgData.JoinPos;
+    public uint BattlegroundId => _bgData.BgInstanceId;
     public BattlegroundManager BattlegroundManager { get; }
+    public BattlegroundTypeId BattlegroundTypeId => _bgData.BgTypeId;
     public bool CanBeGameMaster => Session.HasPermission(RBACPermissions.CommandGm);
     public bool CanBlock { get; private set; }
+
+    public bool CanCaptureTowerPoint => !HasStealthAura &&      // not stealthed
+                                        !HasInvisibilityAura && // not invisible
+                                        IsAlive;
+
     public override bool CanEnterWater => true;
     public override bool CanFly => MovementInfo.HasMovementFlag(MovementFlag.CanFly);
     public bool CanParry { get; private set; }
@@ -229,6 +240,7 @@ public partial class Player
     public CinematicManager CinematicMgr { get; }
     public List<ObjectGuid> ClientGuiDs { get; set; } = new();
     public CollectionMgr CollectionMgr { get; }
+    public Corpse Corpse => Location.Map.GetCorpseByPlayer(GUID);
     public WorldLocation CorpseLocation { get; private set; }
     public PlayerCreateMode CreateMode { get; private set; }
     public byte CufProfilesCount => (byte)_cufProfiles.Count(p => p != null);
@@ -262,6 +274,7 @@ public partial class Player
     public int EffectiveTeamId => EffectiveTeam == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
     public float EmpoweredSpellMinHoldPct { get; set; }
     public byte[] ForcedSpeedChanges { get; set; } = new byte[(int)UnitMoveType.Max];
+    public Formulas Formulas { get; }
     public uint FreePrimaryProfessionPoints => ActivePlayerData.CharacterPoints;
     public GameEventManager GameEventManager { get; }
     public Garrison Garrison { get; private set; }
@@ -282,6 +295,7 @@ public partial class Player
     }
 
     public ulong GuildId => ((ObjectGuid)UnitData.GuildGUID).Counter;
+
     public ulong GuildIdInvited { get; set; }
 
     public uint GuildLevel
@@ -291,16 +305,34 @@ public partial class Player
     }
 
     public GuildManager GuildMgr { get; }
+
     public string GuildName => GuildId != 0 ? GuildMgr.GetGuildById(GuildId).GetName() : "";
+
     public uint GuildRank => PlayerData.GuildRankID;
+
     public bool HasCorpse => CorpseLocation != null && CorpseLocation.MapId != 0xFFFFFFFF;
+
+    public bool HasFreeBattlegroundQueueId
+    {
+        get
+        {
+            for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
+                if (_battlegroundQueueIdRecs[i].BgQueueTypeId == default)
+                    return true;
+
+            return false;
+        }
+    }
 
     //Binds
     public bool HasPendingBind => _pendingBindId > 0;
 
     public bool HasSummonPending => _summonExpire >= GameTime.CurrentTime;
     public WorldLocation Homebind { get; } = new();
+    public uint HonorLevel => PlayerData.HonorLevel;
+
     public bool InArena => Battleground != null && Battleground.IsArena;
+    public bool InBattleground => _bgData.BgInstanceId != 0;
 
     public bool InRandomLfgDungeon
     {
@@ -335,6 +367,7 @@ public partial class Player
     public bool IsGMChat => _extraFlags.HasAnyFlag(PlayerExtraFlags.GMChat);
     public bool IsGMVisible => !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
     public override bool IsLoading => Session.PlayerLoading;
+    public bool IsMaxHonorLevel => HonorLevel == PlayerConst.MaxHonorLevel;
 
     public bool IsMaxLevel
     {
@@ -351,6 +384,7 @@ public partial class Player
     public bool IsResurrectRequested => _resurrectionData != null;
     public bool IsTaxiCheater => _extraFlags.HasAnyFlag(PlayerExtraFlags.TaxiCheat);
     public bool IsUsingLfg => LFGManager.GetState(GUID) != LfgState.None;
+    public bool IsUsingPvpItemLevels { get; private set; }
     public bool IsWarModeLocalActive => HasPlayerLocalFlag(PlayerLocalFlags.WarMode);
     public ItemEnchantmentManager ItemEnchantmentManager { get; }
     public List<ItemSetEffect> ItemSetEff { get; } = new();
@@ -448,7 +482,7 @@ public partial class Player
     public ObjectGuid SummonedBattlePetGUID => ActivePlayerData.SummonedBattlePetGUID;
 
     //Movement
-    public PlayerTaxi Taxi { get; set; } = new();
+    public PlayerTaxi Taxi { get; set; }
 
     public TeamFaction Team { get; private set; }
     public int TeamId => Team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;

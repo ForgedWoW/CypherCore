@@ -11,22 +11,22 @@ public interface IAreaTriggerSmartScript : IAreaTriggerScript
 {
     SmartScript _script { get; }
 
-    public virtual void OnInitialize()
+    public void OnInitialize()
     {
         _script.OnInitialize(At);
     }
 
-    public virtual void OnUnitEnter(Unit unit)
+    public void OnUnitEnter(Unit unit)
     {
         _script.ProcessEventsFor(SmartEvents.AreatriggerOntrigger, unit);
     }
 
-    public virtual void OnUpdate(uint diff)
+    public void OnUpdate(uint diff)
     {
         _script.OnUpdate(diff);
     }
 
-    public virtual void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
+    public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
     {
         _script.SetTimedActionList(e, entry, invoker);
     }

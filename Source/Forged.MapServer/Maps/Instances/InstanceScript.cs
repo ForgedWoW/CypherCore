@@ -1097,5 +1097,5 @@ public class InstanceScript : ZoneScript
         Block,
         Spawn,
         ForceBlock
-    };
+    }
 }

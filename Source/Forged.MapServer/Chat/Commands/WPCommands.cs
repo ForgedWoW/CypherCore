@@ -245,89 +245,91 @@ internal class WpCommands
 
                 return true;
             }
-            else
+
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
+            stmt.AddValue(0, id);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
+
+            if (result.IsEmpty())
             {
-                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
-                stmt.AddValue(0, id);
-                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
+                handler.SendSysMessage("|cffff33ffERROR: You have selected an non existing waypoint script guid.|r");
 
-                if (result.IsEmpty())
-                {
-                    handler.SendSysMessage("|cffff33ffERROR: You have selected an non existing waypoint script guid.|r");
-
-                    return true;
-                }
-
-                if (arg == "posx")
-                {
-                    if (!float.TryParse(arg2, out var arg3))
-                        return false;
-
-                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_X);
-                    stmt.AddValue(0, arg3);
-                    stmt.AddValue(1, id);
-                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
-
-                    handler.SendSysMessage("|cff00ff00Waypoint script:|r|cff00ffff {0}|r|cff00ff00 position_x updated.|r", id);
-
-                    return true;
-                }
-                else if (arg == "posy")
-                {
-                    if (!float.TryParse(arg2, out var arg3))
-                        return false;
-
-                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Y);
-                    stmt.AddValue(0, arg3);
-                    stmt.AddValue(1, id);
-                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
-
-                    handler.SendSysMessage("|cff00ff00Waypoint script: {0} position_y updated.|r", id);
-
-                    return true;
-                }
-                else if (arg == "posz")
-                {
-                    if (!float.TryParse(arg2, out var arg3))
-                        return false;
-
-                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Z);
-                    stmt.AddValue(0, arg3);
-                    stmt.AddValue(1, id);
-                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
-
-                    handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 position_z updated.|r", id);
-
-                    return true;
-                }
-                else if (arg == "orientation")
-                {
-                    if (!float.TryParse(arg2, out var arg3))
-                        return false;
-
-                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_O);
-                    stmt.AddValue(0, arg3);
-                    stmt.AddValue(1, id);
-                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
-
-                    handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 orientation updated.|r", id);
-
-                    return true;
-                }
-                else if (arg == "dataint")
-                {
-                    if (!uint.TryParse(arg2, out var arg3))
-                        return false;
-
-                    handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg3, id); // Query can't be a prepared statement
-
-                    handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 dataint updated.|r", id);
-
-                    return true;
-                }
-                else
-                    handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg, id); // Query can't be a prepared statement
+                return true;
             }
+
+            if (arg == "posx")
+            {
+                if (!float.TryParse(arg2, out var arg3))
+                    return false;
+
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_X);
+                stmt.AddValue(0, arg3);
+                stmt.AddValue(1, id);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
+
+                handler.SendSysMessage("|cff00ff00Waypoint script:|r|cff00ffff {0}|r|cff00ff00 position_x updated.|r", id);
+
+                return true;
+            }
+
+            if (arg == "posy")
+            {
+                if (!float.TryParse(arg2, out var arg3))
+                    return false;
+
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Y);
+                stmt.AddValue(0, arg3);
+                stmt.AddValue(1, id);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
+
+                handler.SendSysMessage("|cff00ff00Waypoint script: {0} position_y updated.|r", id);
+
+                return true;
+            }
+
+            if (arg == "posz")
+            {
+                if (!float.TryParse(arg2, out var arg3))
+                    return false;
+
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Z);
+                stmt.AddValue(0, arg3);
+                stmt.AddValue(1, id);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
+
+                handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 position_z updated.|r", id);
+
+                return true;
+            }
+
+            if (arg == "orientation")
+            {
+                if (!float.TryParse(arg2, out var arg3))
+                    return false;
+
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_O);
+                stmt.AddValue(0, arg3);
+                stmt.AddValue(1, id);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
+
+                handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 orientation updated.|r", id);
+
+                return true;
+            }
+
+            if (arg == "dataint")
+            {
+                if (!uint.TryParse(arg2, out var arg3))
+                    return false;
+
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg3, id); // Query can't be a prepared statement
+
+                handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 dataint updated.|r", id);
+
+                return true;
+            }
+
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg, id);     // Query can't be a prepared statement
 
             handler.SendSysMessage("|cff00ff00Waypoint script:|r|cff00ffff{0}:|r|cff00ff00 {1} updated.|r", id, arg);
         }
@@ -498,12 +500,10 @@ internal class WpCommands
 
                 return true;
             }
-            else
-            {
-                handler.SendSysMessage(CypherStrings.WaypointNotremoved);
 
-                return false;
-            }
+            handler.SendSysMessage(CypherStrings.WaypointNotremoved);
+
+            return false;
         } // del
 
         if (subCommand == "move")
@@ -536,7 +536,7 @@ internal class WpCommands
             PhasingHandler.InheritPhaseShift(creature, chr);
 
             creature.SaveToDB(map.Id,
-                              new List<Difficulty>()
+                              new List<Difficulty>
                               {
                                   map.DifficultyID
                               });
@@ -743,7 +743,7 @@ internal class WpCommands
                 PhasingHandler.InheritPhaseShift(creature, chr);
 
                 creature.SaveToDB(map.Id,
-                                  new List<Difficulty>()
+                                  new List<Difficulty>
                                   {
                                       map.DifficultyID
                                   });
@@ -819,7 +819,7 @@ internal class WpCommands
             PhasingHandler.InheritPhaseShift(creature, chr);
 
             creature.SaveToDB(map.Id,
-                              new List<Difficulty>()
+                              new List<Difficulty>
                               {
                                   map.DifficultyID
                               });
@@ -884,7 +884,7 @@ internal class WpCommands
             PhasingHandler.InheritPhaseShift(creature, chr);
 
             creature.SaveToDB(map.Id,
-                              new List<Difficulty>()
+                              new List<Difficulty>
                               {
                                   map.DifficultyID
                               });

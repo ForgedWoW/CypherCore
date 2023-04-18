@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Autofac;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
@@ -35,7 +36,6 @@ using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
-using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Miscellaneous;
@@ -58,7 +58,6 @@ using Forged.MapServer.Networking.Packets.Toy;
 using Forged.MapServer.Networking.Packets.Vehicle;
 using Forged.MapServer.Networking.Packets.WorldState;
 using Forged.MapServer.OutdoorPVP;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
@@ -74,7 +73,10 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using PlayerChoiceResponse = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponse;
+using PlayerChoiceResponseMawPower = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseMawPower;
 using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
+using PlayerChoiceResponseRewardEntry = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -114,6 +116,8 @@ public partial class Player : Unit
         ItemEnchantmentManager = classFactory.Resolve<ItemEnchantmentManager>();
         LootFactory = classFactory.Resolve<LootFactory>();
         SkillDiscovery = classFactory.Resolve<SkillDiscovery>();
+        Formulas = classFactory.Resolve<Formulas>();
+        Taxi = classFactory.Resolve<PlayerTaxi>();
         Session = session;
 
         // players always accept
@@ -393,13 +397,11 @@ public partial class Player : Unit
 
             return false;
         }
-        else
-        {
-            ModifyMoney(-firstcost);
-            UpdateCriteria(CriteriaType.MoneySpentOnTaxis, firstcost);
-            Session.SendActivateTaxiReply();
-            Session.SendDoFlight(mountDisplayID, sourcepath);
-        }
+
+        ModifyMoney(-firstcost);
+        UpdateCriteria(CriteriaType.MoneySpentOnTaxis, firstcost);
+        Session.SendActivateTaxiReply();
+        Session.SendDoFlight(mountDisplayID, sourcepath);
 
         return true;
     }
@@ -1067,12 +1069,12 @@ public partial class Player : Unit
                 (node.Loc.Y - prevNode.Loc.Y) * (node.Loc.Y - prevNode.Loc.Y) +
                 (node.Loc.Z - prevNode.Loc.Z) * (node.Loc.Z - prevNode.Loc.Z);
 
-            if (distNext + distPrev < distNodes)
-            {
-                startNode = (uint)i;
+            if (!(distNext + distPrev < distNodes))
+                continue;
 
-                break;
-            }
+            startNode = (uint)i;
+
+            break;
         }
 
         Session.SendDoFlight(mountDisplayId, path, startNode);
@@ -1473,11 +1475,6 @@ public partial class Player : Unit
         return (_activeCheats & command) != 0;
     }
 
-    public Corpse GetCorpse()
-    {
-        return Location.Map.GetCorpseByPlayer(GUID);
-    }
-
     public uint GetCorpseReclaimDelay(bool pvp)
     {
         if (pvp)
@@ -1574,7 +1571,7 @@ public partial class Player : Unit
 
     public uint GetGossipTextId(WorldObject source)
     {
-        return source == null ? (uint)SharedConst.DefaultGossipMessage : GetGossipTextId(PlayerComputators.GetDefaultGossipMenuForSource(source), source);
+        return source == null ? SharedConst.DefaultGossipMessage : GetGossipTextId(PlayerComputators.GetDefaultGossipMenuForSource(source), source);
     }
 
     public uint GetGossipTextId(uint menuId, WorldObject source)
@@ -2193,7 +2190,7 @@ public partial class Player : Unit
 
         if (!_currencyStorage.TryGetValue(id, out var playerCurrency))
         {
-            playerCurrency = new PlayerCurrency()
+            playerCurrency = new PlayerCurrency
             {
                 State = PlayerCurrencyState.New,
                 IncreasedCapQuantity = amount
@@ -2802,7 +2799,7 @@ public partial class Player : Unit
 
         if (!_currencyStorage.TryGetValue(id, out var playerCurrency))
         {
-            playerCurrency = new PlayerCurrency()
+            playerCurrency = new PlayerCurrency
             {
                 State = PlayerCurrencyState.New
             };
@@ -3311,7 +3308,7 @@ public partial class Player : Unit
             }
 
         if (_delayedOperations.HasAnyFlag(PlayerDelayedOperations.BGTaxiRestore))
-            if (_bgData.HasTaxiPath())
+            if (_bgData.HasTaxiPath)
             {
                 Taxi.AddTaxiDestination(_bgData.TaxiPath[0]);
                 Taxi.AddTaxiDestination(_bgData.TaxiPath[1]);
@@ -4108,7 +4105,7 @@ public partial class Player : Unit
         AccountMountUpdate mountUpdate = new()
         {
             IsFullUpdate = true,
-            Mounts = Session.CollectionMgr.GetAccountMounts()
+            Mounts = Session.CollectionMgr.AccountMounts
         };
 
         SendPacket(mountUpdate);
@@ -4117,7 +4114,7 @@ public partial class Player : Unit
         AccountToyUpdate toyUpdate = new()
         {
             IsFullUpdate = true,
-            Toys = Session.CollectionMgr.GetAccountToys()
+            Toys = Session.CollectionMgr.AccountToys
         };
 
         SendPacket(toyUpdate);
@@ -4126,7 +4123,7 @@ public partial class Player : Unit
         AccountHeirloomUpdate heirloomUpdate = new()
         {
             IsFullUpdate = true,
-            Heirlooms = Session.CollectionMgr.GetAccountHeirlooms()
+            Heirlooms = Session.CollectionMgr.AccountHeirlooms
         };
 
         SendPacket(heirloomUpdate);
@@ -4251,7 +4248,7 @@ public partial class Player : Unit
         {
             var playerChoiceResponseTemplate = playerChoice.Responses[i];
 
-            var playerChoiceResponse = new Networking.Packets.Quest.PlayerChoiceResponse()
+            var playerChoiceResponse = new PlayerChoiceResponse
             {
                 ResponseID = playerChoiceResponseTemplate.ResponseId,
                 ResponseIdentifier = playerChoiceResponseTemplate.ResponseIdentifier,
@@ -4283,7 +4280,7 @@ public partial class Player : Unit
             if (playerChoiceResponseTemplate.Reward == null)
                 continue;
 
-            var reward = new PlayerChoiceResponseReward()
+            var reward = new PlayerChoiceResponseReward
             {
                 TitleID = playerChoiceResponseTemplate.Reward.TitleId,
                 PackageID = playerChoiceResponseTemplate.Reward.PackageId,
@@ -4297,7 +4294,7 @@ public partial class Player : Unit
 
             foreach (var rewardItem in playerChoiceResponseTemplate.Reward.Items)
             {
-                var rewardEntry = new Networking.Packets.Quest.PlayerChoiceResponseRewardEntry()
+                var rewardEntry = new PlayerChoiceResponseRewardEntry
                 {
                     Item =
                     {
@@ -4309,7 +4306,7 @@ public partial class Player : Unit
                 if (!rewardItem.BonusListIDs.Empty())
 
                 {
-                    rewardEntry.Item.ItemBonus = new ItemBonuses()
+                    rewardEntry.Item.ItemBonus = new ItemBonuses
                     {
                         BonusListIDs = rewardItem.BonusListIDs
                     };
@@ -4319,7 +4316,7 @@ public partial class Player : Unit
 
                 foreach (var currency in playerChoiceResponseTemplate.Reward.Currency)
                 {
-                    rewardEntry = new Networking.Packets.Quest.PlayerChoiceResponseRewardEntry()
+                    rewardEntry = new PlayerChoiceResponseRewardEntry
                     {
                         Item =
                         {
@@ -4333,7 +4330,7 @@ public partial class Player : Unit
 
                 foreach (var faction in playerChoiceResponseTemplate.Reward.Faction)
                 {
-                    rewardEntry = new Networking.Packets.Quest.PlayerChoiceResponseRewardEntry()
+                    rewardEntry = new PlayerChoiceResponseRewardEntry
                     {
                         Item =
 
@@ -4348,7 +4345,7 @@ public partial class Player : Unit
 
                 foreach (var item in playerChoiceResponseTemplate.Reward.ItemChoices)
                 {
-                    rewardEntry = new Networking.Packets.Quest.PlayerChoiceResponseRewardEntry()
+                    rewardEntry = new PlayerChoiceResponseRewardEntry
                     {
                         Item =
                         {
@@ -4359,7 +4356,7 @@ public partial class Player : Unit
 
                     if (!item.BonusListIDs.Empty())
                     {
-                        rewardEntry.Item.ItemBonus = new ItemBonuses()
+                        rewardEntry.Item.ItemBonus = new ItemBonuses
                         {
                             BonusListIDs = item.BonusListIDs
                         };
@@ -4377,7 +4374,7 @@ public partial class Player : Unit
                 if (!playerChoiceResponseTemplate.MawPower.HasValue || playerChoiceResponse.MawPower == null)
                     continue;
 
-                var mawPower = new Networking.Packets.Quest.PlayerChoiceResponseMawPower()
+                var mawPower = new PlayerChoiceResponseMawPower
                 {
                     TypeArtFileID = playerChoiceResponse.MawPower.Value.TypeArtFileID,
                     Rarity = playerChoiceResponse.MawPower.Value.Rarity,
@@ -4708,7 +4705,7 @@ public partial class Player : Unit
 
         ClearDynamicUpdateFieldValues(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.Customizations));
 
-        foreach (var newChoice in customizations.Select(customization => new ChrCustomizationChoice()
+        foreach (var newChoice in customizations.Select(customization => new ChrCustomizationChoice
                  {
                      ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
                      ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
@@ -5024,7 +5021,7 @@ public partial class Player : Unit
 
     public void SetResurrectRequestData(WorldObject caster, uint health, uint mana, uint appliedAura)
     {
-        _resurrectionData = new ResurrectionData()
+        _resurrectionData = new ResurrectionData
         {
             Guid = caster.GUID
         };
@@ -5457,8 +5454,8 @@ public partial class Player : Unit
 
             return false; // normal client can't teleport to this map...
         }
-        else
-            Log.Logger.Debug("Player {0} is being teleported to map {1}", GetName(), mapid);
+
+        Log.Logger.Debug("Player {0} is being teleported to map {1}", GetName(), mapid);
 
         if (Vehicle != null)
             ExitVehicle();
@@ -5900,7 +5897,7 @@ public partial class Player : Unit
                 // On zone update tick check if we are still in an inn if we are supposed to be in one
                 if (RestMgr.HasRestFlag(RestFlag.Tavern))
                 {
-                    var atEntry = CliDB.AreaTriggerStorage.LookupByKey(RestMgr.GetInnTriggerId());
+                    var atEntry = CliDB.AreaTriggerStorage.LookupByKey(RestMgr.InnTriggerId);
 
                     if (atEntry == null || !IsInAreaTriggerRadius(atEntry))
                         RestMgr.RemoveRestFlag(RestFlag.Tavern);
@@ -6360,7 +6357,7 @@ public partial class Player : Unit
 
     private int CalculateCorpseReclaimDelay(bool load = false)
     {
-        var corpse = GetCorpse();
+        var corpse = Corpse;
 
         if (load && corpse == null)
             return -1;
@@ -6448,7 +6445,7 @@ public partial class Player : Unit
         // register for player, but not show
         Location.Map.AddCorpse(corpse);
 
-        corpse.UpdatePositionData();
+        corpse.Location.UpdatePositionData();
         corpse.Location.SetZoneScript();
 
         // we do not need to save corpses for instances
@@ -6460,11 +6457,11 @@ public partial class Player : Unit
 
     private void DeleteGarrison()
     {
-        if (Garrison != null)
-        {
-            Garrison.Delete();
-            Garrison = null;
-        }
+        if (Garrison == null)
+            return;
+
+        Garrison.Delete();
+        Garrison = null;
     }
 
     private double GetBaseModValue(BaseModGroup modGroup, BaseModType modType)
@@ -6708,7 +6705,7 @@ public partial class Player : Unit
         switch ((ActionButtonType)type)
         {
             case ActionButtonType.Spell:
-                if (!SpellManager.HasSpellInfo((uint)action, Difficulty.None))
+                if (!SpellManager.HasSpellInfo((uint)action))
                 {
                     Log.Logger.Error($"Player::IsActionButtonDataValid: Spell action {action} not added into button {button} for player {GetName()} ({GUID}): spell not exist");
 
@@ -6775,7 +6772,7 @@ public partial class Player : Unit
         if (pOther == null || !Location.IsInMap(pOther))
             return false;
 
-        WorldObject player = GetCorpse();
+        WorldObject player = Corpse;
 
         if (player == null || IsAlive)
             player = this;
@@ -6797,16 +6794,6 @@ public partial class Player : Unit
     {
         // check for GM and death state included in isAttackableByAOE
         return !IsTargetableForAttack(false);
-    }
-
-    private void LeaveLFGChannel()
-    {
-        foreach (var i in JoinedChannels.Where(i => i.IsLFG))
-        {
-            i.LeaveChannel(this);
-
-            break;
-        }
     }
 
     private void Regenerate(PowerType power)
@@ -7161,16 +7148,6 @@ public partial class Player : Unit
         SendPacket(new AttackSwingError(AttackSwingErr.BadFacing));
     }
 
-    private void SendAttackSwingCantAttack()
-    {
-        SendPacket(new AttackSwingError());
-    }
-
-    private void SendAttackSwingDeadTarget()
-    {
-        SendPacket(new AttackSwingError(AttackSwingErr.DeadTarget));
-    }
-
     private void SendAurasForTarget(Unit target)
     {
         if (target == null || target.VisibleAuras.Empty()) // speedup things
@@ -7254,34 +7231,9 @@ public partial class Player : Unit
         IsCanDelayTeleport = setting;
     }
 
-    //Currency
-    private void SetCreateCurrency(CurrencyTypes id, uint amount)
-    {
-        SetCreateCurrency((uint)id, amount);
-    }
-
-    private void SetCreateCurrency(uint id, uint amount)
-    {
-        if (_currencyStorage.ContainsKey(id))
-            return;
-
-        PlayerCurrency playerCurrency = new()
-        {
-            State = PlayerCurrencyState.New,
-            Quantity = amount
-        };
-
-        _currencyStorage.Add(id, playerCurrency);
-    }
-
     private void SetDelayedTeleportFlag(bool setting)
     {
         IsHasDelayedTeleport = setting;
-    }
-
-    private void SetFreePrimaryProfessions(ushort profs)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CharacterPoints), profs);
     }
 
     private void SetWarModeLocal(bool enabled)
@@ -7290,11 +7242,6 @@ public partial class Player : Unit
             SetPlayerLocalFlag(PlayerLocalFlags.WarMode);
         else
             RemovePlayerLocalFlag(PlayerLocalFlags.WarMode);
-    }
-
-    private void SetWeaponChangeTimer(uint time)
-    {
-        _weaponChangeTimer = time;
     }
 
     private void StopMirrorTimer(MirrorTimerType type)
@@ -7521,7 +7468,7 @@ public partial class Player : Unit
 
     public void SendBuyError(BuyResult msg, Creature creature, uint item)
     {
-        SendPacket(new BuyFailed()
+        SendPacket(new BuyFailed
         {
             VendorGUID = creature?.GUID ?? ObjectGuid.Empty,
             Muid = item,
@@ -7567,7 +7514,7 @@ public partial class Player : Unit
 
     public void SendSellError(SellResult msg, Creature creature, ObjectGuid guid)
     {
-        SendPacket(new SellResponse()
+        SendPacket(new SellResponse
         {
             VendorGUID = creature?.GUID ?? ObjectGuid.Empty,
             ItemGUID = guid,
@@ -7586,7 +7533,7 @@ public partial class Player : Unit
         var pattern = @"%(\d+(\.\d+)?)?(d|f|s|u)";
 
         var count = 0;
-        var result = System.Text.RegularExpressions.Regex.Replace(input, pattern, _ => string.Concat("{", count++, "}"));
+        var result = Regex.Replace(input, pattern, _ => string.Concat("{", count++, "}"));
 
         SendSysMessage(result, args);
     }

@@ -39,8 +39,8 @@ internal struct QuotedString
 
                 if (remainingToken.IsEmpty()) // if this is not empty, then we did not consume the full token
                     return new ChatCommandResult(tail);
-                else
-                    return ChatCommandResult.FromErrorMessage("");
+
+                return ChatCommandResult.FromErrorMessage("");
             }
 
             if (args[i] == '\\')

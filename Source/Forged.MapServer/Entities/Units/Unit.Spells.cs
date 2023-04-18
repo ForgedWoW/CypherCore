@@ -127,7 +127,7 @@ public partial class Unit
     public void ApplyAura(AuraApplication aurApp, int effIndex)
     {
         ApplyAura(aurApp,
-                  new HashSet<int>()
+                  new HashSet<int>
                   {
                       effIndex
                   });
@@ -2181,7 +2181,7 @@ public partial class Unit
 
     public void RemoveAppliedAuras(Func<AuraApplication, bool> check, AuraRemoveMode removeMode = AuraRemoveMode.Default)
     {
-        AppliedAuras.CallOnMatch((pair) => check(pair), (pair) => RemoveAura(pair, removeMode));
+        AppliedAuras.CallOnMatch(pair => check(pair), pair => RemoveAura(pair, removeMode));
     }
 
     public void RemoveArenaAuras()
@@ -2296,7 +2296,7 @@ public partial class Unit
         ulong mechanicMask = (1 << (int)Mechanics.Snare) | (1 << (int)Mechanics.Root);
 
         AppliedAuras
-            .CallOnMatch((auraApp) =>
+            .CallOnMatch(auraApp =>
                          {
                              var aura = auraApp.Base;
 
@@ -2305,7 +2305,7 @@ public partial class Unit
 
                              return false;
                          },
-                         (auraApp) => RemoveAura(auraApp));
+                         auraApp => RemoveAura(auraApp));
     }
 
     public void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = default, Aura except = null, bool negative = true, bool positive = true)
@@ -2704,7 +2704,7 @@ public partial class Unit
 
     public void RemoveOwnedAuras(Func<Aura, bool> check, AuraRemoveMode removeMode = AuraRemoveMode.Default)
     {
-        _ownedAuras.Auras.CallOnMatch((aura) => check(aura), (aura) => RemoveOwnedAura(aura.Id, aura, removeMode));
+        _ownedAuras.Auras.CallOnMatch(aura => check(aura), aura => RemoveOwnedAura(aura.Id, aura, removeMode));
     }
 
     public void RemoveVisibleAura(AuraApplication aurApp)
@@ -4075,7 +4075,7 @@ public partial class Unit
         }
 
         // remove area auras owned by others
-        _appliedAuras.AuraApplications.CallOnMatch((pair) => pair.Base.Owner != this, (pair) => RemoveAura(pair));
+        _appliedAuras.AuraApplications.CallOnMatch(pair => pair.Base.Owner != this, pair => RemoveAura(pair));
     }
 
     private void RemoveNoStackAurasDueToAura(Aura aura)
@@ -4093,7 +4093,7 @@ public partial class Unit
             return;
         }
 
-        _appliedAuras.AuraApplications.CallOnMatch((app) => !aura.CanStackWith(app.Base), (app) => RemoveAura(app));
+        _appliedAuras.AuraApplications.CallOnMatch(app => !aura.CanStackWith(app.Base), app => RemoveAura(app));
     }
 
     private void SendHealSpellLog(HealInfo healInfo, bool critical = false)

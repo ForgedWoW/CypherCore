@@ -676,9 +676,11 @@ public class CommandHandler
             {
                 if (partIndex >= part.Length || part[partIndex] == ' ')
                     return true;
-                else if (partIndex >= name.Length)
+
+                if (partIndex >= name.Length)
                     return false;
-                else if (char.ToLower(name[partIndex]) != char.ToLower(part[partIndex]))
+
+                if (char.ToLower(name[partIndex]) != char.ToLower(part[partIndex]))
                     return false;
 
                 ++partIndex;

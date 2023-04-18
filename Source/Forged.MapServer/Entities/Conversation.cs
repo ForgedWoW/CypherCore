@@ -10,7 +10,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IConversation;
 using Forged.MapServer.Spells;
 using Framework.Constants;

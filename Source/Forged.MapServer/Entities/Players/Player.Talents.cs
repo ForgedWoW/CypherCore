@@ -38,7 +38,7 @@ public partial class Player
         // TO-DO: We need more research to know what happens with warlock's reagent
         var pet = CurrentPet;
 
-        if (pet)
+        if (pet != null)
             RemovePet(pet, PetSaveMode.NotInSlot);
 
         ClearAllReactives();
@@ -180,7 +180,7 @@ public partial class Player
         {
             var equippedItem = GetItemByPos(InventorySlots.Bag0, i);
 
-            if (equippedItem)
+            if (equippedItem != null)
                 SetVisibleItemSlot(i, equippedItem);
         }
 
@@ -289,7 +289,7 @@ public partial class Player
         AddTraitConfig(traitConfig);
 
         foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(traitConfig, this))
-            if (!traitConfig.Entries.LookupByKey(grantedEntry.TraitNodeID)?.ContainsKey(grantedEntry.TraitNodeEntryID))
+            if (traitConfig.Entries.LookupByKey(grantedEntry.TraitNodeID)?.ContainsKey(grantedEntry.TraitNodeEntryID) == null)
             {
                 TraitConfig value = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, traitConfigIndex);
                 AddDynamicUpdateFieldValue(value.ModifyValue(value.Entries), grantedEntry);
@@ -338,34 +338,34 @@ public partial class Player
         if (GetTalentResetCost() < 1 * MoneyConstants.Gold)
             return 1 * MoneyConstants.Gold;
         // then 5 gold
-        else if (GetTalentResetCost() < 5 * MoneyConstants.Gold)
+
+        if (GetTalentResetCost() < 5 * MoneyConstants.Gold)
             return 5 * MoneyConstants.Gold;
         // After that it increases in increments of 5 gold
-        else if (GetTalentResetCost() < 10 * MoneyConstants.Gold)
+
+        if (GetTalentResetCost() < 10 * MoneyConstants.Gold)
             return 10 * MoneyConstants.Gold;
+
+        var months = (ulong)(GameTime.CurrentTime - GetTalentResetTime()) / Time.MONTH;
+
+        if (months > 0)
+        {
+            // This cost will be reduced by a rate of 5 gold per month
+            var newCost = (uint)(GetTalentResetCost() - 5 * MoneyConstants.Gold * months);
+
+            // to a minimum of 10 gold.
+            return newCost < 10 * MoneyConstants.Gold ? 10 * MoneyConstants.Gold : newCost;
+        }
         else
         {
-            var months = (ulong)(GameTime.CurrentTime - GetTalentResetTime()) / Time.MONTH;
+            // After that it increases in increments of 5 gold
+            var newCost = GetTalentResetCost() + 5 * MoneyConstants.Gold;
 
-            if (months > 0)
-            {
-                // This cost will be reduced by a rate of 5 gold per month
-                var newCost = (uint)(GetTalentResetCost() - 5 * MoneyConstants.Gold * months);
+            // until it hits a cap of 50 gold.
+            if (newCost > 50 * MoneyConstants.Gold)
+                newCost = 50 * MoneyConstants.Gold;
 
-                // to a minimum of 10 gold.
-                return newCost < 10 * MoneyConstants.Gold ? 10 * MoneyConstants.Gold : newCost;
-            }
-            else
-            {
-                // After that it increases in increments of 5 gold
-                var newCost = GetTalentResetCost() + 5 * MoneyConstants.Gold;
-
-                // until it hits a cap of 50 gold.
-                if (newCost > 50 * MoneyConstants.Gold)
-                    newCost = 50 * MoneyConstants.Gold;
-
-                return newCost;
-            }
+            return newCost;
         }
     }
 
@@ -448,7 +448,7 @@ public partial class Player
         if (DB2Manager.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
             return TalentLearnResult.FailedUnknown;
 
-        if (CliDB.PvpTalentCategoryStorage.TryGetValue(talentInfo.PvpTalentCategoryID, out var talentCategory))
+        if (CliDB.PvpTalentCategoryStorage.TryGetValue((uint)talentInfo.PvpTalentCategoryID, out var talentCategory))
             if (!Convert.ToBoolean(talentCategory.TalentSlotMask & (1 << slot)))
                 return TalentLearnResult.FailedUnknown;
 
@@ -456,7 +456,7 @@ public partial class Player
         if (HasPvpTalent(talentID, GetActiveTalentGroup()))
             return TalentLearnResult.FailedUnknown;
 
-        if (CliDB.PlayerConditionStorage.TryGetValue(talentInfo.PlayerConditionID, out var playerCondition))
+        if (CliDB.PlayerConditionStorage.TryGetValue((uint)talentInfo.PlayerConditionID, out var playerCondition))
             if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                 return TalentLearnResult.FailedCantDoThatRightNow;
 
@@ -1022,10 +1022,10 @@ public partial class Player
 
     private void ApplyTraitEntry(int traitNodeEntryId, bool apply)
     {
-        if (!CliDB.TraitNodeEntryStorage.TryGetValue(traitNodeEntryId, out var traitNodeEntry))
+        if (!CliDB.TraitNodeEntryStorage.TryGetValue((uint)traitNodeEntryId, out var traitNodeEntry))
             return;
 
-        if (!CliDB.TraitDefinitionStorage.TryGetValue(traitNodeEntry.TraitDefinitionID, out var traitDefinition))
+        if (!CliDB.TraitDefinitionStorage.TryGetValue((uint)traitNodeEntry.TraitDefinitionID, out var traitDefinition))
             return;
 
         if (traitDefinition.SpellID == 0)
@@ -1053,7 +1053,7 @@ public partial class Player
         {
             var oldEntry = editedConfig.Entries[i];
 
-            if (newConfig.Entries.LookupByKey(oldEntry.TraitNodeID)?.ContainsKey(oldEntry.TraitNodeEntryID))
+            if (newConfig.Entries.LookupByKey(oldEntry.TraitNodeID)?.ContainsKey(oldEntry.TraitNodeEntryID) != null)
                 continue;
 
             if (applyTraits)
@@ -1125,7 +1125,7 @@ public partial class Player
 
             foreach (var (traitCurrencyId, amount) in currencies)
             {
-                if (!CliDB.TraitCurrencyStorage.TryGetValue(traitCurrencyId, out var traitCurrency))
+                if (!CliDB.TraitCurrencyStorage.TryGetValue((uint)traitCurrencyId, out var traitCurrency))
                     continue;
 
                 switch (traitCurrency.GetCurrencyType())

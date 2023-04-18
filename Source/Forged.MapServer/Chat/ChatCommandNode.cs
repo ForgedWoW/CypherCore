@@ -192,25 +192,21 @@ public class ChatCommandNode
                                             {
                                                 handler, new StringArguments(args)
                                             });
-        else
+
+        var parseArgs = new dynamic[_parameters.Length];
+        parseArgs[0] = handler;
+        var result = CommandArgs.ConsumeFromOffset(parseArgs, 1, _parameters, handler, args);
+
+        if (result.IsSuccessful)
+            return (bool)_methodInfo.Invoke(null, parseArgs);
+
+        if (result.HasErrorMessage)
         {
-            var parseArgs = new dynamic[_parameters.Length];
-            parseArgs[0] = handler;
-            var result = CommandArgs.ConsumeFromOffset(parseArgs, 1, _parameters, handler, args);
-
-            if (result.IsSuccessful)
-                return (bool)_methodInfo.Invoke(null, parseArgs);
-            else
-            {
-                if (result.HasErrorMessage)
-                {
-                    handler.SendSysMessage(result.ErrorMessage);
-                    handler.SetSentErrorMessage(true);
-                }
-
-                return false;
-            }
+            handler.SendSysMessage(result.ErrorMessage);
+            handler.SetSentErrorMessage(true);
         }
+
+        return false;
     }
 
     public void ResolveNames(string name)
