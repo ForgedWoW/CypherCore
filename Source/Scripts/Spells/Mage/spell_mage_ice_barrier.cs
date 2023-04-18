@@ -29,7 +29,7 @@ internal class SpellMageIceBarrier : AuraScript, IHasAuraEffects
         var caster = Caster;
 
         if (caster)
-            amount.Value += (caster.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask()) * 10.0f);
+            amount.Value += (caster.SpellBaseHealingBonusDone(SpellInfo.SchoolMask) * 10.0f);
     }
 
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

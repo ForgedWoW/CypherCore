@@ -25,7 +25,7 @@ internal class CypherStringChatBuilder : MessageBuilder
 
     public override ChatPacketSender Invoke(Locale locale = Locale.enUS)
     {
-        var text = _source.ObjectManager.GetCypherString(_textId, locale);
+        var text = _source.GameObjectManager.GetCypherString(_textId, locale);
 
         return _args != null ? new ChatPacketSender(_msgType, Language.Universal, _source, _target, string.Format(text, _args), 0, locale) : new ChatPacketSender(_msgType, Language.Universal, _source, _target, text, 0, locale);
     }

@@ -18,8 +18,7 @@ public class SpellEffectInfo
 {
     public ScalingInfo Scaling;
 
-    private static readonly StaticData[] Data = new StaticData[]
-    {
+    private static readonly StaticData[] Data = {
         // implicit target type           used target object type
         new(SpellEffectImplicitTargetTypes.None, SpellTargetObjectTypes.None),            // 0
         new(SpellEffectImplicitTargetTypes.Explicit, SpellTargetObjectTypes.Unit),        // 1 SPELL_EFFECT_INSTAKILL
@@ -394,20 +393,34 @@ public class SpellEffectInfo
     public List<Condition> ImplicitTargetConditions { get; set; }
     public SpellEffectImplicitTargetTypes ImplicitTargetType => Data[(int)Effect].ImplicitTargetType;
 
-    public bool IsAreaAuraEffect
-    {
-        get
-        {
-            if (Effect is SpellEffectName.ApplyAreaAuraParty or SpellEffectName.ApplyAreaAuraRaid or SpellEffectName.ApplyAreaAuraFriend or SpellEffectName.ApplyAreaAuraEnemy or SpellEffectName.ApplyAreaAuraPet or SpellEffectName.ApplyAreaAuraOwner or SpellEffectName.ApplyAreaAuraSummons or SpellEffectName.ApplyAreaAuraPartyNonrandom)
-                return true;
+    public bool IsAreaAuraEffect => Effect is SpellEffectName.ApplyAreaAuraParty or
+                                              SpellEffectName.ApplyAreaAuraRaid or
+                                              SpellEffectName.ApplyAreaAuraFriend or
+                                              SpellEffectName.ApplyAreaAuraEnemy or
+                                              SpellEffectName.ApplyAreaAuraPet or
+                                              SpellEffectName.ApplyAreaAuraOwner or
+                                              SpellEffectName.ApplyAreaAuraSummons or
+                                              SpellEffectName.ApplyAreaAuraPartyNonrandom;
 
-            return false;
-        }
-    }
-
+    public bool IsAura => (IsUnitOwnedAuraEffect || Effect == SpellEffectName.PersistentAreaAura) && ApplyAuraName != 0;
+    public bool IsEffect => Effect != 0;
     public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
     public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect is SpellEffectName.ApplyAura or SpellEffectName.ApplyAuraOnPet;
     public uint ItemType { get; set; }
+
+    public SpellRadiusRecord LargestRange
+    {
+        get
+        {
+            return HasMaxRadius switch
+            {
+                false when !HasRadius => null,
+                true => MaxRadiusEntry,
+                _ => RadiusEntry
+            };
+        }
+    }
+
     public SpellRadiusRecord MaxRadiusEntry { get; set; }
     public Mechanics Mechanic { get; set; }
     public int MiscValue { get; set; }
@@ -533,7 +546,7 @@ public class SpellEffectInfo
 
     public float CalcRadius(WorldObject caster = null, Spell spell = null)
     {
-        var entry = GetLargestRange();
+        var entry = LargestRange;
 
         if (entry == null)
             return 0.0f;
@@ -544,18 +557,18 @@ public class SpellEffectInfo
         if (radius == 0.0f)
             radius = entry.RadiusMax;
 
-        if (caster != null)
-        {
-            var casterUnit = caster.AsUnit;
+        if (caster == null)
+            return radius;
 
-            if (casterUnit != null)
-                radius += entry.RadiusPerLevel * casterUnit.Level;
+        var casterUnit = caster.AsUnit;
 
-            radius = Math.Min(radius, entry.RadiusMax);
-            var modOwner = caster.SpellModOwner;
+        if (casterUnit != null)
+            radius += entry.RadiusPerLevel * casterUnit.Level;
 
-            modOwner?.ApplySpellMod(_spellInfo, SpellModOp.Radius, ref radius, spell);
-        }
+        radius = Math.Min(radius, entry.RadiusMax);
+        var modOwner = caster.SpellModOwner;
+
+        modOwner?.ApplySpellMod(_spellInfo, SpellModOp.Radius, ref radius, spell);
 
         return radius;
     }
@@ -634,23 +647,6 @@ public class SpellEffectInfo
         return multiplier;
     }
 
-    public SpellRadiusRecord GetLargestRange()
-    {
-        var max = HasMaxRadius;
-        var min = HasRadius;
-
-        if (!max && !min)
-            return null;
-
-        if (max)
-            return MaxRadiusEntry;
-
-        if (min)
-            return RadiusEntry;
-
-        return RadiusEntry.RadiusMax > MaxRadiusEntry.RadiusMax ? RadiusEntry : MaxRadiusEntry;
-    }
-
     public SpellCastTargetFlags GetMissingTargetMask(bool srcSet = false, bool dstSet = false, SpellCastTargetFlags mask = 0)
     {
         var effImplicitTargetMask = SpellInfo.GetTargetFlagMask(UsedTargetObjectType);
@@ -681,22 +677,12 @@ public class SpellEffectInfo
         return effImplicitTargetMask;
     }
 
-    public bool IsAura()
+    public bool IsAuraType(AuraType aura)
     {
-        return (IsUnitOwnedAuraEffect || Effect == SpellEffectName.PersistentAreaAura) && ApplyAuraName != 0;
+        return IsAura && ApplyAuraName == aura;
     }
 
-    public bool IsAura(AuraType aura)
-    {
-        return IsAura() && ApplyAuraName == aura;
-    }
-
-    public bool IsEffect()
-    {
-        return Effect != 0;
-    }
-
-    public bool IsEffect(SpellEffectName effectName)
+    public bool IsEffectName(SpellEffectName effectName)
     {
         return Effect == effectName;
     }
@@ -718,10 +704,7 @@ public class SpellEffectInfo
 
             case SpellEffectName.Energize:
             case SpellEffectName.PowerBurn:
-                if (MiscValue == (int)PowerType.Mana)
-                    return ExpectedStatType.PlayerMana;
-
-                return ExpectedStatType.None;
+                return MiscValue == (int)PowerType.Mana ? ExpectedStatType.PlayerMana : ExpectedStatType.None;
 
             case SpellEffectName.PowerDrain:
                 return ExpectedStatType.PlayerMana;
@@ -788,10 +771,7 @@ public class SpellEffectInfo
                     case AuraType.ModPowerRegen:
                     case AuraType.PowerBurn:
                     case AuraType.ModMaxPower:
-                        if (MiscValue == (int)PowerType.Mana)
-                            return ExpectedStatType.PlayerMana;
-
-                        return ExpectedStatType.None;
+                        return MiscValue == (int)PowerType.Mana ? ExpectedStatType.PlayerMana : ExpectedStatType.None;
                 }
 
                 break;

@@ -65,7 +65,7 @@ internal class SpellRogRuptureAuraScript : AuraScript, IHasAuraEffects
             return;
 
         // Venomous Wounds: if unit dies while being affected by rupture, regain energy based on remaining duration
-        var cost = SpellInfo.CalcPowerCost(PowerType.Energy, false, caster, SpellInfo.GetSchoolMask(), null);
+        var cost = SpellInfo.CalcPowerCost(PowerType.Energy, false, caster, SpellInfo.SchoolMask, null);
 
         if (cost == null)
             return;

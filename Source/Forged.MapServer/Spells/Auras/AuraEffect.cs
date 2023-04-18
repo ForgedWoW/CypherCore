@@ -428,7 +428,7 @@ public class AuraEffect
             {
                 // Skip melee hits and spells with wrong school or zero cost
                 if (spellInfo == null ||
-                    !Convert.ToBoolean((int)spellInfo.GetSchoolMask() & MiscValue) // School Check
+                    !Convert.ToBoolean((int)spellInfo.SchoolMask & MiscValue) // School Check
                     ||
                     eventInfo.ProcSpell == null)
                     return false;
@@ -444,7 +444,7 @@ public class AuraEffect
             }
             case AuraType.ReflectSpellsSchool:
                 // Skip melee hits and spells with wrong school
-                if (spellInfo == null || !Convert.ToBoolean((int)spellInfo.GetSchoolMask() & MiscValue))
+                if (spellInfo == null || !Convert.ToBoolean((int)spellInfo.SchoolMask & MiscValue))
                     return false;
 
                 break;
@@ -481,7 +481,7 @@ public class AuraEffect
 
     public double GetCritChanceFor(Unit caster, Unit target)
     {
-        return target.SpellCritChanceTaken(caster, null, this, SpellInfo.GetSchoolMask(), CalcPeriodicCritChance(caster), SpellInfo.GetAttackType());
+        return target.SpellCritChanceTaken(caster, null, this, SpellInfo.SchoolMask, CalcPeriodicCritChance(caster), SpellInfo.GetAttackType());
     }
 
     public double? GetEstimatedAmount()
@@ -1145,7 +1145,7 @@ public class AuraEffect
         if (modOwner == null)
             return 0.0f;
 
-        var critChance = modOwner.SpellCritChanceDone(null, this, SpellInfo.GetSchoolMask(), SpellInfo.GetAttackType());
+        var critChance = modOwner.SpellCritChanceDone(null, this, SpellInfo.SchoolMask, SpellInfo.GetAttackType());
 
         return Math.Max(0.0f, critChance);
     }
@@ -3158,7 +3158,7 @@ public class AuraEffect
                     //    creatureEntry = mountVehicle->VehicleCreatureId;
                 }
 
-                var creatureInfo = Caster.ObjectManager.GetCreatureTemplate(creatureEntry);
+                var creatureInfo = Caster.GameObjectManager.GetCreatureTemplate(creatureEntry);
 
                 if (creatureInfo != null)
                 {
@@ -3166,14 +3166,14 @@ public class AuraEffect
 
                     if (displayId == 0)
                     {
-                        var model = Caster.ObjectManager.ChooseDisplayId(creatureInfo);
-                        Caster.ObjectManager.GetCreatureModelRandomGender(ref model, creatureInfo);
+                        var model = Caster.GameObjectManager.ChooseDisplayId(creatureInfo);
+                        Caster.GameObjectManager.GetCreatureModelRandomGender(ref model, creatureInfo);
                         displayId = model.CreatureDisplayId;
                     }
 
                     //some spell has one aura of mount and one of vehicle
                     foreach (var effect in SpellInfo.Effects)
-                        if (effect.IsEffect(SpellEffectName.Summon) && effect.MiscValue == MiscValue)
+                        if (effect.IsEffectName(SpellEffectName.Summon) && effect.MiscValue == MiscValue)
                             displayId = 0;
                 }
 
@@ -3533,7 +3533,7 @@ public class AuraEffect
                 }
                 else
                 {
-                    var ci = Caster.ObjectManager.GetCreatureTemplate((uint)MiscValue);
+                    var ci = Caster.GameObjectManager.GetCreatureTemplate((uint)MiscValue);
 
                     if (ci == null)
                     {
@@ -3543,7 +3543,7 @@ public class AuraEffect
                     else
                     {
                         uint modelID = 0;
-                        var modelid = Caster.ObjectManager.ChooseDisplayId(ci).CreatureDisplayId;
+                        var modelid = Caster.GameObjectManager.ChooseDisplayId(ci).CreatureDisplayId;
 
                         if (modelid != 0)
                             modelID = modelid; // Will use the default model here
@@ -3582,12 +3582,12 @@ public class AuraEffect
                 if (!target.GetAuraEffectsByType(AuraType.Mounted).Empty())
                 {
                     var crID = target.GetAuraEffectsByType(AuraType.Mounted)[0].MiscValue;
-                    var ci = Caster.ObjectManager.GetCreatureTemplate((uint)crID);
+                    var ci = Caster.GameObjectManager.GetCreatureTemplate((uint)crID);
 
                     if (ci != null)
                     {
-                        var model = Caster.ObjectManager.ChooseDisplayId(ci);
-                        Caster.ObjectManager.GetCreatureModelRandomGender(ref model, ci);
+                        var model = Caster.GameObjectManager.ChooseDisplayId(ci);
+                        Caster.GameObjectManager.GetCreatureModelRandomGender(ref model, ci);
 
                         target.MountDisplayId = model.CreatureDisplayId;
                     }
@@ -4069,7 +4069,7 @@ public class AuraEffect
             List<uint> summonedEntries = new();
 
             foreach (var spellEffectInfo in triggerSpellInfo.Effects)
-                if (spellEffectInfo.IsEffect(SpellEffectName.Summon))
+                if (spellEffectInfo.IsEffectName(SpellEffectName.Summon))
                 {
                     var summonEntry = (uint)spellEffectInfo.MiscValue;
 
@@ -5298,7 +5298,7 @@ public class AuraEffect
 
         // Consecrate ticks can miss and will not show up in the combat log
         // dynobj auras must always have a caster
-        if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
+        if (GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) &&
             caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
@@ -5368,7 +5368,7 @@ public class AuraEffect
             damage = Caster.UnitCombatHelpers.SpellCriticalDamageBonus(caster, SpellInfo, damage, target);
 
         // Calculate armor mitigation
-        if (Caster.UnitCombatHelpers.IsDamageReducedByArmor(SpellInfo.GetSchoolMask(), SpellInfo))
+        if (Caster.UnitCombatHelpers.IsDamageReducedByArmor(SpellInfo.SchoolMask, SpellInfo))
         {
             var damageReducedArmor = Caster.UnitCombatHelpers.CalcArmorReducedDamage(caster, target, damage, SpellInfo, SpellInfo.GetAttackType(), Base.CasterLevel);
             cleanDamage.MitigatedDamage += damage - damageReducedArmor;
@@ -5376,7 +5376,7 @@ public class AuraEffect
         }
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
-            if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+            if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
                 damage = target.CalculateAoeAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
 
         var dmg = damage;
@@ -5386,7 +5386,7 @@ public class AuraEffect
 
         damage = dmg;
 
-        DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.DOT, WeaponAttackType.BaseAttack);
+        DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.SchoolMask, DamageEffectType.DOT, WeaponAttackType.BaseAttack);
         Caster.UnitCombatHelpers.CalcAbsorbResist(damageInfo);
         damage = damageInfo.Damage;
 
@@ -5412,7 +5412,7 @@ public class AuraEffect
 
         SpellPeriodicAuraLogInfo pInfo = new(this, damage, dmg, overkill, absorb, resist, 0.0f, crit);
 
-        Caster.UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo);
+        Caster.UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.SchoolMask, SpellInfo);
 
         Caster.UnitCombatHelpers.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
         target.SendPeriodicAuraLog(pInfo);
@@ -5491,7 +5491,7 @@ public class AuraEffect
 
         var heal = damage;
 
-        HealInfo healInfo = new(caster, target, heal, SpellInfo, SpellInfo.GetSchoolMask());
+        HealInfo healInfo = new(caster, target, heal, SpellInfo, SpellInfo.SchoolMask);
         Caster.UnitCombatHelpers.CalcHealAbsorb(healInfo);
         Caster.UnitCombatHelpers.DealHeal(healInfo);
 
@@ -5542,7 +5542,7 @@ public class AuraEffect
 
         damage = damage * gainMultiplier;
 
-        HealInfo healInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask());
+        HealInfo healInfo = new(caster, target, damage, SpellInfo, SpellInfo.SchoolMask);
         caster.HealBySpell(healInfo);
         Caster.UnitCombatHelpers.ProcSkillsAndAuras(caster, target, new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic), new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, ProcFlagsHit.Normal, null, null, healInfo);
     }
@@ -5560,7 +5560,7 @@ public class AuraEffect
         }
 
         // dynobj auras must always have a caster
-        if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
+        if (GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) &&
             caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
@@ -5582,7 +5582,7 @@ public class AuraEffect
             damage = Caster.UnitCombatHelpers.SpellCriticalDamageBonus(caster, SpellInfo, damage, target);
 
         // Calculate armor mitigation
-        if (Caster.UnitCombatHelpers.IsDamageReducedByArmor(SpellInfo.GetSchoolMask(), SpellInfo))
+        if (Caster.UnitCombatHelpers.IsDamageReducedByArmor(SpellInfo.SchoolMask, SpellInfo))
         {
             var damageReducedArmor = Caster.UnitCombatHelpers.CalcArmorReducedDamage(caster, target, damage, SpellInfo, SpellInfo.GetAttackType(), Base.CasterLevel);
             cleanDamage.MitigatedDamage += damage - damageReducedArmor;
@@ -5590,7 +5590,7 @@ public class AuraEffect
         }
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
-            if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+            if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
                 damage = target.CalculateAoeAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
 
         var dmg = damage;
@@ -5600,14 +5600,14 @@ public class AuraEffect
 
         damage = dmg;
 
-        DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.DOT, SpellInfo.GetAttackType());
+        DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.SchoolMask, DamageEffectType.DOT, SpellInfo.GetAttackType());
         Caster.UnitCombatHelpers.CalcAbsorbResist(damageInfo);
 
         var absorb = damageInfo.Absorb;
         var resist = damageInfo.Resist;
 
         // SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
-        SpellNonMeleeDamage log = new(caster, target, SpellInfo, Base.SpellVisual, SpellInfo.GetSchoolMask(), Base.CastId)
+        SpellNonMeleeDamage log = new(caster, target, SpellInfo, Base.SpellVisual, SpellInfo.SchoolMask, Base.CastId)
         {
             Damage = damage,
             OriginalDamage = dmg,
@@ -5630,7 +5630,7 @@ public class AuraEffect
             procVictim.Or(ProcFlags.TakeAnyDamage);
         }
 
-        var newDamage = Caster.UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo, false);
+        var newDamage = Caster.UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.SchoolMask, SpellInfo, false);
         Caster.UnitCombatHelpers.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
 
         // process caster heal from now on (must be in world)
@@ -5642,7 +5642,7 @@ public class AuraEffect
         var heal = caster.SpellHealingBonusDone(caster, SpellInfo, (newDamage * gainMultiplier), DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
         heal = caster.SpellHealingBonusTaken(caster, SpellInfo, heal, DamageEffectType.DOT);
 
-        HealInfo healInfo = new(caster, caster, heal, SpellInfo, SpellInfo.GetSchoolMask());
+        HealInfo healInfo = new(caster, caster, heal, SpellInfo, SpellInfo.SchoolMask);
         caster.HealBySpell(healInfo);
 
         caster.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.EffectiveHeal * 0.5f, SpellInfo);
@@ -5665,7 +5665,7 @@ public class AuraEffect
             return;
         }
 
-        if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
+        if (GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) &&
             caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 

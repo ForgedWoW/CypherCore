@@ -89,7 +89,7 @@ public class ThreatManager
 
         // modifiers by effect school
         var victimMgr = victim.GetThreatManager();
-        var mask = spell?.GetSchoolMask() ?? SpellSchoolMask.Normal;
+        var mask = spell?.SchoolMask ?? SpellSchoolMask.Normal;
 
         switch (mask)
         {

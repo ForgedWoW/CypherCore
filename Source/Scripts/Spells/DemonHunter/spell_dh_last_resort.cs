@@ -40,7 +40,7 @@ public class SpellDhLastResort : AuraScript, IHasAuraEffects
         if (target.HasAura(DemonHunterSpells.LAST_RESORT_DEBUFF))
             return absorbAmount;
 
-        var healthPct = SpellInfo.GetEffect(1).IsEffect() ? SpellInfo.GetEffect(1).BasePoints : 0;
+        var healthPct = SpellInfo.GetEffect(1).IsEffect ? SpellInfo.GetEffect(1).BasePoints : 0;
         target.SetHealth(1);
         var healInfo = new HealInfo(target, target, target.CountPctFromMaxHealth(healthPct), SpellInfo, (SpellSchoolMask)SpellInfo.SchoolMask);
         target.HealBySpell(healInfo);

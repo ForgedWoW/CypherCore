@@ -31,7 +31,7 @@ public class SpellWarrTactician : AuraScript, IHasAuraEffects
         if (caster != null)
             if (procInfo.SpellInfo != null)
             {
-                foreach (var cost in procInfo.SpellInfo.CalcPowerCost(caster, procInfo.SpellInfo.GetSchoolMask()))
+                foreach (var cost in procInfo.SpellInfo.CalcPowerCost(caster, procInfo.SpellInfo.SchoolMask))
                 {
                     if (cost.Power != PowerType.Rage)
                         continue;

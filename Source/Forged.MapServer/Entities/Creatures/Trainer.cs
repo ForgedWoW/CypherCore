@@ -153,7 +153,7 @@ public class Trainer
 
         foreach (var effect in trainerSpellInfo.Effects)
         {
-            if (!effect.IsEffect(SpellEffectName.LearnSpell))
+            if (!effect.IsEffectName(SpellEffectName.LearnSpell))
                 continue;
 
             var learnedSpellInfo = _spellManager.GetSpellInfo(effect.TriggerSpell);
@@ -199,7 +199,7 @@ public class Trainer
         var hasLearnSpellEffect = false;
         var knowsAllLearnedSpells = true;
 
-        foreach (var spellEffectInfo in _spellManager.GetSpellInfo(trainerSpell.SpellId).Effects.Where(spellEffectInfo => spellEffectInfo.IsEffect(SpellEffectName.LearnSpell)))
+        foreach (var spellEffectInfo in _spellManager.GetSpellInfo(trainerSpell.SpellId).Effects.Where(spellEffectInfo => spellEffectInfo.IsEffectName(SpellEffectName.LearnSpell)))
         {
             hasLearnSpellEffect = true;
 

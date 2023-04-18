@@ -316,7 +316,7 @@ public partial class Player : Unit
         for (var i = 1; i < nodes.Count; ++i)
         {
             var lastnode = nodes[i];
-            ObjectManager.GetTaxiPath(prevnode, lastnode, out var path, out var cost);
+            GameObjectManager.GetTaxiPath(prevnode, lastnode, out var path, out var cost);
 
             if (path == 0)
             {
@@ -349,7 +349,7 @@ public partial class Player : Unit
         if (node.Flags.HasAnyFlag(TaxiNodeFlags.UseFavoriteMount) && preferredMountDisplay != 0)
             mountDisplayID = preferredMountDisplay;
         else
-            mountDisplayID = ObjectManager.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == PlayerClass.Deathknight));
+            mountDisplayID = GameObjectManager.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == PlayerClass.Deathknight));
 
         // in spell case allow 0 model
         if ((mountDisplayID == 0 && spellid == 0) || sourcepath == 0)
@@ -616,7 +616,7 @@ public partial class Player : Unit
             offItem.DeleteFromInventoryDB(trans); // deletes item from character's inventory
             offItem.SaveToDB(trans);              // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
-            var subject = ObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
+            var subject = GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
             ClassFactory.ResolvePositional<MailDraft>(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
 
             CharacterDatabase.CommitTransaction(trans);
@@ -818,7 +818,7 @@ public partial class Player : Unit
             return 0;
 
         // Multiply result with the faction specific rate
-        var repData = ObjectManager.GetRepRewardRate((uint)faction);
+        var repData = GameObjectManager.GetRepRewardRate((uint)faction);
 
         if (repData != null)
         {
@@ -941,7 +941,7 @@ public partial class Player : Unit
         {
             var cspell = charmInfo.GetCharmSpell(i);
 
-            if (cspell.GetAction() != 0)
+            if (cspell.Action != 0)
                 petSpells.Actions.Add(cspell.PackedData);
         }
 
@@ -1035,7 +1035,7 @@ public partial class Player : Unit
 
         Log.Logger.Debug("WORLD: Restart character {0} taxi flight", GUID.ToString());
 
-        var mountDisplayId = ObjectManager.GetTaxiMountDisplayId(sourceNode, Team, true);
+        var mountDisplayId = GameObjectManager.GetTaxiMountDisplayId(sourceNode, Team, true);
 
         if (mountDisplayId == 0)
             return;
@@ -1085,7 +1085,7 @@ public partial class Player : Unit
 
         SetName(createInfo.Name);
 
-        var info = ObjectManager.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
+        var info = GameObjectManager.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
 
         if (info == null)
         {
@@ -1584,7 +1584,7 @@ public partial class Player : Unit
         if (menuId == 0)
             return textId;
 
-        var menuBounds = ObjectManager.GetGossipMenusMapBounds(menuId);
+        var menuBounds = GameObjectManager.GetGossipMenusMapBounds(menuId);
 
         foreach (var menu in menuBounds.Where(menu => ConditionManager.IsObjectMeetToConditions(this, source, menu.Conditions)))
             textId = menu.TextId;
@@ -1850,9 +1850,9 @@ public partial class Player : Unit
 
         guild?.UpdateMemberData(this, GuildMemberData.Level, level);
 
-        var info = ObjectManager.GetPlayerLevelInfo(Race, Class, level);
+        var info = GameObjectManager.GetPlayerLevelInfo(Race, Class, level);
 
-        ObjectManager.GetPlayerClassLevelInfo(Class, level, out var basemana);
+        GameObjectManager.GetPlayerClassLevelInfo(Class, level, out var basemana);
 
         LevelUpInfo packet = new()
         {
@@ -1893,7 +1893,7 @@ public partial class Player : Unit
 
         SendPacket(packet);
 
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), ObjectManager.GetXPForLevel(level));
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), GameObjectManager.GetXPForLevel(level));
 
         //update level, max level of skills
         LevelPlayedTime = 0; // Level Played Time reset
@@ -1938,7 +1938,7 @@ public partial class Player : Unit
 
         pet?.SynchronizeLevelWithOwner();
 
-        var mailReward = ObjectManager.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
+        var mailReward = GameObjectManager.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
 
         if (mailReward != null)
         {
@@ -2275,11 +2275,11 @@ public partial class Player : Unit
         if (reapplyMods) //reapply stats values only on .reset stats (level) command
             _RemoveAllStatBonuses();
 
-        ObjectManager.GetPlayerClassLevelInfo(Class, Level, out var basemana);
+        GameObjectManager.GetPlayerClassLevelInfo(Class, Level, out var basemana);
 
-        var info = ObjectManager.GetPlayerLevelInfo(Race, Class, Level);
+        var info = GameObjectManager.GetPlayerLevelInfo(Race, Class, Level);
 
-        var expMaxLvl = (int)ObjectManager.GetMaxLevelForExpansion(Session.Expansion);
+        var expMaxLvl = (int)GameObjectManager.GetMaxLevelForExpansion(Session.Expansion);
         var confMaxLvl = Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
         if (expMaxLvl == SharedConst.DefaultMaxLevel || expMaxLvl >= confMaxLvl)
@@ -2287,7 +2287,7 @@ public partial class Player : Unit
         else
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), expMaxLvl);
 
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), ObjectManager.GetXPForLevel(Level));
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), GameObjectManager.GetXPForLevel(Level));
 
         if (ActivePlayerData.XP >= ActivePlayerData.NextLevelXP)
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.XP), ActivePlayerData.NextLevelXP - 1);
@@ -2551,10 +2551,10 @@ public partial class Player : Unit
     public override bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)
     {
         // players are immune to taunt (the aura and the spell effect).
-        if (spellEffectInfo.IsAura(AuraType.ModTaunt))
+        if (spellEffectInfo.IsAuraType(AuraType.ModTaunt))
             return true;
 
-        return spellEffectInfo.IsEffect(SpellEffectName.AttackMe) || base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
+        return spellEffectInfo.IsEffectName(SpellEffectName.AttackMe) || base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
     }
 
     public bool IsInAreaTriggerRadius(AreaTriggerRecord trigger)
@@ -2963,7 +2963,7 @@ public partial class Player : Unit
                 break;
 
             case GossipOptionNpc.Trainer:
-                Session.SendTrainerList(source.AsCreature, ObjectManager.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
+                Session.SendTrainerList(source.AsCreature, GameObjectManager.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
 
                 break;
 
@@ -3091,7 +3091,7 @@ public partial class Player : Unit
         {
             if (item.GossipNpcOptionId.HasValue)
             {
-                var addon = ObjectManager.GetGossipMenuAddon(menuId);
+                var addon = GameObjectManager.GetGossipMenuAddon(menuId);
 
                 GossipOptionNPCInteraction npcInteraction = new()
                 {
@@ -3175,7 +3175,7 @@ public partial class Player : Unit
 
         menu.GossipMenu.MenuId = menuId;
 
-        var menuItemBounds = ObjectManager.GetGossipMenuItemsMapBounds(menuId);
+        var menuItemBounds = GameObjectManager.GetGossipMenuItemsMapBounds(menuId);
 
         if (source.IsTypeId(TypeId.Unit))
         {
@@ -3603,7 +3603,7 @@ public partial class Player : Unit
         {
             var bf = BattleFieldManager.GetBattlefieldToZoneId(Location.Map, Location.Zone);
 
-            closestGrave = bf != null ? bf.GetClosestGraveYard(this) : ObjectManager.GetClosestGraveYard(Location, Team, this);
+            closestGrave = bf != null ? bf.GetClosestGraveYard(this) : GameObjectManager.GetClosestGraveYard(Location, Team, this);
         }
 
         // stop countdown until repop
@@ -3707,7 +3707,7 @@ public partial class Player : Unit
         SetDeathState(DeathState.Alive);
 
         // add the Id to make sure opcode is always sent
-        AddUnitMovementFlag(MovementFlag.WaterWalk);
+        MovementInfo.AddMovementFlag(MovementFlag.WaterWalk);
         SetWaterWalking(false);
 
         if (!HasUnitState(UnitState.Stunned))
@@ -3789,7 +3789,7 @@ public partial class Player : Unit
         if (victim.AsCreature.IsReputationGainDisabled)
             return;
 
-        var rep = ObjectManager.GetReputationOnKilEntry(victim.AsCreature.Template.Entry);
+        var rep = GameObjectManager.GetReputationOnKilEntry(victim.AsCreature.Template.Entry);
 
         if (rep == null)
             return;
@@ -3810,7 +3810,7 @@ public partial class Player : Unit
                     var dungeonLevels = DB2Manager.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                     if (dungeonLevels.HasValue)
-                        if (dungeonLevels.Value.TargetLevelMax == ObjectManager.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
+                        if (dungeonLevels.Value.TargetLevelMax == GameObjectManager.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
                             championingFaction = GetChampioningFaction();
                 }
             }
@@ -3996,7 +3996,7 @@ public partial class Player : Unit
 
         if (!GetPlayerSharingQuest().IsEmpty)
         {
-            var quest = ObjectManager.GetQuestTemplate(GetSharedQuestID());
+            var quest = GameObjectManager.GetQuestTemplate(GetSharedQuestID());
 
             if (quest != null)
                 PlayerTalkClass.SendQuestGiverQuestDetails(quest, GUID, true, false);
@@ -4219,13 +4219,13 @@ public partial class Player : Unit
 
     public void SendPlayerChoice(ObjectGuid sender, int choiceId)
     {
-        var playerChoice = ObjectManager.GetPlayerChoice(choiceId);
+        var playerChoice = GameObjectManager.GetPlayerChoice(choiceId);
 
         if (playerChoice == null)
             return;
 
         var locale = Session.SessionDbLocaleIndex;
-        var playerChoiceLocale = locale != Locale.enUS ? ObjectManager.GetPlayerChoiceLocale(choiceId) : null;
+        var playerChoiceLocale = locale != Locale.enUS ? GameObjectManager.GetPlayerChoiceLocale(choiceId) : null;
 
         PlayerTalkClass.InteractionData.Reset();
         PlayerTalkClass.InteractionData.SourceGuid = sender;
@@ -4241,7 +4241,7 @@ public partial class Player : Unit
         };
 
         if (playerChoiceLocale != null)
-            ObjectManager.GetLocaleString(playerChoiceLocale.Question, locale, ref displayPlayerChoice.Question);
+            GameObjectManager.GetLocaleString(playerChoiceLocale.Question, locale, ref displayPlayerChoice.Question);
 
         displayPlayerChoice.CloseChoiceFrame = false;
         displayPlayerChoice.HideWarboardHeader = playerChoice.HideWarboardHeader;
@@ -4272,12 +4272,12 @@ public partial class Player : Unit
 
             if (playerChoiceLocale?.Responses.TryGetValue(playerChoiceResponseTemplate.ResponseId, out var playerChoiceResponseLocale) == true)
             {
-                ObjectManager.GetLocaleString(playerChoiceResponseLocale.Answer, locale, ref playerChoiceResponse.Answer);
-                ObjectManager.GetLocaleString(playerChoiceResponseLocale.Header, locale, ref playerChoiceResponse.Header);
-                ObjectManager.GetLocaleString(playerChoiceResponseLocale.SubHeader, locale, ref playerChoiceResponse.SubHeader);
-                ObjectManager.GetLocaleString(playerChoiceResponseLocale.ButtonTooltip, locale, ref playerChoiceResponse.ButtonTooltip);
-                ObjectManager.GetLocaleString(playerChoiceResponseLocale.Description, locale, ref playerChoiceResponse.Description);
-                ObjectManager.GetLocaleString(playerChoiceResponseLocale.Confirmation, locale, ref playerChoiceResponse.Confirmation);
+                GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Answer, locale, ref playerChoiceResponse.Answer);
+                GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Header, locale, ref playerChoiceResponse.Header);
+                GameObjectManager.GetLocaleString(playerChoiceResponseLocale.SubHeader, locale, ref playerChoiceResponse.SubHeader);
+                GameObjectManager.GetLocaleString(playerChoiceResponseLocale.ButtonTooltip, locale, ref playerChoiceResponse.ButtonTooltip);
+                GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Description, locale, ref playerChoiceResponse.Description);
+                GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Confirmation, locale, ref playerChoiceResponse.Confirmation);
             }
 
             if (playerChoiceResponseTemplate.Reward == null)
@@ -5340,7 +5340,7 @@ public partial class Player : Unit
         }
 
         var map = Location.Map;
-        var petNumber = ObjectManager.GeneratePetNumber();
+        var petNumber = GameObjectManager.GeneratePetNumber();
 
         if (!pet.Create(map.GenerateLowGuid(HighGuid.Pet), map, entry, petNumber))
         {
@@ -5464,7 +5464,7 @@ public partial class Player : Unit
             ExitVehicle();
 
         // reset movement flags at teleport, because player will continue move with these flags after teleport
-        SetUnitMovementFlags(GetUnitMovementFlags() & MovementFlag.MaskHasPlayerStatusOpcode);
+        SetUnitMovementFlags(MovementInfo.MovementFlags & MovementFlag.MaskHasPlayerStatusOpcode);
         MovementInfo.ResetJump();
         DisableSpline();
         MotionMaster.Remove(MovementGeneratorType.Effect);
@@ -5852,7 +5852,7 @@ public partial class Player : Unit
                         _swingErrorMsg = 0; // reset swing error state
 
                         // prevent base and off attack in same time, delay attack at 0.2 sec
-                        if (HaveOffhandWeapon())
+                        if (HasOffhandWeapon)
                             if (GetAttackTimer(WeaponAttackType.OffAttack) < SharedConst.AttackDisplayDelay)
                                 SetAttackTimer(WeaponAttackType.OffAttack, SharedConst.AttackDisplayDelay);
 
@@ -5862,7 +5862,7 @@ public partial class Player : Unit
                     }
                 }
 
-                if (!IsInFeralForm && HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
+                if (!IsInFeralForm && HasOffhandWeapon && IsAttackReady(WeaponAttackType.OffAttack))
                 {
                     if (!IsWithinMeleeRange(victim))
                         SetAttackTimer(WeaponAttackType.OffAttack, 100);
@@ -6718,7 +6718,7 @@ public partial class Player : Unit
                 break;
 
             case ActionButtonType.Item:
-                if (ObjectManager.GetItemTemplate((uint)action) == null)
+                if (GameObjectManager.GetItemTemplate((uint)action) == null)
                 {
                     Log.Logger.Error($"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
 
@@ -7582,7 +7582,7 @@ public partial class Player : Unit
 
     public void SendSysMessage(uint str, params object[] args)
     {
-        var input = ObjectManager.GetCypherString(str);
+        var input = GameObjectManager.GetCypherString(str);
         var pattern = @"%(\d+(\.\d+)?)?(d|f|s|u)";
 
         var count = 0;
@@ -7851,7 +7851,7 @@ public partial class Player : Unit
             uint xp;
 
             if (diff < -5)
-                xp = (uint)(ObjectManager.GetBaseXP(Level + 5) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
+                xp = (uint)(GameObjectManager.GetBaseXP(Level + 5) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             else if (diff > 5)
             {
                 var explorationPercent = 100 - (diff - 5) * 5;
@@ -7859,14 +7859,14 @@ public partial class Player : Unit
                 if (explorationPercent < 0)
                     explorationPercent = 0;
 
-                xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * explorationPercent / 100f * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
+                xp = (uint)(GameObjectManager.GetBaseXP(areaLevel) * explorationPercent / 100f * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             }
             else
-                xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
+                xp = (uint)(GameObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
 
             if (Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0) != 0)
             {
-                var minScaledXP = (uint)(ObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f)) * Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0u) / 100;
+                var minScaledXP = (uint)(GameObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f)) * Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0u) / 100;
                 xp = Math.Max(minScaledXP, xp);
             }
 

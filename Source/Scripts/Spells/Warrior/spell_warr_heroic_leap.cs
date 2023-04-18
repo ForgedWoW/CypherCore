@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
 using Forged.MapServer.Movement.Generators;
 using Forged.MapServer.Scripting;
@@ -21,33 +22,32 @@ internal class SpellWarrHeroicLeap : SpellScript, ISpellCheckCast, IHasSpellEffe
     {
         var dest = ExplTargetDest;
 
-        if (dest != null)
+        if (dest == null)
+            return SpellCastResult.NoValidTargets;
+
+        if (Caster.MovementInfo.HasMovementFlag(MovementFlag.Root))
+            return SpellCastResult.Rooted;
+
+        if (Caster.Location.Map.Instanceable)
         {
-            if (Caster.HasUnitMovementFlag(MovementFlag.Root))
-                return SpellCastResult.Rooted;
+            var range = SpellInfo.GetMaxRange(true, Caster) * 1.5f;
 
-            if (Caster.Map.Instanceable)
-            {
-                var range = SpellInfo.GetMaxRange(true, Caster) * 1.5f;
+            PathGenerator generatedPath = new(Caster);
+            generatedPath.SetPathLengthLimit(range);
 
-                PathGenerator generatedPath = new(Caster);
-                generatedPath.SetPathLengthLimit(range);
+            var result = generatedPath.CalculatePath(dest, false);
 
-                var result = generatedPath.CalculatePath(dest, false);
-
-                if (generatedPath.GetPathType().HasAnyFlag(PathType.Short))
-                    return SpellCastResult.OutOfRange;
-                else if (!result ||
-                         generatedPath.GetPathType().HasAnyFlag(PathType.NoPath))
-                    return SpellCastResult.NoPath;
-            }
-            else if (dest.Z > Caster.Location.Z + 4.0f)
+            if (generatedPath.PathType.HasAnyFlag(PathType.Short))
+                return SpellCastResult.OutOfRange;
+            else if (!result ||
+                     generatedPath.PathType.HasAnyFlag(PathType.NoPath))
                 return SpellCastResult.NoPath;
-
-            return SpellCastResult.SpellCastOk;
         }
+        else if (dest.Z > Caster.Location.Z + 4.0f)
+            return SpellCastResult.NoPath;
 
-        return SpellCastResult.NoValidTargets;
+        return SpellCastResult.SpellCastOk;
+
     }
 
     public override void Register()

@@ -357,7 +357,7 @@ public class Pet : Guardian
         if (PetType == PetType.Hunter)
         {
             SetPetExperience(0);
-            SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel((uint)level) * PetXPFactor));
+            SetPetNextLevelExperience((uint)(GameObjectManager.GetXPForLevel((uint)level) * PetXPFactor));
         }
 
         InitStatsForLevel((uint)level);
@@ -501,7 +501,7 @@ public class Pet : Guardian
 
         if (petInfo.Type == PetType.Hunter)
         {
-            var creatureInfo = ObjectManager.GetCreatureTemplate(petInfo.CreatureId);
+            var creatureInfo = GameObjectManager.GetCreatureTemplate(petInfo.CreatureId);
 
             if (creatureInfo == null || !creatureInfo.IsTameable(owner.CanTameExoticPets))
                 return false;
@@ -1471,13 +1471,13 @@ public class Pet : Guardian
             var ab = GetCharmInfo().GetActionBarEntry(i);
 
             if (ab != null)
-                if (ab.GetAction() != 0 && ab.IsActionBarForSpell())
+                if (ab.Action != 0 && ab.IsActionBarForSpell)
                 {
-                    if (!HasSpell(ab.GetAction()))
+                    if (!HasSpell(ab.Action))
                         GetCharmInfo().SetActionBar(i, 0, ActiveStates.Passive);
-                    else if (ab.GetActiveState() == ActiveStates.Enabled)
+                    else if (ab.ActiveState == ActiveStates.Enabled)
                     {
-                        var spellInfo = Global.SpellMgr.GetSpellInfo(ab.GetAction(), Difficulty.None);
+                        var spellInfo = Global.SpellMgr.GetSpellInfo(ab.Action, Difficulty.None);
 
                         if (spellInfo != null)
                             ToggleAutocast(spellInfo, true);
@@ -1490,12 +1490,12 @@ public class Pet : Guardian
     {
         Log.Logger.Debug("CreateBaseForTamed");
 
-        if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, ObjectManager.GeneratePetNumber()))
+        if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, GameObjectManager.GeneratePetNumber()))
             return false;
 
         SetPetNameTimestamp(0);
         SetPetExperience(0);
-        SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel(Level + 1) * PetXPFactor));
+        SetPetNextLevelExperience((uint)(GameObjectManager.GetXPForLevel(Level + 1) * PetXPFactor));
         ReplaceAllNpcFlags(NPCFlags.None);
         ReplaceAllNpcFlags2(NPCFlags2.None);
 
@@ -1516,7 +1516,7 @@ public class Pet : Guardian
         StringBuilder ss = new();
 
         for (byte i = SharedConst.ActionBarIndexStart; i < SharedConst.ActionBarIndexEnd; ++i)
-            ss.Append($"{(uint)GetCharmInfo().GetActionBarEntry(i).GetActiveState()} {GetCharmInfo().GetActionBarEntry(i).GetAction()} ");
+            ss.Append($"{(uint)GetCharmInfo().GetActionBarEntry(i).ActiveState} {GetCharmInfo().GetActionBarEntry(i).Action} ");
 
         return ss.ToString();
     }

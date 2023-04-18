@@ -158,7 +158,7 @@ public class TargetInfo : TargetInfoBase
                 else
                     hitMask |= ProcFlagsHit.Normal;
 
-                healInfo = new HealInfo(caster, spell.UnitTarget, (uint)addhealth, spell.SpellInfo, spell.SpellInfo.GetSchoolMask());
+                healInfo = new HealInfo(caster, spell.UnitTarget, (uint)addhealth, spell.SpellInfo, spell.SpellInfo.SchoolMask);
                 caster.HealBySpell(healInfo, IsCrit);
                 spell.UnitTarget.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.EffectiveHeal * 0.5f, spell.SpellInfo);
                 spell.HealingInEffects = (int)healInfo.EffectiveHeal;

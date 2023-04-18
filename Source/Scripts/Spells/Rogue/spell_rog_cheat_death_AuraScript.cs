@@ -47,7 +47,7 @@ public class SpellRogCheatDeathAuraScript : AuraScript, IHasAuraEffects
 
             var health7 = target.CountPctFromMaxHealth(7);
             target.SetHealth(1);
-            var healInfo = new HealInfo(target, target, (uint)health7, SpellInfo, SpellInfo.GetSchoolMask());
+            var healInfo = new HealInfo(target, target, (uint)health7, SpellInfo, SpellInfo.SchoolMask);
             target.HealBySpell(healInfo);
             target.SpellFactory.CastSpell(target, CheatDeath.CheatDeathAnim, true);
             target.SpellFactory.CastSpell(target, CheatDeath.CheatDeathDmgReduc, true);

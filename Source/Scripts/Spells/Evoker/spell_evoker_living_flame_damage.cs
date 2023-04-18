@@ -26,7 +26,7 @@ public class SpellEvokerLivingFlameDamage : SpellScript, IHasSpellEffects
         {
             var spellInfo = Global.SpellMgr.AssertSpellInfo(EvokerSpells.RED_LIVING_FLAME, CastDifficulty);
 
-            var cost = spellInfo.CalcPowerCost(PowerType.Mana, false, Caster, SpellInfo.GetSchoolMask(), null);
+            var cost = spellInfo.CalcPowerCost(PowerType.Mana, false, Caster, SpellInfo.SchoolMask, null);
 
             if (cost == null)
                 return;

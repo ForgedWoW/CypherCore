@@ -30,7 +30,7 @@ public class SpellMonkLifeCocoon : AuraScript, IHasAuraEffects
         //Formula:  [(((Spell power * 11) + 0)) * (1 + Versatility)]
         //Simplified to : [(Spellpower * 11)]
         //Versatility will be taken into account at a later date.
-        amount.Value += caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * 11;
+        amount.Value += caster.SpellBaseDamageBonusDone(SpellInfo.SchoolMask) * 11;
         canBeRecalculated.Value = false;
     }
 }

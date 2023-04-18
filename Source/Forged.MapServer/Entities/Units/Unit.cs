@@ -141,7 +141,7 @@ public partial class Unit : WorldObject
             AddInterruptMask(aurSpellInfo.AuraInterruptFlags, aurSpellInfo.AuraInterruptFlags2);
         }
 
-        var aState = aura.SpellInfo.GetAuraState();
+        var aState = aura.SpellInfo.AuraState;
 
         if (aState != 0)
             _auraStateAuras.Add(aState, aurApp);
@@ -173,7 +173,7 @@ public partial class Unit : WorldObject
         var player = AsPlayer;
 
         // If the player is on mounted duel and exits the mount, he should immediatly lose the duel
-        if (player && player.Duel is { IsMounted: true })
+        if (player is { Duel: { IsMounted: true } })
             player.DuelComplete(DuelCompleteType.Fled);
 
         SetControlled(false, UnitState.Root); // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
@@ -636,9 +636,9 @@ public partial class Unit : WorldObject
     public void GetAnyUnitListInRange(List<Unit> list, float fMaxSearchRange)
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
-        var cell = new Cell(p);
+        var cell = new Cell(p, GridDefines);
         cell.Data.NoCreate = true;
-        ;
+
 
         var uCheck = new AnyUnitInObjectRangeCheck(this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -661,9 +661,9 @@ public partial class Unit : WorldObject
     public void GetAttackableUnitListInRange(List<Unit> list, float fMaxSearchRange)
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
-        var cell = new Cell(p);
+        var cell = new Cell(p, GridDefines);
         cell.Data.NoCreate = true;
-        ;
+
 
         var uCheck = new NearestAttackableUnitInObjectRangeCheck(this, this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -700,7 +700,7 @@ public partial class Unit : WorldObject
 
     public override string GetDebugInfo()
     {
-        var str = $"{base.GetDebugInfo()}\nIsAIEnabled: {IsAIEnabled} DeathState: {DeathState} UnitMovementFlags: {GetUnitMovementFlags()} UnitMovementFlags2: {GetUnitMovementFlags2()} Class: {Class}\n" +
+        var str = $"{base.GetDebugInfo()}\nIsAIEnabled: {IsAIEnabled} DeathState: {DeathState} UnitMovementFlags: {MovementInfo.MovementFlags} UnitMovementFlags2: {MovementInfo.GetMovementFlags2()} Class: {Class}\n" +
                   $" {(MoveSpline != null ? MoveSpline.ToString() : "Movespline: <none>\n")} GetCharmedGUID(): {CharmedGUID}\nGetCharmerGUID(): {CharmerGUID}\n{(VehicleKit != null ? VehicleKit.GetDebugInfo() : "No vehicle kit")}\n" +
                   $"m_Controlled size: {Controlled.Count}";
 
@@ -723,9 +723,8 @@ public partial class Unit : WorldObject
     public void GetFriendlyUnitListInRange(List<Unit> list, float fMaxSearchRange, bool exceptSelf = false)
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
-        var cell = new Cell(p);
+        var cell = new Cell(p, GridDefines);
         cell.Data.NoCreate = true;
-        ;
 
         var uCheck = new AnyFriendlyUnitInObjectRangeCheck(this, this, fMaxSearchRange, false, exceptSelf);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -798,7 +797,7 @@ public partial class Unit : WorldObject
 
     public uint GetModelForForm(ShapeShiftForm form, uint spellId)
     {
-        // Hardcoded cases
+        // Hardcoded cases TODO Pandaros - Move to scripts
         switch (spellId)
         {
             case 7090: // Bear Form
@@ -906,10 +905,7 @@ public partial class Unit : WorldObject
         if (TypeId != TypeId.Player)
             return formEntry.CreatureDisplayID[0];
 
-        if (Player.TeamForRace(Race, CliDB) == TeamFaction.Alliance)
-            modelid = formEntry.CreatureDisplayID[0];
-        else
-            modelid = formEntry.CreatureDisplayID[1];
+        modelid = Player.TeamForRace(Race, CliDB) == TeamFaction.Alliance ? formEntry.CreatureDisplayID[0] : formEntry.CreatureDisplayID[1];
 
         // If the player is horde but there are no values for the horde modelid - take the alliance modelid
         if (modelid == 0 && Player.TeamForRace(Race, CliDB) == TeamFaction.Horde)
@@ -931,10 +927,9 @@ public partial class Unit : WorldObject
         if (player == null)
             return null;
 
-        var group = player.Group;
 
         // When there is no group check pet presence
-        if (!group)
+        if (player.Group == null)
         {
             // We are pet now, return owner
             if (player != this)
@@ -953,23 +948,25 @@ public partial class Unit : WorldObject
         List<Unit> nearMembers = new();
         // reserve place for players and pets because resizing vector every unit push is unefficient (vector is reallocated then)
 
-        for (var refe = group.FirstMember; refe != null; refe = refe.Next())
+        for (var refe = player.Group.FirstMember; refe != null; refe = refe.Next())
         {
             var target = refe.Source;
 
-            if (target)
-            {
-                // IsHostileTo check duel and controlled by enemy
-                if (target != this && Location.IsWithinDistInMap(target, radius) && target.IsAlive && !WorldObjectCombat.IsHostileTo(target))
-                    nearMembers.Add(target);
+            if (target == null)
+                continue;
 
-                // Push player's pet to vector
-                Unit pet = target.GetGuardianPet();
+            // IsHostileTo check duel and controlled by enemy
+            if (target != this && Location.IsWithinDistInMap(target, radius) && target.IsAlive && !WorldObjectCombat.IsHostileTo(target))
+                nearMembers.Add(target);
 
-                if (pet)
-                    if (pet != this && Location.IsWithinDistInMap(pet, radius) && pet.IsAlive && !WorldObjectCombat.IsHostileTo(pet))
-                        nearMembers.Add(pet);
-            }
+            // Push player's pet to vector
+            Unit pet = target.GetGuardianPet();
+
+            if (pet == null)
+                continue;
+
+            if (pet != this && Location.IsWithinDistInMap(pet, radius) && pet.IsAlive && !WorldObjectCombat.IsHostileTo(pet))
+                nearMembers.Add(pet);
         }
 
         if (nearMembers.Empty())
@@ -997,17 +994,19 @@ public partial class Unit : WorldObject
                 var target = refe.Source;
 
                 // IsHostileTo check duel and controlled by enemy
-                if (target != null && target.Location.IsInMap(owner) && target.SubGroup == subgroup && !WorldObjectCombat.IsHostileTo(target))
-                {
-                    if (target.IsAlive)
-                        tagUnitMap.Add(target);
+                if (target == null || !target.Location.IsInMap(owner) || target.SubGroup != subgroup || WorldObjectCombat.IsHostileTo(target))
+                    continue;
 
-                    var pet = target.GetGuardianPet();
+                if (target.IsAlive)
+                    tagUnitMap.Add(target);
 
-                    if (target.GetGuardianPet())
-                        if (pet.IsAlive)
-                            tagUnitMap.Add(pet);
-                }
+                var pet = target.GetGuardianPet();
+
+                if (target.GetGuardianPet() == null)
+                    continue;
+
+                if (pet.IsAlive)
+                    tagUnitMap.Add(pet);
             }
         }
         else
@@ -1017,9 +1016,11 @@ public partial class Unit : WorldObject
 
             var pet = owner.GetGuardianPet();
 
-            if (owner.GetGuardianPet() != null)
-                if ((pet == this || Location.IsInMap(pet)) && pet.IsAlive)
-                    tagUnitMap.Add(pet);
+            if (owner.GetGuardianPet() == null)
+                return;
+
+            if ((pet == this || Location.IsInMap(pet)) && pet.IsAlive)
+                tagUnitMap.Add(pet);
         }
     }
 
@@ -1076,28 +1077,22 @@ public partial class Unit : WorldObject
     {
         if (!IsPlayer)
         {
-            if (OwnerUnit)
-            {
-                var ownerPlayer = OwnerUnit.AsPlayer;
+            var ownerPlayer = OwnerUnit?.AsPlayer;
 
-                if (ownerPlayer != null)
+            if (ownerPlayer != null)
+            {
+                if (IsTotem)
+                    return OwnerUnit.GetTotalSpellPowerValue(mask, heal);
+                else
                 {
-                    if (IsTotem)
-                        return OwnerUnit.GetTotalSpellPowerValue(mask, heal);
-                    else
-                    {
-                        if (IsPet)
-                            return ownerPlayer.ActivePlayerData.PetSpellPower.Value;
-                        else if (IsGuardian)
-                            return ((Guardian)this).GetBonusDamage();
-                    }
+                    if (IsPet)
+                        return ownerPlayer.ActivePlayerData.PetSpellPower.Value;
+                    else if (IsGuardian)
+                        return ((Guardian)this).GetBonusDamage();
                 }
             }
 
-            if (heal)
-                return SpellBaseHealingBonusDone(mask);
-            else
-                return SpellBaseDamageBonusDone(mask);
+            return heal ? SpellBaseHealingBonusDone(mask) : SpellBaseDamageBonusDone(mask);
         }
 
         var thisPlayer = AsPlayer;
@@ -1131,27 +1126,23 @@ public partial class Unit : WorldObject
         if (target == this || OwnerGUID == target.GUID)
             flags |= UpdateFieldFlag.Owner;
 
-        if (HasDynamicFlag(UnitDynFlags.SpecialInfo))
-            if (HasAuraTypeWithCaster(AuraType.Empathy, target.GUID))
-                flags |= UpdateFieldFlag.Empath;
+        if (!HasDynamicFlag(UnitDynFlags.SpecialInfo))
+            return flags;
+
+        if (HasAuraTypeWithCaster(AuraType.Empathy, target.GUID))
+            flags |= UpdateFieldFlag.Empath;
 
         return flags;
     }
 
     public ushort GetVirtualItemAppearanceMod(uint slot)
     {
-        if (slot >= SharedConst.MaxEquipmentItems)
-            return 0;
-
-        return UnitData.VirtualItems[(int)slot].ItemAppearanceModID;
+        return slot >= SharedConst.MaxEquipmentItems ? (ushort)0 : UnitData.VirtualItems[(int)slot].ItemAppearanceModID;
     }
 
     public uint GetVirtualItemId(int slot)
     {
-        if (slot >= SharedConst.MaxEquipmentItems)
-            return 0;
-
-        return UnitData.VirtualItems[slot].ItemID;
+        return slot >= SharedConst.MaxEquipmentItems ? 0 : UnitData.VirtualItems[slot].ItemID;
     }
 
     public void HandleEmoteCommand(Emote emoteId, Player target = null, uint[] spellVisualKitIds = null, int sequenceVariation = 0)
@@ -1162,7 +1153,7 @@ public partial class Unit : WorldObject
             EmoteID = (uint)emoteId
         };
 
-        if (CliDB.EmotesStorage.TryGetValue((uint)emoteId, out var emotesEntry))
+        if (spellVisualKitIds != null && CliDB.EmotesStorage.TryGetValue((uint)emoteId, out var emotesEntry))
             if (emotesEntry.AnimId == (uint)Anim.MountSpecial || emotesEntry.AnimId == (uint)Anim.MountSelfSpecial)
                 packet.SpellVisualKitIDs.AddRange(spellVisualKitIds);
 
@@ -1229,13 +1220,6 @@ public partial class Unit : WorldObject
         return Convert.ToBoolean(mask & UnitTypeMask);
     }
 
-    public bool HaveOffhandWeapon()
-    {
-        if (IsTypeId(TypeId.Player))
-            return AsPlayer.GetWeaponForAttack(WeaponAttackType.OffAttack, true) != null;
-        else
-            return CanDualWield;
-    }
 
     public bool IsAlliedRace()
     {
@@ -1281,31 +1265,17 @@ public partial class Unit : WorldObject
 
         var seerPlayer = seer.AsPlayer;
 
-        if (seerPlayer != null)
-        {
-            var owner = OwnerUnit;
+        if (seerPlayer == null)
+            return false;
 
-            if (owner != null)
-            {
-                var ownerPlayer = owner.AsPlayer;
-
-                if (ownerPlayer)
-                    if (ownerPlayer.IsGroupVisibleFor(seerPlayer))
-                        return true;
-            }
-        }
-
-        return false;
+        return OwnerUnit?.AsPlayer?.IsGroupVisibleFor(seerPlayer) == true;
     }
 
     public bool IsContestedGuard()
     {
         var entry = WorldObjectCombat.GetFactionTemplateEntry();
 
-        if (entry != null)
-            return entry.IsContestedGuardFaction();
-
-        return false;
+        return entry != null && entry.IsContestedGuardFaction();
     }
 
     public bool IsDisallowedMountForm(uint spellId, ShapeShiftForm form, uint displayId)
@@ -1337,26 +1307,10 @@ public partial class Unit : WorldObject
         var model = CliDB.CreatureModelDataStorage.LookupByKey(display.ModelID);
         var race = CliDB.ChrRacesStorage.LookupByKey((uint)displayExtra.DisplayRaceID);
 
-        if (model != null && !model.GetFlags().HasFlag(CreatureModelDataFlags.CanMountWhileTransformedAsThis))
-            if (race != null && !race.GetFlags().HasFlag(ChrRacesFlag.CanMount))
-                return true;
+        if (model == null || model.GetFlags().HasFlag(CreatureModelDataFlags.CanMountWhileTransformedAsThis))
+            return false;
 
-        return false;
-    }
-
-    public bool IsImmuneToAll()
-    {
-        return IsImmuneToPc() && IsImmuneToNPC();
-    }
-
-    public bool IsImmuneToNPC()
-    {
-        return HasUnitFlag(UnitFlags.ImmuneToNpc);
-    }
-
-    public bool IsImmuneToPc()
-    {
-        return HasUnitFlag(UnitFlags.ImmuneToPc);
+        return race != null && !race.GetFlags().HasFlag(ChrRacesFlag.CanMount);
     }
 
     public bool IsInPartyWith(Unit unit)
@@ -1450,7 +1404,7 @@ public partial class Unit : WorldObject
         // Done total percent damage auras
         double doneTotalMod = 1.0f;
 
-        var schoolMask = spellProto?.GetSchoolMask() ?? damageSchoolMask;
+        var schoolMask = spellProto?.SchoolMask ?? damageSchoolMask;
 
         if ((schoolMask & SpellSchoolMask.Normal) == 0)
             // Some spells don't benefit from pct done mods
@@ -1539,7 +1493,7 @@ public partial class Unit : WorldObject
         if (spellProto != null)
         {
             // From caster spells
-            takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GUID && (aurEff.MiscValue & (int)spellProto.GetSchoolMask()) != 0; });
+            takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GUID && (aurEff.MiscValue & (int)spellProto.SchoolMask) != 0; });
 
             takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSpellDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GUID && aurEff.IsAffectingSpell(spellProto); });
 
@@ -1561,7 +1515,7 @@ public partial class Unit : WorldObject
                                                         });
 
             if (damagetype == DamageEffectType.DOT)
-                takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.MiscValue & (uint)spellProto.GetSchoolMask()) != 0);
+                takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.MiscValue & (uint)spellProto.SchoolMask) != 0);
         }
         else // melee attack
             takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GUID; });
@@ -1579,7 +1533,7 @@ public partial class Unit : WorldObject
         // Versatility
         var modOwner = SpellModOwner;
 
-        if (modOwner)
+        if (modOwner != null)
         {
             // only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
             var versaBonus = modOwner.GetTotalAuraModifier(AuraType.ModVersatility) / 2.0f;
@@ -1589,7 +1543,7 @@ public partial class Unit : WorldObject
         // Sanctified Wrath (bypass damage reduction)
         if (takenTotalMod < 1.0f)
         {
-            var attackSchoolMask = spellProto?.GetSchoolMask() ?? damageSchoolMask;
+            var attackSchoolMask = spellProto?.SchoolMask ?? damageSchoolMask;
 
             var damageReduction = 1.0f - takenTotalMod;
             var casterIgnoreResist = attacker.GetAuraEffectsByType(AuraType.ModIgnoreTargetResist);
@@ -1650,18 +1604,11 @@ public partial class Unit : WorldObject
         }
 
         if (dVal < 0)
-        {
-            HealthUpdate packet = new()
+            CharmerOrOwnerPlayerOrPlayerItself?.SendPacket(new HealthUpdate()
             {
                 Guid = GUID,
                 Health = Health
-            };
-
-            var player = CharmerOrOwnerPlayerOrPlayerItself;
-
-            if (player)
-                player.SendPacket(packet);
-        }
+            });
 
         return gain;
     }
@@ -1716,10 +1663,7 @@ public partial class Unit : WorldObject
     public void RefreshAI()
     {
         lock (UnitAis)
-            if (UnitAis.Count == 0)
-                Ai = null;
-            else
-                Ai = UnitAis.Peek();
+            Ai = UnitAis.Count == 0 ? null : UnitAis.Peek();
     }
 
     public void RegisterDynObject(DynamicObject dynObj)
@@ -1774,13 +1718,12 @@ public partial class Unit : WorldObject
         if (_areaTrigger.Empty())
             return;
 
-        foreach (var areaTrigger in _areaTrigger)
-            if (areaTrigger.AuraEff == aurEff)
-            {
-                areaTrigger.Remove();
+        foreach (var areaTrigger in _areaTrigger.Where(areaTrigger => areaTrigger.AuraEff == aurEff))
+        {
+            areaTrigger.Remove();
 
-                break; // There can only be one AreaTrigger per AuraEffect
-            }
+            break; // There can only be one AreaTrigger per AuraEffect
+        }
     }
 
     public void RemoveChannelObject(ObjectGuid guid)
@@ -1798,54 +1741,53 @@ public partial class Unit : WorldObject
 
     public void RemoveDynObject(uint spellId)
     {
-        foreach (var dynObj in DynamicObjects)
-            if (dynObj.GetSpellId() == spellId)
-                dynObj.Remove();
+        foreach (var dynObj in DynamicObjects.Where(dynObj => dynObj.GetSpellId() == spellId))
+            dynObj.Remove();
     }
 
     public override void RemoveFromWorld()
     {
         // cleanup
 
-        if (Location.IsInWorld)
-        {
-            IsDuringRemoveFromWorld = true;
-            var ai = AI;
+        if (!Location.IsInWorld)
+            return;
 
-            ai?.OnDespawn();
+        IsDuringRemoveFromWorld = true;
+        var ai = AI;
 
-            if (IsVehicle)
-                RemoveVehicleKit(true);
+        ai?.OnDespawn();
 
-            RemoveCharmAuras();
-            RemoveAurasByType(AuraType.BindSight);
-            RemoveNotOwnSingleTargetAuras();
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeaveWorld);
+        if (IsVehicle)
+            RemoveVehicleKit(true);
 
-            RemoveAllGameObjects();
-            RemoveAllDynObjects();
-            RemoveAllAreaTriggers();
+        RemoveCharmAuras();
+        RemoveAurasByType(AuraType.BindSight);
+        RemoveNotOwnSingleTargetAuras();
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeaveWorld);
 
-            ExitVehicle(); // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
-            UnsummonAllTotems();
-            RemoveAllControlled();
+        RemoveAllGameObjects();
+        RemoveAllDynObjects();
+        RemoveAllAreaTriggers();
 
-            RemoveAreaAurasDueToLeaveWorld();
+        ExitVehicle(); // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
+        UnsummonAllTotems();
+        RemoveAllControlled();
 
-            RemoveAllFollowers();
+        RemoveAreaAurasDueToLeaveWorld();
 
-            if (IsCharmed)
-                RemoveCharmedBy();
+        RemoveAllFollowers();
 
-            var owner = OwnerUnit;
+        if (IsCharmed)
+            RemoveCharmedBy();
 
-            if (owner != null)
-                if (owner.Controlled.Contains(this))
-                    Log.Logger.Fatal("Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
+        var owner = OwnerUnit;
 
-            base.RemoveFromWorld();
-            IsDuringRemoveFromWorld = false;
-        }
+        if (owner != null)
+            if (owner.Controlled.Contains(this))
+                Log.Logger.Fatal("Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
+
+        base.RemoveFromWorld();
+        IsDuringRemoveFromWorld = false;
     }
 
     public void RemoveGameObject(GameObject gameObj, bool del)
@@ -1883,11 +1825,11 @@ public partial class Unit : WorldObject
         if (IsTypeId(TypeId.Unit) && AsCreature.IsAIEnabled)
             AsCreature.AI.SummonedGameobjectDespawn(gameObj);
 
-        if (del)
-        {
-            gameObj.SetRespawnTime(0);
-            gameObj.Delete();
-        }
+        if (!del)
+            return;
+
+        gameObj.SetRespawnTime(0);
+        gameObj.Delete();
     }
 
     public void RemoveGameObject(uint spellid, bool del)
@@ -1899,18 +1841,18 @@ public partial class Unit : WorldObject
         {
             var obj = GameObjects[i];
 
-            if (spellid == 0 || obj.SpellId == spellid)
+            if (spellid != 0 && obj.SpellId != spellid)
+                continue;
+
+            obj.SetOwnerGUID(ObjectGuid.Empty);
+
+            if (del)
             {
-                obj.SetOwnerGUID(ObjectGuid.Empty);
-
-                if (del)
-                {
-                    obj.SetRespawnTime(0);
-                    obj.Delete();
-                }
-
-                GameObjects.Remove(obj);
+                obj.SetRespawnTime(0);
+                obj.Delete();
             }
+
+            GameObjects.Remove(obj);
         }
     }
 
@@ -1934,11 +1876,11 @@ public partial class Unit : WorldObject
     {
         _sharedVision.Remove(player);
 
-        if (_sharedVision.Empty())
-        {
-            SetActive(false);
-            SetWorldObject(false);
-        }
+        if (!_sharedVision.Empty())
+            return;
+
+        SetActive(false);
+        SetWorldObject(false);
     }
 
     public void RemovePvpFlag(UnitPVPStateFlags flags)
@@ -2023,30 +1965,30 @@ public partial class Unit : WorldObject
             {
                 var aurApp = eff.Base.GetApplicationOfTarget(GUID);
 
-                if (aurApp != null)
+                if (aurApp == null)
+                    continue;
+
+                if (handledAura == null)
                 {
-                    if (handledAura == null)
-                    {
-                        if (!ignorePositiveAurasPreventingMounting)
-                            handledAura = eff;
-                        else
-                        {
-                            var ci = ObjectManager.GetCreatureTemplate((uint)eff.MiscValue);
-
-                            if (ci != null)
-                                if (!IsDisallowedMountForm(eff.Id, ShapeShiftForm.None, GameObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
-                                    handledAura = eff;
-                        }
-                    }
-
-                    // prefer negative auras
-                    if (!aurApp.IsPositive)
-                    {
+                    if (!ignorePositiveAurasPreventingMounting)
                         handledAura = eff;
+                    else
+                    {
+                        var ci = GameObjectManager.GetCreatureTemplate((uint)eff.MiscValue);
 
-                        break;
+                        if (ci != null)
+                            if (!IsDisallowedMountForm(eff.Id, ShapeShiftForm.None, GameObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
+                                handledAura = eff;
                     }
                 }
+
+                // prefer negative auras
+                if (aurApp.IsPositive)
+                    continue;
+
+                handledAura = eff;
+
+                break;
             }
 
         var shapeshiftAura = GetAuraEffectsByType(AuraType.ModShapeshift);
@@ -2099,7 +2041,7 @@ public partial class Unit : WorldObject
             {
                 var owner = OwnerUnit;
 
-                if (owner)
+                if (owner != null)
                 {
                     Faction = owner.Faction;
 
@@ -2175,12 +2117,9 @@ public partial class Unit : WorldObject
         CellCalculator.VisitGrid(this, searcher, dist);
 
         // no appropriate targets
-        targets.RemoveAll(k => exclude.Contains(k));
+        targets.RemoveAll(exclude.Contains);
 
-        if (targets.Empty())
-            return null;
-
-        return targets.SelectRandom();
+        return targets.Empty() ? null : targets.SelectRandom();
     }
 
     public Unit SelectNearbyTarget(Unit exclude = null, float dist = SharedConst.NominalMeleeRange)
@@ -2194,10 +2133,7 @@ public partial class Unit : WorldObject
                 return false;
 
             // remove not LoS targets
-            if (!Location.IsWithinLOSInMap(u) || u.IsTotem || u.IsSpiritService || u.IsCritter)
-                return false;
-
-            return true;
+            return Location.IsWithinLOSInMap(u) && !u.IsTotem && !u.IsSpiritService && !u.IsCritter;
         }
 
         List<Unit> targets = new();
@@ -2205,12 +2141,8 @@ public partial class Unit : WorldObject
         var searcher = new UnitListSearcher(this, targets, uCheck, GridType.All);
         CellCalculator.VisitGrid(this, searcher, dist);
 
-        // no appropriate targets
-        if (targets.Empty())
-            return null;
-
-        // select random
-        return targets.SelectRandom();
+        // no appropriate targets                   // select random
+        return targets.Empty() ? null : targets.SelectRandom();
     }
 
     public void SendClearTarget()
@@ -2235,13 +2167,13 @@ public partial class Unit : WorldObject
 
     public void SetAIAnimKitId(ushort animKitId)
     {
-        if (_aiAnimKitId == animKitId)
+        if (AIAnimKitId == animKitId)
             return;
 
         if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
             return;
 
-        _aiAnimKitId = animKitId;
+        AIAnimKitId = animKitId;
 
         SetAIAnimKit data = new()
         {
@@ -2256,16 +2188,16 @@ public partial class Unit : WorldObject
     {
         SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.AnimTier), (byte)animTier);
 
-        if (notifyClient)
-        {
-            SetAnimTier setAnimTier = new()
-            {
-                Unit = GUID,
-                Tier = (int)animTier
-            };
+        if (!notifyClient)
+            return;
 
-            SendMessageToSet(setAnimTier, true);
-        }
+        SetAnimTier setAnimTier = new()
+        {
+            Unit = GUID,
+            Tier = (int)animTier
+        };
+
+        SendMessageToSet(setAnimTier, true);
     }
 
     public virtual void SetCanDualWield(bool value)
@@ -2352,7 +2284,7 @@ public partial class Unit : WorldObject
         SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayID), modelId);
         SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayScale), displayScale);
         // Set Gender by modelId
-        var minfo = ObjectManager.GetCreatureModelInfo(modelId);
+        var minfo = GameObjectManager.GetCreatureModelInfo(modelId);
 
         if (minfo != null)
             Gender = (Gender)minfo.Gender;
@@ -2464,7 +2396,7 @@ public partial class Unit : WorldObject
         if (player == null)
             return;
 
-        if (player.Group)
+        if (player.Group != null)
             player.SetGroupUpdateFlag(GroupUpdateFlags.Level);
 
         CharacterCache.UpdateCharacterLevel(AsPlayer.GUID, (byte)lvl);
@@ -2895,11 +2827,9 @@ public partial class Unit : WorldObject
                         }
                         case TypeId.Unit:
                         {
-                            var vehicle = VehicleKit;
-
-                            if (vehicle)
+                            if (VehicleKit != null)
                             {
-                                if (CliDB.PowerDisplayStorage.TryGetValue(vehicle.GetVehicleInfo().PowerDisplayID[0], out var powerDisplay))
+                                if (CliDB.PowerDisplayStorage.TryGetValue(VehicleKit.GetVehicleInfo().PowerDisplayID[0], out var powerDisplay))
                                     displayPower = (PowerType)powerDisplay.ActualType;
                                 else if (Class == PlayerClass.Rogue)
                                     displayPower = PowerType.Energy;
@@ -2908,7 +2838,7 @@ public partial class Unit : WorldObject
                             {
                                 var pet = AsPet;
 
-                                if (pet)
+                                if (pet != null)
                                 {
                                     if (pet.PetType == PetType.Hunter) // Hunter pets have focus
                                         displayPower = PowerType.Focus;
@@ -2935,7 +2865,7 @@ public partial class Unit : WorldObject
         else
         {
             // ReSharper disable once RedundantArgumentDefaultValue
-            base.UpdateObjectVisibility();
+            base.UpdateObjectVisibility(true);
             // call MoveInLineOfSight for nearby creatures
             AIRelocationNotifier notifier = new(this, GridType.All);
             CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
@@ -2949,7 +2879,7 @@ public partial class Unit : WorldObject
 
     public virtual void Whisper(string text, Language language, Player target, bool isBossWhisper = false)
     {
-        if (!target)
+        if (target == null)
             return;
 
         var locale = target.Session.SessionDbLocaleIndex;
@@ -2960,7 +2890,7 @@ public partial class Unit : WorldObject
 
     public virtual void Whisper(uint textId, Player target, bool isBossWhisper = false)
     {
-        if (!target)
+        if (target == null)
             return;
 
         if (!CliDB.BroadcastTextStorage.TryGetValue(textId, out var bct))
@@ -3002,30 +2932,30 @@ public partial class Unit : WorldObject
         }
 
         // castroutine
-        if (IsAttackReady(WeaponAttackType.RangedAttack) && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).State != SpellState.Preparing)
+        if (!IsAttackReady(WeaponAttackType.RangedAttack) || GetCurrentSpell(CurrentSpellTypes.AutoRepeat).State == SpellState.Preparing)
+            return;
+
+        // Check if able to cast
+        var currentSpell = CurrentSpells[CurrentSpellTypes.AutoRepeat];
+
+        if (currentSpell == null)
+            return;
+
+        var result = currentSpell.CheckCast(true);
+
+        if (result != SpellCastResult.SpellCastOk)
         {
-            // Check if able to cast
-            var currentSpell = CurrentSpells[CurrentSpellTypes.AutoRepeat];
+            if (autoRepeatSpellInfo.Id != 75)
+                InterruptSpell(CurrentSpellTypes.AutoRepeat);
+            else if (TypeId == TypeId.Player)
+                Spell.SendCastResult(AsPlayer, autoRepeatSpellInfo, currentSpell.SpellVisual, currentSpell.CastId, result);
 
-            if (currentSpell != null)
-            {
-                var result = currentSpell.CheckCast(true);
-
-                if (result != SpellCastResult.SpellCastOk)
-                {
-                    if (autoRepeatSpellInfo.Id != 75)
-                        InterruptSpell(CurrentSpellTypes.AutoRepeat);
-                    else if (TypeId == TypeId.Player)
-                        Spell.SendCastResult(AsPlayer, autoRepeatSpellInfo, currentSpell.SpellVisual, currentSpell.CastId, result);
-
-                    return;
-                }
-
-                // we want to shoot
-                var spell = SpellFactory.NewSpell(autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
-                spell.Prepare(currentSpell.Targets);
-            }
+            return;
         }
+
+        // we want to shoot
+        var spell = SpellFactory.NewSpell(autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
+        spell.Prepare(currentSpell.Targets);
     }
 
     private void _UpdateSpells(uint diff)
@@ -3056,7 +2986,7 @@ public partial class Unit : WorldObject
 
             if (aura.SpellInfo.IsChanneled &&
                 aura.CasterGuid != GUID &&
-                !ObjectAccessor.GetWorldObject(this, aura.CasterGuid))
+                ObjectAccessor.GetWorldObject(this, aura.CasterGuid) == null)
                 toRemove.Add(aura);
         }
 
@@ -3074,7 +3004,10 @@ public partial class Unit : WorldObject
 
         DeleteRemovedAuras();
 
-        if (!GameObjects.Empty())
+        if (GameObjects.Empty())
+            return;
+
+        {
             for (var i = 0; i < GameObjects.Count; ++i)
             {
                 var go = GameObjects[i];
@@ -3087,6 +3020,7 @@ public partial class Unit : WorldObject
                     GameObjects.Remove(go);
                 }
             }
+        }
     }
 
     private void DealMeleeDamage(CalcDamageInfo damageInfo, bool durabilityLoss)
@@ -3104,7 +3038,7 @@ public partial class Unit : WorldObject
             float basetime = victim.GetAttackTimer(WeaponAttackType.BaseAttack);
 
             // Reduce attack time
-            if (victim.HaveOffhandWeapon() && offtime < basetime)
+            if (victim.HasOffhandWeapon && offtime < basetime)
             {
                 var percent20 = victim.GetBaseAttackTime(WeaponAttackType.OffAttack) * 0.20f;
                 var percent60 = 3.0f * percent20;
@@ -3201,13 +3135,13 @@ public partial class Unit : WorldObject
                 var damage = dmgShield.Amount;
                 var caster = dmgShield.Caster;
 
-                if (caster)
+                if (caster != null)
                 {
                     damage = caster.SpellDamageBonusDone(this, spellInfo, damage, DamageEffectType.SpellDirect, dmgShield.GetSpellEffectInfo());
                     damage = SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
                 }
 
-                DamageInfo damageInfo1 = new(this, victim, damage, spellInfo, spellInfo.GetSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
+                DamageInfo damageInfo1 = new(this, victim, damage, spellInfo, spellInfo.SchoolMask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
                 UnitCombatHelpers.CalcAbsorbResist(damageInfo1);
                 damage = damageInfo1.Damage;
 
@@ -3225,7 +3159,7 @@ public partial class Unit : WorldObject
                     LogAbsorbed = (uint)damageInfo1.Absorb
                 };
 
-                UnitCombatHelpers.DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo);
+                UnitCombatHelpers.DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.SchoolMask, spellInfo);
                 damageShield.LogData.Initialize(this);
 
                 victim.SendCombatLogMessage(damageShield);
@@ -3235,24 +3169,12 @@ public partial class Unit : WorldObject
 
     private List<DynamicObject> GetDynObjects(uint spellId)
     {
-        List<DynamicObject> dynamicobjects = new();
-
-        foreach (var obj in DynamicObjects)
-            if (obj.GetSpellId() == spellId)
-                dynamicobjects.Add(obj);
-
-        return dynamicobjects;
+        return DynamicObjects.Where(obj => obj.GetSpellId() == spellId).ToList();
     }
 
     private List<GameObject> GetGameObjects(uint spellId)
     {
-        List<GameObject> gameobjects = new();
-
-        foreach (var obj in GameObjects)
-            if (obj.SpellId == spellId)
-                gameobjects.Add(obj);
-
-        return gameobjects;
+        return GameObjects.Where(obj => obj.SpellId == spellId).ToList();
     }
 
     private UnitAI GetScheduledChangeAI()

@@ -695,7 +695,7 @@ public class UnitCombatHelpers
 
                 // @todo check packets if damage is done by victim, or by attacker of victim
                 DealDamageMods(attacker, shareDamageTarget, ref share);
-                DealDamage(attacker, shareDamageTarget, share, null, DamageEffectType.NoDamage, spell.GetSchoolMask(), spell, false);
+                DealDamage(attacker, shareDamageTarget, share, null, DamageEffectType.NoDamage, spell.SchoolMask, spell, false);
             }
         }
 
@@ -1049,7 +1049,7 @@ public class UnitCombatHelpers
         }
 
         if (gain != 0)
-            healInfo.SetEffectiveHeal(gain > 0 ? gain : 0u);
+            healInfo.EffectiveHeal = gain > 0 ? gain : 0u;
     }
 
     public bool IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo spellInfo = null)
@@ -1440,7 +1440,7 @@ public class UnitCombatHelpers
         if (caster == null)
             return critBonus;
 
-        critMod += (caster.GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellProto.GetSchoolMask()) - 1.0f) * 100;
+        critMod += (caster.GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellProto.SchoolMask) - 1.0f) * 100;
 
         if (critBonus != 0)
             MathFunctions.AddPct(ref critBonus, critMod);

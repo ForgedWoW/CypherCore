@@ -522,16 +522,16 @@ public class CollectionMgr
         if (itemModifiedAppearance == null)
             return;
 
-        if (_temporaryAppearances.TryGetValue(itemModifiedAppearance.Id).ToList(, out var guid))
+        if (_temporaryAppearances.TryGetValue(itemModifiedAppearance.Id, out var guid))
             return;
 
         guid.Remove(item.GUID);
 
-        if (guid.Empty())
-        {
-            _owner.Player.RemoveConditionalTransmog(itemModifiedAppearance.Id);
-            _temporaryAppearances.Remove(itemModifiedAppearance.Id);
-        }
+        if (!guid.Empty())
+            return;
+
+        _owner.Player.RemoveConditionalTransmog(itemModifiedAppearance.Id);
+        _temporaryAppearances.Remove(itemModifiedAppearance.Id);
     }
 
     public void SaveAccountHeirlooms(SQLTransaction trans)
@@ -710,7 +710,7 @@ public class CollectionMgr
     {
         var player = _owner.Player;
 
-        if (!player)
+        if (player == null)
             return;
 
         var heirloom = _db2Manager.GetHeirloomByItemId(itemId);
@@ -811,7 +811,7 @@ public class CollectionMgr
         if (itemTemplate == null)
             return false;
 
-        if (!_owner.Player)
+        if (_owner.Player == null)
             return false;
 
         if (_owner.Player.CanUseItem(itemTemplate) != InventoryResult.Ok)
@@ -934,7 +934,7 @@ public class CollectionMgr
     {
         var player = _owner.Player;
 
-        if (!player)
+        if (player == null)
             return;
 
         AccountMountUpdate mountUpdate = new()

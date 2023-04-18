@@ -26,7 +26,7 @@ public class SpellWarlockInquisitorsGaze : SpellScript, IHasSpellEffects
 
         if (target != null)
         {
-            var damage = (Caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * 15 * 16) / 100;
+            var damage = (Caster.SpellBaseDamageBonusDone(SpellInfo.SchoolMask) * 15 * 16) / 100;
             Caster.SpellFactory.CastSpell(target, WarlockSpells.INQUISITORS_GAZE_EFFECT, new CastSpellExtraArgs(SpellValueMod.BasePoint0, damage));
         }
     }

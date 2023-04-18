@@ -1049,7 +1049,7 @@ public partial class Spell
 
                 if (spellInfo != null)
                 {
-                    var costs = spellInfo.CalcPowerCost(unitCaster, spellInfo.GetSchoolMask());
+                    var costs = spellInfo.CalcPowerCost(unitCaster, spellInfo.SchoolMask);
                     var m = costs.Find(cost => cost.Power == PowerType.Mana);
 
                     if (m != null)
@@ -1811,10 +1811,10 @@ public partial class Spell
         else
         {
             var unitCaster = UnitCasterForEffectHandlers;
-            DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
+            DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.SchoolMask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
             _combatHelpers.CalcAbsorbResist(damageInfo);
 
-            SpellNonMeleeDamage log = new(unitCaster, UnitTarget, SpellInfo, SpellVisual, SpellInfo.GetSchoolMask(), CastId)
+            SpellNonMeleeDamage log = new(unitCaster, UnitTarget, SpellInfo, SpellVisual, SpellInfo.SchoolMask, CastId)
             {
                 Damage = damageInfo.Damage,
                 OriginalDamage = Damage,
@@ -2317,7 +2317,7 @@ public partial class Spell
 
         DamageInEffects += Damage;
 
-        DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.Direct, WeaponAttackType.BaseAttack);
+        DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.SchoolMask, DamageEffectType.Direct, WeaponAttackType.BaseAttack);
         _combatHelpers.CalcAbsorbResist(damageInfo);
         var absorb = damageInfo.Absorb;
         Damage -= absorb;
@@ -2428,7 +2428,7 @@ public partial class Spell
 
             var duration = SpellInfo.Duration;
             duration = ModSpellDuration(SpellInfo, UnitTarget, duration, false, EffectInfo.EffectIndex);
-            UnitTarget.SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
+            UnitTarget.SpellHistory.LockSpellSchool(curSpellInfo.SchoolMask, TimeSpan.FromMilliseconds(duration));
             HitMask |= ProcFlagsHit.Interrupt;
             SendSpellInterruptLog(UnitTarget, curSpellInfo.Id);
             var interuptedSpell = UnitTarget.InterruptSpell(i, false, true, spell);
@@ -3150,7 +3150,7 @@ public partial class Spell
 
         // only handle at last effect
         for (var i = EffectInfo.EffectIndex + 1; i < SpellInfo.Effects.Count; ++i)
-            if (SpellInfo.GetEffect(i).IsEffect(SpellEffectName.PersistentAreaAura))
+            if (SpellInfo.GetEffect(i).IsEffectName(SpellEffectName.PersistentAreaAura))
                 return;
 
         var radius = EffectInfo.CalcRadius(unitCaster);
@@ -4400,7 +4400,7 @@ public partial class Spell
             if (aurApp == null)
                 continue;
 
-            if (!Convert.ToBoolean(aura.SpellInfo.GetDispelMask() & dispelMask))
+            if (!Convert.ToBoolean(aura.SpellInfo.DispelMask & dispelMask))
                 continue;
 
             // Need check for passive? this
@@ -5621,7 +5621,7 @@ public partial class Spell
             if (spellInfo.NeedsToBeTriggeredByCaster(SpellInfo) && EffectInfo.ProvidedTargetMask.HasAnyFlag(SpellCastTargetFlags.UnitMask))
                 return;
 
-            if (spellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.DestLocation))
+            if (spellInfo.ExplicitTargetMask.HasAnyFlag(SpellCastTargetFlags.DestLocation))
                 targets.SetDst(Targets);
 
             var unit = Caster.AsUnit;
@@ -5766,7 +5766,7 @@ public partial class Spell
             if (spellInfo.NeedsToBeTriggeredByCaster(SpellInfo) && EffectInfo.ProvidedTargetMask.HasAnyFlag(SpellCastTargetFlags.UnitMask))
                 return;
 
-            if (spellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.DestLocation))
+            if (spellInfo.ExplicitTargetMask.HasAnyFlag(SpellCastTargetFlags.DestLocation))
                 targets.SetDst(Targets);
 
             var target = Targets.UnitTarget;

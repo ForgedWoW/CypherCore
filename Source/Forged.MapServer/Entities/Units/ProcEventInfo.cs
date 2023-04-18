@@ -35,16 +35,13 @@ public class ProcEventInfo
     {
         get
         {
-            if (ProcSpell)
-                return ProcSpell.SpellInfo.GetSchoolMask();
+            if (ProcSpell != null)
+                return ProcSpell.SpellInfo.SchoolMask;
 
             if (DamageInfo != null)
                 return DamageInfo.SchoolMask;
 
-            if (HealInfo != null)
-                return HealInfo.SchoolMask;
-
-            return SpellSchoolMask.None;
+            return HealInfo?.SchoolMask ?? SpellSchoolMask.None;
         }
     }
 
@@ -52,13 +49,10 @@ public class ProcEventInfo
     {
         get
         {
-            if (ProcSpell)
+            if (ProcSpell != null)
                 return ProcSpell.SpellInfo;
 
-            if (DamageInfo != null)
-                return DamageInfo.SpellInfo;
-
-            return HealInfo?.SpellInfo;
+            return DamageInfo != null ? DamageInfo.SpellInfo : HealInfo?.SpellInfo;
         }
     }
 

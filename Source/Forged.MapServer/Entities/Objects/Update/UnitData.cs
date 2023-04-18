@@ -1056,7 +1056,7 @@ public class UnitData : BaseUpdateData<Unit>
 
             if (transform != null)
                 foreach (var spellEffectInfo in transform.Effects)
-                    if (spellEffectInfo.IsAura(AuraType.Transform))
+                    if (spellEffectInfo.IsAuraType(AuraType.Transform))
                     {
                         var transformInfo = _objectManager.GetCreatureTemplate((uint)spellEffectInfo.MiscValue);
 

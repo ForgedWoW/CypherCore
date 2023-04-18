@@ -378,12 +378,12 @@ public class WorldObjectCombat
             if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
             {
                 if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
-                    if (unitTarget != null && unitTarget.IsImmuneToPc())
+                    if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.ImmuneToPc))
                         return false;
             }
             else
             {
-                if (unitTarget != null && unitTarget.IsImmuneToNPC())
+                if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.ImmuneToNpc))
                     return false;
             }
         }
@@ -488,18 +488,18 @@ public class WorldObjectCombat
         // ignore immunity flags when assisting
         if (unitOrOwner != null && unitTarget != null && !(isPositiveSpell && bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc)))
         {
-            if (!unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.IsImmuneToNPC())
+            if (!unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.HasUnitFlag(UnitFlags.ImmuneToNpc))
                 return false;
 
-            if (!unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.IsImmuneToNPC())
+            if (!unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.HasUnitFlag(UnitFlags.ImmuneToNpc))
                 return false;
 
             if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
             {
-                if (unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.IsImmuneToPc())
+                if (unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.HasUnitFlag(UnitFlags.ImmuneToPc))
                     return false;
 
-                if (unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.IsImmuneToPc())
+                if (unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.HasUnitFlag(UnitFlags.ImmuneToPc))
                     return false;
             }
         }
@@ -711,7 +711,7 @@ public class WorldObjectCombat
         if (canReflect)
         {
             var reflectchance = victim.GetTotalAuraModifier(AuraType.ReflectSpells);
-            reflectchance += victim.GetTotalAuraModifierByMiscMask(AuraType.ReflectSpellsSchool, (int)spellInfo.GetSchoolMask());
+            reflectchance += victim.GetTotalAuraModifierByMiscMask(AuraType.ReflectSpellsSchool, (int)spellInfo.SchoolMask);
 
             if (reflectchance > 0 && RandomHelper.randChance(reflectchance))
                 return SpellMissInfo.Reflect;
@@ -745,7 +745,7 @@ public class WorldObjectCombat
             missChance = 0.0f;
         else
         {
-            var schoolMask = spellInfo.GetSchoolMask();
+            var schoolMask = spellInfo.SchoolMask;
             // PvP - PvE spell misschances per leveldif > 2
             var lchance = victim.IsPlayer ? 7 : 11;
             var thisLevel = _worldObject.GetLevelForTarget(victim);

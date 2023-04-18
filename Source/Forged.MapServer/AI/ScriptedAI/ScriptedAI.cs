@@ -387,7 +387,7 @@ public class ScriptedAI : CreatureAI
             // Continue if we don't have the mana to actually cast this spell
             var hasPower = true;
 
-            foreach (var cost in tempSpell.CalcPowerCost(Me, tempSpell.GetSchoolMask()))
+            foreach (var cost in tempSpell.CalcPowerCost(Me, tempSpell.SchoolMask))
                 if (cost.Amount > Me.GetPower(cost.Power))
                 {
                     hasPower = false;

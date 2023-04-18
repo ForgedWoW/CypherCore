@@ -1359,7 +1359,7 @@ internal class LookupCommands
                         }
 
                         var known = target && target.HasSpell(spellInfo.Id);
-                        var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
+                        var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffectName(SpellEffectName.LearnSpell));
 
                         var learnSpellInfo = spellEffectInfo != null ? handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo.Difficulty) : null;
 
@@ -1439,7 +1439,7 @@ internal class LookupCommands
                 }
 
                 var known = target && target.HasSpell(id);
-                var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
+                var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffectName(SpellEffectName.LearnSpell));
 
                 var learnSpellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell, Difficulty.None);
 

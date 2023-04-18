@@ -729,14 +729,11 @@ internal class DebugCommands
     [Command("moveflags", RBACPermissions.CommandDebug)]
     private static bool HandleDebugMoveflagsCommand(CommandHandler handler, uint? moveFlags, uint? moveFlagsExtra)
     {
-        var target = handler.SelectedUnit;
-
-        if (!target)
-            target = handler.Player;
+        var target = handler.SelectedUnit ?? handler.Player;
 
         if (!moveFlags.HasValue)
             //! Display case
-            handler.SendSysMessage(CypherStrings.MoveflagsGet, target.GetUnitMovementFlags(), target.GetUnitMovementFlags2());
+            handler.SendSysMessage(CypherStrings.MoveflagsGet, target.MovementInfo.MovementFlags, target.MovementInfo.GetMovementFlags2());
         else
         {
             // @fixme: port master's HandleDebugMoveflagsCommand; flags need different handling
@@ -758,7 +755,7 @@ internal class DebugCommands
                 target.SendMessageToSet(moveUpdate, true);
             }
 
-            handler.SendSysMessage(CypherStrings.MoveflagsSet, target.GetUnitMovementFlags(), target.GetUnitMovementFlags2());
+            handler.SendSysMessage(CypherStrings.MoveflagsSet, target.MovementInfo.MovementFlags, target.MovementInfo.GetMovementFlags2());
         }
 
         return true;

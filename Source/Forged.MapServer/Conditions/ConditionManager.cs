@@ -556,17 +556,17 @@ public sealed class ConditionManager
         if (condition.LifetimeMaxPVPRank != 0 && player.ActivePlayerData.LifetimeMaxRank != condition.LifetimeMaxPVPRank)
             return false;
 
-        if (condition.MovementFlags[0] != 0 && !Convert.ToBoolean((uint)player.GetUnitMovementFlags() & condition.MovementFlags[0]))
+        if (condition.MovementFlags[0] != 0 && !Convert.ToBoolean((uint)player.MovementInfo.MovementFlags & condition.MovementFlags[0]))
             return false;
 
-        if (condition.MovementFlags[1] != 0 && !Convert.ToBoolean((uint)player.GetUnitMovementFlags2() & condition.MovementFlags[1]))
+        if (condition.MovementFlags[1] != 0 && !Convert.ToBoolean((uint)player.MovementInfo.GetMovementFlags2() & condition.MovementFlags[1]))
             return false;
 
         if (condition.WeaponSubclassMask != 0)
         {
             var mainHand = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-            if (!mainHand || !Convert.ToBoolean((1 << (int)mainHand.Template.SubClass) & condition.WeaponSubclassMask))
+            if (mainHand == null || !Convert.ToBoolean((1 << (int)mainHand.Template.SubClass) & condition.WeaponSubclassMask))
                 return false;
         }
 
@@ -1701,7 +1701,7 @@ public sealed class ConditionManager
             case UnitConditionVariable.HasHarmfulAuraSchool:
                 return unit.GetAppliedAurasQuery()
                            .HasNegitiveFlag()
-                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
+                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.SchoolMask & (1 << value)) != 0)
                            .GetResults()
                            .Any()
                            ? value
@@ -1723,7 +1723,7 @@ public sealed class ConditionManager
             case UnitConditionVariable.InCombat:
                 return unit.IsInCombat ? 1 : 0;
             case UnitConditionVariable.IsMoving:
-                return unit.HasUnitMovementFlag(MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight) ? 1 : 0;
+                return unit.MovementInfo.HasMovementFlag(MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight) ? 1 : 0;
             case UnitConditionVariable.IsCasting:
             case UnitConditionVariable.IsCastingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
                 return unit.GetCurrentSpell(CurrentSpellTypes.Generic) != null ? 1 : 0;
@@ -1743,19 +1743,18 @@ public sealed class ConditionManager
             case UnitConditionVariable.IsAttackingMe:
                 return otherUnit != null && unit.Target == otherUnit.GUID ? 1 : 0;
             case UnitConditionVariable.Range:
-                return otherUnit ? (int)unit.Location.GetExactDist(otherUnit.Location) : 0;
+                return otherUnit != null ? (int)unit.Location.GetExactDist(otherUnit.Location) : 0;
             case UnitConditionVariable.InMeleeRange:
-                if (otherUnit)
-                {
-                    var distance = Math.Max(unit.CombatReach + otherUnit.CombatReach + 1.3333334f, 5.0f);
+                if (otherUnit == null)
+                    return 0;
 
-                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || otherUnit.HasUnitFlag(UnitFlags.PlayerControlled))
-                        distance += 1.0f;
+                var distance = Math.Max(unit.CombatReach + otherUnit.CombatReach + 1.3333334f, 5.0f);
 
-                    return unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance ? 1 : 0;
-                }
+                if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || otherUnit.HasUnitFlag(UnitFlags.PlayerControlled))
+                    distance += 1.0f;
 
-                return 0;
+                return unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance ? 1 : 0;
+
             case UnitConditionVariable.PursuitTime:
                 break;
             case UnitConditionVariable.HasHarmfulAuraCanceledByDamage:
@@ -1908,7 +1907,7 @@ public sealed class ConditionManager
             case UnitConditionVariable.HasHelpfulAuraSchool:
                 return unit.GetAppliedAurasQuery()
                            .HasNegitiveFlag()
-                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
+                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.SchoolMask & (1 << value)) != 0)
                            .GetResults()
                            .Any()
                            ? 1

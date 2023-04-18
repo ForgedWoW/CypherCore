@@ -30,7 +30,7 @@ internal class SpellGenRestoration : AuraScript, IHasAuraEffects
             return;
 
         var heal = (uint)target.CountPctFromMaxHealth(10);
-        HealInfo healInfo = new(target, target, heal, SpellInfo, SpellInfo.GetSchoolMask());
+        HealInfo healInfo = new(target, target, heal, SpellInfo, SpellInfo.SchoolMask);
         target.HealBySpell(healInfo);
 
         /// @todo: should proc other Auras?

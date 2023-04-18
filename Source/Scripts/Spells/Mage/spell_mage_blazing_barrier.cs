@@ -29,7 +29,7 @@ internal class SpellMageBlazingBarrier : AuraScript, IHasAuraEffects
         var caster = Caster;
 
         if (caster)
-            amount.Value = (caster.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask()) * 7.0f);
+            amount.Value = (caster.SpellBaseHealingBonusDone(SpellInfo.SchoolMask) * 7.0f);
     }
 
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

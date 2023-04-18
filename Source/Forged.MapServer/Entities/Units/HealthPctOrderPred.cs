@@ -18,7 +18,11 @@ public class HealthPctOrderPred : IComparer<WorldObject>
 
     public int Compare(WorldObject objA, WorldObject objB)
     {
+        if (objA == null || objB == null)
+            return -1;
+
         var a = objA.AsUnit;
+
         var b = objB.AsUnit;
         var rA = a.MaxHealth != 0 ? a.Health / (float)a.MaxHealth : 0.0f;
         var rB = b.MaxHealth != 0 ? b.Health / (float)b.MaxHealth : 0.0f;

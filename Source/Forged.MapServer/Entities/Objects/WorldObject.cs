@@ -66,7 +66,7 @@ public abstract class WorldObject : IDisposable
         MMapManager = classFactory.Resolve<MMapManager>();
         VMapManager = classFactory.Resolve<VMapManager>();
         SpellManager = classFactory.Resolve<SpellManager>();
-        ObjectManager = classFactory.Resolve<GameObjectManager>();
+        GameObjectManager = classFactory.Resolve<GameObjectManager>();
         ConditionManager = classFactory.Resolve<ConditionManager>();
         ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
         Configuration = classFactory.Resolve<IConfiguration>();
@@ -93,7 +93,12 @@ public abstract class WorldObject : IDisposable
     }
 
     public Player AffectingPlayer => CharmerOrOwnerGUID.IsEmpty ? AsPlayer : CharmerOrOwner?.CharmerOrOwnerPlayerOrPlayerItself;
-    public virtual ushort AIAnimKitId => 0;
+    public virtual ushort AIAnimKitId
+    {
+        get => 0;
+        set => throw new NotImplementedException();
+    }
+
     public AreaTrigger AsAreaTrigger => this as AreaTrigger;
     public Conversation AsConversation => this as Conversation;
     public Corpse AsCorpse => this as Corpse;
@@ -208,7 +213,7 @@ public abstract class WorldObject : IDisposable
     public MovementInfo MovementInfo { get; set; }
     public ObjectAccessor ObjectAccessor { get; }
     public ObjectFieldData ObjectData { get; set; }
-    public GameObjectManager ObjectManager { get; }
+    public GameObjectManager GameObjectManager { get; }
 
     public virtual float ObjectScale
     {
@@ -493,7 +498,7 @@ public abstract class WorldObject : IDisposable
         if (flags.MovementUpdate)
         {
             var unit = AsUnit;
-            var hasFallDirection = unit.HasUnitMovementFlag(MovementFlag.Falling);
+            var hasFallDirection = unit.MovementInfo.HasMovementFlag(MovementFlag.Falling);
             var hasFall = hasFallDirection || unit.MovementInfo.Jump.FallTime != 0;
             var hasSpline = unit.IsSplineEnabled;
             var hasInertia = unit.MovementInfo.Inertia.HasValue;
@@ -501,9 +506,9 @@ public abstract class WorldObject : IDisposable
 
             data.WritePackedGuid(GUID); // MoverGUID
 
-            data.WriteUInt32((uint)unit.GetUnitMovementFlags());
-            data.WriteUInt32((uint)unit.GetUnitMovementFlags2());
-            data.WriteUInt32((uint)unit.GetExtraUnitMovementFlags2());
+            data.WriteUInt32((uint)unit.MovementInfo.MovementFlags);
+            data.WriteUInt32((uint)unit.MovementInfo.GetMovementFlags2());
+            data.WriteUInt32((uint)unit.MovementInfo.GetExtraMovementFlags2());
 
             data.WriteUInt32(unit.MovementInfo.Time); // MoveTime
             data.WriteFloat(unit.Location.X);
@@ -1564,7 +1569,7 @@ public abstract class WorldObject : IDisposable
 
     public void SummonCreatureGroup(byte group, out List<TempSummon> list)
     {
-        var data = ObjectManager.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
+        var data = GameObjectManager.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
 
         if (data.Empty())
         {
@@ -1593,7 +1598,7 @@ public abstract class WorldObject : IDisposable
         if (!Location.IsInWorld)
             return null;
 
-        var goinfo = ObjectManager.GetGameObjectTemplate(entry);
+        var goinfo = GameObjectManager.GetGameObjectTemplate(entry);
 
         if (goinfo == null)
         {

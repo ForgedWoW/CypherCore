@@ -312,7 +312,7 @@ public partial class Player
     //OutdoorPVP
     public bool IsOutdoorPvPActive()
     {
-        return IsAlive && !HasInvisibilityAura && !HasStealthAura && IsPvP && !HasUnitMovementFlag(MovementFlag.Flying) && !IsInFlight;
+        return IsAlive && !HasInvisibilityAura && !HasStealthAura && IsPvP && !MovementInfo.HasMovementFlag(MovementFlag.Flying) && !IsInFlight;
     }
 
     public void LeaveBattleground(bool teleportToEntryPoint = true)
@@ -602,7 +602,7 @@ public partial class Player
             // If map is dungeon find linked graveyard
             if (Location.Map.IsDungeon)
             {
-                var entry = ObjectManager.GetClosestGraveYard(Location, Team, this);
+                var entry = GameObjectManager.GetClosestGraveYard(Location, Team, this);
 
                 if (entry != null)
                     _bgData.JoinPos = entry.Location;

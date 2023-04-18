@@ -329,7 +329,7 @@ public class PlayerMenu
 
         if (spellInfo != null)
             foreach (var spellEffectInfo in spellInfo.Effects)
-                if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell))
+                if (spellEffectInfo.IsEffectName(SpellEffectName.LearnSpell))
                     packet.LearnSpells.Add(spellEffectInfo.TriggerSpell);
 
         quest.BuildQuestRewards(packet.Rewards, _session.Player);

@@ -20,16 +20,13 @@ public class HealInfo
     }
 
     public double Absorb { get; private set; }
-    public double EffectiveHeal { get; private set; }
+    public double EffectiveHeal { get; set; }
     public double Heal { get; private set; }
     public Unit Healer { get; }
 
     public ProcFlagsHit HitMask { get; private set; }
 
-    public bool IsCritical
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Critical); }
-    }
+    public bool IsCritical => HitMask.HasFlag(ProcFlagsHit.Critical);
 
     public double OriginalHeal { get; }
     public SpellSchoolMask SchoolMask { get; }
@@ -44,10 +41,5 @@ public class HealInfo
         amount = Math.Min(amount, EffectiveHeal);
         EffectiveHeal -= amount;
         HitMask |= ProcFlagsHit.Absorb;
-    }
-
-    public void SetEffectiveHeal(uint amount)
-    {
-        EffectiveHeal = amount;
     }
 }

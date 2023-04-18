@@ -25,8 +25,8 @@ public class MoveSplineInit
         Args.TransformForTransport = !_unit.GetTransGUID().IsEmpty;
         // mix existing state into new
         Args.Flags.SetUnsetFlag(SplineFlag.CanSwim, _unit.CanSwim);
-        Args.Walk = _unit.HasUnitMovementFlag(MovementFlag.Walking);
-        Args.Flags.SetUnsetFlag(SplineFlag.Flying, _unit.HasUnitMovementFlag(MovementFlag.CanFly | MovementFlag.DisableGravity));
+        Args.Walk = _unit.MovementInfo.HasMovementFlag(MovementFlag.Walking);
+        Args.Flags.SetUnsetFlag(SplineFlag.Flying, _unit.MovementInfo.HasMovementFlag(MovementFlag.CanFly | MovementFlag.DisableGravity));
         Args.Flags.SetUnsetFlag(SplineFlag.SmoothGroundPath); // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
         Args.Flags.SetUnsetFlag(SplineFlag.Steering, _unit.HasNpcFlag2(NPCFlags2.Steering));
     }
@@ -109,8 +109,7 @@ public class MoveSplineInit
 
             return Math.Max(28.0f, _unit.GetSpeed(UnitMoveType.Run) * 4.0f);
         }
-
-        ;
+        
 
         Args.Velocity = Math.Min(Args.Velocity, SpeedLimit());
 
@@ -235,7 +234,7 @@ public class MoveSplineInit
     public void SetFall()
     {
         Args.Flags.EnableFalling();
-        Args.Flags.SetUnsetFlag(SplineFlag.FallingSlow, _unit.HasUnitMovementFlag(MovementFlag.FallingSlow));
+        Args.Flags.SetUnsetFlag(SplineFlag.FallingSlow, _unit.MovementInfo.HasMovementFlag(MovementFlag.FallingSlow));
     }
 
     public void SetFirstPointId(int pointId)
@@ -376,11 +375,4 @@ public class MoveSplineInit
                    // Run speed is their default flight speed.
                    UnitMoveType.Run;
     }
-
-    private void SetBackward()
-    {
-        Args.Flags.SetUnsetFlag(SplineFlag.Backward);
-    }
 }
-
-// Transforms coordinates from global to transport offsets

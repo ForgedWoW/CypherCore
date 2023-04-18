@@ -321,7 +321,7 @@ public partial class Creature : Unit
         if (IsCivilian)
             return false;
 
-        if (HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible) || IsImmuneToNPC())
+        if (HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible) || HasUnitFlag(UnitFlags.ImmuneToNpc))
             return false;
 
         // skip fighting creature
@@ -465,7 +465,7 @@ public partial class Creature : Unit
             return false;
 
         // This set of checks is should be done only for creatures
-        if ((IsImmuneToNPC() && !who.HasUnitFlag(UnitFlags.PlayerControlled)) || (IsImmuneToPc() && who.HasUnitFlag(UnitFlags.PlayerControlled)))
+        if ((HasUnitFlag(UnitFlags.ImmuneToNpc) && !who.HasUnitFlag(UnitFlags.PlayerControlled)) || (HasUnitFlag(UnitFlags.ImmuneToPc) && who.HasUnitFlag(UnitFlags.PlayerControlled)))
             return false;
 
         // Do not attack non-combat pets
@@ -509,7 +509,7 @@ public partial class Creature : Unit
         if (!dynamic)
             RespawnCompatibilityMode = true;
 
-        var cinfo = ObjectManager.GetCreatureTemplate(entry);
+        var cinfo = GameObjectManager.GetCreatureTemplate(entry);
 
         if (cinfo == null)
         {
@@ -758,7 +758,7 @@ public partial class Creature : Unit
 
     public string GetAIName()
     {
-        return ObjectManager.GetCreatureTemplate(Entry).AIName;
+        return GameObjectManager.GetCreatureTemplate(Entry).AIName;
     }
 
     public override float GetArmorMultiplierForTarget(WorldObject target)
@@ -782,7 +782,7 @@ public partial class Creature : Unit
         var maxRadius = 45.0f * aggroRate;
         var minRadius = 5.0f * aggroRate;
 
-        var expansionMaxLevel = (int)ObjectManager.GetMaxLevelForExpansion((Expansion)Template.RequiredExpansion);
+        var expansionMaxLevel = (int)GameObjectManager.GetMaxLevelForExpansion((Expansion)Template.RequiredExpansion);
         var playerLevel = (int)player.GetLevelForTarget(this);
         var creatureLevel = (int)GetLevelForTarget(player);
         var levelDifference = creatureLevel - playerLevel;
@@ -942,7 +942,7 @@ public partial class Creature : Unit
         if (locale == Locale.enUS)
             return base.GetName(locale);
 
-        var cl = ObjectManager.GetCreatureLocale(Entry);
+        var cl = GameObjectManager.GetCreatureLocale(Entry);
 
         if (cl == null)
             return base.GetName(locale);
@@ -955,10 +955,10 @@ public partial class Creature : Unit
 
     public virtual uint GetPetAutoSpellOnPos(byte pos)
     {
-        if (pos >= SharedConst.MaxSpellCharm || GetCharmInfo() == null || GetCharmInfo().GetCharmSpell(pos).GetActiveState() != ActiveStates.Enabled)
+        if (pos >= SharedConst.MaxSpellCharm || GetCharmInfo() == null || GetCharmInfo().GetCharmSpell(pos).ActiveState != ActiveStates.Enabled)
             return 0;
         else
-            return GetCharmInfo().GetCharmSpell(pos).GetAction();
+            return GetCharmInfo().GetCharmSpell(pos).Action;
     }
 
     public float GetPetChaseDistance()
@@ -1015,12 +1015,12 @@ public partial class Creature : Unit
         if (Template.ScriptID != 0)
             return Template.ScriptID;
 
-        return ObjectManager.GetCreatureTemplate(Entry) != null ? ObjectManager.GetCreatureTemplate(Entry).ScriptID : 0;
+        return GameObjectManager.GetCreatureTemplate(Entry) != null ? GameObjectManager.GetCreatureTemplate(Entry).ScriptID : 0;
     }
 
     public string GetScriptName()
     {
-        return ObjectManager.GetScriptName(GetScriptId());
+        return GameObjectManager.GetScriptName(GetScriptId());
     }
 
     public float GetSpellDamageMod(CreatureEliteType rank)
@@ -1054,7 +1054,7 @@ public partial class Creature : Unit
         if (vCount.LastIncrementTime + vItem.Incrtime > ptime)
             return vCount.Count;
 
-        var pProto = ObjectManager.GetItemTemplate(vItem.Item);
+        var pProto = GameObjectManager.GetItemTemplate(vItem.Item);
 
         var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
@@ -1073,7 +1073,7 @@ public partial class Creature : Unit
 
     public override bool HasInvolvedQuest(uint questId)
     {
-        return ObjectManager.GetCreatureQuestInvolvedRelations(Entry).HasQuest(questId);
+        return GameObjectManager.GetCreatureQuestInvolvedRelations(Entry).HasQuest(questId);
     }
 
     public bool HasLootMode(LootModes lootMode)
@@ -1083,7 +1083,7 @@ public partial class Creature : Unit
 
     public override bool HasQuest(uint questId)
     {
-        return ObjectManager.GetCreatureQuestRelations(Entry).HasQuest(questId);
+        return GameObjectManager.GetCreatureQuestRelations(Entry).HasQuest(questId);
     }
 
     public bool HasReactState(ReactStates state)
@@ -1119,7 +1119,7 @@ public partial class Creature : Unit
 
     public bool InitEntry(uint entry, CreatureData data = null)
     {
-        var normalInfo = ObjectManager.GetCreatureTemplate(entry);
+        var normalInfo = GameObjectManager.GetCreatureTemplate(entry);
 
         if (normalInfo == null)
         {
@@ -1141,7 +1141,7 @@ public partial class Creature : Unit
 
             if (normalInfo.DifficultyEntry[idx] != 0)
             {
-                cInfo = ObjectManager.GetCreatureTemplate(normalInfo.DifficultyEntry[idx]);
+                cInfo = GameObjectManager.GetCreatureTemplate(normalInfo.DifficultyEntry[idx]);
 
                 break;
             }
@@ -1169,8 +1169,8 @@ public partial class Creature : Unit
             return false;
         }
 
-        var model = ObjectManager.ChooseDisplayId(cInfo, data);
-        var minfo = ObjectManager.GetCreatureModelRandomGender(ref model, cInfo);
+        var model = GameObjectManager.ChooseDisplayId(cInfo, data);
+        var minfo = GameObjectManager.GetCreatureModelRandomGender(ref model, cInfo);
 
         if (minfo == null) // Cancel load if no model defined
         {
@@ -1251,7 +1251,7 @@ public partial class Creature : Unit
 
     public override bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)
     {
-        if (Template.CreatureType == CreatureType.Mechanical && spellEffectInfo.IsEffect(SpellEffectName.Heal))
+        if (Template.CreatureType == CreatureType.Mechanical && spellEffectInfo.IsEffectName(SpellEffectName.Heal))
             return true;
 
         return base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
@@ -1322,7 +1322,7 @@ public partial class Creature : Unit
         //! basing on whether the creature is in air or not
         //! Set MovementFlag_Hover. Otherwise do nothing.
         if (CanHover)
-            AddUnitMovementFlag(MovementFlag.Hover);
+            MovementInfo.AddMovementFlag(MovementFlag.Hover);
 
         Sheath = (SheathState)creatureAddon.SheathState;
         ReplaceAllPvpFlags((UnitPVPStateFlags)creatureAddon.PvpFlags);
@@ -1384,7 +1384,7 @@ public partial class Creature : Unit
             return;
         }
 
-        var einfo = ObjectManager.GetEquipmentInfo(Entry, id);
+        var einfo = GameObjectManager.GetEquipmentInfo(Entry, id);
 
         if (einfo == null)
             return;
@@ -1421,7 +1421,7 @@ public partial class Creature : Unit
                 despawnCreature.Location.AddObjectToRemoveList();
         }
 
-        var data = ObjectManager.GetCreatureData(spawnId);
+        var data = GameObjectManager.GetCreatureData(spawnId);
 
         if (data == null)
         {
@@ -1784,7 +1784,7 @@ public partial class Creature : Unit
 
                 CreatureModel display = new(NativeDisplayId, NativeDisplayScale, 1.0f);
 
-                if (ObjectManager.GetCreatureModelRandomGender(ref display, Template) != null)
+                if (GameObjectManager.GetCreatureModelRandomGender(ref display, Template) != null)
                 {
                     SetDisplayId(display.CreatureDisplayId, display.DisplayScale);
                     SetNativeDisplayId(display.CreatureDisplayId, display.DisplayScale);
@@ -1845,7 +1845,7 @@ public partial class Creature : Unit
     {
         // this should only be used when the creature has already been loaded
         // preferably after adding to map, because mapid may not be valid otherwise
-        var data = ObjectManager.GetCreatureData(SpawnId);
+        var data = GameObjectManager.GetCreatureData(SpawnId);
 
         if (data == null)
         {
@@ -1868,9 +1868,9 @@ public partial class Creature : Unit
     {
         // update in loaded data
         if (SpawnId == 0)
-            SpawnId = ObjectManager.GenerateCreatureSpawnId();
+            SpawnId = GameObjectManager.GenerateCreatureSpawnId();
 
-        var data = ObjectManager.NewOrExistCreatureData(SpawnId);
+        var data = GameObjectManager.NewOrExistCreatureData(SpawnId);
 
         var displayId = NativeDisplayId;
         var npcflag = ((ulong)UnitData.NpcFlags[1] << 32) | UnitData.NpcFlags[0];
@@ -1941,7 +1941,7 @@ public partial class Creature : Unit
         data.UnitFlags3 = unitFlags3;
         data.Dynamicflags = (uint)dynamicflags;
 
-        data.SpawnGroupData ??= ObjectManager.GetDefaultSpawnGroup();
+        data.SpawnGroupData ??= GameObjectManager.GetDefaultSpawnGroup();
 
         data.PhaseId = Location.DBPhase > 0 ? (uint)Location.DBPhase : data.PhaseId;
         data.PhaseGroup = Location.DBPhase < 0 ? (uint)-Location.DBPhase : data.PhaseGroup;
@@ -2251,7 +2251,7 @@ public partial class Creature : Unit
                 var creatureData = CreatureData;
                 var cInfo = Template;
 
-                ObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, creatureData);
+                GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, creatureData);
 
                 if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
                     npcFlags |= GameEventManager.GetNPCFlag(this);
@@ -2292,7 +2292,7 @@ public partial class Creature : Unit
     {
         base.SetDisplayId(modelId, displayScale);
 
-        var minfo = ObjectManager.GetCreatureModelInfo(modelId);
+        var minfo = GameObjectManager.GetCreatureModelInfo(modelId);
 
         if (minfo != null)
         {
@@ -2583,7 +2583,7 @@ public partial class Creature : Unit
                         Respawn();
                     else // the master is dead
                     {
-                        var targetGuid = ObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
+                        var targetGuid = GameObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
 
                         if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(Time.WEEK);
@@ -2760,7 +2760,7 @@ public partial class Creature : Unit
 
         Faction = cInfo.Faction;
 
-        ObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, data);
+        GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, data);
 
         if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
             npcFlags |= GameEventManager.GetNPCFlag(this);
@@ -2865,7 +2865,7 @@ public partial class Creature : Unit
         var cInfo = Template;
         var rank = IsPet ? 0 : cInfo.Rank;
         var level = Level;
-        var stats = ObjectManager.GetCreatureBaseStats(level, cInfo.UnitClass);
+        var stats = GameObjectManager.GetCreatureBaseStats(level, cInfo.UnitClass);
 
         // health
         var healthmod = GetHealthMod(rank);
@@ -2973,7 +2973,7 @@ public partial class Creature : Unit
 
         if (vCount.LastIncrementTime + vItem.Incrtime <= ptime)
         {
-            var pProto = ObjectManager.GetItemTemplate(vItem.Item);
+            var pProto = GameObjectManager.GetItemTemplate(vItem.Item);
 
             var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
@@ -3001,7 +3001,7 @@ public partial class Creature : Unit
                 return false;
         }
 
-        var cinfo = ObjectManager.GetCreatureTemplate(entry);
+        var cinfo = GameObjectManager.GetCreatureTemplate(entry);
 
         if (cinfo == null)
         {

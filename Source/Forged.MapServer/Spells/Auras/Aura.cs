@@ -504,7 +504,7 @@ public class Aura
             // owner == caster for area auras, check for possible bad data in DB
             foreach (var spellEffectInfo in SpellInfo.Effects)
             {
-                if (!spellEffectInfo.IsEffect())
+                if (!spellEffectInfo.IsEffect)
                     continue;
 
                 if (spellEffectInfo.IsTargetingArea || spellEffectInfo.IsAreaAuraEffect)
@@ -1259,13 +1259,13 @@ public class Aura
         if (SpellInfo.IsRankOf(aura.SpellInfo))
             return true;
 
-        var spec = SpellInfo.GetSpellSpecific();
+        var spec = SpellInfo.SpellSpecific;
 
         // spell with single target specific types
         switch (spec)
         {
             case SpellSpecificType.MagePolymorph:
-                if (aura.SpellInfo.GetSpellSpecific() == spec)
+                if (aura.SpellInfo.SpellSpecific == spec)
                     return true;
 
                 break;

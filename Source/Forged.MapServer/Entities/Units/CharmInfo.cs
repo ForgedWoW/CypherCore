@@ -55,15 +55,15 @@ public class CharmInfo
     public bool AddSpellToActionBar(SpellInfo spellInfo, ActiveStates newstate = ActiveStates.Decide, int preferredSlot = 0)
     {
         var spellID = spellInfo.Id;
-        var firstID = spellInfo.GetFirstRankSpell().Id;
+        var firstID = spellInfo.FirstRankSpell.Id;
 
         // new spell rank can be already listed
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
         {
-            var action = _petActionBar[i].GetAction();
+            var action = _petActionBar[i].Action;
 
             if (action != 0)
-                if (_petActionBar[i].IsActionBarForSpell() && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
+                if (_petActionBar[i].IsActionBarForSpell && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
                 {
                     _petActionBar[i].SetAction(spellID);
 
@@ -76,7 +76,7 @@ public class CharmInfo
         {
             var j = (byte)((preferredSlot + i) % SharedConst.ActionBarIndexMax);
 
-            if (_petActionBar[j].GetAction() == 0 && _petActionBar[j].IsActionBarForSpell())
+            if (_petActionBar[j].Action == 0 && _petActionBar[j].IsActionBarForSpell)
             {
                 SetActionBar(j, spellID, newstate == ActiveStates.Decide ? spellInfo.IsAutocastable ? ActiveStates.Disabled : ActiveStates.Passive : newstate);
 
@@ -291,14 +291,14 @@ public class CharmInfo
             _petActionBar[index].SetActionAndType(action, type);
 
             // check correctness
-            if (_petActionBar[index].IsActionBarForSpell())
+            if (_petActionBar[index].IsActionBarForSpell)
             {
-                var spelInfo = Global.SpellMgr.GetSpellInfo(_petActionBar[index].GetAction(), _unit.Location.Map.DifficultyID);
+                var spelInfo = Global.SpellMgr.GetSpellInfo(_petActionBar[index].Action, _unit.Location.Map.DifficultyID);
 
                 if (spelInfo == null)
                     SetActionBar(index, 0, ActiveStates.Passive);
                 else if (!spelInfo.IsAutocastable)
-                    SetActionBar(index, _petActionBar[index].GetAction(), ActiveStates.Passive);
+                    SetActionBar(index, _petActionBar[index].Action, ActiveStates.Passive);
             }
         }
     }
@@ -309,10 +309,10 @@ public class CharmInfo
 
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
         {
-            var action = _petActionBar[i].GetAction();
+            var action = _petActionBar[i].Action;
 
             if (action != 0)
-                if (_petActionBar[i].IsActionBarForSpell() && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
+                if (_petActionBar[i].IsActionBarForSpell && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
                 {
                     SetActionBar(i, 0, ActiveStates.Passive);
 
@@ -399,7 +399,7 @@ public class CharmInfo
     public void SetSpellAutocast(SpellInfo spellInfo, bool state)
     {
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-            if (spellInfo.Id == _petActionBar[i].GetAction() && _petActionBar[i].IsActionBarForSpell())
+            if (spellInfo.Id == _petActionBar[i].Action && _petActionBar[i].IsActionBarForSpell)
             {
                 _petActionBar[i].SetType(state ? ActiveStates.Enabled : ActiveStates.Disabled);
 
@@ -413,7 +413,7 @@ public class CharmInfo
             return;
 
         for (uint x = 0; x < SharedConst.MaxSpellCharm; ++x)
-            if (spellInfo.Id == _charmspells[x].GetAction())
+            if (spellInfo.Id == _charmspells[x].Action)
                 _charmspells[x].SetType(apply ? ActiveStates.Enabled : ActiveStates.Disabled);
     }
 }

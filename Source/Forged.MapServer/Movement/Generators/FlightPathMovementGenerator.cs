@@ -197,7 +197,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
         for (int src = 0, dst = 1; dst < taxi.Count; src = dst++)
         {
-            player.ObjectManager.GetTaxiPath(taxi[src], taxi[dst], out var path, out var cost);
+            player.GameObjectManager.GetTaxiPath(taxi[src], taxi[dst], out var path, out var cost);
 
             if (path >= player.CliDB.TaxiPathNodesByPath.Keys.Max())
                 return;

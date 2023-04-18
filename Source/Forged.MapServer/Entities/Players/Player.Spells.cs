@@ -199,7 +199,7 @@ public partial class Player
 
             if (gem != null)
             {
-                var gemTemplate = ObjectManager.GetItemTemplate(gem.ItemId);
+                var gemTemplate = GameObjectManager.GetItemTemplate(gem.ItemId);
 
                 if (gemTemplate != null)
                     if (gemTemplate.RequiredSkill != 0 && GetSkillValue((SkillType)gemTemplate.RequiredSkill) < gemTemplate.RequiredSkillRank)
@@ -657,7 +657,7 @@ public partial class Player
         if (!creature.HasNpcFlag(NPCFlags.SpellClick))
             return false;
 
-        var clickBounds = ObjectManager.GetSpellClickInfoMapBounds(creature.Entry);
+        var clickBounds = GameObjectManager.GetSpellClickInfoMapBounds(creature.Entry);
 
         if (clickBounds.Empty())
             return true;
@@ -851,7 +851,7 @@ public partial class Player
                         var effectPct = Math.Max(0, 100 - lvlDifference * lvlPenaltyFactor);
 
                         foreach (var spellEffectInfo in spellInfo.Effects)
-                            if (spellEffectInfo.IsEffect())
+                            if (spellEffectInfo.IsEffect)
                                 args.AddSpellMod(SpellValueMod.BasePoint0 + spellEffectInfo.EffectIndex, MathFunctions.CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
                     }
 
@@ -1406,7 +1406,7 @@ public partial class Player
                         // special check to filter things like Shield Wall, the aura is not permanent and must stay even without required item
                         if (!spellInfo.IsPassive)
                             foreach (var spellEffectInfo in spellInfo.Effects)
-                                if (spellEffectInfo.IsAura())
+                                if (spellEffectInfo.IsAura)
                                     return true;
                     }
 
@@ -1502,7 +1502,7 @@ public partial class Player
         //    return;
 
         // learn default race/class spells
-        var info = ObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.GetPlayerInfo(Race, Class);
 
         foreach (var tspell in info.CustomSpells)
         {
@@ -1547,7 +1547,7 @@ public partial class Player
 
             case SkillRangeType.Rank:
             {
-                var tier = ObjectManager.GetSkillTier(rcInfo.SkillTierID);
+                var tier = GameObjectManager.GetSkillTier(rcInfo.SkillTierID);
                 var maxValue = (ushort)tier.Value[0];
                 ushort skillValue = 1;
 
@@ -1566,7 +1566,7 @@ public partial class Player
     public void LearnDefaultSkills()
     {
         // learn default race/class skills
-        var info = ObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.GetPlayerInfo(Race, Class);
 
         foreach (var rcInfo in info.Skills)
         {
@@ -2323,7 +2323,7 @@ public partial class Player
 
                     if (rcEntry != null)
                     {
-                        var tier = ObjectManager.GetSkillTier(rcEntry.SkillTierID);
+                        var tier = GameObjectManager.GetSkillTier(rcEntry.SkillTierID);
 
                         if (tier != null)
                         {
@@ -2656,7 +2656,7 @@ public partial class Player
         if (!spell)
         {
             // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-            var proto = ObjectManager.GetItemTemplate(_lastPotionId);
+            var proto = GameObjectManager.GetItemTemplate(_lastPotionId);
 
             if (proto != null)
                 for (byte idx = 0; idx < proto.Effects.Count; ++idx)
@@ -3357,7 +3357,7 @@ public partial class Player
             if (pItem2 is { IsBroken: false })
                 foreach (var gemData in pItem2.ItemData.Gems)
                 {
-                    var gemProto = ObjectManager.GetItemTemplate(gemData.ItemId);
+                    var gemProto = GameObjectManager.GetItemTemplate(gemData.ItemId);
 
                     if (gemProto == null)
                         continue;
@@ -3468,7 +3468,7 @@ public partial class Player
         if (IsAttackReady())
             return GetBaseAttackTime(WeaponAttackType.BaseAttack) * 1.8f / 1000.0f;
 
-        if (HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
+        if (HasOffhandWeapon && IsAttackReady(WeaponAttackType.OffAttack))
             return GetBaseAttackTime(WeaponAttackType.OffAttack) * 1.6f / 1000.0f;
 
         return 0;
@@ -3488,7 +3488,7 @@ public partial class Player
         // passive spells which apply aura and have an item requirement are to be added manually, instead of casted
         if (spellInfo.EquippedItemClass >= 0)
             foreach (var spellEffectInfo in spellInfo.Effects)
-                if (spellEffectInfo.IsAura())
+                if (spellEffectInfo.IsAura)
                 {
                     if (!HasAura(spellInfo.Id) && HasItemFitToSpellRequirements(spellInfo))
                         AddAura(spellInfo.Id, this);

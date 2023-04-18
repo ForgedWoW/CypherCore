@@ -46,10 +46,10 @@ public class SpellMonkRenewingMistHot : AuraScript, IHasAuraEffects
             {
                 var baseAura = kvp.Base;
 
-                if ((baseAura.SpellInfo.GetSchoolMask() & SpellSchoolMask.Shadow) == 0)
+                if ((baseAura.SpellInfo.SchoolMask & SpellSchoolMask.Shadow) == 0)
                     continue;
 
-                if ((baseAura.SpellInfo.GetDispelMask() & (1 << (int)DispelType.Magic)) == 0)
+                if ((baseAura.SpellInfo.DispelMask & (1 << (int)DispelType.Magic)) == 0)
                     continue;
 
                 if (baseAura.HasEffectType(AuraType.PeriodicDamage) || baseAura.HasEffectType(AuraType.PeriodicDamagePercent))

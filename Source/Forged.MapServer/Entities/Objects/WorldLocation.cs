@@ -786,7 +786,7 @@ public class WorldLocation : Position
         {
             TransferAbortParams abortParams = new();
 
-            if (!player.Satisfy(player.ObjectManager.GetAccessRequirement(mapid, targetDifficulty), mapid, abortParams, true))
+            if (!player.Satisfy(player.GameObjectManager.GetAccessRequirement(mapid, targetDifficulty), mapid, abortParams, true))
                 return abortParams;
         }
 

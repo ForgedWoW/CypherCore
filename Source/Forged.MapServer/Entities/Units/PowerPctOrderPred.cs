@@ -21,6 +21,9 @@ public class PowerPctOrderPred : IComparer<WorldObject>
 
     public int Compare(WorldObject objA, WorldObject objB)
     {
+        if (objA == null || objB == null)
+            return -1;
+
         var a = objA.AsUnit;
         var b = objB.AsUnit;
         var rA = a?.GetPowerPct(_power) ?? 0.0f;

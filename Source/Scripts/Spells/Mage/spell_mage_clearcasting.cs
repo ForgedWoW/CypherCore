@@ -27,7 +27,7 @@ public class SpellMageClearcasting : AuraScript, IAuraCheckProc, IHasAuraEffects
 
             // For each ${$c*100/$s1} mana you spend, you have a 1% chance
             // Means: I cast a spell which costs 1000 Mana, for every 500 mana used I have 1% chance =  2% chance to proc
-            foreach (var powerCost in SpellInfo.CalcPowerCost(Caster, SpellInfo.GetSchoolMask()))
+            foreach (var powerCost in SpellInfo.CalcPowerCost(Caster, SpellInfo.SchoolMask))
                 if (powerCost.Power == PowerType.Mana)
                     reqManaToSpent = powerCost.Amount * 100 / eff0;
 
@@ -35,7 +35,7 @@ public class SpellMageClearcasting : AuraScript, IAuraCheckProc, IHasAuraEffects
             if (reqManaToSpent == 0)
                 return false;
 
-            foreach (var powerCost in eventInfo.SpellInfo.CalcPowerCost(Caster, eventInfo.SpellInfo.GetSchoolMask()))
+            foreach (var powerCost in eventInfo.SpellInfo.CalcPowerCost(Caster, eventInfo.SpellInfo.SchoolMask))
                 if (powerCost.Power == PowerType.Mana)
                     manaUsed = powerCost.Amount;
 

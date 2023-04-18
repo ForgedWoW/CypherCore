@@ -32,7 +32,7 @@ public class SpellWarlockCurseOfShadows : AuraScript, IHasAuraEffects
 
         var spellInfo = eventInfo.DamageInfo.SpellInfo;
 
-        if (spellInfo == null || (spellInfo.GetSchoolMask() & SpellSchoolMask.Shadow) == 0)
+        if (spellInfo == null || (spellInfo.SchoolMask & SpellSchoolMask.Shadow) == 0)
             return;
 
         var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount);

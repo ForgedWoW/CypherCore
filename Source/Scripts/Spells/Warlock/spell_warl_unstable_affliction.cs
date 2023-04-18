@@ -28,7 +28,7 @@ internal class SpellWarlUnstableAffliction : AuraScript, IAfterAuraDispel
                 // backfire Damage and silence
                 CastSpellExtraArgs args = new(aurEff);
                 args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount * 9);
-                caster.SpellFactory.CastSpell(dispelInfo.GetDispeller(), WarlockSpells.UNSTABLE_AFFLICTION_DISPEL, args);
+                caster.SpellFactory.CastSpell(dispelInfo.Dispeller, WarlockSpells.UNSTABLE_AFFLICTION_DISPEL, args);
             }
         }
     }

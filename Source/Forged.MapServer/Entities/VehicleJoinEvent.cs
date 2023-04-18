@@ -81,7 +81,7 @@ public class VehicleJoinEvent : BasicEvent
         Passenger.Vehicle = Target;
         Seat.Value.Passenger.Guid = Passenger.GUID;
         Seat.Value.Passenger.IsUninteractible = Passenger.HasUnitFlag(UnitFlags.Uninteractible);
-        Seat.Value.Passenger.IsGravityDisabled = Passenger.HasUnitMovementFlag(MovementFlag.DisableGravity);
+        Seat.Value.Passenger.IsGravityDisabled = Passenger.MovementInfo.HasMovementFlag(MovementFlag.DisableGravity);
 
         if (Seat.Value.SeatInfo.CanEnterOrExit())
         {
@@ -89,10 +89,7 @@ public class VehicleJoinEvent : BasicEvent
 
             if (Target.UsableSeatNum == 0)
             {
-                if (Target.GetBase().IsTypeId(TypeId.Player))
-                    Target.GetBase().RemoveNpcFlag(NPCFlags.PlayerVehicle);
-                else
-                    Target.GetBase().RemoveNpcFlag(NPCFlags.SpellClick);
+                Target.GetBase().RemoveNpcFlag(Target.GetBase().IsTypeId(TypeId.Player) ? NPCFlags.PlayerVehicle : NPCFlags.SpellClick);
             }
         }
 
@@ -107,10 +104,7 @@ public class VehicleJoinEvent : BasicEvent
         if (player != null)
         {
             // drop Id
-            var bg = player.Battleground;
-
-            if (bg)
-                bg.EventPlayerDroppedFlag(player);
+            player.Battleground?.EventPlayerDroppedFlag(player);
 
             player.StopCastingCharm();
             player.StopCastingBindSight();

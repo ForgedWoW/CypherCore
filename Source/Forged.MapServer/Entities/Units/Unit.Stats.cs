@@ -184,7 +184,7 @@ public partial class Unit
 
         foreach (var spellEffectInfo in spellInfo.Effects)
         {
-            if (!spellEffectInfo.IsEffect())
+            if (!spellEffectInfo.IsEffect)
                 break;
 
             var effectMech = (int)spellInfo.GetEffectMechanic(spellEffectInfo.EffectIndex);
@@ -370,7 +370,7 @@ public partial class Unit
         double missChance = victim.GetUnitMissChance();
 
         // melee attacks while dual wielding have +19% chance to miss
-        if (spellInfo == null && HaveOffhandWeapon() && !IsInFeralForm && !HasAuraType(AuraType.IgnoreDualWieldHitPenalty))
+        if (spellInfo == null && HasOffhandWeapon && !IsInFeralForm && !HasAuraType(AuraType.IgnoreDualWieldHitPenalty))
             missChance += 19.0f;
 
         // Spellmod from SpellModOp.HitChance
@@ -549,9 +549,9 @@ public partial class Unit
             // group update
             var player = AsPlayer;
 
-            if (player)
+            if (player != null)
             {
-                if (player.Group)
+                if (player.Group != null)
                     player.SetGroupUpdateFlag(GroupUpdateFlags.CurHp);
             }
             else if (IsPet)
@@ -585,7 +585,7 @@ public partial class Unit
         // group update
         if (IsTypeId(TypeId.Player))
         {
-            if (AsPlayer.Group)
+            if (AsPlayer.Group != null)
                 AsPlayer.SetGroupUpdateFlag(GroupUpdateFlags.MaxHp);
         }
         else if (IsPet)
@@ -612,7 +612,7 @@ public partial class Unit
 
         // group update
         if (IsTypeId(TypeId.Player))
-            if (AsPlayer.Group)
+            if (AsPlayer.Group != null)
                 AsPlayer.SetGroupUpdateFlag(GroupUpdateFlags.MaxPower);
         /*else if (IsPet()) TODO 6.x
         {
@@ -704,7 +704,7 @@ public partial class Unit
 
         // group update
         if (IsTypeId(TypeId.Player))
-            if (player.Group)
+            if (player.Group != null)
                 player.SetGroupUpdateFlag(GroupUpdateFlags.CurPower);
         /*else if (IsPet()) TODO 6.x
         {
@@ -729,9 +729,8 @@ public partial class Unit
 
         var thisPlayer = AsPlayer;
 
-        if (thisPlayer != null)
-            if (thisPlayer.Group)
-                thisPlayer.SetGroupUpdateFlag(GroupUpdateFlags.PowerType);
+        if (thisPlayer?.Group != null)
+            thisPlayer.SetGroupUpdateFlag(GroupUpdateFlags.PowerType);
         /*else if (IsPet()) TODO 6.x
         {
             Pet pet = ToCreature().ToPet();
@@ -972,14 +971,15 @@ public partial class Unit
     {
         var player = AsPlayer;
 
-        if (player)
+        if (player != null)
             return player.GetRatingBonusValue(cr);
         // Player's pet get resilience from owner
-        else if (IsPet && OwnerUnit)
+
+        if (IsPet && OwnerUnit != null)
         {
             var owner = OwnerUnit.AsPlayer;
 
-            if (owner)
+            if (owner != null)
                 return owner.GetRatingBonusValue(cr);
         }
 
@@ -1013,13 +1013,13 @@ public partial class Unit
         double levelBonus = 0.0f;
         var playerVictim = victim.AsPlayer;
 
-        if (playerVictim)
+        if (playerVictim != null)
         {
             if (playerVictim.CanBlock)
             {
                 var tmpitem = playerVictim.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-                if (tmpitem && !tmpitem.IsBroken && tmpitem.Template.InventoryType == InventoryType.Shield)
+                if (tmpitem is { IsBroken: false } && tmpitem.Template.InventoryType == InventoryType.Shield)
                     chance = playerVictim.ActivePlayerData.BlockPercentage;
             }
         }
@@ -1055,12 +1055,12 @@ public partial class Unit
             };
         else
         {
-            if (!AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
-            {
-                chance = 5.0f;
-                chance += GetTotalAuraModifier(AuraType.ModWeaponCritPercent);
-                chance += GetTotalAuraModifier(AuraType.ModCritPct);
-            }
+            if (AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
+                return chance;
+
+            chance = 5.0f;
+            chance += GetTotalAuraModifier(AuraType.ModWeaponCritPercent);
+            chance += GetTotalAuraModifier(AuraType.ModCritPct);
         }
 
         return chance;
@@ -1098,7 +1098,7 @@ public partial class Unit
         double levelBonus = 0.0f;
         var playerVictim = victim.AsPlayer;
 
-        if (playerVictim)
+        if (playerVictim != null)
             chance = playerVictim.ActivePlayerData.DodgePercentage;
         else
         {
@@ -1142,16 +1142,13 @@ public partial class Unit
         double levelBonus = 0.0f;
         var playerVictim = victim.AsPlayer;
 
-        if (playerVictim)
+        if (playerVictim != null)
         {
             if (playerVictim.CanParry)
             {
-                var tmpitem = playerVictim.GetWeaponForAttack(WeaponAttackType.BaseAttack, true);
+                var tmpitem = playerVictim.GetWeaponForAttack(WeaponAttackType.BaseAttack, true) ?? playerVictim.GetWeaponForAttack(WeaponAttackType.OffAttack, true);
 
-                if (!tmpitem)
-                    tmpitem = playerVictim.GetWeaponForAttack(WeaponAttackType.OffAttack, true);
-
-                if (tmpitem)
+                if (tmpitem != null)
                     chance = playerVictim.ActivePlayerData.ParryPercentage;
             }
         }

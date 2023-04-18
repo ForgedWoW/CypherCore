@@ -25,7 +25,7 @@ public class SpellWarlockUnstableAfflictionDispel : AuraScript, IHasAuraEffects,
         if (caster == null)
             return;
 
-        var dispeller = dispelInfo.GetDispeller().AsUnit;
+        var dispeller = dispelInfo.Dispeller.AsUnit;
 
         if (dispeller != null)
         {

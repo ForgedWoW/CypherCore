@@ -60,7 +60,7 @@ public class BattlepayManager
             _session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetMgr.SelectPetDisplay(speciesEntry), _battlePetMgr.RollPetBreed(speciesEntry.Id), _battlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 
             //it gives back false information need to get the pet guid from the add pet method somehow
-            SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _session.Player.ObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
+            SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _session.Player.GameObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
         }
     }
 
@@ -69,7 +69,7 @@ public class BattlepayManager
         if (_session.Player == null)
             return false;
 
-        var itemTemplate = _session.Player.ObjectManager.GetItemTemplate(itemId);
+        var itemTemplate = _session.Player.GameObjectManager.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
             return true;
@@ -165,7 +165,7 @@ public class BattlepayManager
         foreach (var productId in productInfo.ProductIds)
         {
             var product = _battlePayDataStoreMgr.GetProduct(productId);
-            var itemTemplate = _session.Player.ObjectManager.GetItemTemplate(product.Flags);
+            var itemTemplate = _session.Player.GameObjectManager.GetItemTemplate(product.Flags);
             var itemsToSendIfInventoryFull = new List<uint>();
 
             switch ((ProductType)product.Type)
@@ -187,7 +187,7 @@ public class BattlepayManager
                     else
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
-                    foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId).Where(item => _session.Player.ObjectManager.GetItemTemplate(item.ItemID) != null))
+                    foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId).Where(item => _session.Player.GameObjectManager.GetItemTemplate(item.ItemID) != null))
                         if (player.GetFreeInventorySpace() > item.Quantity)
                             player.AddItemWithToast(item.ItemID, (ushort)item.Quantity, 0);
                         else
@@ -352,7 +352,7 @@ public class BattlepayManager
                 // Customs:
                 case ProductType.ItemSet:
                 {
-                    var its = _session.Player.ObjectManager.GetItemTemplates();
+                    var its = _session.Player.GameObjectManager.GetItemTemplates();
 
                     //C++ TO C# CONVERTER NOTE: 'auto' variable declarations are not supported in C#:
                     //ORIGINAL LINE: for (auto const& itemTemplatePair : its)
@@ -903,9 +903,9 @@ public class BattlepayManager
 
                     if (player.Class == PlayerClass.Deathknight)
                     {
-                        var quest = _session.Player.ObjectManager.GetQuestTemplate(12801);
+                        var quest = _session.Player.GameObjectManager.GetQuestTemplate(12801);
 
-                        if (_session.Player.ObjectManager.GetQuestTemplate(12801) != null)
+                        if (_session.Player.GameObjectManager.GetQuestTemplate(12801) != null)
                         {
                             player.AddQuest(quest, null);
                             player.CompleteQuest(quest.Id);

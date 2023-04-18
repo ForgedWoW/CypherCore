@@ -336,7 +336,7 @@ public class EscortAI : ScriptedAI
         Me.ReplaceAllNpcFlags(NPCFlags.None);
         Me.ReplaceAllNpcFlags2(NPCFlags2.None);
 
-        if (Me.IsImmuneToNPC())
+        if (Me.HasUnitFlag(UnitFlags.ImmuneToNpc))
         {
             _hasImmuneToNPCFlags = true;
             Me.SetImmuneToNPC(false);

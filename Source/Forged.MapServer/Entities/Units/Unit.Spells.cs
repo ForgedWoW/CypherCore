@@ -145,7 +145,7 @@ public partial class Unit
             return;
 
         // Update target aura state Id
-        var aState = aura.SpellInfo.GetAuraState();
+        var aState = aura.SpellInfo.AuraState;
 
         if (aState != 0)
         {
@@ -444,7 +444,7 @@ public partial class Unit
                         damage += critBonus;
 
                         // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
-                        var critPctDamageMod = (GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellInfo.GetSchoolMask()) - 1.0f) * 100;
+                        var critPctDamageMod = (GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellInfo.SchoolMask) - 1.0f) * 100;
 
                         if (critPctDamageMod != 0)
                             MathFunctions.AddPct(ref damage, critPctDamageMod);
@@ -899,7 +899,7 @@ public partial class Unit
             if (aurApp == null)
                 continue;
 
-            if (Convert.ToBoolean(aura.SpellInfo.GetDispelMask() & dispelMask))
+            if (Convert.ToBoolean(aura.SpellInfo.DispelMask & dispelMask))
             {
                 // do not remove positive auras if friendly target
                 //               negative auras if non-friendly
@@ -930,7 +930,7 @@ public partial class Unit
     public double GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect aurEff, AuraType auraType, bool checkMiscValue = false, int miscValue = 0)
     {
         double val = 0;
-        var spellGroupList = SpellManager.GetSpellSpellGroupMapBounds(aurEff.SpellInfo.GetFirstRankSpell().Id);
+        var spellGroupList = SpellManager.GetSpellSpellGroupMapBounds(aurEff.SpellInfo.FirstRankSpell.Id);
 
         foreach (var spellGroup in spellGroupList)
             if (SpellManager.GetSpellGroupStackRule(spellGroup) == SpellGroupStackRule.ExclusiveSameEffect)
@@ -1126,7 +1126,7 @@ public partial class Unit
         var spellClickEntry = VehicleKit?.GetCreatureEntry() ?? Entry;
         var flags = VehicleKit != null ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
 
-        var clickBounds = ObjectManager.GetSpellClickInfoMapBounds(spellClickEntry);
+        var clickBounds = GameObjectManager.GetSpellClickInfoMapBounds(spellClickEntry);
 
         foreach (var clickInfo in clickBounds)
         {
@@ -1333,7 +1333,7 @@ public partial class Unit
                 return true;
 
             foreach (var spellEffectInfo in spellInfo.Effects)
-                if (spellEffectInfo != null && pair.HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.IsEffect() && spellEffectInfo.Mechanic != 0)
+                if (spellEffectInfo != null && pair.HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.IsEffect && spellEffectInfo.Mechanic != 0)
                     if ((mechanicMask & (1ul << (int)spellEffectInfo.Mechanic)) != 0)
                         return true;
         }
@@ -1577,7 +1577,7 @@ public partial class Unit
         if (spellInfo.HasAttribute(SpellAttr1.ImmunityToHostileAndFriendlyEffects) || spellInfo.HasAttribute(SpellAttr2.NoSchoolImmunities))
             return false;
 
-        var schoolMask = (uint)spellInfo.GetSchoolMask();
+        var schoolMask = (uint)spellInfo.SchoolMask;
 
         if (schoolMask != 0)
         {
@@ -1659,7 +1659,7 @@ public partial class Unit
         {
             // State/effect immunities applied by aura expect full spell immunity
             // Ignore effects with mechanic, they are supposed to be checked separately
-            if (!spellEffectInfo.IsEffect())
+            if (!spellEffectInfo.IsEffect)
                 continue;
 
             if (!IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute))
@@ -1676,7 +1676,7 @@ public partial class Unit
         if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
             return true;
 
-        var schoolMask = (uint)spellInfo.GetSchoolMask();
+        var schoolMask = (uint)spellInfo.SchoolMask;
 
         if (schoolMask != 0)
         {
@@ -1767,7 +1767,7 @@ public partial class Unit
         var immuneAuraApply = GetAuraEffectsByType(AuraType.ModImmuneAuraApplySchool);
 
         foreach (var auraEffect in immuneAuraApply)
-            if (Convert.ToBoolean(auraEffect.MiscValue & (int)spellInfo.GetSchoolMask()) &&                                                // Check school
+            if (Convert.ToBoolean(auraEffect.MiscValue & (int)spellInfo.SchoolMask) &&                                                // Check school
                 ((caster != null && !WorldObjectCombat.IsFriendlyTo(caster)) || !spellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
                 return true;
 
@@ -2368,9 +2368,9 @@ public partial class Unit
             aura.CallScriptDispel(dispelInfo);
 
             if (aura.SpellInfo.HasAttribute(SpellAttr7.DispelCharges))
-                aura.ModCharges(-dispelInfo.GetRemovedCharges(), AuraRemoveMode.EnemySpell);
+                aura.ModCharges(-dispelInfo.RemovedCharges, AuraRemoveMode.EnemySpell);
             else
-                aura.ModStackAmount(-dispelInfo.GetRemovedCharges(), AuraRemoveMode.EnemySpell);
+                aura.ModStackAmount(-dispelInfo.RemovedCharges, AuraRemoveMode.EnemySpell);
 
             // Call AfterDispel hook on AuraScript
             aura.CallScriptAfterDispel(dispelInfo);
@@ -2775,7 +2775,7 @@ public partial class Unit
             Amount = (uint)info.Damage,
             OriginalDamage = (int)info.OriginalDamage,
             OverHealOrKill = (uint)info.OverDamage,
-            SchoolMaskOrPower = (uint)aura.SpellInfo.GetSchoolMask(),
+            SchoolMaskOrPower = (uint)aura.SpellInfo.SchoolMask,
             AbsorbedOrAmplitude = (uint)info.Absorb,
             Resisted = (uint)info.Resist,
             Crit = info.Critical
@@ -3245,9 +3245,9 @@ public partial class Unit
         var doneTotalMod = SpellDamagePctDone(victim, spellProto, damagetype, spellEffectInfo, spell);
 
         // Done fixed damage bonus auras
-        var doneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto.GetSchoolMask());
+        var doneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto.SchoolMask);
         // modify spell power by victim's SPELL_AURA_MOD_DAMAGE_TAKEN auras (eg Amplify/Dampen Magic)
-        doneAdvertisedBenefit += victim.GetTotalAuraModifierByMiscMask(AuraType.ModDamageTaken, (int)spellProto.GetSchoolMask());
+        doneAdvertisedBenefit += victim.GetTotalAuraModifierByMiscMask(AuraType.ModDamageTaken, (int)spellProto.SchoolMask);
 
         // Pets just add their bonus damage to their spell damage
         // note that their spell damage is just gain of their own auras
@@ -3354,12 +3354,12 @@ public partial class Unit
 
             // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
             // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
-            takenTotalMod *= GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentTaken, (uint)spellProto.GetSchoolMask());
+            takenTotalMod *= GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentTaken, (uint)spellProto.SchoolMask);
 
             // From caster spells
             if (caster != null)
             {
-                takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff => { return aurEff.CasterGuid == caster.GUID && (aurEff.MiscValue & (int)spellProto.GetSchoolMask()) != 0; });
+                takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff => { return aurEff.CasterGuid == caster.GUID && (aurEff.MiscValue & (int)spellProto.SchoolMask) != 0; });
 
                 takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSpellDamageFromCaster, aurEff => { return aurEff.CasterGuid == caster.GUID && aurEff.IsAffectingSpell(spellProto); });
 
@@ -3367,7 +3367,7 @@ public partial class Unit
             }
 
             if (damagetype == DamageEffectType.DOT)
-                takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.MiscValue & (uint)spellProto.GetSchoolMask()) != 0);
+                takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.MiscValue & (uint)spellProto.SchoolMask) != 0);
         }
 
         // Sanctified Wrath (bypass damage reduction)
@@ -3378,7 +3378,7 @@ public partial class Unit
 
             foreach (var aurEff in casterIgnoreResist)
             {
-                if ((aurEff.MiscValue & (int)spellProto.GetSchoolMask()) == 0)
+                if ((aurEff.MiscValue & (int)spellProto.SchoolMask) == 0)
                     continue;
 
                 MathFunctions.AddPct(ref damageReduction, -aurEff.Amount);
@@ -3432,11 +3432,11 @@ public partial class Unit
         if (TryGetAsPlayer(out var thisPlayer))
         {
             for (var i = 0; i < (int)SpellSchools.Max; ++i)
-                if (Convert.ToBoolean((int)spellProto.GetSchoolMask() & (1 << i)))
+                if (Convert.ToBoolean((int)spellProto.SchoolMask & (1 << i)))
                     maxModDamagePercentSchool = Math.Max(maxModDamagePercentSchool, thisPlayer.ActivePlayerData.ModDamageDonePercent[i]);
         }
         else
-            maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentDone, (uint)spellProto.GetSchoolMask());
+            maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentDone, (uint)spellProto.SchoolMask);
 
         doneTotalMod *= maxModDamagePercentSchool;
 
@@ -3509,9 +3509,9 @@ public partial class Unit
         }
 
         // Done fixed damage bonus auras
-        var doneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto.GetSchoolMask());
+        var doneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto.SchoolMask);
         // modify spell power by victim's SPELL_AURA_MOD_HEALING auras (eg Amplify/Dampen Magic)
-        doneAdvertisedBenefit += victim.GetTotalAuraModifierByMiscMask(AuraType.ModHealing, (int)spellProto.GetSchoolMask());
+        doneAdvertisedBenefit += victim.GetTotalAuraModifierByMiscMask(AuraType.ModHealing, (int)spellProto.SchoolMask);
 
         // Pets just add their bonus damage to their spell damage
         // note that their spell damage is just gain of their own auras
@@ -3559,7 +3559,7 @@ public partial class Unit
                 _                             => doneTotal
             };
 
-            if (otherSpellEffectInfo.IsEffect(SpellEffectName.HealthLeech))
+            if (otherSpellEffectInfo.IsEffectName(SpellEffectName.HealthLeech))
                 doneTotal = 0;
         }
 
@@ -3650,7 +3650,7 @@ public partial class Unit
             double maxModDamagePercentSchool = 0.0f;
 
             for (var i = 0; i < (int)SpellSchools.Max; ++i)
-                if (((int)spellProto.GetSchoolMask() & (1 << i)) != 0)
+                if (((int)spellProto.SchoolMask & (1 << i)) != 0)
                     maxModDamagePercentSchool = Math.Max(maxModDamagePercentSchool, thisPlayer.ActivePlayerData.ModHealingDonePercent[i]);
 
             return maxModDamagePercentSchool;
@@ -3827,7 +3827,7 @@ public partial class Unit
         }
 
         var auraStateFound = false;
-        var auraState = aura.SpellInfo.GetAuraState();
+        var auraState = aura.SpellInfo.AuraState;
 
         if (auraState != 0)
         {

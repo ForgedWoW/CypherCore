@@ -45,7 +45,7 @@ public class BfGraveyard
 
     public float GetDistance(Player player)
     {
-        var safeLoc = player.ObjectManager.GetWorldSafeLoc(GraveyardId);
+        var safeLoc = player.GameObjectManager.GetWorldSafeLoc(GraveyardId);
 
         return player.Location.GetDistance2d(safeLoc.Location.X, safeLoc.Location.Y);
     }

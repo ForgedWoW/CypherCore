@@ -34,7 +34,7 @@ public class SpellDhBloodlet : AuraScript, IHasAuraEffects
         var caster = Caster;
         var target = eventInfo.ActionTarget;
 
-        if (caster == null || target == null || eventInfo.DamageInfo != null || !SpellInfo.GetEffect(0).IsEffect())
+        if (caster == null || target == null || eventInfo.DamageInfo != null || !SpellInfo.GetEffect(0).IsEffect)
             return;
 
         var basePoints = SpellInfo.GetEffect(0).BasePoints;

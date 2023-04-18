@@ -210,7 +210,7 @@ public partial class Spell : IDisposable
         // Get data for type of attack
         AttackType = info.GetAttackType();
 
-        SpellSchoolMask = SpellInfo.GetSchoolMask(); // Can be override for some spell (wand shoot for example)
+        SpellSchoolMask = SpellInfo.SchoolMask; // Can be override for some spell (wand shoot for example)
 
         if (originalCasterGuid.IsEmpty)
             _originalCasterGuid = Caster.GUID;
@@ -472,7 +472,7 @@ public partial class Spell : IDisposable
         // check if target already has the same or a more powerful aura
         foreach (var spellEffectInfo in SpellInfo.Effects)
         {
-            if (!spellEffectInfo.IsAura())
+            if (!spellEffectInfo.IsAura)
                 continue;
 
             var auraType = spellEffectInfo.ApplyAuraName;
@@ -1683,9 +1683,9 @@ public partial class Spell : IDisposable
                 }
             }
 
-            if (spellEffectInfo.IsAura())
+            if (spellEffectInfo.IsAura)
                 approximateAuraEffectMask.Add(spellEffectInfo.EffectIndex);
-            else if (spellEffectInfo.IsEffect())
+            else if (spellEffectInfo.IsEffect)
                 nonAuraEffectMask |= 1u << spellEffectInfo.EffectIndex;
         }
 
@@ -2383,7 +2383,7 @@ public partial class Spell : IDisposable
             {
                 unitCaster.ResetAttackTimer();
 
-                if (unitCaster.HaveOffhandWeapon())
+                if (unitCaster.HasOffhandWeapon)
                     unitCaster.ResetAttackTimer(WeaponAttackType.OffAttack);
 
                 unitCaster.ResetAttackTimer(WeaponAttackType.RangedAttack);
@@ -2666,7 +2666,7 @@ public partial class Spell : IDisposable
         // this function tries to correct spell explicit targets for spell
         // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
         // this also makes sure that we correctly send explicit targets to client (removes redundant data)
-        var neededTargets = SpellInfo.GetExplicitTargetMask();
+        var neededTargets = SpellInfo.ExplicitTargetMask;
 
         var target = Targets.ObjectTarget;
 
@@ -3125,7 +3125,7 @@ public partial class Spell : IDisposable
         if (hitInfo.Positive || unit.ApplyDiminishingToDuration(SpellInfo, ref hitInfo.AuraDuration, origCaster, diminishLevel))
             return SpellMissInfo.None;
 
-        return SpellInfo.Effects.All(effInfo => !effInfo.IsEffect() || effInfo.IsEffect(SpellEffectName.ApplyAura)) ? SpellMissInfo.Immune : SpellMissInfo.None;
+        return SpellInfo.Effects.All(effInfo => !effInfo.IsEffect || effInfo.IsEffectName(SpellEffectName.ApplyAura)) ? SpellMissInfo.Immune : SpellMissInfo.None;
     }
 
     public void RecalculateDelayMomentForDst()
@@ -3145,7 +3145,7 @@ public partial class Spell : IDisposable
         {
             // not call for empty effect.
             // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
-            if (!spellEffectInfo.IsEffect())
+            if (!spellEffectInfo.IsEffect)
                 continue;
 
             // set expected type of implicit targets to be sent to client
@@ -3575,7 +3575,7 @@ public partial class Spell : IDisposable
                         if (spellEffectInfo.ItemType != 0)
                             item = spellEffectInfo.ItemType;
 
-                    var proto = caster.ObjectManager.GetItemTemplate(item);
+                    var proto = caster.GameObjectManager.GetItemTemplate(item);
 
                     if (proto != null && proto.ItemLimitCategory != 0)
                         packet.FailedArg1 = (int)proto.ItemLimitCategory;
@@ -4063,7 +4063,7 @@ public partial class Spell : IDisposable
         HandleThreatSpells();
 
         // handle effects with SPELL_EFFECT_HANDLE_HIT mode
-        foreach (var spellEffectInfo in SpellInfo.Effects.Where(spellEffectInfo => spellEffectInfo.IsEffect()))
+        foreach (var spellEffectInfo in SpellInfo.Effects.Where(spellEffectInfo => spellEffectInfo.IsEffect))
             // call effect handlers to handle destination hit
             HandleEffects(null, null, null, null, spellEffectInfo, SpellEffectHandleMode.Hit);
 
@@ -4084,7 +4084,7 @@ public partial class Spell : IDisposable
     {
         var effectMask = effMask.ToHashSet();
 
-        foreach (var spellEffectInfo in SpellInfo.Effects.Where(spellEffectInfo => !spellEffectInfo.IsEffect()))
+        foreach (var spellEffectInfo in SpellInfo.Effects.Where(spellEffectInfo => !spellEffectInfo.IsEffect))
             effectMask.Remove(spellEffectInfo.EffectIndex);
 
         // no effects left
@@ -4157,7 +4157,7 @@ public partial class Spell : IDisposable
         var effectMask = effMask.ToHashSet();
 
         foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(go, spellEffectInfo))
+            if (!spellEffectInfo.IsEffect || !CheckEffectTarget(go, spellEffectInfo))
                 effectMask.Remove(spellEffectInfo.EffectIndex);
 
         // no effects left
@@ -4225,7 +4225,7 @@ public partial class Spell : IDisposable
         var effectMask = effMask.ToHashSet();
 
         foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(spellEffectInfo))
+            if (!spellEffectInfo.IsEffect || !CheckEffectTarget(spellEffectInfo))
                 effectMask.Remove(spellEffectInfo.EffectIndex);
 
         // no effects left
@@ -4288,7 +4288,7 @@ public partial class Spell : IDisposable
         var removeEffect = efftMask.ToHashSet();
 
         foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(target, spellEffectInfo, losPosition))
+            if (!spellEffectInfo.IsEffect || !CheckEffectTarget(target, spellEffectInfo, losPosition))
                 removeEffect.Remove(spellEffectInfo.EffectIndex);
 
         if (removeEffect.Count == 0)
@@ -4922,7 +4922,7 @@ public partial class Spell : IDisposable
 
     private bool CheckEffectTarget(Unit target, SpellEffectInfo spellEffectInfo, Position losPosition)
     {
-        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
+        if (spellEffectInfo == null || !spellEffectInfo.IsEffect)
             return false;
 
         switch (spellEffectInfo.ApplyAuraName)
@@ -5024,7 +5024,7 @@ public partial class Spell : IDisposable
 
     private bool CheckEffectTarget(GameObject target, SpellEffectInfo spellEffectInfo)
     {
-        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
+        if (spellEffectInfo == null || !spellEffectInfo.IsEffect)
             return false;
 
         switch (spellEffectInfo.Effect)
@@ -5043,7 +5043,7 @@ public partial class Spell : IDisposable
 
     private bool CheckEffectTarget(SpellEffectInfo spellEffectInfo)
     {
-        return spellEffectInfo != null && spellEffectInfo.IsEffect();
+        return spellEffectInfo != null && spellEffectInfo.IsEffect;
     }
 
     private SpellCastResult CheckItems(ref int param1, ref int param2)
@@ -5894,7 +5894,7 @@ public partial class Spell : IDisposable
         HandleEffects(unit, null, null, null, spellEffectInfo, SpellEffectHandleMode.LaunchTarget);
 
         if (OriginalCaster != null && DamageInEffects > 0)
-            if (spellEffectInfo.IsTargetingArea || spellEffectInfo.IsAreaAuraEffect || spellEffectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+            if (spellEffectInfo.IsTargetingArea || spellEffectInfo.IsAreaAuraEffect || spellEffectInfo.IsEffectName(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
             {
                 DamageInEffects = unit.CalculateAoeAvoidance(DamageInEffects, (uint)SpellInfo.SchoolMask, OriginalCaster.GUID);
 
@@ -6169,7 +6169,7 @@ public partial class Spell : IDisposable
         foreach (var spellEffectInfo in SpellInfo.Effects)
         {
             // don't do anything for empty effect
-            if (!spellEffectInfo.IsEffect())
+            if (!spellEffectInfo.IsEffect)
                 continue;
 
             HandleEffects(null, null, null, null, spellEffectInfo, SpellEffectHandleMode.Launch);
@@ -6711,7 +6711,7 @@ public partial class Spell : IDisposable
                 // choose which targets we can select at once
                 foreach (var effect in SpellInfo.Effects)
                 {
-                    if (effect.IsEffect() &&
+                    if (effect.IsEffect &&
                         spellEffectInfo.TargetA.Target == effect.TargetA.Target &&
                         spellEffectInfo.TargetB.Target == effect.TargetB.Target &&
                         spellEffectInfo.ImplicitTargetConditions == effect.ImplicitTargetConditions &&
@@ -6943,7 +6943,7 @@ public partial class Spell : IDisposable
 
         if (target != null)
             // check for explicit target redirection, for Grounding Totem for example
-            if (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.UnitEnemy) || (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.Unit) && !Caster.WorldObjectCombat.IsFriendlyTo(target)))
+            if (SpellInfo.ExplicitTargetMask.HasAnyFlag(SpellCastTargetFlags.UnitEnemy) || (SpellInfo.ExplicitTargetMask.HasAnyFlag(SpellCastTargetFlags.Unit) && !Caster.WorldObjectCombat.IsFriendlyTo(target)))
             {
                 var redirect = SpellInfo.DmgClass switch
                 {
@@ -8719,7 +8719,7 @@ public partial class Spell : IDisposable
         var channelAuraMask = new HashSet<int>();
 
         foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
+            if (spellEffectInfo.IsEffectName(SpellEffectName.ApplyAura))
                 channelAuraMask.Add(spellEffectInfo.EffectIndex);
 
         channelAuraMask.IntersectWith(channelTargetEffectMask);

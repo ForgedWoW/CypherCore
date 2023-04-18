@@ -25,11 +25,6 @@ namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
-    public void AddExtraUnitMovementFlag2(MovementFlags3 f)
-    {
-        MovementInfo.AddExtraMovementFlag2(f);
-    }
-
     public void AddUnitMovementFlag(MovementFlag f)
     {
         MovementInfo.AddMovementFlag(f);
@@ -111,20 +106,17 @@ public partial class Unit
             // if we have charmed npc, remove stun also
             var charm = player.Charmed;
 
-            if (charm)
-                if (charm.TypeId == TypeId.Unit && charm.HasUnitFlag(UnitFlags.Stunned) && !charm.HasUnitState(UnitState.Stunned))
-                    charm.RemoveUnitFlag(UnitFlags.Stunned);
+            if (charm == null)
+                return;
+
+            if (charm.TypeId == TypeId.Unit && charm.HasUnitFlag(UnitFlags.Stunned) && !charm.HasUnitState(UnitState.Stunned))
+                charm.RemoveUnitFlag(UnitFlags.Stunned);
         }
     }
 
     public virtual MovementGeneratorType GetDefaultMovementType()
     {
         return MovementGeneratorType.Idle;
-    }
-
-    public MovementFlags3 GetExtraUnitMovementFlags2()
-    {
-        return MovementInfo.GetExtraMovementFlags2();
     }
 
     public MountCapabilityRecord GetMountCapability(uint mountType)
@@ -154,7 +146,7 @@ public partial class Unit
         }
 
         var liquidStatus = Location.Map.GetLiquidStatus(Location.PhaseShift, Location.X, Location.Y, Location.Z, LiquidHeaderTypeFlags.AllLiquids);
-        var isSubmerged = liquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater) || HasUnitMovementFlag(MovementFlag.Swimming);
+        var isSubmerged = liquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater) || MovementInfo.HasMovementFlag(MovementFlag.Swimming);
         var isInWater = liquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
 
         foreach (var mountTypeXCapability in capabilities)
@@ -244,35 +236,7 @@ public partial class Unit
         if (Vehicle != null)
             return VehicleBase.GUID;
 
-        if (Transport != null)
-            return Transport.GetTransportGUID();
-
-        return ObjectGuid.Empty;
-    }
-
-    public MovementFlag GetUnitMovementFlags()
-    {
-        return MovementInfo.MovementFlags;
-    }
-
-    public MovementFlag2 GetUnitMovementFlags2()
-    {
-        return MovementInfo.GetMovementFlags2();
-    }
-
-    public bool HasExtraUnitMovementFlag2(MovementFlags3 f)
-    {
-        return MovementInfo.HasExtraMovementFlag2(f);
-    }
-
-    public bool HasUnitMovementFlag(MovementFlag f)
-    {
-        return MovementInfo.HasMovementFlag(f);
-    }
-
-    public bool HasUnitMovementFlag2(MovementFlag2 f)
-    {
-        return MovementInfo.HasMovementFlag2(f);
+        return Transport?.GetTransportGUID() ?? ObjectGuid.Empty;
     }
 
     public bool IsInAccessiblePlaceFor(Creature c)
@@ -295,7 +259,7 @@ public partial class Unit
 
     public bool IsWithinBoundaryRadius(Unit obj)
     {
-        if (!obj || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
+        if (obj == null || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
             return false;
 
         var objBoundaryRadius = Math.Max(obj.BoundingRadius, SharedConst.MinMeleeReach);
@@ -305,7 +269,7 @@ public partial class Unit
 
     public bool IsWithinCombatRange(Unit obj, float dist2Compare)
     {
-        if (!obj || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
+        if (obj == null || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
             return false;
 
         var dx = Location.X - obj.Location.X;
@@ -347,20 +311,20 @@ public partial class Unit
     {
         var player = AsPlayer;
 
-        if (!player)
+        if (player == null)
         {
             var charmer = Charmer;
 
-            if (charmer)
+            if (charmer != null)
             {
                 player = charmer.AsPlayer;
 
-                if (player && player.UnitBeingMoved != this)
+                if (player != null && player.UnitBeingMoved != this)
                     player = null;
             }
         }
 
-        if (!player)
+        if (player == null)
             MotionMaster.MoveKnockbackFrom(origin, speedXy, speedZ, spellEffectExtraData);
         else
         {
@@ -417,10 +381,8 @@ public partial class Unit
 
             if (pet != null)
             {
-                var bg = AsPlayer.Battleground;
-
                 // don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
-                if (bg && bg.IsArena)
+                if (AsPlayer?.Battleground is { IsArena: true })
                     pet.SetUnitFlag(UnitFlags.Stunned);
                 else
                     player.UnsummonPetTemporaryIfAny();
@@ -429,9 +391,8 @@ public partial class Unit
             // if we have charmed npc, stun him also (everywhere)
             var charm = player.Charmed;
 
-            if (charm)
-                if (charm.TypeId == TypeId.Unit)
-                    charm.SetUnitFlag(UnitFlags.Stunned);
+            if (charm is { TypeId: TypeId.Unit })
+                charm.SetUnitFlag(UnitFlags.Stunned);
 
             player.SendMovementSetCollisionHeight(player.CollisionHeight, UpdateCollisionHeightReason.Mount);
         }
@@ -487,10 +448,7 @@ public partial class Unit
             return;
 
         // remove appropriate auras if we are swimming/not swimming respectively
-        if (Location.IsInWater)
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.UnderWater);
-        else
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.AboveWater);
+        RemoveAurasWithInterruptFlags(Location.IsInWater ? SpellAuraInterruptFlags.UnderWater : SpellAuraInterruptFlags.AboveWater);
 
         // liquid aura handling
         LiquidTypeRecord curLiquid = null;
@@ -508,23 +466,13 @@ public partial class Unit
             // Set _lastLiquid before casting liquid spell to avoid infinite loops
             LastLiquid = curLiquid;
 
-            if (curLiquid != null && curLiquid.SpellID != 0 && (!player || !player.IsGameMaster))
+            if (curLiquid != null && curLiquid.SpellID != 0 && (player == null || !player.IsGameMaster))
                 SpellFactory.CastSpell(this, curLiquid.SpellID, true);
         }
 
         // mount capability depends on liquid state change
         if (oldLiquidStatus != Location.LiquidStatus)
             UpdateMountCapability();
-    }
-
-    public void RemoveExtraUnitMovementFlag2(MovementFlags3 f)
-    {
-        MovementInfo.RemoveExtraMovementFlag2(f);
-    }
-
-    public void RemoveUnitMovementFlag(MovementFlag f)
-    {
-        MovementInfo.RemoveMovementFlag(f);
     }
 
     public void RemoveVehicleKit(bool onRemoveFromWorld = false)
@@ -619,7 +567,7 @@ public partial class Unit
 
     public bool SetCanDoubleJump(bool enable)
     {
-        if (enable == HasUnitMovementFlag2(MovementFlag2.CanDoubleJump))
+        if (enable == MovementInfo.HasMovementFlag2(MovementFlag2.CanDoubleJump))
             return false;
 
         if (enable)
@@ -652,16 +600,16 @@ public partial class Unit
 
     public bool SetCanFly(bool enable)
     {
-        if (enable == HasUnitMovementFlag(MovementFlag.CanFly))
+        if (enable == MovementInfo.HasMovementFlag(MovementFlag.CanFly))
             return false;
 
         if (enable)
         {
-            AddUnitMovementFlag(MovementFlag.CanFly);
-            RemoveUnitMovementFlag(MovementFlag.Swimming | MovementFlag.SplineElevation);
+            MovementInfo.AddMovementFlag(MovementFlag.CanFly);
+            MovementInfo.RemoveMovementFlag(MovementFlag.Swimming | MovementFlag.SplineElevation);
         }
         else
-            RemoveUnitMovementFlag(MovementFlag.CanFly | MovementFlag.MaskMovingFly);
+            MovementInfo.RemoveMovementFlag(MovementFlag.CanFly | MovementFlag.MaskMovingFly);
 
         if (!enable && IsTypeId(TypeId.Player))
             AsPlayer.SetFallInformation(0, Location.Z);
@@ -703,7 +651,7 @@ public partial class Unit
         if (!IsTypeId(TypeId.Player))
             return false;
 
-        if (enable == HasUnitMovementFlag2(MovementFlag2.CanSwimToFlyTrans))
+        if (enable == MovementInfo.HasMovementFlag2(MovementFlag2.CanSwimToFlyTrans))
             return false;
 
         if (enable)
@@ -866,11 +814,11 @@ public partial class Unit
 
         if (disable)
         {
-            AddUnitMovementFlag(MovementFlag.DisableGravity);
-            RemoveUnitMovementFlag(MovementFlag.Swimming | MovementFlag.SplineElevation);
+            MovementInfo.AddMovementFlag(MovementFlag.DisableGravity);
+            MovementInfo.RemoveMovementFlag(MovementFlag.Swimming | MovementFlag.SplineElevation);
         }
         else
-            RemoveUnitMovementFlag(MovementFlag.DisableGravity);
+            MovementInfo.RemoveMovementFlag(MovementFlag.DisableGravity);
 
 
         var playerMover = UnitBeingMoved?.AsPlayer;
@@ -917,33 +865,33 @@ public partial class Unit
 
     public bool SetDisableInertia(bool disable)
     {
-        if (disable == HasExtraUnitMovementFlag2(MovementFlags3.DisableInertia))
+        if (disable == MovementInfo.HasExtraMovementFlag2(MovementFlags3.DisableInertia))
             return false;
 
         if (disable)
-            AddExtraUnitMovementFlag2(MovementFlags3.DisableInertia);
+            MovementInfo.AddExtraMovementFlag2(MovementFlags3.DisableInertia);
         else
-            RemoveExtraUnitMovementFlag2(MovementFlags3.DisableInertia);
+            MovementInfo.RemoveExtraMovementFlag2(MovementFlags3.DisableInertia);
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover != null)
+        if (playerMover == null)
+            return true;
+
+        MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableInertia : ServerOpcodes.MoveEnableInertia)
         {
-            MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableInertia : ServerOpcodes.MoveEnableInertia)
-            {
-                MoverGUID = GUID,
-                SequenceIndex = MovementCounter++
-            };
+            MoverGUID = GUID,
+            SequenceIndex = MovementCounter++
+        };
 
-            playerMover.SendPacket(packet);
+        playerMover.SendPacket(packet);
 
-            MoveUpdate moveUpdate = new()
-            {
-                Status = MovementInfo
-            };
+        MoveUpdate moveUpdate = new()
+        {
+            Status = MovementInfo
+        };
 
-            SendMessageToSet(moveUpdate, playerMover);
-        }
+        SendMessageToSet(moveUpdate, playerMover);
 
         return true;
     }
@@ -1007,16 +955,16 @@ public partial class Unit
 
     public bool SetFall(bool enable)
     {
-        if (enable == HasUnitMovementFlag(MovementFlag.Falling))
+        if (enable == MovementInfo.HasMovementFlag(MovementFlag.Falling))
             return false;
 
         if (enable)
         {
-            AddUnitMovementFlag(MovementFlag.Falling);
+            MovementInfo.AddMovementFlag(MovementFlag.Falling);
             MovementInfo.SetFallTime(0);
         }
         else
-            RemoveUnitMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar);
+            MovementInfo.RemoveMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar);
 
         return true;
     }
@@ -1028,9 +976,9 @@ public partial class Unit
         //return false;
 
         if (enable)
-            AddUnitMovementFlag(MovementFlag.FallingSlow);
+            MovementInfo.AddMovementFlag(MovementFlag.FallingSlow);
         else
-            RemoveUnitMovementFlag(MovementFlag.FallingSlow);
+            MovementInfo.RemoveMovementFlag(MovementFlag.FallingSlow);
 
 
         var playerMover = UnitBeingMoved?.AsPlayer;
@@ -1067,7 +1015,7 @@ public partial class Unit
 
     public bool SetHover(bool enable, bool updateAnimTier = true)
     {
-        if (enable == HasUnitMovementFlag(MovementFlag.Hover))
+        if (enable == MovementInfo.HasMovementFlag(MovementFlag.Hover))
             return false;
 
         float hoverHeight = UnitData.HoverHeight;
@@ -1075,14 +1023,14 @@ public partial class Unit
         if (enable)
         {
             //! No need to check height on ascent
-            AddUnitMovementFlag(MovementFlag.Hover);
+            MovementInfo.AddMovementFlag(MovementFlag.Hover);
 
             if (hoverHeight != 0 && Location.Z - Location.FloorZ < hoverHeight)
                 UpdateHeight(Location.Z + hoverHeight);
         }
         else
         {
-            RemoveUnitMovementFlag(MovementFlag.Hover);
+            MovementInfo.RemoveMovementFlag(MovementFlag.Hover);
 
             //! Dying creatures will MoveFall from setDeathState
             if (hoverHeight != 0 && (!IsDying || !IsUnit))
@@ -1137,7 +1085,7 @@ public partial class Unit
 
     public bool SetIgnoreMovementForces(bool ignore)
     {
-        if (ignore == HasUnitMovementFlag2(MovementFlag2.IgnoreMovementForces))
+        if (ignore == MovementInfo.HasMovementFlag2(MovementFlag2.IgnoreMovementForces))
             return false;
 
         if (ignore)
@@ -1202,12 +1150,12 @@ public partial class Unit
                 // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
                 // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
                 // setting MOVEMENTFLAG_ROOT
-                RemoveUnitMovementFlag(MovementFlag.MaskMoving);
-                AddUnitMovementFlag(MovementFlag.Root);
+                MovementInfo.RemoveMovementFlag(MovementFlag.MaskMoving);
+                MovementInfo.AddMovementFlag(MovementFlag.Root);
                 StopMoving();
             }
             else
-                RemoveUnitMovementFlag(MovementFlag.Root);
+                MovementInfo.RemoveMovementFlag(MovementFlag.Root);
         }
 
         var playerMover = UnitBeingMoved?.AsPlayer; // unit controlled by a player.
@@ -1295,12 +1243,7 @@ public partial class Unit
             ++AsPlayer.ForcedSpeedChanges[(int)mtype];
 
             if (!IsInCombat)
-            {
-                var pet = AsPlayer.CurrentPet;
-
-                if (pet)
-                    pet.SetSpeedRate(mtype, SpeedRate[(int)mtype]);
-            }
+                AsPlayer?.CurrentPet?.SetSpeedRate(mtype, SpeedRate[(int)mtype]);
         }
 
         var playerMover = UnitBeingMoved?.AsPlayer; // unit controlled by a player.
@@ -1340,13 +1283,13 @@ public partial class Unit
 
     public bool SetSwim(bool enable)
     {
-        if (enable == HasUnitMovementFlag(MovementFlag.Swimming))
+        if (enable == MovementInfo.HasMovementFlag(MovementFlag.Swimming))
             return false;
 
         if (enable)
-            AddUnitMovementFlag(MovementFlag.Swimming);
+            MovementInfo.AddMovementFlag(MovementFlag.Swimming);
         else
-            RemoveUnitMovementFlag(MovementFlag.Swimming);
+            MovementInfo.RemoveMovementFlag(MovementFlag.Swimming);
 
         MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineStartSwim : ServerOpcodes.MoveSplineStopSwim)
         {
@@ -1374,9 +1317,9 @@ public partial class Unit
             return false;
 
         if (enable)
-            AddUnitMovementFlag(MovementFlag.Walking);
+            MovementInfo.AddMovementFlag(MovementFlag.Walking);
         else
-            RemoveUnitMovementFlag(MovementFlag.Walking);
+            MovementInfo.RemoveMovementFlag(MovementFlag.Walking);
 
         MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetWalkMode : ServerOpcodes.MoveSplineSetRunMode)
         {
@@ -1390,13 +1333,13 @@ public partial class Unit
 
     public bool SetWaterWalking(bool enable)
     {
-        if (enable == HasUnitMovementFlag(MovementFlag.WaterWalk))
+        if (enable == MovementInfo.HasMovementFlag(MovementFlag.WaterWalk))
             return false;
 
         if (enable)
-            AddUnitMovementFlag(MovementFlag.WaterWalk);
+            MovementInfo.AddMovementFlag(MovementFlag.WaterWalk);
         else
-            RemoveUnitMovementFlag(MovementFlag.WaterWalk);
+            MovementInfo.RemoveMovementFlag(MovementFlag.WaterWalk);
 
 
         var playerMover = UnitBeingMoved?.AsPlayer;
@@ -1656,7 +1599,7 @@ public partial class Unit
                 {
                     var creature1 = AsCreature;
 
-                    if (creature1)
+                    if (creature1 != null)
                     {
                         var immuneMask = creature1.Template.MechanicImmuneMask;
 
@@ -1754,7 +1697,7 @@ public partial class Unit
         if (_positionUpdateInfo.Turned)
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Turning);
 
-        if (_positionUpdateInfo.Relocated && !Vehicle)
+        if (_positionUpdateInfo.Relocated && Vehicle == null)
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Moving);
     }
 
@@ -1787,17 +1730,12 @@ public partial class Unit
     {
         var player = AsPlayer;
 
-        if (player)
+        player?.SendPacket(new MoveSetVehicleRecID()
         {
-            MoveSetVehicleRecID moveSetVehicleRec = new()
-            {
-                MoverGUID = GUID,
-                SequenceIndex = MovementCounter++,
-                VehicleRecID = vehicleId
-            };
-
-            player.SendPacket(moveSetVehicleRec);
-        }
+            MoverGUID = GUID,
+            SequenceIndex = MovementCounter++,
+            VehicleRecID = vehicleId
+        });
 
         SetVehicleRecID setVehicleRec = new()
         {
@@ -1828,8 +1766,7 @@ public partial class Unit
 
         // block / allow control to real player in control (eg charmer)
         if (IsPlayer)
-            if (PlayerMovingMe)
-                PlayerMovingMe.SetClientControl(this, !apply);
+            PlayerMovingMe?.SetClientControl(this, !apply);
     }
 
     private void SetFeared(bool apply)
@@ -1844,8 +1781,7 @@ public partial class Unit
             if (!fearAuras.Empty())
                 caster = ObjectAccessor.GetUnit(this, fearAuras[0].CasterGuid);
 
-            if (caster == null)
-                caster = GetAttackerForHelper();
+            caster ??= GetAttackerForHelper();
 
             MotionMaster.MoveFleeing(caster, (uint)(fearAuras.Empty() ? Configuration.GetDefaultValue("CreatureFamilyFleeDelay", 7000) : 0)); // caster == NULL processed in MoveFleeing
         }
@@ -1865,8 +1801,7 @@ public partial class Unit
 
         // block / allow control to real player in control (eg charmer)
         if (IsPlayer)
-            if (PlayerMovingMe)
-                PlayerMovingMe.SetClientControl(this, !apply);
+            PlayerMovingMe?.SetClientControl(this, !apply);
     }
 
     private void SetStunned(bool apply)

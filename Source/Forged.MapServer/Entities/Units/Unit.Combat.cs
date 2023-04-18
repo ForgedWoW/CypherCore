@@ -190,7 +190,7 @@ public partial class Unit
         }
 
         // delay offhand weapon attack by 50% of the base attack time
-        if (HaveOffhandWeapon() && TypeId != TypeId.Player)
+        if (HasOffhandWeapon && TypeId != TypeId.Player)
             SetAttackTimer(WeaponAttackType.OffAttack, Math.Max(GetAttackTimer(WeaponAttackType.OffAttack), GetAttackTimer(WeaponAttackType.BaseAttack) + MathFunctions.CalculatePct(GetBaseAttackTime(WeaponAttackType.BaseAttack), 50)));
 
         if (meleeAttack)
@@ -630,7 +630,7 @@ public partial class Unit
 
     public double GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type)
     {
-        if (attType == WeaponAttackType.OffAttack && !HaveOffhandWeapon())
+        if (attType == WeaponAttackType.OffAttack && !HasOffhandWeapon)
             return 0.0f;
 
         return WeaponDamage[(int)attType][(int)type];

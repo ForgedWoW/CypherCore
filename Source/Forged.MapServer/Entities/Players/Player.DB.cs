@@ -277,8 +277,8 @@ public partial class Player
         SetName(name);
 
         // check name limitations
-        if (GameObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
-            (!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && ObjectManager.IsReservedName(GetName())))
+        if (Globals.GameObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
+            (!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && GameObjectManager.IsReservedName(GetName())))
         {
             var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
             stmt.AddValue(0, (ushort)AtLoginFlags.Rename);
@@ -303,7 +303,7 @@ public partial class Player
         Gender = gender;
 
         // check if race/class combination is valid
-        var info = ObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.GetPlayerInfo(Race, Class);
 
         if (info == null)
         {
@@ -605,7 +605,7 @@ public partial class Player
 
         if (!map)
         {
-            areaTrigger = ObjectManager.GetGoBackTrigger(mapId);
+            areaTrigger = GameObjectManager.GetGoBackTrigger(mapId);
             check = true;
         }
         else if (map.IsDungeon) // if map is dungeon...
@@ -615,12 +615,12 @@ public partial class Player
             if (denyReason != null)
             {
                 SendTransferAborted(map.Id, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
-                areaTrigger = ObjectManager.GetGoBackTrigger(mapId);
+                areaTrigger = GameObjectManager.GetGoBackTrigger(mapId);
                 check = true;
             }
             else if (instanceID != 0 && InstanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID)) != null) // ... and instance is reseted then look for entrance.
             {
-                areaTrigger = ObjectManager.GetMapEntranceTrigger(mapId);
+                areaTrigger = GameObjectManager.GetMapEntranceTrigger(mapId);
                 check = true;
             }
         }
@@ -1685,7 +1685,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var qQuest = ObjectManager.GetQuestTemplate(questID);
+                var qQuest = GameObjectManager.GetQuestTemplate(questID);
 
                 if (qQuest is { IsDfQuest: true })
                 {
@@ -1698,7 +1698,7 @@ public partial class Player
                 // save _any_ from daily quest times (it must be after last reset anyway)
                 _lastDailyQuestTime = result.Read<long>(1);
 
-                var quest = ObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -1820,7 +1820,7 @@ public partial class Player
 
     private bool _LoadHomeBind(SQLResult result)
     {
-        var info = ObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.GetPlayerInfo(Race, Class);
 
         if (info == null)
         {
@@ -1880,13 +1880,13 @@ public partial class Player
 
         if (!ok)
         {
-            var loc = ObjectManager.GetDefaultGraveYard(Team);
+            var loc = GameObjectManager.GetDefaultGraveYard(Team);
 
             if (loc == null && Race == Race.PandarenNeutral)
-                loc = ObjectManager.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
+                loc = GameObjectManager.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
 
             if (loc == null)
-                loc = ObjectManager.GetWorldSafeLoc(1); // Stormwind, Default GY
+                loc = GameObjectManager.GetWorldSafeLoc(1); // Stormwind, Default GY
 
             Homebind.WorldRelocate(loc.Location);
             _homebindAreaId = TerrainManager.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Location);
@@ -2087,7 +2087,7 @@ public partial class Player
             // Send problematic items by mail
             while (problematicItems.Count != 0)
             {
-                var subject = ObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
+                var subject = GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
                 MailDraft draft = new(subject, "There were problems with equipping item(s).");
 
                 for (var i = 0; problematicItems.Count != 0 && i < SharedConst.MaxMailItems; ++i)
@@ -2108,7 +2108,7 @@ public partial class Player
     {
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);
-        var proto = ObjectManager.GetItemTemplate(itemEntry);
+        var proto = GameObjectManager.GetItemTemplate(itemEntry);
 
         if (proto != null)
         {
@@ -2280,7 +2280,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var quest = ObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -2374,7 +2374,7 @@ public partial class Player
             {
                 var questId = result.Read<uint>(0);
                 // used to be new, no delete?
-                var quest = ObjectManager.GetQuestTemplate(questId);
+                var quest = GameObjectManager.GetQuestTemplate(questId);
 
                 if (quest != null)
                 {
@@ -2455,7 +2455,7 @@ public partial class Player
             {
                 var questID = result.Read<uint>(0);
 
-                var quest = ObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.GetQuestTemplate(questID);
 
                 if (_mQuestStatus.TryGetValue(questID, out var questStatusData))
                 {
@@ -2487,7 +2487,7 @@ public partial class Player
             {
                 var questID = result.Read<uint>(0);
                 // used to be new, no delete?
-                var quest = ObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.GetQuestTemplate(questID);
 
                 if (quest != null)
                 {
@@ -2520,7 +2520,7 @@ public partial class Player
                     if (questPackageItems != null)
                         foreach (var questPackageItem in questPackageItems)
                         {
-                            var rewardProto = ObjectManager.GetItemTemplate(questPackageItem.ItemID);
+                            var rewardProto = GameObjectManager.GetItemTemplate(questPackageItem.ItemID);
 
                             if (rewardProto != null)
                                 if (rewardProto.ItemSpecClassMask.HasAnyFlag(ClassMask))
@@ -2549,7 +2549,7 @@ public partial class Player
                 var questID = result.Read<uint>(0);
                 var eventID = result.Read<uint>(1);
                 var completedTime = result.Read<long>(2);
-                var quest = ObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -2964,7 +2964,7 @@ public partial class Player
                 continue;
             }
 
-            if (ObjectManager.GetItemTemplate(itemEntry) == null)
+            if (GameObjectManager.GetItemTemplate(itemEntry) == null)
             {
                 Log.Logger.Error("Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid entry (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
 
@@ -2993,7 +2993,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var quest = ObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -3619,7 +3619,7 @@ public partial class Player
                     stmt.AddValue(1, save.Key);
                     trans.Append(stmt);
 
-                    var quest = ObjectManager.GetQuestTemplate(save.Key);
+                    var quest = GameObjectManager.GetQuestTemplate(save.Key);
 
                     foreach (var obj in quest.Objectives)
                     {

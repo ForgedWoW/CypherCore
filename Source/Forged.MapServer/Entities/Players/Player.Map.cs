@@ -288,9 +288,9 @@ public partial class Player
                         }
                     }
                     else if (missingItem != 0)
-                        Session.SendNotification(ObjectManager.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, ObjectManager.GetItemTemplate(missingItem).GetName());
+                        Session.SendNotification(GameObjectManager.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, GameObjectManager.GetItemTemplate(missingItem).GetName());
                     else if (levelMin != 0)
-                        Session.SendNotification(ObjectManager.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
+                        Session.SendNotification(GameObjectManager.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
                 }
 
                 return false;

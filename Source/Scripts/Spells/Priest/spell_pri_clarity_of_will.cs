@@ -30,7 +30,7 @@ public class SpellPriClarityOfWill : AuraScript, IHasAuraEffects
 
             if (player != null)
             {
-                var absorbamount = 9.0f * player.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask());
+                var absorbamount = 9.0f * player.SpellBaseHealingBonusDone(SpellInfo.SchoolMask);
                 amount.Value += absorbamount;
             }
         }

@@ -233,7 +233,7 @@ public class SpellHistory
         if (player != null)
         {
             // potions start cooldown until exiting combat
-            var itemTemplate = _owner.ObjectManager.GetItemTemplate(itemId);
+            var itemTemplate = _owner.GameObjectManager.GetItemTemplate(itemId);
 
             if (itemTemplate != null)
                 if (itemTemplate.IsPotion || spellInfo.IsCooldownStartedOnEvent)
@@ -296,7 +296,7 @@ public class SpellHistory
     public bool IsReady(SpellInfo spellInfo, uint itemId = 0)
     {
         if (spellInfo.PreventionType.HasAnyFlag(SpellPreventionType.Silence))
-            if (IsSchoolLocked(spellInfo.GetSchoolMask()))
+            if (IsSchoolLocked(spellInfo.SchoolMask))
                 return false;
 
         if (HasCooldown(spellInfo, itemId))
@@ -419,7 +419,7 @@ public class SpellHistory
             if (!spellInfo.PreventionType.HasAnyFlag(SpellPreventionType.Silence))
                 continue;
 
-            if ((schoolMask & spellInfo.GetSchoolMask()) == 0)
+            if ((schoolMask & spellInfo.SchoolMask) == 0)
                 continue;
 
             if (GetRemainingCooldown(spellInfo) < lockoutTime)
@@ -1044,7 +1044,7 @@ public class SpellHistory
         // cooldown information stored in ItemEffect.db2, overriding normal cooldown and category
         if (itemId != 0)
         {
-            var proto = _owner.ObjectManager.GetItemTemplate(itemId);
+            var proto = _owner.GameObjectManager.GetItemTemplate(itemId);
 
             if (proto != null)
                 foreach (var itemEffect in proto.Effects.Where(itemEffect => itemEffect.SpellID == spellInfo.Id))

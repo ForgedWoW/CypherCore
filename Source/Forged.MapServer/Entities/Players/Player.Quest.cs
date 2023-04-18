@@ -35,7 +35,7 @@ public partial class Player
 {
     public void AbandonQuest(uint questId)
     {
-        var quest = ObjectManager.GetQuestTemplate(questId);
+        var quest = GameObjectManager.GetQuestTemplate(questId);
 
         if (quest != null)
         {
@@ -43,7 +43,7 @@ public partial class Player
             foreach (var obj in quest.Objectives)
                 if (obj.Type == QuestObjectiveType.Item)
                 {
-                    var itemTemplate = ObjectManager.GetItemTemplate((uint)obj.ObjectID);
+                    var itemTemplate = GameObjectManager.GetItemTemplate((uint)obj.ObjectID);
 
                     if (itemTemplate is { Bonding: ItemBondingType.Quest })
                         DestroyItemCount((uint)obj.ObjectID, (uint)obj.Amount, true);
@@ -52,7 +52,7 @@ public partial class Player
             // Destroy items received during the quest.
             for (byte i = 0; i < SharedConst.QuestItemDropCount; ++i)
             {
-                var itemTemplate = ObjectManager.GetItemTemplate(quest.ItemDrop[i]);
+                var itemTemplate = GameObjectManager.GetItemTemplate(quest.ItemDrop[i]);
 
                 if (itemTemplate != null)
                     if (quest.ItemDropQuantity[i] != 0 && itemTemplate.Bonding == ItemBondingType.Quest)
@@ -290,7 +290,7 @@ public partial class Player
     {
         if (questId != 0)
         {
-            var qInfo = ObjectManager.GetQuestTemplate(questId);
+            var qInfo = GameObjectManager.GetQuestTemplate(questId);
 
             if (qInfo == null)
                 return false;
@@ -525,7 +525,7 @@ public partial class Player
 
     public bool CanSelectQuestPackageItem(QuestPackageItemRecord questPackageItem)
     {
-        var rewardProto = ObjectManager.GetItemTemplate(questPackageItem.ItemID);
+        var rewardProto = GameObjectManager.GetItemTemplate(questPackageItem.ItemID);
 
         if (rewardProto == null)
             return false;
@@ -545,7 +545,7 @@ public partial class Player
 
     public bool CanShareQuest(uint questID)
     {
-        var qInfo = ObjectManager.GetQuestTemplate(questID);
+        var qInfo = GameObjectManager.GetQuestTemplate(questID);
 
         if (qInfo != null && qInfo.HasFlag(QuestFlags.Sharable))
         {
@@ -577,7 +577,7 @@ public partial class Player
             if (_mQuestStatus.TryGetValue(questID, out var questStatus))
                 SetQuestSlotState(questStatus.Slot, QuestSlotStateMask.Complete);
 
-            var qInfo = ObjectManager.GetQuestTemplate(questID);
+            var qInfo = GameObjectManager.GetQuestTemplate(questID);
 
             if (qInfo != null)
                 if (qInfo.HasFlag(QuestFlags.Tracking))
@@ -615,7 +615,7 @@ public partial class Player
 
     public void FailQuest(uint questId)
     {
-        var quest = ObjectManager.GetQuestTemplate(questId);
+        var quest = GameObjectManager.GetQuestTemplate(questId);
 
         if (quest != null)
         {
@@ -650,7 +650,7 @@ public partial class Player
             foreach (var obj in quest.Objectives)
                 if (obj.Type == QuestObjectiveType.Item)
                 {
-                    var itemTemplate = ObjectManager.GetItemTemplate((uint)obj.ObjectID);
+                    var itemTemplate = GameObjectManager.GetItemTemplate((uint)obj.ObjectID);
 
                     if (itemTemplate is { Bonding: ItemBondingType.Quest })
                         DestroyItemCount((uint)obj.ObjectID, (uint)obj.Amount, true);
@@ -659,7 +659,7 @@ public partial class Player
             // Destroy items received during the quest.
             for (byte i = 0; i < SharedConst.QuestItemDropCount; ++i)
             {
-                var itemTemplate = ObjectManager.GetItemTemplate(quest.ItemDrop[i]);
+                var itemTemplate = GameObjectManager.GetItemTemplate(quest.ItemDrop[i]);
 
                 if (itemTemplate != null)
                     if (quest.ItemDropQuantity[i] != 0 && itemTemplate.Bonding == ItemBondingType.Quest)
@@ -685,7 +685,7 @@ public partial class Player
         switch (guid.High)
         {
             case HighGuid.Player:
-                return ObjectManager.GetQuestTemplate(nextQuestID);
+                return GameObjectManager.GetQuestTemplate(nextQuestID);
             case HighGuid.Creature:
             case HighGuid.Pet:
             case HighGuid.Vehicle:
@@ -693,7 +693,7 @@ public partial class Player
                 var creature = ObjectAccessor.GetCreatureOrPetOrVehicle(this, guid);
 
                 if (creature != null)
-                    quests = ObjectManager.GetCreatureQuestRelations(creature.Entry);
+                    quests = GameObjectManager.GetCreatureQuestRelations(creature.Entry);
                 else
                     return null;
 
@@ -708,7 +708,7 @@ public partial class Player
                 var gameObject = map.GetGameObject(guid);
 
                 if (gameObject != null)
-                    quests = ObjectManager.GetGOQuestRelations(gameObject.Entry);
+                    quests = GameObjectManager.GetGOQuestRelations(gameObject.Entry);
                 else
                     return null;
 
@@ -720,7 +720,7 @@ public partial class Player
 
         if (nextQuestID != 0)
             if (quests.HasQuest(nextQuestID))
-                return ObjectManager.GetQuestTemplate(nextQuestID);
+                return GameObjectManager.GetQuestTemplate(nextQuestID);
 
         return null;
     }
@@ -746,8 +746,8 @@ public partial class Player
                 if (questStatus.HasValue)
                     return questStatus.Value;
 
-                questRelations = ObjectManager.GetGOQuestRelations(questgiver.Entry);
-                questInvolvedRelations = ObjectManager.GetGOQuestInvolvedRelations(questgiver.Entry);
+                questRelations = GameObjectManager.GetGOQuestRelations(questgiver.Entry);
+                questInvolvedRelations = GameObjectManager.GetGOQuestInvolvedRelations(questgiver.Entry);
 
                 break;
             }
@@ -760,8 +760,8 @@ public partial class Player
                 if (questStatus.HasValue)
                     return questStatus.Value;
 
-                questRelations = ObjectManager.GetCreatureQuestRelations(questgiver.Entry);
-                questInvolvedRelations = ObjectManager.GetCreatureQuestInvolvedRelations(questgiver.Entry);
+                questRelations = GameObjectManager.GetCreatureQuestRelations(questgiver.Entry);
+                questInvolvedRelations = GameObjectManager.GetCreatureQuestInvolvedRelations(questgiver.Entry);
 
                 break;
             }
@@ -776,7 +776,7 @@ public partial class Player
 
         foreach (var questId in questInvolvedRelations)
         {
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
 
             if (quest == null)
                 continue;
@@ -812,7 +812,7 @@ public partial class Player
 
         foreach (var questId in questRelations)
         {
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
 
             if (quest == null)
                 continue;
@@ -892,7 +892,7 @@ public partial class Player
 
     public bool GetQuestRewardStatus(uint questID)
     {
-        var qInfo = ObjectManager.GetQuestTemplate(questID);
+        var qInfo = GameObjectManager.GetQuestTemplate(questID);
 
         if (qInfo != null)
         {
@@ -994,7 +994,7 @@ public partial class Player
 
     public ushort GetReqKillOrCastCurrentCount(uint questID, int entry)
     {
-        var qInfo = ObjectManager.GetQuestTemplate(questID);
+        var qInfo = GameObjectManager.GetQuestTemplate(questID);
 
         if (qInfo == null)
             return 0;
@@ -1033,7 +1033,7 @@ public partial class Player
         if (srcitem > 0)
         {
             // Don't give source item if it is the same item used to start the quest
-            var itemTemplate = ObjectManager.GetItemTemplate(srcitem);
+            var itemTemplate = GameObjectManager.GetItemTemplate(srcitem);
 
             if (quest.Id == itemTemplate.StartQuest)
                 return true;
@@ -1092,7 +1092,7 @@ public partial class Player
             if (questId == 0)
                 continue;
 
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
 
             if (quest == null)
                 continue;
@@ -1108,7 +1108,7 @@ public partial class Player
     {
         foreach (var objectiveStatusData in _questObjectiveStatus.LookupByKey((QuestObjectiveType.GameObject, goId)))
         {
-            var qInfo = ObjectManager.GetQuestTemplate(objectiveStatusData.QuestStatusPair.QuestID);
+            var qInfo = GameObjectManager.GetQuestTemplate(objectiveStatusData.QuestStatusPair.QuestID);
             var objective = objectiveStatusData.Objective;
 
             if (!IsQuestObjectiveCompletable(objectiveStatusData.QuestStatusPair.Status.Slot, qInfo, objective))
@@ -1131,7 +1131,7 @@ public partial class Player
         // Search incomplete objective first
         foreach (var objectiveItr in _questObjectiveStatus.LookupByKey((QuestObjectiveType.Item, (int)itemid)))
         {
-            var qInfo = ObjectManager.GetQuestTemplate(objectiveItr.QuestStatusPair.QuestID);
+            var qInfo = GameObjectManager.GetQuestTemplate(objectiveItr.QuestStatusPair.QuestID);
             var objective = objectiveItr.Objective;
 
             if (!IsQuestObjectiveCompletable(objectiveItr.QuestStatusPair.Status.Slot, qInfo, objective))
@@ -1152,7 +1152,7 @@ public partial class Player
             if (questStatus.Value.Status != QuestStatus.Incomplete)
                 continue;
 
-            var qInfo = ObjectManager.GetQuestTemplate(questStatus.Key);
+            var qInfo = GameObjectManager.GetQuestTemplate(questStatus.Key);
 
             // hide quest if player is in raid-group and quest is no raid quest
             if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Location.Map.DifficultyID))
@@ -1165,7 +1165,7 @@ public partial class Player
                 if (qInfo.ItemDrop[j] != itemid)
                     continue;
 
-                var pProto = ObjectManager.GetItemTemplate(itemid);
+                var pProto = GameObjectManager.GetItemTemplate(itemid);
 
                 // allows custom amount drop when not 0
                 var maxAllowedCount = qInfo.ItemDropQuantity[j] != 0 ? qInfo.ItemDropQuantity[j] : pProto.MaxStackSize;
@@ -1363,7 +1363,7 @@ public partial class Player
         foreach (var objectiveStatusData in _questObjectiveStatus.LookupByKey((QuestObjectiveType.Item, (int)entry)))
         {
             var questId = objectiveStatusData.QuestStatusPair.QuestID;
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
             var logSlot = objectiveStatusData.QuestStatusPair.Status.Slot;
             var objective = objectiveStatusData.Objective;
 
@@ -1454,7 +1454,7 @@ public partial class Player
         var found = false;
 
         foreach (var spellEffectInfo in spellInfo.Effects)
-            if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell) && !HasSpell(spellEffectInfo.TriggerSpell))
+            if (spellEffectInfo.IsEffectName(SpellEffectName.LearnSpell) && !HasSpell(spellEffectInfo.TriggerSpell))
             {
                 found = true;
 
@@ -1494,7 +1494,7 @@ public partial class Player
         // learn spells received from quest completing
         foreach (var questId in _rewardedQuests)
         {
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
 
             if (quest == null)
                 continue;
@@ -1518,8 +1518,8 @@ public partial class Player
 
         if (creature != null)
         {
-            questRelations = ObjectManager.GetCreatureQuestRelations(creature.Entry);
-            questInvolvedRelations = ObjectManager.GetCreatureQuestInvolvedRelations(creature.Entry);
+            questRelations = GameObjectManager.GetCreatureQuestRelations(creature.Entry);
+            questInvolvedRelations = GameObjectManager.GetCreatureQuestInvolvedRelations(creature.Entry);
         }
         else
         {
@@ -1531,8 +1531,8 @@ public partial class Player
 
             if (gameObject != null)
             {
-                questRelations = ObjectManager.GetGOQuestRelations(gameObject.Entry);
-                questInvolvedRelations = ObjectManager.GetGOQuestInvolvedRelations(gameObject.Entry);
+                questRelations = GameObjectManager.GetGOQuestRelations(gameObject.Entry);
+                questInvolvedRelations = GameObjectManager.GetGOQuestInvolvedRelations(gameObject.Entry);
             }
             else
                 return;
@@ -1553,7 +1553,7 @@ public partial class Player
 
         foreach (var questId in questRelations)
         {
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
 
             if (quest == null)
                 continue;
@@ -1603,7 +1603,7 @@ public partial class Player
             SetQuestCompletedBit(questBit, false);
 
         // Remove seasonal quest also
-        var qInfo = ObjectManager.GetQuestTemplate(questId);
+        var qInfo = GameObjectManager.GetQuestTemplate(questId);
 
         if (qInfo.IsSeasonal)
         {
@@ -1754,7 +1754,7 @@ public partial class Player
         switch (rewardType)
         {
             case LootItemType.Item:
-                var rewardProto = ObjectManager.GetItemTemplate(rewardId);
+                var rewardProto = GameObjectManager.GetItemTemplate(rewardId);
 
                 if (rewardProto != null && quest.RewChoiceItemsCount != 0)
                     for (uint i = 0; i < SharedConst.QuestRewardChoicesCount; ++i)
@@ -2114,7 +2114,7 @@ public partial class Player
         if (qInfo.ExclusiveGroup <= 0)
             return true;
 
-        var range = ObjectManager.GetExclusiveQuestGroupBounds(qInfo.ExclusiveGroup);
+        var range = GameObjectManager.GetExclusiveQuestGroupBounds(qInfo.ExclusiveGroup);
         // always must be found if qInfo.ExclusiveGroup != 0
 
         foreach (var excludeId in range)
@@ -2124,7 +2124,7 @@ public partial class Player
                 continue;
 
             // not allow have daily quest if daily quest from exclusive group already recently completed
-            var nquest = ObjectManager.GetQuestTemplate(excludeId);
+            var nquest = GameObjectManager.GetQuestTemplate(excludeId);
 
             if (!SatisfyQuestDay(nquest, false) || !SatisfyQuestWeek(nquest, false) || !SatisfyQuestSeasonal(nquest, false))
             {
@@ -2417,7 +2417,7 @@ public partial class Player
             var questId = qmi0.QuestId;
 
             // Auto open
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
 
             if (quest != null)
             {
@@ -2465,10 +2465,10 @@ public partial class Player
 
                 if (localeConstant != Locale.enUS)
                 {
-                    var questTemplateLocale = ObjectManager.GetQuestLocale(quest.Id);
+                    var questTemplateLocale = GameObjectManager.GetQuestLocale(quest.Id);
 
                     if (questTemplateLocale != null)
-                        GameObjectManager.GetLocaleString(questTemplateLocale.LogTitle, localeConstant, ref response.QuestTitle);
+                        Globals.GameObjectManager.GetLocaleString(questTemplateLocale.LogTitle, localeConstant, ref response.QuestTitle);
                 }
             }
 
@@ -2503,10 +2503,10 @@ public partial class Player
 
         if (locIdx != Locale.enUS)
         {
-            var questLocale = ObjectManager.GetQuestLocale(quest.Id);
+            var questLocale = GameObjectManager.GetQuestLocale(quest.Id);
 
             if (questLocale != null)
-                GameObjectManager.GetLocaleString(questLocale.LogTitle, locIdx, ref packet.QuestTitle);
+                Globals.GameObjectManager.GetLocaleString(questLocale.LogTitle, locIdx, ref packet.QuestTitle);
         }
 
         packet.QuestID = quest.Id;
@@ -2598,7 +2598,7 @@ public partial class Player
                 packet.LaunchQuest = true;
             else if (quest.NextQuestInChain != 0 && !quest.HasFlag(QuestFlags.AutoComplete))
             {
-                var rewardQuest = ObjectManager.GetQuestTemplate(quest.NextQuestInChain);
+                var rewardQuest = GameObjectManager.GetQuestTemplate(quest.NextQuestInChain);
 
                 if (rewardQuest != null)
                     packet.UseQuestReward = CanTakeQuest(rewardQuest, false);
@@ -2683,7 +2683,7 @@ public partial class Player
         if (oldData == data)
             return;
 
-        var quest = ObjectManager.GetQuestTemplate(objective.QuestID);
+        var quest = GameObjectManager.GetQuestTemplate(objective.QuestID);
 
         if (quest != null)
             ScriptManager.RunScript<IQuestOnQuestObjectiveChange>(script => script.OnQuestObjectiveChange(this, quest, objective, oldData, data), quest.ScriptId);
@@ -2748,7 +2748,7 @@ public partial class Player
 
     public void SetQuestStatus(uint questId, QuestStatus status, bool update = true)
     {
-        var quest = ObjectManager.GetQuestTemplate(questId);
+        var quest = GameObjectManager.GetQuestTemplate(questId);
 
         if (quest != null)
         {
@@ -2777,12 +2777,12 @@ public partial class Player
 
     public bool TakeQuestSourceItem(uint questId, bool msg)
     {
-        var quest = ObjectManager.GetQuestTemplate(questId);
+        var quest = GameObjectManager.GetQuestTemplate(questId);
 
         if (quest != null)
         {
             var srcItemId = quest.SourceItemId;
-            var item = ObjectManager.GetItemTemplate(srcItemId);
+            var item = GameObjectManager.GetItemTemplate(srcItemId);
 
             if (srcItemId > 0)
             {
@@ -2824,7 +2824,7 @@ public partial class Player
         foreach (var objectiveStatusData in _questObjectiveStatus.LookupByKey((objectiveType, objectId)))
         {
             var questId = objectiveStatusData.QuestStatusPair.QuestID;
-            var quest = ObjectManager.GetQuestTemplate(questId);
+            var quest = GameObjectManager.GetQuestTemplate(questId);
 
             if (!QuestObjective.CanAlwaysBeProgressedInRaid(objectiveType))
                 if (Group && Group.IsRaidGroup && quest.IsAllowedInRaid(Location.Map.DifficultyID))
@@ -2953,7 +2953,7 @@ public partial class Player
                             case GameObjectTypes.Goober:
                             case GameObjectTypes.Generic:
                             case GameObjectTypes.GatheringNode:
-                                if (ObjectManager.IsGameObjectForQuests(obj.Entry))
+                                if (GameObjectManager.IsGameObjectForQuests(obj.Entry))
                                     objMask.MarkChanged(obj.ObjectData.DynamicFlags);
 
                                 break;
@@ -2974,7 +2974,7 @@ public partial class Player
                     if (!obj.HasNpcFlag(NPCFlags.SpellClick))
                         continue;
 
-                    var clickBounds = ObjectManager.GetSpellClickInfoMapBounds(obj.Entry);
+                    var clickBounds = GameObjectManager.GetSpellClickInfoMapBounds(obj.Entry);
 
                     if (clickBounds.Select(spellClickInfo => ConditionManager.GetConditionsForSpellClickEvent(obj.Entry, spellClickInfo.SpellId)).All(conds => conds == null))
                         continue;
@@ -3040,7 +3040,7 @@ public partial class Player
 
     private void PushQuests()
     {
-        foreach (var quest in ObjectManager.GetQuestTemplatesAutoPush())
+        foreach (var quest in GameObjectManager.GetQuestTemplatesAutoPush())
         {
             if (quest.QuestTag != 0 && quest.QuestTag != QuestTagType.Tag)
                 continue;
@@ -3065,7 +3065,7 @@ public partial class Player
             return true;
 
         // If the target quest is not available
-        if (CanTakeQuest(ObjectManager.GetQuestTemplate(breadcrumbTargetQuestId), false))
+        if (CanTakeQuest(GameObjectManager.GetQuestTemplate(breadcrumbTargetQuestId), false))
             return true;
 
         if (!msg)
@@ -3100,7 +3100,7 @@ public partial class Player
         foreach (var prevId in qInfo.DependentPreviousQuests)
         {
             // checked in startup
-            var questInfo = ObjectManager.GetQuestTemplate(prevId);
+            var questInfo = GameObjectManager.GetQuestTemplate(prevId);
 
             // If any of the previous quests completed, return true
             if (!IsQuestRewarded(prevId))
@@ -3112,7 +3112,7 @@ public partial class Player
 
             // each-from-all exclusive group (< 0)
             // can be start if only all quests in prev quest exclusive group completed and rewarded
-            var bounds = ObjectManager.GetExclusiveQuestGroupBounds(questInfo.ExclusiveGroup);
+            var bounds = GameObjectManager.GetExclusiveQuestGroupBounds(questInfo.ExclusiveGroup);
 
             if (bounds.Where(exclusiveQuestId => exclusiveQuestId != prevId).All(exclusiveQuestId => IsQuestRewarded(exclusiveQuestId)))
                 return true;
@@ -3240,7 +3240,7 @@ public partial class Player
 
     private void SetDailyQuestStatus(uint questID)
     {
-        var qQuest = ObjectManager.GetQuestTemplate(questID);
+        var qQuest = GameObjectManager.GetQuestTemplate(questID);
 
         if (qQuest != null)
         {
@@ -3291,7 +3291,7 @@ public partial class Player
 
     private void SetSeasonalQuestStatus(uint questID)
     {
-        var quest = ObjectManager.GetQuestTemplate(questID);
+        var quest = GameObjectManager.GetQuestTemplate(questID);
 
         if (quest == null)
             return;

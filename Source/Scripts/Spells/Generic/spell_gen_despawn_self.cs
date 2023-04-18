@@ -26,8 +26,8 @@ internal class SpellGenDespawnSelf : SpellScript, IHasSpellEffects
 
     private void HandleDummy(int effIndex)
     {
-        if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
-            EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
+        if (EffectInfo.IsEffectName(SpellEffectName.Dummy) ||
+            EffectInfo.IsEffectName(SpellEffectName.ScriptEffect))
             Caster.AsCreature.DespawnOrUnsummon();
     }
 }

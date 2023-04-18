@@ -42,7 +42,7 @@ public class UnitAura : Aura
 
         // only valid for non-area auras
         foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (effMask.Contains(spellEffectInfo.EffectIndex) && !spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
+            if (effMask.Contains(spellEffectInfo.EffectIndex) && !spellEffectInfo.IsEffectName(SpellEffectName.ApplyAura))
                 effMask.Remove(spellEffectInfo.EffectIndex);
 
         if (effMask.Count == 0)

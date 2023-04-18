@@ -21,8 +21,8 @@ internal class SpellGenDespawnTarget : SpellScript, IHasSpellEffects
 
     private void HandleDespawn(int effIndex)
     {
-        if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
-            EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
+        if (EffectInfo.IsEffectName(SpellEffectName.Dummy) ||
+            EffectInfo.IsEffectName(SpellEffectName.ScriptEffect))
         {
             var target = HitCreature;
 

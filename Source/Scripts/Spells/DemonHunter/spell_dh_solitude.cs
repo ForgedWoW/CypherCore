@@ -31,7 +31,7 @@ public class SpellDhSolitude : AuraScript, IHasAuraEffects
 
         var caster = Caster;
 
-        if (caster == null || !SpellInfo.GetEffect(1).IsEffect())
+        if (caster == null || !SpellInfo.GetEffect(1).IsEffect)
             return;
 
         var range = (float)SpellInfo.GetEffect(1).BasePoints;

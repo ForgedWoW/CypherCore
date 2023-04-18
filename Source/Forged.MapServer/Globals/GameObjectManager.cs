@@ -3880,7 +3880,7 @@ public sealed class GameObjectManager
 
             if (spell != null)
                 foreach (var spellEffectInfo in spell.Effects)
-                    if (spellEffectInfo.IsEffect(SpellEffectName.SendEvent))
+                    if (spellEffectInfo.IsEffectName(SpellEffectName.SendEvent))
                         if (spellEffectInfo.MiscValue != 0)
                             evtScripts.Add((uint)spellEffectInfo.MiscValue);
         }
@@ -10671,7 +10671,7 @@ public sealed class GameObjectManager
             while (spellInfo != null)
             {
                 _spellScriptsStorage.AddUnique(spellInfo.Id, GetScriptId(scriptName));
-                spellInfo = spellInfo.GetNextRankSpell();
+                spellInfo = spellInfo.NextRankSpell;
             }
         }
         else

@@ -250,7 +250,7 @@ public sealed class SpellManager
 
     public bool AddSameEffectStackRuleSpellGroups(SpellInfo spellInfo, AuraType auraType, double amount, Dictionary<SpellGroup, double> groups)
     {
-        var spellId = spellInfo.GetFirstRankSpell().Id;
+        var spellId = spellInfo.FirstRankSpell.Id;
         var spellGroupList = GetSpellSpellGroupMapBounds(spellId);
 
         // Find group with SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT if it belongs to one
@@ -290,8 +290,8 @@ public sealed class SpellManager
 
     public SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo spellInfo1, SpellInfo spellInfo2)
     {
-        var spellid1 = spellInfo1.GetFirstRankSpell().Id;
-        var spellid2 = spellInfo2.GetFirstRankSpell().Id;
+        var spellid1 = spellInfo1.FirstRankSpell.Id;
+        var spellid2 = spellInfo2.FirstRankSpell.Id;
 
         // find SpellGroups which are common for both spells
         var spellGroup1 = GetSpellSpellGroupMapBounds(spellid1);
@@ -1549,7 +1549,7 @@ public sealed class SpellManager
 
                     foreach (var spellEffectInfo in spellInfo.Effects)
                     {
-                        if (!spellEffectInfo.IsAura())
+                        if (!spellEffectInfo.IsAura)
                             continue;
 
                         var auraName = spellEffectInfo.ApplyAuraName;
@@ -1607,7 +1607,7 @@ public sealed class SpellManager
                     if (found)
                         break;
 
-                    spellInfo = spellInfo.GetNextRankSpell();
+                    spellInfo = spellInfo.NextRankSpell;
                 }
 
                 // not found either, log error
@@ -3159,7 +3159,7 @@ public sealed class SpellManager
                 // Fix range for trajectory triggered spell
                 foreach (var spellEffectInfo in spellInfo.Effects)
                 {
-                    if (spellEffectInfo.IsEffect() && (spellEffectInfo.TargetA.Target == Targets.DestTraj || spellEffectInfo.TargetB.Target == Targets.DestTraj))
+                    if (spellEffectInfo.IsEffect && (spellEffectInfo.TargetA.Target == Targets.DestTraj || spellEffectInfo.TargetB.Target == Targets.DestTraj))
                         // Get triggered spell if any
                         foreach (var spellInfoTrigger in _GetSpellInfo(spellEffectInfo.TriggerSpell).Values)
                         {
@@ -3416,7 +3416,7 @@ public sealed class SpellManager
                     var setFlag = false;
 
                     foreach (var spellEffectInfo in spellInfo.Effects)
-                        if (spellEffectInfo.IsEffect())
+                        if (spellEffectInfo.IsEffect)
                         {
                             switch (spellEffectInfo.Effect)
                             {
@@ -3574,7 +3574,7 @@ public sealed class SpellManager
                     var overrideAttr = false;
 
                     foreach (var spellEffectInfo in spellInfo.Effects)
-                        if (spellEffectInfo.IsAura() && spellEffectInfo.TriggerSpell != 0)
+                        if (spellEffectInfo.IsAura && spellEffectInfo.TriggerSpell != 0)
                             switch (spellEffectInfo.ApplyAuraName)
                             {
                                 case AuraType.PeriodicTriggerSpell:
@@ -4476,7 +4476,7 @@ public sealed class SpellManager
                 }
 
                 if (allRanks)
-                    if (spellInfo.GetFirstRankSpell().Id != (uint)spellId)
+                    if (spellInfo.FirstRankSpell.Id != (uint)spellId)
                     {
                         Log.Logger.Error("Spell {0} listed in `spell_proc` is not first rank of spell.", spellId);
 
@@ -4568,7 +4568,7 @@ public sealed class SpellManager
                         Log.Logger.Error("`spell_proc` table entry for spellId {0} has `HitMask` value defined, but it won't be used for defined `ProcFlags` and `SpellPhaseMask` values", spellInfo.Id);
 
                     foreach (var spellEffectInfo in spellInfo.Effects)
-                        if ((procEntry.DisableEffectsMask & (1u << spellEffectInfo.EffectIndex)) != 0 && !spellEffectInfo.IsAura())
+                        if ((procEntry.DisableEffectsMask & (1u << spellEffectInfo.EffectIndex)) != 0 && !spellEffectInfo.IsAura)
                             Log.Logger.Error($"The `spell_proc` table entry for spellId {spellInfo.Id} has DisableEffectsMask with effect {spellEffectInfo.EffectIndex}, but effect {spellEffectInfo.EffectIndex} is not an aura effect");
 
                     if (procEntry.AttributesMask.HasFlag(ProcAttributes.ReqSpellmod))
@@ -4577,7 +4577,7 @@ public sealed class SpellManager
 
                         foreach (var spellEffectInfo in spellInfo.Effects)
                         {
-                            if (!spellEffectInfo.IsAura())
+                            if (!spellEffectInfo.IsAura)
                                 continue;
 
                             if (spellEffectInfo.ApplyAuraName is AuraType.AddPctModifier or AuraType.AddFlatModifier or AuraType.AddPctModifierBySpellLabel or AuraType.AddFlatModifierBySpellLabel)
@@ -4602,7 +4602,7 @@ public sealed class SpellManager
                     ++count;
 
                     if (allRanks)
-                        spellInfo = spellInfo.GetNextRankSpell();
+                        spellInfo = spellInfo.NextRankSpell;
                     else
                         break;
                 }
@@ -4635,7 +4635,7 @@ public sealed class SpellManager
 
                 foreach (var spellEffectInfo in spellInfo.Effects)
                 {
-                    if (!spellEffectInfo.IsEffect())
+                    if (!spellEffectInfo.IsEffect)
                         continue;
 
                     var auraName = spellEffectInfo.ApplyAuraName;
@@ -4670,7 +4670,7 @@ public sealed class SpellManager
                 if (procSpellTypeMask == 0)
                 {
                     foreach (var spellEffectInfo in spellInfo.Effects)
-                        if (spellEffectInfo.IsAura())
+                        if (spellEffectInfo.IsAura)
                         {
                             Log.Logger.Debug($"Spell Id {spellInfo.Id} has DBC ProcFlags 0x{spellInfo.ProcFlags[0]:X} 0x{spellInfo.ProcFlags[1]:X}, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.");
 
@@ -4688,7 +4688,7 @@ public sealed class SpellManager
                 };
 
                 foreach (var spellEffectInfo in spellInfo.Effects)
-                    if (spellEffectInfo.IsEffect() && IsTriggerAura(spellEffectInfo.ApplyAuraName))
+                    if (spellEffectInfo.IsEffect && IsTriggerAura(spellEffectInfo.ApplyAuraName))
                         procEntry.SpellFamilyMask |= spellEffectInfo.SpellClassMask;
 
                 if (procEntry.SpellFamilyMask)
@@ -4700,7 +4700,7 @@ public sealed class SpellManager
 
                 foreach (var spellEffectInfo in spellInfo.Effects)
                 {
-                    if (!spellEffectInfo.IsAura())
+                    if (!spellEffectInfo.IsAura)
                         continue;
 
                     switch (spellEffectInfo.ApplyAuraName)

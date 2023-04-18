@@ -38,7 +38,7 @@ internal class QuestCommands
             }
             case QuestObjectiveType.Monster:
             {
-                var creatureInfo = player.ObjectManager.GetCreatureTemplate((uint)obj.ObjectID);
+                var creatureInfo = player.GameObjectManager.GetCreatureTemplate((uint)obj.ObjectID);
 
                 if (creatureInfo != null)
                     for (var z = 0; z < obj.Amount; ++z)

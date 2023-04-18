@@ -56,9 +56,9 @@ internal class SpellDkDancingRuneWeapon : AuraScript, IHasAuraEffects
             return;
 
         var amount = (int)damageInfo.Damage / 2;
-        SpellNonMeleeDamage log = new(drw, drw.Victim, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(drw), 0), spellInfo.GetSchoolMask());
+        SpellNonMeleeDamage log = new(drw, drw.Victim, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(drw), 0), spellInfo.SchoolMask);
         log.Damage = (uint)amount;
-        Unit.DealDamage(drw, drw.Victim, (uint)amount, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
+        Unit.DealDamage(drw, drw.Victim, (uint)amount, null, DamageEffectType.SpellDirect, spellInfo.SchoolMask, spellInfo, true);
         drw.SendSpellNonMeleeDamageLog(log);
     }
 }

@@ -116,7 +116,7 @@ public class GameObject : WorldObject
     {
         get
         {
-            var got = ObjectManager.GetGameObjectTemplate(Entry);
+            var got = GameObjectManager.GetGameObjectTemplate(Entry);
 
             return got != null ? got.AIName : "";
         }
@@ -154,7 +154,7 @@ public class GameObject : WorldObject
             if (SpawnId == 0)
                 return GoTemplateAddonProtected;
 
-            var goOverride = ObjectManager.GetGameObjectOverride(SpawnId);
+            var goOverride = GameObjectManager.GetGameObjectOverride(SpawnId);
 
             return goOverride ?? GoTemplateAddonProtected;
         }
@@ -166,7 +166,7 @@ public class GameObject : WorldObject
         set
         {
             SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ArtKit), value);
-            var data = ObjectManager.GetGameObjectData(SpawnId);
+            var data = GameObjectManager.GetGameObjectData(SpawnId);
 
             if (data != null)
                 data.ArtKit = value;
@@ -494,7 +494,7 @@ public class GameObject : WorldObject
         if (target.HasQuestForGO((int)Entry))
             return true;
 
-        if (!ObjectManager.IsGameObjectForQuests(Entry))
+        if (!GameObjectManager.IsGameObjectForQuests(Entry))
             return false;
 
         switch (GoType)
@@ -993,7 +993,7 @@ public class GameObject : WorldObject
         if (locale == Locale.enUS)
             return base.GetName(locale);
 
-        var cl = ObjectManager.GetGameObjectLocale(Entry);
+        var cl = GameObjectManager.GetGameObjectLocale(Entry);
 
         if (cl == null)
             return base.GetName(locale);
@@ -1127,12 +1127,12 @@ public class GameObject : WorldObject
 
     public override bool HasInvolvedQuest(uint questId)
     {
-        return ObjectManager.GetGOQuestInvolvedRelations(Entry).HasQuest(questId);
+        return GameObjectManager.GetGOQuestInvolvedRelations(Entry).HasQuest(questId);
     }
 
     public override bool HasQuest(uint questId)
     {
-        return ObjectManager.GetGOQuestRelations(Entry).HasQuest(questId);
+        return GameObjectManager.GetGOQuestRelations(Entry).HasQuest(questId);
     }
 
     public override bool IsAlwaysVisibleFor(WorldObject seer)
@@ -1257,7 +1257,7 @@ public class GameObject : WorldObject
 
     public override bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool unused = true)
     {
-        var data = ObjectManager.GetGameObjectData(spawnId);
+        var data = GameObjectManager.GetGameObjectData(spawnId);
 
         if (data == null)
         {
@@ -1546,7 +1546,7 @@ public class GameObject : WorldObject
     {
         // this should only be used when the gameobject has already been loaded
         // preferably after adding to map, because mapid may not be valid otherwise
-        var data = ObjectManager.GetGameObjectData(SpawnId);
+        var data = GameObjectManager.GetGameObjectData(SpawnId);
 
         if (data == null)
         {
@@ -1573,10 +1573,10 @@ public class GameObject : WorldObject
             return;
 
         if (SpawnId == 0)
-            SpawnId = ObjectManager.GenerateGameObjectSpawnId();
+            SpawnId = GameObjectManager.GenerateGameObjectSpawnId();
 
         // update in loaded data (changing data only in this place)
-        var data = ObjectManager.NewOrExistGameObjectData(SpawnId);
+        var data = GameObjectManager.NewOrExistGameObjectData(SpawnId);
 
         if (data.SpawnId == 0)
             data.SpawnId = SpawnId;
@@ -1591,7 +1591,7 @@ public class GameObject : WorldObject
         data.SpawnDifficulties = spawnDifficulties;
         data.ArtKit = (byte)GoArtKit;
 
-        data.SpawnGroupData ??= ObjectManager.GetDefaultSpawnGroup();
+        data.SpawnGroupData ??= GameObjectManager.GetDefaultSpawnGroup();
 
         data.PhaseId = Location.DBPhase > 0 ? (uint)Location.DBPhase : data.PhaseId;
         data.PhaseGroup = Location.DBPhase < 0 ? (uint)-Location.DBPhase : data.PhaseGroup;
@@ -1805,7 +1805,7 @@ public class GameObject : WorldObject
             data = go.GameObjectData;
         }
         else if (lowguid != 0)
-            data = ObjectManager.GetGameObjectData(lowguid);
+            data = GameObjectManager.GetGameObjectData(lowguid);
 
         if (data != null)
             data.ArtKit = artkit;
@@ -1946,7 +1946,7 @@ public class GameObject : WorldObject
 
     public void TriggeringLinkedGameObject(uint trapEntry, Unit target)
     {
-        var trapInfo = ObjectManager.GetGameObjectTemplate(trapEntry);
+        var trapInfo = GameObjectManager.GetGameObjectTemplate(trapEntry);
 
         if (trapInfo is not { type: GameObjectTypes.Trap })
             return;
@@ -2084,7 +2084,7 @@ public class GameObject : WorldObject
 
                             if (linkedRespawntime != 0) // Can't respawn, the master is dead
                             {
-                                var targetGuid = ObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
+                                var targetGuid = GameObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
 
                                 if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                                     SetRespawnTime(Time.WEEK);
@@ -2795,7 +2795,7 @@ public class GameObject : WorldObject
                     }
 
                     // possible quest objective for active quests
-                    if (info.Goober.questID != 0 && ObjectManager.GetQuestTemplate(info.Goober.questID) != null)
+                    if (info.Goober.questID != 0 && GameObjectManager.GetQuestTemplate(info.Goober.questID) != null)
                         //QuestId require to be active for GO using
                         if (player.GetQuestStatus(info.Goober.questID) != QuestStatus.Incomplete)
                             break;
@@ -2892,10 +2892,10 @@ public class GameObject : WorldObject
                         ReplaceAllFlags(GameObjectFlags.InMultiUse);
 
                         SendUpdateToPlayer(player);
-                        var zoneSkill = ObjectManager.GetFishingBaseSkillLevel(Location.Area);
+                        var zoneSkill = GameObjectManager.GetFishingBaseSkillLevel(Location.Area);
 
                         if (zoneSkill == 0)
-                            zoneSkill = ObjectManager.GetFishingBaseSkillLevel(Location.Zone);
+                            zoneSkill = GameObjectManager.GetFishingBaseSkillLevel(Location.Zone);
 
                         //provide error, no fishable zone or area should be 0
                         if (zoneSkill == 0)
@@ -3499,7 +3499,7 @@ public class GameObject : WorldObject
                 return false;
         }
 
-        var goInfo = ObjectManager.GetGameObjectTemplate(entry);
+        var goInfo = GameObjectManager.GetGameObjectTemplate(entry);
 
         if (goInfo == null)
         {
@@ -3528,7 +3528,7 @@ public class GameObject : WorldObject
         Create(guid);
 
         GoInfoProtected = goInfo;
-        GoTemplateAddonProtected = ObjectManager.GetGameObjectTemplateAddon(entry);
+        GoTemplateAddonProtected = GameObjectManager.GetGameObjectTemplateAddon(entry);
 
         if (goInfo.type >= GameObjectTypes.Max)
         {
@@ -3538,7 +3538,7 @@ public class GameObject : WorldObject
         }
 
         SetLocalRotation(rotation.X, rotation.Y, rotation.Z, rotation.W);
-        var gameObjectAddon = ObjectManager.GetGameObjectAddon(SpawnId);
+        var gameObjectAddon = GameObjectManager.GetGameObjectAddon(SpawnId);
 
         // For most of gameobjects is (0, 0, 0, 1) quaternion, there are only some transports with not standard rotation
         var parentRotation = Quaternion.Identity;

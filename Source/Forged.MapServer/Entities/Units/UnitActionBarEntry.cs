@@ -12,6 +12,20 @@ public class UnitActionBarEntry
         PackedData = (uint)ActiveStates.Disabled << 24;
     }
 
+    public uint Action => UNIT_ACTION_BUTTON_ACTION(PackedData);
+
+    public ActiveStates ActiveState => (ActiveStates)UNIT_ACTION_BUTTON_TYPE(PackedData);
+
+    public bool IsActionBarForSpell
+    {
+        get
+        {
+            var type = ActiveState;
+
+            return type is ActiveStates.Disabled or ActiveStates.Enabled or ActiveStates.Passive;
+        }
+    }
+
     public static uint MAKE_UNIT_ACTION_BUTTON(uint action, uint type)
     {
         return action | (type << 24);
@@ -25,23 +39,6 @@ public class UnitActionBarEntry
     public static uint UNIT_ACTION_BUTTON_TYPE(uint packedData)
     {
         return (packedData & 0xFF000000) >> 24;
-    }
-
-    public uint GetAction()
-    {
-        return UNIT_ACTION_BUTTON_ACTION(PackedData);
-    }
-
-    public ActiveStates GetActiveState()
-    {
-        return (ActiveStates)UNIT_ACTION_BUTTON_TYPE(PackedData);
-    }
-
-    public bool IsActionBarForSpell()
-    {
-        var type = GetActiveState();
-
-        return type is ActiveStates.Disabled or ActiveStates.Enabled or ActiveStates.Passive;
     }
 
     public void SetAction(uint action)

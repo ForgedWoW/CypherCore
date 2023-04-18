@@ -929,7 +929,7 @@ public partial class Player
         if (!IsAlive)
             return false;
 
-        var pProto = ObjectManager.GetItemTemplate(item);
+        var pProto = GameObjectManager.GetItemTemplate(item);
 
         if (pProto == null)
         {
@@ -1641,7 +1641,7 @@ public partial class Player
         // check unique-equipped on gems
         foreach (var gemData in pItem.ItemData.Gems)
         {
-            var pGem = ObjectManager.GetItemTemplate(gemData.ItemId);
+            var pGem = GameObjectManager.GetItemTemplate(gemData.ItemId);
 
             if (pGem == null)
                 continue;
@@ -3822,7 +3822,7 @@ public partial class Player
     {
         uint tempcount = 0;
 
-        var pProto = ObjectManager.GetItemTemplate(item);
+        var pProto = GameObjectManager.GetItemTemplate(item);
         var includeGems = pProto?.GemProperties != 0;
 
         return !ForEachItem(ItemSearchLocation.Equipment,
@@ -4369,7 +4369,7 @@ public partial class Player
                 case InventoryResult.ItemMaxLimitCategorySocketedExceededIs:
                 case InventoryResult.ItemMaxLimitCategoryEquippedExceededIs:
                 {
-                    var proto = item1 != null ? item1.Template : ObjectManager.GetItemTemplate(itemId);
+                    var proto = item1 != null ? item1.Template : GameObjectManager.GetItemTemplate(itemId);
                     failure.LimitCategory = (int)(proto?.ItemLimitCategory ?? 0u);
 
                     break;
@@ -4636,7 +4636,7 @@ public partial class Player
             }
         }
 
-        var setGuid = newEqSet.Guid != 0 ? newEqSet.Guid : ObjectManager.GenerateEquipmentSetGuid();
+        var setGuid = newEqSet.Guid != 0 ? newEqSet.Guid : GameObjectManager.GenerateEquipmentSetGuid();
 
         if (!_equipmentSets.ContainsKey(setGuid))
             _equipmentSets[setGuid] = new EquipmentSetInfo();
@@ -4685,7 +4685,7 @@ public partial class Player
 
                 var sendItemsBatch = new Action<int, int>((batchNumber, batchSize) =>
                 {
-                    var draft = ClassFactory.ResolvePositional<MailDraft>(ObjectManager.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
+                    var draft = ClassFactory.ResolvePositional<MailDraft>(GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
 
                     for (var j = 0; j < batchSize; ++j)
                         draft.AddItem(unstorableItems[batchNumber * SharedConst.MaxMailItems + j]);
@@ -4949,7 +4949,7 @@ public partial class Player
 
             --loot.UnlootedCount;
 
-            if (ObjectManager.GetItemTemplate(item.Itemid) != null)
+            if (GameObjectManager.GetItemTemplate(item.Itemid) != null)
                 if (newitem.Quality > ItemQuality.Epic || (newitem.Quality == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
                     Guild?.AddGuildNews(GuildNews.ItemLooted, GUID, 0, item.Itemid);
 
@@ -5023,7 +5023,7 @@ public partial class Player
 
             if (childItemEntry != null)
             {
-                var childTemplate = ObjectManager.GetItemTemplate(childItemEntry.ChildItemID);
+                var childTemplate = GameObjectManager.GetItemTemplate(childItemEntry.ChildItemID);
 
                 if (childTemplate != null)
                 {
@@ -6144,7 +6144,7 @@ public partial class Player
         noSpaceCount = 0;
         Log.Logger.Debug("STORAGE: CanStoreItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, entry, count);
 
-        var pProto = ObjectManager.GetItemTemplate(entry);
+        var pProto = GameObjectManager.GetItemTemplate(entry);
 
         if (pProto == null)
         {
@@ -6774,7 +6774,7 @@ public partial class Player
 
     private InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint noSpaceCount, ref uint offendingItemId)
     {
-        var pProto = ObjectManager.GetItemTemplate(entry);
+        var pProto = GameObjectManager.GetItemTemplate(entry);
 
         if (pProto == null)
         {

@@ -21,7 +21,7 @@ internal class SpellDkDeathGripInitial : SpellScript, ISpellCheckCast, IHasSpell
 
         // Death Grip should not be castable while jumping/falling
         if (caster.HasUnitState(UnitState.Jumping) ||
-            caster.HasUnitMovementFlag(MovementFlag.Falling))
+            caster.MovementInfo.HasMovementFlag(MovementFlag.Falling))
             return SpellCastResult.Moving;
 
         return SpellCastResult.SpellCastOk;
@@ -38,6 +38,6 @@ internal class SpellDkDeathGripInitial : SpellScript, ISpellCheckCast, IHasSpell
         HitUnit.SpellFactory.CastSpell(Caster, DeathKnightSpells.DEATH_GRIP_JUMP, true);
 
         if (Caster.HasAura(DeathKnightSpells.BLOOD))
-            Caster.SpellFactory.CastSpell(HitUnit, DeathKnightSpells.DeathGripTaunt, true);
+            Caster.SpellFactory.CastSpell(HitUnit, DeathKnightSpells.DEATH_GRIP_TAUNT, true);
     }
 }

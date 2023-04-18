@@ -30,8 +30,8 @@ public partial class Unit
     public static TimeSpan MaxDamageHistoryDuration = TimeSpan.FromSeconds(20);
     public bool CanDualWield;
     public object SendLock = new();
-    private static readonly TimeSpan DespawnTime = TimeSpan.FromSeconds(2);
     protected float[] CreateStats = new float[(int)Stats.Max];
+    private static readonly TimeSpan DespawnTime = TimeSpan.FromSeconds(2);
     private readonly AuraApplicationCollection _appliedAuras = new();
     private readonly List<AreaTrigger> _areaTrigger = new();
     private readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new();
@@ -63,7 +63,6 @@ public partial class Unit
     private readonly SortedSet<AuraApplication> _visibleAuras = new(new VisibleAuraSlotCompare());
 
     private readonly SortedSet<AuraApplication> _visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
-    private ushort _aiAnimKitId;
     private bool _canModifyStats;
     private CharmInfo _charmInfo;
     private SpellAuraInterruptFlags _interruptMask;
@@ -89,7 +88,6 @@ public partial class Unit
         }
     }
 
-    public override ushort AIAnimKitId => _aiAnimKitId;
     public AnimTier AnimTier => (AnimTier)(byte)UnitData.AnimTier;
     public HashSet<AuraApplication> AppliedAuras => _appliedAuras.AuraApplications;
     public int AppliedAurasCount => _appliedAuras.Count;
@@ -170,7 +168,6 @@ public partial class Unit
     }
 
     public uint ClassMask => (uint)(1 << ((int)Class - 1));
-    public CombatManager CombatManager { get; }
 
     public float CollisionHeight
     {
@@ -199,6 +196,7 @@ public partial class Unit
         }
     }
 
+    public CombatManager CombatManager { get; }
     public override float CombatReach => (float)UnitData.CombatReach;
 
     //Charm
@@ -284,13 +282,14 @@ public partial class Unit
     }
 
     public bool HasInvisibilityAura => HasAuraType(AuraType.ModInvisibility);
+    public bool HasOffhandWeapon => IsTypeId(TypeId.Player) ? AsPlayer.GetWeaponForAttack(WeaponAttackType.OffAttack, true) != null : CanDualWield;
     public bool HasRootAura => HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity);
 
     //SharedVision
     public bool HasSharedVision => !_sharedVision.Empty();
 
     public bool HasStealthAura => HasAuraType(AuraType.ModStealth);
-    public float HoverOffset => HasUnitMovementFlag(MovementFlag.Hover) ? UnitData.HoverHeight : 0.0f;
+    public float HoverOffset => MovementInfo.HasMovementFlag(MovementFlag.Hover) ? UnitData.HoverHeight : 0.0f;
     public virtual bool IsAffectedByDiminishingReturns => CharmerOrOwnerPlayerOrPlayerItself != null;
     public bool IsAIEnabled => Ai != null;
     public bool IsAlive => DeathState == DeathState.Alive;
@@ -380,7 +379,7 @@ public partial class Unit
             if (spellInfo == null)
                 return false;
 
-            return spellInfo.GetSpellSpecific() == SpellSpecificType.MagePolymorph;
+            return spellInfo.SpellSpecific == SpellSpecificType.MagePolymorph;
         }
     }
 
@@ -512,7 +511,7 @@ public partial class Unit
         get => base.ObjectScale;
         set
         {
-            var minfo = ObjectManager.GetCreatureModelInfo(DisplayId);
+            var minfo = GameObjectManager.GetCreatureModelInfo(DisplayId);
 
             if (minfo != null)
             {

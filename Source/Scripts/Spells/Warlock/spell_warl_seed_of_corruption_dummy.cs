@@ -30,7 +30,7 @@ internal class SpellWarlSeedOfCorruptionDummy : AuraScript, IHasAuraEffects
         if (caster == null)
             return;
 
-        amount.Value = caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * GetEffectInfo(0).CalcValue(caster) / 100;
+        amount.Value = caster.SpellBaseDamageBonusDone(SpellInfo.SchoolMask) * GetEffectInfo(0).CalcValue(caster) / 100;
     }
 
     private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

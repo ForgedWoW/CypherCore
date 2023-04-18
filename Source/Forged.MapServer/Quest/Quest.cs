@@ -342,7 +342,7 @@ public class Quest
 
         var xp = (uint)(diffFactor * questXp.Difficulty[xpDifficulty] * xpMultiplier / 10);
 
-        if (player.Level >= player.ObjectManager.GetMaxLevelForExpansion((Expansion)player.Configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) &&
+        if (player.Level >= player.GameObjectManager.GetMaxLevelForExpansion((Expansion)player.Configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) &&
             player.Session.Expansion == (Expansion)player.Configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) &&
             expansion >= 0 &&
             expansion < player.Configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight))

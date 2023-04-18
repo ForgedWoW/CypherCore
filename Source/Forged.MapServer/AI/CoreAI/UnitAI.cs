@@ -202,7 +202,7 @@ public class UnitAI : IUnitAI
             Me.ResetAttackTimer();
         }
 
-        if (Me.HaveOffhandWeapon() && Me.IsAttackReady(WeaponAttackType.OffAttack))
+        if (Me.HasOffhandWeapon && Me.IsAttackReady(WeaponAttackType.OffAttack))
         {
             Me.AttackerStateUpdate(victim, WeaponAttackType.OffAttack);
             Me.ResetAttackTimer(WeaponAttackType.OffAttack);
@@ -432,7 +432,7 @@ public class UnitAI : IUnitAI
                         }
                     }
 
-                    if (!spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
+                    if (!spellEffectInfo.IsEffectName(SpellEffectName.ApplyAura))
                         continue;
 
                     if (targetType == Targets.UnitTargetEnemy)

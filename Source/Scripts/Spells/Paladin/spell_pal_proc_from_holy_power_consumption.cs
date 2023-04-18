@@ -23,7 +23,7 @@ public class SpellPalProcFromHolyPowerConsumption : AuraScript, IAuraCheckProc
         if (procSpell == null)
             return false;
 
-        var cost = SpellInfo.CalcPowerCost(PowerType.HolyPower, false, Caster, SpellInfo.GetSchoolMask(), null);
+        var cost = SpellInfo.CalcPowerCost(PowerType.HolyPower, false, Caster, SpellInfo.SchoolMask, null);
 
         return cost != null && cost.Amount > 0;
     }

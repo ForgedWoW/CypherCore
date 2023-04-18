@@ -1757,7 +1757,7 @@ public class SmartAIManager
                 var spellInfo = _spellManager.GetSpellInfo(e.Action.Cast.Spell);
 
                 foreach (var spellEffectInfo in spellInfo.Effects)
-                    if (spellEffectInfo.IsEffect(SpellEffectName.KillCredit) || spellEffectInfo.IsEffect(SpellEffectName.KillCredit2))
+                    if (spellEffectInfo.IsEffectName(SpellEffectName.KillCredit) || spellEffectInfo.IsEffectName(SpellEffectName.KillCredit2))
                         if (spellEffectInfo.TargetA.Target == Targets.UnitCaster)
                             Log.Logger.Error($"SmartAIMgr: {e} Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: {e.Action.Cast.Spell} targetA: {spellEffectInfo.TargetA.Target} - targetB: {spellEffectInfo.TargetB.Target}) has invalid target for this Action");
 

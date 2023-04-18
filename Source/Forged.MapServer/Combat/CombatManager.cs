@@ -63,10 +63,7 @@ public class CombatManager
         var playerB = b.CharmerOrOwnerPlayerOrPlayerItself;
 
         // ...neither of the two units must be (owned by) a player with .gm on
-        if ((playerA && playerA.IsGameMaster) || (playerB && playerB.IsGameMaster))
-            return false;
-
-        return true;
+        return playerA is not { IsGameMaster: true } && playerB is not { IsGameMaster: true };
     }
 
     public static void NotifyAICombat(Unit me, Unit other)
@@ -101,11 +98,11 @@ public class CombatManager
             {
                 var refe = pair.Value;
 
-                if (!refe.First.Location.IsWithinDistInMap(refe.Second, range))
-                {
-                    PvECombatRefs.Remove(pair.Key);
-                    refe.EndCombat();
-                }
+                if (refe.First.Location.IsWithinDistInMap(refe.Second, range))
+                    continue;
+
+                PvECombatRefs.Remove(pair.Key);
+                refe.EndCombat();
             }
 
             if (!includingPvP)
@@ -115,11 +112,11 @@ public class CombatManager
             {
                 CombatReference refe = pair.Value;
 
-                if (!refe.First.Location.IsWithinDistInMap(refe.Second, range))
-                {
-                    PvPCombatRefs.Remove(pair.Key);
-                    refe.EndCombat();
-                }
+                if (refe.First.Location.IsWithinDistInMap(refe.Second, range))
+                    continue;
+
+                PvPCombatRefs.Remove(pair.Key);
+                refe.EndCombat();
             }
         }
     }
@@ -181,8 +178,8 @@ public class CombatManager
                 {
                     var target = refe.Value.GetOther(who);
 
-                    if ((Owner.IsImmuneToPc() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
-                        (Owner.IsImmuneToNPC() && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
+                    if ((Owner.HasUnitFlag(UnitFlags.ImmuneToPc) && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
+                        (Owner.HasUnitFlag(UnitFlags.ImmuneToNpc) && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
                         continue;
 
                     SetInCombatWith(target);
@@ -192,8 +189,8 @@ public class CombatManager
             {
                 var target = refe.Value.GetOther(who);
 
-                if ((Owner.IsImmuneToPc() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
-                    (Owner.IsImmuneToNPC() && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
+                if ((Owner.HasUnitFlag(UnitFlags.ImmuneToPc) && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
+                    (Owner.HasUnitFlag(UnitFlags.ImmuneToNpc) && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
                     continue;
 
                 SetInCombatWith(target);
@@ -302,12 +299,12 @@ public class CombatManager
             foreach (var pair in PvPCombatRefs)
                 pair.Value.Suppress(Owner);
 
-        if (UpdateOwnerCombatState())
-        {
-            var ownerAI = Owner.AI;
+        if (!UpdateOwnerCombatState())
+            return;
 
-            ownerAI?.JustExitedCombat();
-        }
+        var ownerAI = Owner.AI;
+
+        ownerAI?.JustExitedCombat();
     }
 
     public void Update(uint tdiff)
@@ -316,11 +313,11 @@ public class CombatManager
         {
             var refe = pair.Value;
 
-            if (refe.First == Owner && !refe.Update(tdiff)) // only update if we're the first unit involved (otherwise double decrement)
-            {
-                PvPCombatRefs.Remove(pair.Key);
-                refe.EndCombat(); // this will remove it from the other side
-            }
+            if (refe.First != Owner || refe.Update(tdiff)) // only update if we're the first unit involved (otherwise double decrement)
+                continue;
+
+            PvPCombatRefs.Remove(pair.Key);
+            refe.EndCombat(); // this will remove it from the other side
         }
     }
 

@@ -28,7 +28,7 @@ public class SpellDhAwakenTheDemon : AuraScript, IHasAuraEffects
         if (caster == null || eventInfo.DamageInfo != null)
             return;
 
-        if (!SpellInfo.GetEffect(1).IsEffect() || !SpellInfo.GetEffect(2).IsEffect())
+        if (!SpellInfo.GetEffect(1).IsEffect || !SpellInfo.GetEffect(2).IsEffect)
             return;
 
         var threshold1 = caster.CountPctFromMaxHealth(aurEff.BaseAmount);

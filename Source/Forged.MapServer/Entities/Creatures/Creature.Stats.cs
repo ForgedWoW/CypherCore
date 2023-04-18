@@ -33,7 +33,7 @@ public partial class Creature
                 break;
         }
 
-        if (attType == WeaponAttackType.OffAttack && !HaveOffhandWeapon())
+        if (attType == WeaponAttackType.OffAttack && !HasOffhandWeapon)
         {
             minDamage = 0.0f;
             maxDamage = 0.0f;

@@ -33,14 +33,13 @@ public partial class Unit
 
         var level = creatureTarget.GetLevelForTarget(this) + 5 < Level ? Level - 5 : creatureTarget.GetLevelForTarget(this);
 
-        if (!InitTamedPet(pet, level, spellID))
-        {
-            pet.Dispose();
+        if (InitTamedPet(pet, level, spellID))
+            return pet;
 
-            return null;
-        }
+        pet.Dispose();
 
-        return pet;
+        return null;
+
     }
 
     public Pet CreateTamedPetFrom(uint creatureEntry, uint spellID = 0)
@@ -48,7 +47,7 @@ public partial class Unit
         if (!IsTypeId(TypeId.Player))
             return null;
 
-        var creatureInfo = ObjectManager.GetCreatureTemplate(creatureEntry);
+        var creatureInfo = GameObjectManager.GetCreatureTemplate(creatureEntry);
 
         if (creatureInfo == null)
             return null;
@@ -82,23 +81,20 @@ public partial class Unit
         // Sequence: charmed, pet, other guardians
         var unit = Charmed;
 
-        if (!unit)
-        {
-            var guid = MinionGUID;
+        if (unit != null)
+            return unit;
 
-            if (!guid.IsEmpty)
-                unit = ObjectAccessor.GetUnit(this, guid);
-        }
+        var guid = MinionGUID;
+
+        if (!guid.IsEmpty)
+            unit = ObjectAccessor.GetUnit(this, guid);
 
         return unit;
     }
 
     public CharmInfo InitCharmInfo()
     {
-        if (_charmInfo == null)
-            _charmInfo = new CharmInfo(this);
-
-        return _charmInfo;
+        return _charmInfo ??= new CharmInfo(this);
     }
 
     public void RemoveAllControlled()
@@ -190,7 +186,7 @@ public partial class Unit
 
         var playerCharmer = Charmer.AsPlayer;
 
-        if (playerCharmer)
+        if (playerCharmer != null)
             switch (type)
             {
                 case CharmType.Vehicle:
@@ -230,7 +226,7 @@ public partial class Unit
 
         player?.SetClientControl(this, true);
 
-        if (playerCharmer && this != Charmer.GetFirstControlled())
+        if (playerCharmer != null && this != Charmer.GetFirstControlled())
             playerCharmer.SendRemoveControlBar();
 
         // a guardian should always have charminfo
@@ -255,7 +251,7 @@ public partial class Unit
     {
         var owner = OwnerUnit;
 
-        if (!owner || !owner.IsTypeId(TypeId.Player))
+        if (owner == null || !owner.IsTypeId(TypeId.Player))
             return;
 
         PetActionFeedbackPacket petActionFeedback = new()
@@ -271,7 +267,7 @@ public partial class Unit
     {
         var owner = OwnerUnit;
 
-        if (!owner || !owner.IsTypeId(TypeId.Player))
+        if (owner == null || !owner.IsTypeId(TypeId.Player))
             return;
 
         AIReaction packet = new()
@@ -287,7 +283,7 @@ public partial class Unit
     {
         var owner = OwnerUnit;
 
-        if (!owner || !owner.IsTypeId(TypeId.Player))
+        if (owner == null || !owner.IsTypeId(TypeId.Player))
             return;
 
         PetActionSound petActionSound = new()
@@ -350,7 +346,7 @@ public partial class Unit
                 charm.SetUnitFlag(UnitFlags.PlayerControlled);
                 charm.AsPlayer.UpdatePvPState();
             }
-            else if (player)
+            else if (player != null)
             {
                 charm.ControlledByPlayer = true;
                 charm.SetUnitFlag(UnitFlags.PlayerControlled);
@@ -375,7 +371,7 @@ public partial class Unit
 
     public bool SetCharmedBy(Unit charmer, CharmType type, AuraApplication aurApp = null)
     {
-        if (!charmer)
+        if (charmer == null)
             return false;
 
         // dismount players when charmed
@@ -415,7 +411,7 @@ public partial class Unit
         var playerCharmer = charmer.AsPlayer;
 
         // Charmer stop charming
-        if (playerCharmer)
+        if (playerCharmer != null)
         {
             playerCharmer.StopCastingCharm();
             playerCharmer.StopCastingBindSight();
@@ -451,9 +447,9 @@ public partial class Unit
         MotionMaster.Clear(MovementGeneratorPriority.Normal);
 
         // Stop any remaining spline, if no involuntary movement is found
-        Func<MovementGenerator, bool> criteria = movement => movement.Priority == MovementGeneratorPriority.Highest;
+        bool Criteria(MovementGenerator movement) => movement.Priority == MovementGeneratorPriority.Highest;
 
-        if (!MotionMaster.HasMovementGenerator(criteria))
+        if (!MotionMaster.HasMovementGenerator(Criteria))
             StopMoving();
 
         // Set charmed
@@ -461,7 +457,7 @@ public partial class Unit
 
         var player = AsPlayer;
 
-        if (player)
+        if (player != null)
         {
             if (player.IsAfk)
                 player.ToggleAfk();
@@ -492,7 +488,7 @@ public partial class Unit
                 GetCharmInfo().InitCharmCreateSpells();
         }
 
-        if (playerCharmer)
+        if (playerCharmer != null)
             switch (type)
             {
                 case CharmType.Vehicle:
@@ -521,7 +517,7 @@ public partial class Unit
 
                             // just to enable stat window
                             if (GetCharmInfo() != null)
-                                GetCharmInfo().SetPetNumber(ObjectManager.GeneratePetNumber(), true);
+                                GetCharmInfo().SetPetNumber(GameObjectManager.GeneratePetNumber(), true);
 
                             // if charmed two demons the same session, the 2nd gets the 1st one's name
                             SetPetNameTimestamp((uint)GameTime.CurrentTime); // cast can't be helped
@@ -592,7 +588,7 @@ public partial class Unit
             {
                 var oldPet = GetGuardianPet();
 
-                if (oldPet)
+                if (oldPet != null)
                 {
                     if (oldPet != minion && (oldPet.IsPet || minion.IsPet || oldPet.Entry != minion.Entry))
                     {
@@ -690,7 +686,7 @@ public partial class Unit
                 if (spInfo != null)
                     foreach (var spellEffectInfo in spInfo.Effects)
                     {
-                        if (spellEffectInfo == null || !spellEffectInfo.IsEffect(SpellEffectName.Summon))
+                        if (spellEffectInfo == null || !spellEffectInfo.IsEffectName(SpellEffectName.Summon))
                             continue;
 
                         RemoveAllMinionsByEntry((uint)spellEffectInfo.MiscValue);
@@ -843,7 +839,7 @@ public partial class Unit
 
         PhasingHandler.InheritPhaseShift(pet, this);
 
-        pet.GetCharmInfo().SetPetNumber(ObjectManager.GeneratePetNumber(), true);
+        pet.GetCharmInfo().SetPetNumber(GameObjectManager.GeneratePetNumber(), true);
         // this enables pet details window (Shift+P)
         pet.InitPetCreateSpells();
         pet.SetFullHealth();
