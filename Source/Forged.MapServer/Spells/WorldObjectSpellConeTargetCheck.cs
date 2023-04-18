@@ -37,11 +37,13 @@ public class WorldObjectSpellConeTargetCheck : WorldObjectSpellAreaTargetCheck
         }
         else
         {
-            if (!Caster.IsUnit || !Caster.AsUnit.IsWithinBoundaryRadius(target.AsUnit))
-                // ConeAngle > 0 . select targets in front
-                // ConeAngle < 0 . select targets in back
-                if (_coneSrc.HasInArc(_coneAngle, target.Location) != MathFunctions.fuzzyGe(_coneAngle, 0.0f))
-                    return false;
+            if (Caster.IsUnit && Caster.AsUnit.IsWithinBoundaryRadius(target.AsUnit))
+                return base.Invoke(target);
+
+            // ConeAngle > 0 . select targets in front
+            // ConeAngle < 0 . select targets in back
+            if (_coneSrc.HasInArc(_coneAngle, target.Location) != MathFunctions.fuzzyGe(_coneAngle, 0.0f))
+                return false;
         }
 
         return base.Invoke(target);

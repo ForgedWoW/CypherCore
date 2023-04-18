@@ -7,11 +7,11 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Spells;
 
-internal class Tree
+public class Tree
 {
-    public TraitConfigType ConfigType;
-    public List<TraitCostRecord> Costs = new();
-    public List<TraitCurrencyRecord> Currencies = new();
-    public TraitTreeRecord Data;
-    public List<TraitNode> Nodes = new();
+    public TraitConfigType ConfigType { get; set; }
+    public List<TraitCostRecord> Costs { get; set; } = new();
+    public List<TraitCurrencyRecord> Currencies { get; set; } = new();
+    public TraitTreeRecord Data { get; set; }
+    public List<TraitNode> Nodes { get; set; } = new();
 }

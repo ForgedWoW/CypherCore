@@ -6,10 +6,10 @@ using Forged.MapServer.DataStorage.Structs.T;
 
 namespace Forged.MapServer.Spells;
 
-internal class NodeGroup
+public class NodeGroup
 {
-    public List<TraitCondRecord> Conditions = new();
-    public List<TraitCostRecord> Costs = new();
-    public TraitNodeGroupRecord Data;
-    public List<TraitNode> Nodes = new();
+    public List<TraitCondRecord> Conditions { get; set; } = new();
+    public List<TraitCostRecord> Costs { get; set; } = new();
+    public TraitNodeGroupRecord Data { get; set; }
+    public List<TraitNode> Nodes { get; set; } = new();
 }

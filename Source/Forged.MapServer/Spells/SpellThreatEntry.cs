@@ -5,8 +5,9 @@ namespace Forged.MapServer.Spells;
 
 public class SpellThreatEntry
 {
-    public float ApPctMod;
-    public int FlatMod;    // flat threat-value for this Spell  - default: 0
-    public float PctMod;   // threat-multiplier for this Spell  - default: 1.0f
-     // Pct of AP that is added as Threat - default: 0.0f
+    public float ApPctMod { get; set; }
+    public int FlatMod { get; set; } // flat threat-value for this Spell  - default: 0
+
+    public float PctMod { get; set; } // threat-multiplier for this Spell  - default: 1.0f
+    // Pct of AP that is added as Threat - default: 0.0f
 }

@@ -498,6 +498,8 @@ void RegisterInstanced()
     builder.RegisterType<DosProtection>();
     builder.RegisterType<Warden>();
     builder.RegisterType<WardenWin>();
+    builder.RegisterType<SpellInfo>();
+    builder.RegisterType<SpellEffectInfo>();
 }
 
 void RegisterHandlers()

@@ -331,8 +331,8 @@ public class Aura
 
             return foundAura;
         }
-        else
-            return Create(createInfo);
+
+        return Create(createInfo);
     }
 
     // targets have to be registered and not have effect applied yet to use this function
@@ -1887,8 +1887,8 @@ public class Aura
             // not selfcasted single target auras mustn't be applied
             return CasterGuid == Owner.GUID || !SpellInfo.IsSingleTarget();
         }
-        else
-            return CheckAreaTarget(target);
+
+        return CheckAreaTarget(target);
     }
 
     private bool CheckAreaTarget(Unit target)

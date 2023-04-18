@@ -13,6 +13,7 @@ public class WorldObjectSpellAreaTargetCheck : WorldObjectSpellTargetCheck
 {
     private readonly Position _position;
     private readonly float _range;
+
     public WorldObjectSpellAreaTargetCheck(float range, Position position, WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
         : base(caster, referer, spellInfo, selectionType, condList, objectType)
     {
@@ -22,7 +23,7 @@ public class WorldObjectSpellAreaTargetCheck : WorldObjectSpellTargetCheck
 
     public override bool Invoke(WorldObject target)
     {
-        if (target.AsGameObject)
+        if (target.AsGameObject != null)
         {
             // isInRange including the dimension of the GO
             var isInRange = target.AsGameObject.IsInRange(_position.X, _position.Y, _position.Z, _range);

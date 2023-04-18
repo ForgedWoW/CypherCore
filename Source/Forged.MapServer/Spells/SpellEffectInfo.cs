@@ -16,32 +16,7 @@ namespace Forged.MapServer.Spells;
 
 public class SpellEffectInfo
 {
-    public double Amplitude { get; set; }
-    public AuraType ApplyAuraName { get; set; }
-    public uint ApplyAuraPeriod { get; set; }
-    public double BasePoints { get; set; }
-    public double BonusCoefficient { get; set; }
-    public double BonusCoefficientFromAp { get; set; }
-    public double ChainAmplitude { get; set; }
-    public int ChainTargets { get; set; }
-    public SpellEffectName Effect { get; set; }
-    public SpellEffectAttributes EffectAttributes { get; set; }
-    public int EffectIndex { get; set; }
-    public List<Condition> ImplicitTargetConditions { get; set; }
-    public uint ItemType { get; set; }
-    public SpellRadiusRecord MaxRadiusEntry { get; set; }
-    public Mechanics Mechanic { get; set; }
-    public int MiscValue { get; set; }
-    public int MiscValueB { get; set; }
-    public double PointsPerResource { get; set; }
-    public float PositionFacing { get; set; }
-    public SpellRadiusRecord RadiusEntry { get; set; }
-    public double RealPointsPerLevel { get; set; }
     public ScalingInfo Scaling;
-    public FlagArray128 SpellClassMask { get; set; }
-    public SpellImplicitTargetInfo TargetA { get; set; } = new();
-    public SpellImplicitTargetInfo TargetB { get; set; } = new();
-    public uint TriggerSpell { get; set; }
 
     private static readonly StaticData[] Data = new StaticData[]
     {
@@ -353,12 +328,17 @@ public class SpellEffectInfo
         new(SpellEffectImplicitTargetTypes.Explicit, SpellTargetObjectTypes.Unit),        // 304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
     };
 
-
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
+    private readonly ItemEnchantmentManager _itemEnchantment;
     private readonly SpellInfo _spellInfo;
 
-    public SpellEffectInfo(SpellInfo spellInfo, SpellEffectRecord effect = null)
+    public SpellEffectInfo(SpellInfo spellInfo, SpellEffectRecord effect, CliDB cliDB, ItemEnchantmentManager itemEnchantment, DB2Manager db2Manager)
     {
         _spellInfo = spellInfo;
+        _cliDB = cliDB;
+        _itemEnchantment = itemEnchantment;
+        _db2Manager = db2Manager;
 
         if (effect != null)
         {
@@ -378,8 +358,8 @@ public class SpellEffectInfo
             PositionFacing = effect.EffectPosFacing;
             TargetA = new SpellImplicitTargetInfo((Targets)effect.ImplicitTarget[0]);
             TargetB = new SpellImplicitTargetInfo((Targets)effect.ImplicitTarget[1]);
-            RadiusEntry = CliDB.SpellRadiusStorage.LookupByKey(effect.EffectRadiusIndex[0]);
-            MaxRadiusEntry = CliDB.SpellRadiusStorage.LookupByKey(effect.EffectRadiusIndex[1]);
+            RadiusEntry = _cliDB.SpellRadiusStorage.LookupByKey(effect.EffectRadiusIndex[0]);
+            MaxRadiusEntry = _cliDB.SpellRadiusStorage.LookupByKey(effect.EffectRadiusIndex[1]);
             ChainTargets = effect.EffectChainTargets;
             ItemType = effect.EffectItemType;
             TriggerSpell = effect.EffectTriggerSpell;
@@ -397,10 +377,23 @@ public class SpellEffectInfo
         ImmunityInfo = new ImmunityInfo();
     }
 
+    public double Amplitude { get; set; }
+    public AuraType ApplyAuraName { get; set; }
+    public uint ApplyAuraPeriod { get; set; }
+    public double BasePoints { get; set; }
+    public double BonusCoefficient { get; set; }
+    public double BonusCoefficientFromAp { get; set; }
+    public double ChainAmplitude { get; set; }
+    public int ChainTargets { get; set; }
+    public SpellEffectName Effect { get; set; }
+    public SpellEffectAttributes EffectAttributes { get; set; }
+    public int EffectIndex { get; set; }
     public bool HasMaxRadius => MaxRadiusEntry != null && (MaxRadiusEntry.RadiusMin != 0 || MaxRadiusEntry.RadiusMax != 0);
     public bool HasRadius => RadiusEntry != null && (RadiusEntry.RadiusMin != 0 || RadiusEntry.RadiusMax != 0);
     public ImmunityInfo ImmunityInfo { get; }
+    public List<Condition> ImplicitTargetConditions { get; set; }
     public SpellEffectImplicitTargetTypes ImplicitTargetType => Data[(int)Effect].ImplicitTargetType;
+
     public bool IsAreaAuraEffect
     {
         get
@@ -414,15 +407,29 @@ public class SpellEffectInfo
 
     public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
     public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect is SpellEffectName.ApplyAura or SpellEffectName.ApplyAuraOnPet;
+    public uint ItemType { get; set; }
+    public SpellRadiusRecord MaxRadiusEntry { get; set; }
+    public Mechanics Mechanic { get; set; }
+    public int MiscValue { get; set; }
+    public int MiscValueB { get; set; }
+    public double PointsPerResource { get; set; }
+    public float PositionFacing { get; set; }
     public SpellCastTargetFlags ProvidedTargetMask => SpellInfo.GetTargetFlagMask(TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(TargetB.ObjectType);
+    public SpellRadiusRecord RadiusEntry { get; set; }
+    public double RealPointsPerLevel { get; set; }
+    public FlagArray128 SpellClassMask { get; set; }
+    public SpellImplicitTargetInfo TargetA { get; set; } = new();
+    public SpellImplicitTargetInfo TargetB { get; set; } = new();
+    public uint TriggerSpell { get; set; }
     public SpellTargetObjectTypes UsedTargetObjectType => Data[(int)Effect].UsedTargetObjectType;
+
     public double CalcBaseValue(WorldObject caster, Unit target, uint itemId, int itemLevel)
     {
         if (Scaling.Coefficient != 0.0f)
         {
             var level = _spellInfo.SpellLevel;
 
-            if (target && _spellInfo.IsPositiveEffect(EffectIndex) && Effect == SpellEffectName.ApplyAura)
+            if (target != null && _spellInfo.IsPositiveEffect(EffectIndex) && Effect == SpellEffectName.ApplyAura)
                 level = target.Level;
             else if (caster is { IsUnit: true })
                 level = caster.AsUnit.Level;
@@ -452,41 +459,33 @@ public class SpellEffectInfo
 
                     if (Scaling.Class is -8 or -9)
                     {
-                        if (!CliDB.RandPropPointsStorage.TryGetValue(effectiveItemLevel, out var randPropPoints))
-                            randPropPoints = CliDB.RandPropPointsStorage.LookupByKey(CliDB.RandPropPointsStorage.GetNumRows() - 1);
+                        if (!_cliDB.RandPropPointsStorage.TryGetValue(effectiveItemLevel, out var randPropPoints))
+                            randPropPoints = _cliDB.RandPropPointsStorage.LookupByKey(_cliDB.RandPropPointsStorage.GetNumRows() - 1);
 
                         tempValue = Scaling.Class == -8 ? randPropPoints.DamageReplaceStatF : randPropPoints.DamageSecondaryF;
                     }
                     else
-                    {
-                        tempValue = ItemEnchantmentManager.GetRandomPropertyPoints(effectiveItemLevel, ItemQuality.Rare, InventoryType.Chest, 0);
-                    }
+                        tempValue = _itemEnchantment.GetRandomPropertyPoints(effectiveItemLevel, ItemQuality.Rare, InventoryType.Chest, 0);
                 }
                 else
-                {
-                    tempValue = CliDB.GetSpellScalingColumnForClass(CliDB.SpellScalingGameTable.GetRow(level), Scaling.Class);
-                }
+                    tempValue = CliDB.GetSpellScalingColumnForClass(_cliDB.SpellScalingGameTable.GetRow(level), Scaling.Class);
 
                 if (Scaling.Class == -7)
                 {
-                    var ratingMult = CliDB.CombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel);
+                    var ratingMult = _cliDB.CombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel);
 
                     if (ratingMult != null)
-                    {
-                        if (CliDB.ItemSparseStorage.TryGetValue(itemId, out var itemSparse))
+                        if (_cliDB.ItemSparseStorage.TryGetValue(itemId, out var itemSparse))
                             tempValue *= CliDB.GetIlvlStatMultiplier(ratingMult, itemSparse.inventoryType);
-                    }
                 }
 
                 if (Scaling.Class == -6)
                 {
-                    var staminaMult = CliDB.StaminaMultByILvlGameTable.GetRow(effectiveItemLevel);
+                    var staminaMult = _cliDB.StaminaMultByILvlGameTable.GetRow(effectiveItemLevel);
 
                     if (staminaMult != null)
-                    {
-                        if (CliDB.ItemSparseStorage.TryGetValue(itemId, out var itemSparse))
+                        if (_cliDB.ItemSparseStorage.TryGetValue(itemId, out var itemSparse))
                             tempValue *= CliDB.GetIlvlStatMultiplier(staminaMult, itemSparse.inventoryType);
-                    }
                 }
             }
 
@@ -502,20 +501,21 @@ public class SpellEffectInfo
             var tempValue = BasePoints;
             var stat = GetScalingExpectedStat();
 
-            if (stat != ExpectedStatType.None)
-            {
-                if (_spellInfo.HasAttribute(SpellAttr0.ScalesWithCreatureLevel))
-                    stat = ExpectedStatType.CreatureAutoAttackDps;
+            if (stat == ExpectedStatType.None)
+                return tempValue;
 
-                // TODO - add expansion and content tuning id args?
-                var contentTuningId = _spellInfo.ContentTuningId; // content tuning should be passed as arg, the one stored in SpellInfo is fallback
-                var expansion = -2;
-                if (CliDB.ContentTuningStorage.TryGetValue(contentTuningId, out var contentTuning))
-                    expansion = contentTuning.ExpansionID;
+            if (_spellInfo.HasAttribute(SpellAttr0.ScalesWithCreatureLevel))
+                stat = ExpectedStatType.CreatureAutoAttackDps;
 
-                var level = caster is { IsUnit: true } ? caster.AsUnit.Level : 1;
-                tempValue = Global.DB2Mgr.EvaluateExpectedStat(stat, level, expansion, 0, PlayerClass.None) * BasePoints / 100.0f;
-            }
+            // TODO - add expansion and content tuning id args?
+            var contentTuningId = _spellInfo.ContentTuningId; // content tuning should be passed as arg, the one stored in SpellInfo is fallback
+            var expansion = -2;
+
+            if (_cliDB.ContentTuningStorage.TryGetValue(contentTuningId, out var contentTuning))
+                expansion = contentTuning.ExpansionID;
+
+            var level = caster is { IsUnit: true } ? caster.AsUnit.Level : 1;
+            tempValue = _db2Manager.EvaluateExpectedStat(stat, level, expansion, 0, PlayerClass.None) * BasePoints / 100.0f;
 
             return tempValue;
         }
@@ -593,7 +593,6 @@ public class SpellEffectInfo
                 comboDamage = Scaling.ResourceCoefficient * value;
         }
         else if (GetScalingExpectedStat() == ExpectedStatType.None)
-        {
             if (casterUnit != null && basePointsPerLevel != 0.0f)
             {
                 var level = casterUnit.Level;
@@ -604,28 +603,23 @@ public class SpellEffectInfo
                 // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
                 level -= Math.Max(_spellInfo.BaseLevel, _spellInfo.SpellLevel);
 
-                if (level < 0)
-                    level = 0;
-
                 value += level * basePointsPerLevel;
             }
-        }
 
         // random damage
-        if (casterUnit != null)
+        if (casterUnit == null)
+            return value;
+
+        // bonus amount from combo points
+        if (comboDamage != 0)
         {
-            // bonus amount from combo points
-            if (comboDamage != 0)
-            {
-                var comboPoints = casterUnit.GetPower(PowerType.ComboPoints);
+            var comboPoints = casterUnit.GetPower(PowerType.ComboPoints);
 
-                if (comboPoints != 0)
-                    value += comboDamage * comboPoints;
-            }
-
-            if (caster != null)
-                value = caster.ApplyEffectModifiers(_spellInfo, EffectIndex, value);
+            if (comboPoints != 0)
+                value += comboDamage * comboPoints;
         }
+
+        value = caster.ApplyEffectModifiers(_spellInfo, EffectIndex, value);
 
         return value;
     }
@@ -647,9 +641,11 @@ public class SpellEffectInfo
 
         if (!max && !min)
             return null;
-        else if (max)
+
+        if (max)
             return MaxRadiusEntry;
-        else if (min)
+
+        if (min)
             return RadiusEntry;
 
         return RadiusEntry.RadiusMax > MaxRadiusEntry.RadiusMax ? RadiusEntry : MaxRadiusEntry;
@@ -704,6 +700,7 @@ public class SpellEffectInfo
     {
         return Effect == effectName;
     }
+
     private ExpectedStatType GetScalingExpectedStat()
     {
         switch (Effect)
@@ -714,17 +711,21 @@ public class SpellEffectInfo
             case SpellEffectName.WeaponDamageNoSchool:
             case SpellEffectName.WeaponDamage:
                 return ExpectedStatType.CreatureSpellDamage;
+
             case SpellEffectName.Heal:
             case SpellEffectName.HealMechanical:
                 return ExpectedStatType.PlayerHealth;
+
             case SpellEffectName.Energize:
             case SpellEffectName.PowerBurn:
                 if (MiscValue == (int)PowerType.Mana)
                     return ExpectedStatType.PlayerMana;
 
                 return ExpectedStatType.None;
+
             case SpellEffectName.PowerDrain:
                 return ExpectedStatType.PlayerMana;
+
             case SpellEffectName.ApplyAura:
             case SpellEffectName.PersistentAreaAura:
             case SpellEffectName.ApplyAreaAuraParty:
@@ -749,6 +750,7 @@ public class SpellEffectInfo
                     case AuraType.ModRangedAttackPowerVersus:
                     case AuraType.ModFlatSpellDamageVersus:
                         return ExpectedStatType.CreatureSpellDamage;
+
                     case AuraType.PeriodicHeal:
                     case AuraType.ModDamageTaken:
                     case AuraType.ModIncreaseHealth:
@@ -762,19 +764,24 @@ public class SpellEffectInfo
                     case AuraType.ModIncreaseHealth2:
                     case AuraType.SchoolHealAbsorb:
                         return ExpectedStatType.PlayerHealth;
+
                     case AuraType.PeriodicManaLeech:
                         return ExpectedStatType.PlayerMana;
+
                     case AuraType.ModStat:
                     case AuraType.ModAttackPower:
                     case AuraType.ModRangedAttackPower:
                         return ExpectedStatType.PlayerPrimaryStat;
+
                     case AuraType.ModRating:
                         return ExpectedStatType.PlayerSecondaryStat;
+
                     case AuraType.ModResistance:
                     case AuraType.ModBaseResistance:
                     case AuraType.ModTargetResistance:
                     case AuraType.ModBonusArmor:
                         return ExpectedStatType.ArmorConstant;
+
                     case AuraType.PeriodicEnergize:
                     case AuraType.ModIncreaseEnergy:
                     case AuraType.ModPowerCostSchool:
@@ -785,11 +792,9 @@ public class SpellEffectInfo
                             return ExpectedStatType.PlayerMana;
 
                         return ExpectedStatType.None;
-                    
                 }
 
                 break;
-            
         }
 
         return ExpectedStatType.None;
@@ -805,13 +810,13 @@ public class SpellEffectInfo
 
     public class StaticData
     {
-        public SpellEffectImplicitTargetTypes ImplicitTargetType; // defines what target can be added to effect target list if there's no valid target type provided for effect
-        public SpellTargetObjectTypes UsedTargetObjectType;       // defines valid target object type for spell effect
-
         public StaticData(SpellEffectImplicitTargetTypes implicittarget, SpellTargetObjectTypes usedtarget)
         {
             ImplicitTargetType = implicittarget;
             UsedTargetObjectType = usedtarget;
         }
+
+        public SpellEffectImplicitTargetTypes ImplicitTargetType { get; set; } // defines what target can be added to effect target list if there's no valid target type provided for effect
+        public SpellTargetObjectTypes UsedTargetObjectType { get; set; }       // defines valid target object type for spell effect
     }
 }

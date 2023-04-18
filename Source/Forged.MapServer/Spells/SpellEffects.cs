@@ -5,13 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Forged.MapServer.BattlePets;
+using Forged.MapServer.Chat.Commands;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.AreaTriggers;
-using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
@@ -19,7 +17,6 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Groups;
 using Forged.MapServer.LootManagement;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Maps.Workers;
@@ -31,13 +28,10 @@ using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Talent;
 using Forged.MapServer.Networking.Packets.Trait;
-using Forged.MapServer.Phasing;
-using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IQuest;
 using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Forged.MapServer.Spells.Auras;
-using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
@@ -55,7 +49,7 @@ public partial class Spell
         var player = UnitTarget.AsPlayer;
 
         var newitemid = itemId;
-        var pProto = Caster.ObjectManager.GetItemTemplate(newitemid);
+        var pProto = _gameObjectManager.GetItemTemplate(newitemid);
 
         if (pProto == null)
         {
@@ -108,9 +102,7 @@ public partial class Spell
         {
             // convert to possible store amount
             if (msg is InventoryResult.InvFull or InventoryResult.ItemMaxCount)
-            {
                 numToAdd -= noSpace;
-            }
             else
             {
                 // if not created by another reason from full inventory or unique items amount limitation
@@ -180,7 +172,7 @@ public partial class Spell
         if (oldBonusTree == null || newBonusTre == null)
             return;
 
-        var bonuses = newBonusTre.Select(s => s.ChildItemBonusListID).Cast<uint>().ToList();
+        var bonuses = newBonusTre.Select(s => s.ChildItemBonusListID).ToList();
 
         var found = false;
         uint treeMod = 0;
@@ -256,15 +248,14 @@ public partial class Spell
             _groupManager.AddGroup(group);
         }
         else if (group.IsMember(creature.GUID))
-        {
             return;
-        }
 
         /* if (m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue == 1)
             group->AddCreatureMember(creature);
         else
             group->RemoveCreatureMember(creature->GetGUID());*/
     }
+
     [SpellEffectHandler(SpellEffectName.SetCovenant)]
     public void EffectSetCovenant()
     {
@@ -342,7 +333,7 @@ public partial class Spell
 
         var player = UnitTarget.AsPlayer;
         var specID = SpellMisc.SpecializationId;
-        var spec = Caster.CliDB.ChrSpecializationStorage.LookupByKey(specID);
+        var spec = _cliDb.ChrSpecializationStorage.LookupByKey(specID);
 
         // Safety checks done in Spell::CheckCast
         if (!spec.IsPetSpecialization())
@@ -422,13 +413,11 @@ public partial class Spell
         var aurApp = SpellAura.GetApplicationOfTarget(UnitTarget.GUID);
 
         if (aurApp == null)
-        {
             aurApp = UnitTarget._CreateAuraApplication(SpellAura,
                                                        new HashSet<int>()
                                                        {
                                                            EffectInfo.EffectIndex
                                                        });
-        }
         else
         {
             aurApp.EffectsToApply.Add(EffectInfo.EffectIndex);
@@ -485,7 +474,7 @@ public partial class Spell
                 continue;
 
             replacedGlyph = i;
-            player.RemoveAura(Caster.CliDB.GlyphPropertiesStorage.LookupByKey(glyphs[i]).SpellID);
+            player.RemoveAura(_cliDb.GlyphPropertiesStorage.LookupByKey(glyphs[i]).SpellID);
 
             break;
         }
@@ -500,13 +489,11 @@ public partial class Spell
                 glyphs.RemoveAt(replacedGlyph);
         }
         else if (glyphId != 0)
-        {
             glyphs.Add(glyphId);
-        }
 
         player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeGlyph);
 
-        if (Caster.CliDB.GlyphPropertiesStorage.TryGetValue(glyphId, out var glyphProperties))
+        if (_cliDb.GlyphPropertiesStorage.TryGetValue(glyphId, out var glyphProperties))
             player.SpellFactory.CastSpell(player, glyphProperties.SpellID, new CastSpellExtraArgs(this));
 
         ActiveGlyphs activeGlyphs = new();
@@ -533,13 +520,9 @@ public partial class Spell
             areaId = (uint)EffectInfo.MiscValue;
 
         if (Targets.HasDst)
-        {
             homeLoc.WorldRelocate(DestTarget);
-        }
         else
-        {
             homeLoc = new WorldLocation(player.Location);
-        }
 
         player.SetHomebind(homeLoc, areaId);
         player.SendBindPointUpdate();
@@ -662,7 +645,7 @@ public partial class Spell
         if (UnitTarget is not { IsCreature: true })
             return;
 
-        var qualityRecord = Caster.CliDB.BattlePetBreedQualityStorage.Values.FirstOrDefault(a1 => a1.MaxQualityRoll < Damage);
+        var qualityRecord = _cliDb.BattlePetBreedQualityStorage.Values.FirstOrDefault(a1 => a1.MaxQualityRoll < Damage);
 
         var quality = BattlePetBreedQuality.Poor;
 
@@ -748,10 +731,10 @@ public partial class Spell
 
             if (EffectInfo.TriggerSpell != 0)
                 Caster.SpellFactory.CastSpell(UnitTarget,
-                                  EffectInfo.TriggerSpell,
-                                  new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                      .SetOriginalCaster(_originalCasterGuid)
-                                      .SetTriggeringSpell(this));
+                                              EffectInfo.TriggerSpell,
+                                              new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                                  .SetOriginalCaster(_originalCasterGuid)
+                                                  .SetTriggeringSpell(this));
         }
     }
 
@@ -780,14 +763,12 @@ public partial class Spell
             unitCaster.MotionMaster.MoveCharge(pos.X, pos.Y, pos.Z);
         }
         else if (_effectHandleMode == SpellEffectHandleMode.Hit)
-        {
             if (EffectInfo.TriggerSpell != 0)
                 Caster.SpellFactory.CastSpell(DestTarget,
-                                  EffectInfo.TriggerSpell,
-                                  new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                      .SetOriginalCaster(_originalCasterGuid)
-                                      .SetTriggeringSpell(this));
-        }
+                                              EffectInfo.TriggerSpell,
+                                              new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                                  .SetOriginalCaster(_originalCasterGuid)
+                                                  .SetTriggeringSpell(this));
     }
 
     [SpellEffectHandler(SpellEffectName.CreateAreaTrigger)]
@@ -802,7 +783,7 @@ public partial class Spell
             return;
 
         var duration = SpellInfo.CalcDuration(Caster);
-        AreaTrigger.CreateAreaTrigger((uint)EffectInfo.MiscValue, unitCaster, null, SpellInfo, DestTarget, duration, SpellVisual, CastId);
+        AreaTrigger.CreateAreaTrigger(_classFactory, (uint)EffectInfo.MiscValue, unitCaster, null, SpellInfo, DestTarget, duration, SpellVisual, CastId);
     }
 
     [SpellEffectHandler(SpellEffectName.CreateConversation)]
@@ -839,7 +820,7 @@ public partial class Spell
 
         var player = Caster.AsPlayer;
 
-        if (!player)
+        if (player == null)
             return;
 
         var collectionMgr = player.Session.CollectionMgr;
@@ -847,8 +828,10 @@ public partial class Spell
         if (collectionMgr == null)
             return;
 
-        List<uint> bonusList = new();
-        bonusList.Add(collectionMgr.GetHeirloomBonus(SpellMisc.Data0));
+        List<uint> bonusList = new()
+        {
+            collectionMgr.GetHeirloomBonus(SpellMisc.Data0)
+        };
 
         DoCreateItem(SpellMisc.Data0, ItemContext.None, bonusList);
         ExecuteLogEffectCreateItem(EffectInfo.Effect, SpellMisc.Data0);
@@ -880,7 +863,7 @@ public partial class Spell
         // Pick a random item from spell_loot_template
         if (SpellInfo.IsLootCrafting)
         {
-            player.AutoStoreLoot(SpellInfo.Id, LootStoreBox.Spell, context, false, true);
+            player.AutoStoreLoot(SpellInfo.Id, _lootStoreBox.Spell, context, false, true);
             player.UpdateCraftSkill(SpellInfo);
         }
         else // If there's no random loot entries for this spell, pick the item associated with this spell
@@ -916,18 +899,18 @@ public partial class Spell
 
         var unitCaster = UnitCasterForEffectHandlers;
 
-        if (!unitCaster || !Targets.HasDst)
+        if (unitCaster == null || !Targets.HasDst)
             return;
 
         var sceneObject = SceneObject.CreateSceneObject((uint)EffectInfo.MiscValue, unitCaster, DestTarget, unitCaster.GUID);
 
-        if (sceneObject != null)
-        {
-            var hasAuraTargetingCaster = UniqueTargetInfo.Any(target => IsUnitTargetSceneObjectAura(this, target));
+        if (sceneObject == null)
+            return;
 
-            if (hasAuraTargetingCaster)
-                sceneObject.SetCreatedBySpellCast(CastId);
-        }
+        var hasAuraTargetingCaster = UniqueTargetInfo.Any(target => IsUnitTargetSceneObjectAura(this, target));
+
+        if (hasAuraTargetingCaster)
+            sceneObject.SetCreatedBySpellCast(CastId);
     }
 
     [SpellEffectHandler(SpellEffectName.CreateRandomItem)]
@@ -942,7 +925,7 @@ public partial class Spell
         var player = UnitTarget.AsPlayer;
 
         // create some random items
-        player.AutoStoreLoot(SpellInfo.Id, LootStoreBox.Spell, SpellInfo.HasAttribute(SpellAttr0.IsTradeskill) ? ItemContext.TradeSkill : ItemContext.None);
+        player.AutoStoreLoot(SpellInfo.Id, _lootStoreBox.Spell, SpellInfo.HasAttribute(SpellAttr0.IsTradeskill) ? ItemContext.TradeSkill : ItemContext.None);
         // @todo ExecuteLogEffectCreateItem(i, GetEffect(i].ItemType);
     }
 
@@ -954,18 +937,18 @@ public partial class Spell
 
         var unitCaster = UnitCasterForEffectHandlers;
 
-        if (!unitCaster || !Targets.HasDst)
+        if (unitCaster == null || !Targets.HasDst)
             return;
 
         var sceneObject = SceneObject.CreateSceneObject((uint)EffectInfo.MiscValue, unitCaster, DestTarget, ObjectGuid.Empty);
 
-        if (sceneObject != null)
-        {
-            var hasAuraTargetingCaster = UniqueTargetInfo.Any(target => IsUnitTargetSceneObjectAura(this, target));
+        if (sceneObject == null)
+            return;
 
-            if (hasAuraTargetingCaster)
-                sceneObject.SetCreatedBySpellCast(CastId);
-        }
+        var hasAuraTargetingCaster = UniqueTargetInfo.Any(target => IsUnitTargetSceneObjectAura(this, target));
+
+        if (hasAuraTargetingCaster)
+            sceneObject.SetCreatedBySpellCast(CastId);
     }
 
     [SpellEffectHandler(SpellEffectName.CreateTamedPet)]
@@ -1017,13 +1000,13 @@ public partial class Spell
 
         TraitConfigPacket newConfig = new()
         {
-            Type = TraitMgr.GetConfigTypeForTree(EffectInfo.MiscValue)
+            Type = _traitMgr.GetConfigTypeForTree(EffectInfo.MiscValue)
         };
 
         if (newConfig.Type != TraitConfigType.Generic)
             return;
 
-        newConfig.TraitSystemID = Caster.CliDB.TraitTreeStorage.LookupByKey(EffectInfo.MiscValue).TraitSystemID;
+        newConfig.TraitSystemID = _cliDb.TraitTreeStorage.LookupByKey(EffectInfo.MiscValue).TraitSystemID;
         target.CreateTraitConfig(newConfig);
     }
 
@@ -1062,7 +1045,7 @@ public partial class Spell
             if (totem is { IsTotem: true })
             {
                 uint spellID = totem.UnitData.CreatedBySpell;
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, CastDifficulty);
+                var spellInfo = _spellManager.GetSpellInfo(spellID, CastDifficulty);
 
                 if (spellInfo != null)
                 {
@@ -1100,7 +1083,7 @@ public partial class Spell
         var player = UnitTarget.AsPlayer;
         var item = player.GetItemByEntry(EffectInfo.ItemType);
 
-        if (item)
+        if (item != null)
             player.DestroyItem(item.BagSlot, item.Slot, true);
     }
 
@@ -1115,7 +1098,7 @@ public partial class Spell
 
         var nodeid = (uint)EffectInfo.MiscValue;
 
-        if (Caster.CliDB.TaxiNodesStorage.ContainsKey(nodeid))
+        if (_cliDb.TaxiNodesStorage.ContainsKey(nodeid))
             UnitTarget.AsPlayer.Session.SendDiscoverNewTaxiNode(nodeid);
     }
 
@@ -1215,9 +1198,7 @@ public partial class Spell
                 }
             }
             else
-            {
                 dispelFailed.FailedSpells.Add(dispelableAura.Aura.Id);
-            }
 
             ++count;
         }
@@ -1331,7 +1312,7 @@ public partial class Spell
             return;
 
         // Players can only fight a duel in zones with this Id
-        var casterAreaEntry = Caster.CliDB.AreaTableStorage.LookupByKey(caster.Location.Area);
+        var casterAreaEntry = _cliDb.AreaTableStorage.LookupByKey(caster.Location.Area);
 
         if (casterAreaEntry != null && !casterAreaEntry.HasFlag(AreaFlags.AllowDuels))
         {
@@ -1340,7 +1321,7 @@ public partial class Spell
             return;
         }
 
-        var targetAreaEntry = Caster.CliDB.AreaTableStorage.LookupByKey(target.Location.Area);
+        var targetAreaEntry = _cliDb.AreaTableStorage.LookupByKey(target.Location.Area);
 
         if (targetAreaEntry != null && !targetAreaEntry.HasFlag(AreaFlags.AllowDuels))
         {
@@ -1362,12 +1343,12 @@ public partial class Spell
 
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 
-        var go = GameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 0, GameObjectState.Ready);
+        var go = _gameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 0, GameObjectState.Ready);
 
-        if (!go)
+        if (go == null)
             return;
 
-        PhasingHandler.InheritPhaseShift(go, caster);
+        _phasingHandler.InheritPhaseShift(go, caster);
 
         go.Faction = caster.Faction;
         go.SetLevel(caster.Level + 1);
@@ -1400,7 +1381,7 @@ public partial class Spell
         caster.SetDuelArbiter(go.GUID);
         target.SetDuelArbiter(go.GUID);
 
-        ScriptManager.ForEach<IPlayerOnDuelRequest>(p => p.OnDuelRequest(target, caster));
+        _scriptManager.ForEach<IPlayerOnDuelRequest>(p => p.OnDuelRequest(target, caster));
     }
 
     [SpellEffectHandler(SpellEffectName.Dummy)]
@@ -1415,7 +1396,7 @@ public partial class Spell
         // pet auras
         if (Caster.TypeId == TypeId.Player)
         {
-            var petSpell = Global.SpellMgr.GetPetAura(SpellInfo.Id, (byte)EffectInfo.EffectIndex);
+            var petSpell = _spellManager.GetPetAura(SpellInfo.Id, (byte)EffectInfo.EffectIndex);
 
             if (petSpell != null)
             {
@@ -1542,7 +1523,7 @@ public partial class Spell
             if (SpellInfo.Id == 14792) // Venomhide Poison
                 duration = 5 * Time.MINUTE * Time.IN_MILLISECONDS;
 
-            if (!Caster.CliDB.SpellItemEnchantmentStorage.ContainsKey(enchantID))
+            if (!_cliDb.SpellItemEnchantmentStorage.ContainsKey(enchantID))
                 return;
 
             // Always go to temp enchantment slot
@@ -1588,7 +1569,7 @@ public partial class Spell
         else
         {
             // do not increase skill if vellum used
-            if (!(CastItem && CastItem.Template.HasFlag(ItemFlags.NoReagentCost)))
+            if (!(CastItem != null && CastItem.Template.HasFlag(ItemFlags.NoReagentCost)))
                 player.UpdateCraftSkill(SpellInfo);
 
             var enchantID = (uint)EffectInfo.MiscValue;
@@ -1596,7 +1577,7 @@ public partial class Spell
             if (enchantID == 0)
                 return;
 
-            if (!Caster.CliDB.SpellItemEnchantmentStorage.ContainsKey(enchantID))
+            if (!_cliDb.SpellItemEnchantmentStorage.ContainsKey(enchantID))
                 return;
 
             // item can be in trade slot and have owner diff. from caster
@@ -1606,14 +1587,14 @@ public partial class Spell
                 return;
 
             if (itemOwner != player && player.Session.HasPermission(RBACPermissions.LogGmTrade))
-                Log.outCommand(player.Session.AccountId,
-                               "GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
-                               player.GetName(),
-                               player.Session.AccountId,
-                               ItemTarget.Template.GetName(),
-                               ItemTarget.Entry,
-                               itemOwner.GetName(),
-                               itemOwner.Session.AccountId);
+                Log.Logger.ForContext<GMCommands>()
+                   .Information("GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
+                                player.GetName(),
+                                player.Session.AccountId,
+                                ItemTarget.Template.GetName(),
+                                ItemTarget.Entry,
+                                itemOwner.GetName(),
+                                itemOwner.Session.AccountId);
 
             // remove old enchanting before applying new if equipped
             itemOwner.ApplyEnchantment(ItemTarget, EnchantmentSlot.Perm, false);
@@ -1647,7 +1628,7 @@ public partial class Spell
         if (enchantId == 0)
             return;
 
-        if (!Caster.CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantId, out var enchant))
+        if (!_cliDb.SpellItemEnchantmentStorage.TryGetValue(enchantId, out var enchant))
             return;
 
         // support only enchantings with add socket in this slot
@@ -1680,14 +1661,14 @@ public partial class Spell
             return;
 
         if (itemOwner != player && player.Session.HasPermission(RBACPermissions.LogGmTrade))
-            Log.outCommand(player.Session.AccountId,
-                           "GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
-                           player.GetName(),
-                           player.Session.AccountId,
-                           ItemTarget.Template.GetName(),
-                           ItemTarget.Entry,
-                           itemOwner.GetName(),
-                           itemOwner.Session.AccountId);
+            Log.Logger.ForContext<GMCommands>()
+               .Information("GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
+                            player.GetName(),
+                            player.Session.AccountId,
+                            ItemTarget.Template.GetName(),
+                            ItemTarget.Entry,
+                            itemOwner.GetName(),
+                            itemOwner.Session.AccountId);
 
         // remove old enchanting before applying new if equipped
         itemOwner.ApplyEnchantment(ItemTarget, EnchantmentSlot.Prismatic, false);
@@ -1724,7 +1705,7 @@ public partial class Spell
             return;
         }
 
-        if (!Caster.CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var pEnchant))
+        if (!_cliDb.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var pEnchant))
         {
             Log.Logger.Error("Spell {0} Effect {1} (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have not existed enchanting id {2}", SpellInfo.Id, EffectInfo.EffectIndex, enchantID);
 
@@ -1741,14 +1722,14 @@ public partial class Spell
             return;
 
         if (itemOwner != player && player.Session.HasPermission(RBACPermissions.LogGmTrade))
-            Log.outCommand(player.Session.AccountId,
-                           "GM {0} (Account: {1}) enchanting(temp): {2} (Entry: {3}) for player: {4} (Account: {5})",
-                           player.GetName(),
-                           player.Session.AccountId,
-                           ItemTarget.Template.GetName(),
-                           ItemTarget.Entry,
-                           itemOwner.GetName(),
-                           itemOwner.Session.AccountId);
+            Log.Logger.ForContext<GMCommands>()
+               .Information("GM {0} (Account: {1}) enchanting(temp): {2} (Entry: {3}) for player: {4} (Account: {5})",
+                            player.GetName(),
+                            player.Session.AccountId,
+                            ItemTarget.Template.GetName(),
+                            ItemTarget.Entry,
+                            itemOwner.GetName(),
+                            itemOwner.Session.AccountId);
 
         // remove old enchanting before applying new if equipped
         itemOwner.ApplyEnchantment(ItemTarget, EnchantmentSlot.Temp, false);
@@ -1781,7 +1762,9 @@ public partial class Spell
         if (UnitTarget.GetMaxPower(power) == 0)
             return;
 
-        ForEachSpellScript<ISpellEnergizedBySpell>(a => a.EnergizeBySpell(UnitTarget, SpellInfo, ref Damage, power));
+        var dmg = Damage;
+        ForEachSpellScript<ISpellEnergizedBySpell>(a => a.EnergizeBySpell(UnitTarget, SpellInfo, ref dmg, power));
+        Damage = dmg;
 
         unitCaster.EnergizeBySpell(UnitTarget, SpellInfo, Damage, power);
     }
@@ -1824,14 +1807,12 @@ public partial class Spell
 
         // CalcAbsorbResist already in Player::EnvironmentalDamage
         if (UnitTarget.IsTypeId(TypeId.Player))
-        {
             UnitTarget.AsPlayer.EnvironmentalDamage(EnviromentalDamage.Fire, Damage);
-        }
         else
         {
             var unitCaster = UnitCasterForEffectHandlers;
             DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
-            UnitCombatHelpers.CalcAbsorbResist(damageInfo);
+            _combatHelpers.CalcAbsorbResist(damageInfo);
 
             SpellNonMeleeDamage log = new(unitCaster, UnitTarget, SpellInfo, SpellVisual, SpellInfo.GetSchoolMask(), CastId)
             {
@@ -1873,7 +1854,8 @@ public partial class Spell
 
         if (levelDiff >= 30)
             return;
-        else if (levelDiff >= 20)
+
+        if (levelDiff >= 20)
             pct = (int)12.5; // we can't pass double so keeping the cast here for future references
         else if (levelDiff >= 10)
             pct = 25;
@@ -1911,7 +1893,7 @@ public partial class Spell
         }
 
         // normal case
-        var spellInfo = Global.SpellMgr.GetSpellInfo(triggeredSpellID, CastDifficulty);
+        var spellInfo = _spellManager.GetSpellInfo(triggeredSpellID, CastDifficulty);
 
         if (spellInfo == null)
         {
@@ -1928,6 +1910,7 @@ public partial class Spell
                     UnitTarget.RemoveAura((uint)Damage);
 
                     break;
+
                 case 52463: // Hide In Mine Car
                 case 52349: // Overtake
                 {
@@ -1945,10 +1928,10 @@ public partial class Spell
         {
             case 72298: // Malleable Goo Summon
                 UnitTarget.SpellFactory.CastSpell(UnitTarget,
-                                     spellInfo.Id,
-                                     new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                         .SetOriginalCaster(_originalCasterGuid)
-                                         .SetTriggeringSpell(this));
+                                                  spellInfo.Id,
+                                                  new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                                      .SetOriginalCaster(_originalCasterGuid)
+                                                      .SetTriggeringSpell(this));
 
                 return;
         }
@@ -2025,7 +2008,7 @@ public partial class Spell
             return;
 
         var casterFaction = Caster.WorldObjectCombat.GetFactionTemplateEntry();
-        var targetFaction = Caster.CliDB.FactionTemplateStorage.LookupByKey(GameObjTarget.Faction);
+        var targetFaction = _cliDb.FactionTemplateStorage.LookupByKey(GameObjTarget.Faction);
 
         // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
         if (targetFaction == null || (casterFaction != null && !casterFaction.IsFriendlyTo(targetFaction)))
@@ -2061,12 +2044,7 @@ public partial class Spell
         var artifactAura = playerCaster?.GetAura(PlayerConst.ArtifactsAllWeaponsGeneralWeaponEquippedPassive);
 
         if (artifactAura != null)
-        {
-            var artifact = playerCaster.GetItemByGuid(artifactAura.CastItemGuid);
-
-            if (artifact)
-                artifact.GiveArtifactXp((ulong)Damage, CastItem, (ArtifactCategory)EffectInfo.MiscValue);
-        }
+            playerCaster.GetItemByGuid(artifactAura.CastItemGuid)?.GiveArtifactXp((ulong)Damage, CastItem, (ArtifactCategory)EffectInfo.MiscValue);
     }
 
     [SpellEffectHandler(SpellEffectName.GiveArtifactPowerNoBonus)]
@@ -2081,12 +2059,7 @@ public partial class Spell
         var artifactAura = UnitTarget.GetAura(PlayerConst.ArtifactsAllWeaponsGeneralWeaponEquippedPassive);
 
         if (artifactAura != null)
-        {
-            var artifact = UnitTarget.AsPlayer.GetItemByGuid(artifactAura.CastItemGuid);
-
-            if (artifact)
-                artifact.GiveArtifactXp((ulong)Damage, CastItem, 0);
-        }
+            UnitTarget.AsPlayer?.GetItemByGuid(artifactAura.CastItemGuid)?.GiveArtifactXp((ulong)Damage, CastItem, 0);
     }
 
     [SpellEffectHandler(SpellEffectName.GiveCurrency)]
@@ -2098,7 +2071,7 @@ public partial class Spell
         if (UnitTarget == null || !UnitTarget.IsTypeId(TypeId.Player))
             return;
 
-        if (!Caster.CliDB.CurrencyTypesStorage.ContainsKey(EffectInfo.MiscValue))
+        if (!_cliDb.CurrencyTypesStorage.ContainsKey(EffectInfo.MiscValue))
             return;
 
         UnitTarget.AsPlayer.ModifyCurrency((uint)EffectInfo.MiscValue, (int)Damage, CurrencyGainSource.Spell, CurrencyDestroyReason.Spell);
@@ -2112,7 +2085,7 @@ public partial class Spell
 
         var playerTarget = UnitTarget?.AsPlayer;
 
-        if (!playerTarget)
+        if (playerTarget == null)
             return;
 
         var xp = Quest.Quest.XPValue(playerTarget, (uint)EffectInfo.MiscValue, (uint)EffectInfo.MiscValueB);
@@ -2147,13 +2120,8 @@ public partial class Spell
 
         var playerTarget = UnitTarget?.AsPlayer;
 
-        if (!playerTarget)
-            return;
-
         // effect value is number of resting hours
-        playerTarget.
-            // effect value is number of resting hours
-            RestMgr.AddRestBonus(RestTypes.XP, Damage * Time.HOUR * playerTarget.RestMgr.CalcExtraPerSec(RestTypes.XP, 0.125f));
+        playerTarget?.RestMgr.AddRestBonus(RestTypes.XP, Damage * Time.HOUR * playerTarget.RestMgr.CalcExtraPerSec(RestTypes.XP, 0.125f));
     }
 
     [SpellEffectHandler(SpellEffectName.GrantBattlepetExperience)]
@@ -2208,7 +2176,7 @@ public partial class Spell
         var addhealth = Damage;
 
         // Vessel of the Naaru (Vial of the Sunwell trinket)
-        ///@todo: move this to scripts
+        //@todo: move this to scripts
         if (SpellInfo.Id == 45064)
         {
             // Amount of heal - depends from stacked Holy Energy
@@ -2225,9 +2193,7 @@ public partial class Spell
         }
         // Death Pact - return pct of max health to caster
         else if (SpellInfo.SpellFamilyName == SpellFamilyNames.Deathknight && SpellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00080000u))
-        {
             addhealth = unitCaster.SpellHealingBonusDone(UnitTarget, SpellInfo, unitCaster.CountPctFromMaxHealth(Damage), DamageEffectType.Heal, EffectInfo, 1, this);
-        }
         else
         {
             var bonus = unitCaster.SpellHealingBonusDone(UnitTarget, SpellInfo, addhealth, DamageEffectType.Heal, EffectInfo, 1, this);
@@ -2294,12 +2260,12 @@ public partial class Spell
         var unitCaster = UnitCasterForEffectHandlers;
         var heal = Damage;
 
-        if (unitCaster)
+        if (unitCaster != null)
             heal = unitCaster.SpellHealingBonusDone(UnitTarget, SpellInfo, heal, DamageEffectType.Heal, EffectInfo, 1, this);
 
         heal += heal * Variance;
 
-        if (unitCaster)
+        if (unitCaster != null)
             heal = UnitTarget.SpellHealingBonusTaken(unitCaster, SpellInfo, heal, DamageEffectType.Heal);
 
         HealingInEffects += heal;
@@ -2317,7 +2283,7 @@ public partial class Spell
         var heal = (double)UnitTarget.CountPctFromMaxHealth(Damage);
         var unitCaster = UnitCasterForEffectHandlers;
 
-        if (unitCaster)
+        if (unitCaster != null)
         {
             heal = unitCaster.SpellHealingBonusDone(UnitTarget, SpellInfo, heal, DamageEffectType.Heal, EffectInfo, 1, this);
             heal = UnitTarget.SpellHealingBonusTaken(unitCaster, SpellInfo, heal, DamageEffectType.Heal);
@@ -2352,21 +2318,21 @@ public partial class Spell
         DamageInEffects += Damage;
 
         DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.Direct, WeaponAttackType.BaseAttack);
-        UnitCombatHelpers.CalcAbsorbResist(damageInfo);
+        _combatHelpers.CalcAbsorbResist(damageInfo);
         var absorb = damageInfo.Absorb;
         Damage -= absorb;
 
         // get max possible damage, don't count overkill for heal
         var healthGain = -UnitTarget.GetHealthGain(-Damage) * healMultiplier;
 
-        if (unitCaster is { IsAlive: true })
-        {
-            healthGain = unitCaster.SpellHealingBonusDone(unitCaster, SpellInfo, healthGain, DamageEffectType.Heal, EffectInfo, 1, this);
-            healthGain = unitCaster.SpellHealingBonusTaken(unitCaster, SpellInfo, healthGain, DamageEffectType.Heal);
+        if (unitCaster is not { IsAlive: true })
+            return;
 
-            HealInfo healInfo = new(unitCaster, unitCaster, healthGain, SpellInfo, SpellSchoolMask);
-            unitCaster.HealBySpell(healInfo);
-        }
+        healthGain = unitCaster.SpellHealingBonusDone(unitCaster, SpellInfo, healthGain, DamageEffectType.Heal, EffectInfo, 1, this);
+        healthGain = unitCaster.SpellHealingBonusTaken(unitCaster, SpellInfo, healthGain, DamageEffectType.Heal);
+
+        HealInfo healInfo = new(unitCaster, unitCaster, healthGain, SpellInfo, SpellSchoolMask);
+        unitCaster.HealBySpell(healInfo);
     }
 
     [SpellEffectHandler(SpellEffectName.IncreseCurrencyCap)]
@@ -2402,9 +2368,7 @@ public partial class Spell
                 player.SpellFactory.CastSpell(player, 67468, new CastSpellExtraArgs().SetTriggeringSpell(this)); // Drunken Vomit
         }
         else
-        {
             currentDrunk += (byte)drunkMod;
-        }
 
         player.SetDrunkValue(currentDrunk, CastItem?.Entry ?? 0);
     }
@@ -2434,7 +2398,7 @@ public partial class Spell
 
         Caster.SendMessageToSet(data, true);
 
-        UnitCombatHelpers.Kill(UnitCasterForEffectHandlers, UnitTarget, false);
+        _combatHelpers.Kill(UnitCasterForEffectHandlers, UnitTarget, false);
     }
 
     [SpellEffectHandler(SpellEffectName.InterruptCast)]
@@ -2453,24 +2417,24 @@ public partial class Spell
         {
             var spell = UnitTarget.GetCurrentSpell(i);
 
-            if (spell != null)
-            {
-                var curSpellInfo = spell.SpellInfo;
+            if (spell == null)
+                continue;
 
-                // check if we can interrupt spell
-                if ((spell.State == SpellState.Casting || (spell.State == SpellState.Preparing && spell.CastTime > 0.0f)) && curSpellInfo.CanBeInterrupted(Caster, UnitTarget))
-                {
-                    var duration = SpellInfo.Duration;
-                    duration = ModSpellDuration(SpellInfo, UnitTarget, duration, false, EffectInfo.EffectIndex);
-                    UnitTarget.SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
-                    HitMask |= ProcFlagsHit.Interrupt;
-                    SendSpellInterruptLog(UnitTarget, curSpellInfo.Id);
-                    var interuptedSpell = UnitTarget.InterruptSpell(i, false, true, spell);
+            var curSpellInfo = spell.SpellInfo;
 
-                    if (interuptedSpell != null)
-                        ForEachSpellScript<ISpellOnSucessfulInterrupt>(s => s.SucessfullyInterrupted(interuptedSpell));
-                }
-            }
+            // check if we can interrupt spell
+            if ((spell.State != SpellState.Casting && (spell.State != SpellState.Preparing || !(spell.CastTime > 0.0f))) || !curSpellInfo.CanBeInterrupted(Caster, UnitTarget))
+                continue;
+
+            var duration = SpellInfo.Duration;
+            duration = ModSpellDuration(SpellInfo, UnitTarget, duration, false, EffectInfo.EffectIndex);
+            UnitTarget.SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
+            HitMask |= ProcFlagsHit.Interrupt;
+            SendSpellInterruptLog(UnitTarget, curSpellInfo.Id);
+            var interuptedSpell = UnitTarget.InterruptSpell(i, false, true, spell);
+
+            if (interuptedSpell != null)
+                ForEachSpellScript<ISpellOnSucessfulInterrupt>(s => s.SucessfullyInterrupted(interuptedSpell));
         }
     }
 
@@ -2516,7 +2480,7 @@ public partial class Spell
         if (unitCaster.IsInFlight)
             return;
 
-        var jumpParams = Caster.ObjectManager.GetJumpChargeParams(EffectInfo.MiscValue);
+        var jumpParams = _gameObjectManager.GetJumpChargeParams(EffectInfo.MiscValue);
 
         if (jumpParams == null)
             return;
@@ -2614,10 +2578,10 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!UnitTarget)
+        if (UnitTarget == null)
             return;
 
-        if (Caster.AffectingPlayer)
+        if (Caster.AffectingPlayer != null)
         {
             var creatureTarget = UnitTarget.AsCreature;
 
@@ -2651,13 +2615,11 @@ public partial class Spell
                 return;
         }
         else //if (effectInfo.Effect == SPELL_EFFECT_KNOCK_BACK)
-        {
             origin = new Position(Caster.Location);
-        }
 
         UnitTarget.KnockbackFrom(origin, speedxy, (float)speedz);
 
-        UnitCombatHelpers.ProcSkillsAndAuras(UnitCasterForEffectHandlers, UnitTarget, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.None, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, null, null);
+        _combatHelpers.ProcSkillsAndAuras(UnitCasterForEffectHandlers, UnitTarget, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.None, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, null, null);
     }
 
     [SpellEffectHandler(SpellEffectName.LaunchQuestChoice)]
@@ -2780,7 +2742,7 @@ public partial class Spell
         if (pet == null)
             return;
 
-        var learnSpellproto = Global.SpellMgr.GetSpellInfo(EffectInfo.TriggerSpell, Difficulty.None);
+        var learnSpellproto = _spellManager.GetSpellInfo(EffectInfo.TriggerSpell, Difficulty.None);
 
         if (learnSpellproto == null)
             return;
@@ -2808,7 +2770,7 @@ public partial class Spell
         if (rcEntry == null)
             return;
 
-        var tier = Caster.ObjectManager.GetSkillTier(rcEntry.SkillTierID);
+        var tier = _gameObjectManager.GetSkillTier(rcEntry.SkillTierID);
 
         if (tier == null)
             return;
@@ -2844,11 +2806,11 @@ public partial class Spell
 
                 var dependent = false;
 
-                var speciesEntry = BattlePetMgr.GetBattlePetSpeciesBySpell((uint)itemEffect.SpellID);
+                var speciesEntry = _battlePetMgrData.GetBattlePetSpeciesBySpell((uint)itemEffect.SpellID);
 
                 if (speciesEntry != null)
                 {
-                    player.Session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+                    player.Session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetMgrData.SelectPetDisplay(speciesEntry), _battlePetMgrData.RollPetBreed(speciesEntry.Id), _battlePetMgrData.GetDefaultPetQuality(speciesEntry.Id));
                     // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
                     // marking as dependent prevents saving the spell to database (intended)
                     dependent = true;
@@ -2857,11 +2819,11 @@ public partial class Spell
                 player.LearnSpell((uint)itemEffect.SpellID, dependent);
             }
 
-        if (EffectInfo.TriggerSpell != 0)
-        {
-            player.LearnSpell(EffectInfo.TriggerSpell, false);
-            Log.Logger.Debug($"Spell: {player.GUID} has learned spell {EffectInfo.TriggerSpell} from {Caster.GUID}");
-        }
+        if (EffectInfo.TriggerSpell == 0)
+            return;
+
+        player.LearnSpell(EffectInfo.TriggerSpell, false);
+        Log.Logger.Debug($"Spell: {player.GUID} has learned spell {EffectInfo.TriggerSpell} from {Caster.GUID}");
     }
 
     [SpellEffectHandler(SpellEffectName.LearnTransmogIllusion)]
@@ -2877,7 +2839,7 @@ public partial class Spell
 
         var illusionId = (uint)EffectInfo.MiscValue;
 
-        if (!Caster.CliDB.TransmogIllusionStorage.ContainsKey(illusionId))
+        if (!_cliDb.TransmogIllusionStorage.ContainsKey(illusionId))
             return;
 
         player.Session.CollectionMgr.AddTransmogIllusion(illusionId);
@@ -2941,11 +2903,11 @@ public partial class Spell
                 targetAura.ModStackAmount(Damage);
 
                 break;
+
             case 1:
                 targetAura.SetStackAmount((byte)Damage);
 
                 break;
-            
         }
     }
 
@@ -2967,7 +2929,7 @@ public partial class Spell
         UnitTarget.SpellHistory
                   .ModifyCoooldowns(itr =>
                                     {
-                                        var spellOnCooldown = Global.SpellMgr.GetSpellInfo(itr.SpellId, Difficulty.None);
+                                        var spellOnCooldown = _spellManager.GetSpellInfo(itr.SpellId, Difficulty.None);
 
                                         if ((int)spellOnCooldown.SpellFamilyName != EffectInfo.MiscValue)
                                             return false;
@@ -2993,7 +2955,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        UnitTarget.SpellHistory.ModifyCoooldowns(itr => Global.SpellMgr.GetSpellInfo(itr.SpellId, Difficulty.None).CategoryId == EffectInfo.MiscValue, TimeSpan.FromMilliseconds(Damage));
+        UnitTarget.SpellHistory.ModifyCoooldowns(itr => _spellManager.GetSpellInfo(itr.SpellId, Difficulty.None).CategoryId == EffectInfo.MiscValue, TimeSpan.FromMilliseconds(Damage));
     }
 
     [SpellEffectHandler(SpellEffectName.ModifyCharges)]
@@ -3036,7 +2998,6 @@ public partial class Spell
         var player = Caster.AsPlayer;
 
         uint lockId;
-        ObjectGuid guid;
 
         // Get lockId
         if (GameObjTarget != null)
@@ -3046,69 +3007,74 @@ public partial class Spell
             if (goInfo.GetNoDamageImmune() != 0 && player.HasUnitFlag(UnitFlags.Immune))
                 return;
 
-            // Arathi Basin banner opening. // @todo Verify correctness of this check
-            if ((goInfo.type == GameObjectTypes.Button && goInfo.Button.noDamageImmune != 0) ||
-                (goInfo.type == GameObjectTypes.Goober && goInfo.Goober.requireLOS != 0))
+            switch (goInfo.type)
             {
-                //CanUseBattlegroundObject() already called in CheckCast()
-                // in Battlegroundcheck
-                var bg = player.Battleground;
-
-                if (bg)
+                // Arathi Basin banner opening. // @todo Verify correctness of this check
+                case GameObjectTypes.Button when goInfo.Button.noDamageImmune != 0:
+                case GameObjectTypes.Goober when goInfo.Goober.requireLOS != 0:
                 {
-                    bg.EventPlayerClickedOnFlag(player, GameObjTarget);
+                    //CanUseBattlegroundObject() already called in CheckCast()
+                    // in Battlegroundcheck
+                    var bg = player.Battleground;
 
-                    return;
-                }
-            }
-            else if (goInfo.type == GameObjectTypes.CapturePoint)
-            {
-                GameObjTarget.AssaultCapturePoint(player);
-
-                return;
-            }
-            else if (goInfo.type == GameObjectTypes.FlagStand)
-            {
-                //CanUseBattlegroundObject() already called in CheckCast()
-                // in Battlegroundcheck
-                var bg = player.Battleground;
-
-                if (bg)
-                {
-                    if (bg.GetTypeID(true) == BattlegroundTypeId.EY)
+                    if (bg != null)
+                    {
                         bg.EventPlayerClickedOnFlag(player, GameObjTarget);
 
-                    return;
+                        return;
+                    }
+
+                    break;
                 }
-            }
-            else if (goInfo.type == GameObjectTypes.NewFlag)
-            {
-                GameObjTarget.Use(player);
+                case GameObjectTypes.CapturePoint:
+                    GameObjTarget.AssaultCapturePoint(player);
 
-                return;
-            }
-            else if (SpellInfo.Id == 1842 && GameObjTarget.Template.type == GameObjectTypes.Trap && GameObjTarget.OwnerUnit != null)
-            {
-                GameObjTarget.SetLootState(LootState.JustDeactivated);
+                    return;
 
-                return;
-            }
-            // @todo Add script for spell 41920 - Filling, becouse server it freze when use this spell
-            // handle outdoor pvp object opening, return true if go was registered for handling
-            // these objects must have been spawned by outdoorpvp!
-            else if (GameObjTarget.Template.type == GameObjectTypes.Goober && Global.OutdoorPvPMgr.HandleOpenGo(player, GameObjTarget))
-            {
-                return;
+                case GameObjectTypes.FlagStand:
+                {
+                    //CanUseBattlegroundObject() already called in CheckCast()
+                    // in Battlegroundcheck
+                    var bg = player.Battleground;
+
+                    if (bg != null)
+                    {
+                        if (bg.GetTypeID(true) == BattlegroundTypeId.EY)
+                            bg.EventPlayerClickedOnFlag(player, GameObjTarget);
+
+                        return;
+                    }
+
+                    break;
+                }
+                case GameObjectTypes.NewFlag:
+                    GameObjTarget.Use(player);
+
+                    return;
+
+                default:
+                {
+                    if (SpellInfo.Id == 1842 && GameObjTarget.Template.type == GameObjectTypes.Trap && GameObjTarget.OwnerUnit != null)
+                    {
+                        GameObjTarget.SetLootState(LootState.JustDeactivated);
+
+                        return;
+                    }
+                    // @todo Add script for spell 41920 - Filling, becouse server it freze when use this spell
+                    // handle outdoor pvp object opening, return true if go was registered for handling
+                    // these objects must have been spawned by outdoorpvp!
+
+                    if (GameObjTarget.Template.type == GameObjectTypes.Goober && _outdoorPvPManager.HandleOpenGo(player, GameObjTarget))
+                        return;
+
+                    break;
+                }
             }
 
             lockId = goInfo.GetLockId();
-            guid = GameObjTarget.GUID;
         }
         else if (ItemTarget != null)
-        {
             lockId = ItemTarget.Template.LockID;
-            guid = ItemTarget.GUID;
-        }
         else
         {
             Log.Logger.Debug("WORLD: Open Lock - No GameObject/Item Target!");
@@ -3130,9 +3096,7 @@ public partial class Spell
         }
 
         if (GameObjTarget != null)
-        {
             GameObjTarget.Use(player);
-        }
         else if (ItemTarget != null)
         {
             ItemTarget.SetItemFlag(ItemFieldFlags.Unlocked);
@@ -3155,10 +3119,8 @@ public partial class Spell
                         GameObjTarget.AddToSkillupList(player.GUID);
                 }
                 else if (ItemTarget != null)
-                {
                     // Do one skill-up
                     player.UpdateGatherSkill(skillId, pureSkillValue, (uint)reqSkillValue);
-                }
             }
         }
 
@@ -3207,7 +3169,7 @@ public partial class Spell
         }
 
         AuraCreateInfo createInfo = new(CastId, SpellInfo, CastDifficulty, SpellConst.MaxEffects, dynObj);
-        createInfo.SetCaster(unitCaster);
+        createInfo.Caster = unitCaster;
         createInfo.SetBaseAmount(SpellValue.EffectBasePoints);
         createInfo.SetCastItem(CastItemGuid, CastItemEntry, CastItemLevel);
 
@@ -3219,9 +3181,7 @@ public partial class Spell
             DynObjAura._RegisterForTargets();
         }
         else
-        {
             return;
-        }
 
         DynObjAura._ApplyEffectForTargets(EffectInfo.EffectIndex);
     }
@@ -3279,7 +3239,7 @@ public partial class Spell
 
         var movieId = (uint)EffectInfo.MiscValue;
 
-        if (!Caster.CliDB.MovieStorage.ContainsKey(movieId))
+        if (!_cliDb.MovieStorage.ContainsKey(movieId))
             return;
 
         UnitTarget.AsPlayer.SendMovieStart(movieId);
@@ -3296,7 +3256,7 @@ public partial class Spell
 
         var soundid = (uint)EffectInfo.MiscValue;
 
-        if (!Caster.CliDB.SoundKitStorage.ContainsKey(soundid))
+        if (!_cliDb.SoundKitStorage.ContainsKey(soundid))
         {
             Log.Logger.Error("EffectPlayMusic: Sound (Id: {0}) not exist in spell {1}.", soundid, SpellInfo.Id);
 
@@ -3336,12 +3296,12 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!UnitTarget)
+        if (UnitTarget == null)
             return;
 
         var player = UnitTarget.AsPlayer;
 
-        if (!player)
+        if (player == null)
             return;
 
         switch (SpellInfo.Id)
@@ -3350,12 +3310,11 @@ public partial class Spell
                 player.Session.SendNotification(CypherStrings.ZoneNoflyzone);
 
                 break;
-            
         }
 
         var soundId = (uint)EffectInfo.MiscValue;
 
-        if (!Caster.CliDB.SoundKitStorage.ContainsKey(soundId))
+        if (!_cliDb.SoundKitStorage.ContainsKey(soundId))
         {
             Log.Logger.Error("EffectPlaySound: Sound (Id: {0}) not exist in spell {1}.", soundId, SpellInfo.Id);
 
@@ -3493,7 +3452,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!UnitTarget)
+        if (UnitTarget == null)
             return;
 
         var pos = Caster.Location.GetFirstCollisionPosition(Caster.CombatReach, Caster.Location.GetRelativeAngle(UnitTarget.Location));
@@ -3525,7 +3484,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!UnitTarget)
+        if (UnitTarget == null)
             return;
 
         if (!Targets.HasDst)
@@ -3571,7 +3530,7 @@ public partial class Spell
 
         var questID = (uint)EffectInfo.MiscValue;
 
-        var quest = Caster.ObjectManager.GetQuestTemplate(questID);
+        var quest = _gameObjectManager.GetQuestTemplate(questID);
 
         if (quest == null)
             return;
@@ -3605,8 +3564,8 @@ public partial class Spell
         player.RemoveActiveQuest(questID, false);
         player.RemoveRewardedQuest(questID);
 
-        ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, questID));
-        ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
+        _scriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, questID));
+        _scriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
     }
 
     [SpellEffectHandler(SpellEffectName.QuestComplete)]
@@ -3622,20 +3581,20 @@ public partial class Spell
 
         var questId = (uint)EffectInfo.MiscValue;
 
-        if (questId != 0)
-        {
-            var quest = Caster.ObjectManager.GetQuestTemplate(questId);
+        if (questId == 0)
+            return;
 
-            if (quest == null)
-                return;
+        var quest = _gameObjectManager.GetQuestTemplate(questId);
 
-            var logSlot = player.FindQuestSlot(questId);
+        if (quest == null)
+            return;
 
-            if (logSlot < SharedConst.MaxQuestLogSize)
-                player.AreaExploredOrEventHappens(questId);
-            else if (quest.HasFlag(QuestFlags.Tracking)) // Check if the quest is used as a serverside Id.
-                player.SetRewardedQuest(questId);        // If so, set status to rewarded without broadcasting it to client.
-        }
+        var logSlot = player.FindQuestSlot(questId);
+
+        if (logSlot < SharedConst.MaxQuestLogSize)
+            player.AreaExploredOrEventHappens(questId);
+        else if (quest.HasFlag(QuestFlags.Tracking)) // Check if the quest is used as a serverside Id.
+            player.SetRewardedQuest(questId);        // If so, set status to rewarded without broadcasting it to client.
     }
 
     [SpellEffectHandler(SpellEffectName.QuestFail)]
@@ -3656,31 +3615,26 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!UnitTarget)
+        var player = UnitTarget?.AsPlayer;
+
+        if (player == null)
             return;
 
-        var player = UnitTarget.AsPlayer;
+        var quest = _gameObjectManager.GetQuestTemplate((uint)EffectInfo.MiscValue);
 
-        if (!player)
+        if (quest == null)
             return;
 
-        var quest = Caster.ObjectManager.GetQuestTemplate((uint)EffectInfo.MiscValue);
+        if (!player.CanTakeQuest(quest, false))
+            return;
 
-        if (quest != null)
+        if (quest.IsAutoAccept && player.CanAddQuest(quest, false))
         {
-            if (!player.CanTakeQuest(quest, false))
-                return;
-
-            if (quest.IsAutoAccept && player.CanAddQuest(quest, false))
-            {
-                player.AddQuestAndCheckCompletion(quest, null);
-                player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, player.GUID, true, true);
-            }
-            else
-            {
-                player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, player.GUID, true, false);
-            }
+            player.AddQuestAndCheckCompletion(quest, null);
+            player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, player.GUID, true, true);
         }
+        else
+            player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, player.GUID, true, false);
     }
 
     [SpellEffectHandler(SpellEffectName.RechargeItem)]
@@ -3693,14 +3647,14 @@ public partial class Spell
 
         var item = player?.GetItemByEntry(EffectInfo.ItemType);
 
-        if (item != null)
-        {
-            foreach (var itemEffect in item.Effects)
-                if (itemEffect.LegacySlotIndex <= item.ItemData.SpellCharges.GetSize())
-                    item.SetSpellCharges(itemEffect.LegacySlotIndex, itemEffect.Charges);
+        if (item == null)
+            return;
 
-            item.SetState(ItemUpdateState.Changed, player);
-        }
+        foreach (var itemEffect in item.Effects)
+            if (itemEffect.LegacySlotIndex <= item.ItemData.SpellCharges.GetSize())
+                item.SetSpellCharges(itemEffect.LegacySlotIndex, itemEffect.Charges);
+
+        item.SetState(ItemUpdateState.Changed, player);
     }
 
     [SpellEffectHandler(SpellEffectName.RedirectThreat)]
@@ -3735,7 +3689,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!UnitTarget)
+        if (UnitTarget == null)
             return;
 
         UnitTarget.GetAppliedAurasQuery().HasLabel((uint)EffectInfo.MiscValue).Execute(UnitTarget.RemoveAura);
@@ -3747,10 +3701,10 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!Caster.CliDB.TalentStorage.TryGetValue(SpellMisc.TalentId, out var talent))
+        if (!_cliDb.TalentStorage.TryGetValue(SpellMisc.TalentId, out var talent))
             return;
 
-        var player = UnitTarget ? UnitTarget.AsPlayer : null;
+        var player = UnitTarget?.AsPlayer;
 
         if (player == null)
             return;
@@ -3789,7 +3743,7 @@ public partial class Spell
 
         var factionId = EffectInfo.MiscValue;
 
-        if (!Caster.CliDB.FactionStorage.TryGetValue(factionId, out var factionEntry))
+        if (!_cliDb.FactionStorage.TryGetValue((uint)factionId, out var factionEntry))
             return;
 
         repChange = player.CalculateReputationGain(ReputationSource.Spell, 0, repChange, factionId);
@@ -3808,9 +3762,9 @@ public partial class Spell
 
         Player player = null;
 
-        if (CorpseTarget)
-            player = Global.ObjAccessor.FindPlayer(CorpseTarget.OwnerGUID);
-        else if (UnitTarget)
+        if (CorpseTarget != null)
+            player = _objectAccessor.FindPlayer(CorpseTarget.OwnerGUID);
+        else if (UnitTarget != null)
             player = UnitTarget.AsPlayer;
 
         if (player == null || player.IsAlive || !player.Location.IsInWorld)
@@ -3838,9 +3792,9 @@ public partial class Spell
 
         Player player = null;
 
-        if (CorpseTarget)
-            player = Global.ObjAccessor.FindPlayer(CorpseTarget.OwnerGUID);
-        else if (UnitTarget)
+        if (CorpseTarget != null)
+            player = _objectAccessor.FindPlayer(CorpseTarget.OwnerGUID);
+        else if (UnitTarget != null)
             player = UnitTarget.AsPlayer;
 
         if (player == null || player.IsAlive || !player.Location.IsInWorld)
@@ -3873,7 +3827,7 @@ public partial class Spell
 
         if (player.CurrentPet == null)
         {
-            var petStable = player.PetStable1;
+            var petStable = player.PetStable;
             var deadPetIndex = Array.FindIndex(petStable.ActivePets, petInfo => petInfo?.Health == 0);
 
             var slot = (PetSaveMode)deadPetIndex;
@@ -3949,7 +3903,7 @@ public partial class Spell
         var mana = (uint)MathFunctions.CalculatePct(target.GetMaxPower(PowerType.Mana), Damage);
         uint resurrectAura = 0;
 
-        if (Global.SpellMgr.HasSpellInfo(EffectInfo.TriggerSpell, Difficulty.None))
+        if (_spellManager.HasSpellInfo(EffectInfo.TriggerSpell, Difficulty.None))
             resurrectAura = EffectInfo.TriggerSpell;
 
         if (resurrectAura != 0 && target.HasAura(resurrectAura))
@@ -4140,6 +4094,7 @@ public partial class Spell
                             UnitTarget.ToTempSummon().UnSummon();
 
                         return;
+
                     case 57347: // Retrieving (Wintergrasp RP-GG pickup spell)
                     {
                         if (UnitTarget == null || !UnitTarget.IsTypeId(TypeId.Unit) || !Caster.IsTypeId(TypeId.Player))
@@ -4183,6 +4138,7 @@ public partial class Spell
                         }
 
                         return;
+
                     case 62482: // Grab Crate
                     {
                         if (unitCaster == null)
@@ -4268,11 +4224,11 @@ public partial class Spell
 
         var broadcastTextId = (uint)EffectInfo.MiscValue;
 
-        if (!Caster.CliDB.BroadcastTextStorage.ContainsKey(broadcastTextId))
+        if (!_cliDb.BroadcastTextStorage.ContainsKey(broadcastTextId))
             return;
 
         var chatType = (ChatMsg)EffectInfo.MiscValueB;
-        unitCaster.Talk(broadcastTextId, chatType, Global.CreatureTextMgr.GetRangeForChatType(chatType), UnitTarget);
+        unitCaster.Talk(broadcastTextId, chatType, _creatureTextManager.GetRangeForChatType(chatType), UnitTarget);
     }
 
     [SpellEffectHandler(SpellEffectName.SendEvent)]
@@ -4356,32 +4312,26 @@ public partial class Spell
 
         creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
         creature.SetDynamicFlag(UnitDynFlags.Lootable);
-        Loot loot = new(creature.Location.Map, creature.GUID, LootType.Skinning, null);
+        var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Skinning, null);
 
         if (loot != null)
             creature.PersonalLoot[player.GUID] = loot;
 
-        loot.FillLoot(creature.Template.SkinLootId, LootStoreBox.Skinning, player, true);
+        loot.FillLoot(creature.Template.SkinLootId, _lootStoreBox.Skinning, player, true);
         player.SendLoot(loot);
 
         if (skill == SkillType.Skinning)
         {
-            int reqValue;
-
-            if (targetLevel <= 10)
-                reqValue = 1;
-            else if (targetLevel < 16)
-                reqValue = (targetLevel - 10) * 10; // 60-110
-            else if (targetLevel <= 23)
-                reqValue = (int)(targetLevel * 4.8); // 110 - 185
-            else if (targetLevel < 39)
-                reqValue = targetLevel * 10 - 205; // 185-225
-            else if (targetLevel <= 44)
-                reqValue = targetLevel * 5 + 5; // 225-260
-            else if (targetLevel <= 52)
-                reqValue = targetLevel * 5; // 260-300
-            else
-                reqValue = 300;
+            var reqValue = targetLevel switch
+            {
+                <= 10 => 1,
+                < 16  => (targetLevel - 10) * 10,
+                <= 23 => (int)(targetLevel * 4.8),
+                < 39  => targetLevel * 10 - 205,
+                <= 44 => targetLevel * 5 + 5,
+                <= 52 => targetLevel * 5,
+                _     => 300
+            };
 
             // TODO: Specialize skillid for each expansion
             // new db field?
@@ -4413,7 +4363,7 @@ public partial class Spell
         if (UnitTarget != null)
             target = UnitTarget.AsPlayer;
         else if (CorpseTarget != null)
-            target = Global.ObjAccessor.FindPlayer(CorpseTarget.OwnerGUID);
+            target = _objectAccessor.FindPlayer(CorpseTarget.OwnerGUID);
 
         if (player == null || target == null || target.IsAlive)
             return;
@@ -4450,27 +4400,27 @@ public partial class Spell
             if (aurApp == null)
                 continue;
 
-            if (Convert.ToBoolean(aura.SpellInfo.GetDispelMask() & dispelMask))
-            {
-                // Need check for passive? this
-                if (!aurApp.IsPositive || aura.IsPassive || aura.SpellInfo.HasAttribute(SpellAttr4.CannotBeStolen))
-                    continue;
+            if (!Convert.ToBoolean(aura.SpellInfo.GetDispelMask() & dispelMask))
+                continue;
 
-                // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
-                var chance = aura.CalcDispelChance(UnitTarget, !UnitTarget.WorldObjectCombat.IsFriendlyTo(Caster));
+            // Need check for passive? this
+            if (!aurApp.IsPositive || aura.IsPassive || aura.SpellInfo.HasAttribute(SpellAttr4.CannotBeStolen))
+                continue;
 
-                if (chance == 0)
-                    continue;
+            // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
+            var chance = aura.CalcDispelChance(UnitTarget, !UnitTarget.WorldObjectCombat.IsFriendlyTo(Caster));
 
-                // The charges / stack amounts don't count towards the total number of auras that can be dispelled.
-                // Ie: A dispel on a target with 5 stacks of Winters Chill and a Polymorph has 1 / (1 + 1) . 50% chance to dispell
-                // Polymorph instead of 1 / (5 + 1) . 16%.
-                var dispelCharges = aura.SpellInfo.HasAttribute(SpellAttr7.DispelCharges);
-                var charges = dispelCharges ? aura.Charges : aura.StackAmount;
+            if (chance == 0)
+                continue;
 
-                if (charges > 0)
-                    stealList.Add(new DispelableAura(aura, chance, charges));
-            }
+            // The charges / stack amounts don't count towards the total number of auras that can be dispelled.
+            // Ie: A dispel on a target with 5 stacks of Winters Chill and a Polymorph has 1 / (1 + 1) . 50% chance to dispell
+            // Polymorph instead of 1 / (5 + 1) . 16%.
+            var dispelCharges = aura.SpellInfo.HasAttribute(SpellAttr7.DispelCharges);
+            var charges = dispelCharges ? aura.Charges : aura.StackAmount;
+
+            if (charges > 0)
+                stealList.Add(new DispelableAura(aura, chance, charges));
         }
 
         if (stealList.Empty())
@@ -4510,9 +4460,7 @@ public partial class Spell
                 }
             }
             else
-            {
                 dispelFailed.FailedSpells.Add(dispelableAura.Aura.Id);
-            }
 
             ++count;
         }
@@ -4588,12 +4536,12 @@ public partial class Spell
         player.TeleportTo(player.Homebind, TeleportToOptions.Spell);
 
         // Stuck spell trigger Hearthstone cooldown
-        var spellInfo = Global.SpellMgr.GetSpellInfo(8690, CastDifficulty);
+        var spellInfo = _spellManager.GetSpellInfo(8690, CastDifficulty);
 
         if (spellInfo == null)
             return;
 
-        Spell spell = new(player, spellInfo, TriggerCastFlags.FullMask);
+        var spell = player.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.FullMask);
         spell.SendSpellCooldown();
     }
 
@@ -4663,7 +4611,7 @@ public partial class Spell
                 return;
             }
         }
-        else if (PlayerComputators.IsBankPos(pos))
+        else if (_playerComputators.IsBankPos(pos))
         {
             List<ItemPosCount> dest = new();
             var msg = player.CanBankItem(CastItem.BagSlot, CastItem.Slot, dest, pNewItem, true);
@@ -4686,7 +4634,7 @@ public partial class Spell
                 return;
             }
         }
-        else if (PlayerComputators.IsEquipmentPos(pos))
+        else if (_playerComputators.IsEquipmentPos(pos))
         {
             player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
 
@@ -4750,9 +4698,7 @@ public partial class Spell
 
         // If dest location if present
         if (Targets.HasDst)
-        {
             pos = DestTarget.Copy();
-        }
         // Summon in random point all other units if location present
         else
         {
@@ -4762,12 +4708,12 @@ public partial class Spell
 
         var map = Caster.Location.Map;
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
-        var go = GameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
+        var go = _gameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
 
-        if (!go)
+        if (go == null)
             return;
 
-        PhasingHandler.InheritPhaseShift(go, Caster);
+        _phasingHandler.InheritPhaseShift(go, Caster);
 
         go.Faction = unitCaster.Faction;
         go.SetLevel(unitCaster.Level);
@@ -4789,17 +4735,12 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.Hit)
             return;
 
-        WorldObject target = _focusObject;
-
-        if (target == null)
-            target = Caster;
+        var target = _focusObject ?? Caster;
 
         var pos = new Position();
 
         if (Targets.HasDst)
-        {
             pos = DestTarget.Copy();
-        }
         else
         {
             Caster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
@@ -4809,12 +4750,12 @@ public partial class Spell
         var map = target.Location.Map;
 
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
-        var go = GameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
+        var go = _gameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
 
-        if (!go)
+        if (go == null)
             return;
 
-        PhasingHandler.InheritPhaseShift(go, Caster);
+        _phasingHandler.InheritPhaseShift(go, Caster);
 
         var duration = SpellInfo.CalcDuration(Caster);
 
@@ -4830,25 +4771,21 @@ public partial class Spell
         {
             var player = Caster.AsPlayer;
 
-            if (player != null)
-            {
-                var bg = player.Battleground;
+            var bg = player?.Battleground;
 
-                if (bg)
-                    bg.SetDroppedFlagGUID(go.GUID, bg.GetPlayerTeam(player.GUID) == TeamFaction.Alliance ? TeamIds.Horde : TeamIds.Alliance);
-            }
+            bg?.SetDroppedFlagGUID(go.GUID, bg.GetPlayerTeam(player.GUID) == TeamFaction.Alliance ? TeamIds.Horde : TeamIds.Alliance);
         }
 
         var linkedTrap = go.LinkedTrap;
 
-        if (linkedTrap)
-        {
-            PhasingHandler.InheritPhaseShift(linkedTrap, Caster);
-            linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.IN_MILLISECONDS : 0);
-            linkedTrap.SpellId = SpellInfo.Id;
+        if (linkedTrap == null)
+            return;
 
-            ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
-        }
+        _phasingHandler.InheritPhaseShift(linkedTrap, Caster);
+        linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.IN_MILLISECONDS : 0);
+        linkedTrap.SpellId = SpellInfo.Id;
+
+        ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
     }
 
     [SpellEffectHandler(SpellEffectName.SummonPersonalGameobject)]
@@ -4865,9 +4802,7 @@ public partial class Spell
         Position pos = new();
 
         if (Targets.HasDst)
-        {
             pos = DestTarget.Copy();
-        }
         else
         {
             Caster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
@@ -4876,16 +4811,16 @@ public partial class Spell
 
         var map = Caster.Location.Map;
         var rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
-        var go = GameObjectFactory.CreateGameObject(goId, map, pos, rot, 255, GameObjectState.Ready);
+        var go = _gameObjectFactory.CreateGameObject(goId, map, pos, rot, 255, GameObjectState.Ready);
 
-        if (!go)
+        if (go == null)
         {
             Log.Logger.Warning($"SpellEffect Failed to summon personal gameobject. SpellId {SpellInfo.Id}, effect {EffectInfo.EffectIndex}");
 
             return;
         }
 
-        PhasingHandler.InheritPhaseShift(go, Caster);
+        _phasingHandler.InheritPhaseShift(go, Caster);
 
         var duration = SpellInfo.CalcDuration(Caster);
 
@@ -4899,15 +4834,15 @@ public partial class Spell
 
         var linkedTrap = go.LinkedTrap;
 
-        if (linkedTrap != null)
-        {
-            PhasingHandler.InheritPhaseShift(linkedTrap, Caster);
+        if (linkedTrap == null)
+            return;
 
-            linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.IN_MILLISECONDS : 0);
-            linkedTrap.SpellId = SpellInfo.Id;
+        _phasingHandler.InheritPhaseShift(linkedTrap, Caster);
 
-            ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
-        }
+        linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.IN_MILLISECONDS : 0);
+        linkedTrap.SpellId = SpellInfo.Id;
+
+        ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
     }
 
     [SpellEffectHandler(SpellEffectName.SummonPet)]
@@ -4932,7 +4867,7 @@ public partial class Spell
 
         if (owner == null)
         {
-            if (Caster.CliDB.SummonPropertiesStorage.TryGetValue(67, out var properties))
+            if (_cliDb.SummonPropertiesStorage.TryGetValue(67, out var properties))
                 SummonGuardian(EffectInfo, petentry, properties, 1, ObjectGuid.Empty);
 
             return;
@@ -4983,17 +4918,12 @@ public partial class Spell
         if (isNew)
         {
             if (Caster.IsCreature)
-            {
-                if (Caster.AsCreature.IsTotem)
-                    pet.ReactState = ReactStates.Aggressive;
-                else
-                    pet.ReactState = ReactStates.Defensive;
-            }
+                pet.ReactState = Caster.AsCreature.IsTotem ? ReactStates.Aggressive : ReactStates.Defensive;
 
             pet.SetCreatedBySpell(SpellInfo.Id);
 
             // generate new name for summon pet
-            var newName = Caster.ObjectManager.GeneratePetName(petentry);
+            var newName = _gameObjectManager.GeneratePetName(petentry);
 
             if (!string.IsNullOrEmpty(newName))
                 pet.SetName(newName);
@@ -5043,7 +4973,7 @@ public partial class Spell
         if (entry == 0)
             return;
 
-        if (!Caster.CliDB.SummonPropertiesStorage.TryGetValue(EffectInfo.MiscValueB, out var properties))
+        if (!_cliDb.SummonPropertiesStorage.TryGetValue((uint)EffectInfo.MiscValueB, out var properties))
         {
             Log.Logger.Error("EffectSummonType: Unhandled summon type {0}", EffectInfo.MiscValueB);
 
@@ -5052,19 +4982,19 @@ public partial class Spell
 
         var caster = Caster;
 
-        if (OriginalCaster)
+        if (OriginalCaster != null)
             caster = OriginalCaster;
 
         var privateObjectOwner = caster.GUID;
 
-        if (!Extensions.HasAnyFlag(properties.GetFlags(), SummonPropertiesFlags.OnlyVisibleToSummoner | SummonPropertiesFlags.OnlyVisibleToSummonerGroup))
+        if (!properties.GetFlags().HasAnyFlag(SummonPropertiesFlags.OnlyVisibleToSummoner | SummonPropertiesFlags.OnlyVisibleToSummonerGroup))
             privateObjectOwner = ObjectGuid.Empty;
 
         if (caster.IsPrivateObject)
             privateObjectOwner = caster.PrivateObjectOwner;
 
         if (properties.GetFlags().HasFlag(SummonPropertiesFlags.OnlyVisibleToSummonerGroup))
-            if (caster.IsPlayer && OriginalCaster.AsPlayer.Group)
+            if (caster.IsPlayer && OriginalCaster?.AsPlayer.Group != null)
                 privateObjectOwner = caster.AsPlayer.Group.GUID;
 
         var duration = SpellInfo.CalcDuration(caster);
@@ -5201,10 +5131,12 @@ public partial class Spell
                 } //switch
 
                 break;
+
             case SummonCategory.Pet:
                 SummonGuardian(EffectInfo, entry, properties, numSummons, privateObjectOwner);
 
                 break;
+
             case SummonCategory.Puppet:
             {
                 if (unitCaster == null)
@@ -5232,7 +5164,7 @@ public partial class Spell
 
                 if (basePoints > SharedConst.MaxVehicleSeats)
                 {
-                    var spellInfo = Global.SpellMgr.GetSpellInfo((uint)basePoints, CastDifficulty);
+                    var spellInfo = _spellManager.GetSpellInfo((uint)basePoints, CastDifficulty);
 
                     if (spellInfo != null && spellInfo.HasAura(AuraType.ControlVehicle))
                         spellId = spellInfo.Id;
@@ -5398,9 +5330,9 @@ public partial class Spell
         WorldLocation targetDest = new(DestTarget);
 
         if (targetDest.MapId == 0xFFFFFFFF)
-            targetDest.MapId = UnitTarget.Location.MapId;
+            targetDest.Map = UnitTarget.Location.Map;
 
-        if (targetDest.Orientation == 0 && Targets.UnitTarget)
+        if (targetDest.Orientation == 0 && Targets.UnitTarget != null)
             targetDest.Orientation = Targets.UnitTarget.Location.Orientation;
 
         var player = UnitTarget.AsPlayer;
@@ -5415,19 +5347,11 @@ public partial class Spell
         }
 
         if (targetDest.MapId == UnitTarget.Location.MapId)
-        {
             UnitTarget.NearTeleportTo(targetDest, UnitTarget == Caster);
-        }
         else if (player != null)
-        {
             player.TeleportTo(targetDest, UnitTarget == Caster ? TeleportToOptions.Spell : 0);
-        }
         else
-        {
             Log.Logger.Error("Spell.EffectTeleportUnits - spellId {0} attempted to teleport creature to a different map.", SpellInfo.Id);
-
-            return;
-        }
     }
 
     [SpellEffectHandler(SpellEffectName.TeleportWithSpellVisualKitLoadingScreen)]
@@ -5436,7 +5360,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (!UnitTarget)
+        if (UnitTarget == null)
             return;
 
         // If not exist data for dest location - return
@@ -5451,9 +5375,9 @@ public partial class Spell
         WorldLocation targetDest = new(DestTarget);
 
         if (targetDest.MapId == 0xFFFFFFFF)
-            targetDest.MapId = UnitTarget.Location.MapId;
+            targetDest.Map = UnitTarget.Location.Map;
 
-        if (targetDest.Orientation == 0 && Targets.UnitTarget)
+        if (targetDest.Orientation == 0 && Targets.UnitTarget != null)
             targetDest.Orientation = Targets.UnitTarget.Location.Orientation;
 
         if (EffectInfo.MiscValueB != 0)
@@ -5545,7 +5469,7 @@ public partial class Spell
                 break;
             }
 
-        var goinfo = Caster.ObjectManager.GetGameObjectTemplate(nameID);
+        var goinfo = _gameObjectManager.GetGameObjectTemplate(nameID);
 
         if (goinfo == null)
         {
@@ -5557,9 +5481,7 @@ public partial class Spell
         var pos = new Position();
 
         if (Targets.HasDst)
-        {
             pos = DestTarget.Copy();
-        }
         //FIXME: this can be better check for most objects but still hack
         else if (EffectInfo.HasRadius && SpellInfo.Speed == 0)
         {
@@ -5586,12 +5508,12 @@ public partial class Spell
 
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 
-        var go = GameObjectFactory.CreateGameObject(nameID, cMap, pos, rotation, 255, GameObjectState.Ready);
+        var go = _gameObjectFactory.CreateGameObject(nameID, cMap, pos, rotation, 255, GameObjectState.Ready);
 
-        if (!go)
+        if (go == null)
             return;
 
-        PhasingHandler.InheritPhaseShift(go, Caster);
+        _phasingHandler.InheritPhaseShift(go, Caster);
 
         var duration = SpellInfo.CalcDuration(Caster);
 
@@ -5635,9 +5557,6 @@ public partial class Spell
                 unitCaster.AddGameObject(go);
 
                 break;
-            case GameObjectTypes.FishingHole:
-            case GameObjectTypes.Chest:
-            
         }
 
         go.SetRespawnTime(duration > 0 ? duration / Time.IN_MILLISECONDS : 0);
@@ -5653,7 +5572,7 @@ public partial class Spell
 
         if (linkedTrap != null)
         {
-            PhasingHandler.InheritPhaseShift(linkedTrap, Caster);
+            _phasingHandler.InheritPhaseShift(linkedTrap, Caster);
             linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.IN_MILLISECONDS : 0);
             linkedTrap.SpellId = SpellInfo.Id;
             linkedTrap.SetOwnerGUID(unitCaster.GUID);
@@ -5679,7 +5598,7 @@ public partial class Spell
         }
 
         // normal case
-        var spellInfo = Global.SpellMgr.GetSpellInfo(triggeredSpellID, CastDifficulty);
+        var spellInfo = _spellManager.GetSpellInfo(triggeredSpellID, CastDifficulty);
 
         if (spellInfo == null)
         {
@@ -5708,9 +5627,7 @@ public partial class Spell
             var unit = Caster.AsUnit;
 
             if (unit != null)
-            {
                 targets.UnitTarget = unit;
-            }
             else
             {
                 var go = Caster.AsGameObject;
@@ -5748,7 +5665,7 @@ public partial class Spell
             return;
         }
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(triggeredSpellID, CastDifficulty);
+        var spellInfo = _spellManager.GetSpellInfo(triggeredSpellID, CastDifficulty);
 
         if (spellInfo == null)
         {
@@ -5792,7 +5709,7 @@ public partial class Spell
                 case 29284:
                 {
                     // Brittle Armor
-                    var spell = Global.SpellMgr.GetSpellInfo(24575, CastDifficulty);
+                    var spell = _spellManager.GetSpellInfo(24575, CastDifficulty);
 
                     if (spell == null)
                         return;
@@ -5806,7 +5723,7 @@ public partial class Spell
                 case 29286:
                 {
                     // Mercurial Shield
-                    var spell = Global.SpellMgr.GetSpellInfo(26464, CastDifficulty);
+                    var spell = _spellManager.GetSpellInfo(26464, CastDifficulty);
 
                     if (spell == null)
                         return;
@@ -5826,7 +5743,7 @@ public partial class Spell
         }
 
         // normal case
-        var spellInfo = Global.SpellMgr.GetSpellInfo(triggeredSpellID, CastDifficulty);
+        var spellInfo = _spellManager.GetSpellInfo(triggeredSpellID, CastDifficulty);
 
         if (spellInfo == null)
         {
@@ -5855,17 +5772,13 @@ public partial class Spell
             var target = Targets.UnitTarget;
 
             if (target != null)
-            {
                 targets.UnitTarget = target;
-            }
             else
             {
                 var unit = Caster.AsUnit;
 
                 if (unit != null)
-                {
                     targets.UnitTarget = unit;
-                }
                 else
                 {
                     var go = Caster.AsGameObject;
@@ -5891,33 +5804,33 @@ public partial class Spell
         var itemLevel = CastItemLevel;
 
         Caster.Events.AddEventAtOffset(() =>
-                                        {
-                                            targets.Update(caster); // refresh pointers stored in targets
+                                       {
+                                           targets.Update(caster); // refresh pointers stored in targets
 
-                                            // original caster guid only for GO cast
-                                            CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-                                            args.SetOriginalCaster(originalCaster);
-                                            args.OriginalCastId = originalCastId;
-                                            args.OriginalCastItemLevel = itemLevel;
+                                           // original caster guid only for GO cast
+                                           CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+                                           args.SetOriginalCaster(originalCaster);
+                                           args.OriginalCastId = originalCastId;
+                                           args.OriginalCastItemLevel = itemLevel;
 
-                                            var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(triggerSpell, caster.Location.Map.DifficultyID);
+                                           var triggerSpellInfo = _spellManager.GetSpellInfo(triggerSpell, caster.Location.Map.DifficultyID);
 
-                                            if (!castItemGuid.IsEmpty && triggerSpellInfo.HasAttribute(SpellAttr2.RetainItemCast))
-                                            {
-                                                var triggeringAuraCaster = caster?.AsPlayer;
+                                           if (!castItemGuid.IsEmpty && triggerSpellInfo.HasAttribute(SpellAttr2.RetainItemCast))
+                                           {
+                                               var triggeringAuraCaster = caster?.AsPlayer;
 
-                                                if (triggeringAuraCaster != null)
-                                                    args.CastItem = triggeringAuraCaster.GetItemByGuid(castItemGuid);
-                                            }
+                                               if (triggeringAuraCaster != null)
+                                                   args.CastItem = triggeringAuraCaster.GetItemByGuid(castItemGuid);
+                                           }
 
-                                            // set basepoints for trigger with value effect
-                                            if (effect == SpellEffectName.TriggerSpellWithValue)
-                                                foreach (var eff in triggerSpellInfo.Effects)
-                                                    args.AddSpellMod(SpellValueMod.BasePoint0 + eff.EffectIndex, value);
+                                           // set basepoints for trigger with value effect
+                                           if (effect == SpellEffectName.TriggerSpellWithValue)
+                                               foreach (var eff in triggerSpellInfo.Effects)
+                                                   args.AddSpellMod(SpellValueMod.BasePoint0 + eff.EffectIndex, value);
 
-                                            caster.SpellFactory.CastSpell(targets, triggerSpell, args);
-                                        },
-                                        delay);
+                                           caster.SpellFactory.CastSpell(targets, triggerSpell, args);
+                                       },
+                                       delay);
     }
 
     [SpellEffectHandler(SpellEffectName.UncageBattlepet)]
@@ -5935,7 +5848,7 @@ public partial class Spell
         var level = (ushort)CastItem.GetModifier(ItemModifier.BattlePetLevel);
         var displayId = CastItem.GetModifier(ItemModifier.BattlePetDisplayId);
 
-        if (!Caster.CliDB.BattlePetSpeciesStorage.TryGetValue(speciesId, out var speciesEntry))
+        if (!_cliDb.BattlePetSpeciesStorage.TryGetValue(speciesId, out var speciesEntry))
             return;
 
         var player = Caster.AsPlayer;
@@ -5995,7 +5908,7 @@ public partial class Spell
         var caster = Caster.AsPlayer;
         var guild = caster.Guild;
 
-        guild?.HandleBuyBankTab(caster.Session, (byte)(Damage - 1));     // Bank tabs start at zero internally
+        guild?.HandleBuyBankTab(caster.Session, (byte)(Damage - 1)); // Bank tabs start at zero internally
     }
 
     [SpellEffectHandler(SpellEffectName.UntrainTalents)]
@@ -6036,6 +5949,7 @@ public partial class Spell
     [SpellEffectHandler(SpellEffectName.Effect175)]
     [SpellEffectHandler(SpellEffectName.Effect178)]
     private void EffectUnused() { }
+
     [SpellEffectHandler(SpellEffectName.UpdatePlayerPhase)]
     private void EffectUpdatePlayerPhase()
     {
@@ -6045,7 +5959,7 @@ public partial class Spell
         if (UnitTarget == null || !UnitTarget.IsTypeId(TypeId.Player))
             return;
 
-        PhasingHandler.OnConditionChange(UnitTarget);
+        _phasingHandler.OnConditionChange(UnitTarget);
     }
 
     [SpellEffectHandler(SpellEffectName.UpdateZoneAurasPhases)]
@@ -6068,12 +5982,12 @@ public partial class Spell
 
         var player = Caster.AsPlayer;
 
-        if (player)
-        {
-            var collectionMgr = player.Session.CollectionMgr;
+        if (player == null)
+            return;
 
-            collectionMgr?.UpgradeHeirloom(SpellMisc.Data0, CastItemEntry);
-        }
+        var collectionMgr = player.Session.CollectionMgr;
+
+        collectionMgr?.UpgradeHeirloom(SpellMisc.Data0, CastItemEntry);
     }
 
     [SpellEffectHandler(SpellEffectName.WeaponDamageNoSchool)]
@@ -6137,16 +6051,18 @@ public partial class Spell
                     fixedBonus += CalculateDamage(spellEffectInfo, UnitTarget);
 
                     break;
+
                 case SpellEffectName.NormalizedWeaponDmg:
                     fixedBonus += CalculateDamage(spellEffectInfo, UnitTarget);
                     normalized = true;
 
                     break;
+
                 case SpellEffectName.WeaponPercentDamage:
                     MathFunctions.ApplyPct(ref weaponDamagePercentMod, CalculateDamage(spellEffectInfo, UnitTarget));
 
                     break;
-                 // not weapon damage effect, just skip
+                // not weapon damage effect, just skip
             }
 
         // if (addPctMods) { percent mods are added in Unit::CalculateDamage } else { percent mods are added in Unit::MeleeDamageBonusDone }
@@ -6155,7 +6071,7 @@ public partial class Spell
 
         if (addPctMods)
         {
-            UnitMods unitMod = AttackType switch
+            var unitMod = AttackType switch
             {
                 WeaponAttackType.BaseAttack   => UnitMods.DamageMainHand,
                 WeaponAttackType.OffAttack    => UnitMods.DamageOffHand,
@@ -6186,11 +6102,12 @@ public partial class Spell
                     weaponDamage += fixedBonus;
 
                     break;
+
                 case SpellEffectName.WeaponPercentDamage:
                     weaponDamage = weaponDamage * weaponDamagePercentMod;
 
                     break;
-                 // not weapon damage effect, just skip
+                // not weapon damage effect, just skip
             }
 
         weaponDamage += spellBonus;
@@ -6203,10 +6120,12 @@ public partial class Spell
         weaponDamage = unitCaster.MeleeDamageBonusDone(UnitTarget, weaponDamage, AttackType, DamageEffectType.SpellDirect, SpellInfo, EffectInfo);
         DamageInEffects += UnitTarget.MeleeDamageBonusTaken(unitCaster, weaponDamage, AttackType, DamageEffectType.SpellDirect, SpellInfo);
     }
+
     /* There is currently no need for this effect. We handle it in Battleground.cpp
         If we would handle the resurrection here, the spiritguide would instantly disappear as the
         player revives, and so we wouldn't see the spirit heal visual effect on the npc.
         This is why we use a half sec delay between the visual effect and the resurrection itself */
+
     private bool IsUnitTargetSceneObjectAura(Spell spell, TargetInfo target)
     {
         if (target.TargetGuid != spell.Caster.GUID)
@@ -6238,13 +6157,11 @@ public partial class Spell
 
         for (uint count = 0; count < numGuardians; ++count)
         {
-            Position pos;
-
-            if (count == 0)
-                pos = DestTarget;
-            else
-                // randomize position for multiple summons
-                pos = unitCaster.Location.GetRandomPoint(DestTarget, radius);
+            var pos = count == 0
+                          ? DestTarget
+                          :
+                          // randomize position for multiple summons
+                          unitCaster.Location.GetRandomPoint(DestTarget, radius);
 
             var summon = map.SummonCreature(entry, pos, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
@@ -6259,7 +6176,7 @@ public partial class Spell
                     level = unitCaster.Level;
 
                 // level of pet summoned using engineering item based at engineering skill level
-                if (CastItem && unitCaster.IsPlayer)
+                if (CastItem != null && unitCaster.IsPlayer)
                 {
                     var proto = CastItem.Template;
 
@@ -6288,9 +6205,7 @@ public partial class Spell
                     summon.SetVirtualItem(0, weapon.ItemID, weapon.ItemAppearanceModID, weapon.ItemVisual);
                 }
                 else
-                {
                     summon.SetDisplayId(1126);
-                }
             }
 
             ExecuteLogEffectSummonObject(effect.Effect, summon);

@@ -15,28 +15,31 @@ namespace Forged.MapServer.Spells;
 
 public class TargetInfo : TargetInfoBase
 {
-    public Dictionary<int, double> AuraBasePoints = new();
-    public int AuraDuration;
-    public double Damage;
-    // info set at PreprocessTarget, used by DoTargetSpellHit
-    public DiminishingGroup DrGroup;
-
-    public double Healing;
-    public UnitAura HitAura;
-    public bool IsAlive;
-    public bool IsCrit;
-    public SpellMissInfo MissCondition;
-    public bool Positive = true;
-    public SpellMissInfo ReflectResult;
-    public ObjectGuid TargetGuid;
-    public ulong TimeDelay;
     private bool _enablePVP;
     private Unit _spellHitTarget; // changed for example by reflect
-                                  // need to enable PVP at DoDamageAndTriggers?
+    public Dictionary<int, double> AuraBasePoints { get; set; } = new();
+    public int AuraDuration { get; set; }
+
+    public double Damage { get; set; }
+
+    // info set at PreprocessTarget, used by DoTargetSpellHit
+    public DiminishingGroup DrGroup { get; set; }
+
+    public double Healing { get; set; }
+    public UnitAura HitAura { get; set; }
+    public bool IsAlive { get; set; }
+    public bool IsCrit { get; set; }
+    public SpellMissInfo MissCondition { get; set; }
+    public bool Positive { get; set; } = true;
+    public SpellMissInfo ReflectResult { get; set; }
+    public ObjectGuid TargetGuid { get; set; }
+
+    public ulong TimeDelay { get; set; }
+    // need to enable PVP at DoDamageAndTriggers?
 
     public override void DoDamageAndTriggers(Spell spell)
     {
-        var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+        var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : spell.Caster.ObjectAccessor.GetUnit(spell.Caster, TargetGuid);
 
         if (unit == null)
             return;
@@ -44,7 +47,7 @@ public class TargetInfo : TargetInfoBase
         // other targets executed before this one changed pointer
         spell.UnitTarget = unit;
 
-        if (_spellHitTarget)
+        if (_spellHitTarget != null)
             spell.UnitTarget = _spellHitTarget;
 
         // Reset damage/healing counter
@@ -53,7 +56,7 @@ public class TargetInfo : TargetInfoBase
 
         // Get original caster (if exist) and calculate damage/healing from him data
         // Skip if m_originalCaster not available
-        var caster = spell.OriginalCaster ? spell.OriginalCaster : spell.Caster.AsUnit;
+        var caster = spell.OriginalCaster ?? spell.Caster.AsUnit;
 
         if (caster != null)
         {
@@ -150,12 +153,10 @@ public class TargetInfo : TargetInfoBase
                 if (IsCrit)
                 {
                     hitMask |= ProcFlagsHit.Critical;
-                    addhealth = UnitCombatHelpers.SpellCriticalHealingBonus(caster, spell.SpellInfo, addhealth, null);
+                    addhealth = caster.UnitCombatHelpers.SpellCriticalHealingBonus(caster, spell.SpellInfo, addhealth, null);
                 }
                 else
-                {
                     hitMask |= ProcFlagsHit.Normal;
-                }
 
                 healInfo = new HealInfo(caster, spell.UnitTarget, (uint)addhealth, spell.SpellInfo, spell.SpellInfo.GetSchoolMask());
                 caster.HealBySpell(healInfo, IsCrit);
@@ -192,11 +193,11 @@ public class TargetInfo : TargetInfoBase
                     var p = caster.AsPlayer;
 
                     if (p != null)
-                        ScriptManager.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
+                        caster.ScriptManager.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
 
-                    UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+                    caster.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 
-                    hitMask |= UnitCombatHelpers.CreateProcHitMask(damageInfo, MissCondition);
+                    hitMask |= caster.UnitCombatHelpers.CreateProcHitMask(damageInfo, MissCondition);
                     procVictim.Or(ProcFlags.TakeAnyDamage);
 
                     spell.DamageInEffects = (int)damageInfo.Damage;
@@ -220,7 +221,7 @@ public class TargetInfo : TargetInfoBase
             {
                 // Fill base damage struct (unitTarget - is real spell target)
                 SpellNonMeleeDamage damageInfo = new(caster, spell.UnitTarget, spell.SpellInfo, spell.SpellVisual, spell.SpellSchoolMask);
-                hitMask |= UnitCombatHelpers.CreateProcHitMask(damageInfo, MissCondition);
+                hitMask |= caster.UnitCombatHelpers.CreateProcHitMask(damageInfo, MissCondition);
 
                 // Do triggers for unit
                 if (canEffectTrigger)
@@ -247,7 +248,7 @@ public class TargetInfo : TargetInfoBase
                 if (spell.SpellInfo.HasAttribute(SpellAttr3.SuppressTargetProcs))
                     procVictim = new ProcFlagsInit();
 
-                UnitCombatHelpers.ProcSkillsAndAuras(caster, spell.UnitTarget, procAttacker, procVictim, procSpellType, ProcFlagsSpellPhase.Hit, hitMask, spell, spellDamageInfo, healInfo);
+                caster.UnitCombatHelpers.ProcSkillsAndAuras(caster, spell.UnitTarget, procAttacker, procVictim, procSpellType, ProcFlagsSpellPhase.Hit, hitMask, spell, spellDamageInfo, healInfo);
 
                 // item spells (spell hit of non-damage spell may also activate items, for example seal of corruption hidden hit)
                 if (caster.IsPlayer && procSpellType.HasAnyFlag(ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal))
@@ -264,7 +265,7 @@ public class TargetInfo : TargetInfoBase
                 spell.NeedComboPoints = false;
 
             // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
-            if (MissCondition != SpellMissInfo.Evade && _spellHitTarget && !spell.Caster.WorldObjectCombat.IsFriendlyTo(unit) && (!spell.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)))
+            if (MissCondition != SpellMissInfo.Evade && _spellHitTarget != null && !spell.Caster.WorldObjectCombat.IsFriendlyTo(unit) && (!spell.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)))
             {
                 var unitCaster = spell.Caster.AsUnit;
 
@@ -288,10 +289,10 @@ public class TargetInfo : TargetInfoBase
 
             // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
             if (MissCondition == SpellMissInfo.None && spell.SpellInfo.HasAttribute(SpellAttr7.InterruptOnlyNonplayer) && !unit.IsPlayer)
-                caster.CastSpell(unit, 32747, new CastSpellExtraArgs(spell));
+                caster.SpellFactory.CastSpell(unit, 32747, new CastSpellExtraArgs(spell));
         }
 
-        if (_spellHitTarget)
+        if (_spellHitTarget != null)
         {
             //AI functions
             var cHitTarget = _spellHitTarget.AsCreature;
@@ -335,7 +336,7 @@ public class TargetInfo : TargetInfoBase
 
     public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
     {
-        var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+        var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : spell.Caster.ObjectAccessor.GetUnit(spell.Caster, TargetGuid);
 
         if (unit == null)
             return;
@@ -355,7 +356,7 @@ public class TargetInfo : TargetInfoBase
         if (spell.State == SpellState.Delayed && !spell.IsPositive && GameTime.CurrentTimeMS - TimeDelay <= unit.LastSanctuaryTime)
             return; // No missinfo in that case
 
-        if (_spellHitTarget)
+        if (_spellHitTarget != null)
             spell.DoSpellEffectHit(_spellHitTarget, spellEffectInfo, this);
 
         // scripts can modify damage/healing for current target, save them
@@ -365,7 +366,7 @@ public class TargetInfo : TargetInfoBase
 
     public override void PreprocessTarget(Spell spell)
     {
-        var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+        var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : spell.Caster.ObjectAccessor.GetUnit(spell.Caster, TargetGuid);
 
         if (unit == null)
             return;
@@ -384,14 +385,14 @@ public class TargetInfo : TargetInfoBase
         else if (MissCondition == SpellMissInfo.Reflect && ReflectResult == SpellMissInfo.None)
             _spellHitTarget = spell.Caster.AsUnit;
 
-        if (spell.OriginalCaster && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.WorldObjectCombat.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged))
+        if (spell.OriginalCaster != null && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.WorldObjectCombat.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged))
             unit.SetInCombatWith(spell.OriginalCaster);
 
         // if target is flagged for pvp also Id caster if a player
         // but respect current pvp rules (buffing/healing npcs flagged for pvp only flags you if they are in combat)
         _enablePVP = (MissCondition == SpellMissInfo.None || spell.SpellInfo.HasAttribute(SpellAttr3.PvpEnabling)) && unit.IsPvP && (unit.IsInCombat || unit.IsCharmedOwnedByPlayerOrPlayer) && spell.Caster.IsPlayer; // need to check PvP state before spell effects, but act on it afterwards
 
-        if (_spellHitTarget)
+        if (_spellHitTarget != null)
         {
             var missInfo = spell.PreprocessSpellHit(_spellHitTarget, this);
 

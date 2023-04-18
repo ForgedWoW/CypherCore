@@ -16,6 +16,7 @@ public class SpellFactory
     private readonly WorldObject _caster;
     private readonly ClassFactory _classFactory;
     private readonly SpellManager _spellManager;
+
     public SpellFactory(WorldObject caster, ClassFactory classFactory, SpellManager spellManager)
     {
         _classFactory = classFactory;
@@ -162,9 +163,7 @@ public class SpellFactory
         if (spell.CastItem == null && info.HasAttribute(SpellAttr2.RetainItemCast))
         {
             if (args.TriggeringSpell != null)
-            {
                 spell.CastItem = args.TriggeringSpell.CastItem;
-            }
             else if (args.TriggeringAura != null && !args.TriggeringAura.Base.CastItemGuid.IsEmpty)
             {
                 var triggeringAuraCaster = args.TriggeringAura.Caster?.AsPlayer;

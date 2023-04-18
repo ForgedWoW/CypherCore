@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.BattleFields;
+using Forged.MapServer.Chat;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
@@ -29,12 +30,15 @@ using Forged.MapServer.Movement.Generators;
 using Forged.MapServer.Networking.Packets.CombatLog;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Trait;
+using Forged.MapServer.OutdoorPVP;
+using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Spells.Skills;
+using Forged.MapServer.Text;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Dynamic;
@@ -67,58 +71,53 @@ public partial class Spell : IDisposable
     private readonly HashSet<int> _applyMultiplierMask = new();
 
     private readonly BattleFieldManager _battleFieldManager;
+    private readonly BattlePetMgrData _battlePetMgrData;
     private readonly bool _canReflect;
 
     private readonly CellCalculator _cellCalculator;
     private readonly HashSet<int> _channelTargetEffectMask = new();
-
     private readonly ClassFactory _classFactory;
-
     private readonly CliDB _cliDb;
-
     private readonly UnitCombatHelpers _combatHelpers;
-
+    private readonly CreatureTextManager _creatureTextManager;
     // can reflect this spell?
     private readonly Dictionary<int, double> _damageMultipliers = new();
 
     private readonly DB2Manager _db2Manager;
     private readonly Dictionary<int, SpellDestination> _destTargets = new();
-
     private readonly Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new();
-
     private readonly Dictionary<byte, SpellEmpowerStageRecord> _empowerStages = new();
-
     private readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
-
+    private readonly GameObjectFactory _gameObjectFactory;
     private readonly GameObjectManager _gameObjectManager;
     private readonly GridDefines _gridDefines;
     private readonly GroupManager _groupManager;
     private readonly List<HitTriggerSpell> _hitTriggerSpells = new();
-
     private readonly InstanceLockManager _instanceLockManager;
     private readonly ItemEnchantmentManager _itemEnchantmentManager;
     private readonly LootFactory _lootFactory;
-
     private readonly LootStoreBox _lootStoreBox;
-
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly OutdoorPvPManager _outdoorPvPManager;
+    private readonly PhasingHandler _phasingHandler;
+    private readonly PlayerComputators _playerComputators;
     private readonly ScriptManager _scriptManager;
-
     private readonly SkillExtraItems _skillExtraItems;
-
     private readonly SkillPerfectItems _skillPerfectItems;
-
+    private readonly SpellFactory _spellFactory;
     private readonly SpellManager _spellManager;
-
     // Spell school (can be overwrite for some spells (wand shoot for example)
     // Victim   trigger flags
     private readonly Dictionary<Type, List<ISpellScript>> _spellScriptsByType = new();
 
+    private readonly TraitMgr _traitMgr;
     private readonly TriggerCastFlags _triggeredCastFlags;
     private readonly List<CorpseTargetInfo> _uniqueCorpseTargetInfo = new();
     private readonly List<GOTargetInfo> _uniqueGoTargetInfo = new();
     private readonly List<ItemTargetInfo> _uniqueItemInfo = new();
 
     private readonly VMapManager _vMapManager;
+
     private readonly WorldManager _worldManager;
     // Mask req. alive targets
 
@@ -164,7 +163,8 @@ public partial class Spell : IDisposable
     public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, LootFactory lootFactory, ClassFactory classFactory, VMapManager vMapManager, DB2Manager db2Manager,
                  SkillPerfectItems skillPerfectItems, SkillExtraItems skillExtraItems, ItemEnchantmentManager itemEnchantmentManager, GameObjectManager gameObjectManager, InstanceLockManager instanceLockManager,
                  CliDB cliDb, BattleFieldManager battleFieldManager, UnitCombatHelpers combatHelpers, SpellManager spellManager, GroupManager groupManager, ScriptManager scriptManager, LootStoreBox lootStoreBox,
-                 WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator,
+                 WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator, TraitMgr traitMgr, GameObjectFactory gameObjectFactory, PhasingHandler phasingHandler,
+                 BattlePetMgrData battlePetMgrData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators,
                  ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
         SpellInfo = info;
@@ -185,6 +185,14 @@ public partial class Spell : IDisposable
         _worldManager = worldManager;
         _gridDefines = gridDefines;
         _cellCalculator = cellCalculator;
+        _traitMgr = traitMgr;
+        _gameObjectFactory = gameObjectFactory;
+        _phasingHandler = phasingHandler;
+        _battlePetMgrData = battlePetMgrData;
+        _outdoorPvPManager = outdoorPvPManager;
+        _objectAccessor = objectAccessor;
+        _creatureTextManager = creatureTextManager;
+        _playerComputators = playerComputators;
 
         foreach (var stage in info.EmpowerStages)
             _empowerStages[stage.Key] = new SpellEmpowerStageRecord
@@ -286,12 +294,11 @@ public partial class Spell : IDisposable
         {
             if (SpellInfo.IsNextMeleeSwingSpell)
                 return CurrentSpellTypes.Melee;
-            else if (_isAutoRepeat)
-                return CurrentSpellTypes.AutoRepeat;
-            else if (SpellInfo.IsChanneled)
-                return CurrentSpellTypes.Channeled;
 
-            return CurrentSpellTypes.Generic;
+            if (_isAutoRepeat)
+                return CurrentSpellTypes.AutoRepeat;
+
+            return SpellInfo.IsChanneled ? CurrentSpellTypes.Channeled : CurrentSpellTypes.Generic;
         }
     }
 
@@ -923,8 +930,8 @@ public partial class Spell : IDisposable
             {
                 if (Caster.AsPlayer.IsInFlight)
                     return SpellCastResult.NotOnTaxi;
-                else
-                    return SpellCastResult.NotMounted;
+
+                return SpellCastResult.NotMounted;
             }
 
         // check spell focus object
@@ -2107,7 +2114,6 @@ public partial class Spell : IDisposable
         Log.Logger.Error("SPELL: deleting spell for spell ID {0}. However, spell still referenced.", SpellInfo.Id);
         SelfContainer = null;
     }
-
     public void DoSpellEffectHit(Unit unit, SpellEffectInfo spellEffectInfo, TargetInfo hitInfo)
     {
         var auraEffmask = Aura.BuildEffectMaskForOwner(SpellInfo,
@@ -2504,10 +2510,7 @@ public partial class Spell : IDisposable
 
     public List<ISpellScript> GetSpellScripts<T>() where T : ISpellScript
     {
-        if (_spellScriptsByType.TryGetValue(typeof(T), out var scripts))
-            return scripts;
-
-        return Dummy;
+        return _spellScriptsByType.TryGetValue(typeof(T), out var scripts) ? scripts : Dummy;
     }
 
     public long GetUnitTargetCountForEffect(int effect)
@@ -2578,7 +2581,8 @@ public partial class Spell : IDisposable
 
                     return true;
                 }
-                else if (nextTime == 0 || target.TimeDelay < nextTime)
+
+                if (nextTime == 0 || target.TimeDelay < nextTime)
                     nextTime = target.TimeDelay;
 
                 return false;
@@ -2603,7 +2607,8 @@ public partial class Spell : IDisposable
 
                     return true;
                 }
-                else if (nextTime == 0 || goTarget.TimeDelay < nextTime)
+
+                if (nextTime == 0 || goTarget.TimeDelay < nextTime)
                     nextTime = goTarget.TimeDelay;
 
                 return false;
@@ -3291,9 +3296,9 @@ public partial class Spell : IDisposable
         if (_empowerState != EmpowerState.Finished)
             _empowerState = _empowerState switch
             {
-                EmpowerState.None when state == EmpowerState.Canceled => EmpowerState.CanceledStartup,
+                EmpowerState.None when state == EmpowerState.Canceled              => EmpowerState.CanceledStartup,
                 EmpowerState.CanceledStartup when state == EmpowerState.Empowering => EmpowerState.None,
-                _ => state
+                _                                                                  => state
             };
     }
 
@@ -4841,11 +4846,11 @@ public partial class Spell : IDisposable
             if (foundNotMechanic)
                 return auraType switch
                 {
-                    AuraType.ModStun => SpellCastResult.Stunned,
+                    AuraType.ModStun               => SpellCastResult.Stunned,
                     AuraType.ModStunDisableGravity => SpellCastResult.Stunned,
-                    AuraType.ModFear => SpellCastResult.Fleeing,
-                    AuraType.ModConfuse => SpellCastResult.Confused,
-                    _ => SpellCastResult.NotKnown
+                    AuraType.ModFear               => SpellCastResult.Fleeing,
+                    AuraType.ModConfuse            => SpellCastResult.Confused,
+                    _                              => SpellCastResult.NotKnown
                 };
 
             return SpellCastResult.SpellCastOk;
@@ -5090,12 +5095,10 @@ public partial class Spell : IDisposable
 
                             continue;
                         }
-                        else
-                        {
-                            failReason = SpellCastResult.SpellCastOk;
 
-                            break;
-                        }
+                        failReason = SpellCastResult.SpellCastOk;
+
+                        break;
                     }
 
                     // Mana Potion, Rage Potion, Thistle Tea(Rogue), ...
@@ -5288,25 +5291,25 @@ public partial class Spell : IDisposable
 
                                     return SpellCastResult.DontReport;
                                 }
-                                else
-                                {
-                                    // Conjure Food/Water/Refreshment spells
-                                    if (SpellInfo.SpellFamilyName != SpellFamilyNames.Mage || !SpellInfo.SpellFamilyFlags[0].HasAnyFlag(0x40000000u))
-                                        return SpellCastResult.TooManyOfItem;
-                                    else if (!target.AsPlayer.HasItemCount(spellEffectInfo.ItemType))
-                                    {
-                                        player.SendEquipError(msg, null, null, spellEffectInfo.ItemType);
 
-                                        return SpellCastResult.DontReport;
-                                    }
-                                    else if (SpellInfo.Effects.Count > 1)
-                                        player.SpellFactory.CastSpell(player,
-                                                                      (uint)SpellInfo.GetEffect(1).CalcValue(),
-                                                                      new CastSpellExtraArgs()
-                                                                          .SetTriggeringSpell(this)); // move this to anywhere
+                                // Conjure Food/Water/Refreshment spells
+                                if (SpellInfo.SpellFamilyName != SpellFamilyNames.Mage || !SpellInfo.SpellFamilyFlags[0].HasAnyFlag(0x40000000u))
+                                    return SpellCastResult.TooManyOfItem;
+
+                                if (!target.AsPlayer.HasItemCount(spellEffectInfo.ItemType))
+                                {
+                                    player.SendEquipError(msg, null, null, spellEffectInfo.ItemType);
 
                                     return SpellCastResult.DontReport;
                                 }
+
+                                if (SpellInfo.Effects.Count > 1)
+                                    player.SpellFactory.CastSpell(player,
+                                                                  (uint)SpellInfo.GetEffect(1).CalcValue(),
+                                                                  new CastSpellExtraArgs()
+                                                                      .SetTriggeringSpell(this)); // move this to anywhere
+
+                                return SpellCastResult.DontReport;
                             }
                         }
                     }
@@ -5866,8 +5869,8 @@ public partial class Spell : IDisposable
         return spellEffectInfo.Effect switch
         {
             0 when se.EffectName == 0 => true,
-            0 => false,
-            _ => se.EffectName == SpellEffectName.Any || spellEffectInfo.Effect == se.EffectName
+            0                         => false,
+            _                         => se.EffectName == SpellEffectName.Any || spellEffectInfo.Effect == se.EffectName
         };
     }
 
@@ -6382,13 +6385,12 @@ public partial class Spell : IDisposable
                 }
 
                 break;
-                // For other spells trigger procflags are set in Spell::TargetInfo::DoDamageAndTriggers
-                // Because spell positivity is dependant on target
+            // For other spells trigger procflags are set in Spell::TargetInfo::DoDamageAndTriggers
+            // Because spell positivity is dependant on target
         }
     }
 
-    private void PrepareTargetProcessing()
-    { }
+    private void PrepareTargetProcessing() { }
 
     private void PrepareTriggersExecutedOnHit()
     {
@@ -6441,7 +6443,7 @@ public partial class Spell : IDisposable
             SpellMissInfo.None => targetUnit,
             // In case spell reflect from target, do all effect on caster (if hit)
             SpellMissInfo.Reflect when targetInfo.ReflectResult == SpellMissInfo.None => Caster.AsUnit,
-            _ => null
+            _                                                                         => null
         };
 
         if (unit == null)
@@ -7000,12 +7002,12 @@ public partial class Spell : IDisposable
 
         var center = targetType.ReferenceType switch
         {
-            SpellTargetReferenceTypes.Src => Targets.SrcPos,
-            SpellTargetReferenceTypes.Dest => Targets.DstPos,
+            SpellTargetReferenceTypes.Src    => Targets.SrcPos,
+            SpellTargetReferenceTypes.Dest   => Targets.DstPos,
             SpellTargetReferenceTypes.Caster => referer.Location,
             SpellTargetReferenceTypes.Target => referer.Location,
-            SpellTargetReferenceTypes.Last => referer.Location,
-            _ => Caster.Location
+            SpellTargetReferenceTypes.Last   => referer.Location,
+            _                                => Caster.Location
         };
 
         var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
@@ -7185,23 +7187,23 @@ public partial class Spell : IDisposable
                 if (targetType.Target == Framework.Constants.Targets.DestCasterMovementDirection)
                     angle = (Caster.MovementInfo.MovementFlags & (MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight)) switch
                     {
-                        MovementFlag.None => 0.0f,
-                        MovementFlag.Forward => 0.0f,
-                        MovementFlag.Forward | MovementFlag.Backward => 0.0f,
-                        MovementFlag.StrafeLeft | MovementFlag.StrafeRight => 0.0f,
-                        MovementFlag.Forward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight => 0.0f,
+                        MovementFlag.None                                                                                 => 0.0f,
+                        MovementFlag.Forward                                                                              => 0.0f,
+                        MovementFlag.Forward | MovementFlag.Backward                                                      => 0.0f,
+                        MovementFlag.StrafeLeft | MovementFlag.StrafeRight                                                => 0.0f,
+                        MovementFlag.Forward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight                         => 0.0f,
                         MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight => 0.0f,
-                        MovementFlag.Backward => MathF.PI,
-                        MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight => MathF.PI,
-                        MovementFlag.StrafeLeft => MathF.PI / 2,
-                        MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft => MathF.PI / 2,
-                        MovementFlag.Forward | MovementFlag.StrafeLeft => MathF.PI / 4,
-                        MovementFlag.Backward | MovementFlag.StrafeLeft => 3 * MathF.PI / 4,
-                        MovementFlag.StrafeRight => -MathF.PI / 2,
-                        MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeRight => -MathF.PI / 2,
-                        MovementFlag.Forward | MovementFlag.StrafeRight => -MathF.PI / 4,
-                        MovementFlag.Backward | MovementFlag.StrafeRight => -3 * MathF.PI / 4,
-                        _ => 0.0f
+                        MovementFlag.Backward                                                                             => MathF.PI,
+                        MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight                        => MathF.PI,
+                        MovementFlag.StrafeLeft                                                                           => MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft                            => MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.StrafeLeft                                                    => MathF.PI / 4,
+                        MovementFlag.Backward | MovementFlag.StrafeLeft                                                   => 3 * MathF.PI / 4,
+                        MovementFlag.StrafeRight                                                                          => -MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeRight                           => -MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.StrafeRight                                                   => -MathF.PI / 4,
+                        MovementFlag.Backward | MovementFlag.StrafeRight                                                  => -3 * MathF.PI / 4,
+                        _                                                                                                 => 0.0f
                     };
 
                 Position pos = new(dest.Position);
@@ -7599,7 +7601,7 @@ public partial class Spell : IDisposable
                 dest.Relocate(pos);
             }
 
-            break;
+                break;
         }
 
         if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
@@ -7617,11 +7619,11 @@ public partial class Spell : IDisposable
 
         var dst = targetType.ReferenceType switch
         {
-            SpellTargetReferenceTypes.Src => Targets.SrcPos,
-            SpellTargetReferenceTypes.Dest => Targets.DstPos,
+            SpellTargetReferenceTypes.Src    => Targets.SrcPos,
+            SpellTargetReferenceTypes.Dest   => Targets.DstPos,
             SpellTargetReferenceTypes.Caster => Caster.Location,
             SpellTargetReferenceTypes.Target => Targets.UnitTarget.Location,
-            _ => Caster.Location
+            _                                => Caster.Location
         };
 
         var condList = spellEffectInfo.ImplicitTargetConditions;
@@ -7667,14 +7669,14 @@ public partial class Spell : IDisposable
 
         var range = targetType.CheckType switch
         {
-            SpellTargetCheckTypes.Enemy => SpellInfo.GetMaxRange(false, Caster, this),
-            SpellTargetCheckTypes.Ally => SpellInfo.GetMaxRange(true, Caster, this),
-            SpellTargetCheckTypes.Party => SpellInfo.GetMaxRange(true, Caster, this),
-            SpellTargetCheckTypes.Raid => SpellInfo.GetMaxRange(true, Caster, this),
+            SpellTargetCheckTypes.Enemy     => SpellInfo.GetMaxRange(false, Caster, this),
+            SpellTargetCheckTypes.Ally      => SpellInfo.GetMaxRange(true, Caster, this),
+            SpellTargetCheckTypes.Party     => SpellInfo.GetMaxRange(true, Caster, this),
+            SpellTargetCheckTypes.Raid      => SpellInfo.GetMaxRange(true, Caster, this),
             SpellTargetCheckTypes.RaidClass => SpellInfo.GetMaxRange(true, Caster, this),
-            SpellTargetCheckTypes.Entry => SpellInfo.GetMaxRange(IsPositive, Caster, this),
-            SpellTargetCheckTypes.Default => SpellInfo.GetMaxRange(IsPositive, Caster, this),
-            _ => 0.0f
+            SpellTargetCheckTypes.Entry     => SpellInfo.GetMaxRange(IsPositive, Caster, this),
+            SpellTargetCheckTypes.Default   => SpellInfo.GetMaxRange(IsPositive, Caster, this),
+            _                               => 0.0f
         };
 
         var condList = spellEffectInfo.ImplicitTargetConditions;
@@ -7842,7 +7844,7 @@ public partial class Spell : IDisposable
                 dest.Relocate(pos);
             }
 
-            break;
+                break;
         }
 
         if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
@@ -8644,9 +8646,9 @@ public partial class Spell : IDisposable
         return x switch
         {
             < 100000.0f and > -100000.0f => x,
-            >= 100000.0f => 100000.0f,
-            <= 100000.0f => -100000.0f,
-            _ => 0.0f
+            >= 100000.0f                 => 100000.0f,
+            <= 100000.0f                 => -100000.0f,
+            _                            => 0.0f
         };
     }
 

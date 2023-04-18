@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+
 namespace Framework.Constants;
 
+[Flags]
 public enum SpellAttr7 : uint
 {
     Unk0 = 0x01,                            //  0 Shaman'S New Spells (Call Of The ...), Feign Death.

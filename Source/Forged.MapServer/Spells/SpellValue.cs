@@ -8,16 +8,6 @@ namespace Forged.MapServer.Spells;
 
 public class SpellValue
 {
-    public int AuraStackAmount;
-    public float CriticalChance;
-    public uint CustomBasePointsMask;
-    public int? Duration;
-    public float DurationMul;
-    public Dictionary<int, double> EffectBasePoints = new();
-    public uint MaxAffectedTargets;
-    public float RadiusMod;
-    public double? SummonDuration;
-
     public SpellValue(SpellInfo proto, WorldObject caster)
     {
         foreach (var spellEffectInfo in proto.Effects)
@@ -30,4 +20,14 @@ public class SpellValue
         CriticalChance = 0.0f;
         DurationMul = 1;
     }
+
+    public int AuraStackAmount { get; set; }
+    public float CriticalChance { get; set; }
+    public uint CustomBasePointsMask { get; set; }
+    public int? Duration { get; set; }
+    public float DurationMul { get; set; }
+    public Dictionary<int, double> EffectBasePoints { get; set; } = new();
+    public uint MaxAffectedTargets { get; set; }
+    public float RadiusMod { get; set; }
+    public double? SummonDuration { get; set; }
 }

@@ -17,6 +17,7 @@ public class SpellEvent : BasicEvent
     public override bool IsDeletable => Spell.IsDeletable;
 
     public Spell Spell { get; }
+
     public override void Abort(ulong eTime)
     {
         // oops, the spell we try to do is aborted

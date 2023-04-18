@@ -9,8 +9,6 @@ namespace Forged.MapServer.Spells;
 
 internal struct ServersideSpellName
 {
-    public SpellNameRecord Name { get; set; }
-
     public ServersideSpellName(uint id, string name)
     {
         Name = new SpellNameRecord
@@ -22,4 +20,6 @@ internal struct ServersideSpellName
         for (Locale i = 0; i < Locale.Total; ++i)
             Name.Name[i] = name;
     }
+
+    public SpellNameRecord Name { get; set; }
 }

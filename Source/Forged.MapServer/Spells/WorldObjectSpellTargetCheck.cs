@@ -17,6 +17,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
     private readonly SpellTargetObjectTypes _objectType;
     private readonly WorldObject _referer;
     private readonly SpellTargetCheckTypes _targetSelectionType;
+
     public WorldObjectSpellTargetCheck(WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
     {
         Caster = caster;
@@ -41,7 +42,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
         if (corpseTarget != null)
         {
             // use owner for party/assistance checks
-            var owner = Global.ObjAccessor.FindPlayer(corpseTarget.OwnerGUID);
+            var owner = target.ObjectAccessor.FindPlayer(corpseTarget.OwnerGUID);
 
             if (owner != null)
                 unitTarget = owner;
@@ -90,7 +91,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 
                     break;
                 case SpellTargetCheckTypes.RaidClass:
-                    if (!refUnit)
+                    if (refUnit == null)
                         return false;
 
                     if (refUnit.Class != unitTarget.Class)
@@ -152,6 +153,6 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 
         _condSrcInfo.ConditionTargets[0] = target;
 
-        return Global.ConditionMgr.IsObjectMeetToConditions(_condSrcInfo, _condList);
+        return Caster.ConditionManager.IsObjectMeetToConditions(_condSrcInfo, _condList);
     }
 }

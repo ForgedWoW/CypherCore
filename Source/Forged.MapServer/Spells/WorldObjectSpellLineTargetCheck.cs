@@ -12,6 +12,7 @@ public class WorldObjectSpellLineTargetCheck : WorldObjectSpellAreaTargetCheck
 {
     private readonly float _lineWidth;
     private readonly Position _position;
+
     public WorldObjectSpellLineTargetCheck(Position srcPosition, Position dstPosition, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
         : base(range, caster.Location, caster, caster, spellInfo, selectionType, condList, objectType)
     {
@@ -24,9 +25,6 @@ public class WorldObjectSpellLineTargetCheck : WorldObjectSpellAreaTargetCheck
 
     public override bool Invoke(WorldObject target)
     {
-        if (!_position.HasInLine(target.Location, target.CombatReach, _lineWidth))
-            return false;
-
-        return base.Invoke(target);
+        return _position.HasInLine(target.Location, target.CombatReach, _lineWidth) && base.Invoke(target);
     }
 }

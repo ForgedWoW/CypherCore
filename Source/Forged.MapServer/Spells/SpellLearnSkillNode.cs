@@ -7,9 +7,10 @@ namespace Forged.MapServer.Spells;
 
 public class SpellLearnSkillNode
 {
-    public ushort Maxvalue;
-    public SkillType Skill;
-    public ushort Step;
-    public ushort Value;    // 0  - max skill value for player level
-     // 0  - max skill value for player level
+    public ushort Maxvalue { get; set; }
+    public SkillType Skill { get; set; }
+    public ushort Step { get; set; }
+
+    public ushort Value { get; set; } // 0  - max skill value for player level
+    // 0  - max skill value for player level
 }

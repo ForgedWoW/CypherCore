@@ -8,11 +8,12 @@ namespace Forged.MapServer.Spells;
 
 public class SpellModifierByClassMask : SpellModifier
 {
-    public FlagArray128 Mask;
-    public double Value;
     public SpellModifierByClassMask(Aura ownerAura) : base(ownerAura)
     {
         Value = 0;
         Mask = new FlagArray128();
     }
+
+    public FlagArray128 Mask { get; set; }
+    public double Value { get; set; }
 }

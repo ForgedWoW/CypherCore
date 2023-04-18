@@ -24,6 +24,7 @@ public class WorldLocation : Position
 {
     private readonly CellCalculator _cellCalculator;
     private readonly WorldObject _worldObject;
+    private readonly PhasingHandler _phasingHandler;
     private Cell _currentCell;
     private uint _instanceId;
     private uint _mapId;
@@ -36,6 +37,7 @@ public class WorldLocation : Position
         _worldObject = obj;
         _cellCalculator = obj.ClassFactory.Resolve<CellCalculator>();
         GridDefines = obj.ClassFactory.Resolve<GridDefines>();
+        _phasingHandler = obj.ClassFactory.Resolve<PhasingHandler>();
     }
 
     public WorldLocation(WorldObject obj, Map map, Position pos)
@@ -43,6 +45,7 @@ public class WorldLocation : Position
         _worldObject = obj;
         _cellCalculator = obj.ClassFactory.Resolve<CellCalculator>();
         GridDefines = obj.ClassFactory.Resolve<GridDefines>();
+        _phasingHandler = obj.ClassFactory.Resolve<PhasingHandler>();
         Map = map;
         Relocate(pos);
     }
@@ -146,7 +149,7 @@ public class WorldLocation : Position
         CreatureLastSearcher searcher = new(_worldObject, checker, GridType.All);
 
         if (options.IgnorePhases)
-            searcher.PhaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
+            searcher.PhaseShift = _phasingHandler.GetAlwaysVisiblePhaseShift();
 
         _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
@@ -296,7 +299,7 @@ public class WorldLocation : Position
         CreatureListSearcher searcher = new(_worldObject, creatureList, check, GridType.Grid);
 
         if (options.IgnorePhases)
-            searcher.PhaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
+            searcher.PhaseShift = _phasingHandler.GetAlwaysVisiblePhaseShift();
 
         _cellCalculator.VisitGrid(_worldObject, searcher, maxSearchRange);
 

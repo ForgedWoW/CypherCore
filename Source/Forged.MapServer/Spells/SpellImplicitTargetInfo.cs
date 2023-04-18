@@ -7,7 +7,7 @@ namespace Forged.MapServer.Spells;
 
 public class SpellImplicitTargetInfo
 {
-    private static readonly StaticData[] _data = new StaticData[(int)Targets.TotalSpellTargets]
+    private static readonly StaticData[] Data = new StaticData[(int)Targets.TotalSpellTargets]
     {
         new(SpellTargetObjectTypes.None, SpellTargetReferenceTypes.None, SpellTargetSelectionCategories.Nyi, SpellTargetCheckTypes.Default, SpellTargetDirectionTypes.None),             // 0
         new(SpellTargetObjectTypes.Unit, SpellTargetReferenceTypes.Caster, SpellTargetSelectionCategories.Default, SpellTargetCheckTypes.Default, SpellTargetDirectionTypes.None),       // 1 TARGET_UNIT_CASTER
@@ -169,14 +169,15 @@ public class SpellImplicitTargetInfo
         Target = target;
     }
 
-    public SpellTargetCheckTypes CheckType => _data[(int)Target].SelectionCheckType;
+    public SpellTargetCheckTypes CheckType => Data[(int)Target].SelectionCheckType;
     public bool IsArea => SelectionCategory is SpellTargetSelectionCategories.Area or SpellTargetSelectionCategories.Cone;
 
-    public SpellTargetObjectTypes ObjectType => _data[(int)Target].ObjectType;
-    public SpellTargetReferenceTypes ReferenceType => _data[(int)Target].ReferenceType;
-    public SpellTargetSelectionCategories SelectionCategory => _data[(int)Target].SelectionCategory;
+    public SpellTargetObjectTypes ObjectType => Data[(int)Target].ObjectType;
+    public SpellTargetReferenceTypes ReferenceType => Data[(int)Target].ReferenceType;
+    public SpellTargetSelectionCategories SelectionCategory => Data[(int)Target].SelectionCategory;
     public Targets Target { get; }
-    private SpellTargetDirectionTypes DirectionType => _data[(int)Target].DirectionType;
+    private SpellTargetDirectionTypes DirectionType => Data[(int)Target].DirectionType;
+
     public float CalcDirectionAngle()
     {
         var pi = MathFunctions.PI;
@@ -209,7 +210,6 @@ public class SpellImplicitTargetInfo
                 targetMask |= SpellCastTargetFlags.DestLocation;
         }
         else
-        {
             switch (ReferenceType)
             {
                 case SpellTargetReferenceTypes.Src:
@@ -266,7 +266,6 @@ public class SpellImplicitTargetInfo
 
                     break;
             }
-        }
 
         switch (ObjectType)
         {
@@ -299,7 +298,7 @@ public class SpellImplicitTargetInfo
         public SpellTargetCheckTypes SelectionCheckType;
 
         public StaticData(SpellTargetObjectTypes obj, SpellTargetReferenceTypes reference,
-                                                                  SpellTargetSelectionCategories selection, SpellTargetCheckTypes selectionCheck, SpellTargetDirectionTypes direction)
+                          SpellTargetSelectionCategories selection, SpellTargetCheckTypes selectionCheck, SpellTargetDirectionTypes direction)
         {
             ObjectType = obj;
             ReferenceType = reference;
@@ -307,7 +306,7 @@ public class SpellImplicitTargetInfo
             SelectionCheckType = selectionCheck;
             DirectionType = direction;
         }
-         // defines selection criteria
-          // direction for cone and dest targets
+        // defines selection criteria
+        // direction for cone and dest targets
     }
 }

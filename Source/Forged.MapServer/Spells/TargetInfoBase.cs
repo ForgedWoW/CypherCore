@@ -7,7 +7,7 @@ namespace Forged.MapServer.Spells;
 
 public class TargetInfoBase
 {
-    public HashSet<int> Effects;
+    public HashSet<int> Effects { get; set; }
 
     public virtual void DoDamageAndTriggers(Spell spell) { }
 

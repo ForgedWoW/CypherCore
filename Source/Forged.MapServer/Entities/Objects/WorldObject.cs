@@ -74,6 +74,9 @@ public abstract class WorldObject : IDisposable
         CliDB = classFactory.Resolve<CliDB>();
         OutdoorPvPManager = classFactory.Resolve<OutdoorPvPManager>();
         BattleFieldManager = classFactory.Resolve<BattleFieldManager>();
+        CellCalculator = classFactory.Resolve<CellCalculator>();
+        GridDefines = classFactory.Resolve<GridDefines>();
+        PhasingHandler = classFactory.Resolve<PhasingHandler>();
 
         ObjectTypeId = TypeId.Object;
         ObjectTypeMask = TypeMask.Object;
@@ -102,6 +105,7 @@ public abstract class WorldObject : IDisposable
     public SceneObject AsSceneObject => this as SceneObject;
     public Unit AsUnit => this as Unit;
     public BattleFieldManager BattleFieldManager { get; }
+    public CellCalculator CellCalculator { get; }
 
     public virtual Unit CharmerOrOwner
     {
@@ -133,7 +137,6 @@ public abstract class WorldObject : IDisposable
     public Unit CharmerOrOwnerOrSelf => CharmerOrOwner ?? AsUnit;
     public Player CharmerOrOwnerPlayerOrPlayerItself => CharmerOrOwnerGUID.IsPlayer ? ObjectAccessor.GetPlayer(this, CharmerOrOwnerGUID) : AsPlayer;
     public ClassFactory ClassFactory { get; }
-    public GameObjectFactory GameObjectFactory { get; }
     public CliDB CliDB { get; }
     public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
     public ConditionManager ConditionManager { get; }
@@ -148,6 +151,7 @@ public abstract class WorldObject : IDisposable
 
     public EventSystem Events { get; set; } = new();
     public virtual uint Faction { get; set; }
+    public GameObjectFactory GameObjectFactory { get; }
 
     public float GridActivationRange
     {
@@ -163,6 +167,7 @@ public abstract class WorldObject : IDisposable
         }
     }
 
+    public GridDefines GridDefines { get; }
     public ObjectGuid GUID { get; protected set; }
     public uint InstanceId { get; set; }
     public bool IsActive { get; protected set; }
@@ -215,6 +220,7 @@ public abstract class WorldObject : IDisposable
     public OutdoorPvPManager OutdoorPvPManager { get; }
     public virtual ObjectGuid OwnerGUID => default;
     public virtual Unit OwnerUnit => ObjectAccessor.GetUnit(this, OwnerGUID);
+    public PhasingHandler PhasingHandler { get; }
 
     public ObjectGuid PrivateObjectOwner
     {
@@ -265,32 +271,9 @@ public abstract class WorldObject : IDisposable
     public ZoneScript ZoneScript { get; set; }
     protected TypeId ObjectTypeId { get; set; }
 
-    public virtual void Dispose()
-    {
-        // this may happen because there are many !create/delete
-        if (IsWorldObject() && Location.Map != null)
-        {
-            if (IsTypeId(TypeId.Corpse))
-                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
-            else
-                Location.ResetMap();
-        }
-
-        if (Location.IsInWorld)
-        {
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
-
-            if (IsTypeMask(TypeMask.Item))
-                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
-        }
-
-        if (_objectUpdated)
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
-    }
-
     public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
     {
-        return Location._IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
+        return Location.IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
     }
 
     public void AddDynamicUpdateFieldValue<T>(DynamicUpdateField<T> updateField, T value) where T : new()
@@ -331,6 +314,46 @@ public abstract class WorldObject : IDisposable
         Location.Map.GetZoneAndAreaId(Location.PhaseShift, out var zoneid, out var areaid, Location.X, Location.Y, Location.Z);
         Location.Zone = zoneid;
         Location.Area = areaid;
+    }
+
+    public double ApplyEffectModifiers(SpellInfo spellInfo, int effIndex, double value)
+    {
+        var modOwner = SpellModOwner;
+
+        if (modOwner == null)
+            return value;
+
+        modOwner.ApplySpellMod(spellInfo, SpellModOp.Points, ref value);
+
+        switch (effIndex)
+        {
+            case 0:
+                modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex0, ref value);
+
+                break;
+
+            case 1:
+                modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex1, ref value);
+
+                break;
+
+            case 2:
+                modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex2, ref value);
+
+                break;
+
+            case 3:
+                modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex3, ref value);
+
+                break;
+
+            case 4:
+                modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex4, ref value);
+
+                break;
+        }
+
+        return value;
     }
 
     public void ApplyModUpdateFieldValue<T>(IUpdateField<T> updateField, T mod, bool apply) where T : new()
@@ -995,6 +1018,29 @@ public abstract class WorldObject : IDisposable
         BuildDestroyUpdateBlock(updateData);
         updateData.BuildPacket(out var packet);
         target.SendPacket(packet);
+    }
+
+    public virtual void Dispose()
+    {
+        // this may happen because there are many !create/delete
+        if (IsWorldObject() && Location.Map != null)
+        {
+            if (IsTypeId(TypeId.Corpse))
+                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+            else
+                Location.ResetMap();
+        }
+
+        if (Location.IsInWorld)
+        {
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
+
+            if (IsTypeMask(TypeMask.Item))
+                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
+        }
+
+        if (_objectUpdated)
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
     }
 
     public void DoWithSuppressingObjectUpdates(Action action)

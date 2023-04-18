@@ -24,13 +24,11 @@ public class WorldObjectSpellNearbyTargetCheck : WorldObjectSpellTargetCheck
     {
         var dist = target.Location.GetDistance(_position);
 
-        if (dist < _range && base.Invoke(target))
-        {
-            _range = dist;
+        if (!(dist < _range) || !base.Invoke(target))
+            return false;
 
-            return true;
-        }
+        _range = dist;
 
-        return false;
+        return true;
     }
 }

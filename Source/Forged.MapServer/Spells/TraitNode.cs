@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Spells;
 
-internal class TraitNode
+public class TraitNode
 {
     public List<TraitCondRecord> Conditions { get; set; } = new();
     public List<TraitCostRecord> Costs { get; set; } = new();

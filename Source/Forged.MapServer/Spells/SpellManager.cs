@@ -20,6 +20,7 @@ using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
+using Game.Common;
 using Game.Common.Extendability;
 using Serilog;
 
@@ -32,6 +33,7 @@ public sealed class SpellManager
     private static readonly Dictionary<int, PetAura> DefaultPetAuras = new();
 
     private readonly BattlePetMgrData _battlePetMgrData;
+    private readonly ClassFactory _classFactory;
 
     private readonly CliDB _cliDB;
 
@@ -102,7 +104,7 @@ public sealed class SpellManager
 
     private readonly WorldDatabase _worldDatabase;
 
-    public SpellManager(GameObjectManager objectManager, CliDB cliDB, WorldDatabase worldDatabase, DB2Manager db2Manager, LanguageManager languageManager, BattlePetMgrData battlePetMgrData)
+    public SpellManager(GameObjectManager objectManager, CliDB cliDB, WorldDatabase worldDatabase, DB2Manager db2Manager, LanguageManager languageManager, BattlePetMgrData battlePetMgrData, ClassFactory classFactory)
     {
         _objectManager = objectManager;
         _cliDB = cliDB;
@@ -110,6 +112,7 @@ public sealed class SpellManager
         _db2Manager = db2Manager;
         _languageManager = languageManager;
         _battlePetMgrData = battlePetMgrData;
+        _classFactory = classFactory;
         var currentAsm = Assembly.GetExecutingAssembly();
 
         foreach (var type in currentAsm.GetTypes())
@@ -166,7 +169,6 @@ public sealed class SpellManager
     public delegate void AuraEffectHandler(AuraEffect effect, AuraApplication aurApp, AuraEffectHandleModes mode, bool apply);
 
     public delegate void SpellEffectHandler(Spell spell);
-
     public static bool CanSpellTriggerProcOnEvent(SpellProcEntry procEntry, ProcEventInfo eventInfo)
     {
         // proc type doesn't match
@@ -461,9 +463,9 @@ public sealed class SpellManager
 
         return skill.CategoryID switch
         {
-            SkillCategory.Armor => SkillRangeType.Mono,
+            SkillCategory.Armor     => SkillRangeType.Mono,
             SkillCategory.Languages => SkillRangeType.Language,
-            _ => SkillRangeType.Level
+            _                       => SkillRangeType.Level
         };
     }
 
@@ -612,12 +614,10 @@ public sealed class SpellManager
     {
         if (_spellThreatMap.TryGetValue(spellID, out var spellthreat))
             return spellthreat;
-        else
-        {
-            var firstSpell = GetFirstSpellInChain(spellID);
 
-            return _spellThreatMap.LookupByKey(firstSpell);
-        }
+        var firstSpell = GetFirstSpellInChain(spellID);
+
+        return _spellThreatMap.LookupByKey(firstSpell);
     }
 
     public uint GetSpellWithRank(uint spellID, uint rank, bool strict = false)
@@ -894,15 +894,15 @@ public sealed class SpellManager
     {
         return type switch
         {
-            AuraType.ModStealth => ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal,
-            AuraType.ModConfuse => ProcFlagsSpellType.Damage,
-            AuraType.ModFear => ProcFlagsSpellType.Damage,
-            AuraType.ModRoot => ProcFlagsSpellType.Damage,
-            AuraType.ModRoot2 => ProcFlagsSpellType.Damage,
-            AuraType.ModStun => ProcFlagsSpellType.Damage,
-            AuraType.Transform => ProcFlagsSpellType.Damage,
+            AuraType.ModStealth      => ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal,
+            AuraType.ModConfuse      => ProcFlagsSpellType.Damage,
+            AuraType.ModFear         => ProcFlagsSpellType.Damage,
+            AuraType.ModRoot         => ProcFlagsSpellType.Damage,
+            AuraType.ModRoot2        => ProcFlagsSpellType.Damage,
+            AuraType.ModStun         => ProcFlagsSpellType.Damage,
+            AuraType.Transform       => ProcFlagsSpellType.Damage,
             AuraType.ModInvisibility => ProcFlagsSpellType.Damage,
-            _ => ProcFlagsSpellType.MaskAll
+            _                        => ProcFlagsSpellType.MaskAll
         };
     }
 
@@ -911,17 +911,17 @@ public sealed class SpellManager
         return type switch
         {
             AuraType.OverrideClassScripts => true,
-            AuraType.ModStealth => true,
-            AuraType.ModConfuse => true,
-            AuraType.ModFear => true,
-            AuraType.ModRoot => true,
-            AuraType.ModStun => true,
-            AuraType.Transform => true,
-            AuraType.ModInvisibility => true,
-            AuraType.SpellMagnet => true,
-            AuraType.SchoolAbsorb => true,
-            AuraType.ModRoot2 => true,
-            _ => false
+            AuraType.ModStealth           => true,
+            AuraType.ModConfuse           => true,
+            AuraType.ModFear              => true,
+            AuraType.ModRoot              => true,
+            AuraType.ModStun              => true,
+            AuraType.Transform            => true,
+            AuraType.ModInvisibility      => true,
+            AuraType.SpellMagnet          => true,
+            AuraType.SchoolAbsorb         => true,
+            AuraType.ModRoot2             => true,
+            _                             => false
         };
     }
 
@@ -929,54 +929,54 @@ public sealed class SpellManager
     {
         return type switch
         {
-            AuraType.Dummy => true,
-            AuraType.PeriodicDummy => true,
-            AuraType.ModConfuse => true,
-            AuraType.ModThreat => true,
-            AuraType.ModStun => true,
-            AuraType.ModDamageDone => true,
-            AuraType.ModDamageTaken => true,
-            AuraType.ModResistance => true,
-            AuraType.ModStealth => true,
-            AuraType.ModFear => true,
-            AuraType.ModRoot => true,
-            AuraType.Transform => true,
-            AuraType.ReflectSpells => true,
-            AuraType.DamageImmunity => true,
-            AuraType.ProcTriggerSpell => true,
-            AuraType.ProcTriggerDamage => true,
-            AuraType.ModCastingSpeedNotStack => true,
-            AuraType.SchoolAbsorb => true,
-            AuraType.ModPowerCostSchoolPct => true,
-            AuraType.ModPowerCostSchool => true,
-            AuraType.ReflectSpellsSchool => true,
-            AuraType.MechanicImmunity => true,
-            AuraType.ModDamagePercentTaken => true,
-            AuraType.SpellMagnet => true,
-            AuraType.ModAttackPower => true,
-            AuraType.ModPowerRegenPercent => true,
-            AuraType.InterceptMeleeRangedAttacks => true,
-            AuraType.OverrideClassScripts => true,
-            AuraType.ModMechanicResistance => true,
+            AuraType.Dummy                         => true,
+            AuraType.PeriodicDummy                 => true,
+            AuraType.ModConfuse                    => true,
+            AuraType.ModThreat                     => true,
+            AuraType.ModStun                       => true,
+            AuraType.ModDamageDone                 => true,
+            AuraType.ModDamageTaken                => true,
+            AuraType.ModResistance                 => true,
+            AuraType.ModStealth                    => true,
+            AuraType.ModFear                       => true,
+            AuraType.ModRoot                       => true,
+            AuraType.Transform                     => true,
+            AuraType.ReflectSpells                 => true,
+            AuraType.DamageImmunity                => true,
+            AuraType.ProcTriggerSpell              => true,
+            AuraType.ProcTriggerDamage             => true,
+            AuraType.ModCastingSpeedNotStack       => true,
+            AuraType.SchoolAbsorb                  => true,
+            AuraType.ModPowerCostSchoolPct         => true,
+            AuraType.ModPowerCostSchool            => true,
+            AuraType.ReflectSpellsSchool           => true,
+            AuraType.MechanicImmunity              => true,
+            AuraType.ModDamagePercentTaken         => true,
+            AuraType.SpellMagnet                   => true,
+            AuraType.ModAttackPower                => true,
+            AuraType.ModPowerRegenPercent          => true,
+            AuraType.InterceptMeleeRangedAttacks   => true,
+            AuraType.OverrideClassScripts          => true,
+            AuraType.ModMechanicResistance         => true,
             AuraType.MeleeAttackPowerAttackerBonus => true,
-            AuraType.ModMeleeHaste => true,
-            AuraType.ModMeleeHaste3 => true,
-            AuraType.ModAttackerMeleeHitChance => true,
-            AuraType.ProcTriggerSpellWithValue => true,
+            AuraType.ModMeleeHaste                 => true,
+            AuraType.ModMeleeHaste3                => true,
+            AuraType.ModAttackerMeleeHitChance     => true,
+            AuraType.ProcTriggerSpellWithValue     => true,
             AuraType.ModSchoolMaskDamageFromCaster => true,
-            AuraType.ModSpellDamageFromCaster => true,
-            AuraType.AbilityIgnoreAurastate => true,
-            AuraType.ModInvisibility => true,
-            AuraType.ForceReaction => true,
-            AuraType.ModTaunt => true,
-            AuraType.ModDetaunt => true,
-            AuraType.ModDamagePercentDone => true,
-            AuraType.ModAttackPowerPct => true,
-            AuraType.ModHitChance => true,
-            AuraType.ModWeaponCritPercent => true,
-            AuraType.ModBlockPercent => true,
-            AuraType.ModRoot2 => true,
-            _ => false
+            AuraType.ModSpellDamageFromCaster      => true,
+            AuraType.AbilityIgnoreAurastate        => true,
+            AuraType.ModInvisibility               => true,
+            AuraType.ForceReaction                 => true,
+            AuraType.ModTaunt                      => true,
+            AuraType.ModDetaunt                    => true,
+            AuraType.ModDamagePercentDone          => true,
+            AuraType.ModAttackPowerPct             => true,
+            AuraType.ModHitChance                  => true,
+            AuraType.ModWeaponCritPercent          => true,
+            AuraType.ModBlockPercent               => true,
+            AuraType.ModRoot2                      => true,
+            _                                      => false
         };
     }
 
@@ -1444,7 +1444,8 @@ public sealed class SpellManager
 
                     return true;
                 }
-                else if (spellInfo.Rank > 1)
+
+                if (spellInfo.Rank > 1)
                 {
                     Log.Logger.Error("Spell {0} listed in `spell_group` is not first rank of spell", group.Value);
 
@@ -3789,83 +3790,81 @@ public sealed class SpellManager
 
                 _serversideSpellNames.Add(new ServersideSpellName(spellId, spellsResult.Read<string>(66)));
 
-                SpellInfo spellInfo = new(_serversideSpellNames.Last().Name, difficulty, spellEffects[(spellId, difficulty)])
-                {
-                    CategoryId = spellsResult.Read<uint>(2),
-                    Dispel = (DispelType)spellsResult.Read<uint>(3),
-                    Mechanic = (Mechanics)spellsResult.Read<uint>(4),
-                    Attributes = (SpellAttr0)spellsResult.Read<uint>(5),
-                    AttributesEx = (SpellAttr1)spellsResult.Read<uint>(6),
-                    AttributesEx2 = (SpellAttr2)spellsResult.Read<uint>(7),
-                    AttributesEx3 = (SpellAttr3)spellsResult.Read<uint>(8),
-                    AttributesEx4 = (SpellAttr4)spellsResult.Read<uint>(9),
-                    AttributesEx5 = (SpellAttr5)spellsResult.Read<uint>(10),
-                    AttributesEx6 = (SpellAttr6)spellsResult.Read<uint>(11),
-                    AttributesEx7 = (SpellAttr7)spellsResult.Read<uint>(12),
-                    AttributesEx8 = (SpellAttr8)spellsResult.Read<uint>(13),
-                    AttributesEx9 = (SpellAttr9)spellsResult.Read<uint>(14),
-                    AttributesEx10 = (SpellAttr10)spellsResult.Read<uint>(15),
-                    AttributesEx11 = (SpellAttr11)spellsResult.Read<uint>(16),
-                    AttributesEx12 = (SpellAttr12)spellsResult.Read<uint>(17),
-                    AttributesEx13 = (SpellAttr13)spellsResult.Read<uint>(18),
-                    AttributesEx14 = (SpellAttr14)spellsResult.Read<uint>(19),
-                    Stances = spellsResult.Read<ulong>(20),
-                    StancesNot = spellsResult.Read<ulong>(21),
-                    Targets = (SpellCastTargetFlags)spellsResult.Read<uint>(22),
-                    TargetCreatureType = spellsResult.Read<uint>(23),
-                    RequiresSpellFocus = spellsResult.Read<uint>(24),
-                    FacingCasterFlags = spellsResult.Read<uint>(25),
-                    CasterAuraState = (AuraStateType)spellsResult.Read<uint>(26),
-                    TargetAuraState = (AuraStateType)spellsResult.Read<uint>(27),
-                    ExcludeCasterAuraState = (AuraStateType)spellsResult.Read<uint>(28),
-                    ExcludeTargetAuraState = (AuraStateType)spellsResult.Read<uint>(29),
-                    CasterAuraSpell = spellsResult.Read<uint>(30),
-                    TargetAuraSpell = spellsResult.Read<uint>(31),
-                    ExcludeCasterAuraSpell = spellsResult.Read<uint>(32),
-                    ExcludeTargetAuraSpell = spellsResult.Read<uint>(33),
-                    CasterAuraType = (AuraType)spellsResult.Read<int>(34),
-                    TargetAuraType = (AuraType)spellsResult.Read<int>(35),
-                    ExcludeCasterAuraType = (AuraType)spellsResult.Read<int>(36),
-                    ExcludeTargetAuraType = (AuraType)spellsResult.Read<int>(37),
-                    CastTimeEntry = _cliDB.SpellCastTimesStorage.LookupByKey(spellsResult.Read<uint>(38)),
-                    RecoveryTime = spellsResult.Read<uint>(39),
-                    CategoryRecoveryTime = spellsResult.Read<uint>(40),
-                    StartRecoveryCategory = spellsResult.Read<uint>(41),
-                    StartRecoveryTime = spellsResult.Read<uint>(42),
-                    InterruptFlags = (SpellInterruptFlags)spellsResult.Read<uint>(43),
-                    AuraInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(44),
-                    AuraInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(45),
-                    ChannelInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(46),
-                    ChannelInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(47),
-                    ProcFlags = new ProcFlagsInit(spellsResult.Read<int>(48), spellsResult.Read<int>(49)),
-                    ProcChance = spellsResult.Read<uint>(50),
-                    ProcCharges = spellsResult.Read<uint>(51),
-                    ProcCooldown = spellsResult.Read<uint>(52),
-                    ProcBasePpm = spellsResult.Read<float>(53),
-                    MaxLevel = spellsResult.Read<uint>(54),
-                    BaseLevel = spellsResult.Read<uint>(55),
-                    SpellLevel = spellsResult.Read<uint>(56),
-                    DurationEntry = _cliDB.SpellDurationStorage.LookupByKey(spellsResult.Read<uint>(57)),
-                    RangeEntry = _cliDB.SpellRangeStorage.LookupByKey(spellsResult.Read<uint>(58)),
-                    Speed = spellsResult.Read<float>(59),
-                    LaunchDelay = spellsResult.Read<float>(60),
-                    StackAmount = spellsResult.Read<uint>(61),
-                    EquippedItemClass = (ItemClass)spellsResult.Read<int>(62),
-                    EquippedItemSubClassMask = spellsResult.Read<int>(63),
-                    EquippedItemInventoryTypeMask = spellsResult.Read<int>(64),
-                    ContentTuningId = spellsResult.Read<uint>(65),
-                    ConeAngle = spellsResult.Read<float>(67),
-                    Width = spellsResult.Read<float>(68),
-                    MaxTargetLevel = spellsResult.Read<uint>(69),
-                    MaxAffectedTargets = spellsResult.Read<uint>(70),
-                    SpellFamilyName = (SpellFamilyNames)spellsResult.Read<uint>(71),
-                    SpellFamilyFlags = new FlagArray128(spellsResult.Read<uint>(72), spellsResult.Read<uint>(73), spellsResult.Read<uint>(74), spellsResult.Read<uint>(75)),
-                    DmgClass = (SpellDmgClass)spellsResult.Read<uint>(76),
-                    PreventionType = (SpellPreventionType)spellsResult.Read<uint>(77),
-                    RequiredAreasId = spellsResult.Read<int>(78),
-                    SchoolMask = (SpellSchoolMask)spellsResult.Read<uint>(79),
-                    ChargeCategoryId = spellsResult.Read<uint>(80)
-                };
+                SpellInfo spellInfo = _classFactory.ResolvePositional<SpellInfo>(_serversideSpellNames.Last().Name, difficulty, spellEffects[(spellId, difficulty)]);
+                spellInfo.CategoryId = spellsResult.Read<uint>(2);
+                spellInfo.Dispel = (DispelType)spellsResult.Read<uint>(3);
+                spellInfo.Mechanic = (Mechanics)spellsResult.Read<uint>(4);
+                spellInfo.Attributes = (SpellAttr0)spellsResult.Read<uint>(5);
+                spellInfo.AttributesEx = (SpellAttr1)spellsResult.Read<uint>(6);
+                spellInfo.AttributesEx2 = (SpellAttr2)spellsResult.Read<uint>(7);
+                spellInfo.AttributesEx3 = (SpellAttr3)spellsResult.Read<uint>(8);
+                spellInfo.AttributesEx4 = (SpellAttr4)spellsResult.Read<uint>(9);
+                spellInfo.AttributesEx5 = (SpellAttr5)spellsResult.Read<uint>(10);
+                spellInfo.AttributesEx6 = (SpellAttr6)spellsResult.Read<uint>(11);
+                spellInfo.AttributesEx7 = (SpellAttr7)spellsResult.Read<uint>(12);
+                spellInfo.AttributesEx8 = (SpellAttr8)spellsResult.Read<uint>(13);
+                spellInfo.AttributesEx9 = (SpellAttr9)spellsResult.Read<uint>(14);
+                spellInfo.AttributesEx10 = (SpellAttr10)spellsResult.Read<uint>(15);
+                spellInfo.AttributesEx11 = (SpellAttr11)spellsResult.Read<uint>(16);
+                spellInfo.AttributesEx12 = (SpellAttr12)spellsResult.Read<uint>(17);
+                spellInfo.AttributesEx13 = (SpellAttr13)spellsResult.Read<uint>(18);
+                spellInfo.AttributesEx14 = (SpellAttr14)spellsResult.Read<uint>(19);
+                spellInfo.Stances = spellsResult.Read<ulong>(20);
+                spellInfo.StancesNot = spellsResult.Read<ulong>(21);
+                spellInfo.Targets = (SpellCastTargetFlags)spellsResult.Read<uint>(22);
+                spellInfo.TargetCreatureType = spellsResult.Read<uint>(23);
+                spellInfo.RequiresSpellFocus = spellsResult.Read<uint>(24);
+                spellInfo.FacingCasterFlags = spellsResult.Read<uint>(25);
+                spellInfo.CasterAuraState = (AuraStateType)spellsResult.Read<uint>(26);
+                spellInfo.TargetAuraState = (AuraStateType)spellsResult.Read<uint>(27);
+                spellInfo.ExcludeCasterAuraState = (AuraStateType)spellsResult.Read<uint>(28);
+                spellInfo.ExcludeTargetAuraState = (AuraStateType)spellsResult.Read<uint>(29);
+                spellInfo.CasterAuraSpell = spellsResult.Read<uint>(30);
+                spellInfo.TargetAuraSpell = spellsResult.Read<uint>(31);
+                spellInfo.ExcludeCasterAuraSpell = spellsResult.Read<uint>(32);
+                spellInfo.ExcludeTargetAuraSpell = spellsResult.Read<uint>(33);
+                spellInfo.CasterAuraType = (AuraType)spellsResult.Read<int>(34);
+                spellInfo.TargetAuraType = (AuraType)spellsResult.Read<int>(35);
+                spellInfo.ExcludeCasterAuraType = (AuraType)spellsResult.Read<int>(36);
+                spellInfo.ExcludeTargetAuraType = (AuraType)spellsResult.Read<int>(37);
+                spellInfo.CastTimeEntry = _cliDB.SpellCastTimesStorage.LookupByKey(spellsResult.Read<uint>(38));
+                spellInfo.RecoveryTime = spellsResult.Read<uint>(39);
+                spellInfo.CategoryRecoveryTime = spellsResult.Read<uint>(40);
+                spellInfo.StartRecoveryCategory = spellsResult.Read<uint>(41);
+                spellInfo.StartRecoveryTime = spellsResult.Read<uint>(42);
+                spellInfo.InterruptFlags = (SpellInterruptFlags)spellsResult.Read<uint>(43);
+                spellInfo.AuraInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(44);
+                spellInfo.AuraInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(45);
+                spellInfo.ChannelInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(46);
+                spellInfo.ChannelInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(47);
+                spellInfo.ProcFlags = new ProcFlagsInit(spellsResult.Read<int>(48), spellsResult.Read<int>(49));
+                spellInfo.ProcChance = spellsResult.Read<uint>(50);
+                spellInfo.ProcCharges = spellsResult.Read<uint>(51);
+                spellInfo.ProcCooldown = spellsResult.Read<uint>(52);
+                spellInfo.ProcBasePpm = spellsResult.Read<float>(53);
+                spellInfo.MaxLevel = spellsResult.Read<uint>(54);
+                spellInfo.BaseLevel = spellsResult.Read<uint>(55);
+                spellInfo.SpellLevel = spellsResult.Read<uint>(56);
+                spellInfo.DurationEntry = _cliDB.SpellDurationStorage.LookupByKey(spellsResult.Read<uint>(57));
+                spellInfo.RangeEntry = _cliDB.SpellRangeStorage.LookupByKey(spellsResult.Read<uint>(58));
+                spellInfo.Speed = spellsResult.Read<float>(59);
+                spellInfo.LaunchDelay = spellsResult.Read<float>(60);
+                spellInfo.StackAmount = spellsResult.Read<uint>(61);
+                spellInfo.EquippedItemClass = (ItemClass)spellsResult.Read<int>(62);
+                spellInfo.EquippedItemSubClassMask = spellsResult.Read<int>(63);
+                spellInfo.EquippedItemInventoryTypeMask = spellsResult.Read<int>(64);
+                spellInfo.ContentTuningId = spellsResult.Read<uint>(65);
+                spellInfo.ConeAngle = spellsResult.Read<float>(67);
+                spellInfo.Width = spellsResult.Read<float>(68);
+                spellInfo.MaxTargetLevel = spellsResult.Read<uint>(69);
+                spellInfo.MaxAffectedTargets = spellsResult.Read<uint>(70);
+                spellInfo.SpellFamilyName = (SpellFamilyNames)spellsResult.Read<uint>(71);
+                spellInfo.SpellFamilyFlags = new FlagArray128(spellsResult.Read<uint>(72), spellsResult.Read<uint>(73), spellsResult.Read<uint>(74), spellsResult.Read<uint>(75));
+                spellInfo.DmgClass = (SpellDmgClass)spellsResult.Read<uint>(76);
+                spellInfo.PreventionType = (SpellPreventionType)spellsResult.Read<uint>(77);
+                spellInfo.RequiredAreasId = spellsResult.Read<int>(78);
+                spellInfo.SchoolMask = (SpellSchoolMask)spellsResult.Read<uint>(79);
+                spellInfo.ChargeCategoryId = spellsResult.Read<uint>(80);
 
                 AddSpellInfo(spellInfo);
             } while (spellsResult.NextRow());
@@ -4068,7 +4067,7 @@ public sealed class SpellManager
             //first key = id, difficulty
             //second key = id
 
-            AddSpellInfo(new SpellInfo(spellNameEntry, data.Key.difficulty, data.Value));
+            AddSpellInfo(_classFactory.ResolvePositional<SpellInfo>(spellNameEntry, data.Key.difficulty, data.Value));
         }
 
         Log.Logger.Information("Loaded SpellInfo store in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
@@ -4662,9 +4661,9 @@ public sealed class SpellManager
                     if (!addTriggerFlag && spellInfo.ProcFlags.HasFlag(ProcFlags.TakenHitMask))
                         addTriggerFlag = auraName switch
                         {
-                            AuraType.ProcTriggerSpell => true,
+                            AuraType.ProcTriggerSpell  => true,
                             AuraType.ProcTriggerDamage => true,
-                            _ => addTriggerFlag
+                            _                          => addTriggerFlag
                         };
                 }
 
