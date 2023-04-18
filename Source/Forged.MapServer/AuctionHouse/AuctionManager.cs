@@ -105,8 +105,8 @@ public class AuctionManager
                                        auction.Id,
                                        auction.TotalItemCount,
                                        auction.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId),
-                                       auction.Items[0].GetContext(),
-                                       auction.Items[0].GetBonusListIDs());
+                                       auction.Items[0].Context,
+                                       auction.Items[0].BonusListIDs);
     }
 
     public AuctionThrottleResult CheckThrottle(Player player, bool addonTainted, AuctionCommand command = AuctionCommand.SellItem)
@@ -267,7 +267,7 @@ public class AuctionManager
                 continue;
             }
 
-            var item = Item.NewItemOrBag(proto);
+            var item = ItemFactory.NewItemOrBag(proto);
 
             if (!item.LoadFromDB(itemGuid, ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(51)), result.GetFields(), itemEntry))
             {

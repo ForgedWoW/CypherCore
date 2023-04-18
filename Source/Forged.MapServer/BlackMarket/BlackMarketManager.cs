@@ -289,7 +289,7 @@ public class BlackMarketManager
 
         // Create item
         var templ = entry.GetTemplate();
-        var item = Item.CreateItem(templ.Item.ItemID, templ.Quantity, ItemContext.BlackMarket);
+        var item = ItemFactory.CreateItem(templ.Item.ItemID, templ.Quantity, ItemContext.BlackMarket);
 
         if (item == null)
             return;

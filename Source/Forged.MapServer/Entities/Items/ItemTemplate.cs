@@ -234,7 +234,7 @@ public class ItemTemplate
     public void GetDamage(uint itemLevel, out float minDamage, out float maxDamage)
     {
         minDamage = maxDamage = 0.0f;
-        var dps = GetDPS(itemLevel);
+        var dps = GetDps(itemLevel);
 
         if (dps > 0.0f)
         {
@@ -244,7 +244,7 @@ public class ItemTemplate
         }
     }
 
-    public float GetDPS(uint itemLevel)
+    public float GetDps(uint itemLevel)
     {
         var quality = Quality != ItemQuality.Heirloom ? Quality : ItemQuality.Rare;
 

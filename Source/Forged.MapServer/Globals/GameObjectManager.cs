@@ -10850,9 +10850,9 @@ public sealed class GameObjectManager
                     // mail open and then not returned
                     foreach (var itemInfo in m.Items)
                     {
-                        Item.DeleteFromDB(null, itemInfo.ItemGUID);
-                        AzeriteItem.DeleteFromDB(null, itemInfo.ItemGUID);
-                        AzeriteEmpoweredItem.DeleteFromDB(null, itemInfo.ItemGUID);
+                        ItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
+                        AzeriteItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
+                        AzeriteEmpoweredItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
                     }
 
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);

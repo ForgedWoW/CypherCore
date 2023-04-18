@@ -123,9 +123,9 @@ public partial class Player
                 if (m.HasItems())
                     foreach (var mailItemInfo in m.Items)
                     {
-                        Item.DeleteFromDB(trans, mailItemInfo.ItemGUID);
-                        AzeriteItem.DeleteFromDB(trans, mailItemInfo.ItemGUID);
-                        AzeriteEmpoweredItem.DeleteFromDB(trans, mailItemInfo.ItemGUID);
+                        ItemFactory.DeleteFromDB(trans, mailItemInfo.ItemGUID);
+                        AzeriteItemFactory.DeleteFromDB(trans, mailItemInfo.ItemGUID);
+                        AzeriteEmpoweredItemFactory.DeleteFromDB(trans, mailItemInfo.ItemGUID);
                     }
 
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
@@ -2109,7 +2109,7 @@ public partial class Player
         if (proto != null)
         {
             var remove = false;
-            var item = Item.NewItemOrBag(proto);
+            var item = ItemFactory.NewItemOrBag(proto);
 
             if (item.LoadFromDB(itemGuid, GUID, fields, itemEntry))
             {
@@ -2185,7 +2185,7 @@ public partial class Player
                         }
                     }
                 }
-                else if (item.IsBOPTradeable)
+                else if (item.IsBopTradeable)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_ITEM_BOP_TRADE);
                     stmt.AddValue(0, item.GUID.ToString());
@@ -2244,7 +2244,7 @@ public partial class Player
             if (!remove)
                 return item;
 
-            Item.DeleteFromInventoryDB(trans, itemGuid);
+            ItemFactory.DeleteFromInventoryDB(trans, itemGuid);
             item.FSetState(ItemUpdateState.Removed);
             item.SaveToDB(trans); // it also deletes item object!
         }
@@ -2255,10 +2255,10 @@ public partial class Player
                              GetName(),
                              itemEntry);
 
-            Item.DeleteFromInventoryDB(trans, itemGuid);
-            Item.DeleteFromDB(trans, itemGuid);
-            AzeriteItem.DeleteFromDB(trans, itemGuid);
-            AzeriteEmpoweredItem.DeleteFromDB(trans, itemGuid);
+            ItemFactory.DeleteFromInventoryDB(trans, itemGuid);
+            ItemFactory.DeleteFromDB(trans, itemGuid);
+            AzeriteItemFactory.DeleteFromDB(trans, itemGuid);
+            AzeriteEmpoweredItemFactory.DeleteFromDB(trans, itemGuid);
         }
 
         return null;

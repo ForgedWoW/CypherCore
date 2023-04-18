@@ -47,7 +47,7 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
 
         if (itemTemplate.MaxStackSize == 1)
             return new AuctionsBucketKey(item.Entry,
-                                         (ushort)Item.GetItemLevel(itemTemplate, item.BonusData, 0, (uint)item.GetRequiredLevel(), 0, 0, 0, false, 0),
+                                         (ushort)ItemFactory.GetItemLevel(itemTemplate, item.BonusData, 0, (uint)item.GetRequiredLevel(), 0, 0, 0, false, 0),
                                          (ushort)item.GetModifier(ItemModifier.BattlePetSpeciesId),
                                          (ushort)item.BonusData.Suffix);
 

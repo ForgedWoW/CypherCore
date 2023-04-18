@@ -46,9 +46,9 @@ public partial class Player
                 if (DB2Manager.GetHeirloomByItemId(_items[i].Entry) != null && _items[i].Template.ItemSet != 0)
                 {
                     if (apply)
-                        Item.AddItemsSetItem(this, _items[i]);
+                        ItemFactory.AddItemsSetItem(this, _items[i]);
                     else
-                        Item.RemoveItemsSetItem(this, _items[i]);
+                        ItemFactory.RemoveItemsSetItem(this, _items[i]);
                 }
             }
     }
@@ -520,7 +520,7 @@ public partial class Player
 
     public void AddItemWithToast(uint itemID, ushort quantity, uint bonusid)
     {
-        var pItem = Item.CreateItem(itemID, quantity, ItemContext.None, this);
+        var pItem = ItemFactory.CreateItem(itemID, quantity, ItemContext.None, this);
         pItem.AddBonuses(bonusid);
         SendDisplayToast(itemID, DisplayToastType.NewItem, false, quantity, DisplayToastMethod.PersonalLoot, 0U, pItem);
         StoreNewItemInBestSlots(itemID, quantity, ItemContext.None);
@@ -1869,7 +1869,7 @@ public partial class Player
                     if (bag == null)
                         continue;
 
-                    if (!Item.ItemCanGoIntoBag(item.Template, bag.Template))
+                    if (!ItemFactory.ItemCanGoIntoBag(item.Template, bag.Template))
                         continue;
 
                     for (byte j = 0; j < bag.GetBagSize(); j++)
@@ -1910,7 +1910,7 @@ public partial class Player
                     // not plain container check
                     if (pBagProto == null ||
                         (pBagProto.Class == ItemClass.Container && pBagProto.SubClass == (uint)ItemSubClassContainer.Container) ||
-                        !Item.ItemCanGoIntoBag(pProto, pBagProto))
+                        !ItemFactory.ItemCanGoIntoBag(pProto, pBagProto))
                         continue;
 
                     for (uint j = 0; j < bag.GetBagSize(); j++)
@@ -2267,7 +2267,7 @@ public partial class Player
             {
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
                 if (pProto != null && pProto.ItemSet != 0)
-                    Item.RemoveItemsSetItem(this, pItem);
+                    ItemFactory.RemoveItemsSetItem(this, pItem);
 
                 _ApplyItemMods(pItem, slot, false);
             }
@@ -3043,7 +3043,7 @@ public partial class Player
 
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
                 if (pProto != null && pProto.ItemSet != 0)
-                    Item.AddItemsSetItem(this, pItem);
+                    ItemFactory.AddItemsSetItem(this, pItem);
 
                 _ApplyItemMods(pItem, slot, true);
 
@@ -3147,7 +3147,7 @@ public partial class Player
 
     public Item EquipNewItem(ushort pos, uint item, ItemContext context, bool update)
     {
-        var pItem = Item.CreateItem(item, 1, context, this);
+        var pItem = ItemFactory.CreateItem(item, 1, context, this);
 
         if (pItem == null)
             return null;
@@ -3332,7 +3332,7 @@ public partial class Player
             foreach (var currentEquiped in toBeMailedCurrentEquipment)
             {
                 MoveItemFromInventory(InventorySlots.Bag0, currentEquiped.BagSlot, true);
-                Item.DeleteFromInventoryDB(trans, currentEquiped.GUID.Counter); // deletes item from character's inventory
+                ItemFactory.DeleteFromInventoryDB(trans, currentEquiped.GUID.Counter); // deletes item from character's inventory
                 currentEquiped.SaveToDB(trans);                                 // recursive and not have transaction guard into self, item not in inventory and can be save standalone
                 draft.AddItem(currentEquiped);
             }
@@ -3360,7 +3360,7 @@ public partial class Player
 
             foreach (var item in toBeMailedNewItems)
             {
-                var pItem = Item.CreateItem(item, 1, ItemContext.None, this);
+                var pItem = ItemFactory.CreateItem(item, 1, ItemContext.None, this);
 
                 if (pItem == null)
                     continue;
@@ -3975,7 +3975,7 @@ public partial class Player
         RemoveItem(bag, slot, update);
         ItemRemovedQuestCheck(it.Entry, it.Count);
         it.SetNotRefundable(this, false, null, false);
-        Item.RemoveItemFromUpdateQueueOf(it, this);
+        ItemFactory.RemoveItemFromUpdateQueueOf(it, this);
         Session.CollectionMgr.RemoveTemporaryAppearance(it);
 
         if (!it.Location.IsInWorld)
@@ -4004,7 +4004,7 @@ public partial class Player
             // in case trade we already have item in other player inventory
             pLastItem.SetState(inCharacterInventoryDB ? ItemUpdateState.Changed : ItemUpdateState.New, this);
 
-            if (pLastItem.IsBOPTradeable)
+            if (pLastItem.IsBopTradeable)
                 AddTradeableItem(pLastItem);
         }
 
@@ -4201,7 +4201,7 @@ public partial class Player
                     var pProto = pItem.Template;
 
                     if (pProto != null && pProto.ItemSet != 0)
-                        Item.RemoveItemsSetItem(this, pItem);
+                        ItemFactory.RemoveItemsSetItem(this, pItem);
 
                     _ApplyItemMods(pItem, slot, false, update);
 
@@ -4323,7 +4323,7 @@ public partial class Player
         foreach (var item in bunchOfItems)
         {
             Log.Logger.Information("[BunchOfItems]: {}.", item);
-            var pItem = Item.CreateItem(item, 1, ItemContext.None, this);
+            var pItem = ItemFactory.CreateItem(item, 1, ItemContext.None, this);
 
             if (pItem == null)
                 continue;
@@ -4428,7 +4428,7 @@ public partial class Player
         var draft = ClassFactory.ResolvePositional<MailDraft>("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
         SQLTransaction trans = new();
 
-        var item = Item.CreateItem(itemEntry, count, context);
+        var item = ItemFactory.CreateItem(itemEntry, count, context);
 
         if (item != null)
         {
@@ -4989,7 +4989,7 @@ public partial class Player
         foreach (var itemPosCount in pos)
             count += itemPosCount.Count;
 
-        var item = Item.CreateItem(itemId, count, context, this);
+        var item = ItemFactory.CreateItem(itemId, count, context, this);
 
         if (item != null)
         {
@@ -5373,7 +5373,7 @@ public partial class Player
 
                         var bagItemProto = bagItem.Template;
 
-                        if (bagItemProto == null || !Item.ItemCanGoIntoBag(bagItemProto, emptyProto))
+                        if (bagItemProto == null || !ItemFactory.ItemCanGoIntoBag(bagItemProto, emptyProto))
                         {
                             // one from items not go to empty target bag
                             SendEquipError(InventoryResult.BagInBag, pSrcItem, pDstItem);
@@ -5669,7 +5669,7 @@ public partial class Player
 
                 // item set bonuses not dependent from item broken state
                 if (proto.ItemSet != 0)
-                    Item.AddItemsSetItem(this, _items[i]);
+                    ItemFactory.AddItemsSetItem(this, _items[i]);
 
                 if (_items[i].IsBroken || !CanUseAttackType(PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
@@ -5696,7 +5696,7 @@ public partial class Player
 
                 // item set bonuses not dependent from item broken state
                 if (proto.ItemSet != 0)
-                    Item.RemoveItemsSetItem(this, _items[i]);
+                    ItemFactory.RemoveItemsSetItem(this, _items[i]);
 
                 if (_items[i].IsBroken || !CanUseAttackType(PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
@@ -6130,7 +6130,7 @@ public partial class Player
     private InventoryResult CanEquipNewItem(byte slot, out ushort dest, uint item, bool swap)
     {
         dest = 0;
-        var pItem = Item.CreateItem(item, 1, ItemContext.None, this);
+        var pItem = ItemFactory.CreateItem(item, 1, ItemContext.None, this);
 
         if (pItem == null)
             return InventoryResult.ItemNotFound;
@@ -6570,7 +6570,7 @@ public partial class Player
         if (nonSpecialized != (pBagProto.Class == ItemClass.Container && pBagProto.SubClass == (uint)ItemSubClassContainer.Container))
             return InventoryResult.WrongBagType;
 
-        if (!Item.ItemCanGoIntoBag(pProto, pBagProto))
+        if (!ItemFactory.ItemCanGoIntoBag(pProto, pBagProto))
             return InventoryResult.WrongBagType;
 
         for (byte j = 0; j < pBag.GetBagSize(); j++)
@@ -6722,7 +6722,7 @@ public partial class Player
                 if (slot >= pBagProto.ContainerSlots)
                     return InventoryResult.WrongBagType;
 
-                if (!Item.ItemCanGoIntoBag(pProto, pBagProto))
+                if (!ItemFactory.ItemCanGoIntoBag(pProto, pBagProto))
                     return InventoryResult.WrongBagType;
             }
 

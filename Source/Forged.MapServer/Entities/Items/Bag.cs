@@ -1,27 +1,31 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Items;
 
 public class Bag : Item
 {
-    private readonly ContainerData m_containerData;
-    private Item[] m_bagslot = new Item[36];
+    private readonly ContainerData _mContainerData;
+    private Item[] _mBagslot = new Item[36];
 
-    public Bag()
+    public Bag(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager)
+        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager)
     {
         ObjectTypeMask |= TypeMask.Container;
         ObjectTypeId = TypeId.Container;
 
-        m_containerData = new ContainerData();
+        _mContainerData = new ContainerData();
     }
 
     public override void AddToWorld()
@@ -29,8 +33,8 @@ public class Bag : Item
         base.AddToWorld();
 
         for (uint i = 0; i < GetBagSize(); ++i)
-            if (m_bagslot[i] != null)
-                m_bagslot[i].AddToWorld();
+            if (_mBagslot[i] != null)
+                _mBagslot[i].AddToWorld();
     }
 
     public override void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
@@ -38,8 +42,8 @@ public class Bag : Item
         base.BuildCreateUpdateBlockForPlayer(data, target);
 
         for (var i = 0; i < GetBagSize(); ++i)
-            if (m_bagslot[i] != null)
-                m_bagslot[i].BuildCreateUpdateBlockForPlayer(data, target);
+            if (_mBagslot[i] != null)
+                _mBagslot[i].BuildCreateUpdateBlockForPlayer(data, target);
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -50,7 +54,7 @@ public class Bag : Item
         buffer.WriteUInt8((byte)flags);
         ObjectData.WriteCreate(buffer, flags, this, target);
         ItemData.WriteCreate(buffer, flags, this, target);
-        m_containerData.WriteCreate(buffer, flags, this, target);
+        _mContainerData.WriteCreate(buffer, flags, this, target);
 
         data.WriteUInt32(buffer.GetSize());
         data.WriteBytes(buffer);
@@ -70,7 +74,7 @@ public class Bag : Item
             ItemData.WriteUpdate(buffer, flags, this, target);
 
         if (Values.HasChanged(TypeId.Container))
-            m_containerData.WriteUpdate(buffer, flags, this, target);
+            _mContainerData.WriteUpdate(buffer, flags, this, target);
 
         data.WriteUInt32(buffer.GetSize());
         data.WriteBytes(buffer);
@@ -78,13 +82,13 @@ public class Bag : Item
 
     public override void ClearUpdateMask(bool remove)
     {
-        Values.ClearChangesMask(m_containerData);
+        Values.ClearChangesMask(_mContainerData);
         base.ClearUpdateMask(remove);
     }
 
     public override bool Create(ulong guidlow, uint itemid, ItemContext context, Player owner)
     {
-        var itemProto = Global.ObjectMgr.GetItemTemplate(itemid);
+        var itemProto = GameObjectManager.GetItemTemplate(itemid);
 
         if (itemProto == null || itemProto.ContainerSlots > ItemConst.MaxBagSize)
             return false;
@@ -96,7 +100,7 @@ public class Bag : Item
         Entry = itemid;
         ObjectScale = 1.0f;
 
-        if (owner)
+        if (owner != null)
         {
             SetOwnerGUID(owner.GUID);
             SetContainedIn(owner.GUID);
@@ -114,7 +118,7 @@ public class Bag : Item
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
             SetSlot(i, ObjectGuid.Empty);
 
-        m_bagslot = new Item[ItemConst.MaxBagSize];
+        _mBagslot = new Item[ItemConst.MaxBagSize];
 
         return true;
     }
@@ -122,8 +126,8 @@ public class Bag : Item
     public override void DeleteFromDB(SQLTransaction trans)
     {
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
-            if (m_bagslot[i] != null)
-                m_bagslot[i].DeleteFromDB(trans);
+            if (_mBagslot[i] != null)
+                _mBagslot[i].DeleteFromDB(trans);
 
         base.DeleteFromDB(trans);
     }
@@ -132,26 +136,26 @@ public class Bag : Item
     {
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
         {
-            var item = m_bagslot[i];
+            var item = _mBagslot[i];
 
-            if (item)
+            if (item == null)
+                continue;
+
+            if (item.Location.IsInWorld)
             {
-                if (item.Location.IsInWorld)
-                {
-                    Log.Logger.Fatal("Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
-                                     item.Entry,
-                                     item.Slot,
-                                     item.BagSlot,
-                                     Entry,
-                                     Slot,
-                                     BagSlot,
-                                     i);
+                Log.Logger.Fatal("Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
+                                 item.Entry,
+                                 item.Slot,
+                                 item.BagSlot,
+                                 Entry,
+                                 Slot,
+                                 BagSlot,
+                                 i);
 
-                    item.RemoveFromWorld();
-                }
-
-                m_bagslot[i].Dispose();
+                item.RemoveFromWorld();
             }
+
+            _mBagslot[i].Dispose();
         }
 
         base.Dispose();
@@ -159,7 +163,7 @@ public class Bag : Item
 
     public uint GetBagSize()
     {
-        return m_containerData.NumSlots;
+        return _mContainerData.NumSlots;
     }
 
     public uint GetFreeSlots()
@@ -167,7 +171,7 @@ public class Bag : Item
         uint slots = 0;
 
         for (uint i = 0; i < GetBagSize(); ++i)
-            if (m_bagslot[i] == null)
+            if (_mBagslot[i] == null)
                 ++slots;
 
         return slots;
@@ -175,24 +179,21 @@ public class Bag : Item
 
     public Item GetItemByPos(byte slot)
     {
-        if (slot < GetBagSize())
-            return m_bagslot[slot];
-
-        return null;
+        return slot < GetBagSize() ? _mBagslot[slot] : null;
     }
 
     public bool IsEmpty()
     {
         for (var i = 0; i < GetBagSize(); ++i)
-            if (m_bagslot[i] != null)
+            if (_mBagslot[i] != null)
                 return false;
 
         return true;
     }
 
-    public override bool LoadFromDB(ulong guid, ObjectGuid owner_guid, SQLFields fields, uint entry)
+    public override bool LoadFromDB(ulong guid, ObjectGuid ownerGUID, SQLFields fields, uint entry)
     {
-        if (!base.LoadFromDB(guid, owner_guid, fields, entry))
+        if (!base.LoadFromDB(guid, ownerGUID, fields, entry))
             return false;
 
         var itemProto = Template; // checked in Item.LoadFromDB
@@ -202,7 +203,7 @@ public class Bag : Item
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
         {
             SetSlot(i, ObjectGuid.Empty);
-            m_bagslot[i] = null;
+            _mBagslot[i] = null;
         }
 
         return true;
@@ -211,88 +212,41 @@ public class Bag : Item
     public override void RemoveFromWorld()
     {
         for (uint i = 0; i < GetBagSize(); ++i)
-            if (m_bagslot[i] != null)
-                m_bagslot[i].RemoveFromWorld();
+            if (_mBagslot[i] != null)
+                _mBagslot[i].RemoveFromWorld();
 
         base.RemoveFromWorld();
     }
 
     public void RemoveItem(byte slot, bool update)
     {
-        if (m_bagslot[slot] != null)
-            m_bagslot[slot].SetContainer(null);
+        if (_mBagslot[slot] != null)
+            _mBagslot[slot].SetContainer(null);
 
-        m_bagslot[slot] = null;
+        _mBagslot[slot] = null;
         SetSlot(slot, ObjectGuid.Empty);
     }
 
     public void StoreItem(byte slot, Item pItem, bool update)
     {
-        if (pItem != null && pItem.GUID != GUID)
-        {
-            m_bagslot[slot] = pItem;
-            SetSlot(slot, pItem.GUID);
-            pItem.SetContainedIn(GUID);
-            pItem.SetOwnerGUID(OwnerGUID);
-            pItem.SetContainer(this);
-            pItem.SetSlot(slot);
-        }
-    }
+        if (pItem == null || pItem.GUID == GUID)
+            return;
 
-    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedContainerMask, Player target)
-    {
-        var flags = GetUpdateFieldFlagsFor(target);
-        UpdateMask valuesMask = new((int)TypeId.Max);
-
-        if (requestedObjectMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Object);
-
-        ItemData.FilterDisallowedFieldsMaskForFlag(requestedItemMask, flags);
-
-        if (requestedItemMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Item);
-
-        if (requestedContainerMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Container);
-
-        WorldPacket buffer = new();
-        buffer.WriteUInt32(valuesMask.GetBlock(0));
-
-        if (valuesMask[(int)TypeId.Object])
-            ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.Item])
-            ItemData.WriteUpdate(buffer, requestedItemMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.Container])
-            m_containerData.WriteUpdate(buffer, requestedContainerMask, true, this, target);
-
-        WorldPacket buffer1 = new();
-        buffer1.WriteUInt8((byte)UpdateType.Values);
-        buffer1.WritePackedGuid(GUID);
-        buffer1.WriteUInt32(buffer.GetSize());
-        buffer1.WriteBytes(buffer.GetData());
-
-        data.AddUpdateBlock(buffer1);
-    }
-
-    private byte GetSlotByItemGUID(ObjectGuid guid)
-    {
-        for (byte i = 0; i < GetBagSize(); ++i)
-            if (m_bagslot[i] != null)
-                if (m_bagslot[i].GUID == guid)
-                    return i;
-
-        return ItemConst.NullSlot;
+        _mBagslot[slot] = pItem;
+        SetSlot(slot, pItem.GUID);
+        pItem.SetContainedIn(GUID);
+        pItem.SetOwnerGUID(OwnerGUID);
+        pItem.SetContainer(this);
+        pItem.SetSlot(slot);
     }
 
     private void SetBagSize(uint numSlots)
     {
-        SetUpdateFieldValue(Values.ModifyValue(m_containerData).ModifyValue(m_containerData.NumSlots), numSlots);
+        SetUpdateFieldValue(Values.ModifyValue(_mContainerData).ModifyValue(_mContainerData.NumSlots), numSlots);
     }
 
     private void SetSlot(int slot, ObjectGuid guid)
     {
-        SetUpdateFieldValue(ref Values.ModifyValue(m_containerData).ModifyValue(m_containerData.Slots, slot), guid);
+        SetUpdateFieldValue(ref Values.ModifyValue(_mContainerData).ModifyValue(_mContainerData.Slots, slot), guid);
     }
 }

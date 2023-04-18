@@ -84,7 +84,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
             }
 
             // validity of the transmogrification items
-            if (!Item.CanTransmogrifyItemWithItem(itemTransmogrified, itemModifiedAppearance))
+            if (!ItemFactory.CanTransmogrifyItemWithItem(itemTransmogrified, itemModifiedAppearance))
             {
                 Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} failed CanTransmogrifyItemWithItem ({itemTransmogrified.Entry} with appearance {itemModifiedAppearanceId}).");
 

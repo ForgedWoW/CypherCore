@@ -141,7 +141,7 @@ public class PlayerAchievementMgr : AchievementManager
 
         SQLTransaction trans = new();
 
-        var item = reward.ItemId != 0 ? Item.CreateItem(reward.ItemId, 1, ItemContext.None, _owner) : null;
+        var item = reward.ItemId != 0 ? ItemFactory.CreateItem(reward.ItemId, 1, ItemContext.None, _owner) : null;
 
         if (item != null)
         {

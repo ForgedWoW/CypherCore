@@ -11,32 +11,32 @@ namespace Forged.MapServer.Entities.Items;
 
 public class BonusData
 {
-    public uint AppearanceModID;
-    public uint AzeriteTierUnlockSetId;
-    public ItemBondingType Bonding;
-    public bool CanDisenchant;
-    public bool CanScrap;
-    public uint ContentTuningId;
-    public uint DisenchantLootId;
-    public int EffectCount;
-    public ItemEffectRecord[] Effects = new ItemEffectRecord[13];
-    public uint[] GemItemLevelBonus = new uint[ItemConst.MaxGemSockets];
-    public ushort[] GemRelicRankBonus = new ushort[ItemConst.MaxGemSockets];
-    public int[] GemRelicType = new int[ItemConst.MaxGemSockets];
-    public bool HasFixedLevel;
-    public int ItemLevelBonus;
-    public float[] ItemStatSocketCostMultiplier = new float[ItemConst.MaxStats];
-    public int[] ItemStatType = new int[ItemConst.MaxStats];
-    public uint PlayerLevelToItemLevelCurveId;
-    public ItemQuality Quality;
-    public int RelicType;
-    public float RepairCostMultiplier;
-    public int RequiredLevel;
-    public uint RequiredLevelCurve;
-    public int RequiredLevelOverride;
-    public SocketColor[] socketColor = new SocketColor[ItemConst.MaxGemSockets];
-    public int[] StatPercentEditor = new int[ItemConst.MaxStats];
-    public uint Suffix;
+    public uint AppearanceModID { get; set; }
+    public uint AzeriteTierUnlockSetId { get; set; }
+    public ItemBondingType Bonding { get; set; }
+    public bool CanDisenchant { get; set; }
+    public bool CanScrap { get; set; }
+    public uint ContentTuningId { get; set; }
+    public uint DisenchantLootId { get; set; }
+    public int EffectCount { get; set; }
+    public ItemEffectRecord[] Effects { get; set; } = new ItemEffectRecord[13];
+    public uint[] GemItemLevelBonus { get; set; } = new uint[ItemConst.MaxGemSockets];
+    public ushort[] GemRelicRankBonus { get; set; } = new ushort[ItemConst.MaxGemSockets];
+    public int[] GemRelicType { get; set; } = new int[ItemConst.MaxGemSockets];
+    public bool HasFixedLevel { get; set; }
+    public int ItemLevelBonus { get; set; }
+    public float[] ItemStatSocketCostMultiplier { get; set; } = new float[ItemConst.MaxStats];
+    public int[] ItemStatType { get; set; } = new int[ItemConst.MaxStats];
+    public uint PlayerLevelToItemLevelCurveId { get; set; }
+    public ItemQuality Quality { get; set; }
+    public int RelicType { get; set; }
+    public float RepairCostMultiplier { get; set; }
+    public int RequiredLevel { get; set; }
+    public uint RequiredLevelCurve { get; set; }
+    public int RequiredLevelOverride { get; set; }
+    public SocketColor[] SocketColor { get; set; } = new SocketColor[ItemConst.MaxGemSockets];
+    public int[] StatPercentEditor { get; set; } = new int[ItemConst.MaxStats];
+    public uint Suffix { get; set; }
     private State _state;
 
     public BonusData(ItemTemplate proto)
@@ -59,7 +59,7 @@ public class BonusData
 
         for (uint i = 0; i < ItemConst.MaxGemSockets; ++i)
         {
-            socketColor[i] = proto.GetSocketColor(i);
+            SocketColor[i] = proto.GetSocketColor(i);
             GemItemLevelBonus[i] = 0;
             GemRelicType[i] = -1;
             GemRelicRankBonus[i] = 0;
@@ -157,9 +157,9 @@ public class BonusData
                 var socketCount = (uint)values[0];
 
                 for (uint i = 0; i < ItemConst.MaxGemSockets && socketCount != 0; ++i)
-                    if (socketColor[i] == 0)
+                    if (SocketColor[i] == 0)
                     {
-                        socketColor[i] = (SocketColor)values[1];
+                        SocketColor[i] = (SocketColor)values[1];
                         --socketCount;
                     }
 

@@ -257,7 +257,7 @@ public class MailDraft
             if (lootitem == null)
                 continue;
 
-            var item = Item.CreateItem(lootitem.Itemid, lootitem.Count, lootitem.Context, receiver);
+            var item = ItemFactory.CreateItem(lootitem.Itemid, lootitem.Count, lootitem.Context, receiver);
 
             if (item == null)
                 continue;

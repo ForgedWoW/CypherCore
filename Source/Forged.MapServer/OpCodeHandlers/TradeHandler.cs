@@ -788,7 +788,7 @@ public class TradeHandler : IWorldSessionHandler
                                        trader.Session.AccountId);
 
                     // adjust time (depends on /played)
-                    if (myItems[i].IsBOPTradeable)
+                    if (myItems[i].IsBopTradeable)
                         myItems[i].SetCreatePlayedTime(trader.TotalPlayedTime - (Player.TotalPlayedTime - myItems[i].ItemData.CreatePlayedTime));
 
                     // store
@@ -813,7 +813,7 @@ public class TradeHandler : IWorldSessionHandler
 
 
                     // adjust time (depends on /played)
-                    if (hisItems[i].IsBOPTradeable)
+                    if (hisItems[i].IsBopTradeable)
                         hisItems[i].SetCreatePlayedTime(Player.TotalPlayedTime - (trader.TotalPlayedTime - hisItems[i].ItemData.CreatePlayedTime));
 
                     // store

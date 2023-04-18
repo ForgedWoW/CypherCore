@@ -20,13 +20,13 @@ public class ItemInstance
     public ItemInstance(Entities.Items.Item item)
     {
         ItemID = item.Entry;
-        var bonusListIds = item.GetBonusListIDs();
+        var bonusListIds = item.BonusListIDs;
 
         if (!bonusListIds.Empty())
         {
             ItemBonus = new ItemBonuses();
             ItemBonus.BonusListIDs.AddRange(bonusListIds);
-            ItemBonus.Context = item.GetContext();
+            ItemBonus.Context = item.Context;
         }
 
         foreach (var mod in item.ItemData.Modifiers.Value.Values)

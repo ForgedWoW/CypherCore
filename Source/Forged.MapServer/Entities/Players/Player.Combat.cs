@@ -46,7 +46,7 @@ public partial class Player
         if (CliDB.SpellShapeshiftFormStorage.ContainsKey((uint)ShapeshiftForm))
             SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
 
-        var weaponBasedAttackPower = apply ? (int)(proto.GetDPS(itemLevel) * 6.0f) : 0;
+        var weaponBasedAttackPower = apply ? (int)(proto.GetDps(itemLevel) * 6.0f) : 0;
 
         switch (attType)
         {

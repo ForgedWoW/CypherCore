@@ -84,7 +84,7 @@ public class GuildBankTab
             return false;
         }
 
-        var pItem = Item.NewItemOrBag(proto);
+        var pItem = ItemFactory.NewItemOrBag(proto);
 
         if (!pItem.LoadFromDB(itemGuid, ObjectGuid.Empty, field, itemEntry))
         {

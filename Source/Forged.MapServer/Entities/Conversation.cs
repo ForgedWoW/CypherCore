@@ -191,34 +191,6 @@ public class Conversation : WorldObject
         base.Update(diff);
     }
 
-    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedConversationMask, Player target)
-    {
-        UpdateMask valuesMask = new((int)TypeId.Max);
-
-        if (requestedObjectMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Object);
-
-        if (requestedConversationMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Conversation);
-
-        WorldPacket buffer = new();
-        buffer.WriteUInt32(valuesMask.GetBlock(0));
-
-        if (valuesMask[(int)TypeId.Object])
-            ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.Conversation])
-            _conversationData.WriteUpdate(buffer, requestedConversationMask, true, this, target);
-
-        WorldPacket buffer1 = new();
-        buffer1.WriteUInt8((byte)UpdateType.Values);
-        buffer1.WritePackedGuid(GUID);
-        buffer1.WriteUInt32(buffer.GetSize());
-        buffer1.WriteBytes(buffer.GetData());
-
-        data.AddUpdateBlock(buffer1);
-    }
-
     private void Create(ulong lowGuid, uint conversationEntry, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null)
     {
         var conversationTemplate = Global.ConversationDataStorage.GetConversationTemplate(conversationEntry);
@@ -312,39 +284,14 @@ public class Conversation : WorldObject
         {
             var actor = line.ActorIndex < _conversationData.Actors.Size() ? _conversationData.Actors[line.ActorIndex] : null;
 
-            if (actor == null || (actor.CreatureID == 0 && actor.ActorGUID.IsEmpty && actor.NoActorObject == 0))
-            {
-                Log.Logger.Error($"Failed to create conversation (Id: {Entry}) due to missing actor (Idx: {line.ActorIndex}).");
+            if (actor != null && (actor.CreatureID != 0 || !actor.ActorGUID.IsEmpty || actor.NoActorObject != 0))
+                continue;
 
-                return false;
-            }
-        }
+            Log.Logger.Error($"Failed to create conversation (Id: {Entry}) due to missing actor (Idx: {line.ActorIndex}).");
 
-        if (!Location.Map.AddToMap(this))
             return false;
-
-        return true;
-    }
-
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly ConversationData ConversationMask = new();
-        private readonly ObjectFieldData ObjectMask = new();
-        private readonly Conversation Owner;
-
-        public ValuesUpdateForPlayerWithMaskSender(Conversation owner)
-        {
-            Owner = owner;
         }
 
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(Owner.Location.MapId);
-
-            Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ConversationMask.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
+        return Location.Map.AddToMap(this);
     }
 }

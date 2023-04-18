@@ -658,7 +658,7 @@ public class ItemHandler : IWorldSessionHandler
                     {
                         pl.RemoveItem(pItem.BagSlot, pItem.Slot, true);
                         pl.ItemRemovedQuestCheck(pItem.Entry, pItem.Count);
-                        Item.RemoveItemFromUpdateQueueOf(pItem, pl);
+                        ItemFactory.RemoveItemFromUpdateQueueOf(pItem, pl);
                         pl.AddItemToBuyBackSlot(pItem);
                     }
                 }
@@ -1191,7 +1191,7 @@ public class ItemHandler : IWorldSessionHandler
         if (item.State == ItemUpdateState.New) // save new item, to have alway for `character_gifts` record in `item_instance`
         {
             // after save it will be impossible to remove the item from the queue
-            Item.RemoveItemFromUpdateQueueOf(item, Player);
+            ItemFactory.RemoveItemFromUpdateQueueOf(item, Player);
             item.SaveToDB(trans); // item gave inventory record unchanged and can be save standalone
         }
 

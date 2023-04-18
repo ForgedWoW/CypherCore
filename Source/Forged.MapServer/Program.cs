@@ -448,6 +448,9 @@ void RegisterFactories()
     builder.RegisterType<ClassFactory>().SingleInstance().OnActivated(c => c.Instance.Initialize(container));
     builder.RegisterType<CreatureFactory>().SingleInstance();
     builder.RegisterType<BattlePayDataStoreMgr>().SingleInstance();
+    builder.RegisterType<ItemFactory>().SingleInstance();
+    builder.RegisterType<AzeriteEmpoweredItemFactory>().SingleInstance();
+    builder.RegisterType<AzeriteItemFactory>().SingleInstance();
 }
 
 void RegisterInstanced()
@@ -502,6 +505,10 @@ void RegisterInstanced()
     builder.RegisterType<SpellEffectInfo>();
     builder.RegisterType<Petition>();
     builder.RegisterType<PlayerTaxi>();
+    builder.RegisterType<Item>();
+    builder.RegisterType<AzeriteEmpoweredItem>();
+    builder.RegisterType<AzeriteItem>();
+    builder.RegisterType<Bag>();
 }
 
 void RegisterHandlers()

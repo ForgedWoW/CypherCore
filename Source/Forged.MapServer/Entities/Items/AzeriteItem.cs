@@ -4,54 +4,34 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Azerite;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 
 namespace Forged.MapServer.Entities.Items;
 
 public class AzeriteItem : Item
 {
     public AzeriteItemData AzeriteItemData;
+    private readonly AzeriteItemFactory _azeriteItemFactory;
 
-    public AzeriteItem()
+    public AzeriteItem(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase,
+                       LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager, AzeriteItemFactory azeriteItemFactory)
+        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager)
     {
+        _azeriteItemFactory = azeriteItemFactory;
         AzeriteItemData = new AzeriteItemData();
 
         ObjectTypeMask |= TypeMask.AzeriteItem;
         ObjectTypeId = TypeId.AzeriteItem;
 
         SetUpdateFieldValue(Values.ModifyValue(AzeriteItemData).ModifyValue(AzeriteItemData.DebugKnowledgeWeek), -1);
-    }
-
-    public new static void DeleteFromDB(SQLTransaction trans, ulong itemGuid)
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
-        stmt.AddValue(0, itemGuid);
-        DB.Characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
-        stmt.AddValue(0, itemGuid);
-        DB.Characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
-        stmt.AddValue(0, itemGuid);
-        DB.Characters.ExecuteOrAppend(trans, stmt);
-    }
-
-    public static GameObject FindHeartForge(Player owner)
-    {
-        var forge = owner.Location.FindNearestGameObjectOfType(GameObjectTypes.ItemForge, 40.0f);
-
-        if (forge != null)
-            if (forge.Template.ItemForge.ForgeType == 2)
-                return forge;
-
-        return null;
     }
 
     public void AddUnlockedEssenceMilestone(uint azeriteItemMilestonePowerId)
@@ -115,10 +95,7 @@ public class AzeriteItem : Item
 
     public bool CanUseEssences()
     {
-        if (CliDB.PlayerConditionStorage.TryGetValue(PlayerConst.PlayerConditionIdUnlockedAzeriteEssences, out var condition))
-            return ConditionManager.IsPlayerMeetingCondition(OwnerUnit, condition);
-
-        return false;
+        return CliDB.PlayerConditionStorage.TryGetValue(PlayerConst.PlayerConditionIdUnlockedAzeriteEssences, out var condition) && ConditionManager.IsPlayerMeetingCondition(OwnerUnit, condition);
     }
 
     public override void ClearUpdateMask(bool remove)
@@ -149,7 +126,7 @@ public class AzeriteItem : Item
 
     public override void DeleteFromDB(SQLTransaction trans)
     {
-        DeleteFromDB(trans, GUID.Counter);
+        AzeriteItemFactory.DeleteFromDB(trans, GUID.Counter);
         base.DeleteFromDB(trans);
     }
 
@@ -167,10 +144,7 @@ public class AzeriteItem : Item
     {
         var index = AzeriteItemData.UnlockedEssences.FindIndexIf(essence => { return essence.AzeriteEssenceID == azeriteEssenceId; });
 
-        if (index < 0)
-            return 0;
-
-        return AzeriteItemData.UnlockedEssences[index].Rank;
+        return index < 0 ? (uint)0 : AzeriteItemData.UnlockedEssences[index].Rank;
     }
 
     public uint GetLevel()
@@ -252,7 +226,7 @@ public class AzeriteItem : Item
 
     public bool HasUnlockedEssenceSlot(byte slot)
     {
-        var milestone = Global.DB2Mgr.GetAzeriteItemMilestonePower(slot);
+        var milestone = DB2Manager.GetAzeriteItemMilestonePower(slot);
 
         return AzeriteItemData.UnlockedEssenceMilestones.FindIndex(milestone.Id) != -1;
     }
@@ -331,25 +305,25 @@ public class AzeriteItem : Item
 
         if (needSave)
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_ON_LOAD);
+            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_ON_LOAD);
             stmt.AddValue(0, azeriteData.Xp);
             stmt.AddValue(1, azeriteData.KnowledgeLevel);
             stmt.AddValue(2, GUID.Counter);
-            DB.Characters.Execute(stmt);
+            CharacterDatabase.Execute(stmt);
         }
     }
 
     public override void SaveToDB(SQLTransaction trans)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
+        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
         stmt.AddValue(0, GUID.Counter);
         trans.Append(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
+        stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
         stmt.AddValue(0, GUID.Counter);
         trans.Append(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
+        stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
         stmt.AddValue(0, GUID.Counter);
         trans.Append(stmt);
 
@@ -357,7 +331,7 @@ public class AzeriteItem : Item
         {
             case ItemUpdateState.New:
             case ItemUpdateState.Changed:
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE);
+                stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE);
                 stmt.AddValue(0, GUID.Counter);
                 stmt.AddValue(1, AzeriteItemData.Xp);
                 stmt.AddValue(2, AzeriteItemData.Level);
@@ -385,7 +359,7 @@ public class AzeriteItem : Item
 
                 foreach (var azeriteItemMilestonePowerId in AzeriteItemData.UnlockedEssenceMilestones)
                 {
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
+                    stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
                     stmt.AddValue(0, GUID.Counter);
                     stmt.AddValue(1, azeriteItemMilestonePowerId);
                     trans.Append(stmt);
@@ -393,7 +367,7 @@ public class AzeriteItem : Item
 
                 foreach (var azeriteEssence in AzeriteItemData.UnlockedEssences)
                 {
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
+                    stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
                     stmt.AddValue(0, GUID.Counter);
                     stmt.AddValue(1, azeriteEssence.AzeriteEssenceID);
                     stmt.AddValue(2, azeriteEssence.Rank);
@@ -417,7 +391,7 @@ public class AzeriteItem : Item
             return;
         }
 
-        if (Global.DB2Mgr.GetAzeriteEssencePower(azeriteEssenceId, rank) == null)
+        if (DB2Manager.GetAzeriteEssencePower(azeriteEssenceId, rank) == null)
             return;
 
         if (index < 0)
@@ -440,7 +414,7 @@ public class AzeriteItem : Item
     public void SetSelectedAzeriteEssence(int slot, uint azeriteEssenceId)
     {
         //ASSERT(slot < MAX_AZERITE_ESSENCE_SLOT);
-        var index = AzeriteItemData.SelectedEssences.FindIndexIf(essences => { return essences.Enabled; });
+        var index = AzeriteItemData.SelectedEssences.FindIndexIf(essences => essences.Enabled);
         //ASSERT(index >= 0);
         SelectedAzeriteEssences selectedEssences = Values.ModifyValue(AzeriteItemData).ModifyValue(AzeriteItemData.SelectedEssences, index);
         SetUpdateFieldValue(ref selectedEssences.ModifyValue(selectedEssences.AzeriteEssenceID, slot), azeriteEssenceId);
@@ -448,7 +422,7 @@ public class AzeriteItem : Item
 
     public void SetSelectedAzeriteEssences(uint specializationId)
     {
-        var index = AzeriteItemData.SelectedEssences.FindIndexIf(essences => { return essences.Enabled; });
+        var index = AzeriteItemData.SelectedEssences.FindIndexIf(essences => essences.Enabled);
 
         if (index >= 0)
         {
@@ -456,7 +430,7 @@ public class AzeriteItem : Item
             SetUpdateFieldValue(selectedEssences.ModifyValue(selectedEssences.Enabled), false);
         }
 
-        index = AzeriteItemData.SelectedEssences.FindIndexIf(essences => { return essences.SpecializationID == specializationId; });
+        index = AzeriteItemData.SelectedEssences.FindIndexIf(essences => essences.SpecializationID == specializationId);
 
         if (index >= 0)
         {
@@ -465,45 +439,6 @@ public class AzeriteItem : Item
         }
         else
             CreateSelectedAzeriteEssences(specializationId);
-    }
-
-    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteItemMask, Player target)
-    {
-        var flags = GetUpdateFieldFlagsFor(target);
-        UpdateMask valuesMask = new((int)TypeId.Max);
-
-        if (requestedObjectMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Object);
-
-        ItemData.FilterDisallowedFieldsMaskForFlag(requestedItemMask, flags);
-
-        if (requestedItemMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Item);
-
-        AzeriteItemData.FilterDisallowedFieldsMaskForFlag(requestedAzeriteItemMask, flags);
-
-        if (requestedAzeriteItemMask.IsAnySet())
-            valuesMask.Set((int)TypeId.AzeriteItem);
-
-        WorldPacket buffer = new();
-        buffer.WriteUInt32(valuesMask.GetBlock(0));
-
-        if (valuesMask[(int)TypeId.Object])
-            ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.Item])
-            ItemData.WriteUpdate(buffer, requestedItemMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.AzeriteItem])
-            AzeriteItemData.WriteUpdate(buffer, requestedAzeriteItemMask, true, this, target);
-
-        WorldPacket buffer1 = new();
-        buffer1.WriteUInt8((byte)UpdateType.Values);
-        buffer1.WritePackedGuid(GUID);
-        buffer1.WriteUInt32(buffer.GetSize());
-        buffer1.WriteBytes(buffer.GetData());
-
-        data.AddUpdateBlock(buffer1);
     }
 
     private ulong CalcTotalXPToNextLevel(uint level, uint knowledgeLevel)
@@ -534,7 +469,7 @@ public class AzeriteItem : Item
     {
         var hasPreviousMilestone = true;
 
-        foreach (var milestone in Global.DB2Mgr.GetAzeriteItemMilestonePowers())
+        foreach (var milestone in DB2Manager.GetAzeriteItemMilestonePowers())
         {
             if (!hasPreviousMilestone)
                 break;
@@ -552,29 +487,6 @@ public class AzeriteItem : Item
             }
             else
                 hasPreviousMilestone = false;
-        }
-    }
-
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly AzeriteItemData AzeriteItemMask = new();
-        private readonly ItemData ItemMask = new();
-        private readonly ObjectFieldData ObjectMask = new();
-        private readonly AzeriteItem Owner;
-
-        public ValuesUpdateForPlayerWithMaskSender(AzeriteItem owner)
-        {
-            Owner = owner;
-        }
-
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(Owner.Location.MapId);
-
-            Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteItemMask.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var packet);
-            player.SendPacket(packet);
         }
     }
 }

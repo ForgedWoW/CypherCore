@@ -859,16 +859,16 @@ public class PlayerComputators
             stmt.AddValue(0, itemGuid);
             trans.Append(stmt);
 
-            Item.DeleteFromDB(trans, itemGuid);
-            AzeriteItem.DeleteFromDB(trans, itemGuid);
-            AzeriteEmpoweredItem.DeleteFromDB(trans, itemGuid);
+            ItemFactory.DeleteFromDB(trans, itemGuid);
+            AzeriteItemFactory.DeleteFromDB(trans, itemGuid);
+            AzeriteEmpoweredItemFactory.DeleteFromDB(trans, itemGuid);
 
             _characterDatabase.CommitTransaction(trans);
 
             return null;
         }
 
-        var item = Item.NewItemOrBag(proto);
+        var item = ItemFactory.NewItemOrBag(proto);
         var ownerGuid = fields.Read<ulong>(51) != 0 ? ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(51)) : ObjectGuid.Empty;
 
         if (!item.LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))

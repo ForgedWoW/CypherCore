@@ -283,9 +283,9 @@ public class LootRoll
             return null;
 
         var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
-        var itemLevel = Item.GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false, 0);
+        var itemLevel = ItemFactory.GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false, 0);
 
-        return Item.GetDisenchantLoot(itemTemplate, (uint)bonusData.Quality, itemLevel);
+        return ItemFactory.GetDisenchantLoot(itemTemplate, (uint)bonusData.Quality, itemLevel);
     }
 
     // Send all passed message

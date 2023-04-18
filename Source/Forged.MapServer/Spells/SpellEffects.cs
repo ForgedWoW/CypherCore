@@ -4571,7 +4571,7 @@ public partial class Spell
 
         var pos = CastItem.Pos;
 
-        var pNewItem = Item.CreateItem(newitemid, 1, CastItem.GetContext(), player);
+        var pNewItem = ItemFactory.CreateItem(newitemid, 1, CastItem.Context, player);
 
         if (pNewItem == null)
             return;

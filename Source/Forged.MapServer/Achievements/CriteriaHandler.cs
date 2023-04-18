@@ -2919,7 +2919,7 @@ public class CriteriaHandler
                 var bagScanReachedEnd = referencePlayer.ForEachItem(ItemSearchLocation.Everywhere,
                                                                     item =>
                                                                     {
-                                                                        var hasBonus = item.GetBonusListIDs().Any(bonusListID => bonusListIDs.Contains(bonusListID));
+                                                                        var hasBonus = item.BonusListIDs.Any(bonusListID => bonusListIDs.Contains(bonusListID));
 
                                                                         return !hasBonus;
                                                                     });

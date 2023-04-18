@@ -88,7 +88,7 @@ public class CollectionMgr
         if (!CanAddAppearance(itemModifiedAppearance))
             return;
 
-        if (item.IsBOPTradeable || item.IsRefundable)
+        if (item.IsBopTradeable || item.IsRefundable)
         {
             AddTemporaryAppearance(item.GUID, itemModifiedAppearance);
 
@@ -246,7 +246,7 @@ public class CollectionMgr
             return;
         }
 
-        var bonusListIDs = item.GetBonusListIDs();
+        var bonusListIDs = item.BonusListIDs;
 
         if (bonusListIDs.Any(bonusId => bonusId != data.BonusId))
             item.ClearBonuses();
