@@ -161,7 +161,7 @@ public class SpellFactory
 
         if (spell.CastItem == null && info.HasAttribute(SpellAttr2.RetainItemCast))
         {
-            if (args.TriggeringSpell)
+            if (args.TriggeringSpell != null)
             {
                 spell.CastItem = args.TriggeringSpell.CastItem;
             }

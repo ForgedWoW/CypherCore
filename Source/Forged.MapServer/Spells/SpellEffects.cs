@@ -80,7 +80,7 @@ public partial class Spell
         var perfectItemType = itemId;
 
         // get perfection capability and chance
-        if (SkillPerfectItems.CanCreatePerfectItem(player, SpellInfo.Id, ref perfectCreateChance, ref perfectItemType))
+        if (_skillPerfectItems.CanCreatePerfectItem(player, SpellInfo.Id, ref perfectCreateChance, ref perfectItemType))
             if (RandomHelper.randChance(perfectCreateChance)) // if the roll succeeds...
                 newitemid = perfectItemType;                  // the perfect item replaces the regular one
 
@@ -92,7 +92,7 @@ public partial class Spell
         byte additionalMaxNum = 0;
 
         // get the chance and maximum number for creating extra items
-        if (SkillExtraItems.CanCreateExtraItems(player, SpellInfo.Id, ref additionalCreateChance, ref additionalMaxNum))
+        if (_skillExtraItems.CanCreateExtraItems(player, SpellInfo.Id, ref additionalCreateChance, ref additionalMaxNum))
             // roll with this chance till we roll not to create or we create the max num
             while (RandomHelper.randChance(additionalCreateChance) && itemsCount <= additionalMaxNum)
                 ++itemsCount;
@@ -123,7 +123,7 @@ public partial class Spell
         if (numToAdd != 0)
         {
             // create the new item and store it
-            var pItem = player.StoreNewItem(dest, newitemid, true, ItemEnchantmentManager.GenerateItemRandomBonusListId(newitemid), null, context, bonusListIds);
+            var pItem = player.StoreNewItem(dest, newitemid, true, _itemEnchantmentManager.GenerateItemRandomBonusListId(newitemid), null, context, bonusListIds);
 
             // was it successful? return error if not
             if (pItem == null)
@@ -174,8 +174,8 @@ public partial class Spell
         if (oldItemBonusTree == newItemBonusTree) // Not release
             return;
 
-        var oldBonusTree = DB2Manager.Instance.GetItemBonusSet((uint)oldItemBonusTree);
-        var newBonusTre = DB2Manager.Instance.GetItemBonusSet((uint)newItemBonusTree);
+        var oldBonusTree = _db2Manager.GetItemBonusSet((uint)oldItemBonusTree);
+        var newBonusTre = _db2Manager.GetItemBonusSet((uint)newItemBonusTree);
 
         if (oldBonusTree == null || newBonusTre == null)
             return;
@@ -249,11 +249,11 @@ public partial class Spell
 
         if (group == null)
         {
-            group = new PlayerGroup();
+            group = _classFactory.Resolve<PlayerGroup>();
             group.Create(player);
             // group->ConvertToLFG(dungeon);
             group.SetDungeonDifficultyID(SpellInfo.Difficulty);
-            Global.GroupMgr.AddGroup(group);
+            _groupManager.AddGroup(group);
         }
         else if (group.IsMember(creature.GUID))
         {
@@ -572,7 +572,7 @@ public partial class Spell
         List<WorldObject> objs = new();
         ObjectEntryAndPrivateOwnerIfExistsCheck check = new(UnitTarget.GUID, (uint)EffectInfo.MiscValue);
         WorldObjectListSearcher checker = new(UnitTarget, objs, check, GridMapTypeMask.Conversation, GridType.Grid);
-        CellCalculator.VisitGrid(UnitTarget, checker, 100.0f);
+        _cellCalculator.VisitGrid(UnitTarget, checker, 100.0f);
 
         foreach (var obj in objs)
         {
@@ -1989,7 +1989,7 @@ public partial class Spell
         breakTarget.Data.Write();
 
         var notifierBreak = new MessageDistDelivererToHostile<PacketSenderOwning<BreakTarget>>(unitCaster, breakTarget, dist, GridType.World);
-        CellCalculator.VisitGrid(Caster, notifierBreak, dist);
+        _cellCalculator.VisitGrid(Caster, notifierBreak, dist);
 
         // and selection
         PacketSenderOwning<ClearTarget> clearTarget = new()
@@ -2002,7 +2002,7 @@ public partial class Spell
 
         clearTarget.Data.Write();
         var notifierClear = new MessageDistDelivererToHostile<PacketSenderOwning<ClearTarget>>(unitCaster, clearTarget, dist, GridType.World);
-        CellCalculator.VisitGrid(Caster, notifierClear, dist);
+        _cellCalculator.VisitGrid(Caster, notifierClear, dist);
 
         // we should also force pets to remove us from current target
         List<Unit> attackerSet = new();
