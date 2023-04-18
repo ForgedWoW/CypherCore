@@ -11,14 +11,12 @@ public class MovementInfo
     public MovementInertia? Inertia;
     public JumpInfo Jump;
     public TransportInfo Transport;
-    private MovementFlag2 _flags2;
-    private MovementFlags3 _flags3;
 
     public MovementInfo()
     {
         Guid = ObjectGuid.Empty;
         MovementFlags = MovementFlag.None;
-        _flags2 = MovementFlag2.None;
+        MovementFlags2 = MovementFlag2.None;
         Time = 0;
         Pitch = 0.0f;
 
@@ -27,8 +25,10 @@ public class MovementInfo
         Jump.Reset();
     }
 
+    public MovementFlags3 ExtraMovementFlags2 { get; private set; }
     public ObjectGuid Guid { get; set; }
     public MovementFlag MovementFlags { get; set; }
+    public MovementFlag2 MovementFlags2 { get; private set; }
     public float Pitch { get; set; }
     public Position Pos { get; set; }
     public float StepUpStartElevation { get; set; }
@@ -36,7 +36,7 @@ public class MovementInfo
 
     public void AddExtraMovementFlag2(MovementFlags3 flag)
     {
-        _flags3 |= flag;
+        ExtraMovementFlags2 |= flag;
     }
 
     public void AddMovementFlag(MovementFlag f)
@@ -46,22 +46,12 @@ public class MovementInfo
 
     public void AddMovementFlag2(MovementFlag2 f)
     {
-        _flags2 |= f;
-    }
-
-    public MovementFlags3 GetExtraMovementFlags2()
-    {
-        return _flags3;
-    }
-
-    public MovementFlag2 GetMovementFlags2()
-    {
-        return _flags2;
+        MovementFlags2 |= f;
     }
 
     public bool HasExtraMovementFlag2(MovementFlags3 flag)
     {
-        return (_flags3 & flag) != 0;
+        return (ExtraMovementFlags2 & flag) != 0;
     }
 
     public bool HasMovementFlag(MovementFlag f)
@@ -71,12 +61,12 @@ public class MovementInfo
 
     public bool HasMovementFlag2(MovementFlag2 f)
     {
-        return (_flags2 & f) != 0;
+        return (MovementFlags2 & f) != 0;
     }
 
     public void RemoveExtraMovementFlag2(MovementFlags3 flag)
     {
-        _flags3 &= ~flag;
+        ExtraMovementFlags2 &= ~flag;
     }
 
     public void RemoveMovementFlag(MovementFlag f)
@@ -86,7 +76,7 @@ public class MovementInfo
 
     public void RemoveMovementFlag2(MovementFlag2 f)
     {
-        _flags2 &= ~f;
+        MovementFlags2 &= ~f;
     }
 
     public void ResetJump()
@@ -101,7 +91,7 @@ public class MovementInfo
 
     public void SetExtraMovementFlags2(MovementFlags3 flag)
     {
-        _flags3 = flag;
+        ExtraMovementFlags2 = flag;
     }
 
     public void SetFallTime(uint time)
@@ -111,7 +101,7 @@ public class MovementInfo
 
     public void SetMovementFlags2(MovementFlag2 f)
     {
-        _flags2 = f;
+        MovementFlags2 = f;
     }
 
     // advflying

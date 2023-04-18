@@ -101,17 +101,13 @@ public class WorldObjectVisibility
                     }
                 }
 
-                var target = obj.AsUnit;
 
-                if (target)
-                {
-                    // Don't allow to detect vehicle accessories if you can't see vehicle
-                    var vehicle = target.VehicleBase;
+                // Don't allow to detect vehicle accessories if you can't see vehicle
+                var vehicle = obj.AsUnit?.VehicleBase;
 
-                    if (vehicle)
-                        if (!thisPlayer.HaveAtClient(vehicle))
-                            return false;
-                }
+                if (vehicle != null)
+                    if (!thisPlayer.HaveAtClient(vehicle))
+                        return false;
             }
 
             var viewpoint = _worldObject;
@@ -358,7 +354,7 @@ public class WorldObjectVisibility
             return true;
 
         // Only check back for units, it does not make sense for gameobjects
-        if (unit && !_worldObject.Location.HasInArc(MathF.PI, obj.Location))
+        if (unit != null && !_worldObject.Location.HasInArc(MathF.PI, obj.Location))
             return false;
 
         // Traps should detect stealth always
@@ -409,7 +405,7 @@ public class WorldObjectVisibility
             // If checking for alert, and creature's visibility range is greater than aggro distance, No alert
             var tunit = obj.AsUnit;
 
-            if (checkAlert && unit != null && unit.AsCreature && visibilityRange >= unit.AsCreature.GetAttackDistance(tunit) + unit.AsCreature.CombatDistance)
+            if (checkAlert && unit is { AsCreature: { } } && visibilityRange >= unit.AsCreature.GetAttackDistance(tunit) + unit.AsCreature.CombatDistance)
                 return false;
 
             if (distance > visibilityRange)

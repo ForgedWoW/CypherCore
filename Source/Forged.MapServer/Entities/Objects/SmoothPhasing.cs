@@ -23,18 +23,12 @@ public class SmoothPhasing
 
     public SmoothPhasingInfo GetInfoForSeer(ObjectGuid seer)
     {
-        if (_smoothPhasingInfoViewerDependent.TryGetValue(seer, out var value))
-            return value;
-
-        return _smoothPhasingInfoSingle;
+        return _smoothPhasingInfoViewerDependent.TryGetValue(seer, out var value) ? value : _smoothPhasingInfoSingle;
     }
 
     public bool IsBeingReplacedForSeer(ObjectGuid seer)
     {
-        if (_smoothPhasingInfoViewerDependent.TryGetValue(seer, out var smoothPhasingInfo))
-            return !smoothPhasingInfo.Disabled;
-
-        return false;
+        return _smoothPhasingInfoViewerDependent.TryGetValue(seer, out var smoothPhasingInfo) && !smoothPhasingInfo.Disabled;
     }
 
     public bool IsReplacing(ObjectGuid guid)

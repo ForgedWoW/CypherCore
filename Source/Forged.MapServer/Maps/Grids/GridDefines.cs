@@ -10,10 +10,12 @@ namespace Forged.MapServer.Maps.Grids;
 public class GridDefines
 {
     private readonly MapManager _mapManager;
+    public static GridDefines Instance { get; private set; }
 
     public GridDefines(MapManager mapManager)
     {
         _mapManager = mapManager;
+        Instance = this;
     }
 
     public CellCoord ComputeCellCoord(float x, float y)

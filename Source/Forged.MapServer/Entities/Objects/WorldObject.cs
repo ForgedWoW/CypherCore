@@ -94,6 +94,7 @@ public abstract class WorldObject : IDisposable
     }
 
     public Player AffectingPlayer => CharmerOrOwnerGUID.IsEmpty ? AsPlayer : CharmerOrOwner?.CharmerOrOwnerPlayerOrPlayerItself;
+
     public virtual ushort AIAnimKitId
     {
         get => 0;
@@ -276,6 +277,29 @@ public abstract class WorldObject : IDisposable
     public WorldObjectCombat WorldObjectCombat { get; }
     public ZoneScript ZoneScript { get; set; }
     protected TypeId ObjectTypeId { get; set; }
+
+    public virtual void Dispose()
+    {
+        // this may happen because there are many !create/delete
+        if (IsWorldObject() && Location.Map != null)
+        {
+            if (IsTypeId(TypeId.Corpse))
+                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+            else
+                Location.ResetMap();
+        }
+
+        if (Location.IsInWorld)
+        {
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
+
+            if (IsTypeMask(TypeMask.Item))
+                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
+        }
+
+        if (_objectUpdated)
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
+    }
 
     public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
     {
@@ -508,8 +532,8 @@ public abstract class WorldObject : IDisposable
             data.WritePackedGuid(GUID); // MoverGUID
 
             data.WriteUInt32((uint)unit.MovementInfo.MovementFlags);
-            data.WriteUInt32((uint)unit.MovementInfo.GetMovementFlags2());
-            data.WriteUInt32((uint)unit.MovementInfo.GetExtraMovementFlags2());
+            data.WriteUInt32((uint)unit.MovementInfo.MovementFlags2);
+            data.WriteUInt32((uint)unit.MovementInfo.ExtraMovementFlags2);
 
             data.WriteUInt32(unit.MovementInfo.Time); // MoveTime
             data.WriteFloat(unit.Location.X);
@@ -1024,29 +1048,6 @@ public abstract class WorldObject : IDisposable
         BuildDestroyUpdateBlock(updateData);
         updateData.BuildPacket(out var packet);
         target.SendPacket(packet);
-    }
-
-    public virtual void Dispose()
-    {
-        // this may happen because there are many !create/delete
-        if (IsWorldObject() && Location.Map != null)
-        {
-            if (IsTypeId(TypeId.Corpse))
-                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
-            else
-                Location.ResetMap();
-        }
-
-        if (Location.IsInWorld)
-        {
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
-
-            if (IsTypeMask(TypeMask.Item))
-                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
-        }
-
-        if (_objectUpdated)
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
     }
 
     public void DoWithSuppressingObjectUpdates(Action action)

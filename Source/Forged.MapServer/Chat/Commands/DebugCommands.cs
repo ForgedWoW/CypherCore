@@ -727,7 +727,7 @@ internal class DebugCommands
 
         if (!moveFlags.HasValue)
             //! Display case
-            handler.SendSysMessage(CypherStrings.MoveflagsGet, target.MovementInfo.MovementFlags, target.MovementInfo.GetMovementFlags2());
+            handler.SendSysMessage(CypherStrings.MoveflagsGet, target.MovementInfo.MovementFlags, target.MovementInfo.MovementFlags2);
         else
         {
             // @fixme: port master's HandleDebugMoveflagsCommand; flags need different handling
@@ -749,7 +749,7 @@ internal class DebugCommands
                 target.SendMessageToSet(moveUpdate, true);
             }
 
-            handler.SendSysMessage(CypherStrings.MoveflagsSet, target.MovementInfo.MovementFlags, target.MovementInfo.GetMovementFlags2());
+            handler.SendSysMessage(CypherStrings.MoveflagsSet, target.MovementInfo.MovementFlags, target.MovementInfo.MovementFlags2);
         }
 
         return true;

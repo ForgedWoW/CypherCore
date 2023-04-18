@@ -276,8 +276,8 @@ public static class MovementExtensions
 
         data.WritePackedGuid(movementInfo.Guid);
         data.WriteUInt32((uint)movementInfo.MovementFlags);
-        data.WriteUInt32((uint)movementInfo.GetMovementFlags2());
-        data.WriteUInt32((uint)movementInfo.GetExtraMovementFlags2());
+        data.WriteUInt32((uint)movementInfo.MovementFlags2);
+        data.WriteUInt32((uint)movementInfo.ExtraMovementFlags2);
         data.WriteUInt32(movementInfo.Time);
         data.WriteFloat(movementInfo.Pos.X);
         data.WriteFloat(movementInfo.Pos.Y);

@@ -700,7 +700,7 @@ public partial class Unit : WorldObject
 
     public override string GetDebugInfo()
     {
-        var str = $"{base.GetDebugInfo()}\nIsAIEnabled: {IsAIEnabled} DeathState: {DeathState} UnitMovementFlags: {MovementInfo.MovementFlags} UnitMovementFlags2: {MovementInfo.GetMovementFlags2()} Class: {Class}\n" +
+        var str = $"{base.GetDebugInfo()}\nIsAIEnabled: {IsAIEnabled} DeathState: {DeathState} UnitMovementFlags: {MovementInfo.MovementFlags} UnitMovementFlags2: {MovementInfo.MovementFlags2} Class: {Class}\n" +
                   $" {(MoveSpline != null ? MoveSpline.ToString() : "Movespline: <none>\n")} GetCharmedGUID(): {CharmedGUID}\nGetCharmerGUID(): {CharmerGUID}\n{(VehicleKit != null ? VehicleKit.GetDebugInfo() : "No vehicle kit")}\n" +
                   $"m_Controlled size: {Controlled.Count}";
 

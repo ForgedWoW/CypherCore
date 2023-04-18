@@ -559,7 +559,7 @@ public sealed class ConditionManager
         if (condition.MovementFlags[0] != 0 && !Convert.ToBoolean((uint)player.MovementInfo.MovementFlags & condition.MovementFlags[0]))
             return false;
 
-        if (condition.MovementFlags[1] != 0 && !Convert.ToBoolean((uint)player.MovementInfo.GetMovementFlags2() & condition.MovementFlags[1]))
+        if (condition.MovementFlags[1] != 0 && !Convert.ToBoolean((uint)player.MovementInfo.MovementFlags2 & condition.MovementFlags[1]))
             return false;
 
         if (condition.WeaponSubclassMask != 0)

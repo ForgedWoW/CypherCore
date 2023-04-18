@@ -43,7 +43,7 @@ public class Position
     }
 
     public bool IsDefault => X == 0 && Y == 0 && Z == 0 && Orientation == 0;
-    public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
+    public bool IsPositionValid => GridDefines.Instance.IsValidMapCoord(X, Y, Z, Orientation);
 
     public float Orientation
     {

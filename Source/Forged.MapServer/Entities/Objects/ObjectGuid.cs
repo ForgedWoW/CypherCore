@@ -178,10 +178,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public static ObjectGuid Create(HighGuid type, byte clubType, uint clubFinderId, ulong counter)
     {
-        if (type != HighGuid.ClubFinder)
-            return Empty;
-
-        return ObjectGuidFactory.CreateClubFinder(0, clubType, clubFinderId, counter);
+        return type != HighGuid.ClubFinder ? Empty : ObjectGuidFactory.CreateClubFinder(0, clubType, clubFinderId, counter);
     }
 
     public static ObjectGuid Create(HighGuid type, uint mapId, uint entry, ulong counter)

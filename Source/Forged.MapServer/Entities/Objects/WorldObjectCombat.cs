@@ -87,29 +87,31 @@ public class WorldObjectCombat
     {
         var factionId = _worldObject.Faction;
 
-        if (!_worldObject.CliDB.FactionTemplateStorage.TryGetValue(factionId, out var entry))
-            switch (_worldObject.TypeId)
-            {
-                case TypeId.Player:
-                    Log.Logger.Error($"Player {_worldObject.AsPlayer.GetName()} has invalid faction (faction template id) #{factionId}");
+        if (_worldObject.CliDB.FactionTemplateStorage.TryGetValue(factionId, out var entry))
+            return entry;
 
-                    break;
-                case TypeId.Unit:
-                    Log.Logger.Error($"Creature (template id: {_worldObject.AsCreature.Template.Entry}) has invalid faction (faction template Id) #{factionId}");
+        switch (_worldObject.TypeId)
+        {
+            case TypeId.Player:
+                Log.Logger.Error($"Player {_worldObject.AsPlayer.GetName()} has invalid faction (faction template id) #{factionId}");
 
-                    break;
-                case TypeId.GameObject:
-                    if (factionId != 0) // Gameobjects may have faction template id = 0
-                        Log.Logger.Error($"GameObject (template id: {_worldObject.AsGameObject.Template.entry}) has invalid faction (faction template Id) #{factionId}");
+                break;
+            case TypeId.Unit:
+                Log.Logger.Error($"Creature (template id: {_worldObject.AsCreature.Template.Entry}) has invalid faction (faction template Id) #{factionId}");
 
-                    break;
-                default:
-                    Log.Logger.Error($"Object (name={_worldObject.GetName()}, type={_worldObject.TypeId}) has invalid faction (faction template Id) #{factionId}");
+                break;
+            case TypeId.GameObject:
+                if (factionId != 0) // Gameobjects may have faction template id = 0
+                    Log.Logger.Error($"GameObject (template id: {_worldObject.AsGameObject.Template.entry}) has invalid faction (faction template Id) #{factionId}");
 
-                    break;
-            }
+                break;
+            default:
+                Log.Logger.Error($"Object (name={_worldObject.GetName()}, type={_worldObject.TypeId}) has invalid faction (faction template Id) #{factionId}");
 
-        return entry;
+                break;
+        }
+
+        return null;
     }
 
     public Unit GetMagicHitRedirectTarget(Unit victim, SpellInfo spellInfo)
@@ -160,18 +162,12 @@ public class WorldObjectCombat
 
         bool IsAttackableBySummoner(Unit me, ObjectGuid targetGuid)
         {
-            if (!me)
-                return false;
-
-            var tempSummon = me.ToTempSummon();
+            var tempSummon = me?.ToTempSummon();
 
             if (tempSummon?.SummonPropertiesRecord == null)
                 return false;
 
-            if (tempSummon.SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.AttackableBySummoner) && targetGuid == tempSummon.SummonerGUID)
-                return true;
-
-            return false;
+            return tempSummon.SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.AttackableBySummoner) && targetGuid == tempSummon.SummonerGUID;
         }
 
         if (IsAttackableBySummoner(_worldObject.AsUnit, target.GUID) || IsAttackableBySummoner(target.AsUnit, _worldObject.GUID))
@@ -185,7 +181,7 @@ public class WorldObjectCombat
         var targetPlayerOwner = target.AffectingPlayer;
 
         // check forced reputation to support SPELL_AURA_FORCE_REACTION
-        if (selfPlayerOwner)
+        if (selfPlayerOwner != null)
         {
             var targetFactionTemplateEntry = target.WorldObjectCombat.GetFactionTemplateEntry();
 
@@ -197,7 +193,7 @@ public class WorldObjectCombat
                     return repRank;
             }
         }
-        else if (targetPlayerOwner)
+        else if (targetPlayerOwner != null)
         {
             var selfFactionTemplateEntry = GetFactionTemplateEntry();
 
@@ -213,61 +209,62 @@ public class WorldObjectCombat
         var unit = _worldObject.AsUnit ?? selfPlayerOwner;
         var targetUnit = target.AsUnit ?? targetPlayerOwner;
 
-        if (unit && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-            if (targetUnit && targetUnit.HasUnitFlag(UnitFlags.PlayerControlled))
-            {
-                if (selfPlayerOwner && targetPlayerOwner)
-                {
-                    // always friendly to other unit controlled by player, or to the player himself
-                    if (selfPlayerOwner == targetPlayerOwner)
-                        return ReputationRank.Friendly;
+        if (unit == null || !unit.HasUnitFlag(UnitFlags.PlayerControlled))
+            return GetFactionReactionTo(GetFactionTemplateEntry(), target);
 
-                    // duel - always hostile to opponent
-                    if (selfPlayerOwner.Duel != null && selfPlayerOwner.Duel.Opponent == targetPlayerOwner && selfPlayerOwner.Duel.State == DuelState.InProgress)
-                        return ReputationRank.Hostile;
 
-                    // same group - checks dependant only on our faction - skip FFA_PVP for example
-                    if (selfPlayerOwner.IsInRaidWith(targetPlayerOwner))
-                        return ReputationRank.Friendly; // return true to allow config option AllowTwoSide.Interaction.Group to work
-                    // however client seems to allow mixed group parties, because in 13850 client it works like:
-                    // return GetFactionReactionTo(GetFactionTemplateEntry(), target);
-                }
+        if (targetUnit == null || !targetUnit.HasUnitFlag(UnitFlags.PlayerControlled))
+            return GetFactionReactionTo(GetFactionTemplateEntry(), target);
 
-                // check FFA_PVP
-                if (unit.IsFFAPvP && targetUnit.IsFFAPvP)
-                    return ReputationRank.Hostile;
+        if (selfPlayerOwner != null && targetPlayerOwner != null)
+        {
+            // always friendly to other unit controlled by player, or to the player himself
+            if (selfPlayerOwner == targetPlayerOwner)
+                return ReputationRank.Friendly;
 
-                if (selfPlayerOwner)
-                {
-                    var targetFactionTemplateEntry = targetUnit.WorldObjectCombat.GetFactionTemplateEntry();
+            // duel - always hostile to opponent
+            if (selfPlayerOwner.Duel != null && selfPlayerOwner.Duel.Opponent == targetPlayerOwner && selfPlayerOwner.Duel.State == DuelState.InProgress)
+                return ReputationRank.Hostile;
 
-                    if (targetFactionTemplateEntry != null)
-                    {
-                        var repRank = selfPlayerOwner.ReputationMgr.GetForcedRankIfAny(targetFactionTemplateEntry);
+            // same group - checks dependant only on our faction - skip FFA_PVP for example
+            if (selfPlayerOwner.IsInRaidWith(targetPlayerOwner))
+                return ReputationRank.Friendly; // return true to allow config option AllowTwoSide.Interaction.Group to work
+            // however client seems to allow mixed group parties, because in 13850 client it works like:
+            // return GetFactionReactionTo(GetFactionTemplateEntry(), target);
+        }
 
-                        if (repRank != ReputationRank.None)
-                            return repRank;
+        // check FFA_PVP
+        if (unit.IsFFAPvP && targetUnit.IsFFAPvP)
+            return ReputationRank.Hostile;
 
-                        if (!selfPlayerOwner.HasUnitFlag2(UnitFlags2.IgnoreReputation))
-                            if (_worldObject.CliDB.FactionStorage.TryGetValue(targetFactionTemplateEntry.Faction, out var targetFactionEntry))
-                                if (targetFactionEntry.CanHaveReputation())
-                                {
-                                    // check contested flags
-                                    if ((targetFactionTemplateEntry.Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0 && selfPlayerOwner.HasPlayerFlag(PlayerFlags.ContestedPVP))
-                                        return ReputationRank.Hostile;
+        if (selfPlayerOwner == null)
+            return GetFactionReactionTo(GetFactionTemplateEntry(), target);
 
-                                    // if faction has reputation, hostile state depends only from AtWar state
-                                    if (selfPlayerOwner.ReputationMgr.IsAtWar(targetFactionEntry))
-                                        return ReputationRank.Hostile;
+        var targetFactionTempate = targetUnit.WorldObjectCombat.GetFactionTemplateEntry();
 
-                                    return ReputationRank.Friendly;
-                                }
-                    }
-                }
-            }
+        if (targetFactionTempate == null)
+            return GetFactionReactionTo(GetFactionTemplateEntry(), target);
 
-        // do checks dependant only on our faction
-        return GetFactionReactionTo(GetFactionTemplateEntry(), target);
+        var reputationRank = selfPlayerOwner.ReputationMgr.GetForcedRankIfAny(targetFactionTempate);
+
+        if (reputationRank != ReputationRank.None)
+            return reputationRank;
+
+        if (selfPlayerOwner.HasUnitFlag2(UnitFlags2.IgnoreReputation))
+            return GetFactionReactionTo(GetFactionTemplateEntry(), target);
+
+        if (!_worldObject.CliDB.FactionStorage.TryGetValue(targetFactionTempate.Faction, out var targetFactionEntry))
+            return GetFactionReactionTo(GetFactionTemplateEntry(), target);
+
+        if (!targetFactionEntry.CanHaveReputation())
+            return GetFactionReactionTo(GetFactionTemplateEntry(), target);
+
+        // check contested flags
+        if ((targetFactionTempate.Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0 && selfPlayerOwner.HasPlayerFlag(PlayerFlags.ContestedPVP))
+            return ReputationRank.Hostile;
+
+        // if faction has reputation, hostile state depends only from AtWar state
+        return selfPlayerOwner.ReputationMgr.IsAtWar(targetFactionEntry) ? ReputationRank.Hostile : ReputationRank.Friendly;
     }
 
     public float GetSpellMaxRangeForTarget(Unit target, SpellInfo spellInfo)
@@ -278,10 +275,7 @@ public class WorldObjectCombat
         if (spellInfo.RangeEntry.RangeMax[0] == spellInfo.RangeEntry.RangeMax[1])
             return spellInfo.GetMaxRange();
 
-        if (!target)
-            return spellInfo.GetMaxRange(true);
-
-        return spellInfo.GetMaxRange(!IsHostileTo(target));
+        return target == null ? spellInfo.GetMaxRange(true) : spellInfo.GetMaxRange(!IsHostileTo(target));
     }
 
     public float GetSpellMinRangeForTarget(Unit target, SpellInfo spellInfo)
@@ -292,10 +286,7 @@ public class WorldObjectCombat
         if (spellInfo.RangeEntry.RangeMin[0] == spellInfo.RangeEntry.RangeMin[1])
             return spellInfo.GetMinRange();
 
-        if (!target)
-            return spellInfo.GetMinRange(true);
-
-        return spellInfo.GetMinRange(!IsHostileTo(target));
+        return target == null ? spellInfo.GetMinRange(true) : spellInfo.GetMinRange(!IsHostileTo(target));
     }
 
     public bool IsFriendlyTo(WorldObject target)
@@ -335,7 +326,7 @@ public class WorldObjectCombat
         // can't assist unattackable units
         var unitTarget = target.AsUnit;
 
-        if (unitTarget && unitTarget.HasUnitState(UnitState.Unattackable))
+        if (unitTarget != null && unitTarget.HasUnitState(UnitState.Unattackable))
             return false;
 
         // can't assist GMs
@@ -345,7 +336,7 @@ public class WorldObjectCombat
         // can't assist own vehicle or passenger
         var unit = _worldObject.AsUnit;
 
-        if (unit && unitTarget && unit.Vehicle)
+        if (unit != null && unitTarget != null && unit.Vehicle != null)
         {
             if (unit.IsOnVehicle(unitTarget))
                 return false;
@@ -359,7 +350,7 @@ public class WorldObjectCombat
             return false;
 
         // can't assist dead
-        if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget && !unitTarget.IsAlive)
+        if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget != null && !unitTarget.IsAlive)
             return false;
 
         // can't assist untargetable
@@ -389,7 +380,7 @@ public class WorldObjectCombat
         }
 
         // can't assist non-friendly targets
-        if (GetReactionTo(target) < ReputationRank.Neutral && target.WorldObjectCombat.GetReactionTo(_worldObject) < ReputationRank.Neutral && (!_worldObject.AsCreature || !_worldObject.AsCreature.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+        if (GetReactionTo(target) < ReputationRank.Neutral && target.WorldObjectCombat.GetReactionTo(_worldObject) < ReputationRank.Neutral && (_worldObject.AsCreature == null || !_worldObject.AsCreature.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
             return false;
 
         // PvP case
@@ -527,19 +518,19 @@ public class WorldObjectCombat
         var playerAffectingTarget = unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) ? unitTarget.AffectingPlayer : null;
 
         // Not all neutral creatures can be attacked (even some unfriendly faction does not react aggresive to you, like Sporaggar)
-        if ((playerAffectingAttacker && !playerAffectingTarget) || (!playerAffectingAttacker && playerAffectingTarget))
+        if ((playerAffectingAttacker != null && playerAffectingTarget == null) || (playerAffectingAttacker == null && playerAffectingTarget != null))
         {
-            var player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
-            var creature = playerAffectingAttacker ? unitTarget : unit;
+            var player = playerAffectingAttacker ?? playerAffectingTarget;
+            var creature = playerAffectingAttacker != null ? unitTarget : unit;
 
             if (creature != null)
             {
-                if (creature.IsContestedGuard() && player != null && player.HasPlayerFlag(PlayerFlags.ContestedPVP))
+                if (creature.IsContestedGuard() && player.HasPlayerFlag(PlayerFlags.ContestedPVP))
                     return true;
 
                 var factionTemplate = creature.WorldObjectCombat.GetFactionTemplateEntry();
 
-                if (factionTemplate != null && player != null && player.ReputationMgr.GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
+                if (factionTemplate != null && player.ReputationMgr.GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
                     if (_worldObject.CliDB.FactionStorage.TryGetValue(factionTemplate.Faction, out var factionEntry))
                     {
                         var repState = player.ReputationMgr.GetState(factionEntry);
@@ -553,10 +544,10 @@ public class WorldObjectCombat
 
         var creatureAttacker = _worldObject.AsCreature;
 
-        if (creatureAttacker && creatureAttacker.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit))
+        if (creatureAttacker != null && creatureAttacker.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit))
             return false;
 
-        if (playerAffectingAttacker && playerAffectingTarget)
+        if (playerAffectingAttacker != null && playerAffectingTarget != null)
             if (playerAffectingAttacker.Duel != null && playerAffectingAttacker.Duel.Opponent == playerAffectingTarget && playerAffectingAttacker.Duel.State == DuelState.InProgress)
                 return true;
 
@@ -566,19 +557,17 @@ public class WorldObjectCombat
             return false;
 
         // additional checks - only PvP case
-        if (playerAffectingAttacker && playerAffectingTarget)
-        {
-            if (playerAffectingTarget.IsPvP || (bySpell != null && bySpell.HasAttribute(SpellAttr5.IgnoreAreaEffectPvpCheck)))
-                return true;
+        if (playerAffectingAttacker == null || playerAffectingTarget == null)
+            return true;
 
-            if (playerAffectingAttacker.IsFFAPvP && playerAffectingTarget.IsFFAPvP)
-                return true;
+        if (playerAffectingTarget.IsPvP || (bySpell != null && bySpell.HasAttribute(SpellAttr5.IgnoreAreaEffectPvpCheck)))
+            return true;
 
-            return playerAffectingAttacker.HasPvpFlag(UnitPVPStateFlags.Unk1) ||
-                   playerAffectingTarget.HasPvpFlag(UnitPVPStateFlags.Unk1);
-        }
+        if (playerAffectingAttacker.IsFFAPvP && playerAffectingTarget.IsFFAPvP)
+            return true;
 
-        return true;
+        return playerAffectingAttacker.HasPvpFlag(UnitPVPStateFlags.Unk1) ||
+               playerAffectingTarget.HasPvpFlag(UnitPVPStateFlags.Unk1);
     }
 
     public virtual SpellMissInfo MeleeSpellHitResult(Unit victim, SpellInfo spellInfo)
@@ -603,7 +592,7 @@ public class WorldObjectCombat
 
         var unitCaster = _worldObject.AsUnit;
 
-        if (!unitCaster)
+        if (unitCaster == null)
             return;
 
         if (unitCaster.IsPlayer && unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Casttime))
@@ -631,7 +620,7 @@ public class WorldObjectCombat
 
         var unitCaster = _worldObject.AsUnit;
 
-        if (!unitCaster)
+        if (unitCaster == null)
             return;
 
         if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) &&

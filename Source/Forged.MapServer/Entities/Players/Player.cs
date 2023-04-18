@@ -6156,7 +6156,7 @@ public partial class Player : Unit
             Log.Logger.Debug("Player.ValidateMovementInfo: Violation of MovementFlags found ({0}). MovementFlags: {1}, MovementFlags2: {2} for player {3}. Mask {4} will be removed.",
                              check,
                              mi.MovementFlags,
-                             mi.GetMovementFlags2(),
+                             mi.MovementFlags2,
                              GUID.ToString(),
                              maskToRemove);
 
