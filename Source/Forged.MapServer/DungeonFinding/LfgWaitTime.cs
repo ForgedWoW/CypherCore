@@ -5,6 +5,6 @@ namespace Forged.MapServer.DungeonFinding;
 
 public struct LfgWaitTime
 {
-    public uint Number;
-    public int Time;
+    public uint Number { get; set; }
+    public int Time { get; set; }
 }

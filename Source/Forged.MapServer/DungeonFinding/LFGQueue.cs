@@ -684,19 +684,9 @@ public class LFGQueue
         return compatibles;
     }
 
-    private LfgCompatibilityData GetCompatibilityData(string key)
-    {
-        var compatibilityData = _compatibleMapStore.LookupByKey(key);
-
-        return compatibilityData;
-    }
-
     private LfgCompatibility GetCompatibles(string key)
     {
-        if (_compatibleMapStore.TryGetValue(key, out var compatibilityData))
-            return compatibilityData.Compatibility;
-
-        return LfgCompatibility.Pending;
+        return _compatibleMapStore.TryGetValue(key, out var compatibilityData) ? compatibilityData.Compatibility : LfgCompatibility.Pending;
     }
 
     private string GetCompatibleString(LfgCompatibility compatibles)
@@ -723,9 +713,8 @@ public class LFGQueue
 
         Log.Logger.Debug("RemoveFromCompatibles: Removing [{0}]", guid);
 
-        foreach (var itNext in _compatibleMapStore.ToList())
-            if (itNext.Key.Contains(strGuid))
-                _compatibleMapStore.Remove(itNext.Key);
+        foreach (var itNext in _compatibleMapStore.ToList().Where(itNext => itNext.Key.Contains(strGuid)))
+            _compatibleMapStore.Remove(itNext.Key);
     }
 
     private void SetCompatibilityData(string key, LfgCompatibilityData data)
@@ -741,4 +730,3 @@ public class LFGQueue
         _compatibleMapStore[key].Compatibility = compatibles;
     }
 }
-// Stores player or group queue info

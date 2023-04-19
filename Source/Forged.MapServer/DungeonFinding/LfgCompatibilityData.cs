@@ -9,8 +9,8 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgCompatibilityData
 {
-    public LfgCompatibility Compatibility;
-    public Dictionary<ObjectGuid, LfgRoles> Roles;
+    public LfgCompatibility Compatibility { get; set; }
+    public Dictionary<ObjectGuid, LfgRoles> Roles { get; set; }
 
     public LfgCompatibilityData()
     {

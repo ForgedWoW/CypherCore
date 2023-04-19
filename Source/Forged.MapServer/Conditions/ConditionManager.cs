@@ -66,6 +66,7 @@ public sealed class ConditionManager
     private readonly GameObjectManager _objectManager;
     private readonly MultiMap<(uint objectType, uint objectId), Condition> _objectVisibilityConditionStorage = new();
     private readonly PlayerComputators _playerComputators;
+    private readonly PhasingHandler _phasingHandler;
     private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
     private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
     private readonly SpellManager _spellManager;
@@ -80,7 +81,7 @@ public sealed class ConditionManager
                             LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager,
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
                             GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
-                            ObjectAccessor objectAccessor, LootStoreBox lootStorage, ClassFactory classFactory, PlayerComputators playerComputators)
+                            ObjectAccessor objectAccessor, LootStoreBox lootStorage, ClassFactory classFactory, PlayerComputators playerComputators, PhasingHandler phasingHandler)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -99,6 +100,7 @@ public sealed class ConditionManager
         _lootStorage = lootStorage;
         _classFactory = classFactory;
         _playerComputators = playerComputators;
+        _phasingHandler = phasingHandler;
     }
 
     public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
@@ -400,7 +402,7 @@ public sealed class ConditionManager
     {
         var levels = _db2Manager.GetContentTuningData(condition.ContentTuningID, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
-        if (levels.HasValue)
+        if (levels is { })
         {
             var minLevel = (byte)(condition.Flags.HasAnyFlag(0x800) ? levels.Value.MinLevelWithDelta : levels.Value.MinLevel);
             byte maxLevel = 0;
@@ -572,32 +574,31 @@ public sealed class ConditionManager
 
         if (condition.PartyStatus != 0)
         {
-            var group = player.Group;
 
             switch (condition.PartyStatus)
             {
                 case 1:
-                    if (group)
+                    if (player.Group != null)
                         return false;
 
                     break;
                 case 2:
-                    if (!group)
+                    if (player.Group == null)
                         return false;
 
                     break;
                 case 3:
-                    if (!group || group.IsRaidGroup)
+                    if (player.Group == null || player.Group.IsRaidGroup)
                         return false;
 
                     break;
                 case 4:
-                    if (!group || !group.IsRaidGroup)
+                    if (player.Group is not { IsRaidGroup: true })
                         return false;
 
                     break;
                 case 5:
-                    if (group && group.IsRaidGroup)
+                    if (player.Group is { IsRaidGroup: true })
                         return false;
 
                     break;
@@ -812,7 +813,7 @@ public sealed class ConditionManager
             return false;
 
         if (condition.PhaseID != 0 || condition.PhaseGroupID != 0 || condition.PhaseUseFlags != 0)
-            if (!PhasingHandler.InDbPhaseShift(player, (PhaseUseFlagsValues)condition.PhaseUseFlags, condition.PhaseID, condition.PhaseGroupID))
+            if (!_phasingHandler.InDbPhaseShift(player, (PhaseUseFlagsValues)condition.PhaseUseFlags, condition.PhaseID, condition.PhaseGroupID))
                 return false;
 
         if (condition.QuestKillID != 0)
@@ -1624,20 +1625,20 @@ public sealed class ConditionManager
             case UnitConditionVariable.IsMyPet:
                 return otherUnit != null && unit.CharmerOrOwnerGUID == otherUnit.GUID ? 1 : 0;
             case UnitConditionVariable.IsMaster:
-                return otherUnit && otherUnit.CharmerOrOwnerGUID == unit.GUID ? 1 : 0;
+                return otherUnit != null && otherUnit.CharmerOrOwnerGUID == unit.GUID ? 1 : 0;
             case UnitConditionVariable.IsTarget:
-                return otherUnit && otherUnit.Target == unit.GUID ? 1 : 0;
+                return otherUnit != null && otherUnit.Target == unit.GUID ? 1 : 0;
             case UnitConditionVariable.CanAssist:
-                return otherUnit && unit.WorldObjectCombat.IsValidAssistTarget(otherUnit) ? 1 : 0;
+                return otherUnit != null && unit.WorldObjectCombat.IsValidAssistTarget(otherUnit) ? 1 : 0;
             case UnitConditionVariable.CanAttack:
-                return otherUnit && unit.WorldObjectCombat.IsValidAttackTarget(otherUnit) ? 1 : 0;
+                return otherUnit != null && unit.WorldObjectCombat.IsValidAttackTarget(otherUnit) ? 1 : 0;
             case UnitConditionVariable.HasPet:
                 return !unit.CharmedGUID.IsEmpty || !unit.MinionGUID.IsEmpty ? 1 : 0;
             case UnitConditionVariable.HasWeapon:
                 var player = unit.AsPlayer;
 
                 if (player != null)
-                    return player.GetWeaponForAttack(WeaponAttackType.BaseAttack) || player.GetWeaponForAttack(WeaponAttackType.OffAttack) ? 1 : 0;
+                    return player.GetWeaponForAttack(WeaponAttackType.BaseAttack) != null || player.GetWeaponForAttack(WeaponAttackType.OffAttack) != null ? 1 : 0;
 
                 return unit.GetVirtualItemId(0) != 0 || unit.GetVirtualItemId(1) != 0 ? 1 : 0;
             case UnitConditionVariable.HealthPct:
@@ -1748,12 +1749,12 @@ public sealed class ConditionManager
                 if (otherUnit == null)
                     return 0;
 
-                var distance = Math.Max(unit.CombatReach + otherUnit.CombatReach + 1.3333334f, 5.0f);
+                var meleeDist = Math.Max(unit.CombatReach + otherUnit.CombatReach + 1.3333334f, 5.0f);
 
                 if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || otherUnit.HasUnitFlag(UnitFlags.PlayerControlled))
-                    distance += 1.0f;
+                    meleeDist += 1.0f;
 
-                return unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance ? 1 : 0;
+                return unit.Location.GetExactDistSq(otherUnit.Location) < meleeDist * meleeDist ? 1 : 0;
 
             case UnitConditionVariable.PursuitTime:
                 break;
@@ -1864,7 +1865,7 @@ public sealed class ConditionManager
             case UnitConditionVariable.HasAura:
                 return unit.HasAura((uint)value) ? value : 0;
             case UnitConditionVariable.IsEnemy:
-                return otherUnit && unit.WorldObjectCombat.GetReactionTo(otherUnit) <= ReputationRank.Hostile ? 1 : 0;
+                return otherUnit != null && unit.WorldObjectCombat.GetReactionTo(otherUnit) <= ReputationRank.Hostile ? 1 : 0;
             case UnitConditionVariable.IsSpecMelee:
                 return unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee) ? 1 : 0;
             case UnitConditionVariable.IsSpecTank:
@@ -1884,11 +1885,11 @@ public sealed class ConditionManager
             case UnitConditionVariable.Label:
                 break;
             case UnitConditionVariable.IsMySummon:
-                return otherUnit && (otherUnit.CharmerGUID == unit.GUID || otherUnit.CreatorGUID == unit.GUID) ? 1 : 0;
+                return otherUnit != null && (otherUnit.CharmerGUID == unit.GUID || otherUnit.CreatorGUID == unit.GUID) ? 1 : 0;
             case UnitConditionVariable.IsSummoner:
-                return otherUnit && (unit.CharmerGUID == otherUnit.GUID || unit.CreatorGUID == otherUnit.GUID) ? 1 : 0;
+                return otherUnit != null && (unit.CharmerGUID == otherUnit.GUID || unit.CreatorGUID == otherUnit.GUID) ? 1 : 0;
             case UnitConditionVariable.IsMyTarget:
-                return otherUnit && unit.Target == otherUnit.GUID ? 1 : 0;
+                return otherUnit != null && unit.Target == otherUnit.GUID ? 1 : 0;
             case UnitConditionVariable.Sex:
                 return (int)unit.Gender;
             case UnitConditionVariable.LevelWithinContentTuning:

@@ -24,16 +24,15 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
         var guid = player.GUID;
         var gguid = player.LFGManager.GetGroup(guid);
 
-        var group = player.Group;
 
-        if (group)
+        if (player.Group != null)
         {
-            var gguid2 = group.GUID;
+            var gguid2 = player.Group.GUID;
 
             if (gguid != gguid2)
             {
                 Log.Logger.Error("{0} on group {1} but LFG has group {2} saved... Fixing.", player.Session.GetPlayerInfo(), gguid2.ToString(), gguid.ToString());
-                player.LFGManager.SetupGroupMember(guid, group.GUID);
+                player.LFGManager.SetupGroupMember(guid, player.Group.GUID);
             }
         }
 
@@ -47,7 +46,7 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
         if (!player.LFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
             return;
 
-        if (!player.Group)
+        if (player.Group == null)
             player.LFGManager.LeaveLfg(player.GUID);
         else if (player.Session.PlayerDisconnected)
             player.LFGManager.LeaveLfg(player.GUID, true);
@@ -59,13 +58,11 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
 
         if (player.LFGManager.InLfgDungeonMap(player.GUID, map.Id, map.DifficultyID))
         {
-            var group = player.Group;
-
             // This function is also called when players log in
             // if for some reason the LFG system recognises the player as being in a LFG dungeon,
             // but the player was loaded without a valid group, we'll teleport to homebind to prevent
             // crashes or other undefined behaviour
-            if (!group)
+            if (player.Group == null)
             {
                 player.LFGManager.LeaveLfg(player.GUID);
                 player.RemoveAura(SharedConst.LFGSpellLuckOfTheDraw);
@@ -80,7 +77,7 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
 
             QueryPlayerNamesResponse response = new();
 
-            foreach (var memberSlot in group.MemberSlots)
+            foreach (var memberSlot in player.Group.MemberSlots)
             {
                 player.Session.BuildNameQueryData(memberSlot.Guid, out var nameCacheLookupResult);
                 response.Players.Add(nameCacheLookupResult);
@@ -93,12 +90,10 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
         }
         else
         {
-            var group = player.Group;
-
-            if (group && group.MembersCount == 1)
+            if (player.Group is { MembersCount: 1 })
             {
-                player.LFGManager.LeaveLfg(group.GUID);
-                group.Disband();
+                player.LFGManager.LeaveLfg(player.Group.GUID);
+                player.Group.Disband();
 
                 Log.Logger.Debug("LFGPlayerScript::OnMapChanged, Player {0}({1}) is last in the lfggroup so we disband the group.",
                                  player.GetName(),

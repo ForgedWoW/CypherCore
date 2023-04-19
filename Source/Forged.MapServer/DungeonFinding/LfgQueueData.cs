@@ -10,13 +10,13 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgQueueData
 {
-    public string BestCompatible = "";
-    public byte Dps;
-    public List<uint> Dungeons;
-    public byte Healers;
-    public long JoinTime;
-    public Dictionary<ObjectGuid, LfgRoles> Roles;
-    public byte Tanks;
+    public string BestCompatible { get; set; } = "";
+    public byte Dps { get; set; }
+    public List<uint> Dungeons { get; set; }
+    public byte Healers { get; set; }
+    public long JoinTime { get; set; }
+    public Dictionary<ObjectGuid, LfgRoles> Roles { get; set; }
+    public byte Tanks { get; set; }
 
     public LfgQueueData()
     {

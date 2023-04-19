@@ -135,7 +135,7 @@ public class LFGManager
         if (!_groupsStore.ContainsKey(gguid))
             _groupsStore[gguid] = new LFGGroupData();
 
-        _groupsStore[gguid].AddPlayer(guid);
+        _groupsStore[gguid].Players.Add(guid);
     }
 
     public uint AddProposal(LfgProposal proposal)
@@ -452,7 +452,7 @@ public class LFGManager
 
     public byte GetKicksLeft(ObjectGuid guid)
     {
-        var kicks = _groupsStore[guid].GetKicksLeft();
+        var kicks = _groupsStore[guid].KicksLeft;
         Log.Logger.Debug("GetKicksLeft: [{0}] = {1}", guid, kicks);
 
         return kicks;
@@ -460,7 +460,7 @@ public class LFGManager
 
     public ObjectGuid GetLeader(ObjectGuid guid)
     {
-        return _groupsStore[guid].GetLeader();
+        return _groupsStore[guid].Leader;
     }
 
     public uint GetLFGDungeonEntry(uint id)
@@ -571,7 +571,7 @@ public class LFGManager
         LfgState state;
 
         if (guid.IsParty)
-            state = _groupsStore[guid].GetOldState();
+            state = _groupsStore[guid].OldState;
         else
         {
             AddPlayerData(guid);
@@ -590,7 +590,7 @@ public class LFGManager
 
     public byte GetPlayerCount(ObjectGuid guid)
     {
-        return _groupsStore[guid].GetPlayerCount();
+        return _groupsStore[guid].PlayerCount;
     }
 
     public LFGQueue GetQueue(ObjectGuid guid)
@@ -710,7 +710,7 @@ public class LFGManager
             if (!_groupsStore.ContainsKey(guid))
                 return LfgState.None;
 
-            state = _groupsStore[guid].GetState();
+            state = _groupsStore[guid].State;
         }
         else
         {
@@ -783,7 +783,7 @@ public class LFGManager
 
     public bool IsLfgGroup(ObjectGuid guid)
     {
-        return guid is { IsEmpty: false, IsParty: true } && _groupsStore[guid].IsLfgGroup();
+        return guid is { IsEmpty: false, IsParty: true } && _groupsStore[guid].IsLfgGroup;
     }
 
     public bool IsOptionEnabled(LfgOptions option)
@@ -793,7 +793,7 @@ public class LFGManager
 
     public bool IsVoteKickActive(ObjectGuid gguid)
     {
-        var active = _groupsStore[gguid].IsVoteKickActive();
+        var active = _groupsStore[gguid].IsVoteKickActive;
         Log.Logger.Information("Group: {0}, Active: {1}", gguid.ToString(), active);
 
         return active;
@@ -814,7 +814,8 @@ public class LFGManager
 
         var grp = player.Group;
         var guid = player.GUID;
-        var gguid = grp == null ? grp.GUID : guid;
+        var gguid = grp?.GUID ?? guid;
+
         LfgJoinResultData joinData = new();
         List<ObjectGuid> players = new();
         uint rDungeonId = 0;
@@ -1314,7 +1315,7 @@ public class LFGManager
 
         var state = GetState(guid);
         // If group is being formed after proposal success do nothing more
-        var players = it.GetPlayers();
+        var players = it.Players;
 
         foreach (var playerGuid in players)
         {
@@ -1417,7 +1418,7 @@ public class LFGManager
         if (!_groupsStore.ContainsKey(gguid))
             _groupsStore[gguid] = new LFGGroupData();
 
-        _groupsStore[gguid].SetLeader(leader);
+        _groupsStore[gguid].Leader = leader;
     }
 
     public void SetOptions(LfgOptions options)
@@ -2074,7 +2075,7 @@ public class LFGManager
 
     private List<ObjectGuid> GetPlayers(ObjectGuid guid)
     {
-        return _groupsStore[guid].GetPlayers();
+        return _groupsStore[guid].Players;
     }
 
     private TeamFaction GetTeam(ObjectGuid guid)
@@ -2339,8 +2340,8 @@ public class LFGManager
     private void SetVoteKick(ObjectGuid gguid, bool active)
     {
         var data = _groupsStore[gguid];
-        Log.Logger.Information("Group: {0}, New state: {1}, Previous: {2}", gguid.ToString(), active, data.IsVoteKickActive());
+        Log.Logger.Information("Group: {0}, New state: {1}, Previous: {2}", gguid.ToString(), active, data.IsVoteKickActive);
 
-        data.SetVoteKick(active);
+        data.IsVoteKickActive = active;
     }
 }

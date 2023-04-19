@@ -537,7 +537,7 @@ public class Condition
 
                 var creature = obj.AsCreature;
 
-                if (creature)
+                if (creature != null)
                     condMeets = (uint)creature.Template.CreatureType == ConditionValue1;
 
                 break;
@@ -647,7 +647,7 @@ public class Condition
             case ConditionTypes.BattlePetCount:
             {
                 if (player != null)
-                    condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
+                    condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, player.Session.BattlePetMgr.GetPetCount(_cliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
 
                 break;
             }

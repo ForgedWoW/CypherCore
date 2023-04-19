@@ -147,7 +147,7 @@ public class ThreatManager
         var cWho = who.AsCreature;
 
         // only creatures can have threat list
-        if (!cWho)
+        if (cWho == null)
             return false;
 
         // pets, totems and triggers cannot have threat list
@@ -155,16 +155,15 @@ public class ThreatManager
             return false;
 
         // summons cannot have a threat list if they were summoned by a player
-        if (cWho.HasUnitTypeMask(UnitTypeMask.Minion | UnitTypeMask.Guardian))
-        {
-            var tWho = cWho.ToTempSummon();
+        if (!cWho.HasUnitTypeMask(UnitTypeMask.Minion | UnitTypeMask.Guardian))
+            return true;
 
-            if (tWho != null)
-                if (tWho.SummonerGUID.IsPlayer)
-                    return false;
-        }
+        var tWho = cWho.ToTempSummon();
 
-        return true;
+        if (tWho == null)
+            return true;
+
+        return !tWho.SummonerGUID.IsPlayer;
     }
 
     // returns true if a is LOWER on the threat list than b
@@ -255,7 +254,7 @@ public class ThreatManager
 
                     var redirTarget = refe != null ? refe.Victim : Owner.ObjectAccessor.GetUnit(Owner, pair.Item1);
 
-                    if (!redirTarget)
+                    if (redirTarget == null)
                         continue;
 
                     var amountRedirected = MathFunctions.CalculatePct(origAmount, pair.Item2);
@@ -306,15 +305,15 @@ public class ThreatManager
 
     public void ClearAllThreat()
     {
-        if (!_myThreatListEntries.Empty())
-        {
-            SendClearAllThreatToClients();
+        if (_myThreatListEntries.Empty())
+            return;
 
-            do
-            {
-                _myThreatListEntries.FirstOrDefault().Value.UnregisterAndFree();
-            } while (!_myThreatListEntries.Empty());
-        }
+        SendClearAllThreatToClients();
+
+        do
+        {
+            _myThreatListEntries.FirstOrDefault().Value.UnregisterAndFree();
+        } while (!_myThreatListEntries.Empty());
     }
 
     public void ClearFixate()
@@ -358,13 +357,12 @@ public class ThreatManager
 
     public void FixateTarget(Unit target)
     {
-        if (target)
-            if (_myThreatListEntries.TryGetValue(target.GUID, out var it))
-            {
-                _fixateRef = it;
+        if (target != null && _myThreatListEntries.TryGetValue(target.GUID, out var it))
+        {
+            _fixateRef = it;
 
-                return;
-            }
+            return;
+        }
 
         _fixateRef = null;
     }
@@ -404,11 +402,7 @@ public class ThreatManager
 
     public Unit GetAnyTarget()
     {
-        foreach (var refe in SortedThreatList)
-            if (!refe.IsOffline)
-                return refe.Victim;
-
-        return null;
+        return (from refe in SortedThreatList where !refe.IsOffline select refe.Victim).FirstOrDefault();
     }
 
     public Unit GetFixateTarget()
@@ -452,11 +446,7 @@ public class ThreatManager
         if (includeOffline)
             return !ThreatenedByMeList.Empty();
 
-        foreach (var pair in ThreatenedByMeList)
-            if (pair.Value.IsAvailable)
-                return true;
-
-        return false;
+        return ThreatenedByMeList.Any(pair => pair.Value.IsAvailable);
     }
 
     public bool IsThreateningTo(ObjectGuid who, bool includeOffline = false)
@@ -474,14 +464,7 @@ public class ThreatManager
 
     public bool IsThreatListEmpty(bool includeOffline = false)
     {
-        if (includeOffline)
-            return SortedThreatList.Empty();
-
-        foreach (var refe in SortedThreatList)
-            if (refe.IsAvailable)
-                return false;
-
-        return true;
+        return includeOffline ? SortedThreatList.Empty() : SortedThreatList.All(refe => !refe.IsAvailable);
     }
 
     public void ListNotifyChanged()
@@ -635,10 +618,7 @@ public class ThreatManager
 
     public void UpdateMyTempModifiers()
     {
-        double mod = 0;
-
-        foreach (var eff in Owner.GetAuraEffectsByType(AuraType.ModTotalThreat))
-            mod += eff.Amount;
+        var mod = Owner.GetAuraEffectsByType(AuraType.ModTotalThreat).Sum(eff => eff.Amount);
 
         if (ThreatenedByMeList.Empty())
             return;
@@ -793,15 +773,6 @@ public class ThreatManager
         }
     }
 
-    private void UnregisterRedirectThreat(uint spellId, ObjectGuid victim)
-    {
-        if (!RedirectRegistry.TryGetValue(spellId, out var victimMap))
-            return;
-
-        if (victimMap.Remove(victim))
-            UpdateRedirectInfo();
-    }
-
     private void UpdateRedirectInfo()
     {
         RedirectInfo.Clear();
@@ -813,14 +784,14 @@ public class ThreatManager
             {
                 var thisPct = Math.Min(100 - totalPct, victimPair.Value);
 
-                if (thisPct > 0)
-                {
-                    RedirectInfo.Add(Tuple.Create(victimPair.Key, thisPct));
-                    totalPct += thisPct;
+                if (thisPct <= 0)
+                    continue;
 
-                    if (totalPct == 100)
-                        return;
-                }
+                RedirectInfo.Add(Tuple.Create(victimPair.Key, thisPct));
+                totalPct += thisPct;
+
+                if (totalPct == 100)
+                    return;
             }
         }
     }
