@@ -190,7 +190,7 @@ public partial class Unit : WorldObject
         else
         {
             // Set exit position to vehicle position and use the current orientation
-            pos = vehicle.GetBase().Location;
+            pos = vehicle.Base.Location;
             pos.Orientation = Location.Orientation;
 
             // Change exit position based on seat entry addon data
@@ -205,10 +205,10 @@ public partial class Unit : WorldObject
 
         var initializer = (MoveSplineInit init) =>
         {
-            var height = pos.Z + vehicle.GetBase().CollisionHeight;
+            var height = pos.Z + vehicle.Base.CollisionHeight;
 
             // Creatures without inhabit type air should begin falling after exiting the vehicle
-            if (IsTypeId(TypeId.Unit) && !CanFly && height > Location.Map.GetWaterOrGroundLevel(Location.PhaseShift, pos.X, pos.Y, pos.Z + vehicle.GetBase().CollisionHeight, ref height))
+            if (IsTypeId(TypeId.Unit) && !CanFly && height > Location.Map.GetWaterOrGroundLevel(Location.PhaseShift, pos.X, pos.Y, pos.Z + vehicle.Base.CollisionHeight, ref height))
                 init.SetFall();
 
             init.MoveTo(pos.X, pos.Y, height, false);
@@ -220,14 +220,14 @@ public partial class Unit : WorldObject
 
         player?.ResummonPetTemporaryUnSummonedIfAny();
 
-        if (vehicle.GetBase().HasUnitTypeMask(UnitTypeMask.Minion) && vehicle.GetBase().IsTypeId(TypeId.Unit))
-            if (((Minion)vehicle.GetBase()).OwnerUnit == this)
-                vehicle.GetBase().AsCreature.DespawnOrUnsummon(vehicle.GetDespawnDelay());
+        if (vehicle.Base.HasUnitTypeMask(UnitTypeMask.Minion) && vehicle.Base.IsTypeId(TypeId.Unit))
+            if (((Minion)vehicle.Base).OwnerUnit == this)
+                vehicle.Base.AsCreature.DespawnOrUnsummon(vehicle.DespawnDelay);
 
         if (HasUnitTypeMask(UnitTypeMask.Accessory))
         {
             // Vehicle just died, we die too
-            if (vehicle.GetBase().DeathState == DeathState.JustDied)
+            if (vehicle.Base.DeathState == DeathState.JustDied)
                 SetDeathState(DeathState.JustDied);
             // If for other reason we as minion are exiting the vehicle (ejected, master dismounted) - unsummon
             else
@@ -437,7 +437,7 @@ public partial class Unit : WorldObject
             return;
 
         AuraEffect rideVehicleEffect = null;
-        var vehicleAuras = Vehicle.GetBase().GetAuraEffectsByType(AuraType.ControlVehicle);
+        var vehicleAuras = Vehicle.Base.GetAuraEffectsByType(AuraType.ControlVehicle);
 
         foreach (var eff in vehicleAuras)
         {
@@ -561,21 +561,21 @@ public partial class Unit : WorldObject
 
     public void EnterVehicle(Vehicle vehicle, sbyte seatId, AuraApplication aurApp)
     {
-        if (!IsAlive || VehicleKit == vehicle || vehicle.GetBase().IsOnVehicle(this))
+        if (!IsAlive || VehicleKit == vehicle || vehicle.Base.IsOnVehicle(this))
             return;
 
         if (Vehicle != null)
         {
             if (Vehicle != vehicle)
             {
-                Log.Logger.Debug("EnterVehicle: {0} exit {1} and enter {2}.", Entry, Vehicle.GetBase().Entry, vehicle.GetBase().Entry);
+                Log.Logger.Debug("EnterVehicle: {0} exit {1} and enter {2}.", Entry, Vehicle.Base.Entry, vehicle.Base.Entry);
                 ExitVehicle();
             }
             else if (seatId >= 0 && seatId == MovementInfo.Transport.Seat)
                 return;
             else
                 //Exit the current vehicle because unit will reenter in a new seat.
-                Vehicle.GetBase().RemoveAurasByType(AuraType.ControlVehicle, GUID, aurApp.Base);
+                Vehicle.Base.RemoveAurasByType(AuraType.ControlVehicle, GUID, aurApp.Base);
         }
 
         if (aurApp.HasRemoveMode)
@@ -585,19 +585,19 @@ public partial class Unit : WorldObject
 
         if (player != null)
         {
-            if (vehicle.GetBase().IsTypeId(TypeId.Player) && player.IsInCombat)
+            if (vehicle.Base.IsTypeId(TypeId.Player) && player.IsInCombat)
             {
-                vehicle.GetBase().RemoveAura(aurApp);
+                vehicle.Base.RemoveAura(aurApp);
 
                 return;
             }
 
-            if (vehicle.GetBase().IsCreature)
+            if (vehicle.Base.IsCreature)
             {
                 // If a player entered a vehicle that is part of a formation, remove it from said formation
-                var creatureGroup = vehicle.GetBase().AsCreature.Formation;
+                var creatureGroup = vehicle.Base.AsCreature.Formation;
 
-                creatureGroup?.RemoveMember(vehicle.GetBase().AsCreature);
+                creatureGroup?.RemoveMember(vehicle.Base.AsCreature);
             }
         }
 
@@ -2831,7 +2831,7 @@ public partial class Unit : WorldObject
                         {
                             if (VehicleKit != null)
                             {
-                                if (CliDB.PowerDisplayStorage.TryGetValue(VehicleKit.GetVehicleInfo().PowerDisplayID[0], out var powerDisplay))
+                                if (CliDB.PowerDisplayStorage.TryGetValue(VehicleKit.VehicleInfo.PowerDisplayID[0], out var powerDisplay))
                                     displayPower = (PowerType)powerDisplay.ActualType;
                                 else if (Class == PlayerClass.Rogue)
                                     displayPower = PowerType.Energy;

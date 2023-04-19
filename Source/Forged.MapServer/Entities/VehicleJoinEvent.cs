@@ -33,8 +33,8 @@ public class VehicleJoinEvent : BasicEvent
             Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
                              Passenger.GUID.ToString(),
                              Passenger.Entry,
-                             Target.GetBase().GUID.ToString(),
-                             Target.GetBase().Entry,
+                             Target.Base.GUID.ToString(),
+                             Target.Base.Entry,
                              Seat.Key);
 
             // Remove the pending event when Abort was called on the event directly
@@ -43,7 +43,7 @@ public class VehicleJoinEvent : BasicEvent
             // @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
             // When this code is triggered it means that something went wrong in @Vehicle.AddPassenger, and we should remove
             // the aura manually.
-            Target.GetBase().RemoveAurasByType(AuraType.ControlVehicle, Passenger.GUID);
+            Target.Base.RemoveAurasByType(AuraType.ControlVehicle, Passenger.GUID);
         }
         else
             Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
@@ -57,10 +57,10 @@ public class VehicleJoinEvent : BasicEvent
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        var vehicleAuras = Target.GetBase().GetAuraEffectsByType(AuraType.ControlVehicle);
+        var vehicleAuras = Target.Base.GetAuraEffectsByType(AuraType.ControlVehicle);
         var aurEffect = vehicleAuras.Find(aurEff => aurEff.CasterGuid == Passenger.GUID);
 
-        var aurApp = aurEffect.Base.GetApplicationOfTarget(Target.GetBase().GUID);
+        var aurApp = aurEffect.Base.GetApplicationOfTarget(Target.Base.GUID);
 
         Target.RemovePendingEventsForSeat(Seat.Key);
         Target.RemovePendingEventsForPassenger(Passenger);
@@ -89,7 +89,7 @@ public class VehicleJoinEvent : BasicEvent
 
             if (Target.UsableSeatNum == 0)
             {
-                Target.GetBase().RemoveNpcFlag(Target.GetBase().IsTypeId(TypeId.Player) ? NPCFlags.PlayerVehicle : NPCFlags.SpellClick);
+                Target.Base.RemoveNpcFlag(Target.Base.IsTypeId(TypeId.Player) ? NPCFlags.PlayerVehicle : NPCFlags.SpellClick);
             }
         }
 
@@ -125,11 +125,11 @@ public class VehicleJoinEvent : BasicEvent
         Passenger.MovementInfo.Transport.Pos.Relocate(x, y, z, o);
         Passenger.MovementInfo.Transport.Time = 0;
         Passenger.MovementInfo.Transport.Seat = Seat.Key;
-        Passenger.MovementInfo.Transport.Guid = Target.GetBase().GUID;
+        Passenger.MovementInfo.Transport.Guid = Target.Base.GUID;
 
-        if (Target.GetBase().IsTypeId(TypeId.Unit) && Passenger.IsTypeId(TypeId.Player) && Seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.CanControl))
+        if (Target.Base.IsTypeId(TypeId.Unit) && Passenger.IsTypeId(TypeId.Player) && Seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.CanControl))
             // handles SMSG_CLIENT_CONTROL
-            if (!Target.GetBase().SetCharmedBy(Passenger, CharmType.Vehicle, aurApp))
+            if (!Target.Base.SetCharmedBy(Passenger, CharmType.Vehicle, aurApp))
             {
                 // charming failed, probably aura was removed by relocation/scripts/whatever
                 Abort(0);
@@ -152,9 +152,9 @@ public class VehicleJoinEvent : BasicEvent
         Passenger.MotionMaster.LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
 
         foreach (var (_, threatRef) in Passenger.GetThreatManager().ThreatenedByMeList)
-            threatRef.Owner.GetThreatManager().AddThreat(Target.GetBase(), threatRef.Threat, null, true, true);
+            threatRef.Owner.GetThreatManager().AddThreat(Target.Base, threatRef.Threat, null, true, true);
 
-        var creature = Target.GetBase().AsCreature;
+        var creature = Target.Base.AsCreature;
 
         if (creature != null)
         {
@@ -162,11 +162,11 @@ public class VehicleJoinEvent : BasicEvent
 
             ai?.PassengerBoarded(Passenger, Seat.Key, true);
 
-            ScriptManager.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.GetBase().AsCreature.GetScriptId());
+            ScriptManager.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.Base.AsCreature.GetScriptId());
 
             // Actually quite a redundant hook. Could just use OnAddPassenger and check for unit typemask inside script.
             if (Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
-                ScriptManager.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.AsCreature), Target.GetBase().AsCreature.GetScriptId());
+                ScriptManager.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.AsCreature), Target.Base.AsCreature.GetScriptId());
         }
 
         return true;

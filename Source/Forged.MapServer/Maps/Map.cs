@@ -550,7 +550,7 @@ public class Map : IDisposable
 
         _transports.Add(obj);
 
-        if (obj.GetExpectedMapId() == Id)
+        if (obj.ExpectedMapId == Id)
         {
             obj.AddToWorld();
 
@@ -2031,7 +2031,7 @@ public class Map : IDisposable
 
         // build other passengers at transport also (they always visible and marked as visible and will not send at visibility update at add to map
         if (transport != null)
-            foreach (var passenger in transport.GetPassengers().Where(passenger => player != passenger && player.HaveAtClient(passenger)))
+            foreach (var passenger in transport.Passengers.Where(passenger => player != passenger && player.HaveAtClient(passenger)))
                 passenger.BuildCreateUpdateBlockForPlayer(data, player);
 
         data.BuildPacket(out var packet);

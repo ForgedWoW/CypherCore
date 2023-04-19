@@ -8,8 +8,8 @@ namespace Forged.MapServer.Entities;
 public class VehicleSeat
 {
     public PassengerInfo Passenger;
-    public VehicleSeatAddon SeatAddon;
-    public VehicleSeatRecord SeatInfo;
+    public VehicleSeatAddon SeatAddon { get; set; }
+    public VehicleSeatRecord SeatInfo { get; set; }
 
     public VehicleSeat(VehicleSeatRecord seatInfo, VehicleSeatAddon seatAddon)
     {

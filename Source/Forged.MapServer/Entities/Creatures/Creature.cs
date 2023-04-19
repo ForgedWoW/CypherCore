@@ -72,7 +72,7 @@ public partial class Creature : Unit
     public bool _IsTargetAcceptable(Unit target)
     {
         // if the target cannot be attacked, the target is not acceptable
-        if (WorldObjectCombat.IsFriendlyTo(target) || !target.IsTargetableForAttack(false) || (Vehicle != null && (IsOnVehicle(target) || Vehicle.GetBase().IsOnVehicle(target))))
+        if (WorldObjectCombat.IsFriendlyTo(target) || !target.IsTargetableForAttack(false) || (Vehicle != null && (IsOnVehicle(target) || Vehicle.Base.IsOnVehicle(target))))
             return false;
 
         if (target.HasUnitState(UnitState.Died))

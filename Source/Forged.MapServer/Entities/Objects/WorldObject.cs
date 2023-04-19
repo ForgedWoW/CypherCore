@@ -659,7 +659,7 @@ public abstract class WorldObject : IDisposable
         if (flags.Vehicle)
         {
             var unit = AsUnit;
-            data.WriteUInt32(unit.VehicleKit.GetVehicleInfo().Id); // RecID
+            data.WriteUInt32(unit.VehicleKit.VehicleInfo.Id); // RecID
             data.WriteFloat(unit.Location.Orientation);            // InitialRawFacing
         }
 

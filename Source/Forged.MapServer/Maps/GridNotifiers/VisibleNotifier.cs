@@ -49,7 +49,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
         var transport = Player.GetTransport<Transport>();
 
         if (transport != null)
-            foreach (var obj in transport.GetPassengers())
+            foreach (var obj in transport.Passengers)
                 if (VisGuids.Contains(obj.GUID))
                 {
                     VisGuids.Remove(obj.GUID);

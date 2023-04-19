@@ -6166,7 +6166,7 @@ public partial class Player : Unit
             mi.RemoveMovementFlag(maskToRemove);
         });
 
-        if (UnitMovedByMe.VehicleBase == null || !UnitMovedByMe.Vehicle.GetVehicleInfo().Flags.HasAnyFlag(VehicleFlags.FixedPosition))
+        if (UnitMovedByMe.VehicleBase == null || !UnitMovedByMe.Vehicle.VehicleInfo.Flags.HasAnyFlag(VehicleFlags.FixedPosition))
             removeViolatingFlags(mi.HasMovementFlag(MovementFlag.Root), MovementFlag.Root);
 
         /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid

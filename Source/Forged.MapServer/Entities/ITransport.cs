@@ -97,6 +97,6 @@ public interface ITransport
 
     int MapIdForSpawning { get; }
     ObjectGuid GUID { get; }
-    float GetTransportOrientation();
+    float TransportOrientation { get; }
     ITransport RemovePassenger(WorldObject passenger);
 }

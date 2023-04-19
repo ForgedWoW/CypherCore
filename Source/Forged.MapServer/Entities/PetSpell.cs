@@ -7,7 +7,7 @@ namespace Forged.MapServer.Entities;
 
 public class PetSpell
 {
-    public ActiveStates Active;
-    public PetSpellState State;
-    public PetSpellType Type;
+    public ActiveStates Active { get; set; }
+    public PetSpellState State { get; set; }
+    public PetSpellType Type { get; set; }
 }

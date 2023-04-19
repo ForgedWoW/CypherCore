@@ -2133,7 +2133,7 @@ public sealed class GameObjectManager
 
     public List<VehicleAccessory> GetVehicleAccessoryList(Vehicle veh)
     {
-        var cre = veh.GetBase().AsCreature;
+        var cre = veh.Base.AsCreature;
 
         if (cre != null)
             // Give preference to GUID-based accessories
@@ -2141,7 +2141,7 @@ public sealed class GameObjectManager
                 return list;
 
         // Otherwise return entry-based
-        return _vehicleTemplateAccessoryStore.LookupByKey(veh.GetCreatureEntry());
+        return _vehicleTemplateAccessoryStore.LookupByKey(veh.CreatureEntry);
     }
 
     public VehicleSeatAddon GetVehicleSeatAddon(uint seatId)
@@ -2151,7 +2151,7 @@ public sealed class GameObjectManager
 
     public VehicleTemplate GetVehicleTemplate(Vehicle veh)
     {
-        return _vehicleTemplateStore.LookupByKey(veh.GetCreatureEntry());
+        return _vehicleTemplateStore.LookupByKey(veh.CreatureEntry);
     }
 
     public WorldSafeLocsEntry GetWorldSafeLoc(uint id)

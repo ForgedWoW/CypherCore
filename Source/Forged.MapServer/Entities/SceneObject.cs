@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Framework.Constants;
+using Game.Common;
 
 namespace Forged.MapServer.Entities;
 
@@ -20,7 +21,7 @@ public class SceneObject : WorldObject
     private readonly Position _stationaryPosition;
     private ObjectGuid _createdBySpellCast;
 
-    public SceneObject() : base(false)
+    public SceneObject(ClassFactory classFactory) : base(false, classFactory)
     {
         ObjectTypeMask |= TypeMask.SceneObject;
         ObjectTypeId = TypeId.SceneObject;
@@ -35,34 +36,13 @@ public class SceneObject : WorldObject
     public override uint Faction => 0;
     public override ObjectGuid OwnerGUID => _sceneObjectData.CreatedBy;
 
-    public static SceneObject CreateSceneObject(uint sceneId, Unit creator, Position pos, ObjectGuid privateObjectOwner)
-    {
-        var sceneTemplate = GameObjectManager.GetSceneTemplate(sceneId);
-
-        if (sceneTemplate == null)
-            return null;
-
-        var lowGuid = creator.Location.Map.GenerateLowGuid(HighGuid.SceneObject);
-
-        SceneObject sceneObject = new();
-
-        if (!sceneObject.Create(lowGuid, SceneType.Normal, sceneId, sceneTemplate?.ScenePackageId ?? 0, creator.Location.Map, creator, pos, privateObjectOwner))
-        {
-            sceneObject.Dispose();
-
-            return null;
-        }
-
-        return sceneObject;
-    }
-
     public override void AddToWorld()
     {
-        if (!Location.IsInWorld)
-        {
-            Location.Map.ObjectsStore.TryAdd(GUID, this);
-            base.AddToWorld();
-        }
+        if (Location.IsInWorld)
+            return;
+
+        Location.Map.ObjectsStore.TryAdd(GUID, this);
+        base.AddToWorld();
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -123,7 +103,7 @@ public class SceneObject : WorldObject
             Remove();
     }
 
-    private bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
+    internal bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
     {
         Location.WorldRelocate(map, pos);
         CheckAddToMap();

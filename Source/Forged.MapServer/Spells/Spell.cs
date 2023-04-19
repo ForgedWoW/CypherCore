@@ -103,6 +103,7 @@ public partial class Spell : IDisposable
     private readonly PlayerComputators _playerComputators;
     private readonly ConversationFactory _conversationFactory;
     private readonly ItemFactory _itemFactory;
+    private readonly SceneFactory _sceneFactory;
     private readonly ScriptManager _scriptManager;
     private readonly SkillExtraItems _skillExtraItems;
     private readonly SkillPerfectItems _skillPerfectItems;
@@ -166,7 +167,8 @@ public partial class Spell : IDisposable
                  SkillPerfectItems skillPerfectItems, SkillExtraItems skillExtraItems, ItemEnchantmentManager itemEnchantmentManager, GameObjectManager gameObjectManager, InstanceLockManager instanceLockManager,
                  CliDB cliDb, BattleFieldManager battleFieldManager, UnitCombatHelpers combatHelpers, SpellManager spellManager, GroupManager groupManager, ScriptManager scriptManager, LootStoreBox lootStoreBox,
                  WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator, TraitMgr traitMgr, GameObjectFactory gameObjectFactory, PhasingHandler phasingHandler,
-                 BattlePetMgrData battlePetMgrData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, ConversationFactory conversationFactory, ItemFactory itemFactory,
+                 BattlePetMgrData battlePetMgrData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, 
+                 ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, 
                  ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
         SpellInfo = info;
@@ -197,6 +199,7 @@ public partial class Spell : IDisposable
         _playerComputators = playerComputators;
         _conversationFactory = conversationFactory;
         _itemFactory = itemFactory;
+        _sceneFactory = sceneFactory;
 
         foreach (var stage in info.EmpowerStages)
             _empowerStages[stage.Key] = new SpellEmpowerStageRecord
@@ -4945,7 +4948,7 @@ public partial class Spell : IDisposable
             case AuraType.ModCharm:
             case AuraType.ModPossessPet:
             case AuraType.AoeCharm:
-                if (target.VehicleKit != null && target.VehicleKit.IsControllableVehicle())
+                if (target.VehicleKit != null && target.VehicleKit.IsControllableVehicle)
                     return false;
 
                 if (target.IsMounted)

@@ -453,6 +453,7 @@ void RegisterFactories()
     builder.RegisterType<AzeriteEmpoweredItemFactory>().SingleInstance();
     builder.RegisterType<AzeriteItemFactory>().SingleInstance();
     builder.RegisterType<ConversationFactory>().SingleInstance();
+    builder.RegisterType<SceneFactory>().SingleInstance();
 }
 
 void RegisterInstanced()
@@ -522,6 +523,7 @@ void RegisterInstanced()
     builder.RegisterType<Totem>();
     builder.RegisterType<Pet>();
     builder.RegisterType<SceneObject>();
+    builder.RegisterType<Vehicle>();
 }
 
 void RegisterHandlers()

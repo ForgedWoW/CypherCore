@@ -325,7 +325,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
                     if (trans != null)
                     {
-                        pos.Orientation -= trans.GetTransportOrientation();
+                        pos.Orientation -= trans.TransportOrientation;
                         owner.TransportHomePosition = pos;
                         trans.CalculatePassengerPosition(pos);
                         owner.HomePosition = pos;

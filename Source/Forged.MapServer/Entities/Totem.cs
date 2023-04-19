@@ -8,19 +8,17 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Networking.Packets.Totem;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities;
 
 public class Totem : Minion
 {
-    private uint _duration;
-    private TotemType _totemType;
-
-    public Totem(SummonPropertiesRecord propertiesRecord, Unit owner) : base(propertiesRecord, owner, false)
+    public Totem(SummonPropertiesRecord propertiesRecord, Unit owner, ClassFactory classFactory) : base(propertiesRecord, owner, false, classFactory)
     {
         UnitTypeMask |= UnitTypeMask.Totem;
-        _totemType = TotemType.Passive;
+        TotemType = TotemType.Passive;
     }
 
     public uint GetSpell(byte slot = 0)
@@ -28,22 +26,16 @@ public class Totem : Minion
         return Spells[slot];
     }
 
-    public uint GetTotemDuration()
-    {
-        return _duration;
-    }
+    public uint TotemDuration { get; private set; }
 
-    public TotemType GetTotemType()
-    {
-        return _totemType;
-    }
+    public TotemType TotemType { get; private set; }
 
     public override void InitStats(uint duration)
     {
         // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
         var owner = OwnerUnit.AsPlayer;
 
-        if (owner)
+        if (owner != null)
         {
             if (SummonPropertiesRecord.Slot is >= (int)Framework.Constants.SummonSlot.Totem and < SharedConst.MaxTotemSlot)
             {
@@ -59,7 +51,7 @@ public class Totem : Minion
             }
 
             // set display id depending on caster's race
-            var totemDisplayId = Global.SpellMgr.GetModelForTotem(UnitData.CreatedBySpell, owner.Race);
+            var totemDisplayId = SpellManager.GetModelForTotem(UnitData.CreatedBySpell, owner.Race);
 
             if (totemDisplayId != 0)
                 SetDisplayId(totemDisplayId);
@@ -70,23 +62,23 @@ public class Totem : Minion
         base.InitStats(duration);
 
         // Get spell cast by totem
-        var totemSpell = Global.SpellMgr.GetSpellInfo(GetSpell(), Location.Map.DifficultyID);
+        var totemSpell = SpellManager.GetSpellInfo(GetSpell(), Location.Map.DifficultyID);
 
         if (totemSpell != null)
             if (totemSpell.CalcCastTime() != 0) // If spell has cast time -> its an active totem
-                _totemType = TotemType.Active;
+                TotemType = TotemType.Active;
 
-        _duration = duration;
+        TotemDuration = duration;
     }
 
     public override void InitSummon()
     {
-        if (_totemType == TotemType.Passive && GetSpell() != 0)
-            CastSpell(this, GetSpell(), true);
+        if (TotemType == TotemType.Passive && GetSpell() != 0)
+            SpellFactory.CastSpell(this, GetSpell(), true);
 
         // Some totems can have both instant effect and passive spell
         if (GetSpell(1) != 0)
-            CastSpell(this, GetSpell(1), true);
+            SpellFactory.CastSpell(this, GetSpell(1), true);
     }
 
     public override bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)
@@ -112,7 +104,7 @@ public class Totem : Minion
 
     public void SetTotemDuration(uint duration)
     {
-        _duration = duration;
+        TotemDuration = duration;
     }
 
     public override void UnSummon()
@@ -150,19 +142,19 @@ public class Totem : Minion
         {
             owner.SendAutoRepeatCancel(this);
 
-            var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, Location.Map.DifficultyID);
+            var spell = SpellManager.GetSpellInfo(UnitData.CreatedBySpell, Location.Map.DifficultyID);
 
             if (spell != null)
                 SpellHistory.SendCooldownEvent(spell, 0, null, false);
 
             var group = owner.Group;
 
-            if (group)
+            if (group != null)
                 for (var refe = group.FirstMember; refe != null; refe = refe.Next())
                 {
                     var target = refe.Source;
 
-                    if (target && target.Location.IsInMap(owner) && group.SameSubGroup(owner, target))
+                    if (target != null && target.Location.IsInMap(owner) && group.SameSubGroup(owner, target))
                         target.RemoveAurasDueToSpell(GetSpell(), GUID);
                 }
         }
@@ -179,14 +171,14 @@ public class Totem : Minion
             return;
         }
 
-        if (_duration <= diff)
+        if (TotemDuration <= diff)
         {
             UnSummon(); // remove self
 
             return;
         }
 
-        _duration -= diff;
+        TotemDuration -= diff;
 
         base.Update(diff);
     }

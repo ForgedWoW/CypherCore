@@ -215,7 +215,7 @@ public class MoveSplineInit
                 var transport = _unit.Transport;
 
                 if (transport != null)
-                    angle -= transport.GetTransportOrientation();
+                    angle -= transport.TransportOrientation;
             }
         }
 

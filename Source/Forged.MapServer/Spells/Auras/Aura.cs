@@ -623,7 +623,7 @@ public class Aura
             if (veh == null) // We should probably just let it stack. Vehicle system will prevent undefined behaviour later
                 return true;
 
-            return veh.GetAvailableSeatCount() != 0;
+            return veh.AvailableSeatCount != 0;
             // No empty seat available
             // Empty seat available (skip rest)
         }

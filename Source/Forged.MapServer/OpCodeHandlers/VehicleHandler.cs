@@ -35,7 +35,7 @@ public class VehicleHandler : IWorldSessionHandler
                 return;
             }
 
-            if (!unit.IsOnVehicle(vehicle.GetBase()))
+            if (!unit.IsOnVehicle(vehicle.Base))
             {
                 Log.Logger.Error("{0} tried to eject {1}, but they are not in the same vehicle", Player.GUID.ToString(), packet.Passenger.ToString());
 

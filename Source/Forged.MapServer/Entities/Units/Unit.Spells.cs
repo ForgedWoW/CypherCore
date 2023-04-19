@@ -1123,7 +1123,7 @@ public partial class Unit
     {
         var spellClickHandled = false;
 
-        var spellClickEntry = VehicleKit?.GetCreatureEntry() ?? Entry;
+        var spellClickEntry = VehicleKit?.CreatureEntry ?? Entry;
         var flags = VehicleKit != null ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
 
         var clickBounds = GameObjectManager.GetSpellClickInfoMapBounds(spellClickEntry);
@@ -3865,7 +3865,7 @@ public partial class Unit
 
         // Remove totem at next update if totem loses its aura
         if (aurApp.RemoveMode == AuraRemoveMode.Expire && IsTypeId(TypeId.Unit) && IsTotem)
-            if (ToTotem().GetSpell() == aura.Id && ToTotem().GetTotemType() == TotemType.Passive)
+            if (ToTotem().GetSpell() == aura.Id && ToTotem().TotemType == TotemType.Passive)
                 ToTotem().SetDeathState(DeathState.JustDied);
 
         // Remove aurastates only if needed and were not found

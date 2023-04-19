@@ -850,8 +850,8 @@ public class SmartScript
                 break;
 
             case SmartTargets.ActionInvokerVehicle:
-                if (scriptTrigger is { AsUnit.Vehicle: { } } && scriptTrigger.AsUnit.Vehicle.GetBase() != null)
-                    targets.Add(scriptTrigger.AsUnit.Vehicle.GetBase());
+                if (scriptTrigger is { AsUnit.Vehicle: { } } && scriptTrigger.AsUnit.Vehicle.Base != null)
+                    targets.Add(scriptTrigger.AsUnit.Vehicle.Base);
 
                 break;
 

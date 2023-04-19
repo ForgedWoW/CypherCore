@@ -594,7 +594,7 @@ public partial class Unit
 
     public UnitTypeMask UnitTypeMask { get; set; }
     public Vehicle Vehicle { get; set; }
-    public Unit VehicleBase => Vehicle?.GetBase();
+    public Unit VehicleBase => Vehicle?.Base;
     public Creature VehicleCreatureBase => VehicleBase?.AsCreature;
     public Vehicle VehicleKit { get; set; }
     public Unit Victim => Attacking;

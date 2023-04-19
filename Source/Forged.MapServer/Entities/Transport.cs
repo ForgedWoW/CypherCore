@@ -30,9 +30,6 @@ namespace Forged.MapServer.Entities;
 
 public class Transport : GameObject, ITransport
 {
-    public TransportManager TransportManager { get; }
-    public CreatureFactory CreatureFactory { get; }
-    private readonly HashSet<WorldObject> _passengers = new();
     private readonly TimeTracker _positionChangeTimer = new();
     private readonly HashSet<WorldObject> _staticPassengers = new();
 
@@ -40,13 +37,11 @@ public class Transport : GameObject, ITransport
     private bool _delayedAddModel;
     private BitArray _eventsToTrigger;
     private TransportMovementState _movementState;
-    private uint _pathProgress;
     private uint? _requestStopTimestamp;
     private TransportTemplate _transportInfo;
 
-
-    public Transport(LootFactory lootFactory, ClassFactory classFactory, LootStoreBox lootStoreBox, PoolManager poolManager, DB2Manager db2Manager, WorldDatabase worldDatabase, 
-                     LootManager lootManager, OutdoorPvPManager outdoorPvPManager, TransportManager transportManager, CreatureFactory creatureFactory) 
+    public Transport(LootFactory lootFactory, ClassFactory classFactory, LootStoreBox lootStoreBox, PoolManager poolManager, DB2Manager db2Manager, WorldDatabase worldDatabase,
+                     LootManager lootManager, OutdoorPvPManager outdoorPvPManager, TransportManager transportManager, CreatureFactory creatureFactory)
         : base(lootFactory, classFactory, lootStoreBox, poolManager, db2Manager, worldDatabase, lootManager, outdoorPvPManager)
     {
         TransportManager = transportManager;
@@ -56,13 +51,23 @@ public class Transport : GameObject, ITransport
         UpdateFlag.Rotation = true;
     }
 
+    public CreatureFactory CreatureFactory { get; }
+    public uint ExpectedMapId => _transportInfo.PathLegs[_currentPathLeg].MapId;
+    public int MapIdForSpawning => Template.MoTransport.SpawnMap;
+
+    public HashSet<WorldObject> Passengers { get; } = new();
+    public uint Timer { get; private set; }
+    public TransportManager TransportManager { get; }
+    public float TransportOrientation => Location.Orientation;
+    public uint TransportPeriod => GameObjectFieldData.Level;
+
     public void AddPassenger(WorldObject passenger)
     {
         if (!Location.IsInWorld)
             return;
 
         lock (_staticPassengers)
-            if (_passengers.Add(passenger))
+            if (Passengers.Add(passenger))
             {
                 passenger.Transport = this;
                 passenger.MovementInfo.Transport.Guid = GUID;
@@ -74,44 +79,6 @@ public class Transport : GameObject, ITransport
             }
     }
 
-    public void CalculatePassengerOffset(Position pos)
-    {
-        ITransport.CalculatePassengerOffset(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
-    }
-
-    public void CalculatePassengerPosition(Position pos)
-    {
-        ITransport.CalculatePassengerPosition(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
-    }
-
-    public int MapIdForSpawning => Template.MoTransport.SpawnMap;
-
-    public float GetTransportOrientation()
-    {
-        return Location.Orientation;
-    }
-
-    public ITransport RemovePassenger(WorldObject passenger)
-    {
-        lock (_staticPassengers)
-            if (_passengers.Remove(passenger) || _staticPassengers.Remove(passenger)) // static passenger can remove itself in case of grid unload
-            {
-                passenger.Transport = null;
-                passenger.MovementInfo.Transport.Reset();
-                Log.Logger.Debug("Object {0} removed from transport {1}.", passenger.GetName(), GetName());
-
-                var plr = passenger.AsPlayer;
-
-                if (plr == null)
-                    return this;
-
-                ScriptManager.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
-                plr.SetFallInformation(0, plr.Location.Z);
-            }
-
-        return this;
-    }
-
     public override void BuildUpdate(Dictionary<Player, UpdateData> dataMap)
     {
         var players = Location.Map.Players;
@@ -119,20 +86,29 @@ public class Transport : GameObject, ITransport
         if (players.Empty())
             return;
 
-        foreach (var playerReference in players)
-            if (playerReference.Location.InSamePhase(this))
-                BuildFieldsUpdate(playerReference, dataMap);
+        foreach (var playerReference in players.Where(playerReference => playerReference.Location.InSamePhase(this)))
+            BuildFieldsUpdate(playerReference, dataMap);
 
         ClearUpdateMask(true);
+    }
+
+    public void CalculatePassengerOffset(Position pos)
+    {
+        ITransport.CalculatePassengerOffset(pos, Location.X, Location.Y, Location.Z, TransportOrientation);
+    }
+
+    public void CalculatePassengerPosition(Position pos)
+    {
+        ITransport.CalculatePassengerPosition(pos, Location.X, Location.Y, Location.Z, TransportOrientation);
     }
 
     public override void CleanupsBeforeDelete(bool finalCleanup = true)
     {
         UnloadStaticPassengers();
 
-        while (!_passengers.Empty())
+        while (!Passengers.Empty())
         {
-            var obj = _passengers.FirstOrDefault();
+            var obj = Passengers.FirstOrDefault();
             RemovePassenger(obj);
         }
 
@@ -184,8 +160,8 @@ public class Transport : GameObject, ITransport
             ReplaceAllFlags(goOverride.Flags);
         }
 
-        _pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.MSTime /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
-        SetPathProgressForClient(_pathProgress / (float)tInfo.TotalPathTime);
+        Timer = goinfo.MoTransport.allowstopping == 0 ? Time.MSTime /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
+        SetPathProgressForClient(Timer / (float)tInfo.TotalPathTime);
         ObjectScale = goinfo.size;
         SetPeriod(tInfo.TotalPathTime);
         Entry = goinfo.entry;
@@ -198,7 +174,7 @@ public class Transport : GameObject, ITransport
         SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
         SetParentRotation(Quaternion.Identity);
 
-        var position = _transportInfo.ComputePosition(_pathProgress, out _, out var legIndex);
+        var position = _transportInfo.ComputePosition(Timer, out _, out var legIndex);
 
         if (position != null)
         {
@@ -271,7 +247,7 @@ public class Transport : GameObject, ITransport
             return;
 
         if (!enabled)
-            _requestStopTimestamp = _pathProgress / GetTransportPeriod() * GetTransportPeriod() + _transportInfo.GetNextPauseWaypointTimestamp(_pathProgress);
+            _requestStopTimestamp = Timer / TransportPeriod * TransportPeriod + _transportInfo.GetNextPauseWaypointTimestamp(Timer);
         else
         {
             _requestStopTimestamp = null;
@@ -280,24 +256,25 @@ public class Transport : GameObject, ITransport
         }
     }
 
-    public uint GetExpectedMapId()
+    public ITransport RemovePassenger(WorldObject passenger)
     {
-        return _transportInfo.PathLegs[_currentPathLeg].MapId;
-    }
+        lock (_staticPassengers)
+            if (Passengers.Remove(passenger) || _staticPassengers.Remove(passenger)) // static passenger can remove itself in case of grid unload
+            {
+                passenger.Transport = null;
+                passenger.MovementInfo.Transport.Reset();
+                Log.Logger.Debug("Object {0} removed from transport {1}.", passenger.GetName(), GetName());
 
-    public HashSet<WorldObject> GetPassengers()
-    {
-        return _passengers;
-    }
+                var plr = passenger.AsPlayer;
 
-    public uint GetTimer()
-    {
-        return _pathProgress;
-    }
+                if (plr == null)
+                    return this;
 
-    public uint GetTransportPeriod()
-    {
-        return GameObjectFieldData.Level;
+                ScriptManager.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
+                plr.SetFallInformation(0, plr.Location.Z);
+            }
+
+        return this;
     }
 
     public void SetDelayedAddModelToMap()
@@ -326,14 +303,17 @@ public class Transport : GameObject, ITransport
                     mask = UnitTypeMask.Guardian;
 
                     break;
+
                 case SummonCategory.Puppet:
                     mask = UnitTypeMask.Puppet;
 
                     break;
+
                 case SummonCategory.Vehicle:
                     mask = UnitTypeMask.Minion;
 
                     break;
+
                 case SummonCategory.Wild:
                 case SummonCategory.Ally:
                 case SummonCategory.Unk:
@@ -346,20 +326,24 @@ public class Transport : GameObject, ITransport
                             mask = UnitTypeMask.Guardian;
 
                             break;
+
                         case SummonTitle.Totem:
                         case SummonTitle.LightWell:
                             mask = UnitTypeMask.Totem;
 
                             break;
+
                         case SummonTitle.Vehicle:
                         case SummonTitle.Mount:
                             mask = UnitTypeMask.Summon;
 
                             break;
+
                         case SummonTitle.Companion:
                             mask = UnitTypeMask.Minion;
 
                             break;
+
                         default:
                             if (properties.GetFlags().HasFlag(SummonPropertiesFlags.JoinSummonerSpawnGroup)) // Mirror Image, Summon Gargoyle
                                 mask = UnitTypeMask.Guardian;
@@ -375,13 +359,13 @@ public class Transport : GameObject, ITransport
 
         var summon = mask switch
         {
-            UnitTypeMask.Summon   => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false),
+            UnitTypeMask.Summon => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false),
             UnitTypeMask.Guardian => ClassFactory.ResolvePositional<Guardian>(properties, summoner, false),
-            UnitTypeMask.Puppet   => ClassFactory.ResolvePositional<Puppet>(properties, summoner),
-            UnitTypeMask.Totem    => ClassFactory.ResolvePositional<Totem>(properties, summoner),
-            UnitTypeMask.Minion   => ClassFactory.ResolvePositional<Minion>(properties, summoner, false),
+            UnitTypeMask.Puppet => ClassFactory.ResolvePositional<Puppet>(properties, summoner),
+            UnitTypeMask.Totem => ClassFactory.ResolvePositional<Totem>(properties, summoner),
+            UnitTypeMask.Minion => ClassFactory.ResolvePositional<Minion>(properties, summoner, false),
             // ReSharper disable once UnreachableSwitchArmDueToIntegerAnalysis
-            _                     => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false)
+            _ => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false)
         };
 
         var newPos = pos.Copy();
@@ -437,22 +421,22 @@ public class Transport : GameObject, ITransport
 
         _positionChangeTimer.Update(diff);
 
-        var cycleId = _pathProgress / GetTransportPeriod();
+        var cycleId = Timer / TransportPeriod;
 
         if (Template.MoTransport.allowstopping == 0)
-            _pathProgress = GameTime.CurrentTimeMS;
-        else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > _pathProgress + diff)
-            _pathProgress += diff;
+            Timer = GameTime.CurrentTimeMS;
+        else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > Timer + diff)
+            Timer += diff;
         else
-            _pathProgress = _requestStopTimestamp.Value;
+            Timer = _requestStopTimestamp.Value;
 
-        if (_pathProgress / GetTransportPeriod() != cycleId)
+        if (Timer / TransportPeriod != cycleId)
             // reset cycle
             _eventsToTrigger.SetAll(true);
 
-        SetPathProgressForClient(_pathProgress / (float)GetTransportPeriod());
+        SetPathProgressForClient(Timer / (float)TransportPeriod);
 
-        var timer = _pathProgress % GetTransportPeriod();
+        var timer = Timer % TransportPeriod;
 
         var eventToTriggerIndex = -1;
 
@@ -501,7 +485,7 @@ public class Transport : GameObject, ITransport
             }
 
             // set position
-            if (_positionChangeTimer.Passed && GetExpectedMapId() == Location.MapId)
+            if (_positionChangeTimer.Passed && ExpectedMapId == Location.MapId)
             {
                 _positionChangeTimer.Reset(positionUpdateDelay);
 
@@ -529,13 +513,13 @@ public class Transport : GameObject, ITransport
         }
 
         // Add model to map after we are fully done with moving maps
-        if (_delayedAddModel)
-        {
-            _delayedAddModel = false;
+        if (!_delayedAddModel)
+            return;
 
-            if (Model != null)
-                Location.Map.InsertGameObjectModel(Model);
-        }
+        _delayedAddModel = false;
+
+        if (Model != null)
+            Location.Map.InsertGameObjectModel(Model);
     }
 
     public void UpdatePosition(float x, float y, float z, float o)
@@ -543,13 +527,13 @@ public class Transport : GameObject, ITransport
         ScriptManager.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
 
         var newActive = Location.Map.IsGridLoaded(x, y);
-        Cell oldCell = ClassFactory.ResolvePositional<Cell>(Location.X, Location.Y);
+        var oldCell = ClassFactory.ResolvePositional<Cell>(Location.X, Location.Y);
 
         Location.Relocate(x, y, z, o);
         StationaryPosition.Orientation = o;
         UpdateModelPosition();
 
-        UpdatePassengerPositions(_passengers);
+        UpdatePassengerPositions(Passengers);
 
         /* There are four possible scenarios that trigger loading/unloading passengers:
         1. transport moves from inactive to active grid
@@ -649,17 +633,16 @@ public class Transport : GameObject, ITransport
 
             data.BuildPacket(out var packet);
 
-            foreach (var player in Location.Map.Players)
-                if (player.Transport != this && player.VisibleTransports.Contains(GUID))
-                {
-                    player.SendPacket(packet);
-                    player.VisibleTransports.Remove(GUID);
-                }
+            foreach (var player in Location.Map.Players.Where(player => player.Transport != this && player.VisibleTransports.Contains(GUID)))
+            {
+                player.SendPacket(packet);
+                player.VisibleTransports.Remove(GUID);
+            }
 
             RemoveFromWorld();
         }
 
-        List<WorldObject> passengersToTeleport = new(_passengers);
+        List<WorldObject> passengersToTeleport = new(Passengers);
 
         foreach (var obj in passengersToTeleport)
         {
@@ -673,11 +656,13 @@ public class Transport : GameObject, ITransport
                         RemovePassenger(obj);
 
                     break;
+
                 case TypeId.DynamicObject:
                 case TypeId.AreaTrigger:
                     obj.Location.AddObjectToRemoveList();
 
                     break;
+
                 default:
                     RemovePassenger(obj);
 
@@ -699,7 +684,7 @@ public class Transport : GameObject, ITransport
         UpdatePosition(x, y, z, o);
 
         // Teleport players, they need to know it
-        foreach (var obj in _passengers)
+        foreach (var obj in Passengers)
             if (obj.IsTypeId(TypeId.Player))
             {
                 // will be relocated in UpdatePosition of the vehicle

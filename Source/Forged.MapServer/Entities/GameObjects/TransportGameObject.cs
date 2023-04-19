@@ -114,10 +114,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
 
     public ObjectGuid GUID => Owner.GUID;
 
-    public float GetTransportOrientation()
-    {
-        return Owner.Location.Orientation;
-    }
+    public float TransportOrientation => Owner.Location.Orientation;
 
     public ITransport RemovePassenger(WorldObject passenger)
     {

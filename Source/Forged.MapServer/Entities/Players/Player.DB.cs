@@ -482,9 +482,9 @@ public partial class Player
 
             if (transportOnMap != null)
             {
-                if (transportOnMap.GetExpectedMapId() != mapId)
+                if (transportOnMap.ExpectedMapId != mapId)
                 {
-                    mapId = transportOnMap.GetExpectedMapId();
+                    mapId = transportOnMap.ExpectedMapId;
                     InstanceId = 0;
                     transportMap = MapManager.CreateMap(mapId, this);
 

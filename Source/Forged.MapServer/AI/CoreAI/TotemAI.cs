@@ -25,7 +25,7 @@ public class TotemAI : NullCreatureAI
 
     public override void UpdateAI(uint diff)
     {
-        if (Me.ToTotem().GetTotemType() != TotemType.Active)
+        if (Me.ToTotem().TotemType != TotemType.Active)
             return;
 
         if (!Me.IsAlive || Me.IsNonMeleeSpellCast(false))

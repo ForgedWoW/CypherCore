@@ -33,7 +33,7 @@ public class VehicleAI : CreatureAI
     {
         var charmed = Me.IsCharmed;
 
-        if (!Me.VehicleKit.IsVehicleInUse() && !charmed && _hasConditions) //was used and has conditions
+        if (!Me.VehicleKit.IsVehicleInUse && !charmed && _hasConditions) //was used and has conditions
             _doDismiss = true;                                             //needs reset
         else if (charmed)
             _doDismiss = false; //in use again

@@ -7,9 +7,9 @@ namespace Forged.MapServer.Entities;
 
 public struct PassengerInfo
 {
-    public ObjectGuid Guid;
-    public bool IsGravityDisabled;
-    public bool IsUninteractible;
+    public ObjectGuid Guid { get; set; }
+    public bool IsGravityDisabled { get; set; }
+    public bool IsUninteractible { get; set; }
 
     public void Reset()
     {
