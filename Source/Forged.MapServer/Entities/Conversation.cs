@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -13,22 +15,27 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Scripting.Interfaces.IConversation;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities;
 
 public class Conversation : WorldObject
 {
+    private readonly ConditionManager _conditionManager;
+    private readonly ConversationData _conversationData;
+    private readonly ConversationDataStorage _conversationDataStorage;
+    private readonly DB2Manager _db2Manager;
     private readonly TimeSpan[] _lastLineEndTimes = new TimeSpan[(int)Locale.Total];
     private readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
     private readonly Position _stationaryPosition = new();
-    private readonly ConversationData _conversationData;
-    private ObjectGuid _creatorGuid;
     private TimeSpan _duration;
-    private uint _textureKitId;
 
-    public Conversation() : base(false)
+    public Conversation(ClassFactory classFactory, ConversationDataStorage conversationDataStorage, ConditionManager conditionManager, DB2Manager db2Manager) : base(false, classFactory)
     {
+        _conversationDataStorage = conversationDataStorage;
+        _conditionManager = conditionManager;
+        _db2Manager = db2Manager;
         ObjectTypeMask |= TypeMask.Conversation;
         ObjectTypeId = TypeId.Conversation;
 
@@ -38,26 +45,10 @@ public class Conversation : WorldObject
         _conversationData = new ConversationData();
     }
 
+    public ObjectGuid CreatorGuid { get; private set; }
     public override uint Faction => 0;
-    public override ObjectGuid OwnerGUID => GetCreatorGuid();
-
-    public static Conversation CreateConversation(uint conversationEntry, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null, bool autoStart = true)
-    {
-        var conversationTemplate = Global.ConversationDataStorage.GetConversationTemplate(conversationEntry);
-
-        if (conversationTemplate == null)
-            return null;
-
-        var lowGuid = creator.Location.Map.GenerateLowGuid(HighGuid.Conversation);
-
-        Conversation conversation = new();
-        conversation.Create(lowGuid, conversationEntry, creator.Location.Map, creator, pos, privateObjectOwner, spellInfo);
-
-        if (autoStart && !conversation.Start())
-            return null;
-
-        return conversation;
-    }
+    public override ObjectGuid OwnerGUID => CreatorGuid;
+    public uint TextureKitId { get; private set; }
 
     public void AddActor(int actorId, uint actorIdx, ObjectGuid actorGuid)
     {
@@ -84,11 +75,11 @@ public class Conversation : WorldObject
     public override void AddToWorld()
     {
         //- Register the Conversation for guid lookup and for caster
-        if (!Location.IsInWorld)
-        {
-            Location.Map.ObjectsStore.TryAdd(GUID, this);
-            base.AddToWorld();
-        }
+        if (Location.IsInWorld)
+            return;
+
+        Location.Map.ObjectsStore.TryAdd(GUID, this);
+        base.AddToWorld();
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -127,11 +118,6 @@ public class Conversation : WorldObject
         base.ClearUpdateMask(remove);
     }
 
-    public ObjectGuid GetCreatorGuid()
-    {
-        return _creatorGuid;
-    }
-
     public TimeSpan GetLastLineEndTime(Locale locale)
     {
         return _lastLineEndTimes[(int)locale];
@@ -144,12 +130,7 @@ public class Conversation : WorldObject
 
     public uint GetScriptId()
     {
-        return Global.ConversationDataStorage.GetConversationTemplate(Entry).ScriptId;
-    }
-
-    public uint GetTextureKitId()
-    {
-        return _textureKitId;
+        return _conversationDataStorage.GetConversationTemplate(Entry).ScriptId;
     }
 
     public void Remove()
@@ -161,16 +142,16 @@ public class Conversation : WorldObject
     public override void RemoveFromWorld()
     {
         //- Remove the Conversation from the accessor and from all lists of objects in world
-        if (Location.IsInWorld)
-        {
-            base.RemoveFromWorld();
-            Location.Map.ObjectsStore.TryRemove(GUID, out _);
-        }
+        if (!Location.IsInWorld)
+            return;
+
+        base.RemoveFromWorld();
+        Location.Map.ObjectsStore.TryRemove(GUID, out _);
     }
 
     public override void Update(uint diff)
     {
-        if (GetDuration() > TimeSpan.FromMilliseconds(diff))
+        if (_duration > TimeSpan.FromMilliseconds(diff))
         {
             _duration -= TimeSpan.FromMilliseconds(diff);
 
@@ -191,18 +172,17 @@ public class Conversation : WorldObject
         base.Update(diff);
     }
 
-    private void Create(ulong lowGuid, uint conversationEntry, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null)
+    internal void Create(ulong lowGuid, uint conversationEntry, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null)
     {
-        var conversationTemplate = Global.ConversationDataStorage.GetConversationTemplate(conversationEntry);
+        var conversationTemplate = _conversationDataStorage.GetConversationTemplate(conversationEntry);
         //ASSERT(conversationTemplate);
 
-        _creatorGuid = creator.GUID;
+        CreatorGuid = creator.GUID;
         PrivateObjectOwner = privateObjectOwner;
-
 
         Location.WorldRelocate(map, pos);
         CheckAddToMap();
-        RelocateStationaryPosition(pos);
+        _stationaryPosition.Relocate(pos);
 
         Create(ObjectGuid.Create(HighGuid.Conversation, Location.MapId, conversationEntry, lowGuid));
         PhasingHandler.InheritPhaseShift(this, creator);
@@ -213,7 +193,7 @@ public class Conversation : WorldObject
         Entry = conversationEntry;
         ObjectScale = 1.0f;
 
-        _textureKitId = conversationTemplate.TextureKitId;
+        TextureKitId = conversationTemplate.TextureKitId;
 
         foreach (var actor in conversationTemplate.Actors)
             new ConversationActorFillVisitor(this, creator, map, actor).Invoke(actor);
@@ -224,7 +204,7 @@ public class Conversation : WorldObject
 
         foreach (var line in conversationTemplate.Lines)
         {
-            if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.ConversationLine, line.Id, creator))
+            if (!_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.ConversationLine, line.Id, creator))
                 continue;
 
             ConversationLine lineField = new()
@@ -247,7 +227,7 @@ public class Conversation : WorldObject
                 if (locale == Locale.enUS)
                     lineField.StartTime = (uint)_lastLineEndTimes[(int)locale].TotalMilliseconds;
 
-                var broadcastTextDuration = Global.DB2Mgr.GetBroadcastTextDuration((int)convoLine.BroadcastTextID, locale);
+                var broadcastTextDuration = _db2Manager.GetBroadcastTextDuration((int)convoLine.BroadcastTextID, locale);
 
                 if (broadcastTextDuration != 0)
                     _lastLineEndTimes[(int)locale] += TimeSpan.FromMilliseconds(broadcastTextDuration);
@@ -268,17 +248,7 @@ public class Conversation : WorldObject
         ScriptManager.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
     }
 
-    private TimeSpan GetDuration()
-    {
-        return _duration;
-    }
-
-    private void RelocateStationaryPosition(Position pos)
-    {
-        _stationaryPosition.Relocate(pos);
-    }
-
-    private bool Start()
+    internal bool Start()
     {
         foreach (var line in _conversationData.Lines.Value)
         {

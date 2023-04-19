@@ -3252,7 +3252,7 @@ public partial class Unit
         // Pets just add their bonus damage to their spell damage
         // note that their spell damage is just gain of their own auras
         if (HasUnitTypeMask(UnitTypeMask.Guardian))
-            doneAdvertisedBenefit += ((Guardian)this).GetBonusDamage();
+            doneAdvertisedBenefit += ((Guardian)this).BonusDamage;
 
         // Check for table values
         if (spellEffectInfo.BonusCoefficientFromAp > 0.0f)
@@ -3516,7 +3516,7 @@ public partial class Unit
         // Pets just add their bonus damage to their spell damage
         // note that their spell damage is just gain of their own auras
         if (HasUnitTypeMask(UnitTypeMask.Guardian))
-            doneAdvertisedBenefit += ((Guardian)this).GetBonusDamage();
+            doneAdvertisedBenefit += ((Guardian)this).BonusDamage;
 
         // Check for table values
         var coeff = spellEffectInfo.BonusCoefficient;

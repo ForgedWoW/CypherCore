@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
@@ -12,6 +11,7 @@ using Forged.MapServer.Scripting.Interfaces.IDynamicObject;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities;
@@ -20,7 +20,6 @@ public class DynamicObject : WorldObject
 {
     private readonly DynamicObjectData _dynamicObjectData;
     private Aura _aura;
-    private Unit _caster;
 
     private int _duration;
 
@@ -29,7 +28,7 @@ public class DynamicObject : WorldObject
 
     private Aura _removedAura;
 
-    public DynamicObject(bool isWorldObject) : base(isWorldObject)
+    public DynamicObject(bool isWorldObject, ClassFactory classFactory) : base(isWorldObject, classFactory)
     {
         ObjectTypeMask |= TypeMask.DynamicObject;
         ObjectTypeId = TypeId.DynamicObject;
@@ -39,22 +38,24 @@ public class DynamicObject : WorldObject
         _dynamicObjectData = new DynamicObjectData();
     }
 
-    public override uint Faction
-    {
-        get { return _caster.Faction; }
-    }
+    public Unit Caster { get; private set; }
+    public ObjectGuid CasterGUID => _dynamicObjectData.Caster;
+    public override uint Faction => Caster.Faction;
 
-    public override ObjectGuid OwnerGUID => GetCasterGUID();
+    public override ObjectGuid OwnerGUID => CasterGUID;
+    public float Radius => _dynamicObjectData.Radius;
+
+    public uint SpellId => _dynamicObjectData.SpellID;
 
     public override void AddToWorld()
     {
         // Register the dynamicObject for guid lookup and for caster
-        if (!Location.IsInWorld)
-        {
-            Location.Map.ObjectsStore.TryAdd(GUID, this);
-            base.AddToWorld();
-            BindToCaster();
-        }
+        if (Location.IsInWorld)
+            return;
+
+        Location.Map.ObjectsStore.TryAdd(GUID, this);
+        base.AddToWorld();
+        BindToCaster();
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -140,15 +141,13 @@ public class DynamicObject : WorldObject
             transport.AddPassenger(this);
         }
 
-        if (!Location.Map.AddToMap(this))
-        {
-            // Returning false will cause the object to be deleted - remove from transport
-            transport?.RemovePassenger(this);
+        if (Location.Map.AddToMap(this))
+            return true;
 
-            return false;
-        }
+        // Returning false will cause the object to be deleted - remove from transport
+        transport?.RemovePassenger(this);
 
-        return true;
+        return false;
     }
 
     public void Delay(int delaytime)
@@ -164,29 +163,9 @@ public class DynamicObject : WorldObject
         base.Dispose();
     }
 
-    public Unit GetCaster()
-    {
-        return _caster;
-    }
-
-    public ObjectGuid GetCasterGUID()
-    {
-        return _dynamicObjectData.Caster;
-    }
-
-    public float GetRadius()
-    {
-        return _dynamicObjectData.Radius;
-    }
-
-    public uint GetSpellId()
-    {
-        return _dynamicObjectData.SpellID;
-    }
-
     public SpellInfo GetSpellInfo()
     {
-        return Global.SpellMgr.GetSpellInfo(GetSpellId(), Location.Map.DifficultyID);
+        return SpellManager.GetSpellInfo(SpellId, Location.Map.DifficultyID);
     }
 
     public void Remove()
@@ -223,13 +202,13 @@ public class DynamicObject : WorldObject
 
     public void SetCasterViewpoint()
     {
-        var caster = _caster.AsPlayer;
+        var caster = Caster.AsPlayer;
 
-        if (caster != null)
-        {
-            caster.SetViewpoint(this, true);
-            _isViewpoint = true;
-        }
+        if (caster == null)
+            return;
+
+        caster.SetViewpoint(this, true);
+        _isViewpoint = true;
     }
 
     public void SetDuration(int newDuration)
@@ -270,8 +249,8 @@ public class DynamicObject : WorldObject
 
     private void BindToCaster()
     {
-        _caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
-        _caster.RegisterDynObject(this);
+        Caster = ObjectAccessor.GetUnit(this, CasterGUID);
+        Caster.RegisterDynObject(this);
     }
 
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedDynamicObjectMask, Player target)
@@ -304,10 +283,7 @@ public class DynamicObject : WorldObject
 
     private int GetDuration()
     {
-        if (_aura == null)
-            return _duration;
-
-        return _aura.Duration;
+        return _aura?.Duration ?? _duration;
     }
 
     private void RemoveAura()
@@ -321,40 +297,18 @@ public class DynamicObject : WorldObject
 
     private void RemoveCasterViewpoint()
     {
-        var caster = _caster.AsPlayer;
+        var caster = Caster.AsPlayer;
 
-        if (caster != null)
-        {
-            caster.SetViewpoint(this, false);
-            _isViewpoint = false;
-        }
+        if (caster == null)
+            return;
+
+        caster.SetViewpoint(this, false);
+        _isViewpoint = false;
     }
 
     private void UnbindFromCaster()
     {
-        _caster.UnregisterDynObject(this);
-        _caster = null;
-    }
-
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly DynamicObjectData _dynamicObjectData = new();
-        private readonly ObjectFieldData _objectMask = new();
-        private readonly DynamicObject _owner;
-
-        public ValuesUpdateForPlayerWithMaskSender(DynamicObject owner)
-        {
-            _owner = owner;
-        }
-
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(_owner.Location.MapId);
-
-            _owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _dynamicObjectData.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
+        Caster.UnregisterDynObject(this);
+        Caster = null;
     }
 }

@@ -25,7 +25,7 @@ public class VehicleJoinEvent : BasicEvent
         Seat = Target.Seats.Last();
     }
 
-    public override void Abort(ulong e_time)
+    public override void Abort(ulong eTime)
     {
         // Check if the Vehicle was already uninstalled, in which case all auras were removed already
         if (Target != null)

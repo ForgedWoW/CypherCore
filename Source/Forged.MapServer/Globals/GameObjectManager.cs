@@ -10127,16 +10127,16 @@ public sealed class GameObjectManager
 
             TempSummonData data = new()
             {
-                entry = result.Read<uint>(3)
+                Entry = result.Read<uint>(3)
             };
 
-            if (GetCreatureTemplate(data.entry) == null)
+            if (GetCreatureTemplate(data.Entry) == null)
             {
                 Log.Logger.Error("Table `creature_summon_groups` has creature in group [Summoner ID: {0}, Summoner Type: {1}, Group ID: {2}] with non existing creature entry {3}, skipped.",
                                  summonerId,
                                  summonerType,
                                  group,
-                                 data.entry);
+                                 data.Entry);
 
                 continue;
             }
@@ -10146,23 +10146,23 @@ public sealed class GameObjectManager
             var posZ = result.Read<float>(6);
             var orientation = result.Read<float>(7);
 
-            data.pos = new Position(posX, posY, posZ, orientation);
+            data.Pos = new Position(posX, posY, posZ, orientation);
 
-            data.type = (TempSummonType)result.Read<byte>(8);
+            data.Type = (TempSummonType)result.Read<byte>(8);
 
-            if (data.type > TempSummonType.ManualDespawn)
+            if (data.Type > TempSummonType.ManualDespawn)
             {
                 Log.Logger.Error("Table `creature_summon_groups` has unhandled temp summon type {0} in group [Summoner ID: {1}, Summoner Type: {2}, Group ID: {3}] for creature entry {4}, skipped.",
-                                 data.type,
+                                 data.Type,
                                  summonerId,
                                  summonerType,
                                  group,
-                                 data.entry);
+                                 data.Entry);
 
                 continue;
             }
 
-            data.time = result.Read<uint>(9);
+            data.Time = result.Read<uint>(9);
 
             var key = Tuple.Create(summonerId, summonerType, group);
             _tempSummonDataStorage.Add(key, data);

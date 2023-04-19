@@ -26,7 +26,7 @@ internal class SpellGenWhisperToController : SpellScript, IHasSpellEffects
 
         if (casterSummon != null)
         {
-            var target = casterSummon.GetSummonerUnit().AsPlayer;
+            var target = casterSummon.SummonerUnit.AsPlayer;
 
             if (target != null)
                 casterSummon.Whisper((uint)EffectValue, target, false);

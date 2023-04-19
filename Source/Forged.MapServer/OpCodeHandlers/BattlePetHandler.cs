@@ -98,7 +98,7 @@ public class BattlePetHandler : IWorldSessionHandler
         response.CreatureID = summonedBattlePet.Entry;
         response.Timestamp = summonedBattlePet.BattlePetCompanionNameTimestamp;
 
-        var petOwner = summonedBattlePet.ToTempSummon().GetSummonerUnit();
+        var petOwner = summonedBattlePet.ToTempSummon().SummonerUnit;
 
         if (!petOwner.IsPlayer)
         {

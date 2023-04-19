@@ -117,6 +117,7 @@ public class Map : IDisposable
         ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
         CellCalculator = classFactory.Resolve<CellCalculator>();
         WaypointManager = classFactory.Resolve<WaypointManager>();
+        PhasingHandler = classFactory.Resolve<PhasingHandler>();
 
         try
         {
@@ -212,6 +213,7 @@ public class Map : IDisposable
     public ConcurrentDictionary<ObjectGuid, WorldObject> ObjectsStore { get; } = new();
     public OutdoorPvPManager OutdoorPvPManager { get; }
     public List<Player> Players => ActivePlayers;
+    public PhasingHandler PhasingHandler { get; }
 
     public int PlayersCountExceptGMs
     {
@@ -314,9 +316,9 @@ public class Map : IDisposable
     {
         corpse.Location.Map = this;
         corpse.CheckAddToMap();
-        _corpsesByCell.Add(corpse.GetCellCoord().GetId(), corpse);
+        _corpsesByCell.Add(corpse.CellCoord.GetId(), corpse);
 
-        if (corpse.GetCorpseType() != CorpseType.Bones)
+        if (corpse.CorpseType != CorpseType.Bones)
             _corpsesByPlayer[corpse.OwnerGUID] = corpse;
         else
             _corpseBones.Add(corpse);
@@ -713,7 +715,7 @@ public class Map : IDisposable
             !IsRemovalGrid(corpse.Location.X, corpse.Location.Y))
         {
             // Create bones, don't change Corpse
-            bones = new Corpse();
+            bones = ClassFactory.ResolvePositional<Corpse>(CorpseType.Bones);
             bones.Create(corpse.GUID.Counter, this);
 
             bones.ReplaceAllCorpseDynamicFlags((CorpseDynFlags)(byte)corpse.CorpseData.DynamicFlags);
@@ -731,7 +733,7 @@ public class Map : IDisposable
             for (var i = 0; i < EquipmentSlot.End; ++i)
                 bones.SetItem((uint)i, corpse.CorpseData.Items[i]);
 
-            bones.SetCellCoord(corpse.GetCellCoord());
+            bones.SetCellCoord(corpse.CellCoord);
             bones.Location.Relocate(corpse.Location.X, corpse.Location.Y, corpse.Location.Z, corpse.Location.Orientation);
 
             PhasingHandler.InheritPhaseShift(bones, corpse);
@@ -1503,7 +1505,7 @@ public class Map : IDisposable
                 continue;
             }
 
-            Corpse corpse = new(type);
+            var corpse = ClassFactory.ResolvePositional<Corpse>(type);
 
             if (!corpse.LoadCorpseFromDB(GenerateLowGuid(HighGuid.Corpse), result.GetFields()))
                 continue;
@@ -2450,11 +2452,13 @@ public class Map : IDisposable
 
         var summon = mask switch
         {
-            UnitTypeMask.Summon   => new TempSummon(properties, summonerUnit, false),
-            UnitTypeMask.Guardian => new Guardian(properties, summonerUnit, false),
-            UnitTypeMask.Puppet   => new Puppet(properties, summonerUnit),
-            UnitTypeMask.Totem    => new Totem(properties, summonerUnit),
-            UnitTypeMask.Minion   => new Minion(properties, summonerUnit, false)
+            UnitTypeMask.Summon   => ClassFactory.ResolvePositional<TempSummon>(properties, summonerUnit, false),
+            UnitTypeMask.Guardian => ClassFactory.ResolvePositional<Guardian>(properties, summonerUnit, false),
+            UnitTypeMask.Puppet   => ClassFactory.ResolvePositional<Puppet>(properties, summonerUnit),
+            UnitTypeMask.Totem    => ClassFactory.ResolvePositional<Totem>(properties, summonerUnit),
+            UnitTypeMask.Minion   => ClassFactory.ResolvePositional<Minion>(properties, summonerUnit, false),
+            // ReSharper disable once UnreachableSwitchArmDueToIntegerAnalysis
+            _                     => ClassFactory.ResolvePositional<TempSummon>(properties, summonerUnit, false)
         };
 
         if (!summon.Create(GenerateLowGuid(HighGuid.Creature), this, entry, pos, null, vehId, true))
@@ -3820,9 +3824,9 @@ public class Map : IDisposable
             corpse.Location.ResetMap();
         }
 
-        _corpsesByCell.Remove(corpse.GetCellCoord().GetId(), corpse);
+        _corpsesByCell.Remove(corpse.CellCoord.GetId(), corpse);
 
-        if (corpse.GetCorpseType() != CorpseType.Bones)
+        if (corpse.CorpseType != CorpseType.Bones)
             _corpsesByPlayer.Remove(corpse.OwnerGUID);
         else
             _corpseBones.Remove(corpse);

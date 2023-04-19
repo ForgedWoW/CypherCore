@@ -797,7 +797,7 @@ public partial class Spell
         if (unitCaster == null || !Targets.HasDst)
             return;
 
-        Conversation.CreateConversation((uint)EffectInfo.MiscValue, unitCaster, DestTarget, ObjectGuid.Empty, SpellInfo);
+        _conversationFactory.CreateConversation((uint)EffectInfo.MiscValue, unitCaster, DestTarget, ObjectGuid.Empty, SpellInfo);
     }
 
     [SpellEffectHandler(SpellEffectName.CreateGarrison)]
@@ -888,7 +888,7 @@ public partial class Spell
         if (unitCaster is not { IsPlayer: true })
             return;
 
-        Conversation.CreateConversation((uint)EffectInfo.MiscValue, unitCaster, DestTarget, unitCaster.GUID, SpellInfo);
+        _conversationFactory.CreateConversation((uint)EffectInfo.MiscValue, unitCaster, DestTarget, unitCaster.GUID, SpellInfo);
     }
 
     [SpellEffectHandler(SpellEffectName.CreatePersonalSceneObject)]
@@ -4571,7 +4571,7 @@ public partial class Spell
 
         var pos = CastItem.Pos;
 
-        var pNewItem = ItemFactory.CreateItem(newitemid, 1, CastItem.Context, player);
+        var pNewItem = _itemFactory.CreateItem(newitemid, 1, CastItem.Context, player);
 
         if (pNewItem == null)
             return;

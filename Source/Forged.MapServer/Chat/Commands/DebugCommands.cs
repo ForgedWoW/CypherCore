@@ -140,14 +140,13 @@ internal class DebugCommands
     {
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
-        {
-            handler.SendSysMessage(CypherStrings.PlayerNotFound);
+        if (target != null)
+            return handler.ClassFactory.Resolve<ConversationFactory>().CreateConversation(conversationEntry, target, target.Location, target.GUID) != null;
 
-            return false;
-        }
+        handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-        return Conversation.CreateConversation(conversationEntry, target, target.Location, target.GUID) != null;
+        return false;
+
     }
 
     [Command("dummy", RBACPermissions.CommandDebug)]

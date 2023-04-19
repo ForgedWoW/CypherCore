@@ -320,7 +320,7 @@ public class MovementHandler : IWorldSessionHandler
 
                     transport?.AddPassenger(plrMover);
                 }
-                else if (plrMover.Transport.GetTransportGUID() != movementInfo.Transport.Guid)
+                else if (plrMover.Transport.GUID != movementInfo.Transport.Guid)
                 {
                     plrMover.Transport.RemovePassenger(plrMover);
                     var go = plrMover.Location.Map.GetGameObject(movementInfo.Transport.Guid);

@@ -47,6 +47,7 @@ public class SmartScript
     private readonly GameEventManager _gameEventManager;
     private readonly CellCalculator _cellCalculator;
     private readonly PhasingHandler _phasingHandler;
+    private readonly ConversationFactory _conversationFactory;
     private readonly List<SmartScriptHolder> _installEvents = new();
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
@@ -79,7 +80,7 @@ public class SmartScript
     private bool _useTextTimer;
 
     public SmartScript(ConditionManager conditionManager, SmartAIManager smartAIManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager,
-                       GameObjectManager objectManager, GameEventManager gameEventManager, CellCalculator cellCalculator, PhasingHandler phasingHandler)
+                       GameObjectManager objectManager, GameEventManager gameEventManager, CellCalculator cellCalculator, PhasingHandler phasingHandler, ConversationFactory conversationFactory)
     {
         _conditionManager = conditionManager;
         _smartAIManager = smartAIManager;
@@ -89,6 +90,7 @@ public class SmartScript
         _gameEventManager = gameEventManager;
         _cellCalculator = cellCalculator;
         _phasingHandler = phasingHandler;
+        _conversationFactory = conversationFactory;
         _go = null;
         _me = null;
         _trigger = null;
@@ -1131,7 +1133,7 @@ public class SmartScript
 
                         if (tempSummon != null)
                         {
-                            var summoner = tempSummon.GetSummoner();
+                            var summoner = tempSummon.Summoner;
 
                             if (summoner != null)
                                 charmerOrOwnerGuid = summoner.GUID;
@@ -3844,7 +3846,7 @@ public class SmartScript
                     if (playerTarget == null)
                         continue;
 
-                    var conversation = Conversation.CreateConversation(e.Action.Conversation.ID, playerTarget, playerTarget.Location, playerTarget.GUID);
+                    var conversation = _conversationFactory.CreateConversation(e.Action.Conversation.ID, playerTarget, playerTarget.Location, playerTarget.GUID);
 
                     if (conversation == null)
                         Log.Logger.Warning($"SmartScript.ProcessAction: SMART_ACTION_CREATE_CONVERSATION: id {e.Action.Conversation.ID}, baseObject {baseObject?.GetName()}, target {playerTarget.GetName()} - failed to create");

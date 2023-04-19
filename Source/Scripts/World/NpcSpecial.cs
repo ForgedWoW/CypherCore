@@ -1424,7 +1424,7 @@ internal class NPCWormhole : PassiveAI
         player.InitGossipMenu(GossipMenus.MENU_ID_WORMHOLE);
 
         if (Me.IsSummon)
-            if (player == Me.ToTempSummon().GetSummoner())
+            if (player == Me.ToTempSummon().Summoner)
             {
                 player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
                 player.AddGossipItem(GossipMenus.MENU_ID_WORMHOLE, GossipMenus.OPTION_ID_WORMHOLE2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);

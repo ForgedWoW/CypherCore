@@ -24,7 +24,7 @@ public class SpellClickInfo
 
         // Check summoners for party
         if (clickee.IsSummon)
-            summoner = clickee.ToTempSummon().GetSummonerUnit();
+            summoner = clickee.ToTempSummon().SummonerUnit;
 
         summoner ??= clickee;
 

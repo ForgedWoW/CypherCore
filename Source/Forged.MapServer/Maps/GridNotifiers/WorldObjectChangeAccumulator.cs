@@ -46,7 +46,7 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
     {
         foreach (var dynamicObject in objs)
         {
-            var guid = dynamicObject.GetCasterGUID();
+            var guid = dynamicObject.CasterGUID;
 
             if (!guid.IsPlayer)
                 continue;

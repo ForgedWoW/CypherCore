@@ -60,7 +60,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
             if (dynamicObject.Location.GetExactDist2dSq(_source.Location) > _distSq)
                 continue;
 
-            var player = dynamicObject.GetCaster()?.AsPlayer;
+            var player = dynamicObject.Caster?.AsPlayer;
 
             if (player == null)
                 continue;

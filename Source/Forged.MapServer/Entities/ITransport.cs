@@ -95,9 +95,8 @@ public interface ITransport
     // This method transforms supplied transport offsets into global coordinates
     void CalculatePassengerPosition(Position pos);
 
-    int GetMapIdForSpawning();
-
-    ObjectGuid GetTransportGUID();
+    int MapIdForSpawning { get; }
+    ObjectGuid GUID { get; }
     float GetTransportOrientation();
     ITransport RemovePassenger(WorldObject passenger);
 }

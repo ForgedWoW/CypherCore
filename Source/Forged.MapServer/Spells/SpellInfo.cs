@@ -2250,7 +2250,7 @@ public class SpellInfo
             var corpseTarget = target.AsCorpse;
 
             // cannot target bare bones
-            if (corpseTarget.GetCorpseType() == CorpseType.Bones)
+            if (corpseTarget.CorpseType == CorpseType.Bones)
                 return SpellCastResult.BadTargets;
 
             // we have to use owner for some checks (aura preventing resurrection for example)

@@ -25,6 +25,7 @@ using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
+using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
@@ -451,6 +452,7 @@ void RegisterFactories()
     builder.RegisterType<ItemFactory>().SingleInstance();
     builder.RegisterType<AzeriteEmpoweredItemFactory>().SingleInstance();
     builder.RegisterType<AzeriteItemFactory>().SingleInstance();
+    builder.RegisterType<ConversationFactory>().SingleInstance();
 }
 
 void RegisterInstanced()
@@ -509,6 +511,17 @@ void RegisterInstanced()
     builder.RegisterType<AzeriteEmpoweredItem>();
     builder.RegisterType<AzeriteItem>();
     builder.RegisterType<Bag>();
+    builder.RegisterType<Conversation>();
+    builder.RegisterType<Corpse>();
+    builder.RegisterType<DynamicObject>();
+    builder.RegisterType<TempSummon>();
+    builder.RegisterType<Transport>();
+    builder.RegisterType<Minion>();
+    builder.RegisterType<Guardian>();
+    builder.RegisterType<Puppet>();
+    builder.RegisterType<Totem>();
+    builder.RegisterType<Pet>();
+    builder.RegisterType<SceneObject>();
 }
 
 void RegisterHandlers()

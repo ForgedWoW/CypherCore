@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
@@ -16,7 +17,7 @@ namespace Forged.MapServer.Entities;
 public class SceneObject : WorldObject
 {
     private readonly SceneObjectData _sceneObjectData;
-    private readonly Position _stationaryPosition = new();
+    private readonly Position _stationaryPosition;
     private ObjectGuid _createdBySpellCast;
 
     public SceneObject() : base(false)
@@ -102,11 +103,11 @@ public class SceneObject : WorldObject
 
     public override void RemoveFromWorld()
     {
-        if (Location.IsInWorld)
-        {
-            base.RemoveFromWorld();
-            Location.Map.ObjectsStore.TryRemove(GUID, out _);
-        }
+        if (!Location.IsInWorld)
+            return;
+
+        base.RemoveFromWorld();
+        Location.Map.ObjectsStore.TryRemove(GUID, out _);
     }
 
     public void SetCreatedBySpellCast(ObjectGuid castId)
@@ -120,34 +121,6 @@ public class SceneObject : WorldObject
 
         if (ShouldBeRemoved())
             Remove();
-    }
-
-    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedSceneObjectMask, Player target)
-    {
-        UpdateMask valuesMask = new((int)TypeId.Max);
-
-        if (requestedObjectMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Object);
-
-        if (requestedSceneObjectMask.IsAnySet())
-            valuesMask.Set((int)TypeId.SceneObject);
-
-        WorldPacket buffer = new();
-        buffer.WriteUInt32(valuesMask.GetBlock(0));
-
-        if (valuesMask[(int)TypeId.Object])
-            ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.SceneObject])
-            _sceneObjectData.WriteUpdate(buffer, requestedSceneObjectMask, true, this, target);
-
-        WorldPacket buffer1 = new();
-        buffer1.WriteUInt8((byte)UpdateType.Values);
-        buffer1.WritePackedGuid(GUID);
-        buffer1.WriteUInt32(buffer.GetSize());
-        buffer1.WriteBytes(buffer.GetData());
-
-        data.AddUpdateBlock(buffer1);
     }
 
     private bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
@@ -169,10 +142,7 @@ public class SceneObject : WorldObject
         SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
         SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
 
-        if (!Location.Map.AddToMap(this))
-            return false;
-
-        return true;
+        return Location.Map.AddToMap(this);
     }
 
     private void RelocateStationaryPosition(Position pos)
@@ -188,43 +158,17 @@ public class SceneObject : WorldObject
 
     private bool ShouldBeRemoved()
     {
-        var creator = Global.ObjAccessor.GetUnit(this, OwnerGUID);
+        var creator = ObjectAccessor.GetUnit(this, OwnerGUID);
 
         if (creator == null)
             return true;
 
-        if (!_createdBySpellCast.IsEmpty)
-        {
-            // search for a dummy aura on creator
+        if (_createdBySpellCast.IsEmpty)
+            return false;
+        // search for a dummy aura on creator
 
-            var linkedAura = creator.GetAuraQuery().HasSpellId(_createdBySpellCast.Entry).HasCastId(_createdBySpellCast).GetResults().FirstOrDefault();
+        var linkedAura = creator.GetAuraQuery().HasSpellId(_createdBySpellCast.Entry).HasCastId(_createdBySpellCast).GetResults().FirstOrDefault();
 
-            if (linkedAura == null)
-                return true;
-        }
-
-        return false;
-    }
-
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly ObjectFieldData _objectMask = new();
-        private readonly SceneObject _owner;
-        private readonly SceneObjectData _sceneObjectData = new();
-
-        public ValuesUpdateForPlayerWithMaskSender(SceneObject owner)
-        {
-            _owner = owner;
-        }
-
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(_owner.Location.MapId);
-
-            _owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _sceneObjectData.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
+        return linkedAura == null;
     }
 }

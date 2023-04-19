@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces;
@@ -29,35 +30,35 @@ internal class SpellGenPetSummoned : SpellScript, IHasSpellEffects
     {
         var player = Caster.AsPlayer;
 
-        if (player.LastPetNumber != 0)
+        if (player.LastPetNumber == 0)
+            return;
+
+        var newPetType = (player.Class == PlayerClass.Hunter) ? PetType.Hunter : PetType.Summon;
+        var newPet = ClassFactory.ResolvePositional<Pet>(player, newPetType);
+
+        if (!newPet.LoadPetFromDB(player, 0, player.LastPetNumber, true))
+            return;
+
+        // revive the pet if it is dead
+        if (newPet.DeathState != DeathState.Alive &&
+            newPet.DeathState != DeathState.JustRespawned)
+            newPet.SetDeathState(DeathState.JustRespawned);
+
+        newPet.SetFullHealth();
+        newPet.SetFullPower(newPet.DisplayPowerType);
+
+        var summonScript = Spell.GetSpellScripts<ISpellOnSummon>();
+
+        foreach (var summon in summonScript.Cast<ISpellOnSummon>())
+            summon.OnSummon(newPet);
+
+        switch (newPet.Entry)
         {
-            var newPetType = (player.Class == PlayerClass.Hunter) ? PetType.Hunter : PetType.Summon;
-            Pet newPet = new(player, newPetType);
+            case CreatureIds.DOOMGUARD:
+            case CreatureIds.INFERNAL:
+                newPet.Entry = CreatureIds.IMP;
 
-            if (newPet.LoadPetFromDB(player, 0, player.LastPetNumber, true))
-            {
-                // revive the pet if it is dead
-                if (newPet.DeathState != DeathState.Alive &&
-                    newPet.DeathState != DeathState.JustRespawned)
-                    newPet.SetDeathState(DeathState.JustRespawned);
-
-                newPet.SetFullHealth();
-                newPet.SetFullPower(newPet.DisplayPowerType);
-
-                var summonScript = Spell.GetSpellScripts<ISpellOnSummon>();
-
-                foreach (ISpellOnSummon summon in summonScript)
-                    summon.OnSummon(newPet);
-
-                switch (newPet.Entry)
-                {
-                    case CreatureIds.DOOMGUARD:
-                    case CreatureIds.INFERNAL:
-                        newPet.Entry = CreatureIds.IMP;
-
-                        break;
-                }
-            }
+                break;
         }
     }
 }

@@ -32,7 +32,7 @@ public class SpellWarlockSoulEffigyAura : AuraScript, IHasAuraEffects
         if (caster == null)
             return;
 
-        var owner = caster.ToTempSummon().GetSummoner();
+        var owner = caster.ToTempSummon().Summoner;
 
         if (owner == null)
             return;

@@ -249,25 +249,25 @@ public class PetAI : CreatureAI
         switch (emoteId)
         {
             case TextEmotes.Cower:
-                if (Me.IsPet && Me.AsPet.IsPetGhoul())
+                if (Me.IsPet && Me.AsPet.IsPetGhoul)
                     Me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
 
                 break;
 
             case TextEmotes.Angry:
-                if (Me.IsPet && Me.AsPet.IsPetGhoul())
+                if (Me.IsPet && Me.AsPet.IsPetGhoul)
                     Me.HandleEmoteCommand(Emote.StateStun);
 
                 break;
 
             case TextEmotes.Glare:
-                if (Me.IsPet && Me.AsPet.IsPetGhoul())
+                if (Me.IsPet && Me.AsPet.IsPetGhoul)
                     Me.HandleEmoteCommand(Emote.StateStun);
 
                 break;
 
             case TextEmotes.Soothe:
-                if (Me.IsPet && Me.AsPet.IsPetGhoul())
+                if (Me.IsPet && Me.AsPet.IsPetGhoul)
                     Me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
 
                 break;

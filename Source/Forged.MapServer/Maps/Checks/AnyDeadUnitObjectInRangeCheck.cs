@@ -33,7 +33,7 @@ public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
         var corpse = obj.AsCorpse;
 
         if (corpse != null)
-            return corpse.GetCorpseType() != CorpseType.Bones && _searchObj.Location.IsWithinDistInMap(corpse, _range);
+            return corpse.CorpseType != CorpseType.Bones && _searchObj.Location.IsWithinDistInMap(corpse, _range);
 
         return false;
     }

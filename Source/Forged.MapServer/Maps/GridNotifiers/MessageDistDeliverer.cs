@@ -69,7 +69,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
                 continue;
 
             // Send packet back to the caster if the caster has vision of dynamic object
-            var player = dynamicObject.GetCaster()?.AsPlayer;
+            var player = dynamicObject.Caster?.AsPlayer;
 
             if (player == null)
                 continue;

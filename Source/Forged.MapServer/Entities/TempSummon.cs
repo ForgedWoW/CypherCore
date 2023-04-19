@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.GridNotifiers;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities;
@@ -21,7 +22,7 @@ public class TempSummon : Creature
     private uint _lifetime;
     private ObjectGuid _summonerGuid;
 
-    public TempSummon(SummonPropertiesRecord propertiesRecord, WorldObject owner, bool isWorldObject) : base(isWorldObject)
+    public TempSummon(SummonPropertiesRecord propertiesRecord, WorldObject owner, bool isWorldObject, ClassFactory classFactory) : base(isWorldObject, classFactory)
     {
         SummonPropertiesRecord = propertiesRecord;
         SummonType = TempSummonType.ManualDespawn;
@@ -34,8 +35,12 @@ public class TempSummon : Creature
     public bool CanFollowOwner { get; set; }
     public uint? CreatureIdVisibleToSummoner { get; private set; }
     public uint? DisplayIdVisibleToSummoner { get; private set; }
+    public WorldObject Summoner => !_summonerGuid.IsEmpty ? ObjectAccessor.GetWorldObject(this, _summonerGuid) : null;
+    public Creature SummonerCreatureBase => !_summonerGuid.IsEmpty ? ObjectAccessor.GetCreature(this, _summonerGuid) : null;
+    public GameObject SummonerGameObject => Summoner?.AsGameObject;
     public ObjectGuid SummonerGUID => _summonerGuid;
 
+    public Unit SummonerUnit => Summoner?.AsUnit;
     public uint Timer { get; private set; }
     private TempSummonType SummonType { get; set; }
 
@@ -49,30 +54,6 @@ public class TempSummon : Creature
         return $"{base.GetDebugInfo()}\nTempSummonType : {SummonType} Summoner: {SummonerGUID} Timer: {Timer}";
     }
 
-    public WorldObject GetSummoner()
-    {
-        return !_summonerGuid.IsEmpty ? Global.ObjAccessor.GetWorldObject(this, _summonerGuid) : null;
-    }
-
-    public Creature GetSummonerCreatureBase()
-    {
-        return !_summonerGuid.IsEmpty ? ObjectAccessor.GetCreature(this, _summonerGuid) : null;
-    }
-
-    public GameObject GetSummonerGameObject()
-    {
-        var summoner = GetSummoner();
-
-        return summoner?.AsGameObject;
-    }
-
-    public Unit GetSummonerUnit()
-    {
-        var summoner = GetSummoner();
-
-        return summoner?.AsUnit;
-    }
-
     public virtual void InitStats(uint duration)
     {
         Timer = duration;
@@ -81,7 +62,7 @@ public class TempSummon : Creature
         if (SummonType == TempSummonType.ManualDespawn)
             SummonType = duration == 0 ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
 
-        var owner = GetSummonerUnit();
+        var owner = SummonerUnit;
 
         if (owner != null && IsTrigger && Spells[0] != 0)
             if (owner.IsTypeId(TypeId.Player))
@@ -89,7 +70,7 @@ public class TempSummon : Creature
 
         if (owner is { IsPlayer: true })
         {
-            var summonedData = Global.ObjectMgr.GetCreatureSummonedData(Entry);
+            var summonedData = GameObjectManager.GetCreatureSummonedData(Entry);
 
             if (summonedData != null)
             {
@@ -97,7 +78,7 @@ public class TempSummon : Creature
 
                 if (summonedData.CreatureIdVisibleToSummoner.HasValue)
                 {
-                    var creatureTemplateVisibleToSummoner = Global.ObjectMgr.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
+                    var creatureTemplateVisibleToSummoner = GameObjectManager.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
                     DisplayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner).CreatureDisplayId;
                 }
             }
@@ -129,7 +110,7 @@ public class TempSummon : Creature
 
         var faction = SummonPropertiesRecord.Faction;
 
-        if (owner && SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.UseSummonerFaction)) // TODO: Determine priority between faction and Id
+        if (owner != null && SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.UseSummonerFaction)) // TODO: Determine priority between faction and Id
             faction = owner.Faction;
 
         if (faction != 0)
@@ -141,18 +122,18 @@ public class TempSummon : Creature
 
     public virtual void InitSummon()
     {
-        var owner = GetSummoner();
+        var owner = Summoner;
 
-        if (owner != null)
-        {
-            if (owner.IsCreature)
-                owner.AsCreature.AI?.JustSummoned(this);
-            else if (owner.IsGameObject)
-                owner.AsGameObject.AI?.JustSummoned(this);
+        if (owner == null)
+            return;
 
-            if (IsAIEnabled)
-                AI.IsSummonedBy(owner);
-        }
+        if (owner.IsCreature)
+            owner.AsCreature.AI?.JustSummoned(this);
+        else if (owner.IsGameObject)
+            owner.AsGameObject.AI?.JustSummoned(this);
+
+        if (IsAIEnabled)
+            AI.IsSummonedBy(owner);
     }
 
     public override void RemoveFromWorld()
@@ -166,7 +147,7 @@ public class TempSummon : Creature
 
             if (slot > 0)
             {
-                var owner = GetSummonerUnit();
+                var owner = SummonerUnit;
 
                 if (owner != null)
                     if (owner.SummonSlot[slot] == GUID)
@@ -180,7 +161,8 @@ public class TempSummon : Creature
         base.RemoveFromWorld();
     }
 
-    public override void SaveToDB(uint mapid, List<Difficulty> spawnDifficulties) { }
+    public override void SaveToDB(uint mapid, List<Difficulty> spawnDifficulties)
+    { }
 
     public void SetSummonerGUID(ObjectGuid summonerGUID)
     {
@@ -215,7 +197,7 @@ public class TempSummon : Creature
             return;
         }
 
-        var owner = GetSummoner();
+        var owner = Summoner;
 
         if (owner != null)
         {
@@ -244,6 +226,7 @@ public class TempSummon : Creature
             case TempSummonType.ManualDespawn:
             case TempSummonType.DeadDespawn:
                 break;
+
             case TempSummonType.TimedDespawn:
             {
                 if (Timer <= diff)
@@ -296,9 +279,7 @@ public class TempSummon : Creature
             {
                 // if m_deathState is DEAD, CORPSE was skipped
                 if (DeathState == DeathState.Corpse)
-                {
                     UnSummon();
-                }
 
                 break;
             }
@@ -355,8 +336,10 @@ public class TempSummon : Creature
 
     public override void UpdateObjectVisibilityOnCreate()
     {
-        List<WorldObject> objectsToUpdate = new();
-        objectsToUpdate.Add(this);
+        List<WorldObject> objectsToUpdate = new()
+        {
+            this
+        };
 
         var smoothPhasing = Visibility.GetSmoothPhasing();
 
@@ -364,7 +347,7 @@ public class TempSummon : Creature
 
         if (infoForSeer is { ReplaceObject: { } } && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
         {
-            var original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
+            var original = ObjectAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
 
             if (original != null)
                 objectsToUpdate.Add(original);
@@ -376,8 +359,10 @@ public class TempSummon : Creature
 
     public override void UpdateObjectVisibilityOnDestroy()
     {
-        List<WorldObject> objectsToUpdate = new();
-        objectsToUpdate.Add(this);
+        List<WorldObject> objectsToUpdate = new()
+        {
+            this
+        };
 
         WorldObject original = null;
         var smoothPhasing = Visibility.GetSmoothPhasing();
@@ -387,27 +372,20 @@ public class TempSummon : Creature
             var infoForSeer = smoothPhasing.GetInfoForSeer(DemonCreatorGUID);
 
             if (infoForSeer is { ReplaceObject: { } } && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
-                original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
+                original = ObjectAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
 
             if (original != null)
             {
                 objectsToUpdate.Add(original);
 
                 // disable replacement without removing - it is still needed for next step (visibility update)
-                var originalSmoothPhasing = original.Visibility.GetSmoothPhasing();
-
-                originalSmoothPhasing?.DisableReplacementForSeer(DemonCreatorGUID);
+                original.Visibility.GetSmoothPhasing()?.DisableReplacementForSeer(DemonCreatorGUID);
             }
         }
 
         VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
         CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
 
-        if (original != null) // original is only != null when it was replaced
-        {
-            var originalSmoothPhasing = original.Visibility.GetSmoothPhasing();
-
-            originalSmoothPhasing?.ClearViewerDependentInfo(DemonCreatorGUID);
-        }
+        original?.Visibility.GetSmoothPhasing()?.ClearViewerDependentInfo(DemonCreatorGUID);
     }
 }

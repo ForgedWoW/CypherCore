@@ -1329,7 +1329,7 @@ public class UnitCombatHelpers
 
             var summon = creature.ToTempSummon();
 
-            var summoner = summon?.GetSummoner();
+            var summoner = summon?.Summoner;
 
             if (summoner != null)
             {

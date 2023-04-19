@@ -95,15 +95,9 @@ public class Vehicle : ITransport
                                               GetBase().Location.Orientation);
     }
 
-    public int GetMapIdForSpawning()
-    {
-        return (int)GetBase().Location.MapId;
-    }
+    public int MapIdForSpawning => (int)GetBase().Location.MapId;
 
-    public ObjectGuid GetTransportGUID()
-    {
-        return GetBase().GUID;
-    }
+    public ObjectGuid GUID => GetBase().GUID;
 
     public float GetTransportOrientation()
     {
@@ -194,45 +188,45 @@ public class Vehicle : ITransport
         VehicleJoinEvent e = new(this, unit);
         unit.Events.AddEvent(e, unit.Events.CalculateTime(TimeSpan.Zero));
 
-        KeyValuePair<sbyte, VehicleSeat> seat = new();
+        KeyValuePair<sbyte, VehicleSeat> seatKvp = new();
 
         if (seatId < 0) // no specific seat requirement
         {
-            foreach (var _seat in Seats)
+            foreach (var seat in Seats)
             {
-                seat = _seat;
+                seatKvp = seat;
 
-                if (seat.Value.IsEmpty() && !HasPendingEventForSeat(seat.Key) && (_seat.Value.SeatInfo.CanEnterOrExit() || _seat.Value.SeatInfo.IsUsableByOverride()))
+                if (seatKvp.Value.IsEmpty() && !HasPendingEventForSeat(seatKvp.Key) && (seat.Value.SeatInfo.CanEnterOrExit() || seat.Value.SeatInfo.IsUsableByOverride()))
                     break;
             }
 
-            if (seat.Value == null) // no available seat
+            if (seatKvp.Value == null) // no available seat
             {
                 e.ScheduleAbort();
 
                 return false;
             }
 
-            e.Seat = seat;
+            e.Seat = seatKvp;
             _pendingJoinEvents.Add(e);
         }
         else
         {
-            seat = new KeyValuePair<sbyte, VehicleSeat>(seatId, Seats.LookupByKey(seatId));
+            seatKvp = new KeyValuePair<sbyte, VehicleSeat>(seatId, Seats.LookupByKey(seatId));
 
-            if (seat.Value == null)
+            if (seatKvp.Value == null)
             {
                 e.ScheduleAbort();
 
                 return false;
             }
 
-            e.Seat = seat;
+            e.Seat = seatKvp;
             _pendingJoinEvents.Add(e);
 
-            if (!seat.Value.IsEmpty())
+            if (!seatKvp.Value.IsEmpty())
             {
-                var passenger = Global.ObjAccessor.GetUnit(GetBase(), seat.Value.Passenger.Guid);
+                var passenger = Global.ObjAccessor.GetUnit(GetBase(), seatKvp.Value.Passenger.Guid);
                 passenger.ExitVehicle();
             }
         }
@@ -459,10 +453,10 @@ public class Vehicle : ITransport
 
     public void RemovePendingEvent(VehicleJoinEvent e)
     {
-        foreach (var Event in _pendingJoinEvents)
-            if (Event == e)
+        foreach (var @event in _pendingJoinEvents)
+            if (@event == e)
             {
-                _pendingJoinEvents.Remove(Event);
+                _pendingJoinEvents.Remove(@event);
 
                 break;
             }

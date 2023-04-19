@@ -69,7 +69,7 @@ namespace Scripts.Pets
                     !Me.GetThreatManager().GetFixateTarget())
                 {
                     // find new Target
-                    var summoner = Me.ToTempSummon().GetSummonerUnit();
+                    var summoner = Me.ToTempSummon().SummonerUnit;
                     List<Unit> targets = new();
 
                     void AddTargetIfValid(CombatReference refe)

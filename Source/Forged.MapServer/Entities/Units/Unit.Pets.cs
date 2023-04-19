@@ -25,7 +25,7 @@ public partial class Unit
         if (!IsTypeId(TypeId.Player))
             return null;
 
-        Pet pet = new(AsPlayer, PetType.Hunter);
+        var pet = ClassFactory.ResolvePositional<Pet>(AsPlayer, PetType.Hunter);
 
         if (!pet.CreateBaseAtCreature(creatureTarget))
             return null;
@@ -51,7 +51,7 @@ public partial class Unit
         if (creatureInfo == null)
             return null;
 
-        Pet pet = new(AsPlayer, PetType.Hunter);
+        var pet = ClassFactory.ResolvePositional<Pet>(AsPlayer, PetType.Hunter);
 
         if (!pet.CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, Level, spellID))
             return null;

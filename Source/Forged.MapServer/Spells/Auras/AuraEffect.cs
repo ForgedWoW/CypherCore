@@ -4097,7 +4097,7 @@ public class AuraEffect
                         if (tempSummon == null)
                             continue;
 
-                        if (tempSummon.GetSummoner() != target)
+                        if (tempSummon.Summoner != target)
                             continue;
 
                         tempSummon.DespawnOrUnsummon();

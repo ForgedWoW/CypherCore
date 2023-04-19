@@ -57,20 +57,20 @@ public class PetStable
 
     public class PetInfo
     {
-        public string ActionBar;
-        public uint CreatedBySpellId;
-        public uint CreatureId;
-        public uint DisplayId;
-        public uint Experience;
-        public uint Health;
-        public uint LastSaveTime;
-        public byte Level = 0;
-        public uint Mana;
-        public string Name;
-        public uint PetNumber;
-        public ReactStates ReactState;
-        public ushort SpecializationId;
-        public PetType Type = PetType.Max;
-        public bool WasRenamed;
+        public string ActionBar { get; set; }
+        public uint CreatedBySpellId { get; set; }
+        public uint CreatureId { get; set; }
+        public uint DisplayId { get; set; }
+        public uint Experience { get; set; }
+        public uint Health { get; set; }
+        public uint LastSaveTime { get; set; }
+        public byte Level { get; set; }
+        public uint Mana { get; set; }
+        public string Name { get; set; }
+        public uint PetNumber { get; set; }
+        public ReactStates ReactState { get; set; }
+        public ushort SpecializationId { get; set; }
+        public PetType Type { get; set; } = PetType.Max;
+        public bool WasRenamed { get; set; }
     }
 }

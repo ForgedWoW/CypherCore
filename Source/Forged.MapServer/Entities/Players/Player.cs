@@ -3674,7 +3674,7 @@ public partial class Player : Unit
         if (!PetGUID.IsEmpty)
             return;
 
-        Pet newPet = new(this);
+        var newPet = ClassFactory.ResolvePositional<Pet>(this, PetType.Max);
         newPet.LoadPetFromDB(this, 0, TemporaryUnsummonedPetNumber, true);
 
         TemporaryUnsummonedPetNumber = 0;
@@ -5308,7 +5308,7 @@ public partial class Player : Unit
 
         var petStable = PetStable;
 
-        Pet pet = new(this, PetType.Summon);
+        var pet = ClassFactory.ResolvePositional<Pet>(this, PetType.Summon);
 
         if (pet.LoadPetFromDB(this, entry, 0, false, slot))
         {
@@ -6362,13 +6362,13 @@ public partial class Player : Unit
         if (load && corpse == null)
             return -1;
 
-        var pvp = corpse != null ? corpse.GetCorpseType() == CorpseType.ResurrectablePVP : (_extraFlags & PlayerExtraFlags.PVPDeath) != 0;
+        var pvp = corpse != null ? corpse.CorpseType == CorpseType.ResurrectablePVP : (_extraFlags & PlayerExtraFlags.PVPDeath) != 0;
 
         uint delay;
 
         if (load)
         {
-            if (corpse.GetGhostTime() > _deathExpireTime)
+            if (corpse.GhostTime > _deathExpireTime)
                 return -1;
 
             ulong count = 0;
@@ -6376,13 +6376,13 @@ public partial class Player : Unit
             if ((pvp && Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvP", true)) ||
                 (!pvp && Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvE", true)))
             {
-                count = (ulong)(_deathExpireTime - corpse.GetGhostTime()) / PlayerConst.DeathExpireStep;
+                count = (ulong)(_deathExpireTime - corpse.GhostTime) / PlayerConst.DeathExpireStep;
 
                 if (count >= PlayerConst.MaxDeathCount)
                     count = PlayerConst.MaxDeathCount - 1;
             }
 
-            var expectedTime = corpse.GetGhostTime() + PlayerConst.copseReclaimDelay[count];
+            var expectedTime = corpse.GhostTime + PlayerConst.copseReclaimDelay[count];
             var now = GameTime.CurrentTime;
 
             if (now >= expectedTime)
@@ -6401,7 +6401,7 @@ public partial class Player : Unit
         // prevent existence 2 corpse for player
         SpawnCorpseBones();
 
-        Corpse corpse = new(Convert.ToBoolean(_extraFlags & PlayerExtraFlags.PVPDeath) ? CorpseType.ResurrectablePVP : CorpseType.ResurrectablePVE);
+        var corpse = ClassFactory.ResolvePositional<Corpse>(Convert.ToBoolean(_extraFlags & PlayerExtraFlags.PVPDeath) ? CorpseType.ResurrectablePVP : CorpseType.ResurrectablePVE);
         SetPvPDeath(false);
 
         if (!corpse.Create(Location.Map.GenerateLowGuid(HighGuid.Corpse), this))

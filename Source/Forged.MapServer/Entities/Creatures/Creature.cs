@@ -1855,8 +1855,8 @@ public partial class Creature : Unit
         var transport = Transport;
 
         if (transport != null)
-            if (transport.GetMapIdForSpawning() >= 0)
-                mapId = (uint)transport.GetMapIdForSpawning();
+            if (transport.MapIdForSpawning >= 0)
+                mapId = (uint)transport.MapIdForSpawning;
 
         SaveToDB(mapId, data.SpawnDifficulties);
     }

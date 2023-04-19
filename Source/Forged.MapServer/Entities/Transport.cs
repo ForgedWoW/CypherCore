@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
@@ -15,15 +16,22 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
+using Forged.MapServer.OutdoorPVP;
+using Forged.MapServer.Pools;
 using Forged.MapServer.Scripting.Interfaces.ITransport;
 using Framework.Constants;
+using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities;
 
 public class Transport : GameObject, ITransport
 {
+    public TransportManager TransportManager { get; }
+    public CreatureFactory CreatureFactory { get; }
     private readonly HashSet<WorldObject> _passengers = new();
     private readonly TimeTracker _positionChangeTimer = new();
     private readonly HashSet<WorldObject> _staticPassengers = new();
@@ -36,8 +44,13 @@ public class Transport : GameObject, ITransport
     private uint? _requestStopTimestamp;
     private TransportTemplate _transportInfo;
 
-    public Transport()
+
+    public Transport(LootFactory lootFactory, ClassFactory classFactory, LootStoreBox lootStoreBox, PoolManager poolManager, DB2Manager db2Manager, WorldDatabase worldDatabase, 
+                     LootManager lootManager, OutdoorPvPManager outdoorPvPManager, TransportManager transportManager, CreatureFactory creatureFactory) 
+        : base(lootFactory, classFactory, lootStoreBox, poolManager, db2Manager, worldDatabase, lootManager, outdoorPvPManager)
     {
+        TransportManager = transportManager;
+        CreatureFactory = creatureFactory;
         UpdateFlag.ServerTime = true;
         UpdateFlag.Stationary = true;
         UpdateFlag.Rotation = true;
@@ -56,7 +69,7 @@ public class Transport : GameObject, ITransport
 
                 var player = passenger.AsPlayer;
 
-                if (player)
+                if (player != null)
                     ScriptManager.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), ScriptId);
             }
     }
@@ -71,15 +84,7 @@ public class Transport : GameObject, ITransport
         ITransport.CalculatePassengerPosition(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
     }
 
-    public int GetMapIdForSpawning()
-    {
-        return Template.MoTransport.SpawnMap;
-    }
-
-    public ObjectGuid GetTransportGUID()
-    {
-        return GUID;
-    }
+    public int MapIdForSpawning => Template.MoTransport.SpawnMap;
 
     public float GetTransportOrientation()
     {
@@ -97,17 +102,17 @@ public class Transport : GameObject, ITransport
 
                 var plr = passenger.AsPlayer;
 
-                if (plr != null)
-                {
-                    ScriptManager.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
-                    plr.SetFallInformation(0, plr.Location.Z);
-                }
+                if (plr == null)
+                    return this;
+
+                ScriptManager.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
+                plr.SetFallInformation(0, plr.Location.Z);
             }
 
         return this;
     }
 
-    public override void BuildUpdate(Dictionary<Player, UpdateData> data_map)
+    public override void BuildUpdate(Dictionary<Player, UpdateData> dataMap)
     {
         var players = Location.Map.Players;
 
@@ -115,13 +120,13 @@ public class Transport : GameObject, ITransport
             return;
 
         foreach (var playerReference in players)
-            if (playerReference.InSamePhase(this))
-                BuildFieldsUpdate(playerReference, data_map);
+            if (playerReference.Location.InSamePhase(this))
+                BuildFieldsUpdate(playerReference, dataMap);
 
         ClearUpdateMask(true);
     }
 
-    public override void CleanupsBeforeDelete(bool finalCleanup)
+    public override void CleanupsBeforeDelete(bool finalCleanup = true)
     {
         UnloadStaticPassengers();
 
@@ -147,7 +152,7 @@ public class Transport : GameObject, ITransport
 
         Create(ObjectGuid.Create(HighGuid.Transport, guidlow));
 
-        var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+        var goinfo = GameObjectManager.GetGameObjectTemplate(entry);
 
         if (goinfo == null)
         {
@@ -157,9 +162,9 @@ public class Transport : GameObject, ITransport
         }
 
         GoInfoProtected = goinfo;
-        GoTemplateAddonProtected = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+        GoTemplateAddonProtected = GameObjectManager.GetGameObjectTemplateAddon(entry);
 
-        var tInfo = Global.TransportMgr.GetTransportTemplate(entry);
+        var tInfo = TransportManager.GetTransportTemplate(entry);
 
         if (tInfo == null)
         {
@@ -188,7 +193,7 @@ public class Transport : GameObject, ITransport
         SetGoState(goinfo.MoTransport.allowstopping == 0 ? GameObjectState.Ready : GameObjectState.Active);
         GoType = GameObjectTypes.MapObjTransport;
         SetGoAnimProgress(255);
-        SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+        SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), DB2Manager.GetEmptyAnimStateID());
         SetName(goinfo.name);
         SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
         SetParentRotation(Quaternion.Identity);
@@ -215,7 +220,7 @@ public class Transport : GameObject, ITransport
 
         var creature = CreatureFactory.CreateCreatureFromDB(guid, map, false, true);
 
-        if (!creature)
+        if (creature == null)
             return null;
 
         var spawn = data.SpawnPoint.Copy();
@@ -370,12 +375,13 @@ public class Transport : GameObject, ITransport
 
         var summon = mask switch
         {
-            UnitTypeMask.Summon   => new TempSummon(properties, summoner, false),
-            UnitTypeMask.Guardian => new Guardian(properties, summoner, false),
-            UnitTypeMask.Puppet   => new Puppet(properties, summoner),
-            UnitTypeMask.Totem    => new Totem(properties, summoner),
-            UnitTypeMask.Minion   => new Minion(properties, summoner, false),
-            _                     => null
+            UnitTypeMask.Summon   => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false),
+            UnitTypeMask.Guardian => ClassFactory.ResolvePositional<Guardian>(properties, summoner, false),
+            UnitTypeMask.Puppet   => ClassFactory.ResolvePositional<Puppet>(properties, summoner),
+            UnitTypeMask.Totem    => ClassFactory.ResolvePositional<Totem>(properties, summoner),
+            UnitTypeMask.Minion   => ClassFactory.ResolvePositional<Minion>(properties, summoner, false),
+            // ReSharper disable once UnreachableSwitchArmDueToIntegerAnalysis
+            _                     => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false)
         };
 
         var newPos = pos.Copy();
@@ -389,8 +395,7 @@ public class Transport : GameObject, ITransport
         if (summoner != null && !(properties != null && properties.GetFlags().HasFlag(SummonPropertiesFlags.IgnoreSummonerPhase)))
             phaseShiftOwner = summoner;
 
-        if (phaseShiftOwner != null)
-            PhasingHandler.InheritPhaseShift(summon, phaseShiftOwner);
+        PhasingHandler.InheritPhaseShift(summon, phaseShiftOwner);
 
         summon.SetCreatedBySpell(spellId);
 
@@ -538,7 +543,7 @@ public class Transport : GameObject, ITransport
         ScriptManager.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
 
         var newActive = Location.Map.IsGridLoaded(x, y);
-        Cell oldCell = new(Location.X, Location.Y);
+        Cell oldCell = ClassFactory.ResolvePositional<Cell>(Location.X, Location.Y);
 
         Location.Relocate(x, y, z, o);
         StationaryPosition.Orientation = o;
@@ -555,24 +560,24 @@ public class Transport : GameObject, ITransport
         lock (_staticPassengers)
             if (_staticPassengers.Empty() && newActive) // 1. and 2.
                 LoadStaticPassengers();
-            else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(new Cell(Location.X, Location.Y))) // 3.
+            else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(ClassFactory.ResolvePositional<Cell>(Location.X, Location.Y))) // 3.
                 UnloadStaticPassengers();
             else
                 UpdatePassengerPositions(_staticPassengers);
         // 4. is handed by grid unload
     }
 
-    private GameObject CreateGOPassenger(ulong guid, GameObjectData data)
+    private void CreateGOPassenger(ulong guid, GameObjectData data)
     {
         var map = Location.Map;
 
         if (map.GetGORespawnTime(guid) != 0)
-            return null;
+            return;
 
-        var go = GameObject.CreateGameObjectFromDb(guid, map, false);
+        var go = GameObjectFactory.CreateGameObjectFromDb(guid, map, false);
 
-        if (!go)
-            return null;
+        if (go == null)
+            return;
 
         var spawn = data.SpawnPoint.Copy();
 
@@ -588,25 +593,23 @@ public class Transport : GameObject, ITransport
         {
             Log.Logger.Error("GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GUID.ToString(), go.Entry, go.Location.X, go.Location.Y);
 
-            return null;
+            return;
         }
 
         PhasingHandler.InitDbPhaseShift(go.Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
         PhasingHandler.InitDbVisibleMapId(go.Location.PhaseShift, data.TerrainSwapMap);
 
         if (!map.AddToMap(go))
-            return null;
+            return;
 
         lock (_staticPassengers)
             _staticPassengers.Add(go);
-
-        return go;
     }
 
     private void LoadStaticPassengers()
     {
         var mapId = (uint)Template.MoTransport.SpawnMap;
-        var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Location.Map.DifficultyID);
+        var cells = GameObjectManager.GetMapObjectGuids(mapId, Location.Map.DifficultyID);
 
         if (cells == null)
             return;
@@ -614,12 +617,12 @@ public class Transport : GameObject, ITransport
         foreach (var cell in cells)
         {
             // Creatures on transport
-            foreach (var npc in cell.Value.creatures)
-                CreateNPCPassenger(npc, Global.ObjectMgr.GetCreatureData(npc));
+            foreach (var npc in cell.Value.Creatures)
+                CreateNPCPassenger(npc, GameObjectManager.GetCreatureData(npc));
 
             // GameObjects on transport
-            foreach (var go in cell.Value.gameobjects)
-                CreateGOPassenger(go, Global.ObjectMgr.GetGameObjectData(go));
+            foreach (var go in cell.Value.Gameobjects)
+                CreateGOPassenger(go, GameObjectManager.GetGameObjectData(go));
         }
     }
 
@@ -630,7 +633,7 @@ public class Transport : GameObject, ITransport
             AddToWorld();
 
             foreach (var player in Location.Map.Players)
-                if (player.Transport != this && player.InSamePhase(this))
+                if (player.Transport != this && player.Location.InSamePhase(this))
                 {
                     UpdateData data = new(Location.Map.Id);
                     BuildCreateUpdateBlockForPlayer(data, player);
@@ -683,14 +686,14 @@ public class Transport : GameObject, ITransport
         }
     }
 
-    private bool TeleportTransport(uint oldMapId, uint newMapId, float x, float y, float z, float o)
+    private void TeleportTransport(uint oldMapId, uint newMapId, float x, float y, float z, float o)
     {
         if (oldMapId != newMapId)
         {
             UnloadStaticPassengers();
             TeleportPassengersAndHideTransport(newMapId, x, y, z, o);
 
-            return true;
+            return;
         }
 
         UpdatePosition(x, y, z, o);
@@ -702,7 +705,7 @@ public class Transport : GameObject, ITransport
                 // will be relocated in UpdatePosition of the vehicle
                 var veh = obj.AsUnit.VehicleBase;
 
-                if (veh)
+                if (veh != null)
                     if (veh.Transport == this)
                         continue;
 
@@ -711,8 +714,6 @@ public class Transport : GameObject, ITransport
 
                 obj.AsUnit.NearTeleportTo(pos);
             }
-
-        return false;
     }
 
     private void UnloadStaticPassengers()

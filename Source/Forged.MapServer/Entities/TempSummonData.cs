@@ -8,10 +8,10 @@ namespace Forged.MapServer.Entities;
 
 public class TempSummonData
 {
-    public uint entry;   // Entry of summoned creature
-    public Position pos; // Position, where should be creature spawned
-    public uint time;
+    public uint Entry;   // Entry of summoned creature
+    public Position Pos; // Position, where should be creature spawned
+    public uint Time;
 
-    public TempSummonType type; // Summon type, see TempSummonType for available types
+    public TempSummonType Type; // Summon type, see TempSummonType for available types
     // Despawn time, usable only with certain temp summon types
 }

@@ -4,44 +4,40 @@
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities;
 
 public class Guardian : Minion
 {
-    private const int ENTRY_BLOODWORM = 28017;
-    private const int ENTRY_FELGUARD = 17252;
-    private const int ENTRY_FELHUNTER = 417;
-    private const int ENTRY_FIRE_ELEMENTAL = 15438;
-    private const int ENTRY_GHOUL = 26125;
-    private const int ENTRY_IMP = 416;
-    private const int ENTRY_SUCCUBUS = 1863;
-    private const int ENTRY_TREANT = 1964;
-    private const int ENTRY_VOIDWALKER = 1860;
-    private const int ENTRY_WATER_ELEMENTAL = 510;
+    private const int EntryBloodworm = 28017;
+    private const int EntryFelguard = 17252;
+    private const int EntryFelhunter = 417;
+    private const int EntryFireElemental = 15438;
+    private const int EntryGhoul = 26125;
+    private const int EntryImp = 416;
+    private const int EntrySuccubus = 1863;
+    private const int EntryTreant = 1964;
+    private const int EntryVoidwalker = 1860;
+    private const int EntryWaterElemental = 510;
     private readonly float[] _statFromOwner = new float[(int)Stats.Max];
 
-    private float _bonusSpellDamage;
-
-    public Guardian(SummonPropertiesRecord propertiesRecord, Unit owner, bool isWorldObject)
-        : base(propertiesRecord, owner, isWorldObject)
+    public Guardian(SummonPropertiesRecord propertiesRecord, Unit owner, bool isWorldObject, ClassFactory classFactory)
+        : base(propertiesRecord, owner, isWorldObject, classFactory)
     {
-        _bonusSpellDamage = 0;
+        BonusDamage = 0;
 
         UnitTypeMask |= UnitTypeMask.Guardian;
 
-        if (propertiesRecord != null && (propertiesRecord.Title == SummonTitle.Pet || propertiesRecord.Control == SummonCategory.Pet))
-        {
-            UnitTypeMask |= UnitTypeMask.ControlableGuardian;
-            InitCharmInfo();
-        }
+        if (propertiesRecord == null || (propertiesRecord.Title != SummonTitle.Pet && propertiesRecord.Control != SummonCategory.Pet))
+            return;
+
+        UnitTypeMask |= UnitTypeMask.ControlableGuardian;
+        InitCharmInfo();
     }
 
-    public float GetBonusDamage()
-    {
-        return _bonusSpellDamage;
-    }
+    public float BonusDamage { get; private set; }
 
     public float GetBonusStatFromOwner(Stats stat)
     {
@@ -72,8 +68,7 @@ public class Guardian : Minion
 
         if (IsPet && OwnerUnit.IsTypeId(TypeId.Player))
         {
-            if (OwnerUnit.Class is PlayerClass.Warlock or PlayerClass.Shaman or PlayerClass.Deathknight
-               ) // Risen Ghoul
+            if (OwnerUnit.Class is PlayerClass.Warlock or PlayerClass.Shaman or PlayerClass.Deathknight) // Risen Ghoul
                 petType = PetType.Summon;
             else if (OwnerUnit.Class == PlayerClass.Hunter)
             {
@@ -84,7 +79,7 @@ public class Guardian : Minion
                 Log.Logger.Error("Unknown type pet {0} is summoned by player class {1}", Entry, OwnerUnit.Class);
         }
 
-        var creature_ID = petType == PetType.Hunter ? 1 : cinfo.Entry;
+        var creatureID = petType == PetType.Hunter ? 1 : cinfo.Entry;
 
         SetMeleeDamageSchool((SpellSchools)cinfo.DmgSchool);
 
@@ -104,26 +99,26 @@ public class Guardian : Minion
                 SetStatFlatModifier(UnitMods.ResistanceStart + i, UnitModifierFlatType.Base, cinfo.Resistance[i]);
 
         // Health, Mana or Power, Armor
-        var pInfo = Global.ObjectMgr.GetPetLevelInfo(creature_ID, petlevel);
+        var pInfo = GameObjectManager.GetPetLevelInfo(creatureID, petlevel);
 
         if (pInfo != null) // exist in DB
         {
-            SetCreateHealth(pInfo.health);
-            SetCreateMana(pInfo.mana);
+            SetCreateHealth(pInfo.Health);
+            SetCreateMana(pInfo.Mana);
 
-            if (pInfo.armor > 0)
-                SetStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Base, pInfo.armor);
+            if (pInfo.Armor > 0)
+                SetStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Base, pInfo.Armor);
 
             for (byte stat = 0; stat < (int)Stats.Max; ++stat)
-                SetCreateStat((Stats)stat, pInfo.stats[stat]);
+                SetCreateStat((Stats)stat, pInfo.Stats[stat]);
         }
         else // not exist in DB, use some default fake data
         {
             // remove elite bonuses included in DB values
-            var stats = Global.ObjectMgr.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
+            var stats = GameObjectManager.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
             ApplyLevelScaling();
 
-            SetCreateHealth((uint)(Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
+            SetCreateHealth((uint)(DB2Manager.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
             SetCreateMana(stats.GenerateMana(cinfo));
 
             SetCreateStat(Stats.Strength, 22);
@@ -135,12 +130,12 @@ public class Guardian : Minion
         // Power
         if (petType == PetType.Hunter) // Hunter pets have focus
             SetPowerType(PowerType.Focus);
-        else if (IsPetGhoul() || IsPetAbomination()) // DK pets have energy
+        else if (IsPetGhoul || IsPetAbomination) // DK pets have energy
         {
             SetPowerType(PowerType.Energy);
             SetFullPower(PowerType.Energy);
         }
-        else if (IsPetImp() || IsPetFelhunter() || IsPetVoidwalker() || IsPetSuccubus() || IsPetDoomguard() || IsPetFelguard()) // Warlock pets have energy (since 5.x)
+        else if (IsPetImp || IsPetFelhunter || IsPetVoidwalker || IsPetSuccubus || IsPetDoomguard || IsPetFelguard) // Warlock pets have energy (since 5.x)
             SetPowerType(PowerType.Energy);
         else
             SetPowerType(PowerType.Mana);
@@ -169,7 +164,7 @@ public class Guardian : Minion
             }
             case PetType.Hunter:
             {
-                AsPet.SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(petlevel) * 0.05f));
+                AsPet.SetPetNextLevelExperience((uint)(GameObjectManager.GetXPForLevel(petlevel) * 0.05f));
                 //these formula may not be correct; however, it is designed to be close to what it should be
                 //this makes dps 0.5 of pets level
                 SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - petlevel / 4);
@@ -181,6 +176,7 @@ public class Guardian : Minion
             }
             default:
             {
+                // TODO Pandaros - This needs to be moved to scripts
                 switch (Entry)
                 {
                     case 510: // mage Water Elemental
@@ -232,9 +228,9 @@ public class Guardian : Minion
                             SetCreateHealth(28 + 30 * petlevel);
                         }
 
-                        var bonus_dmg = (int)(OwnerUnit.SpellBaseDamageBonusDone(SpellSchoolMask.Shadow) * 0.3f);
-                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel * 4 - petlevel + bonus_dmg);
-                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel * 4 + petlevel + bonus_dmg);
+                        var bonusDmg = (int)(OwnerUnit.SpellBaseDamageBonusDone(SpellSchoolMask.Shadow) * 0.3f);
+                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel * 4 - petlevel + bonusDmg);
+                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel * 4 + petlevel + bonusDmg);
 
                         break;
                     }
@@ -248,7 +244,7 @@ public class Guardian : Minion
                     case 19921: //Snake Trap - Viper
                     {
                         SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel / 2 - 10);
-                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel / 2);
+                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel / 2f);
 
                         break;
                     }
@@ -362,19 +358,19 @@ public class Guardian : Minion
 
     public override void UpdateArmor()
     {
-        var bonus_armor = 0.0f;
+        var bonusArmor = 0.0f;
         var unitMod = UnitMods.Armor;
 
         // hunter pets gain 35% of owner's armor value, warlock pets gain 100% of owner's armor
         if (IsHunterPet)
-            bonus_armor = MathFunctions.CalculatePct(OwnerUnit.GetArmor(), 70);
+            bonusArmor = MathFunctions.CalculatePct(OwnerUnit.GetArmor(), 70);
         else if (IsPet)
-            bonus_armor = OwnerUnit.GetArmor();
+            bonusArmor = OwnerUnit.GetArmor();
 
         var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base);
         var baseValue = value;
         value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
-        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total) + bonus_armor;
+        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total) + bonusArmor;
         value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
 
         SetArmor((int)baseValue, (int)(value - baseValue));
@@ -389,12 +385,12 @@ public class Guardian : Minion
         double bonusAP = 0.0f;
         var unitMod = UnitMods.AttackPower;
 
-        if (Entry == ENTRY_IMP) // imp's attack power
+        if (Entry == EntryImp) // imp's attack power
             val = GetStat(Stats.Strength) - 10.0f;
         else
             val = 2 * GetStat(Stats.Strength) - 20.0f;
 
-        var owner = OwnerUnit ? OwnerUnit.AsPlayer : null;
+        var owner = OwnerUnit?.AsPlayer;
 
         if (owner != null)
         {
@@ -404,16 +400,16 @@ public class Guardian : Minion
                 bonusAP = owner.GetTotalAttackPowerValue(WeaponAttackType.RangedAttack) * 0.22f * mod;
                 SetBonusDamage((int)(owner.GetTotalAttackPowerValue(WeaponAttackType.RangedAttack) * 0.1287f * mod));
             }
-            else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
+            else if (IsPetGhoul) //ghouls benefit from deathknight's attack power (may be summon pet or not)
             {
                 bonusAP = owner.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.22f;
                 SetBonusDamage((int)(owner.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.1287f));
             }
-            else if (IsSpiritWolf()) //wolf benefit from shaman's attack power
+            else if (IsSpiritWolf) //wolf benefit from shaman's attack power
             {
-                var dmg_multiplier = 0.31f;
-                bonusAP = owner.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * dmg_multiplier;
-                SetBonusDamage((int)(owner.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * dmg_multiplier));
+                var dmgMultiplier = 0.31f;
+                bonusAP = owner.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * dmgMultiplier;
+                SetBonusDamage((int)(owner.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * dmgMultiplier));
             }
             //demons benefit from warlocks shadow or fire damage
             else if (IsPet)
@@ -429,7 +425,7 @@ public class Guardian : Minion
                 bonusAP = maximum * 0.57f;
             }
             //water elementals benefit from mage's frost damage
-            else if (Entry == ENTRY_WATER_ELEMENTAL)
+            else if (Entry == EntryWaterElemental)
             {
                 var frost = owner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Frost] - owner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Frost];
 
@@ -443,10 +439,10 @@ public class Guardian : Minion
         SetStatFlatModifier(UnitMods.AttackPower, UnitModifierFlatType.Base, val + bonusAP);
 
         //in BASE_VALUE of UNIT_MOD_ATTACK_POWER for creatures we store data of meleeattackpower field in DB
-        var base_attPower = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) * GetPctModifierValue(unitMod, UnitModifierPctType.Base);
+        var baseAttPower = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) * GetPctModifierValue(unitMod, UnitModifierPctType.Base);
         var attPowerMultiplier = GetPctModifierValue(unitMod, UnitModifierPctType.Total) - 1.0f;
 
-        SetAttackPower((int)base_attPower);
+        SetAttackPower((int)baseAttPower);
         SetAttackPowerMultiplier((float)attPowerMultiplier);
 
         //automatically update weapon damage after attack power modification
@@ -464,7 +460,7 @@ public class Guardian : Minion
         if (playerOwner != null)
         {
             //force of nature
-            if (Entry == ENTRY_TREANT)
+            if (Entry == EntryTreant)
             {
                 var spellDmg = playerOwner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Nature] - playerOwner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Nature];
 
@@ -472,7 +468,7 @@ public class Guardian : Minion
                     bonusDamage = spellDmg * 0.09f;
             }
             //greater fire elemental
-            else if (Entry == ENTRY_FIRE_ELEMENTAL)
+            else if (Entry == EntryFireElemental)
             {
                 var spellDmg = playerOwner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Fire] - playerOwner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Fire];
 
@@ -483,18 +479,18 @@ public class Guardian : Minion
 
         var unitMod = UnitMods.DamageMainHand;
 
-        double att_speed = GetBaseAttackTime(WeaponAttackType.BaseAttack) / 1000.0f;
+        double attSpeed = GetBaseAttackTime(WeaponAttackType.BaseAttack) / 1000.0f;
 
-        var base_value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetTotalAttackPowerValue(attType, false) / 3.5f * att_speed + bonusDamage;
-        var base_pct = GetPctModifierValue(unitMod, UnitModifierPctType.Base);
-        var total_value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
-        var total_pct = GetPctModifierValue(unitMod, UnitModifierPctType.Total);
+        var baseValue = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetTotalAttackPowerValue(attType, false) / 3.5f * attSpeed + bonusDamage;
+        var basePct = GetPctModifierValue(unitMod, UnitModifierPctType.Base);
+        var totalValue = GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
+        var totalPct = GetPctModifierValue(unitMod, UnitModifierPctType.Total);
 
-        var weapon_mindamage = GetWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage);
-        var weapon_maxdamage = GetWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage);
+        var weaponMindamage = GetWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage);
+        var weaponMaxdamage = GetWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage);
 
-        var mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
-        var maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
+        var mindamage = ((baseValue + weaponMindamage) * basePct + totalValue) * totalPct;
+        var maxdamage = ((baseValue + weaponMaxdamage) * basePct + totalValue) * totalPct;
 
         SetUpdateFieldStatValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.MinDamage), (float)mindamage);
         SetUpdateFieldStatValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.MaxDamage), (float)maxdamage);
@@ -507,13 +503,13 @@ public class Guardian : Minion
 
         var multiplicator = Entry switch
         {
-            ENTRY_IMP        => 8.4f,
-            ENTRY_VOIDWALKER => 11.0f,
-            ENTRY_SUCCUBUS   => 9.1f,
-            ENTRY_FELHUNTER  => 9.5f,
-            ENTRY_FELGUARD   => 11.0f,
-            ENTRY_BLOODWORM  => 1.0f,
-            _                => 10.0f
+            EntryImp => 8.4f,
+            EntryVoidwalker => 11.0f,
+            EntrySuccubus => 9.1f,
+            EntryFelhunter => 9.5f,
+            EntryFelguard => 11.0f,
+            EntryBloodworm => 1.0f,
+            _ => 10.0f
         };
 
         var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreateHealth();
@@ -570,7 +566,7 @@ public class Guardian : Minion
         // Handle Death Knight Glyphs and Talents
         var mod = 0.75f;
 
-        if (IsPetGhoul() && stat is Stats.Stamina or Stats.Strength)
+        if (IsPetGhoul && stat is Stats.Stamina or Stats.Strength)
         {
             switch (stat)
             {
@@ -610,14 +606,17 @@ public class Guardian : Minion
                 UpdateAttackPowerAndDamage();
 
                 break;
+
             case Stats.Agility:
                 UpdateArmor();
 
                 break;
+
             case Stats.Stamina:
                 UpdateMaxHealth();
 
                 break;
+
             case Stats.Intellect:
                 UpdateMaxPower(PowerType.Mana);
 
@@ -629,7 +628,7 @@ public class Guardian : Minion
 
     private void SetBonusDamage(float damage)
     {
-        _bonusSpellDamage = damage;
+        BonusDamage = damage;
         var playerOwner = OwnerUnit.AsPlayer;
 
         playerOwner?.SetPetSpellPower((uint)damage);

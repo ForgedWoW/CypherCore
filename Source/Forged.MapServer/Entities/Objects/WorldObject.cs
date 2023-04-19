@@ -284,7 +284,7 @@ public abstract class WorldObject : IDisposable
         if (IsWorldObject() && Location.Map != null)
         {
             if (IsTypeId(TypeId.Corpse))
-                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.CorpseType, GUID.ToString());
             else
                 Location.ResetMap();
         }
@@ -906,8 +906,8 @@ public abstract class WorldObject : IDisposable
         {
             var self = AsConversation;
 
-            if (data.WriteBit(self.GetTextureKitId() != 0))
-                data.WriteUInt32(self.GetTextureKitId());
+            if (data.WriteBit(self.TextureKitId != 0))
+                data.WriteUInt32(self.TextureKitId);
 
             data.FlushBits();
         }
@@ -1094,10 +1094,7 @@ public abstract class WorldObject : IDisposable
 
     public virtual ObjectGuid GetTransGUID()
     {
-        if (Transport != null)
-            return Transport.GetTransportGUID();
-
-        return ObjectGuid.Empty;
+        return Transport?.GUID ?? ObjectGuid.Empty;
     }
 
     public T GetTransport<T>() where T : class, ITransport
@@ -1581,7 +1578,7 @@ public abstract class WorldObject : IDisposable
             return;
         }
 
-        list = data.Select(tempSummonData => SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, TimeSpan.FromMilliseconds(tempSummonData.time))).Where(summon => summon != null).ToList();
+        list = data.Select(tempSummonData => SummonCreature(tempSummonData.Entry, tempSummonData.Pos, tempSummonData.Type, TimeSpan.FromMilliseconds(tempSummonData.Time))).Where(summon => summon != null).ToList();
     }
 
     public GameObject SummonGameObject(uint entry, float x, float y, float z, float ang, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)

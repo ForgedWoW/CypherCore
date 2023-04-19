@@ -101,6 +101,8 @@ public partial class Spell : IDisposable
     private readonly OutdoorPvPManager _outdoorPvPManager;
     private readonly PhasingHandler _phasingHandler;
     private readonly PlayerComputators _playerComputators;
+    private readonly ConversationFactory _conversationFactory;
+    private readonly ItemFactory _itemFactory;
     private readonly ScriptManager _scriptManager;
     private readonly SkillExtraItems _skillExtraItems;
     private readonly SkillPerfectItems _skillPerfectItems;
@@ -164,7 +166,7 @@ public partial class Spell : IDisposable
                  SkillPerfectItems skillPerfectItems, SkillExtraItems skillExtraItems, ItemEnchantmentManager itemEnchantmentManager, GameObjectManager gameObjectManager, InstanceLockManager instanceLockManager,
                  CliDB cliDb, BattleFieldManager battleFieldManager, UnitCombatHelpers combatHelpers, SpellManager spellManager, GroupManager groupManager, ScriptManager scriptManager, LootStoreBox lootStoreBox,
                  WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator, TraitMgr traitMgr, GameObjectFactory gameObjectFactory, PhasingHandler phasingHandler,
-                 BattlePetMgrData battlePetMgrData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators,
+                 BattlePetMgrData battlePetMgrData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, ConversationFactory conversationFactory, ItemFactory itemFactory,
                  ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
         SpellInfo = info;
@@ -193,6 +195,8 @@ public partial class Spell : IDisposable
         _objectAccessor = objectAccessor;
         _creatureTextManager = creatureTextManager;
         _playerComputators = playerComputators;
+        _conversationFactory = conversationFactory;
+        _itemFactory = itemFactory;
 
         foreach (var stage in info.EmpowerStages)
             _empowerStages[stage.Key] = new SpellEmpowerStageRecord
@@ -229,9 +233,9 @@ public partial class Spell : IDisposable
                 }
 
         var modOwner = caster.SpellModOwner;
-
-        modOwner?.ApplySpellMod(info, SpellModOp.Doses, ref SpellValue.AuraStackAmount, this);
-
+        int stack = SpellValue.AuraStackAmount;
+        modOwner?.ApplySpellMod(info, SpellModOp.Doses, ref stack, this);
+        SpellValue.AuraStackAmount = stack;
         if (_originalCasterGuid == Caster.GUID)
             OriginalCaster = Caster.AsUnit;
         else
@@ -2175,7 +2179,11 @@ public partial class Spell : IDisposable
 
                                 // Haste modifies duration of channeled spells
                                 if (SpellInfo.IsChanneled)
-                                    caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref hitInfo.AuraDuration, this);
+                                {
+                                    var duration = hitInfo.AuraDuration;
+                                    caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref duration, this);
+                                    hitInfo.AuraDuration = duration;
+                                }
                                 else if (SpellInfo.HasAttribute(SpellAttr8.HasteAffectsDuration))
                                 {
                                     var origDuration = hitInfo.AuraDuration;
@@ -3122,9 +3130,15 @@ public partial class Spell : IDisposable
         hitInfo.AuraDuration = Aura.CalcMaxDuration(SpellInfo, origCaster);
 
         // unit is immune to aura if it was diminished to 0 duration
-        if (hitInfo.Positive || unit.ApplyDiminishingToDuration(SpellInfo, ref hitInfo.AuraDuration, origCaster, diminishLevel))
-            return SpellMissInfo.None;
+        var duration = hitInfo.AuraDuration;
 
+        if (hitInfo.Positive || unit.ApplyDiminishingToDuration(SpellInfo, ref duration, origCaster, diminishLevel))
+        {
+            hitInfo.AuraDuration = duration;
+            return SpellMissInfo.None;
+        }
+
+        hitInfo.AuraDuration = duration;
         return SpellInfo.Effects.All(effInfo => !effInfo.IsEffect || effInfo.IsEffectName(SpellEffectName.ApplyAura)) ? SpellMissInfo.Immune : SpellMissInfo.None;
     }
 
@@ -7225,7 +7239,7 @@ public partial class Spell : IDisposable
 
                 var casterSummon = unitCaster?.ToTempSummon();
 
-                var summoner = casterSummon?.GetSummoner();
+                var summoner = casterSummon?.Summoner;
 
                 if (summoner != null)
                     dest = new SpellDestination(summoner);
@@ -7316,7 +7330,7 @@ public partial class Spell : IDisposable
                 var unitCaster = Caster.AsUnit;
 
                 if (unitCaster is { IsSummon: true })
-                    target = unitCaster.ToTempSummon().GetSummonerUnit();
+                    target = unitCaster.ToTempSummon().SummonerUnit;
 
                 break;
             }
@@ -8528,8 +8542,9 @@ public partial class Spell : IDisposable
                             hit = false;
                             //lower spell cost on fail (by talent aura)
                             var modOwner = unitCaster.SpellModOwner;
-
-                            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.PowerCostOnMiss, ref cost.Amount);
+                            var amount = cost.Amount;
+                            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.PowerCostOnMiss, ref amount);
+                            cost.Amount = amount;
                         }
                     }
                 }

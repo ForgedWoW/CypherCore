@@ -95,7 +95,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
         {
             _passengers.Add(passenger);
             passenger.Transport = this;
-            passenger.MovementInfo.Transport.Guid = GetTransportGUID();
+            passenger.MovementInfo.Transport.Guid = GUID;
             Log.Logger.Debug($"Object {passenger.GetName()} boarded transport {Owner.GetName()}.");
         }
     }
@@ -110,15 +110,9 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
         ITransport.CalculatePassengerPosition(pos, Owner.Location.X, Owner.Location.Y, Owner.Location.Z, Owner.Location.Orientation);
     }
 
-    public int GetMapIdForSpawning()
-    {
-        return Owner.Template.Transport.SpawnMap;
-    }
+    public int MapIdForSpawning => Owner.Template.Transport.SpawnMap;
 
-    public ObjectGuid GetTransportGUID()
-    {
-        return Owner.GUID;
-    }
+    public ObjectGuid GUID => Owner.GUID;
 
     public float GetTransportOrientation()
     {

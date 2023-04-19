@@ -236,7 +236,7 @@ public partial class Unit
         if (Vehicle != null)
             return VehicleBase.GUID;
 
-        return Transport?.GetTransportGUID() ?? ObjectGuid.Empty;
+        return Transport?.GUID ?? ObjectGuid.Empty;
     }
 
     public bool IsInAccessiblePlaceFor(Creature c)

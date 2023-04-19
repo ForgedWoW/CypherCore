@@ -45,15 +45,8 @@ public class GameObject : WorldObject
     protected GameObjectTemplateAddon GoTemplateAddonProtected;
     protected GameObjectValue GoValueProtected; // TODO: replace with m_goTypeImpl
     private readonly Dictionary<uint, ObjectGuid> _chairListSlots = new();
-    private readonly DB2Manager _db2Manager;
-    private readonly LootFactory _lootFactory;
-    private readonly LootManager _lootManager;
-    private readonly LootStoreBox _lootStoreBox;
-    private readonly OutdoorPvPManager _outdoorPvPManager;
-    private readonly PoolManager _poolManager;
     private readonly List<ObjectGuid> _skillupList = new();
     private readonly List<ObjectGuid> _uniqueUsers = new();
-    private readonly WorldDatabase _worldDatabase;
     private ushort _animKitId;
     private long _cooldownTime;
     private uint _despawnDelay;
@@ -61,7 +54,6 @@ public class GameObject : WorldObject
     private uint? _gossipMenuId;
     private GameObjectTypeBase _goTypeImpl;
     private ObjectGuid _linkedTrap;
-
     private Quaternion _localRotation;
 
     // override respawn time after delayed despawn
@@ -69,7 +61,6 @@ public class GameObject : WorldObject
 
     private Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
     private Dictionary<ObjectGuid, Loot> _personalLoot = new();
-
     private GameObjectState _prevGoState;
 
     // GUID of the unit passed with SetLootState(LootState, Unit*)
@@ -78,19 +69,16 @@ public class GameObject : WorldObject
     private Player _ritualOwner;
     private uint _spellId;
 
-    // used as internal reaction delay time store (not state change reaction).
-    // For traps this: spell casting cooldown, for doors/buttons: reset time.
-
     public GameObject(LootFactory lootFactory, ClassFactory classFactory, LootStoreBox lootStoreBox, PoolManager poolManager,
                       DB2Manager db2Manager, WorldDatabase worldDatabase, LootManager lootManager, OutdoorPvPManager outdoorPvPManager) : base(false, classFactory)
     {
-        _lootFactory = lootFactory;
-        _lootStoreBox = lootStoreBox;
-        _poolManager = poolManager;
-        _db2Manager = db2Manager;
-        _worldDatabase = worldDatabase;
-        _lootManager = lootManager;
-        _outdoorPvPManager = outdoorPvPManager;
+        LootFactory = lootFactory;
+        LootStoreBox = lootStoreBox;
+        PoolManager = poolManager;
+        DB2Manager = db2Manager;
+        WorldDatabase = worldDatabase;
+        LootManager = lootManager;
+        OutdoorPvPManager = outdoorPvPManager;
         ObjectTypeMask |= TypeMask.GameObject;
         ObjectTypeId = TypeId.GameObject;
 
@@ -108,6 +96,8 @@ public class GameObject : WorldObject
         GameObjectFieldData = new GameObjectFieldData();
     }
 
+    // used as internal reaction delay time store (not state change reaction).
+    // For traps this: spell casting cooldown, for doors/buttons: reset time.
     public GameObjectAI AI { get; private set; }
 
     public override ushort AIAnimKitId => _animKitId;
@@ -123,6 +113,7 @@ public class GameObject : WorldObject
     }
 
     public Transport AsTransport => Template.type == GameObjectTypes.MapObjTransport ? this as Transport : null;
+    public DB2Manager DB2Manager { get; }
 
     public uint DisplayId
     {
@@ -141,7 +132,6 @@ public class GameObject : WorldObject
     }
 
     public GameObjectData GameObjectData { get; private set; }
-    
 
     // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
     // What state to set whenever resetting
@@ -254,12 +244,15 @@ public class GameObject : WorldObject
 
     public Quaternion LocalRotation => _localRotation;
     public Loot Loot { get; set; }
+    public LootFactory LootFactory { get; }
+    public LootManager LootManager { get; }
     public LootModes LootMode { get; private set; }
     public LootState LootState { get; private set; }
+    public LootStoreBox LootStoreBox { get; }
     public GameObjectModel Model { get; set; }
     public override ObjectGuid OwnerGUID => GameObjectFieldData.CreatedBy;
-
     public long PackedLocalRotation { get; private set; }
+    public PoolManager PoolManager { get; }
 
     // There's many places not ready for dynamic spawns. This allows them to live on for now.
     public bool RespawnCompatibilityMode { get; private set; }
@@ -297,6 +290,7 @@ public class GameObject : WorldObject
     public GameObjectTemplate Template => GoInfoProtected;
     public GameObjectTemplateAddon TemplateAddon => GoTemplateAddonProtected;
     public uint UseCount { get; private set; }
+    public WorldDatabase WorldDatabase { get; }
     public uint WorldEffectID { get; set; }
 
     private GameObjectDestructibleState DestructibleState
@@ -331,6 +325,7 @@ public class GameObject : WorldObject
                 Log.Logger.Fatal($"Spell {spellId} has action type NONE in effect {effectIndex}");
 
                 break;
+
             case GameObjectActions.AnimateCustom0:
             case GameObjectActions.AnimateCustom1:
             case GameObjectActions.AnimateCustom2:
@@ -338,24 +333,29 @@ public class GameObject : WorldObject
                 SendCustomAnim((uint)(action - GameObjectActions.AnimateCustom0));
 
                 break;
+
             case GameObjectActions.Disturb: // What's the difference with Open?
                 if (unitCaster != null)
                     Use(unitCaster);
 
                 break;
+
             case GameObjectActions.Unlock:
                 RemoveFlag(GameObjectFlags.Locked);
 
                 break;
+
             case GameObjectActions.Lock:
                 SetFlag(GameObjectFlags.Locked);
 
                 break;
+
             case GameObjectActions.Open:
                 if (unitCaster != null)
                     Use(unitCaster);
 
                 break;
+
             case GameObjectActions.OpenAndUnlock:
                 if (unitCaster != null)
                     UseDoorOrButton(0, false, unitCaster);
@@ -363,42 +363,52 @@ public class GameObject : WorldObject
                 RemoveFlag(GameObjectFlags.Locked);
 
                 break;
+
             case GameObjectActions.Close:
                 ResetDoorOrButton();
 
                 break;
+
             case GameObjectActions.ToggleOpen:
                 // No use cases, implementation unknown
                 break;
+
             case GameObjectActions.Destroy:
                 if (unitCaster != null)
                     UseDoorOrButton(0, true, unitCaster);
 
                 break;
+
             case GameObjectActions.Rebuild:
                 ResetDoorOrButton();
 
                 break;
+
             case GameObjectActions.Creation:
                 // No use cases, implementation unknown
                 break;
+
             case GameObjectActions.Despawn:
                 DespawnOrUnsummon();
 
                 break;
+
             case GameObjectActions.MakeInert:
                 SetFlag(GameObjectFlags.NotSelectable);
 
                 break;
+
             case GameObjectActions.MakeActive:
                 RemoveFlag(GameObjectFlags.NotSelectable);
 
                 break;
+
             case GameObjectActions.CloseAndLock:
                 ResetDoorOrButton();
                 SetFlag(GameObjectFlags.Locked);
 
                 break;
+
             case GameObjectActions.UseArtKit0:
             case GameObjectActions.UseArtKit1:
             case GameObjectActions.UseArtKit2:
@@ -437,10 +447,12 @@ public class GameObject : WorldObject
                     Log.Logger.Error($"Spell {spellId} targeted non-transport gameobject for transport only action \"Go to Floor\" {action} in effect {effectIndex}");
 
                 break;
+
             case GameObjectActions.PlayAnimKit:
                 SetAnimKitId((ushort)param, false);
 
                 break;
+
             case GameObjectActions.OpenAndPlayAnimKit:
                 if (unitCaster != null)
                     UseDoorOrButton(0, false, unitCaster);
@@ -448,19 +460,23 @@ public class GameObject : WorldObject
                 SetAnimKitId((ushort)param, false);
 
                 break;
+
             case GameObjectActions.CloseAndPlayAnimKit:
                 ResetDoorOrButton();
                 SetAnimKitId((ushort)param, false);
 
                 break;
+
             case GameObjectActions.PlayOneShotAnimKit:
                 SetAnimKitId((ushort)param, true);
 
                 break;
+
             case GameObjectActions.StopAnimKit:
                 SetAnimKitId(0, false);
 
                 break;
+
             case GameObjectActions.OpenAndStopAnimKit:
                 if (unitCaster != null)
                     UseDoorOrButton(0, false, unitCaster);
@@ -468,20 +484,24 @@ public class GameObject : WorldObject
                 SetAnimKitId(0, false);
 
                 break;
+
             case GameObjectActions.CloseAndStopAnimKit:
                 ResetDoorOrButton();
                 SetAnimKitId(0, false);
 
                 break;
+
             case GameObjectActions.PlaySpellVisual:
                 if (spellCaster != null)
                     SetSpellVisualId((uint)param, spellCaster.GUID);
 
                 break;
+
             case GameObjectActions.StopSpellVisual:
                 SetSpellVisualId(0);
 
                 break;
+
             default:
                 Log.Logger.Error($"Spell {spellId} has unhandled action {action} in effect {effectIndex}");
 
@@ -506,6 +526,7 @@ public class GameObject : WorldObject
                     return true;
 
                 break;
+
             case GameObjectTypes.Chest:
             {
                 // Chests become inactive while not ready to be looted
@@ -513,7 +534,7 @@ public class GameObject : WorldObject
                     return false;
 
                 // scan GO chest with loot including quest items
-                if (target.GetQuestStatus(Template.Chest.questID) == QuestStatus.Incomplete || _lootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestLoot, target) || _lootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPersonalLoot, target) || _lootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPushLoot, target))
+                if (target.GetQuestStatus(Template.Chest.questID) == QuestStatus.Incomplete || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestLoot, target) || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPersonalLoot, target) || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPushLoot, target))
                     return target.Battleground == null || target.Battleground.CanActivateGO((int)Entry, (uint)target.Battleground.GetPlayerTeam(target.GUID));
 
                 break;
@@ -812,7 +833,7 @@ public class GameObject : WorldObject
         var poolid = GameObjectData?.PoolId ?? 0;
 
         if (RespawnCompatibilityMode && poolid != 0)
-            _poolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
+            PoolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
         else
             Location.AddObjectToRemoveList();
     }
@@ -866,7 +887,7 @@ public class GameObject : WorldObject
     {
         uint defaultzone = 1;
 
-        var fishLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Fishing);
+        var fishLoot = LootFactory.GenerateLoot(Location.Map, GUID, LootType.Fishing);
 
         var areaId = Location.Area;
 
@@ -890,7 +911,7 @@ public class GameObject : WorldObject
     {
         uint defaultzone = 1;
 
-        var fishLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.FishingJunk);
+        var fishLoot = LootFactory.GenerateLoot(Location.Map, GUID, LootType.FishingJunk);
 
         var areaId = Location.Area;
 
@@ -927,22 +948,22 @@ public class GameObject : WorldObject
 
         return GoType switch
         {
-            GameObjectTypes.AreaDamage  => 0.0f,
-            GameObjectTypes.QuestGiver  => 5.5555553f,
-            GameObjectTypes.Text        => 5.5555553f,
-            GameObjectTypes.FlagStand   => 5.5555553f,
-            GameObjectTypes.FlagDrop    => 5.5555553f,
-            GameObjectTypes.MiniGame    => 5.5555553f,
-            GameObjectTypes.Chair       => 3.0f,
+            GameObjectTypes.AreaDamage => 0.0f,
+            GameObjectTypes.QuestGiver => 5.5555553f,
+            GameObjectTypes.Text => 5.5555553f,
+            GameObjectTypes.FlagStand => 5.5555553f,
+            GameObjectTypes.FlagDrop => 5.5555553f,
+            GameObjectTypes.MiniGame => 5.5555553f,
+            GameObjectTypes.Chair => 3.0f,
             GameObjectTypes.BarberChair => 3.0f,
             GameObjectTypes.FishingNode => 100.0f,
             GameObjectTypes.FishingHole => 20.0f + SharedConst.ContactDistance // max spell range
             ,
-            GameObjectTypes.Camera               => 5.0f,
-            GameObjectTypes.MapObject            => 5.0f,
-            GameObjectTypes.DungeonDifficulty    => 5.0f,
+            GameObjectTypes.Camera => 5.0f,
+            GameObjectTypes.MapObject => 5.0f,
+            GameObjectTypes.DungeonDifficulty => 5.0f,
             GameObjectTypes.DestructibleBuilding => 5.0f,
-            GameObjectTypes.Door                 => 5.0f,
+            GameObjectTypes.Door => 5.0f,
             // Following values are not blizzlike
             GameObjectTypes.GuildBank =>
                 // Successful mailbox interaction is rather critical to the client, failing it will start a minute-long cooldown until the next mail query may be executed.
@@ -972,7 +993,7 @@ public class GameObject : WorldObject
 
         if (player != null)
         {
-            var userLevels = _db2Manager.GetContentTuningData(Template.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+            var userLevels = DB2Manager.GetContentTuningData(Template.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
             if (userLevels.HasValue)
                 return (byte)Math.Clamp(player.Level, userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
@@ -1014,15 +1035,19 @@ public class GameObject : WorldObject
                     {
                         case GameObjectDestructibleState.Intact:
                             return modelData.State0NameSet;
+
                         case GameObjectDestructibleState.Damaged:
                             return modelData.State1NameSet;
+
                         case GameObjectDestructibleState.Destroyed:
                             return modelData.State2NameSet;
+
                         case GameObjectDestructibleState.Rebuilding:
                             return modelData.State3NameSet;
                     }
 
                 break;
+
             case GameObjectTypes.GarrisonBuilding:
             case GameObjectTypes.GarrisonPlot:
             case GameObjectTypes.PhaseableMo:
@@ -1559,8 +1584,8 @@ public class GameObject : WorldObject
         var transport = Transport;
 
         if (transport != null)
-            if (transport.GetMapIdForSpawning() >= 0)
-                mapId = (uint)transport.GetMapIdForSpawning();
+            if (transport.MapIdForSpawning >= 0)
+                mapId = (uint)transport.MapIdForSpawning;
 
         SaveToDB(mapId, data.SpawnDifficulties);
     }
@@ -1598,11 +1623,11 @@ public class GameObject : WorldObject
 
         // Update in DB
         byte index = 0;
-        var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
+        var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
         stmt.AddValue(0, SpawnId);
-        _worldDatabase.Execute(stmt);
+        WorldDatabase.Execute(stmt);
 
-        stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
+        stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
         stmt.AddValue(index++, SpawnId);
         stmt.AddValue(index++, Entry);
         stmt.AddValue(index++, mapid);
@@ -1620,7 +1645,7 @@ public class GameObject : WorldObject
         stmt.AddValue(index++, RespawnDelay);
         stmt.AddValue(index++, GoAnimProgress);
         stmt.AddValue(index++, (byte)GoState);
-        _worldDatabase.Execute(stmt);
+        WorldDatabase.Execute(stmt);
     }
 
     public void SendCustomAnim(uint anim)
@@ -1682,6 +1707,7 @@ public class GameObject : WorldObject
                 EnableCollision(true);
 
                 break;
+
             case GameObjectDestructibleState.Damaged:
             {
                 if (Template.DestructibleBuilding.DamagedEvent != 0)
@@ -1938,9 +1964,9 @@ public class GameObject : WorldObject
     {
         return GoType switch
         {
-            GameObjectTypes.Transport       => (TransportGameObject)_goTypeImpl,
+            GameObjectTypes.Transport => (TransportGameObject)_goTypeImpl,
             GameObjectTypes.MapObjTransport => (Transport)this,
-            _                               => null
+            _ => null
         };
     }
 
@@ -2062,6 +2088,7 @@ public class GameObject : WorldObject
                         UpdateDynamicFlagsForNearbyPlayers();
 
                         break;
+
                     default:
                         LootState = LootState.Ready; // for other GOis same switched without delay to GO_READY
 
@@ -2069,7 +2096,7 @@ public class GameObject : WorldObject
                 }
             }
 
-                goto case LootState.Ready;
+            goto case LootState.Ready;
             case LootState.Ready:
             {
                 if (RespawnCompatibilityMode)
@@ -2124,6 +2151,7 @@ public class GameObject : WorldObject
                                         ResetDoorOrButton();
 
                                     break;
+
                                 case GameObjectTypes.FishingHole:
                                     // Initialize a new max fish count on respawn
                                     GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(Template.FishingHole.minRestock, Template.FishingHole.maxRestock);
@@ -2146,7 +2174,7 @@ public class GameObject : WorldObject
                             var poolid = GameObjectData?.PoolId ?? 0;
 
                             if (poolid != 0)
-                                _poolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
+                                PoolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
                             else
                                 Location.Map.AddToMap(this);
                         }
@@ -2175,7 +2203,7 @@ public class GameObject : WorldObject
                         }
 
                         // Type 0 despawns after being triggered, type 1 does not.
-                        // @todo This is activation radius. Casting radius must be selected from spell 
+                        // @todo This is activation radius. Casting radius must be selected from spell
                         float radius;
 
                         if (goInfo.Trap.radius == 0f)
@@ -2281,6 +2309,7 @@ public class GameObject : WorldObject
                             ResetDoorOrButton();
 
                         break;
+
                     case GameObjectTypes.Goober:
                         if (GameTime.CurrentTimeMS >= _cooldownTime)
                         {
@@ -2291,6 +2320,7 @@ public class GameObject : WorldObject
                         }
 
                         break;
+
                     case GameObjectTypes.Chest:
                         Loot?.Update();
 
@@ -2307,6 +2337,7 @@ public class GameObject : WorldObject
                         }
 
                         break;
+
                     case GameObjectTypes.Trap:
                     {
                         var goInfo = Template;
@@ -2336,6 +2367,7 @@ public class GameObject : WorldObject
                                     SetLootState(LootState.JustDeactivated);
 
                                     break;
+
                                 case 0:
                                     SetLootState(LootState.Ready);
 
@@ -2533,6 +2565,7 @@ public class GameObject : WorldObject
                 UseDoorOrButton(0, false, user);
 
                 return;
+
             case GameObjectTypes.QuestGiver: //2
             {
                 if (!user.IsTypeId(TypeId.Player))
@@ -2566,7 +2599,7 @@ public class GameObject : WorldObject
                         var group = player.Group;
                         var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
-                        Loot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest, groupRules ? group : null, info.Chest.DungeonEncounter, info.GetLootId(), LootStorageType.Gameobject, player, !groupRules, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                        Loot = LootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest, groupRules ? group : null, info.Chest.DungeonEncounter, info.GetLootId(), LootStorageType.Gameobject, player, !groupRules, false, LootMode, Location.Map.GetDifficultyLootItemContext());
 
                         if (LootMode > 0)
                         {
@@ -2607,9 +2640,9 @@ public class GameObject : WorldObject
                             if (tappers.Empty())
                                 tappers.Add(player);
 
-                            _personalLoot = _lootManager.GenerateDungeonEncounterPersonalLoot(info.Chest.DungeonEncounter,
+                            _personalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(info.Chest.DungeonEncounter,
                                                                                               info.Chest.chestPersonalLoot,
-                                                                                              _lootStoreBox.Gameobject,
+                                                                                              LootStoreBox.Gameobject,
                                                                                               LootType.Chest,
                                                                                               this,
                                                                                               addon?.Mingold ?? 0,
@@ -2620,11 +2653,11 @@ public class GameObject : WorldObject
                         }
                         else
                         {
-                            var loot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
+                            var loot = LootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
                             _personalLoot[player.GUID] = loot;
 
                             loot.DungeonEncounterId = info.Chest.DungeonEncounter;
-                            loot.FillLoot(info.Chest.chestPersonalLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                            loot.FillLoot(info.Chest.chestPersonalLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
 
                             if (LootMode > 0 && addon != null)
                                 loot.GenerateMoneyLoot(addon.Mingold, addon.Maxgold);
@@ -2635,8 +2668,8 @@ public class GameObject : WorldObject
                 {
                     if (info.Chest.chestPushLoot != 0)
                     {
-                        var pushLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
-                        pushLoot.FillLoot(info.Chest.chestPushLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                        var pushLoot = LootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
+                        pushLoot.FillLoot(info.Chest.chestPushLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                         pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
                     }
 
@@ -2955,6 +2988,7 @@ public class GameObject : WorldObject
                     }
                     case LootState.JustDeactivated: // nothing to do, will be deleted at next update
                         break;
+
                     default:
                     {
                         SetLootState(LootState.JustDeactivated);
@@ -3108,13 +3142,13 @@ public class GameObject : WorldObject
                     return;
 
                 //required lvl checks!
-                var userLevels = _db2Manager.GetContentTuningData(info.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+                var userLevels = DB2Manager.GetContentTuningData(info.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                 if (userLevels.HasValue)
                     if (player.Level < userLevels.Value.MaxLevel)
                         return;
 
-                var targetLevels = _db2Manager.GetContentTuningData(info.ContentTuningId, targetPlayer.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+                var targetLevels = DB2Manager.GetContentTuningData(info.ContentTuningId, targetPlayer.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                 if (targetLevels.HasValue)
                     if (targetPlayer.Level < targetLevels.Value.MaxLevel)
@@ -3170,7 +3204,7 @@ public class GameObject : WorldObject
 
                 var player = user.AsPlayer;
 
-                var loot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Fishinghole, Template.GetLootId(), LootStorageType.Gameobject, player, true);
+                var loot = LootFactory.GenerateLoot(Location.Map, GUID, LootType.Fishinghole, Template.GetLootId(), LootStorageType.Gameobject, player, true);
 
                 _personalLoot[player.GUID] = loot;
 
@@ -3218,6 +3252,7 @@ public class GameObject : WorldObject
                                     bg.EventPlayerClickedOnFlag(player, this);
 
                                 break;
+
                             case 184142: // Netherstorm Flag
                                 if (bg.GetTypeID(true) == BattlegroundTypeId.EY)
                                     bg.EventPlayerClickedOnFlag(player, this);
@@ -3370,10 +3405,10 @@ public class GameObject : WorldObject
                 {
                     if (info.GatheringNode.chestLoot != 0)
                     {
-                        var newLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
+                        var newLoot = LootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
                         _personalLoot[player.GUID] = newLoot;
 
-                        newLoot.FillLoot(info.GatheringNode.chestLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                        newLoot.FillLoot(info.GatheringNode.chestLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                     }
 
                     if (info.GatheringNode.triggeredEvent != 0)
@@ -3438,7 +3473,7 @@ public class GameObject : WorldObject
 
         if (!SpellManager.HasSpellInfo(spellId, Location.Map.DifficultyID))
         {
-            if (!user.IsTypeId(TypeId.Player) || !_outdoorPvPManager.HandleCustomSpell(user.AsPlayer, spellId, this))
+            if (!user.IsTypeId(TypeId.Player) || !OutdoorPvPManager.HandleCustomSpell(user.AsPlayer, spellId, this))
                 Log.Logger.Error("WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GoType);
             else
                 Log.Logger.Debug("WORLD: {0} non-dbc spell was handled by OutdoorPvP", spellId);
@@ -3449,7 +3484,7 @@ public class GameObject : WorldObject
         var player1 = user.AsPlayer;
 
         if (player1 != null)
-            _outdoorPvPManager.HandleCustomSpell(player1, spellId, this);
+            OutdoorPvPManager.HandleCustomSpell(player1, spellId, this);
 
         if (spellCaster != null)
             spellCaster.SpellFactory.CastSpell(user, spellId, triggered);
@@ -3586,7 +3621,7 @@ public class GameObject : WorldObject
         SetGoState(goState);
         GoArtKit = artKit;
 
-        SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), _db2Manager.GetEmptyAnimStateID());
+        SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), DB2Manager.GetEmptyAnimStateID());
 
         switch (goInfo.type)
         {
@@ -3595,6 +3630,7 @@ public class GameObject : WorldObject
                 GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(Template.FishingHole.minRestock, Template.FishingHole.maxRestock);
 
                 break;
+
             case GameObjectTypes.DestructibleBuilding:
                 GoValueProtected.Building.Health = Template.DestructibleBuilding.InteriorVisible != 0 ? Template.DestructibleBuilding.InteriorVisible : 20000;
                 GoValueProtected.Building.MaxHealth = GoValueProtected.Building.Health;
@@ -3603,6 +3639,7 @@ public class GameObject : WorldObject
                 SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ParentRotation), new Quaternion(goInfo.DestructibleBuilding.DestructibleModelRec, 0f, 0f, 0f));
 
                 break;
+
             case GameObjectTypes.Transport:
                 _goTypeImpl = new TransportGameObject(this);
 
@@ -3615,11 +3652,13 @@ public class GameObject : WorldObject
                 SetActive(true);
 
                 break;
+
             case GameObjectTypes.FishingNode:
                 SetLevel(0);
                 SetGoAnimProgress(255);
 
                 break;
+
             case GameObjectTypes.Trap:
                 if (goInfo.Trap.stealthed != 0)
                 {
@@ -3634,11 +3673,13 @@ public class GameObject : WorldObject
                 }
 
                 break;
+
             case GameObjectTypes.PhaseableMo:
                 RemoveFlag((GameObjectFlags)0xF00);
                 SetFlag((GameObjectFlags)((GoInfoProtected.PhaseableMO.AreaNameSet & 0xF) << 8));
 
                 break;
+
             case GameObjectTypes.CapturePoint:
                 SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpellVisualID), GoInfoProtected.CapturePoint.SpellVisual1);
                 GoValueProtected.CapturePoint.AssaultTimer = 0;
@@ -3647,6 +3688,7 @@ public class GameObject : WorldObject
                 UpdateCapturePoint();
 
                 break;
+
             default:
                 SetGoAnimProgress(animProgress);
 
@@ -3857,21 +3899,25 @@ public class GameObject : WorldObject
                 spellVisualId = Template.CapturePoint.SpellVisual1;
 
                 break;
+
             case BattlegroundCapturePointState.ContestedHorde:
                 customAnim = 1;
                 spellVisualId = Template.CapturePoint.SpellVisual2;
 
                 break;
+
             case BattlegroundCapturePointState.ContestedAlliance:
                 customAnim = 2;
                 spellVisualId = Template.CapturePoint.SpellVisual3;
 
                 break;
+
             case BattlegroundCapturePointState.HordeCaptured:
                 customAnim = 3;
                 spellVisualId = Template.CapturePoint.SpellVisual4;
 
                 break;
+
             case BattlegroundCapturePointState.AllianceCaptured:
                 customAnim = 4;
                 spellVisualId = Template.CapturePoint.SpellVisual5;

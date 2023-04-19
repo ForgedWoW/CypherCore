@@ -16,7 +16,7 @@ public class NPCRopeShip : ScriptedAI
     {
         if (Me.IsSummon)
         {
-            var summoner = Me.ToTempSummon().GetSummoner();
+            var summoner = Me.ToTempSummon().Summoner;
 
             if (summoner != null)
                 if (summoner)

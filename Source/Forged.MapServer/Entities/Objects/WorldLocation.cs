@@ -675,7 +675,7 @@ public class WorldLocation : Position
         Position thisOrTransport = this;
         Position objOrObjTransport = obj.Location;
 
-        if (_worldObject.Transport == null || obj.Transport == null || obj.Transport.GetTransportGUID() != _worldObject.Transport.GetTransportGUID())
+        if (_worldObject.Transport == null || obj.Transport == null || obj.Transport.GUID != _worldObject.Transport.GUID)
             return is3D ? thisOrTransport.IsInDist(objOrObjTransport, maxdist) : thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
 
         thisOrTransport = _worldObject.MovementInfo.Transport.Pos;

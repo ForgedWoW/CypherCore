@@ -1088,7 +1088,7 @@ public partial class Unit : WorldObject
                     return ownerPlayer.ActivePlayerData.PetSpellPower.Value;
 
                 if (IsGuardian)
-                    return ((Guardian)this).GetBonusDamage();
+                    return ((Guardian)this).BonusDamage;
             }
 
             return heal ? SpellBaseHealingBonusDone(mask) : SpellBaseDamageBonusDone(mask);
@@ -1742,7 +1742,7 @@ public partial class Unit : WorldObject
 
     public void RemoveDynObject(uint spellId)
     {
-        foreach (var dynObj in DynamicObjects.Where(dynObj => dynObj.GetSpellId() == spellId))
+        foreach (var dynObj in DynamicObjects.Where(dynObj => dynObj.SpellId == spellId))
             dynObj.Remove();
     }
 
@@ -2844,7 +2844,7 @@ public partial class Unit : WorldObject
                                 {
                                     if (pet.PetType == PetType.Hunter) // Hunter pets have focus
                                         displayPower = PowerType.Focus;
-                                    else if (pet.IsPetGhoul() || pet.IsPetAbomination()) // DK pets have energy
+                                    else if (pet.IsPetGhoul || pet.IsPetAbomination) // DK pets have energy
                                         displayPower = PowerType.Energy;
                                 }
                             }
@@ -3171,7 +3171,7 @@ public partial class Unit : WorldObject
 
     private List<DynamicObject> GetDynObjects(uint spellId)
     {
-        return DynamicObjects.Where(obj => obj.GetSpellId() == spellId).ToList();
+        return DynamicObjects.Where(obj => obj.SpellId == spellId).ToList();
     }
 
     private List<GameObject> GetGameObjects(uint spellId)

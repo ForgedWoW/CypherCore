@@ -27,16 +27,16 @@ internal class ConversationActorFillVisitor
 
     public void Invoke(ConversationActorTemplate template)
     {
-        if (template.WorldObjectTemplate == null)
+        if (template.WorldObjectTemplate != null)
             Invoke(template.WorldObjectTemplate);
 
-        if (template.NoObjectTemplate == null)
+        if (template.NoObjectTemplate != null)
             Invoke(template.NoObjectTemplate);
 
-        if (template.ActivePlayerTemplate == null)
+        if (template.ActivePlayerTemplate != null)
             Invoke(template.ActivePlayerTemplate);
 
-        if (template.TalkingHeadTemplate == null)
+        if (template.TalkingHeadTemplate != null)
             Invoke(template.TalkingHeadTemplate);
     }
 
@@ -53,7 +53,7 @@ internal class ConversationActorFillVisitor
                 break;
         }
 
-        if (bestFit)
+        if (bestFit != null)
             _conversation.AddActor(_actor.Id, _actor.Index, bestFit.GUID);
     }
 

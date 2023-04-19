@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
@@ -14,21 +15,22 @@ using Forged.MapServer.Networking;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities;
 
 public class Corpse : WorldObject
 {
-    private readonly CorpseType _type;
-    private CellCoord _cellCoord;
-
-    private long _time;
+    private readonly CharacterCache _characterCache;
+    private readonly CharacterDatabase _characterDatabase;
     // gride for corpse position for fast search
 
-    public Corpse(CorpseType type = CorpseType.Bones) : base(type != CorpseType.Bones)
+    public Corpse(CorpseType type, ClassFactory classFactory, CharacterDatabase characterDatabase, CharacterCache characterCache) : base(type != CorpseType.Bones, classFactory)
     {
-        _type = type;
+        CorpseType = type;
+        _characterDatabase = characterDatabase;
+        _characterCache = characterCache;
         ObjectTypeId = TypeId.Corpse;
         ObjectTypeMask |= TypeMask.Corpse;
 
@@ -36,10 +38,13 @@ public class Corpse : WorldObject
 
         CorpseData = new CorpseData();
 
-        _time = GameTime.CurrentTime;
+        GhostTime = GameTime.CurrentTime;
     }
 
+    public CellCoord CellCoord { get; private set; }
     public CorpseData CorpseData { get; set; }
+
+    public CorpseType CorpseType { get; }
 
     public override uint Faction
     {
@@ -47,24 +52,25 @@ public class Corpse : WorldObject
         set => SetFactionTemplate((int)value);
     }
 
+    public long GhostTime { get; private set; }
     public Loot Loot { get; set; }
     public Player LootRecipient { get; set; }
 
     public override ObjectGuid OwnerGUID => CorpseData.Owner;
 
-    public static void DeleteFromDB(ObjectGuid ownerGuid, SQLTransaction trans)
+    public static void DeleteFromDB(ObjectGuid ownerGuid, SQLTransaction trans, CharacterDatabase characterDatabase)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CORPSE);
+        var stmt = characterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSE);
         stmt.AddValue(0, ownerGuid.Counter);
-        DB.Characters.ExecuteOrAppend(trans, stmt);
+        characterDatabase.ExecuteOrAppend(trans, stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CORPSE_PHASES);
+        stmt = characterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSE_PHASES);
         stmt.AddValue(0, ownerGuid.Counter);
-        DB.Characters.ExecuteOrAppend(trans, stmt);
+        characterDatabase.ExecuteOrAppend(trans, stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CORPSE_CUSTOMIZATIONS);
+        stmt = characterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSE_CUSTOMIZATIONS);
         stmt.AddValue(0, ownerGuid.Counter);
-        DB.Characters.ExecuteOrAppend(trans, stmt);
+        characterDatabase.ExecuteOrAppend(trans, stmt);
     }
 
     public override void AddToWorld()
@@ -139,7 +145,7 @@ public class Corpse : WorldObject
         ObjectScale = 1;
         SetOwnerGUID(owner.GUID);
 
-        _cellCoord = GridDefines.ComputeCellCoord(Location.X, Location.Y);
+        CellCoord = GridDefines.ComputeCellCoord(Location.X, Location.Y);
 
         PhasingHandler.InheritPhaseShift(this, owner);
 
@@ -148,27 +154,12 @@ public class Corpse : WorldObject
 
     public void DeleteFromDB(SQLTransaction trans)
     {
-        DeleteFromDB(OwnerGUID, trans);
-    }
-
-    public CellCoord GetCellCoord()
-    {
-        return _cellCoord;
+        DeleteFromDB(OwnerGUID, trans, _characterDatabase);
     }
 
     public CorpseDynFlags GetCorpseDynamicFlags()
     {
         return (CorpseDynFlags)(uint)CorpseData.DynamicFlags;
-    }
-
-    public CorpseType GetCorpseType()
-    {
-        return _type;
-    }
-
-    public long GetGhostTime()
-    {
-        return _time;
     }
 
     public override Loot GetLootForPlayer(Player player)
@@ -184,13 +175,13 @@ public class Corpse : WorldObject
     public bool IsExpired(long t)
     {
         // Deleted character
-        if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(OwnerGUID))
+        if (!_characterCache.HasCharacterCacheEntry(OwnerGUID))
             return true;
 
-        if (_type == CorpseType.Bones)
-            return _time < t - 60 * Time.MINUTE;
+        if (CorpseType == CorpseType.Bones)
+            return GhostTime < t - 60 * Time.MINUTE;
 
-        return _time < t - 3 * Time.DAY;
+        return GhostTime < t - 3 * Time.DAY;
     }
 
     public bool LoadCorpseFromDB(ulong guid, SQLFields field)
@@ -222,14 +213,13 @@ public class Corpse : WorldObject
         SetOwnerGUID(ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(15)));
         SetFactionTemplate(CliDB.ChrRacesStorage.LookupByKey(CorpseData.RaceID).FactionID);
 
-        _time = field.Read<uint>(12);
+        GhostTime = field.Read<uint>(12);
 
         var instanceId = field.Read<uint>(14);
 
         // place
+        Location = new WorldLocation(mapId, posX, posY, posZ, o);
         Location.SetLocationInstanceId(instanceId);
-        Location.MapId = mapId;
-        Location.Relocate(posX, posY, posZ, o);
 
         if (!Location.IsPositionValid)
         {
@@ -243,7 +233,7 @@ public class Corpse : WorldObject
             return false;
         }
 
-        _cellCoord = GridDefines.ComputeCellCoord(Location.X, Location.Y);
+        CellCoord = GridDefines.ComputeCellCoord(Location.X, Location.Y);
 
         return true;
     }
@@ -274,7 +264,7 @@ public class Corpse : WorldObject
 
     public void ResetGhostTime()
     {
-        _time = GameTime.CurrentTime;
+        GhostTime = GameTime.CurrentTime;
     }
 
     public void SaveToDB()
@@ -289,7 +279,7 @@ public class Corpse : WorldObject
             items.Append($"{CorpseData.Items[i]} ");
 
         byte index = 0;
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CORPSE);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE);
         stmt.AddValue(index++, OwnerGUID.Counter);             // guid
         stmt.AddValue(index++, Location.X);                    // posX
         stmt.AddValue(index++, Location.Y);                    // posY
@@ -303,15 +293,15 @@ public class Corpse : WorldObject
         stmt.AddValue(index++, (byte)CorpseData.Sex);          // gender
         stmt.AddValue(index++, (uint)CorpseData.Flags);        // flags
         stmt.AddValue(index++, (uint)CorpseData.DynamicFlags); // dynFlags
-        stmt.AddValue(index++, (uint)_time);                   // time
-        stmt.AddValue(index++, (uint)GetCorpseType());         // corpseType
+        stmt.AddValue(index++, (uint)GhostTime);               // time
+        stmt.AddValue(index++, (uint)CorpseType);              // corpseType
         stmt.AddValue(index++, InstanceId);                    // instanceId
         trans.Append(stmt);
 
         foreach (var phaseId in Location.PhaseShift.Phases.Keys)
         {
             index = 0;
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CORPSE_PHASES);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE_PHASES);
             stmt.AddValue(index++, OwnerGUID.Counter); // OwnerGuid
             stmt.AddValue(index++, phaseId);           // PhaseId
             trans.Append(stmt);
@@ -320,19 +310,19 @@ public class Corpse : WorldObject
         foreach (var customization in CorpseData.Customizations)
         {
             index = 0;
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CORPSE_CUSTOMIZATIONS);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE_CUSTOMIZATIONS);
             stmt.AddValue(index++, OwnerGUID.Counter); // OwnerGuid
             stmt.AddValue(index++, customization.ChrCustomizationOptionID);
             stmt.AddValue(index++, customization.ChrCustomizationChoiceID);
             trans.Append(stmt);
         }
 
-        DB.Characters.CommitTransaction(trans);
+        _characterDatabase.CommitTransaction(trans);
     }
 
     public void SetCellCoord(CellCoord cellCoord)
     {
-        _cellCoord = cellCoord;
+        CellCoord = cellCoord;
     }
 
     public void SetClass(byte classId)
@@ -406,55 +396,5 @@ public class Corpse : WorldObject
         base.Update(diff);
 
         Loot?.Update();
-    }
-
-    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedCorpseMask, Player target)
-    {
-        UpdateMask valuesMask = new((int)TypeId.Max);
-
-        if (requestedObjectMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Object);
-
-        if (requestedCorpseMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Corpse);
-
-        WorldPacket buffer = new();
-        buffer.WriteUInt32(valuesMask.GetBlock(0));
-
-        if (valuesMask[(int)TypeId.Object])
-            ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.Corpse])
-            CorpseData.WriteUpdate(buffer, requestedCorpseMask, true, this, target);
-
-        WorldPacket buffer1 = new();
-        buffer1.WriteUInt8((byte)UpdateType.Values);
-        buffer1.WritePackedGuid(GUID);
-        buffer1.WriteUInt32(buffer.GetSize());
-        buffer1.WriteBytes(buffer.GetData());
-
-        data.AddUpdateBlock(buffer1);
-    }
-
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly CorpseData _corpseData = new();
-        private readonly ObjectFieldData _objectMask = new();
-        private readonly Corpse _owner;
-
-        public ValuesUpdateForPlayerWithMaskSender(Corpse owner)
-        {
-            _owner = owner;
-        }
-
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(_owner.Location.MapId);
-
-            _owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _corpseData.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
     }
 }

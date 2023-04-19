@@ -332,10 +332,10 @@ public partial class Player
             if (HasAuraType(AuraType.OverrideSpellPowerByApPct))
                 UpdateSpellDamageAndHealingBonus();
 
-            if (pet != null && pet.IsPetGhoul()) // At melee attack power change for DK pet
+            if (pet != null && pet.IsPetGhoul) // At melee attack power change for DK pet
                 pet.UpdateAttackPowerAndDamage();
 
-            if (guardian != null && guardian.IsSpiritWolf()) // At melee attack power change for Shaman feral spirit
+            if (guardian != null && guardian.IsSpiritWolf) // At melee attack power change for Shaman feral spirit
                 guardian.UpdateAttackPowerAndDamage();
         }
     }

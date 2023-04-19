@@ -285,7 +285,7 @@ public class PlayerComputators
                     do
                     {
                         var petguidlow = resultPets.Read<uint>(0);
-                        Pet.DeleteFromDB(petguidlow);
+                        Pet.DeleteFromDB(petguidlow, _characterDatabase);
                     } while (resultPets.NextRow());
 
                 // Delete char from social list of online chars
@@ -540,7 +540,7 @@ public class PlayerComputators
                 stmt.AddValue(1, WorldManager.Realm.Id.Index);
                 loginTransaction.Append(stmt);
 
-                Corpse.DeleteFromDB(playerGuid, trans);
+                Corpse.DeleteFromDB(playerGuid, trans, _characterDatabase);
 
                 Garrison.DeleteFromDB(guid, trans, _characterDatabase);
 
@@ -939,7 +939,7 @@ public class PlayerComputators
 
     public void OfflineResurrect(ObjectGuid guid, SQLTransaction trans)
     {
-        Corpse.DeleteFromDB(guid, trans);
+        Corpse.DeleteFromDB(guid, trans, _characterDatabase);
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
         stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
         stmt.AddValue(1, guid.Counter);

@@ -39,7 +39,7 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
     {
         foreach (var dynamicObject in objs)
         {
-            var pl = dynamicObject.GetCaster()?.AsPlayer;
+            var pl = dynamicObject.Caster?.AsPlayer;
 
             if (pl == null)
                 continue;
