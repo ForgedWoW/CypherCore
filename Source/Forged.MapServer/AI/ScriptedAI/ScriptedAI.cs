@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Spells;
@@ -30,6 +30,10 @@ public class ScriptedAI : CreatureAI
         _isHeroic = Me.Location.Map.IsHeroic;
         _difficulty = Me.Location.Map.DifficultyID;
     }
+
+    public bool IsCombatMovementAllowed => _isCombatMovementAllowed;
+
+    public bool IsHeroic => _isHeroic;
 
     //Plays a sound to all nearby players
     public static void DoPlaySoundToSet(WorldObject source, uint soundId)
@@ -70,7 +74,7 @@ public class ScriptedAI : CreatureAI
     /// <param name="who"> </param>
     public void AddThreat(Unit victim, double amount, Unit who = null)
     {
-        if (!victim)
+        if (victim == null)
             return;
 
         who ??= Me;
@@ -81,7 +85,7 @@ public class ScriptedAI : CreatureAI
     // Called before JustEngagedWith even before the creature is in combat.
     public override void AttackStart(Unit target)
     {
-        if (IsCombatMovementAllowed())
+        if (IsCombatMovementAllowed)
             base.AttackStart(target);
         else
             AttackStartNoMove(target);
@@ -112,7 +116,7 @@ public class ScriptedAI : CreatureAI
         List<Creature> list = new();
         var uCheck = new FriendlyCCedInRange(Me, range);
         var searcher = new CreatureListSearcher(Me, list, uCheck, GridType.All);
-        CellCalculator.VisitGrid(Me, searcher, range);
+        Me.CellCalculator.VisitGrid(Me, searcher, range);
 
         return list;
     }
@@ -123,7 +127,7 @@ public class ScriptedAI : CreatureAI
         List<Creature> list = new();
         var uCheck = new FriendlyMissingBuffInRange(Me, range, spellId);
         var searcher = new CreatureListSearcher(Me, list, uCheck, GridType.All);
-        CellCalculator.VisitGrid(Me, searcher, range);
+        Me.CellCalculator.VisitGrid(Me, searcher, range);
 
         return list;
     }
@@ -133,7 +137,7 @@ public class ScriptedAI : CreatureAI
     {
         var uCheck = new MostHpMissingInRange<Unit>(Me, range, minHpDiff);
         var searcher = new UnitLastSearcher(Me, uCheck, GridType.All);
-        CellCalculator.VisitGrid(Me, searcher, range);
+        Me.CellCalculator.VisitGrid(Me, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -212,7 +216,7 @@ public class ScriptedAI : CreatureAI
         return _difficulty switch
         {
             Difficulty.Normal => normal5,
-            _                 => heroic10,
+            _ => heroic10,
         };
     }
 
@@ -227,7 +231,7 @@ public class ScriptedAI : CreatureAI
     {
         var check = new PlayerAtMinimumRangeAway(Me, minimumRange);
         var searcher = new PlayerSearcher(Me, check, GridType.World);
-        CellCalculator.VisitGrid(Me, searcher, minimumRange);
+        Me.CellCalculator.VisitGrid(Me, searcher, minimumRange);
 
         return searcher.GetTarget();
     }
@@ -240,7 +244,7 @@ public class ScriptedAI : CreatureAI
     /// <returns> </returns>
     public double GetThreat(Unit victim, Unit who = null)
     {
-        if (!victim)
+        if (victim == null)
             return 0.0f;
 
         who ??= Me;
@@ -264,21 +268,11 @@ public class ScriptedAI : CreatureAI
         return _difficulty is Difficulty.Raid25N or Difficulty.Raid25HC;
     }
 
-    public bool IsCombatMovementAllowed()
-    {
-        return _isCombatMovementAllowed;
-    }
-
     // return true for heroic mode. i.e.
     //   - for dungeon in mode 10-heroic,
     //   - for raid in mode 10-Heroic
     //   - for raid in mode 25-heroic
     // DO NOT USE to check raid in mode 25-normal.
-    public bool IsHeroic()
-    {
-        return _isHeroic;
-    }
-
     /// <summary>
     ///     Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
     /// </summary>
@@ -287,7 +281,7 @@ public class ScriptedAI : CreatureAI
     /// <param name="who"> </param>
     public void ModifyThreatByPercent(Unit victim, int pct, Unit who = null)
     {
-        if (!victim)
+        if (victim == null)
             return;
 
         who ??= Me;
@@ -300,7 +294,7 @@ public class ScriptedAI : CreatureAI
         return _difficulty switch
         {
             Difficulty.Raid10N => normal10,
-            _                  => normal25,
+            _ => normal25,
         };
     }
 
@@ -308,10 +302,10 @@ public class ScriptedAI : CreatureAI
     {
         return _difficulty switch
         {
-            Difficulty.Raid10N  => normal10,
-            Difficulty.Raid25N  => normal25,
+            Difficulty.Raid10N => normal10,
+            Difficulty.Raid25N => normal25,
             Difficulty.Raid10HC => heroic10,
-            _                   => heroic25,
+            _ => heroic25,
         };
     }
 
@@ -322,11 +316,10 @@ public class ScriptedAI : CreatureAI
     /// <param name="who"> </param>
     public void ResetThreat(Unit victim, Unit who)
     {
-        if (!victim)
+        if (victim == null)
             return;
 
-        if (!who)
-            who = Me;
+        who ??= Me;
 
         who.GetThreatManager().ResetThreat(victim);
     }
@@ -385,15 +378,7 @@ public class ScriptedAI : CreatureAI
                 continue;
 
             // Continue if we don't have the mana to actually cast this spell
-            var hasPower = true;
-
-            foreach (var cost in tempSpell.CalcPowerCost(Me, tempSpell.SchoolMask))
-                if (cost.Amount > Me.GetPower(cost.Power))
-                {
-                    hasPower = false;
-
-                    break;
-                }
+            var hasPower = tempSpell.CalcPowerCost(Me, tempSpell.SchoolMask).All(cost => cost.Amount <= Me.GetPower(cost.Power));
 
             if (!hasPower)
                 continue;
@@ -415,10 +400,7 @@ public class ScriptedAI : CreatureAI
         }
 
         //We got our usable spells so now lets randomly pick one
-        if (spellCount == 0)
-            return null;
-
-        return apSpell[RandomHelper.IRand(0, (int)(spellCount - 1))];
+        return spellCount == 0 ? null : apSpell[RandomHelper.IRand(0, (int)(spellCount - 1))];
     }
 
     // Used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims

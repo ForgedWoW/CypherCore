@@ -66,13 +66,6 @@ public class CombatManager
         return playerA is not { IsGameMaster: true } && playerB is not { IsGameMaster: true };
     }
 
-    public static void NotifyAICombat(Unit me, Unit other)
-    {
-        var ai = me.AI;
-
-        ai?.JustEnteredCombat(other);
-    }
-
     public void EndAllCombat()
     {
         EndAllPvECombat();
@@ -150,9 +143,8 @@ public class CombatManager
     public bool HasPvECombatWithPlayers()
     {
         lock (PvECombatRefs)
-            foreach (var reference in PvECombatRefs)
-                if (!reference.Value.IsSuppressedFor(Owner) && reference.Value.GetOther(Owner).IsPlayer)
-                    return true;
+            if (PvECombatRefs.Any(reference => !reference.Value.IsSuppressedFor(Owner) && reference.Value.GetOther(Owner).IsPlayer))
+                return true;
 
         return false;
     }
@@ -285,10 +277,10 @@ public class CombatManager
 
         // then, we finally notify the AI (if necessary) and let it safely do whatever it feels like
         if (needSelfAI)
-            NotifyAICombat(Owner, who);
+            Owner.AI?.JustEnteredCombat(who);
 
         if (needOtherAI)
-            NotifyAICombat(who, Owner);
+            who.AI?.JustEnteredCombat(Owner);
 
         return IsInCombatWith(who);
     }

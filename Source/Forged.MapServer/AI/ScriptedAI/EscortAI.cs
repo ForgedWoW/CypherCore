@@ -61,8 +61,8 @@ public class EscortAI : ScriptedAI
 
     public void AddWaypoint(uint id, float x, float y, float z, float orientation, TimeSpan waitTime)
     {
-        x = GridDefines.NormalizeMapCoord(x);
-        y = GridDefines.NormalizeMapCoord(y);
+        x = Me.GridDefines.NormalizeMapCoord(x);
+        y = Me.GridDefines.NormalizeMapCoord(y);
 
         WaypointNode waypoint = new()
         {
@@ -150,22 +150,24 @@ public class EscortAI : ScriptedAI
 
         var player = GetPlayerForEscort();
 
-        if (player)
-        {
-            var group = player.Group;
+        if (player == null)
+            return;
 
-            if (group)
-                for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
-                {
-                    var member = groupRef.Source;
+        var group = player.Group;
 
-                    if (member)
-                        if (member.Location.IsInMap(player))
-                            member.FailQuest(_escortQuest.Id);
-                }
-            else
-                player.FailQuest(_escortQuest.Id);
-        }
+        if (group != null)
+            for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
+            {
+                var member = groupRef.Source;
+
+                if (member == null)
+                    continue;
+
+                if (member.Location.IsInMap(player))
+                    member.FailQuest(_escortQuest.Id);
+            }
+        else
+            player.FailQuest(_escortQuest.Id);
     }
 
     public override void MoveInLineOfSight(Unit who)
@@ -461,7 +463,7 @@ public class EscortAI : ScriptedAI
     //see followerAI
     private bool AssistPlayerInCombatAgainst(Unit who)
     {
-        if (!who || !who.Victim)
+        if (who?.Victim == null)
             return false;
 
         if (Me.HasReactState(ReactStates.Passive))
@@ -472,7 +474,7 @@ public class EscortAI : ScriptedAI
             return false;
 
         //not a player
-        if (!who.Victim.CharmerOrOwnerPlayerOrPlayerItself)
+        if (who.Victim.CharmerOrOwnerPlayerOrPlayerItself == null)
             return false;
 
         //never attack friendly
@@ -480,14 +482,13 @@ public class EscortAI : ScriptedAI
             return false;
 
         //too far away and no free sight?
-        if (Me.Location.IsWithinDistInMap(who, GetMaxPlayerDistance()) && Me.Location.IsWithinLOSInMap(who))
-        {
-            Me.EngageWithTarget(who);
+        if (!Me.Location.IsWithinDistInMap(who, GetMaxPlayerDistance()) || !Me.Location.IsWithinLOSInMap(who))
+            return false;
 
-            return true;
-        }
+        Me.EngageWithTarget(who);
 
-        return false;
+        return true;
+
     }
 
     private void FillPointMovementListForCreature()
@@ -499,8 +500,8 @@ public class EscortAI : ScriptedAI
 
         foreach (var node in path.Nodes.Select(value => value.Copy()))
         {
-            node.X = GridDefines.NormalizeMapCoord(node.X);
-            node.Y = GridDefines.NormalizeMapCoord(node.Y);
+            node.X = Me.GridDefines.NormalizeMapCoord(node.X);
+            node.Y = Me.GridDefines.NormalizeMapCoord(node.Y);
             node.MoveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk;
 
             _path.Nodes.Add(node);
@@ -516,22 +517,24 @@ public class EscortAI : ScriptedAI
     {
         var player = GetPlayerForEscort();
 
-        if (player)
-        {
-            var group = player.Group;
+        if (player == null)
+            return false;
 
-            if (group)
-                for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
-                {
-                    var member = groupRef.Source;
+        var group = player.Group;
 
-                    if (member)
-                        if (Me.Location.IsWithinDistInMap(member, GetMaxPlayerDistance()))
-                            return true;
-                }
-            else if (Me.Location.IsWithinDistInMap(player, GetMaxPlayerDistance()))
-                return true;
-        }
+        if (group != null)
+            for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
+            {
+                var member = groupRef.Source;
+
+                if (member == null)
+                    continue;
+
+                if (Me.Location.IsWithinDistInMap(member, GetMaxPlayerDistance()))
+                    return true;
+            }
+        else if (Me.Location.IsWithinDistInMap(player, GetMaxPlayerDistance()))
+            return true;
 
         return false;
     }

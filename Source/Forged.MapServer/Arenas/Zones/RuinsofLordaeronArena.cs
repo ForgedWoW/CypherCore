@@ -77,7 +77,7 @@ internal class RuinsofLordaeronArena : Arena
             DoorOpen(i);
 
         TaskScheduler.Schedule(TimeSpan.FromSeconds(5),
-                               task =>
+                               _ =>
                                {
                                    for (var i = RuinsofLordaeronObjectTypes.DOOR1; i <= RuinsofLordaeronObjectTypes.DOOR2; ++i)
                                        DelObject(i);

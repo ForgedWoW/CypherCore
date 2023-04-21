@@ -134,7 +134,7 @@ internal class BossFelbloodKaelthas : BossAI
                                task.Repeat(TimeSpan.FromSeconds(45));
                            });
 
-        if (IsHeroic())
+        if (IsHeroic)
             Scheduler.Schedule(TimeSpan.FromMinutes(1) + TimeSpan.FromSeconds(1),
                                task =>
                                {

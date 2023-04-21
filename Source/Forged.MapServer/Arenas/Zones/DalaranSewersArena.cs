@@ -79,8 +79,8 @@ internal class DalaranSewersArena : Arena
                     // Repeat knockback while the waterfall still active
                     var waterSpout = GetBGCreature(DalaranSewersCreatureTypes.WATERFALL_KNOCKBACK);
 
-                    if (waterSpout)
-                        waterSpout.CastSpell(waterSpout, DalaranSewersSpells.WATER_SPOUT, true);
+                    if (waterSpout != null)
+                        waterSpout.SpellFactory.CastSpell(waterSpout, DalaranSewersSpells.WATER_SPOUT, true);
 
                     Events.ScheduleEvent(eventId, DalaranSewersData.WaterfallKnockbackTimer);
                 }
@@ -93,8 +93,8 @@ internal class DalaranSewersArena : Arena
                     {
                         var waterSpout = GetBGCreature(i);
 
-                        if (waterSpout)
-                            waterSpout.CastSpell(waterSpout, DalaranSewersSpells.FLUSH, true);
+                        if (waterSpout != null)
+                            waterSpout.SpellFactory.CastSpell(waterSpout, DalaranSewersSpells.FLUSH, true);
                     }
                 }
 
@@ -129,18 +129,17 @@ internal class DalaranSewersArena : Arena
 
         result &= AddObject(DalaranSewersObjectTypes.WATER1, DalaranSewersGameObjects.WATER1, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120);
         result &= AddObject(DalaranSewersObjectTypes.WATER2, DalaranSewersGameObjects.WATER2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120);
-        result &= AddCreature(DalaranSewersData.NPC_WATER_SPOUT, DalaranSewersCreatureTypes.WATERFALL_KNOCKBACK, 1292.587f, 790.2205f, 7.19796f, 3.054326f);
-        result &= AddCreature(DalaranSewersData.NPC_WATER_SPOUT, DalaranSewersCreatureTypes.PIPE_KNOCKBACK1, 1369.977f, 817.2882f, 16.08718f, 3.106686f);
-        result &= AddCreature(DalaranSewersData.NPC_WATER_SPOUT, DalaranSewersCreatureTypes.PIPE_KNOCKBACK2, 1212.833f, 765.3871f, 16.09484f, 0.0f);
+        result &= AddCreature(DalaranSewersData.NPC_WATER_SPOUT, DalaranSewersCreatureTypes.WATERFALL_KNOCKBACK, 1292.587f, 790.2205f, 7.19796f, 3.054326f) != null;
+        result &= AddCreature(DalaranSewersData.NPC_WATER_SPOUT, DalaranSewersCreatureTypes.PIPE_KNOCKBACK1, 1369.977f, 817.2882f, 16.08718f, 3.106686f) != null;
+        result &= AddCreature(DalaranSewersData.NPC_WATER_SPOUT, DalaranSewersCreatureTypes.PIPE_KNOCKBACK2, 1212.833f, 765.3871f, 16.09484f, 0.0f) != null;
 
-        if (!result)
-        {
-            Log.Logger.Error("DalaranSewersArena: Failed to spawn collision object!");
+        if (result)
+            return true;
 
-            return false;
-        }
+        Log.Logger.Error("DalaranSewersArena: Failed to spawn collision object!");
 
-        return true;
+        return false;
+
     }
 
     public override void StartingEventCloseDoors()
@@ -167,11 +166,6 @@ internal class DalaranSewersArena : Arena
 
         // Remove effects of Demonic Circle Summon
         foreach (var pair in GetPlayers())
-        {
-            var player = _GetPlayer(pair, "BattlegroundDS::StartingEventOpenDoors");
-
-            if (player)
-                player.RemoveAura(DalaranSewersSpells.DEMONIC_CIRCLE);
-        }
+            _GetPlayer(pair, "BattlegroundDS::StartingEventOpenDoors")?.RemoveAura(DalaranSewersSpells.DEMONIC_CIRCLE);
     }
 }

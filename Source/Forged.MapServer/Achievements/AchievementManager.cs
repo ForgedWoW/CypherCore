@@ -11,6 +11,7 @@ using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
+using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
 using Forged.MapServer.World;
 using Framework.Constants;
@@ -27,8 +28,8 @@ public class AchievementManager : CriteriaHandler
 
     public AchievementManager(CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                               DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
-                              LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
-        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager) { }
+                              LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, PhasingHandler phasingHandler) :
+        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler) { }
 
     public uint AchievementPoints { get; protected set; }
 
@@ -174,32 +175,31 @@ public class AchievementManager : CriteriaHandler
         if (entry.Flags.HasAnyFlag(AchievementFlags.Counter))
             return false;
 
-        var tree = Global.CriteriaMgr.GetCriteriaTree(entry.CriteriaTree);
+        var tree = CriteriaManager.GetCriteriaTree(entry.CriteriaTree);
 
         if (tree == null)
             return false;
 
         // For SUMM achievements, we have to count the progress of each criteria of the achievement.
         // Oddly, the target count is NOT contained in the achievement, but in each individual criteria
-        if (entry.Flags.HasAnyFlag(AchievementFlags.Summ))
-        {
-            long progress = 0;
+        if (!entry.Flags.HasAnyFlag(AchievementFlags.Summ))
+            return IsCompletedCriteriaTree(tree);
 
-            CriteriaManager.WalkCriteriaTree(tree,
-                                             criteriaTree =>
-                                             {
-                                                 if (criteriaTree.Criteria != null)
-                                                 {
-                                                     var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
+        long progress = 0;
 
-                                                     if (criteriaProgress != null)
-                                                         progress += (long)criteriaProgress.Counter;
-                                                 }
-                                             });
+        CriteriaManager.WalkCriteriaTree(tree,
+                                         criteriaTree =>
+                                         {
+                                             if (criteriaTree.Criteria == null)
+                                                 return;
 
-            return progress >= tree.Entry.Amount;
-        }
+                                             var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
 
-        return IsCompletedCriteriaTree(tree);
+                                             if (criteriaProgress != null)
+                                                 progress += (long)criteriaProgress.Counter;
+                                         });
+
+        return progress >= tree.Entry.Amount;
+
     }
 }

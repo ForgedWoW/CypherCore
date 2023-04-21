@@ -82,10 +82,10 @@ public class CombatReference
         }
 
         if (needFirstAI)
-            CombatManager.NotifyAICombat(First, Second);
+            First.AI?.JustEnteredCombat(Second);
 
         if (needSecondAI)
-            CombatManager.NotifyAICombat(Second, First);
+            Second.AI?.JustEnteredCombat(First);
     }
 
     public void Suppress(Unit who)

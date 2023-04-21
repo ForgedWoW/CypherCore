@@ -38,22 +38,24 @@ internal class FollowerAI : ScriptedAI
         // @todo need a better check for quests with time limit.
         var player = GetLeaderForFollower();
 
-        if (player)
-        {
-            var group = player.Group;
+        if (player == null)
+            return;
 
-            if (group)
-                for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
-                {
-                    var member = groupRef.Source;
+        var group = player.Group;
 
-                    if (member)
-                        if (member.Location.IsInMap(player))
-                            member.FailQuest(_questForFollow);
-                }
-            else
-                player.FailQuest(_questForFollow);
-        }
+        if (group != null)
+            for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
+            {
+                var member = groupRef.Source;
+
+                if (member == null)
+                    continue;
+
+                if (member.Location.IsInMap(player))
+                    member.FailQuest(_questForFollow);
+            }
+        else
+            player.FailQuest(_questForFollow);
     }
 
     public override void JustReachedHome()
@@ -190,11 +192,11 @@ internal class FollowerAI : ScriptedAI
 
                 var player = GetLeaderForFollower();
 
-                if (player)
+                if (player != null)
                 {
                     var group = player.Group;
 
-                    if (group)
+                    if (group != null)
                         for (var groupRef = group.FirstMember; groupRef != null && (maxRangeExceeded || questAbandoned); groupRef = groupRef.Next())
                         {
                             var member = groupRef.Source;
@@ -254,25 +256,25 @@ internal class FollowerAI : ScriptedAI
     {
         var player = Me.ObjectAccessor.GetPlayer(Me, _leaderGUID);
 
-        if (player)
+        if (player != null)
         {
             if (player.IsAlive)
                 return player;
 
             var group = player.Group;
 
-            if (group)
+            if (group != null)
                 for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                 {
                     var member = groupRef.Source;
 
-                    if (member && Me.Location.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
-                    {
-                        Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({Me.GUID})");
-                        _leaderGUID = member.GUID;
+                    if (member == null || !Me.Location.IsWithinDistInMap(member, 100.0f) || !member.IsAlive)
+                        continue;
 
-                        return member;
-                    }
+                    Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({Me.GUID})");
+                    _leaderGUID = member.GUID;
+
+                    return member;
                 }
         }
 
@@ -296,7 +298,7 @@ internal class FollowerAI : ScriptedAI
     //The Id (type_flag) is unconfirmed, but used here for further research and is a good candidate.
     private bool ShouldAssistPlayerInCombatAgainst(Unit who)
     {
-        if (!who || !who.Victim)
+        if (who?.Victim == null)
             return false;
 
         //experimental (unknown) Id not present

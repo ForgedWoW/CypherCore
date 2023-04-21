@@ -45,7 +45,7 @@ public class BossAI : ScriptedAI
 
         var whoSummon = who.ToTempSummon();
 
-        if (whoSummon)
+        if (whoSummon != null)
         {
             Log.Logger.Warning($"BossAI::_DespawnAtEvade: called on a temporary summon (who: {who.GUID})");
             whoSummon.UnSummon();

@@ -79,7 +79,7 @@ public class NagrandArena : Arena
             DoorOpen(i);
 
         TaskScheduler.Schedule(TimeSpan.FromSeconds(5),
-                               task =>
+                               _ =>
                                {
                                    for (var i = NagrandArenaObjectTypes.DOOR1; i <= NagrandArenaObjectTypes.DOOR2; ++i)
                                        DelObject(i);

@@ -42,7 +42,7 @@ public class NPCDeadminesBird : ScriptedAI
             var victim = Me.Victim;
 
             if (victim != null)
-                Me.SpellFactory.CastSpell(victim, IsHeroic() ? DmSpells.EYE_GOUGE_H : DmSpells.EYE_GOUGE);
+                Me.SpellFactory.CastSpell(victim, IsHeroic ? DmSpells.EYE_GOUGE_H : DmSpells.EYE_GOUGE);
 
             UiTimerEyeGouge = RandomHelper.URand(9000, 12000);
 
@@ -56,7 +56,7 @@ public class NPCDeadminesBird : ScriptedAI
             var victim = Me.Victim;
 
             if (victim != null)
-                Me.SpellFactory.CastSpell(victim, IsHeroic() ? DmSpells.EYE_PECK_H : DmSpells.EYE_PECK);
+                Me.SpellFactory.CastSpell(victim, IsHeroic ? DmSpells.EYE_PECK_H : DmSpells.EYE_PECK);
 
             IiTimerEyePeck = RandomHelper.URand(16000, 19000);
 

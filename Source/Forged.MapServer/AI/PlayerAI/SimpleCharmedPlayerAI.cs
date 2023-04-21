@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Spells;
@@ -33,11 +34,10 @@ internal class SimpleCharmedPlayerAI : PlayerAI
 
         var charmer = Me.Charmer;
 
-        if (charmer != null)
-            if (!charmer.WorldObjectCombat.IsValidAttackTarget(who))
-                return false;
+        if (charmer == null)
+            return base.CanAIAttack(who);
 
-        return base.CanAIAttack(who);
+        return charmer.WorldObjectCombat.IsValidAttackTarget(who) && base.CanAIAttack(who);
     }
 
     public override void OnCharmed(bool isNew)
@@ -65,24 +65,19 @@ internal class SimpleCharmedPlayerAI : PlayerAI
     {
         var charmer = Me.Charmer;
 
-        if (charmer)
-        {
-            var charmerAI = charmer.AI;
+        if (charmer == null)
+            return null;
 
-            if (charmerAI != null)
-                return charmerAI.SelectTarget(SelectTargetMethod.Random, 0, new ValidTargetSelectPredicate(this));
+        var charmerAI = charmer.AI;
 
-            return charmer.Victim;
-        }
-
-        return null;
+        return charmerAI != null ? charmerAI.SelectTarget(SelectTargetMethod.Random, 0, new ValidTargetSelectPredicate(this)) : charmer.Victim;
     }
 
     public override void UpdateAI(uint diff)
     {
         var charmer = GetCharmer();
 
-        if (!charmer)
+        if (charmer == null)
             return;
 
         //kill self if charm aura has infinite duration
@@ -90,36 +85,35 @@ internal class SimpleCharmedPlayerAI : PlayerAI
         {
             var auras = Me.GetAuraEffectsByType(AuraType.ModCharm);
 
-            foreach (var effect in auras)
-                if (effect.CasterGuid == charmer.GUID && effect.Base.IsPermanent)
-                {
-                    Me.KillSelf();
+            if (auras.Any(effect => effect.CasterGuid == charmer.GUID && effect.Base.IsPermanent))
+            {
+                Me.KillSelf();
 
-                    return;
-                }
+                return;
+            }
         }
 
         if (charmer.IsEngaged)
         {
             var target = Me.Victim;
 
-            if (!target || !CanAIAttack(target))
+            if (target == null || !CanAIAttack(target))
             {
                 target = SelectAttackTarget();
 
-                if (!target || !CanAIAttack(target))
+                if (target == null || !CanAIAttack(target))
                 {
-                    if (!_isFollowing)
-                    {
-                        _isFollowing = true;
-                        Me.AttackStop();
-                        Me.CastStop();
+                    if (_isFollowing)
+                        return;
 
-                        if (Me.HasUnitState(UnitState.Chase))
-                            Me.MotionMaster.Remove(MovementGeneratorType.Chase);
+                    _isFollowing = true;
+                    Me.AttackStop();
+                    Me.CastStop();
 
-                        Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
-                    }
+                    if (Me.HasUnitState(UnitState.Chase))
+                        Me.MotionMaster.Remove(MovementGeneratorType.Chase);
+
+                    Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
 
                     return;
                 }

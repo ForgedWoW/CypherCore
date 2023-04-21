@@ -255,7 +255,7 @@ public class BossGlubtok : BossAI
                         Me.AttackStop();
                         Me.SetFacingToObject(random);
 
-                        if (IsHeroic())
+                        if (IsHeroic)
                             ResetThreatList();
                     }
 
@@ -285,7 +285,7 @@ public class BossGlubtok : BossAI
 
                     _transitionDone = true;
 
-                    if (IsHeroic())
+                    if (IsHeroic)
                     {
                         _platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
                         _platter.AI.DoAction(Actions.ACTION_START_FIREWALL);

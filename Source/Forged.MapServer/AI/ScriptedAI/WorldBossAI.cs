@@ -37,7 +37,7 @@ public class WorldBossAI : ScriptedAI
         _summons.Summon(summon);
         var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-        if (target)
+        if (target != null)
             summon.AI.AttackStart(target);
     }
 

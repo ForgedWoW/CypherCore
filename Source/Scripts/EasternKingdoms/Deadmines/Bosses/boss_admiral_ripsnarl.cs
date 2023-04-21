@@ -70,7 +70,7 @@ public class BossAdmiralRipsnarl : BossAI
         Events.ScheduleEvent(BossEvents.EVENT_THIRST_FOR_BLOOD, TimeSpan.FromMilliseconds(0));
         Events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(10000));
 
-        if (IsHeroic())
+        if (IsHeroic)
             Events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(10000));
     }
 
@@ -215,7 +215,7 @@ public class BossAdmiralRipsnarl : BossAI
             _below25 = true;
         }
         else if (Me.HealthPct < 10 && !_below10)
-            if (IsHeroic())
+            if (IsHeroic)
             {
                 SummonFinalVapors();
                 _below10 = true;
@@ -231,7 +231,7 @@ public class BossAdmiralRipsnarl : BossAI
                     var victim = Me.Victim;
 
                     if (victim != null)
-                        Me.SpellFactory.CastSpell(victim, IsHeroic() ? ESpells.SWIPE_H : ESpells.SWIPE);
+                        Me.SpellFactory.CastSpell(victim, IsHeroic ? ESpells.SWIPE_H : ESpells.SWIPE);
 
                     Events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(3000));
 

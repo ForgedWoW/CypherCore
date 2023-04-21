@@ -39,7 +39,7 @@ public class NPCVapor : ScriptedAI
         if (!Me)
             return;
 
-        if (IsHeroic())
+        if (IsHeroic)
             Me.AddAura(ESpells.CONDENSATION, Me);
     }
 

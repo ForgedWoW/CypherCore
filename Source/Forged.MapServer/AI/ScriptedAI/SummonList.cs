@@ -30,9 +30,7 @@ public class SummonList : List<ObjectGuid>
         {
             var summon = ObjectAccessor.GetCreature(_me, this.FirstOrDefault());
             RemoveAt(0);
-
-            if (summon)
-                summon.DespawnOrUnsummon();
+            summon?.DespawnOrUnsummon();
         }
     }
 
@@ -42,7 +40,7 @@ public class SummonList : List<ObjectGuid>
         {
             var summon = ObjectAccessor.GetCreature(_me, id);
 
-            if (!summon)
+            if (summon == null)
                 Remove(id);
             else if (summon.Entry == entry)
             {
@@ -84,7 +82,7 @@ public class SummonList : List<ObjectGuid>
         {
             var summon = ObjectAccessor.GetCreature(_me, id);
 
-            if (summon && summon.IsAIEnabled && (entry == 0 || summon.Entry == entry))
+            if (summon is { IsAIEnabled: true } && (entry == 0 || summon.Entry == entry))
                 summon.AI.DoZoneInCombat();
         }
     }
@@ -95,7 +93,7 @@ public class SummonList : List<ObjectGuid>
         {
             var summon = ObjectAccessor.GetCreature(_me, id);
 
-            if (summon && summon.Entry == entry)
+            if (summon != null && summon.Entry == entry)
                 return true;
         }
 
@@ -104,9 +102,8 @@ public class SummonList : List<ObjectGuid>
 
     public void RemoveNotExisting()
     {
-        foreach (var id in this)
-            if (!ObjectAccessor.GetCreature(_me, id))
-                Remove(id);
+        foreach (ObjectGuid id in this.Where(id => _me.ObjectAccessor.GetCreature(_me, id) == null))
+            Remove(id);
     }
 
     public void Summon(Creature summon)
@@ -116,12 +113,9 @@ public class SummonList : List<ObjectGuid>
 
     private void DoActionImpl(int action, List<ObjectGuid> summons)
     {
-        foreach (var guid in summons)
+        foreach (var summon in summons.Select(guid => ObjectAccessor.GetCreature(_me, guid)).Where(summon => summon is { IsAIEnabled: true }))
         {
-            var summon = ObjectAccessor.GetCreature(_me, guid);
-
-            if (summon && summon.IsAIEnabled)
-                summon.AI.DoAction(action);
+            summon.AI.DoAction(action);
         }
     }
 }

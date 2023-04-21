@@ -91,7 +91,7 @@ public class BossCaptainCookie : BossAI
     {
         base.JustDied(killer);
 
-        if (IsHeroic())
+        if (IsHeroic)
             Me.SummonCreature(DmCreatures.NPC_VANESSA_NOTE, NotePos);
     }
 

@@ -87,10 +87,7 @@ public class PlayerAI : UnitAI
 
     public Creature GetCharmer()
     {
-        if (Me.CharmerGUID.IsCreature)
-            return ObjectAccessor.GetCreature(Me, Me.CharmerGUID);
-
-        return null;
+        return Me.CharmerGUID.IsCreature ? ObjectAccessor.GetCreature(Me, Me.CharmerGUID) : null;
     }
 
     public uint GetSpec(Player who = null)
@@ -101,17 +98,17 @@ public class PlayerAI : UnitAI
     // helper functions to determine player info
     public bool IsHealer(Player who = null)
     {
-        return !who || who == Me ? _isSelfHealer : IsPlayerHealer(who);
+        return who == null || who == Me ? _isSelfHealer : IsPlayerHealer(who);
     }
 
     public bool IsRangedAttacker(Player who = null)
     {
-        return !who || who == Me ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who);
+        return who == null || who == Me ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who);
     }
 
     public virtual Unit SelectAttackTarget()
     {
-        return Me.Charmer ? Me.Charmer.Victim : null;
+        return Me.Charmer?.Victim;
     }
 
     public Tuple<Spell, Unit> SelectSpellCast(List<Tuple<Tuple<Spell, Unit>, uint>> spells)
@@ -170,7 +167,7 @@ public class PlayerAI : UnitAI
             case SpellTarget.Victim:
                 pTarget = Me.Victim;
 
-                if (!pTarget)
+                if (pTarget == null)
                     return null;
 
                 break;
@@ -178,7 +175,7 @@ public class PlayerAI : UnitAI
             case SpellTarget.Charmer:
                 pTarget = Me.Charmer;
 
-                if (!pTarget)
+                if (pTarget == null)
                     return null;
 
                 break;
@@ -202,13 +199,13 @@ public class PlayerAI : UnitAI
 
         var victim = Me.Victim;
 
-        if (!victim)
+        if (victim == null)
             return;
 
         uint rangedAttackSpell = 0;
 
         var rangedItem = Me.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.Ranged);
-        var rangedTemplate = rangedItem ? rangedItem.Template : null;
+        var rangedTemplate = rangedItem?.Template;
 
         if (rangedTemplate != null)
             rangedAttackSpell = (ItemSubClassWeapon)rangedTemplate.SubClass switch
@@ -247,7 +244,7 @@ public class PlayerAI : UnitAI
     // this allows overriding of the default ranged attacker detection
     private bool IsPlayerHealer(Player who)
     {
-        if (!who)
+        if (who == null)
             return false;
 
         return who.Class switch
@@ -263,7 +260,7 @@ public class PlayerAI : UnitAI
 
     private bool IsPlayerRangedAttacker(Player who)
     {
-        if (!who)
+        if (who == null)
             return false;
 
         switch (who.Class)
@@ -284,15 +281,9 @@ public class PlayerAI : UnitAI
                 // check if we have a ranged weapon equipped
                 var rangedSlot = who.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.Ranged);
 
-                var rangedTemplate = rangedSlot ? rangedSlot.Template : null;
+                var rangedTemplate = rangedSlot?.Template;
 
-                if (rangedTemplate == null)
-                    return false;
-
-                if (Convert.ToBoolean((1 << (int)rangedTemplate.SubClass) & (int)ItemSubClassWeapon.MaskRanged))
-                    return true;
-
-                return false;
+                return rangedTemplate != null && Convert.ToBoolean((1 << (int)rangedTemplate.SubClass) & (int)ItemSubClassWeapon.MaskRanged);
             }
             case PlayerClass.Priest:
                 return who.GetPrimarySpecialization() == TalentSpecialization.PriestShadow;

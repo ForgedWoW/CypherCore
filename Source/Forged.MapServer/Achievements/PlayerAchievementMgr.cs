@@ -20,6 +20,7 @@ using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IAchievement;
 using Forged.MapServer.Spells;
@@ -38,20 +39,22 @@ public class PlayerAchievementMgr : AchievementManager
 {
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
+    private readonly ItemFactory _itemFactory;
     private readonly GuildManager _guildManager;
     private readonly Player _owner;
     private readonly ScriptManager _scriptManager;
 
     public PlayerAchievementMgr(Player owner, GuildManager guildManager, ScriptManager scriptManager, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                                 DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
-                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, ClassFactory classFactory) :
-        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
+                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, ClassFactory classFactory, ItemFactory itemFactory, PhasingHandler phasingHandler) :
+        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler)
     {
         _owner = owner;
         _guildManager = guildManager;
         _scriptManager = scriptManager;
         _characterDatabase = characterDatabase;
         _classFactory = classFactory;
+        _itemFactory = itemFactory;
     }
 
     public override void CompletedAchievement(AchievementRecord achievement, Player referencePlayer)
@@ -141,7 +144,7 @@ public class PlayerAchievementMgr : AchievementManager
 
         SQLTransaction trans = new();
 
-        var item = reward.ItemId != 0 ? ItemFactory.CreateItem(reward.ItemId, 1, ItemContext.None, _owner) : null;
+        var item = reward.ItemId != 0 ? _itemFactory.CreateItem(reward.ItemId, 1, ItemContext.None, _owner) : null;
 
         if (item != null)
         {

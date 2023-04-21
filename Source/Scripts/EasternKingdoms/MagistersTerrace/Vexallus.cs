@@ -133,7 +133,7 @@ internal class BossVexallus : BossAI
             Talk(TextIds.SAY_ENERGY);
             Talk(TextIds.EMOTE_DISCHARGE_ENERGY);
 
-            if (IsHeroic())
+            if (IsHeroic)
             {
                 DoCast(Me, SpellIds.H_SUMMON_PURE_ENERGY1);
                 DoCast(Me, SpellIds.H_SUMMON_PURE_ENERGY2);

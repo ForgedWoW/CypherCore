@@ -72,7 +72,7 @@ public class NPCMiningMonkey : ScriptedAI
 
                         if (UiTimer <= diff)
                         {
-                            Me.SpellFactory.CastSpell(victim, IsHeroic() ? DmSpells.THROW_H : DmSpells.THROW);
+                            Me.SpellFactory.CastSpell(victim, IsHeroic ? DmSpells.THROW_H : DmSpells.THROW);
                             UiTimer = 2000;
                         }
                         else

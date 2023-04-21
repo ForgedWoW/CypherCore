@@ -184,10 +184,7 @@ public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, n
 
     private TNode GetGrid(int x, int y)
     {
-        if (_nodes[x][y] == null)
-            _nodes[x][y] = new TNode();
-
-        return _nodes[x][y];
+        return _nodes[x][y] ?? (_nodes[x][y] = new TNode());
     }
 
     public struct Cell

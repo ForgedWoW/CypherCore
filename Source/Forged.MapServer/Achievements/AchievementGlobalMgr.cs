@@ -214,8 +214,8 @@ public class AchievementGlobalMgr
             if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
                 continue;
 
-            GameObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
-            GameObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
+            _gameObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
+            _gameObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
 
             _achievementRewardLocales[id] = data;
         } while (result.NextRow());

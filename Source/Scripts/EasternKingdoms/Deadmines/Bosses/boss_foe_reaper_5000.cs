@@ -57,7 +57,7 @@ public class BossFoeReaper5000 : BossAI
         DespawnOldWatchers();
         RespawnWatchers();
 
-        if (IsHeroic())
+        if (IsHeroic)
         {
             var reaper = ObjectAccessor.GetCreature(Me, _prototypeGUID);
 
@@ -81,7 +81,7 @@ public class BossFoeReaper5000 : BossAI
         Events.ScheduleEvent(BossEvents.EVENT_OVERDRIVE, TimeSpan.FromMilliseconds(11000));
         Events.ScheduleEvent(BossEvents.EVENT_HARVEST, TimeSpan.FromMilliseconds(25000));
 
-        if (IsHeroic())
+        if (IsHeroic)
             Events.ScheduleEvent(BossEvents.EVENT_MOLTEN_SLAG, TimeSpan.FromMilliseconds(15000));
 
         if (!Me)
@@ -100,7 +100,7 @@ public class BossFoeReaper5000 : BossAI
         Talk(ESays.SAY_JUSTDIED);
         Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 
-        if (IsHeroic())
+        if (IsHeroic)
         {
             var reaper = ObjectAccessor.GetCreature(Me, _prototypeGUID);
 
@@ -115,7 +115,7 @@ public class BossFoeReaper5000 : BossAI
     {
         if (type == (uint)EAchievementMisc.DATA_ACHIV_PROTOTYPE_PRODIGY)
         {
-            if (!IsHeroic())
+            if (!IsHeroic)
                 return false ? 1 : 0;
 
             var prototypeReaper = ObjectAccessor.GetCreature(Me, _prototypeGUID);
@@ -308,7 +308,7 @@ public class BossFoeReaper5000 : BossAI
 
                     if (victim4 != null)
                         if (Me.IsWithinDist(victim4, 25.0f))
-                            DoCast(victim4, IsHeroic() ? ESpell.REAPER_STRIKE_H : ESpell.REAPER_STRIKE);
+                            DoCast(victim4, IsHeroic ? ESpell.REAPER_STRIKE_H : ESpell.REAPER_STRIKE);
 
                     Events.ScheduleEvent(BossEvents.EVENT_REAPER_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(9000, 12000)));
 
@@ -323,7 +323,7 @@ public class BossFoeReaper5000 : BossAI
 
                 case BossEvents.EVENT_SAFETY_OFFLINE:
                     Talk(ESays.SAY_EVENT_SRO);
-                    DoCast(Me, IsHeroic() ? ESpell.SAFETY_REST_OFFLINE_H : ESpell.SAFETY_REST_OFFLINE);
+                    DoCast(Me, IsHeroic ? ESpell.SAFETY_REST_OFFLINE_H : ESpell.SAFETY_REST_OFFLINE);
 
                     break;
             }

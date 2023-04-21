@@ -59,7 +59,7 @@ public class BossHelixGearbreaker : BossAI
         Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
         Events.ScheduleEvent(HelOafEvents.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
-        if (IsHeroic())
+        if (IsHeroic)
         {
             SummonCrew();
             Events.ScheduleEvent(HelOafEvents.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(0));
@@ -123,7 +123,7 @@ public class BossHelixGearbreaker : BossAI
         Events.ScheduleEvent(HelOafEvents.EVENT_NO_OAF, TimeSpan.FromMilliseconds(100));
         Events.ScheduleEvent(HelOafEvents.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
-        if (IsHeroic())
+        if (IsHeroic)
             Events.ScheduleEvent(HelOafEvents.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(5000));
     }
 

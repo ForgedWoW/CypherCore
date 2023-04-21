@@ -30,6 +30,7 @@ namespace Forged.MapServer.Achievements;
 
 public class CriteriaHandler
 {
+    public PhasingHandler PhasingHandler { get; }
     protected readonly AchievementGlobalMgr AchievementManager;
     protected readonly ArenaTeamManager ArenaTeamManager;
     protected readonly CliDB CliDB;
@@ -51,8 +52,9 @@ public class CriteriaHandler
     public CriteriaHandler(CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager,
                            ArenaTeamManager arenaTeamManager, DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB,
                            ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration, LanguageManager languageManager,
-                           DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager)
+                           DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, PhasingHandler phasingHandler)
     {
+        PhasingHandler = phasingHandler;
         AchievementManager = achievementManager;
         CriteriaManager = criteriaManager;
         WorldManager = worldManager;

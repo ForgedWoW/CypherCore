@@ -39,7 +39,7 @@ public class NPCDefiasEnvokerAI : ScriptedAI
 
         if (ShieldTimer <= diff)
         {
-            if (IsHeroic())
+            if (IsHeroic)
             {
                 DoCast(Me, BossVanessaVancleef.Spells.SHIELD);
                 ShieldTimer = RandomHelper.URand(18000, 20000);

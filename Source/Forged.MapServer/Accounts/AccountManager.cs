@@ -21,12 +21,14 @@ public sealed class AccountManager
     private readonly MultiMap<byte, uint> _defaultPermissions = new();
     private readonly LoginDatabase _loginDatabase;
     private readonly ObjectAccessor _objectAccessor;
+    private readonly PlayerComputators _playerComputators;
 
-    public AccountManager(LoginDatabase loginDatabase, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
+    public AccountManager(LoginDatabase loginDatabase, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, PlayerComputators playerComputators)
     {
         _loginDatabase = loginDatabase;
         _characterDatabase = characterDatabase;
         _objectAccessor = objectAccessor;
+        _playerComputators = playerComputators;
     }
 
     public Dictionary<uint, RBACPermission> RBACPermissionList { get; } = new();
@@ -119,10 +121,7 @@ public sealed class AccountManager
         if (!GetEmail(accountId, out var oldEmail))
             return false;
 
-        if (oldEmail == newEmail)
-            return true;
-
-        return false;
+        return oldEmail == newEmail;
     }
 
     public bool CheckPassword(uint accountId, string password)
@@ -208,14 +207,14 @@ public sealed class AccountManager
                 // Kick if player is online
                 var p = _objectAccessor.FindPlayer(guid);
 
-                if (p)
+                if (p != null)
                 {
                     var s = p.Session;
                     s.KickPlayer("AccountMgr::DeleteAccount Deleting the account"); // mark session to remove at next session list update
                     s.LogoutPlayer(false);                                          // logout player without waiting next session list update
                 }
 
-                PlayerComputators.DeleteFromDB(guid, accountId, false); // no need to update realm characters
+                _playerComputators.DeleteFromDB(guid, accountId, false); // no need to update realm characters
             } while (result.NextRow());
 
         // table realm specific but common for all characters of account for realm

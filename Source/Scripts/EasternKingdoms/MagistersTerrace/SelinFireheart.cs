@@ -205,7 +205,7 @@ internal class BossSelinFireheart : BossAI
                 var timer = RandomHelper.RandTime(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7));
                 Events.ScheduleEvent(EventIds.DRAIN_LIFE, timer, 0, PhaseIds.NORMAL);
 
-                if (IsHeroic())
+                if (IsHeroic)
                 {
                     Events.ScheduleEvent(EventIds.DRAIN_CRYSTAL, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15), 0, PhaseIds.NORMAL);
                     Events.ScheduleEvent(EventIds.DRAIN_MANA, timer + TimeSpan.FromSeconds(5), 0, PhaseIds.NORMAL);
