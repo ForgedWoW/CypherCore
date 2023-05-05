@@ -20,6 +20,7 @@ namespace Forged.MapServer.Achievements;
 public class CriteriaManager
 {
     private readonly ClassFactory _classFactory;
+    private readonly CriteriaDataValidator _criteriaDataValidator;
     private readonly CliDB _cliDB;
     private readonly Dictionary<uint, Criteria> _criteria = new();
     private readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
@@ -39,12 +40,13 @@ public class CriteriaManager
     private readonly MultiMap<uint, Criteria>[] _scenarioCriteriasByTypeAndScenarioId = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
     private readonly WorldDatabase _worldDatabase;
 
-    public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager, ClassFactory classFactory)
+    public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager, ClassFactory classFactory, CriteriaDataValidator criteriaDataValidator)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
         _classFactory = classFactory;
+        _criteriaDataValidator = criteriaDataValidator;
 
         for (var i = 0; i < (int)CriteriaType.Count; ++i)
         {
@@ -188,11 +190,11 @@ public class CriteriaManager
                                                            new PositionalParameter(2, result.Read<uint>(3)),
                                                            new PositionalParameter(3, scriptId));
 
-            if (!data.IsValid(criteria))
+            if (!_criteriaDataValidator.IsValid(data, criteria))
                 continue;
 
             // this will allocate empty data set storage
-            CriteriaDataSet dataSet = new();
+            CriteriaDataSet dataSet = new(_criteriaDataValidator);
             dataSet.SetCriteriaId(criteriaID);
 
             // add real data only for not NONE data types

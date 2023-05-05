@@ -10,8 +10,14 @@ namespace Forged.MapServer.Achievements;
 
 public class CriteriaDataSet
 {
+    private readonly CriteriaDataValidator _dataValidator;
     private readonly List<CriteriaData> _storage = new();
     private uint _criteriaId;
+
+    public CriteriaDataSet(CriteriaDataValidator dataValidator)
+    {
+        _dataValidator = dataValidator;
+    }
 
     public void Add(CriteriaData data)
     {
@@ -20,7 +26,7 @@ public class CriteriaDataSet
 
     public bool Meets(Player source, WorldObject target, uint miscValue = 0, uint miscValue2 = 0)
     {
-        return _storage.All(data => data.Meets(_criteriaId, source, target, miscValue, miscValue2));
+        return _storage.All(data => _dataValidator.Meets(data, _criteriaId, source, target, miscValue, miscValue2));
     }
 
     public void SetCriteriaId(uint id)

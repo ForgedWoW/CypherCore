@@ -438,6 +438,7 @@ void RegisterManagers()
     builder.RegisterType<CellCalculator>().SingleInstance();
     builder.RegisterType<Formulas>().SingleInstance();
     builder.RegisterType<PhasingHandler>().SingleInstance();
+    builder.RegisterType<CriteriaDataValidator>().SingleInstance();
 }
 
 void RegisterFactories()
@@ -538,6 +539,7 @@ void RegisterInstanced()
     builder.RegisterType<DalaranSewersArena>();
     builder.RegisterType<RingofValorArena>();
     builder.RegisterType<ArenaTeam>();
+    builder.RegisterType<CriteriaDataSet>();
 }
 
 void RegisterHandlers()
