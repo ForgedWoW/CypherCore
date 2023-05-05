@@ -524,6 +524,7 @@ void RegisterInstanced()
     builder.RegisterType<Pet>();
     builder.RegisterType<SceneObject>();
     builder.RegisterType<Vehicle>();
+    builder.RegisterType<Battleground>();
 }
 
 void RegisterHandlers()
