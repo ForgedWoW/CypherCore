@@ -969,7 +969,7 @@ public class BattlegroundQueue
         // set invitation
         ginfo.IsInvitedToBGInstanceGUID = bg.InstanceID;
         var bgTypeId = bg.GetTypeID();
-        var bgQueueTypeId = bg.GetQueueId();
+        var bgQueueTypeId = bg.QueueId;
         var bracketID = bg.BracketId;
 
         // set ArenaTeamId for rated matches

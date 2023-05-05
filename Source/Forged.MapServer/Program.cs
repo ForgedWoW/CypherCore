@@ -540,6 +540,7 @@ void RegisterInstanced()
     builder.RegisterType<RingofValorArena>();
     builder.RegisterType<ArenaTeam>();
     builder.RegisterType<CriteriaDataSet>();
+    builder.RegisterType<Weather>();
 }
 
 void RegisterHandlers()

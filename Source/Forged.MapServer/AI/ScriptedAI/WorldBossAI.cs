@@ -24,12 +24,12 @@ public class WorldBossAI : ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        _JustDied();
+        JustDiedInternal();
     }
 
     public override void JustEngagedWith(Unit who)
     {
-        _JustEngagedWith();
+        JustEngagedWithInternal();
     }
 
     public override void JustSummoned(Creature summon)
@@ -43,7 +43,7 @@ public class WorldBossAI : ScriptedAI
 
     public override void Reset()
     {
-        _Reset();
+        ResetInternal();
     }
 
     public override void SummonedCreatureDespawn(Creature summon)
@@ -75,13 +75,13 @@ public class WorldBossAI : ScriptedAI
             DoMeleeAttackIfReady();
     }
 
-    private void _JustDied()
+    private void JustDiedInternal()
     {
         Events.Reset();
         _summons.DespawnAll();
     }
 
-    private void _JustEngagedWith()
+    private void JustEngagedWithInternal()
     {
         var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
@@ -89,7 +89,7 @@ public class WorldBossAI : ScriptedAI
             AttackStart(target);
     }
 
-    private void _Reset()
+    private void ResetInternal()
     {
         if (!Me.IsAlive)
             return;

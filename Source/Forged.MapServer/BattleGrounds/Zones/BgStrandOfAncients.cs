@@ -288,7 +288,7 @@ public class BgStrandOfAncients : Battleground
                     // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
                     SetStatus(BattlegroundStatus.InProgress);
 
-                    foreach (var pair in GetPlayers())
+                    foreach (var pair in Players)
                         ObjectAccessor.FindPlayer(pair.Key)?.RemoveAura(BattlegroundConst.SPELL_PREPARATION);
                 }
 
@@ -707,7 +707,7 @@ public class BgStrandOfAncients : Battleground
 
     private bool ResetObjs()
     {
-        foreach (var pair in GetPlayers())
+        foreach (var pair in Players)
         {
             var player = ObjectAccessor.FindPlayer(pair.Key);
 
@@ -901,7 +901,7 @@ public class BgStrandOfAncients : Battleground
         UpdateWorldState(SaWorldStateIds.ANCIENT_GATE, 1);
 
         for (var i = SaObjectTypes.BOAT_ONE; i <= SaObjectTypes.BOAT_TWO; i++)
-            foreach (var pair in GetPlayers())
+            foreach (var pair in Players)
             {
                 var player = ObjectAccessor.FindPlayer(pair.Key);
 
@@ -960,7 +960,7 @@ public class BgStrandOfAncients : Battleground
         GetBGObject(SaObjectTypes.BOAT_TWO).SetGoState(GameObjectState.TransportStopped);
 
         for (var i = SaObjectTypes.BOAT_ONE; i <= SaObjectTypes.BOAT_TWO; i++)
-            foreach (var pair in GetPlayers())
+            foreach (var pair in Players)
             {
                 var p = ObjectAccessor.FindPlayer(pair.Key);
 
@@ -979,7 +979,7 @@ public class BgStrandOfAncients : Battleground
 
     private void TeleportPlayers()
     {
-        foreach (var pair in GetPlayers())
+        foreach (var pair in Players)
         {
             var player = ObjectAccessor.FindPlayer(pair.Key);
 
@@ -1053,7 +1053,7 @@ public class BgStrandOfAncients : Battleground
                 _roundScores[0].Time = _totalTime;
 
                 // Achievement Storm the Beach (1310)
-                foreach (var pair in GetPlayers())
+                foreach (var pair in Players)
                 {
                     var player = ObjectAccessor.FindPlayer(pair.Key);
 
@@ -1092,7 +1092,7 @@ public class BgStrandOfAncients : Battleground
                 ToggleTimer();
 
                 // Achievement Storm the Beach (1310)
-                foreach (var pair in GetPlayers())
+                foreach (var pair in Players)
                 {
                     var player = ObjectAccessor.FindPlayer(pair.Key);
 

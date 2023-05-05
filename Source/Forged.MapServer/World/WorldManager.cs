@@ -1180,223 +1180,222 @@ public class WorldManager
             SendGuidWarning();
         }
     }
-
     public void Update(uint diff)
     {
-        //- Update the GameInfo time and check for shutdown time
-        UpdateGameTime();
-        var currentGameTime = GameTime.CurrentTime;
+    //    //- Update the GameInfo time and check for shutdown time
+    //    UpdateGameTime();
+    //    var currentGameTime = GameTime.CurrentTime;
 
-        WorldUpdateTime.UpdateWithDiff(diff);
+    //    WorldUpdateTime.UpdateWithDiff(diff);
 
-        // Record update if recording set in log and diff is greater then minimum set in log
-        WorldUpdateTime.RecordUpdateTime(GameTime.CurrentTimeMS, diff, (uint)ActiveSessionCount);
-        Realm.PopulationLevel = ActiveSessionCount;
+    //    // Record update if recording set in log and diff is greater then minimum set in log
+    //    WorldUpdateTime.RecordUpdateTime(GameTime.CurrentTimeMS, diff, (uint)ActiveSessionCount);
+    //    Realm.PopulationLevel = ActiveSessionCount;
 
-        // Update the different timers
-        for (WorldTimers i = 0; i < WorldTimers.Max; ++i)
-            if (_timers[i].Current >= 0)
-                _timers[i].Update(diff);
-            else
-                _timers[i].Current = 0;
+    //    // Update the different timers
+    //    for (WorldTimers i = 0; i < WorldTimers.Max; ++i)
+    //        if (_timers[i].Current >= 0)
+    //            _timers[i].Update(diff);
+    //        else
+    //            _timers[i].Current = 0;
 
-        // Update Who List Storage
-        if (_timers[WorldTimers.WhoList].Passed)
-        {
-            _timers[WorldTimers.WhoList].Reset();
-            _taskManager.Schedule(Global.WhoListStorageMgr.Update);
-        }
+    //    // Update Who List Storage
+    //    if (_timers[WorldTimers.WhoList].Passed)
+    //    {
+    //        _timers[WorldTimers.WhoList].Reset();
+    //        _taskManager.Schedule(Global.WhoListStorageMgr.Update);
+    //    }
 
-        if (IsStopped || _timers[WorldTimers.ChannelSave].Passed)
-        {
-            _timers[WorldTimers.ChannelSave].Reset();
+    //    if (IsStopped || _timers[WorldTimers.ChannelSave].Passed)
+    //    {
+    //        _timers[WorldTimers.ChannelSave].Reset();
 
-            if (_configuration.GetDefaultValue("PreserveCustomChannels", false))
-                _taskManager.Schedule(() =>
-                {
-                    var mgr1 = ChannelManager.ForTeam(TeamFaction.Alliance);
-                    mgr1.SaveToDB();
-                    var mgr2 = ChannelManager.ForTeam(TeamFaction.Horde);
+    //        if (_configuration.GetDefaultValue("PreserveCustomChannels", false))
+    //            _taskManager.Schedule(() =>
+    //            {
+    //                var mgr1 = ChannelManager.ForTeam(TeamFaction.Alliance);
+    //                mgr1.SaveToDB();
+    //                var mgr2 = ChannelManager.ForTeam(TeamFaction.Horde);
 
-                    if (mgr1 != mgr2)
-                        mgr2.SaveToDB();
-                });
-        }
+    //                if (mgr1 != mgr2)
+    //                    mgr2.SaveToDB();
+    //            });
+    //    }
 
-        CheckScheduledResetTimes();
+    //    CheckScheduledResetTimes();
 
-        if (currentGameTime > _nextRandomBgReset)
-            _taskManager.Schedule(ResetRandomBG);
+    //    if (currentGameTime > _nextRandomBgReset)
+    //        _taskManager.Schedule(ResetRandomBG);
 
-        if (currentGameTime > _nextCalendarOldEventsDeletionTime)
-            _taskManager.Schedule(CalendarDeleteOldEvents);
+    //    if (currentGameTime > _nextCalendarOldEventsDeletionTime)
+    //        _taskManager.Schedule(CalendarDeleteOldEvents);
 
-        if (currentGameTime > _nextGuildReset)
-            _taskManager.Schedule(ResetGuildCap);
+    //    if (currentGameTime > _nextGuildReset)
+    //        _taskManager.Schedule(ResetGuildCap);
 
-        if (currentGameTime > _nextCurrencyReset)
-            _taskManager.Schedule(ResetCurrencyWeekCap);
+    //    if (currentGameTime > _nextCurrencyReset)
+    //        _taskManager.Schedule(ResetCurrencyWeekCap);
 
-        //Handle auctions when the timer has passed
-        if (_timers[WorldTimers.Auctions].Passed)
-        {
-            _timers[WorldTimers.Auctions].Reset();
+    //    //Handle auctions when the timer has passed
+    //    if (_timers[WorldTimers.Auctions].Passed)
+    //    {
+    //        _timers[WorldTimers.Auctions].Reset();
 
-            // Update mails (return old mails with item, or delete them)
-            if (++_mailTimer > _timerExpires)
-            {
-                _mailTimer = 0;
-                _taskManager.Schedule(() => Global.ObjectMgr.ReturnOrDeleteOldMails(true));
-            }
+    //        // Update mails (return old mails with item, or delete them)
+    //        if (++_mailTimer > _timerExpires)
+    //        {
+    //            _mailTimer = 0;
+    //            _taskManager.Schedule(() => Global.ObjectMgr.ReturnOrDeleteOldMails(true));
+    //        }
 
-            // Handle expired auctions
-            _taskManager.Schedule(Global.AuctionHouseMgr.Update);
-        }
+    //        // Handle expired auctions
+    //        _taskManager.Schedule(Global.AuctionHouseMgr.Update);
+    //    }
 
-        if (_timers[WorldTimers.AuctionsPending].Passed)
-        {
-            _timers[WorldTimers.AuctionsPending].Reset();
+    //    if (_timers[WorldTimers.AuctionsPending].Passed)
+    //    {
+    //        _timers[WorldTimers.AuctionsPending].Reset();
 
-            _taskManager.Schedule(Global.AuctionHouseMgr.UpdatePendingAuctions);
-        }
+    //        _taskManager.Schedule(Global.AuctionHouseMgr.UpdatePendingAuctions);
+    //    }
 
-        if (_timers[WorldTimers.Blackmarket].Passed)
-        {
-            _timers[WorldTimers.Blackmarket].Reset();
+    //    if (_timers[WorldTimers.Blackmarket].Passed)
+    //    {
+    //        _timers[WorldTimers.Blackmarket].Reset();
 
-            _loginDatabase.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, Global.WorldMgr.Realm.Id.Index);
+    //        _loginDatabase.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, Global.WorldMgr.Realm.Id.Index);
 
-            //- Update blackmarket, refresh auctions if necessary
-            if (_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket:UpdatePeriod", 24) * Time.HOUR * Time.IN_MILLISECONDS || _blackmarketTimer == 0)
-            {
-                _taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
-                _blackmarketTimer = 1; // timer is 0 on startup
-            }
-            else
-            {
-                ++_blackmarketTimer;
-                _taskManager.Schedule(() => Global.BlackMarketMgr.Update());
-            }
-        }
+    //        //- Update blackmarket, refresh auctions if necessary
+    //        if (_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket:UpdatePeriod", 24) * Time.HOUR * Time.IN_MILLISECONDS || _blackmarketTimer == 0)
+    //        {
+    //            _taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
+    //            _blackmarketTimer = 1; // timer is 0 on startup
+    //        }
+    //        else
+    //        {
+    //            ++_blackmarketTimer;
+    //            _taskManager.Schedule(() => Global.BlackMarketMgr.Update());
+    //        }
+    //    }
 
-        //Handle session updates when the timer has passed
-        WorldUpdateTime.RecordUpdateTimeReset();
-        UpdateSessions(diff);
-        WorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
+    //    //Handle session updates when the timer has passed
+    //    WorldUpdateTime.RecordUpdateTimeReset();
+    //    UpdateSessions(diff);
+    //    WorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
 
-        // <li> Update uptime table
-        if (_timers[WorldTimers.UpTime].Passed)
-        {
-            var tmpDiff = GameTime.Uptime;
-            var maxOnlinePlayers = MaxPlayerCount;
+    //    // <li> Update uptime table
+    //    if (_timers[WorldTimers.UpTime].Passed)
+    //    {
+    //        var tmpDiff = GameTime.Uptime;
+    //        var maxOnlinePlayers = MaxPlayerCount;
 
-            _timers[WorldTimers.UpTime].Reset();
+    //        _timers[WorldTimers.UpTime].Reset();
 
-            _taskManager.Schedule(() =>
-            {
-                var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_UPTIME_PLAYERS);
+    //        _taskManager.Schedule(() =>
+    //        {
+    //            var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_UPTIME_PLAYERS);
 
-                stmt.AddValue(0, tmpDiff);
-                stmt.AddValue(1, maxOnlinePlayers);
-                stmt.AddValue(2, Realm.Id.Index);
-                stmt.AddValue(3, (uint)GameTime.GetStartTime());
+    //            stmt.AddValue(0, tmpDiff);
+    //            stmt.AddValue(1, maxOnlinePlayers);
+    //            stmt.AddValue(2, Realm.Id.Index);
+    //            stmt.AddValue(3, (uint)GameTime.GetStartTime());
 
-                _loginDatabase.Execute(stmt);
-            });
-        }
+    //            _loginDatabase.Execute(stmt);
+    //        });
+    //    }
 
-        // <li> Clean logs table
-        if (_configuration.GetDefaultValue("LogDB:Opt:ClearTime", 1209600) > 0) // if not enabled, ignore the timer
-            if (_timers[WorldTimers.CleanDB].Passed)
-            {
-                _timers[WorldTimers.CleanDB].Reset();
+    //    // <li> Clean logs table
+    //    if (_configuration.GetDefaultValue("LogDB:Opt:ClearTime", 1209600) > 0) // if not enabled, ignore the timer
+    //        if (_timers[WorldTimers.CleanDB].Passed)
+    //        {
+    //            _timers[WorldTimers.CleanDB].Reset();
 
-                _taskManager.Schedule(() =>
-                {
-                    var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_OLD_LOGS);
-                    stmt.AddValue(0, _configuration.GetDefaultValue("LogDB:Opt:ClearTime", 1209600));
-                    stmt.AddValue(1, 0);
-                    stmt.AddValue(2, Realm.Id.Index);
+    //            _taskManager.Schedule(() =>
+    //            {
+    //                var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_OLD_LOGS);
+    //                stmt.AddValue(0, _configuration.GetDefaultValue("LogDB:Opt:ClearTime", 1209600));
+    //                stmt.AddValue(1, 0);
+    //                stmt.AddValue(2, Realm.Id.Index);
 
-                    _loginDatabase.Execute(stmt);
-                });
-            }
+    //                _loginDatabase.Execute(stmt);
+    //            });
+    //        }
 
-        _taskManager.Wait();
-        WorldUpdateTime.RecordUpdateTimeReset();
-        _mapManager.Update(diff);
-        WorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
+    //    _taskManager.Wait();
+    //    WorldUpdateTime.RecordUpdateTimeReset();
+    //    _mapManager.Update(diff);
+    //    WorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
 
-        Global.TerrainMgr.Update(diff); // TPL blocks inside
+    //    Global.TerrainMgr.Update(diff); // TPL blocks inside
 
-        if (_configuration.GetDefaultValue("AutoBroadcast:On", false))
-            if (_timers[WorldTimers.AutoBroadcast].Passed)
-            {
-                _timers[WorldTimers.AutoBroadcast].Reset();
-                _taskManager.Schedule(SendAutoBroadcast);
-            }
+    //    if (_configuration.GetDefaultValue("AutoBroadcast:On", false))
+    //        if (_timers[WorldTimers.AutoBroadcast].Passed)
+    //        {
+    //            _timers[WorldTimers.AutoBroadcast].Reset();
+    //            _taskManager.Schedule(SendAutoBroadcast);
+    //        }
 
-        Global.BattlegroundMgr.Update(diff); // TPL Blocks inside
-        WorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
+    //    Global.BattlegroundMgr.Update(diff); // TPL Blocks inside
+    //    WorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
 
-        Global.OutdoorPvPMgr.Update(diff); // TPL Blocks inside
-        WorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
+    //    Global.OutdoorPvPMgr.Update(diff); // TPL Blocks inside
+    //    WorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
 
-        Global.BattleFieldMgr.Update(diff); // TPL Blocks inside
-        WorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
+    //    Global.BattleFieldMgr.Update(diff); // TPL Blocks inside
+    //    WorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
 
-        //- Delete all characters which have been deleted X days before
-        if (_timers[WorldTimers.DeleteChars].Passed)
-        {
-            _timers[WorldTimers.DeleteChars].Reset();
-            _taskManager.Schedule(PlayerComputators.DeleteOldCharacters);
-        }
+    //    //- Delete all characters which have been deleted X days before
+    //    if (_timers[WorldTimers.DeleteChars].Passed)
+    //    {
+    //        _timers[WorldTimers.DeleteChars].Reset();
+    //        _taskManager.Schedule(PlayerComputators.DeleteOldCharacters);
+    //    }
 
-        _taskManager.Schedule(() => Global.LFGMgr.Update(diff));
-        WorldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
+    //    _taskManager.Schedule(() => Global.LFGMgr.Update(diff));
+    //    WorldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
 
-        _taskManager.Schedule(() => Global.GroupMgr.Update(diff));
-        WorldUpdateTime.RecordUpdateTimeDuration("GroupMgr");
+    //    _taskManager.Schedule(() => Global.GroupMgr.Update(diff));
+    //    WorldUpdateTime.RecordUpdateTimeDuration("GroupMgr");
 
-        // execute callbacks from sql queries that were queued recently
-        _taskManager.Schedule(ProcessQueryCallbacks);
-        WorldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
+    //    // execute callbacks from sql queries that were queued recently
+    //    _taskManager.Schedule(ProcessQueryCallbacks);
+    //    WorldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
 
-        // Erase corpses once every 20 minutes
-        if (_timers[WorldTimers.Corpses].Passed)
-        {
-            _timers[WorldTimers.Corpses].Reset();
-            _taskManager.Schedule(() => _mapManager.DoForAllMaps(map => map.RemoveOldCorpses()));
-        }
+    //    // Erase corpses once every 20 minutes
+    //    if (_timers[WorldTimers.Corpses].Passed)
+    //    {
+    //        _timers[WorldTimers.Corpses].Reset();
+    //        _taskManager.Schedule(() => _mapManager.DoForAllMaps(map => map.RemoveOldCorpses()));
+    //    }
 
-        // Process Game events when necessary
-        if (_timers[WorldTimers.Events].Passed)
-        {
-            _timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
-            var nextGameEvent = Global.GameEventMgr.Update();
-            _timers[WorldTimers.Events].Interval = nextGameEvent;
-            _timers[WorldTimers.Events].Reset();
-        }
+    //    // Process Game events when necessary
+    //    if (_timers[WorldTimers.Events].Passed)
+    //    {
+    //        _timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
+    //        var nextGameEvent = Global.GameEventMgr.Update();
+    //        _timers[WorldTimers.Events].Interval = nextGameEvent;
+    //        _timers[WorldTimers.Events].Reset();
+    //    }
 
-        if (_timers[WorldTimers.GuildSave].Passed)
-        {
-            _timers[WorldTimers.GuildSave].Reset();
-            _taskManager.Schedule(_guildManager.SaveGuilds);
-        }
+    //    if (_timers[WorldTimers.GuildSave].Passed)
+    //    {
+    //        _timers[WorldTimers.GuildSave].Reset();
+    //        _taskManager.Schedule(_guildManager.SaveGuilds);
+    //    }
 
-        // Check for shutdown warning
-        if (IsGuidWarning && !IsGuidAlert)
-        {
-            _warnDiff += diff;
+    //    // Check for shutdown warning
+    //    if (IsGuidWarning && !IsGuidAlert)
+    //    {
+    //        _warnDiff += diff;
 
-            if (GameTime.CurrentTime >= _warnShutdownTime)
-                DoGuidWarningRestart();
-            else if (_warnDiff > _configuration.GetDefaultValue("Respawn:WarningFrequency", 1800) * Time.IN_MILLISECONDS)
-                SendGuidWarning();
-        }
+    //        if (GameTime.CurrentTime >= _warnShutdownTime)
+    //            DoGuidWarningRestart();
+    //        else if (_warnDiff > _configuration.GetDefaultValue("Respawn:WarningFrequency", 1800) * Time.IN_MILLISECONDS)
+    //            SendGuidWarning();
+    //    }
 
-        _scriptManager.ForEach<IWorldOnUpdate>(p => p.OnUpdate(diff));
-        _taskManager.Wait(); // wait for all blocks to complete.
+    //    _scriptManager.ForEach<IWorldOnUpdate>(p => p.OnUpdate(diff));
+    //    _taskManager.Wait(); // wait for all blocks to complete.
     }
 
     public void UpdateRealmCharCount(uint accountId)

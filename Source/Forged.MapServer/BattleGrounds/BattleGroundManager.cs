@@ -87,7 +87,7 @@ public class BattlegroundManager
     public void BuildBattlegroundStatusActive(out BattlefieldStatusActive battlefieldStatus, Battleground bg, Player player, uint ticketId, uint joinTime, ArenaTypes arenaType)
     {
         battlefieldStatus = new BattlefieldStatusActive();
-        BuildBattlegroundStatusHeader(battlefieldStatus.Hdr, bg, player, ticketId, joinTime, bg.GetQueueId(), arenaType);
+        BuildBattlegroundStatusHeader(battlefieldStatus.Hdr, bg, player, ticketId, joinTime, bg.QueueId, arenaType);
         battlefieldStatus.ShutdownTimer = bg.RemainingTime;
         battlefieldStatus.ArenaFaction = (byte)(player.GetBgTeam() == TeamFaction.Horde ? TeamIds.Horde : TeamIds.Alliance);
         battlefieldStatus.LeftEarly = false;
@@ -117,7 +117,7 @@ public class BattlegroundManager
     public void BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, Battleground bg, Player player, uint ticketId, uint joinTime, uint timeout, ArenaTypes arenaType)
     {
         battlefieldStatus = new BattlefieldStatusNeedConfirmation();
-        BuildBattlegroundStatusHeader(battlefieldStatus.Hdr, bg, player, ticketId, joinTime, bg.GetQueueId(), arenaType);
+        BuildBattlegroundStatusHeader(battlefieldStatus.Hdr, bg, player, ticketId, joinTime, bg.QueueId, arenaType);
         battlefieldStatus.Mapid = bg.MapId;
         battlefieldStatus.Timeout = timeout;
         battlefieldStatus.Role = 0;

@@ -14,7 +14,7 @@ internal class AchievementCommand
     {
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 

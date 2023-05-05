@@ -4,6 +4,7 @@
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IWeather;
 using Serilog;
 

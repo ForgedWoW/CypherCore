@@ -432,7 +432,7 @@ public partial class Player
             {
                 map = currentBg.BgMap;
 
-                var bgQueueTypeId = currentBg.GetQueueId();
+                var bgQueueTypeId = currentBg.QueueId;
                 AddBattlegroundQueueId(bgQueueTypeId);
 
                 _bgData.BgTypeId = currentBg.GetTypeID();

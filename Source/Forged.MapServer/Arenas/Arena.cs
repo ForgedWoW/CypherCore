@@ -191,7 +191,7 @@ public class Arena : Battleground
 
                 var aliveWinners = GetAlivePlayersCountByTeam(winner);
 
-                foreach (var pair in GetPlayers())
+                foreach (var pair in Players)
                 {
                     var team = pair.Value.Team;
 
@@ -211,7 +211,7 @@ public class Arena : Battleground
                         continue;
                     }
 
-                    var player = _GetPlayer(pair.Key, pair.Value.OfflineRemoveTime != 0, "Arena.EndBattleground");
+                    var player = GetPlayer(pair.Key, pair.Value.OfflineRemoveTime != 0, "Arena.EndBattleground");
 
                     if (player == null)
                         continue;
@@ -288,7 +288,7 @@ public class Arena : Battleground
     public override void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
     {
         if (IsRated && Status == BattlegroundStatus.InProgress)
-            if (GetPlayers().TryGetValue(guid, out var bgPlayer)) // check if the player was a participant of the match, or only entered through gm command (appear)
+            if (Players.TryGetValue(guid, out var bgPlayer)) // check if the player was a participant of the match, or only entered through gm command (appear)
             {
                 // if the player was a match participant, calculate rating
                 var winnerArenaTeam = ArenaTeamManager.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(bgPlayer.Team)));
@@ -297,7 +297,7 @@ public class Arena : Battleground
                 // left a rated match while the encounter was in progress, consider as loser
                 if (winnerArenaTeam != null && loserArenaTeam != null && winnerArenaTeam != loserArenaTeam)
                 {
-                    var player = _GetPlayer(guid, bgPlayer.OfflineRemoveTime != 0, "Arena.RemovePlayerAtLeave");
+                    var player = GetPlayer(guid, bgPlayer.OfflineRemoveTime != 0, "Arena.RemovePlayerAtLeave");
 
                     if (player != null)
                         loserArenaTeam.MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));

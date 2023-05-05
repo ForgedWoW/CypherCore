@@ -301,7 +301,7 @@ public abstract class WorldObject : IDisposable
             Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
     }
 
-    public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
+    public virtual bool IsWithinDistance(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         return Location.IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
     }

@@ -141,33 +141,33 @@ public class VehicleJoinEvent : BasicEvent
         Passenger.SetControlled(true, UnitState.Root); // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
         // also adds MOVEMENTFLAG_ROOT
 
-        var initializer = (MoveSplineInit init) =>
+        void Initializer(MoveSplineInit init)
         {
             init.DisableTransportPathTransformations();
             init.MoveTo(x, y, z, false, true);
             init.SetFacing(o);
             init.SetTransportEnter();
-        };
+        }
 
-        Passenger.MotionMaster.LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
+        Passenger.MotionMaster.LaunchMoveSpline(Initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
 
         foreach (var (_, threatRef) in Passenger.GetThreatManager().ThreatenedByMeList)
             threatRef.Owner.GetThreatManager().AddThreat(Target.Base, threatRef.Threat, null, true, true);
 
         var creature = Target.Base.AsCreature;
 
-        if (creature != null)
-        {
-            var ai = creature.AI;
+        if (creature == null)
+            return true;
 
-            ai?.PassengerBoarded(Passenger, Seat.Key, true);
+        var ai = creature.AI;
 
-            ScriptManager.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.Base.AsCreature.GetScriptId());
+        ai?.PassengerBoarded(Passenger, Seat.Key, true);
 
-            // Actually quite a redundant hook. Could just use OnAddPassenger and check for unit typemask inside script.
-            if (Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
-                ScriptManager.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.AsCreature), Target.Base.AsCreature.GetScriptId());
-        }
+        Passenger.ScriptManager.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.Base.AsCreature.GetScriptId());
+
+        // Actually quite a redundant hook. Could just use OnAddPassenger and check for unit typemask inside script.
+        if (Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
+            Passenger.ScriptManager.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.AsCreature), Target.Base.AsCreature.GetScriptId());
 
         return true;
     }

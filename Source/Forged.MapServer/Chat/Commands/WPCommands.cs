@@ -26,7 +26,7 @@ internal class WpCommands
 
         if (!optionalPathId.HasValue)
         {
-            if (target)
+            if (target != null)
                 pathId = target.WaypointPath;
             else
             {
@@ -348,7 +348,7 @@ internal class WpCommands
 
         var pathId = optionalPathId.Value;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -424,7 +424,7 @@ internal class WpCommands
         var target = handler.SelectedCreature;
 
         // User did select a visual waypoint?
-        if (!target || target.Entry != 1)
+        if (target is not { Entry: 1 })
         {
             handler.SendSysMessage("|cffff33ffERROR: You must select a waypoint.|r");
 
@@ -526,14 +526,14 @@ internal class WpCommands
             // re-create
             var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, chr.Location);
 
-            if (!creature)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
 
                 return false;
             }
 
-            PhasingHandler.InheritPhaseShift(creature, chr);
+            handler.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(creature, chr);
 
             creature.SaveToDB(map.Id,
                               new List<Difficulty>
@@ -550,7 +550,7 @@ internal class WpCommands
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
             creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
 
-            if (!creature)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
 
@@ -612,7 +612,7 @@ internal class WpCommands
             // No PathID provided
             // . Player must have selected a creature
 
-            if (!target)
+            if (target == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -626,121 +626,194 @@ internal class WpCommands
             // PathID provided
             // Warn if player also selected a creature
             // . Creature selection is ignored <-
-            if (target)
+            if (target != null)
                 handler.SendSysMessage(CypherStrings.WaypointCreatselected);
 
             pathId = optionalPathId.Value;
         }
 
-        // Show info for the selected waypoint
-        if (subCommand == "info")
+        switch (subCommand)
         {
+            // Show info for the selected waypoint
             // Check if the user did specify a visual waypoint
-            if (!target || target.Entry != 1)
-            {
+            case "info" when target is not { Entry: 1 }:
                 handler.SendSysMessage(CypherStrings.WaypointVpSelect);
 
                 return false;
-            }
-
-            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
-            stmt.AddValue(0, target.SpawnId);
-            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
-
-            if (result.IsEmpty())
+            case "info":
             {
-                handler.SendSysMessage(CypherStrings.WaypointNotfounddbproblem, target.SpawnId);
+                var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
+                stmt.AddValue(0, target.SpawnId);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
-                return true;
-            }
+                if (result.IsEmpty())
+                {
+                    handler.SendSysMessage(CypherStrings.WaypointNotfounddbproblem, target.SpawnId);
 
-            handler.SendSysMessage("|cff00ffffDEBUG: wp show info:|r");
+                    return true;
+                }
 
-            do
-            {
-                pathId = result.Read<uint>(0);
-                var point = result.Read<uint>(1);
-                var delay = result.Read<uint>(2);
-                var flag = result.Read<uint>(3);
-                var evID = result.Read<uint>(4);
-                uint evChance = result.Read<ushort>(5);
-
-                handler.SendSysMessage("|cff00ff00Show info: for current point: |r|cff00ffff{0}|r|cff00ff00, Path ID: |r|cff00ffff{1}|r", point, pathId);
-                handler.SendSysMessage("|cff00ff00Show info: delay: |r|cff00ffff{0}|r", delay);
-                handler.SendSysMessage("|cff00ff00Show info: Move Id: |r|cff00ffff{0}|r", flag);
-                handler.SendSysMessage("|cff00ff00Show info: Waypoint event: |r|cff00ffff{0}|r", evID);
-                handler.SendSysMessage("|cff00ff00Show info: Event chance: |r|cff00ffff{0}|r", evChance);
-            } while (result.NextRow());
-
-            return true;
-        }
-
-        if (subCommand == "on")
-        {
-            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_BY_ID);
-            stmt.AddValue(0, pathId);
-            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
-
-            if (result.IsEmpty())
-            {
-                handler.SendSysMessage("|cffff33ffPath no found.|r");
-
-                return false;
-            }
-
-            handler.SendSysMessage("|cff00ff00DEBUG: wp on, PathID: |cff00ffff{0}|r", pathId);
-
-            // Delete all visuals for this NPC
-            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_WPGUID_BY_ID);
-            stmt.AddValue(0, pathId);
-            var result2 = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
-
-            if (!result2.IsEmpty())
-            {
-                var hasError = false;
+                handler.SendSysMessage("|cff00ffffDEBUG: wp show info:|r");
 
                 do
                 {
-                    var wpguid = result2.Read<ulong>(0);
+                    pathId = result.Read<uint>(0);
+                    var point = result.Read<uint>(1);
+                    var delay = result.Read<uint>(2);
+                    var flag = result.Read<uint>(3);
+                    var evID = result.Read<uint>(4);
+                    uint evChance = result.Read<ushort>(5);
 
-                    if (!handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(wpguid))
-                    {
-                        handler.SendSysMessage(CypherStrings.WaypointNotremoved, wpguid);
-                        hasError = true;
-                    }
-                } while (result2.NextRow());
+                    handler.SendSysMessage("|cff00ff00Show info: for current point: |r|cff00ffff{0}|r|cff00ff00, Path ID: |r|cff00ffff{1}|r", point, pathId);
+                    handler.SendSysMessage("|cff00ff00Show info: delay: |r|cff00ffff{0}|r", delay);
+                    handler.SendSysMessage("|cff00ff00Show info: Move Id: |r|cff00ffff{0}|r", flag);
+                    handler.SendSysMessage("|cff00ff00Show info: Waypoint event: |r|cff00ffff{0}|r", evID);
+                    handler.SendSysMessage("|cff00ff00Show info: Event chance: |r|cff00ffff{0}|r", evChance);
+                } while (result.NextRow());
 
-                if (hasError)
-                {
-                    handler.SendSysMessage(CypherStrings.WaypointToofar1);
-                    handler.SendSysMessage(CypherStrings.WaypointToofar2);
-                    handler.SendSysMessage(CypherStrings.WaypointToofar3);
-                }
+                return true;
             }
-
-            do
+            case "on":
             {
-                var point = result.Read<uint>(0);
-                var x = result.Read<float>(1);
-                var y = result.Read<float>(2);
-                var z = result.Read<float>(3);
-                var o = result.Read<float>(4);
+                var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_BY_ID);
+                stmt.AddValue(0, pathId);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
-                uint id = 1;
-
-                var chr = handler.Session.Player;
-                var map = chr.Location.Map;
-
-                var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(id, map, new Position(x, y, z, o));
-
-                if (!creature)
+                if (result.IsEmpty())
                 {
-                    handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, id);
+                    handler.SendSysMessage("|cffff33ffPath no found.|r");
 
                     return false;
                 }
 
-                PhasingHandler.InheritPhaseShift(creature, chr);
+                handler.SendSysMessage("|cff00ff00DEBUG: wp on, PathID: |cff00ffff{0}|r", pathId);
+
+                // Delete all visuals for this NPC
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_WPGUID_BY_ID);
+                stmt.AddValue(0, pathId);
+                var result2 = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
+
+                if (!result2.IsEmpty())
+                {
+                    var hasError = false;
+
+                    do
+                    {
+                        var wpguid = result2.Read<ulong>(0);
+
+                        if (!handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(wpguid))
+                        {
+                            handler.SendSysMessage(CypherStrings.WaypointNotremoved, wpguid);
+                            hasError = true;
+                        }
+                    } while (result2.NextRow());
+
+                    if (hasError)
+                    {
+                        handler.SendSysMessage(CypherStrings.WaypointToofar1);
+                        handler.SendSysMessage(CypherStrings.WaypointToofar2);
+                        handler.SendSysMessage(CypherStrings.WaypointToofar3);
+                    }
+                }
+
+                do
+                {
+                    var point = result.Read<uint>(0);
+                    var x = result.Read<float>(1);
+                    var y = result.Read<float>(2);
+                    var z = result.Read<float>(3);
+                    var o = result.Read<float>(4);
+
+                    uint id = 1;
+
+                    var chr = handler.Session.Player;
+                    var map = chr.Location.Map;
+
+                    var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(id, map, new Position(x, y, z, o));
+
+                    if (creature == null)
+                    {
+                        handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, id);
+
+                        return false;
+                    }
+
+                    handler.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(creature, chr);
+
+                    creature.SaveToDB(map.Id,
+                                      new List<Difficulty>
+                                      {
+                                          map.DifficultyID
+                                      });
+
+                    var dbGuid = creature.SpawnId;
+
+                    // current "wpCreature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
+                    creature.CleanupsBeforeDelete();
+                    creature.Dispose();
+
+                    // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
+                    creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
+
+                    if (creature == null)
+                    {
+                        handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, id);
+
+                        return false;
+                    }
+
+                    if (target != null)
+                    {
+                        creature.SetDisplayId(target.DisplayId);
+                        creature.ObjectScale = 0.5f;
+                        creature.SetLevel(Math.Min(point, SharedConst.StrongMaxLevel));
+                    }
+
+                    // Set "wpguid" column to the visual waypoint
+                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_WPGUID);
+                    stmt.AddValue(0, creature.SpawnId);
+                    stmt.AddValue(1, pathId);
+                    stmt.AddValue(2, point);
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
+                } while (result.NextRow());
+
+                handler.SendSysMessage("|cff00ff00Showing the current creature's path.|r");
+
+                return true;
+            }
+            case "first":
+            {
+                handler.SendSysMessage("|cff00ff00DEBUG: wp first, pathid: {0}|r", pathId);
+
+                var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
+                stmt.AddValue(0, pathId);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
+
+                if (result.IsEmpty())
+                {
+                    handler.SendSysMessage(CypherStrings.WaypointNotfound, pathId);
+
+                    return false;
+                }
+
+                var x = result.Read<float>(0);
+                var y = result.Read<float>(1);
+                var z = result.Read<float>(2);
+                result.Read<float>(3);
+
+                var chr = handler.Session.Player;
+                var map = chr.Location.Map;
+
+                var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, new Position(x, y, z));
+
+                if (creature == null)
+                {
+                    handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
+
+                    return false;
+                }
+
+                handler.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(creature, chr);
 
                 creature.SaveToDB(map.Id,
                                   new List<Difficulty>
@@ -750,216 +823,139 @@ internal class WpCommands
 
                 var dbGuid = creature.SpawnId;
 
-                // current "wpCreature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
+                // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
                 creature.CleanupsBeforeDelete();
                 creature.Dispose();
 
-                // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                 creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
 
-                if (!creature)
+                if (creature == null)
                 {
-                    handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, id);
+                    handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
 
                     return false;
                 }
 
-                if (target)
+                if (target == null)
+                    return true;
+
+                creature.SetDisplayId(target.DisplayId);
+                creature.ObjectScale = 0.5f;
+
+                return true;
+            }
+            case "last":
+            {
+                handler.SendSysMessage("|cff00ff00DEBUG: wp last, PathID: |r|cff00ffff{0}|r", pathId);
+
+                var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_LAST_BY_ID);
+                stmt.AddValue(0, pathId);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
+
+                if (result.IsEmpty())
                 {
-                    creature.SetDisplayId(target.DisplayId);
-                    creature.ObjectScale = 0.5f;
-                    creature.SetLevel(Math.Min(point, SharedConst.StrongMaxLevel));
+                    handler.SendSysMessage(CypherStrings.WaypointNotfoundlast, pathId);
+
+                    return false;
                 }
 
-                // Set "wpguid" column to the visual waypoint
-                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_WPGUID);
-                stmt.AddValue(0, creature.SpawnId);
-                stmt.AddValue(1, pathId);
-                stmt.AddValue(2, point);
+                var x = result.Read<float>(0);
+                var y = result.Read<float>(1);
+                var z = result.Read<float>(2);
+                var o = result.Read<float>(3);
+
+                var chr = handler.Session.Player;
+                var map = chr.Location.Map;
+                Position pos = new(x, y, z, o);
+
+                var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, pos);
+
+                if (creature == null)
+                {
+                    handler.SendSysMessage(CypherStrings.WaypointNotcreated, 1);
+
+                    return false;
+                }
+
+                handler.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(creature, chr);
+
+                creature.SaveToDB(map.Id,
+                                  new List<Difficulty>
+                                  {
+                                      map.DifficultyID
+                                  });
+
+                var dbGuid = creature.SpawnId;
+
+                // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
+                creature.CleanupsBeforeDelete();
+                creature.Dispose();
+
+                creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
+
+                if (creature == null)
+                {
+                    handler.SendSysMessage(CypherStrings.WaypointNotcreated, 1);
+
+                    return false;
+                }
+
+                if (target == null)
+                    return true;
+
+                creature.SetDisplayId(target.DisplayId);
+                creature.ObjectScale = 0.5f;
+
+                return true;
+            }
+            case "off":
+            {
+                var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_CREATURE_BY_ID);
+                stmt.AddValue(0, 1);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
+
+                if (result.IsEmpty())
+                {
+                    handler.SendSysMessage(CypherStrings.WaypointVpNotfound);
+
+                    return false;
+                }
+
+                var hasError = false;
+
+                do
+                {
+                    var lowguid = result.Read<ulong>(0);
+
+                    if (!handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(lowguid))
+                    {
+                        handler.SendSysMessage(CypherStrings.WaypointNotremoved, lowguid);
+                        hasError = true;
+                    }
+                } while (result.NextRow());
+
+                // set "wpguid" column to "empty" - no visual waypoint spawned
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_ALL_WPGUID);
+
                 handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
-            } while (result.NextRow());
+                //handler.ClassFactory.Resolve<WorldDatabase>().PExecute("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
 
-            handler.SendSysMessage("|cff00ff00Showing the current creature's path.|r");
-
-            return true;
-        }
-
-        if (subCommand == "first")
-        {
-            handler.SendSysMessage("|cff00ff00DEBUG: wp first, pathid: {0}|r", pathId);
-
-            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
-            stmt.AddValue(0, pathId);
-            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
-
-            if (result.IsEmpty())
-            {
-                handler.SendSysMessage(CypherStrings.WaypointNotfound, pathId);
-
-                return false;
-            }
-
-            var x = result.Read<float>(0);
-            var y = result.Read<float>(1);
-            var z = result.Read<float>(2);
-            result.Read<float>(3);
-
-            var chr = handler.Session.Player;
-            var map = chr.Location.Map;
-
-            var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, new Position(x, y, z));
-
-            if (!creature)
-            {
-                handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
-
-                return false;
-            }
-
-            PhasingHandler.InheritPhaseShift(creature, chr);
-
-            creature.SaveToDB(map.Id,
-                              new List<Difficulty>
-                              {
-                                  map.DifficultyID
-                              });
-
-            var dbGuid = creature.SpawnId;
-
-            // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
-            creature.CleanupsBeforeDelete();
-            creature.Dispose();
-
-            creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
-
-            if (!creature)
-            {
-                handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
-
-                return false;
-            }
-
-            if (target)
-            {
-                creature.SetDisplayId(target.DisplayId);
-                creature.ObjectScale = 0.5f;
-            }
-
-            return true;
-        }
-
-        if (subCommand == "last")
-        {
-            handler.SendSysMessage("|cff00ff00DEBUG: wp last, PathID: |r|cff00ffff{0}|r", pathId);
-
-            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_LAST_BY_ID);
-            stmt.AddValue(0, pathId);
-            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
-
-            if (result.IsEmpty())
-            {
-                handler.SendSysMessage(CypherStrings.WaypointNotfoundlast, pathId);
-
-                return false;
-            }
-
-            var x = result.Read<float>(0);
-            var y = result.Read<float>(1);
-            var z = result.Read<float>(2);
-            var o = result.Read<float>(3);
-
-            var chr = handler.Session.Player;
-            var map = chr.Location.Map;
-            Position pos = new(x, y, z, o);
-
-            var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, pos);
-
-            if (!creature)
-            {
-                handler.SendSysMessage(CypherStrings.WaypointNotcreated, 1);
-
-                return false;
-            }
-
-            PhasingHandler.InheritPhaseShift(creature, chr);
-
-            creature.SaveToDB(map.Id,
-                              new List<Difficulty>
-                              {
-                                  map.DifficultyID
-                              });
-
-            var dbGuid = creature.SpawnId;
-
-            // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
-            creature.CleanupsBeforeDelete();
-            creature.Dispose();
-
-            creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
-
-            if (!creature)
-            {
-                handler.SendSysMessage(CypherStrings.WaypointNotcreated, 1);
-
-                return false;
-            }
-
-            if (target)
-            {
-                creature.SetDisplayId(target.DisplayId);
-                creature.ObjectScale = 0.5f;
-            }
-
-            return true;
-        }
-
-        if (subCommand == "off")
-        {
-            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_CREATURE_BY_ID);
-            stmt.AddValue(0, 1);
-            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
-
-            if (result.IsEmpty())
-            {
-                handler.SendSysMessage(CypherStrings.WaypointVpNotfound);
-
-                return false;
-            }
-
-            var hasError = false;
-
-            do
-            {
-                var lowguid = result.Read<ulong>(0);
-
-                if (!handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(lowguid))
+                if (hasError)
                 {
-                    handler.SendSysMessage(CypherStrings.WaypointNotremoved, lowguid);
-                    hasError = true;
+                    handler.SendSysMessage(CypherStrings.WaypointToofar1);
+                    handler.SendSysMessage(CypherStrings.WaypointToofar2);
+                    handler.SendSysMessage(CypherStrings.WaypointToofar3);
                 }
-            } while (result.NextRow());
 
-            // set "wpguid" column to "empty" - no visual waypoint spawned
-            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_ALL_WPGUID);
+                handler.SendSysMessage(CypherStrings.WaypointVpAllremoved);
 
-            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
-            //handler.ClassFactory.Resolve<WorldDatabase>().PExecute("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
-
-            if (hasError)
-            {
-                handler.SendSysMessage(CypherStrings.WaypointToofar1);
-                handler.SendSysMessage(CypherStrings.WaypointToofar2);
-                handler.SendSysMessage(CypherStrings.WaypointToofar3);
+                return true;
             }
+            default:
+                handler.SendSysMessage("|cffff33ffDEBUG: wpshow - no valid command found|r");
 
-            handler.SendSysMessage(CypherStrings.WaypointVpAllremoved);
-
-            return true;
+                return true;
         }
-
-        handler.SendSysMessage("|cffff33ffDEBUG: wpshow - no valid command found|r");
-
-        return true;
     }
 
     [Command("unload", RBACPermissions.CommandWpUnload)]
@@ -967,7 +963,7 @@ internal class WpCommands
     {
         var target = handler.SelectedCreature;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage("|cff33ffffYou must select a target.|r");
 

@@ -184,7 +184,7 @@ internal class RingofValorArena : Arena
                     go.SetGoState(state);
                 }
 
-                foreach (var guid in GetPlayers().Keys)
+                foreach (var guid in Players.Keys)
                 {
                     var player = Global.ObjAccessor.FindPlayer(guid);
 

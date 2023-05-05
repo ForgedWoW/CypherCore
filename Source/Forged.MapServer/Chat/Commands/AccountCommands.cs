@@ -695,7 +695,7 @@ internal class AccountCommands
             {
                 var player = handler.SelectedPlayer;
 
-                if (!player)
+                if (player == null)
                     return false;
 
                 accountId = player.Session.AccountId;
@@ -795,7 +795,7 @@ internal class AccountCommands
             {
                 var player = handler.SelectedPlayer;
 
-                if (!player)
+                if (player == null)
                     return false;
 
                 accountId = player.Session.AccountId;

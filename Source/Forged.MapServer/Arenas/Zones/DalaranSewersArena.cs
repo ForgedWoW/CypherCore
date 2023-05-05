@@ -183,7 +183,7 @@ internal class DalaranSewersArena : Arena
         DoorOpen(DalaranSewersObjectTypes.WATER2);
 
         // Remove effects of Demonic Circle Summon
-        foreach (var pair in GetPlayers())
-            _GetPlayer(pair, "BattlegroundDS::StartingEventOpenDoors")?.RemoveAura(DalaranSewersSpells.DEMONIC_CIRCLE);
+        foreach (var pair in Players)
+            GetPlayer(pair, "BattlegroundDS::StartingEventOpenDoors")?.RemoveAura(DalaranSewersSpells.DEMONIC_CIRCLE);
     }
 }

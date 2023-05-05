@@ -843,7 +843,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             var arenaType = (ArenaTypes)bgQueueTypeId.TeamSize;
             bg = _player.Battleground;
 
-            if (bg && bg.GetQueueId() == bgQueueTypeId)
+            if (bg && bg.QueueId == bgQueueTypeId)
             {
                 //i cannot check any variable from player class because player class doesn't know if player is in 2v2 / 3v3 or 5v5 arena
                 //so i must use bg pointer to get that information

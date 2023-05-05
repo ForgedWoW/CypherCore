@@ -49,7 +49,7 @@ internal class BGQueueInviteEvent : BasicEvent
         if (bg == null)
             return true;
 
-        var bgQueueTypeId = bg.GetQueueId();
+        var bgQueueTypeId = bg.QueueId;
         var queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
 
         if (queueSlot >= SharedConst.PvpTeamsCount) // player is in queue or in Battleground

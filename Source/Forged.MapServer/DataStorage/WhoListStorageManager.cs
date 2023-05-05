@@ -44,7 +44,7 @@ public class WhoListStorageManager
             var guild = player.Guild;
             var guildGuid = ObjectGuid.Empty;
 
-            if (guild)
+            if (guild != null)
                 guildGuid = guild.GetGUID();
 
             _whoListStorage.Add(new WhoListPlayerInfo(player.GUID,

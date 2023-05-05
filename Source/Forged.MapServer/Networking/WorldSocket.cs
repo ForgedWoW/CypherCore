@@ -46,6 +46,7 @@ public class WorldSocket : SocketBase
     };
 
     private readonly ClassFactory _classFactory;
+    private readonly PacketLog _packetLog;
     private readonly IConfiguration _configuration;
     private readonly byte[] _encryptKey;
     private readonly SocketBuffer _headerBuffer;
@@ -68,7 +69,7 @@ public class WorldSocket : SocketBase
     private WorldSession _worldSession;
 
     public WorldSocket(Socket socket, LoginDatabase loginDatabase, PacketManager packetManager,
-                       Realm realm, RealmManager realmManager, IConfiguration configuration, WorldManager worldManager, ClassFactory classFactory) : base(socket)
+                       Realm realm, RealmManager realmManager, IConfiguration configuration, WorldManager worldManager, ClassFactory classFactory, PacketLog packetLog) : base(socket)
     {
         _loginDatabase = loginDatabase;
         _packetManager = packetManager;
@@ -77,6 +78,7 @@ public class WorldSocket : SocketBase
         _configuration = configuration;
         _worldManager = worldManager;
         _classFactory = classFactory;
+        _packetLog = packetLog;
         _serverChallenge = Array.Empty<byte>().GenerateRandomKey(16);
         _worldCrypt = new WorldCrypt();
 
@@ -226,7 +228,7 @@ public class WorldSocket : SocketBase
 
                 var data = packet.BufferData;
                 var opcode = packet.Opcode;
-                PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), ConnectionType.Instance, false);
+                _packetLog.Write(data, (uint)opcode, GetRemoteIpAddress(), ConnectionType.Instance, false);
 
                 ByteBuffer buffer = new();
 
@@ -628,7 +630,7 @@ public class WorldSocket : SocketBase
             case ConnectToSerial.WorldAttempt5:
             {
                 Log.Logger.Error("{0} failed to connect 5 times to world socket, aborting login", _worldSession.GetPlayerInfo());
-                _worldSession.AbortLogin(LoginFailureReason.NoWorld);
+                // _worldSession.AbortLogin(LoginFailureReason.NoWorld); @todo Pandaros Realm Server
 
                 break;
             }
@@ -800,7 +802,7 @@ public class WorldSocket : SocketBase
             return ReadDataHandlerResult.Error;
         }
 
-        PacketLog.Write(packet.GetData(), packet.Opcode, GetRemoteIpAddress(), ConnectionType.Instance, true);
+        _packetLog.Write(packet.GetData(), packet.Opcode, GetRemoteIpAddress(), ConnectionType.Instance, true);
 
         var opcode = (ClientOpcodes)packet.Opcode;
 

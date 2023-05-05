@@ -107,7 +107,7 @@ internal class BanCommands
                 break;
         }
 
-        var author = handler.Session ? handler.Session.PlayerName : "Server";
+        var author = handler.Session != null ? handler.Session.PlayerName : "Server";
         var worldManager = handler.ClassFactory.Resolve<WorldManager>();
         var cfg = handler.ClassFactory.Resolve<IConfiguration>();
 

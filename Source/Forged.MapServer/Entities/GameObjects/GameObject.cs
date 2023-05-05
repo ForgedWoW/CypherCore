@@ -309,7 +309,7 @@ public class GameObject : WorldObject
     private List<ObjectGuid> TapList { get; } = new();
 
     //! Object distance/size - overridden from Object.IsWithinDist. Needs to take in account proper GO size.
-    public override bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
+    public override bool IsWithinDistance(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         //! Following check does check 3d distance
         return IsInRange(obj.Location.X, obj.Location.Y, obj.Location.Z, dist2Compare);
