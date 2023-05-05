@@ -10,9 +10,11 @@ using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.Arenas;
+using Forged.MapServer.Arenas.Zones;
 using Forged.MapServer.AuctionHouse;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.BattleGrounds.Zones;
 using Forged.MapServer.Battlepay;
 using Forged.MapServer.BattlePets;
 using Forged.MapServer.BlackMarket;
@@ -525,6 +527,16 @@ void RegisterInstanced()
     builder.RegisterType<SceneObject>();
     builder.RegisterType<Vehicle>();
     builder.RegisterType<Battleground>();
+    builder.RegisterType<Arena>();
+    builder.RegisterType<BgWarsongGluch>();
+    builder.RegisterType<BgArathiBasin>();
+    builder.RegisterType<NagrandArena>();
+    builder.RegisterType<BladesEdgeArena>();
+    builder.RegisterType<BgEyeofStorm>();
+    builder.RegisterType<RuinsofLordaeronArena>();
+    builder.RegisterType<BgStrandOfAncients>();
+    builder.RegisterType<DalaranSewersArena>();
+    builder.RegisterType<RingofValorArena>();
 }
 
 void RegisterHandlers()

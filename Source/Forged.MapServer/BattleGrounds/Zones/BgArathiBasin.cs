@@ -3,11 +3,22 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
@@ -152,7 +163,12 @@ internal class BgArathiBasin : Battleground
     private bool _mIsInformedNearVictory;
     private uint _mReputationTics;
 
-    public BgArathiBasin(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    public BgArathiBasin(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
+                         CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
+                         GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
+                         CreatureTextManager creatureTextManager, WorldStateManager worldStateManager) :
+        base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
+             guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager)
     {
         _mIsInformedNearVictory = false;
         MBuffChange = true;
@@ -212,9 +228,9 @@ internal class BgArathiBasin : Battleground
             return;
 
         byte node = ABBattlegroundNodes.NODE_STABLES;
-        var obj = BgMap.GetGameObject(BgObjects[node * 8 + 7]);
+        var obj = BgMap.GetGameObject(BgObjects[7]); // BgObjects[node * 8 + 7] node is set to 0 so it was always 7. TODO Panaros - check if node needs to be set
 
-        while (node < ABBattlegroundNodes.DYNAMIC_NODES_COUNT && (!obj || !source.Location.IsWithinDistInMap(obj, 10)))
+        while (node < ABBattlegroundNodes.DYNAMIC_NODES_COUNT && (obj == null || !source.Location.IsWithinDistInMap(obj, 10)))
         {
             ++node;
             obj = BgMap.GetGameObject(BgObjects[node * 8 + ABObjectTypes.AURA_CONTESTED]);
@@ -355,33 +371,30 @@ internal class BgArathiBasin : Battleground
 
             for (byte i = 0; i < nodes.Count; ++i)
             {
-                var entry = Global.ObjectMgr.GetWorldSafeLoc(GraveyardIds[nodes[i]]);
+                var entry = ObjectManager.GetWorldSafeLoc(GraveyardIds[nodes[i]]);
 
                 if (entry == null)
                     continue;
 
-                var dist = (entry.Loc.X - plrX) * (entry.Loc.X - plrX) + (entry.Loc.Y - plrY) * (entry.Loc.Y - plrY);
+                var dist = (entry.Location.X - plrX) * (entry.Location.X - plrX) + (entry.Location.Y - plrY) * (entry.Location.Y - plrY);
 
-                if (mindist > dist)
-                {
-                    mindist = dist;
-                    goodEntry = entry;
-                }
+                if (!(mindist > dist))
+                    continue;
+
+                mindist = dist;
+                goodEntry = entry;
             }
 
             nodes.Clear();
         }
 
         // If not, place ghost on starting location
-        if (goodEntry == null)
-            goodEntry = Global.ObjectMgr.GetWorldSafeLoc(GraveyardIds[teamIndex + 5]);
-
-        return goodEntry;
+        return goodEntry ??= ObjectManager.GetWorldSafeLoc(GraveyardIds[teamIndex + 5]);
     }
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
-        return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EXPLOIT_TELEPORT_LOCATION_HORDE);
+        return ObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EXPLOIT_TELEPORT_LOCATION_HORDE);
     }
 
     public override TeamFaction GetPrematureWinner()
@@ -415,16 +428,16 @@ internal class BgArathiBasin : Battleground
                     TeleportPlayerToExploitLocation(player);
 
                 break;
-            case 3948: // Arathi Basin Alliance Exit.
-            case 3949: // Arathi Basin Horde Exit.
-            case 3866: // Stables
-            case 3869: // Gold Mine
-            case 3867: // Farm
-            case 3868: // Lumber Mill
-            case 3870: // Black Smith
-            case 4020: // Unk1
-            case 4021: // Unk2
-            case 4674: // Unk3
+            //case 3948: // Arathi Basin Alliance Exit.
+            //case 3949: // Arathi Basin Horde Exit.
+            //case 3866: // Stables
+            //case 3869: // Gold Mine
+            //case 3867: // Farm
+            //case 3868: // Lumber Mill
+            //case 3870: // Black Smith
+            //case 4020: // Unk1
+            //case 4021: // Unk2
+            //case 4674: // Unk3
             default:
                 base.HandleAreaTrigger(player, trigger, entered);
 
@@ -572,7 +585,8 @@ internal class BgArathiBasin : Battleground
         }
     }
 
-    public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team) { }
+    public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
+    { }
 
     public override void Reset()
     {
@@ -588,7 +602,7 @@ internal class BgArathiBasin : Battleground
         }
 
         _mIsInformedNearVictory = false;
-        var isBGWeekend = Global.BattlegroundMgr.IsBGWeekend(GetTypeID());
+        var isBGWeekend = BattlegroundManager.IsBGWeekend(GetTypeID());
         _mHonorTics = isBGWeekend ? ABBG_WEEKEND_HONOR_TICKS : NOT_ABBG_WEEKEND_HONOR_TICKS;
         _mReputationTics = isBGWeekend ? ABBG_WEEKEND_REPUTATION_TICKS : NOT_ABBG_WEEKEND_REPUTATION_TICKS;
 
@@ -706,6 +720,7 @@ internal class BgArathiBasin : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)ABObjectives.AssaultBase);
 
                 break;
+
             case ScoreType.BasesDefended:
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)ABObjectives.DefendBase);
 
@@ -764,8 +779,6 @@ internal class BgArathiBasin : Battleground
         RelocateDeadPlayers(BgCreatures[node]);
 
         DelCreature(node);
-
-        // buff object isn't despawned
     }
 
     private void _NodeOccupied(byte node, TeamFaction team)
@@ -788,19 +801,16 @@ internal class BgArathiBasin : Battleground
         if (capturedNodes >= 4)
             CastSpellOnTeam(BattlegroundConst.AB_QUEST_REWARD4_BASES, team);
 
-        var trigger = !BgCreatures[node + 7].IsEmpty ? GetBGCreature(node + 7) : null; // 0-6 spirit guides
-
-        if (!trigger)
-            trigger = AddCreature(SharedConst.WorldTrigger, node + 7, NodePositions[node], GetTeamIndexByTeamId(team));
+        var trigger = (!BgCreatures[node + 7].IsEmpty ? GetBGCreature(node + 7) : null) ?? AddCreature(SharedConst.WorldTrigger, node + 7, NodePositions[node], GetTeamIndexByTeamId(team)); // 0-6 spirit guides
 
         //add bonus honor aura trigger creature when node is accupied
         //cast bonus aura (+50% honor in 25yards)
         //aura should only apply to players who have accupied the node, set correct faction for trigger
-        if (trigger)
-        {
-            trigger.Faction = team == TeamFaction.Alliance ? 84u : 83u;
-            trigger.CastSpell(trigger, BattlegroundConst.SPELL_HONORABLE_DEFENDER25_Y, false);
-        }
+        if (trigger == null)
+            return;
+
+        trigger.Faction = team == TeamFaction.Alliance ? 84u : 83u;
+        trigger.SpellFactory.CastSpell(trigger, BattlegroundConst.SPELL_HONORABLE_DEFENDER25_Y);
     }
 
     private void _SendNodeUpdate(byte node)
@@ -827,32 +837,36 @@ internal class BgArathiBasin : Battleground
         {
             case ABBattlegroundNodes.NODE_STABLES:
                 UpdateWorldState(ABWorldStates.STABLES_ICON_NEW, (int)_mNodes[node] + statePlusArray[(int)_mNodes[node]]);
-                UpdateWorldState(ABWorldStates.STABLES_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied   ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
-                UpdateWorldState(ABWorldStates.STABLES_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested  ? 1 : 0);
+                UpdateWorldState(ABWorldStates.STABLES_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
+                UpdateWorldState(ABWorldStates.STABLES_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested ? 1 : 0);
 
                 break;
+
             case ABBattlegroundNodes.NODE_BLACKSMITH:
                 UpdateWorldState(ABWorldStates.BLACKSMITH_ICON_NEW, (int)_mNodes[node] + statePlusArray[(int)_mNodes[node]]);
-                UpdateWorldState(ABWorldStates.BLACKSMITH_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied   ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
-                UpdateWorldState(ABWorldStates.BLACKSMITH_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested  ? 1 : 0);
+                UpdateWorldState(ABWorldStates.BLACKSMITH_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
+                UpdateWorldState(ABWorldStates.BLACKSMITH_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested ? 1 : 0);
 
                 break;
+
             case ABBattlegroundNodes.NODE_FARM:
                 UpdateWorldState(ABWorldStates.FARM_ICON_NEW, (int)_mNodes[node] + statePlusArray[(int)_mNodes[node]]);
-                UpdateWorldState(ABWorldStates.FARM_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied   ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
-                UpdateWorldState(ABWorldStates.FARM_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested  ? 1 : 0);
+                UpdateWorldState(ABWorldStates.FARM_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
+                UpdateWorldState(ABWorldStates.FARM_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested ? 1 : 0);
 
                 break;
+
             case ABBattlegroundNodes.NODE_LUMBER_MILL:
                 UpdateWorldState(ABWorldStates.LUMBER_MILL_ICON_NEW, (int)_mNodes[node] + statePlusArray[(int)_mNodes[node]]);
-                UpdateWorldState(ABWorldStates.LUMBER_MILL_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied   ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
-                UpdateWorldState(ABWorldStates.LUMBER_MILL_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested  ? 1 : 0);
+                UpdateWorldState(ABWorldStates.LUMBER_MILL_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
+                UpdateWorldState(ABWorldStates.LUMBER_MILL_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested ? 1 : 0);
 
                 break;
+
             case ABBattlegroundNodes.NODE_GOLD_MINE:
                 UpdateWorldState(ABWorldStates.GOLD_MINE_ICON_NEW, (int)_mNodes[node] + statePlusArray[(int)_mNodes[node]]);
-                UpdateWorldState(ABWorldStates.GOLD_MINE_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied   ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
-                UpdateWorldState(ABWorldStates.GOLD_MINE_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested  ? 1 : 0);
+                UpdateWorldState(ABWorldStates.GOLD_MINE_HORDE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.HordeOccupied ? 2 : _mNodes[node] == ABNodeStatus.HordeContested ? 1 : 0);
+                UpdateWorldState(ABWorldStates.GOLD_MINE_ALLIANCE_CONTROL_STATE, _mNodes[node] == ABNodeStatus.AllyOccupied ? 2 : _mNodes[node] == ABNodeStatus.AllyContested ? 1 : 0);
 
                 break;
         }

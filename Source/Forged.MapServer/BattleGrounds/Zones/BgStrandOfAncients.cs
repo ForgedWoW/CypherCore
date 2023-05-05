@@ -4,13 +4,23 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.F;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
@@ -58,7 +68,12 @@ public class BgStrandOfAncients : Battleground
     // 5secs before starting the 1min countdown for second round
     private uint _updateWaitTimer;
 
-    public BgStrandOfAncients(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    public BgStrandOfAncients(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
+                              CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
+                              GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
+                              CreatureTextManager creatureTextManager, WorldStateManager worldStateManager) :
+        base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
+             guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager)
     {
         StartMessageIds[BattlegroundConst.EVENT_ID_FOURTH] = 0;
 
@@ -99,7 +114,8 @@ public class BgStrandOfAncients : Battleground
             TeleportToEntrancePosition(player);
     }
 
-    public override void DestroyGate(Player player, GameObject go) { }
+    public override void DestroyGate(Player player, GameObject go)
+    { }
 
     public override void EndBattleground(TeamFaction winner)
     {
@@ -126,18 +142,21 @@ public class BgStrandOfAncients : Battleground
                     CaptureGraveyard(SaGraveyards.LEFT_CAPTURABLE_GY, source);
 
                 break;
+
             case 191305:
             case 191306:
                 if (CanInteractWithObject(SaObjectTypes.RIGHT_FLAG))
                     CaptureGraveyard(SaGraveyards.RIGHT_CAPTURABLE_GY, source);
 
                 break;
+
             case 191310:
             case 191309:
                 if (CanInteractWithObject(SaObjectTypes.CENTRAL_FLAG))
                     CaptureGraveyard(SaGraveyards.CENTRAL_CAPTURABLE_GY, source);
 
                 break;
+
             default:
                 return;
         }
@@ -145,31 +164,26 @@ public class BgStrandOfAncients : Battleground
 
     public override WorldSafeLocsEntry GetClosestGraveYard(Player player)
     {
-        uint safeloc;
-
         var teamId = GetTeamIndexByTeamId(GetPlayerTeam(player.GUID));
 
-        if (teamId == _attackers)
-            safeloc = SaMiscConst.GYEntries[SaGraveyards.BEACH_GY];
-        else
-            safeloc = SaMiscConst.GYEntries[SaGraveyards.DEFENDER_LAST_GY];
+        var safeloc = teamId == _attackers ? SaMiscConst.GYEntries[SaGraveyards.BEACH_GY] : SaMiscConst.GYEntries[SaGraveyards.DEFENDER_LAST_GY];
 
-        var closest = Global.ObjectMgr.GetWorldSafeLoc(safeloc);
-        var nearest = player.Location.GetExactDistSq(closest.Loc);
+        var closest = ObjectManager.GetWorldSafeLoc(safeloc);
+        var nearest = player.Location.GetExactDistSq(closest.Location);
 
         for (byte i = SaGraveyards.RIGHT_CAPTURABLE_GY; i < SaGraveyards.MAX; i++)
         {
             if (_graveyardStatus[i] != teamId)
                 continue;
 
-            var ret = Global.ObjectMgr.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
-            var dist = player.Location.GetExactDistSq(ret.Loc);
+            var ret = ObjectManager.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
+            var dist = player.Location.GetExactDistSq(ret.Location);
 
-            if (dist < nearest)
-            {
-                closest = ret;
-                nearest = dist;
-            }
+            if (!(dist < nearest))
+                continue;
+
+            closest = ret;
+            nearest = dist;
         }
 
         return closest;
@@ -178,19 +192,19 @@ public class BgStrandOfAncients : Battleground
     public override void HandleAreaTrigger(Player source, uint trigger, bool entered)
     {
         // this is wrong way to implement these things. On official it done by gameobject spell cast.
-        if (Status != BattlegroundStatus.InProgress)
-            return;
+        //if (Status != BattlegroundStatus.InProgress)
+        //    return;
     }
 
     public override void HandleKillUnit(Creature creature, Player killer)
     {
-        if (creature.Entry == SaCreatureIds.DEMOLISHER)
-        {
-            UpdatePlayerScore(killer, ScoreType.DestroyedDemolisher, 1);
-            var worldStateId = _attackers == TeamIds.Horde ? SaWorldStateIds.DESTROYED_HORDE_VEHICLES : SaWorldStateIds.DESTROYED_ALLIANCE_VEHICLES;
-            var currentDestroyedVehicles = Global.WorldStateMgr.GetValue((int)worldStateId, BgMap);
-            UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
-        }
+        if (creature.Entry != SaCreatureIds.DEMOLISHER)
+            return;
+
+        UpdatePlayerScore(killer, ScoreType.DestroyedDemolisher, 1);
+        var worldStateId = _attackers == TeamIds.Horde ? SaWorldStateIds.DESTROYED_HORDE_VEHICLES : SaWorldStateIds.DESTROYED_ALLIANCE_VEHICLES;
+        var currentDestroyedVehicles = WorldStateManager.GetValue((int)worldStateId, BgMap);
+        UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
     }
 
     public override bool IsSpellAllowed(uint spellId, Player player)
@@ -198,9 +212,9 @@ public class BgStrandOfAncients : Battleground
         return spellId switch
         {
             SaSpellIds.ALLIANCE_CONTROL_PHASE_SHIFT => _attackers == TeamIds.Horde,
-            SaSpellIds.HORDE_CONTROL_PHASE_SHIFT    => _attackers == TeamIds.Alliance,
-            BattlegroundConst.SPELL_PREPARATION      => _status is SaStatus.Warmup or SaStatus.SecondWarmup,
-            _                                       => true
+            SaSpellIds.HORDE_CONTROL_PHASE_SHIFT => _attackers == TeamIds.Alliance,
+            BattlegroundConst.SPELL_PREPARATION => _status is SaStatus.Warmup or SaStatus.SecondWarmup,
+            _ => true
         };
     }
 
@@ -227,229 +241,220 @@ public class BgStrandOfAncients : Battleground
 
         _totalTime += diff;
 
-        if (_status == SaStatus.Warmup)
+        switch (_status)
         {
-            _endRoundTimer = SaTimers.ROUND_LENGTH;
-            UpdateWorldState(SaWorldStateIds.TIMER, (int)(GameTime.CurrentTime + _endRoundTimer));
-
-            if (_totalTime >= SaTimers.WARMUP_LENGTH)
+            case SaStatus.Warmup:
             {
-                var c = GetBGCreature(SaCreatureTypes.KANRETHAD);
+                _endRoundTimer = SaTimers.ROUND_LENGTH;
+                UpdateWorldState(SaWorldStateIds.TIMER, (int)(GameTime.CurrentTime + _endRoundTimer));
 
-                if (c)
-                    SendChatMessage(c, SaTextIds.ROUND_STARTED);
+                if (_totalTime >= SaTimers.WARMUP_LENGTH)
+                {
+                    var c = GetBGCreature(SaCreatureTypes.KANRETHAD);
 
-                _totalTime = 0;
-                ToggleTimer();
-                DemolisherStartState(false);
-                _status = SaStatus.RoundOne;
-                TriggerGameEvent(_attackers == TeamIds.Alliance ? 23748 : 21702u);
+                    if (c != null)
+                        SendChatMessage(c, SaTextIds.ROUND_STARTED);
+
+                    _totalTime = 0;
+                    ToggleTimer();
+                    DemolisherStartState(false);
+                    _status = SaStatus.RoundOne;
+                    TriggerGameEvent(_attackers == TeamIds.Alliance ? 23748 : 21702u);
+                }
+
+                if (_totalTime >= SaTimers.BOAT_START)
+                    StartShips();
+
+                return;
             }
+            case SaStatus.SecondWarmup:
+            {
+                _endRoundTimer = _roundScores[0].Time < SaTimers.ROUND_LENGTH ? _roundScores[0].Time : SaTimers.ROUND_LENGTH;
 
-            if (_totalTime >= SaTimers.BOAT_START)
+                UpdateWorldState(SaWorldStateIds.TIMER, (int)(GameTime.CurrentTime + _endRoundTimer));
+
+                if (_totalTime >= 60000)
+                {
+                    var c = GetBGCreature(SaCreatureTypes.KANRETHAD);
+
+                    if (c != null)
+                        SendChatMessage(c, SaTextIds.ROUND_STARTED);
+
+                    _totalTime = 0;
+                    ToggleTimer();
+                    DemolisherStartState(false);
+                    _status = SaStatus.RoundTwo;
+                    TriggerGameEvent(_attackers == TeamIds.Alliance ? 23748 : 21702u);
+                    // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
+                    SetStatus(BattlegroundStatus.InProgress);
+
+                    foreach (var pair in GetPlayers())
+                        ObjectAccessor.FindPlayer(pair.Key)?.RemoveAura(BattlegroundConst.SPELL_PREPARATION);
+                }
+
+                if (_totalTime >= 30000)
+                    if (!_signaledRoundTwoHalfMin)
+                    {
+                        _signaledRoundTwoHalfMin = true;
+                        SendBroadcastText(SaBroadcastTexts.ROUND_TWO_START_HALF_MINUTE, ChatMsg.BgSystemNeutral);
+                    }
+
                 StartShips();
 
-            return;
+                return;
+            }
         }
 
-        if (_status == SaStatus.SecondWarmup)
+        if (Status != BattlegroundStatus.InProgress)
+            return;
+
+        switch (_status)
         {
-            if (_roundScores[0].Time < SaTimers.ROUND_LENGTH)
-                _endRoundTimer = _roundScores[0].Time;
-            else
-                _endRoundTimer = SaTimers.ROUND_LENGTH;
-
-            UpdateWorldState(SaWorldStateIds.TIMER, (int)(GameTime.CurrentTime + _endRoundTimer));
-
-            if (_totalTime >= 60000)
-            {
-                var c = GetBGCreature(SaCreatureTypes.KANRETHAD);
-
-                if (c)
-                    SendChatMessage(c, SaTextIds.ROUND_STARTED);
-
+            case SaStatus.RoundOne when _totalTime >= SaTimers.ROUND_LENGTH:
+                CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
+                CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
+                _roundScores[0].Winner = (uint)_attackers;
+                _roundScores[0].Time = SaTimers.ROUND_LENGTH;
                 _totalTime = 0;
+                _status = SaStatus.SecondWarmup;
+                _attackers = _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance;
+                _updateWaitTimer = 5000;
+                _signaledRoundTwo = false;
+                _signaledRoundTwoHalfMin = false;
+                _initSecondRound = true;
                 ToggleTimer();
-                DemolisherStartState(false);
-                _status = SaStatus.RoundTwo;
-                TriggerGameEvent(_attackers == TeamIds.Alliance ? 23748 : 21702u);
-                // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
-                SetStatus(BattlegroundStatus.InProgress);
+                ResetObjs();
+                BgMap.UpdateAreaDependentAuras();
 
-                foreach (var pair in GetPlayers())
-                {
-                    var p = Global.ObjAccessor.FindPlayer(pair.Key);
+                return;
 
-                    if (p)
-                        p.RemoveAura(BattlegroundConst.SPELL_PREPARATION);
-                }
-            }
-
-            if (_totalTime >= 30000)
-                if (!_signaledRoundTwoHalfMin)
-                {
-                    _signaledRoundTwoHalfMin = true;
-                    SendBroadcastText(SaBroadcastTexts.ROUND_TWO_START_HALF_MINUTE, ChatMsg.BgSystemNeutral);
-                }
-
-            StartShips();
-
-            return;
-        }
-
-        if (Status == BattlegroundStatus.InProgress)
-        {
-            if (_status == SaStatus.RoundOne)
+            case SaStatus.RoundTwo when _totalTime >= _endRoundTimer:
             {
-                if (_totalTime >= SaTimers.ROUND_LENGTH)
-                {
-                    CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
-                    CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
-                    _roundScores[0].Winner = (uint)_attackers;
-                    _roundScores[0].Time = SaTimers.ROUND_LENGTH;
-                    _totalTime = 0;
-                    _status = SaStatus.SecondWarmup;
-                    _attackers = _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance;
-                    _updateWaitTimer = 5000;
-                    _signaledRoundTwo = false;
-                    _signaledRoundTwoHalfMin = false;
-                    _initSecondRound = true;
-                    ToggleTimer();
-                    ResetObjs();
-                    BgMap.UpdateAreaDependentAuras();
+                CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
+                CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
+                _roundScores[1].Time = SaTimers.ROUND_LENGTH;
+                _roundScores[1].Winner = (uint)(_attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance);
 
-                    return;
-                }
+                if (_roundScores[0].Time == _roundScores[1].Time)
+                    EndBattleground(0);
+                else if (_roundScores[0].Time < _roundScores[1].Time)
+                    EndBattleground(_roundScores[0].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
+                else
+                    EndBattleground(_roundScores[1].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
+
+                return;
             }
-            else if (_status == SaStatus.RoundTwo)
-                if (_totalTime >= _endRoundTimer)
-                {
-                    CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
-                    CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
-                    _roundScores[1].Time = SaTimers.ROUND_LENGTH;
-                    _roundScores[1].Winner = (uint)(_attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance);
-
-                    if (_roundScores[0].Time == _roundScores[1].Time)
-                        EndBattleground(0);
-                    else if (_roundScores[0].Time < _roundScores[1].Time)
-                        EndBattleground(_roundScores[0].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
-                    else
-                        EndBattleground(_roundScores[1].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
-
-                    return;
-                }
-
-            if (_status is SaStatus.RoundOne or SaStatus.RoundTwo)
-                UpdateDemolisherSpawns();
         }
+
+        if (_status is SaStatus.RoundOne or SaStatus.RoundTwo)
+            UpdateDemolisherSpawns();
     }
 
-    public override void ProcessEvent(WorldObject obj, uint eventId, WorldObject invoker = null)
+    public override void ProcessEvent(WorldObject obj, uint eventId, WorldObject invoker)
     {
         var go = obj.AsGameObject;
 
-        if (go)
-            switch (go.GoType)
+        if (go == null)
+            return;
+
+        switch (go.GoType)
+        {
+            case GameObjectTypes.Goober:
+                if (invoker != null)
+                    if (eventId == (uint)SaEventIds.BGSaEventTitanRelicActivated)
+                        TitanRelicActivated(invoker.AsPlayer);
+
+                break;
+
+            case GameObjectTypes.DestructibleBuilding:
             {
-                case GameObjectTypes.Goober:
-                    if (invoker)
-                        if (eventId == (uint)SaEventIds.BGSaEventTitanRelicActivated)
-                            TitanRelicActivated(invoker.AsPlayer);
+                var gate = GetGate(obj.Entry);
 
-                    break;
-                case GameObjectTypes.DestructibleBuilding:
+                if (gate != null)
                 {
-                    var gate = GetGate(obj.Entry);
+                    var gateId = gate.GateId;
 
-                    if (gate != null)
+                    // damaged
+                    if (eventId == go.Template.DestructibleBuilding.DamagedEvent)
                     {
-                        var gateId = gate.GateId;
+                        _gateStatus[gateId] = _attackers == TeamIds.Horde ? SaGateState.AllianceGateDamaged : SaGateState.HordeGateDamaged;
 
-                        // damaged
-                        if (eventId == go.Template.DestructibleBuilding.DamagedEvent)
-                        {
-                            _gateStatus[gateId] = _attackers == TeamIds.Horde ? SaGateState.AllianceGateDamaged : SaGateState.HordeGateDamaged;
+                        var c = obj.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
-                            var c = obj.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
+                        if (c != null)
+                            SendChatMessage(c, (byte)gate.DamagedText, invoker);
 
-                            if (c)
-                                SendChatMessage(c, (byte)gate.DamagedText, invoker);
-
-                            PlaySoundToAll(_attackers == TeamIds.Alliance ? SaSoundIds.WALL_ATTACKED_ALLIANCE : SaSoundIds.WALL_ATTACKED_HORDE);
-                        }
-                        // destroyed
-                        else if (eventId == go.Template.DestructibleBuilding.DestroyedEvent)
-                        {
-                            _gateStatus[gate.GateId] = _attackers == TeamIds.Horde ? SaGateState.AllianceGateDestroyed : SaGateState.HordeGateDestroyed;
-
-                            if (gateId < 5)
-                                DelObject((int)gateId + 14);
-
-                            var c = obj.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
-
-                            if (c)
-                                SendChatMessage(c, (byte)gate.DestroyedText, invoker);
-
-                            PlaySoundToAll(_attackers == TeamIds.Alliance ? SaSoundIds.WALL_DESTROYED_ALLIANCE : SaSoundIds.WALL_DESTROYED_HORDE);
-
-                            var rewardHonor = true;
-
-                            switch (gateId)
-                            {
-                                case SaObjectTypes.GREEN_GATE:
-                                    if (IsGateDestroyed(SaObjectTypes.BLUE_GATE))
-                                        rewardHonor = false;
-
-                                    break;
-                                case SaObjectTypes.BLUE_GATE:
-                                    if (IsGateDestroyed(SaObjectTypes.GREEN_GATE))
-                                        rewardHonor = false;
-
-                                    break;
-                                case SaObjectTypes.RED_GATE:
-                                    if (IsGateDestroyed(SaObjectTypes.PURPLE_GATE))
-                                        rewardHonor = false;
-
-                                    break;
-                                case SaObjectTypes.PURPLE_GATE:
-                                    if (IsGateDestroyed(SaObjectTypes.RED_GATE))
-                                        rewardHonor = false;
-
-                                    break;
-                            }
-
-                            if (invoker)
-                            {
-                                var unit = invoker.AsUnit;
-
-                                if (unit)
-                                {
-                                    var player = unit.CharmerOrOwnerPlayerOrPlayerItself;
-
-                                    if (player)
-                                    {
-                                        UpdatePlayerScore(player, ScoreType.DestroyedWall, 1);
-
-                                        if (rewardHonor)
-                                            UpdatePlayerScore(player, ScoreType.BonusHonor, GetBonusHonorFromKill(1));
-                                    }
-                                }
-                            }
-
-                            UpdateObjectInteractionFlags();
-                        }
-                        else
-                            break;
-
-                        UpdateWorldState(gate.WorldState, (int)_gateStatus[gateId]);
+                        PlaySoundToAll(_attackers == TeamIds.Alliance ? SaSoundIds.WALL_ATTACKED_ALLIANCE : SaSoundIds.WALL_ATTACKED_HORDE);
                     }
+                    // destroyed
+                    else if (eventId == go.Template.DestructibleBuilding.DestroyedEvent)
+                    {
+                        _gateStatus[gate.GateId] = _attackers == TeamIds.Horde ? SaGateState.AllianceGateDestroyed : SaGateState.HordeGateDestroyed;
 
-                    break;
+                        if (gateId < 5)
+                            DelObject((int)gateId + 14);
+
+                        var c = obj.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
+
+                        if (c != null)
+                            SendChatMessage(c, (byte)gate.DestroyedText, invoker);
+
+                        PlaySoundToAll(_attackers == TeamIds.Alliance ? SaSoundIds.WALL_DESTROYED_ALLIANCE : SaSoundIds.WALL_DESTROYED_HORDE);
+
+                        var rewardHonor = true;
+
+                        switch (gateId)
+                        {
+                            case SaObjectTypes.GREEN_GATE:
+                                if (IsGateDestroyed(SaObjectTypes.BLUE_GATE))
+                                    rewardHonor = false;
+
+                                break;
+
+                            case SaObjectTypes.BLUE_GATE:
+                                if (IsGateDestroyed(SaObjectTypes.GREEN_GATE))
+                                    rewardHonor = false;
+
+                                break;
+
+                            case SaObjectTypes.RED_GATE:
+                                if (IsGateDestroyed(SaObjectTypes.PURPLE_GATE))
+                                    rewardHonor = false;
+
+                                break;
+
+                            case SaObjectTypes.PURPLE_GATE:
+                                if (IsGateDestroyed(SaObjectTypes.RED_GATE))
+                                    rewardHonor = false;
+
+                                break;
+                        }
+
+                        var player = invoker?.AsUnit?.CharmerOrOwnerPlayerOrPlayerItself;
+
+                        if (player != null)
+                        {
+                            UpdatePlayerScore(player, ScoreType.DestroyedWall, 1);
+
+                            if (rewardHonor)
+                                UpdatePlayerScore(player, ScoreType.BonusHonor, GetBonusHonorFromKill(1));
+                        }
+
+                        UpdateObjectInteractionFlags();
+                    }
+                    else
+                        break;
+
+                    UpdateWorldState(gate.WorldState, (int)_gateStatus[gateId]);
                 }
+
+                break;
             }
+        }
     }
 
-    public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team) { }
+    public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
+    { }
 
     public override void Reset()
     {
@@ -479,6 +484,7 @@ public class BgStrandOfAncients : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)SaObjectives.DemolishersDestroyed);
 
                 break;
+
             case ScoreType.DestroyedWall:
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)SaObjectives.GatesDestroyed);
 
@@ -521,7 +527,7 @@ public class BgStrandOfAncients : Battleground
         DelCreature(SaCreatureTypes.MAX + i);
         var teamId = GetTeamIndexByTeamId(GetPlayerTeam(source.GUID));
         _graveyardStatus[i] = teamId;
-        var sg = Global.ObjectMgr.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
+        var sg = ObjectManager.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
 
         if (sg == null)
         {
@@ -530,7 +536,7 @@ public class BgStrandOfAncients : Battleground
             return;
         }
 
-        AddSpiritGuide(i + SaCreatureTypes.MAX, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SaMiscConst.GYOrientation[i], _graveyardStatus[i]);
+        AddSpiritGuide(i + SaCreatureTypes.MAX, sg.Location.X, sg.Location.Y, sg.Location.Z, SaMiscConst.GYOrientation[i], _graveyardStatus[i]);
 
         uint npc;
         int flag;
@@ -554,15 +560,14 @@ public class BgStrandOfAncients : Battleground
                 npc = SaCreatureTypes.RIGSPARK;
                 var rigspark = AddCreature(SaMiscConst.NpcEntries[npc], (int)npc, SaMiscConst.NpcSpawnlocs[npc], _attackers);
 
-                if (rigspark)
-                    rigspark.AI.Talk(SaTextIds.SPARKLIGHT_RIGSPARK_SPAWN);
+                rigspark?.AI.Talk(SaTextIds.SPARKLIGHT_RIGSPARK_SPAWN);
 
                 for (byte j = SaCreatureTypes.DEMOLISHER7; j <= SaCreatureTypes.DEMOLISHER8; j++)
                 {
                     AddCreature(SaMiscConst.NpcEntries[j], j, SaMiscConst.NpcSpawnlocs[j], _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600);
                     var dem = GetBGCreature(j);
 
-                    if (dem)
+                    if (dem != null)
                         dem.Faction = SaMiscConst.Factions[_attackers];
                 }
 
@@ -571,11 +576,12 @@ public class BgStrandOfAncients : Battleground
 
                 var c = source.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
-                if (c)
+                if (c != null)
                     SendChatMessage(c, teamId == TeamIds.Alliance ? SaTextIds.WEST_GRAVEYARD_CAPTURED_A : SaTextIds.WEST_GRAVEYARD_CAPTURED_H, source);
             }
 
-                break;
+            break;
+
             case SaGraveyards.RIGHT_CAPTURABLE_GY:
             {
                 flag = SaObjectTypes.RIGHT_FLAG;
@@ -593,8 +599,7 @@ public class BgStrandOfAncients : Battleground
                 npc = SaCreatureTypes.SPARKLIGHT;
                 var sparklight = AddCreature(SaMiscConst.NpcEntries[npc], (int)npc, SaMiscConst.NpcSpawnlocs[npc], _attackers);
 
-                if (sparklight)
-                    sparklight.AI.Talk(SaTextIds.SPARKLIGHT_RIGSPARK_SPAWN);
+                sparklight?.AI.Talk(SaTextIds.SPARKLIGHT_RIGSPARK_SPAWN);
 
                 for (byte j = SaCreatureTypes.DEMOLISHER5; j <= SaCreatureTypes.DEMOLISHER6; j++)
                 {
@@ -602,7 +607,7 @@ public class BgStrandOfAncients : Battleground
 
                     var dem = GetBGCreature(j);
 
-                    if (dem)
+                    if (dem != null)
                         dem.Faction = SaMiscConst.Factions[_attackers];
                 }
 
@@ -611,11 +616,12 @@ public class BgStrandOfAncients : Battleground
 
                 var c = source.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
-                if (c)
+                if (c != null)
                     SendChatMessage(c, teamId == TeamIds.Alliance ? SaTextIds.EAST_GRAVEYARD_CAPTURED_A : SaTextIds.EAST_GRAVEYARD_CAPTURED_H, source);
             }
 
-                break;
+            break;
+
             case SaGraveyards.CENTRAL_CAPTURABLE_GY:
             {
                 flag = SaObjectTypes.CENTRAL_FLAG;
@@ -635,11 +641,11 @@ public class BgStrandOfAncients : Battleground
 
                 var c = source.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
-                if (c)
+                if (c != null)
                     SendChatMessage(c, teamId == TeamIds.Alliance ? SaTextIds.SOUTH_GRAVEYARD_CAPTURED_A : SaTextIds.SOUTH_GRAVEYARD_CAPTURED_H, source);
             }
 
-                break;
+            break;
         }
     }
 
@@ -653,13 +659,13 @@ public class BgStrandOfAncients : Battleground
         {
             var dem = GetBGCreature(i);
 
-            if (dem)
-            {
-                if (start)
-                    dem.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible);
-                else
-                    dem.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible);
-            }
+            if (dem == null)
+                continue;
+
+            if (start)
+                dem.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible);
+            else
+                dem.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible);
         }
     }
 
@@ -686,7 +692,7 @@ public class BgStrandOfAncients : Battleground
         {
             var gun = GetBGCreature(i);
 
-            if (gun)
+            if (gun != null)
                 gun.Faction = SaMiscConst.Factions[_attackers != 0 ? TeamIds.Alliance : TeamIds.Horde];
         }
 
@@ -694,7 +700,7 @@ public class BgStrandOfAncients : Battleground
         {
             var dem = GetBGCreature(i);
 
-            if (dem)
+            if (dem != null)
                 dem.Faction = SaMiscConst.Factions[_attackers];
         }
     }
@@ -703,9 +709,9 @@ public class BgStrandOfAncients : Battleground
     {
         foreach (var pair in GetPlayers())
         {
-            var player = Global.ObjAccessor.FindPlayer(pair.Key);
+            var player = ObjectAccessor.FindPlayer(pair.Key);
 
-            if (player)
+            if (player != null)
                 SendTransportsRemove(player);
         }
 
@@ -724,7 +730,7 @@ public class BgStrandOfAncients : Battleground
         for (byte i = 0; i < _gateStatus.Length; ++i)
             _gateStatus[i] = _attackers == TeamIds.Horde ? SaGateState.AllianceGateOk : SaGateState.HordeGateOk;
 
-        if (!AddCreature(SaMiscConst.NpcEntries[SaCreatureTypes.KANRETHAD], SaCreatureTypes.KANRETHAD, SaMiscConst.NpcSpawnlocs[SaCreatureTypes.KANRETHAD]))
+        if (AddCreature(SaMiscConst.NpcEntries[SaCreatureTypes.KANRETHAD], SaCreatureTypes.KANRETHAD, SaMiscConst.NpcSpawnlocs[SaCreatureTypes.KANRETHAD]) == null)
         {
             Log.Logger.Error($"SOTA: couldn't spawn Kanrethad, aborted. Entry: {SaMiscConst.NpcEntries[SaCreatureTypes.KANRETHAD]}");
 
@@ -743,7 +749,7 @@ public class BgStrandOfAncients : Battleground
             {
                 SaObjectTypes.BOAT_ONE => _attackers != 0 ? SaGameObjectIds.BOAT_ONE_H : SaGameObjectIds.BOAT_ONE_A,
                 SaObjectTypes.BOAT_TWO => _attackers != 0 ? SaGameObjectIds.BOAT_TWO_H : SaGameObjectIds.BOAT_TWO_A,
-                _                      => 0
+                _ => 0
             };
 
             if (!AddObject(i,
@@ -777,7 +783,7 @@ public class BgStrandOfAncients : Battleground
         //Cannons and demolishers - NPCs are spawned
         //By capturing GYs.
         for (byte i = 0; i < SaCreatureTypes.DEMOLISHER5; i++)
-            if (!AddCreature(SaMiscConst.NpcEntries[i], i, SaMiscConst.NpcSpawnlocs[i], _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600))
+            if (AddCreature(SaMiscConst.NpcEntries[i], i, SaMiscConst.NpcSpawnlocs[i], _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600) == null)
             {
                 Log.Logger.Error($"SOTA: couldn't spawn Cannon or demolisher, Entry: {SaMiscConst.NpcEntries[i]}, Attackers: {(_attackers == TeamIds.Alliance ? "Horde(1)" : "Alliance(0)")}");
             }
@@ -800,7 +806,7 @@ public class BgStrandOfAncients : Battleground
         //Graveyards
         for (byte i = 0; i < SaGraveyards.MAX; i++)
         {
-            var sg = Global.ObjectMgr.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
+            var sg = ObjectManager.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
 
             if (sg == null)
             {
@@ -812,13 +818,13 @@ public class BgStrandOfAncients : Battleground
             if (i == SaGraveyards.BEACH_GY)
             {
                 _graveyardStatus[i] = _attackers;
-                AddSpiritGuide(i + SaCreatureTypes.MAX, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SaMiscConst.GYOrientation[i], _attackers);
+                AddSpiritGuide(i + SaCreatureTypes.MAX, sg.Location.X, sg.Location.Y, sg.Location.Z, SaMiscConst.GYOrientation[i], _attackers);
             }
             else
             {
                 _graveyardStatus[i] = _attackers == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde;
 
-                if (!AddSpiritGuide(i + SaCreatureTypes.MAX, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SaMiscConst.GYOrientation[i], _attackers == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde))
+                if (!AddSpiritGuide(i + SaCreatureTypes.MAX, sg.Location.X, sg.Location.Y, sg.Location.Z, SaMiscConst.GYOrientation[i], _attackers == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde))
                     Log.Logger.Error($"SOTA: couldn't spawn GY: {i}");
             }
         }
@@ -897,9 +903,9 @@ public class BgStrandOfAncients : Battleground
         for (var i = SaObjectTypes.BOAT_ONE; i <= SaObjectTypes.BOAT_TWO; i++)
             foreach (var pair in GetPlayers())
             {
-                var player = Global.ObjAccessor.FindPlayer(pair.Key);
+                var player = ObjectAccessor.FindPlayer(pair.Key);
 
-                if (player)
+                if (player != null)
                     SendTransportInit(player);
             }
 
@@ -913,36 +919,36 @@ public class BgStrandOfAncients : Battleground
 
     private void SendTransportInit(Player player)
     {
-        if (!BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty || !BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
-        {
-            UpdateData transData = new(player.Location.MapId);
+        if (BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty && BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
+            return;
 
-            if (!BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty)
-                GetBGObject(SaObjectTypes.BOAT_ONE).BuildCreateUpdateBlockForPlayer(transData, player);
+        UpdateData transData = new(player.Location.MapId);
 
-            if (!BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
-                GetBGObject(SaObjectTypes.BOAT_TWO).BuildCreateUpdateBlockForPlayer(transData, player);
+        if (!BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty)
+            GetBGObject(SaObjectTypes.BOAT_ONE).BuildCreateUpdateBlockForPlayer(transData, player);
 
-            transData.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
+        if (!BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
+            GetBGObject(SaObjectTypes.BOAT_TWO).BuildCreateUpdateBlockForPlayer(transData, player);
+
+        transData.BuildPacket(out var packet);
+        player.SendPacket(packet);
     }
 
     private void SendTransportsRemove(Player player)
     {
-        if (!BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty || !BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
-        {
-            UpdateData transData = new(player.Location.MapId);
+        if (BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty && BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
+            return;
 
-            if (!BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty)
-                GetBGObject(SaObjectTypes.BOAT_ONE).BuildOutOfRangeUpdateBlock(transData);
+        UpdateData transData = new(player.Location.MapId);
 
-            if (!BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
-                GetBGObject(SaObjectTypes.BOAT_TWO).BuildOutOfRangeUpdateBlock(transData);
+        if (!BgObjects[SaObjectTypes.BOAT_ONE].IsEmpty)
+            GetBGObject(SaObjectTypes.BOAT_ONE).BuildOutOfRangeUpdateBlock(transData);
 
-            transData.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
+        if (!BgObjects[SaObjectTypes.BOAT_TWO].IsEmpty)
+            GetBGObject(SaObjectTypes.BOAT_TWO).BuildOutOfRangeUpdateBlock(transData);
+
+        transData.BuildPacket(out var packet);
+        player.SendPacket(packet);
     }
 
     private void StartShips()
@@ -956,16 +962,16 @@ public class BgStrandOfAncients : Battleground
         for (var i = SaObjectTypes.BOAT_ONE; i <= SaObjectTypes.BOAT_TWO; i++)
             foreach (var pair in GetPlayers())
             {
-                var p = Global.ObjAccessor.FindPlayer(pair.Key);
+                var p = ObjectAccessor.FindPlayer(pair.Key);
 
-                if (p)
-                {
-                    UpdateData data = new(p.Location.MapId);
-                    GetBGObject(i).BuildValuesUpdateBlockForPlayer(data, p);
+                if (p == null)
+                    continue;
 
-                    data.BuildPacket(out var pkt);
-                    p.SendPacket(pkt);
-                }
+                UpdateData data = new(p.Location.MapId);
+                GetBGObject(i).BuildValuesUpdateBlockForPlayer(data, p);
+
+                data.BuildPacket(out var pkt);
+                p.SendPacket(pkt);
             }
 
         _shipsStarted = true;
@@ -975,27 +981,27 @@ public class BgStrandOfAncients : Battleground
     {
         foreach (var pair in GetPlayers())
         {
-            var player = Global.ObjAccessor.FindPlayer(pair.Key);
+            var player = ObjectAccessor.FindPlayer(pair.Key);
 
-            if (player)
+            if (player == null)
+                continue;
+
+            // should remove spirit of redemption
+            if (player.HasAuraType(AuraType.SpiritOfRedemption))
+                player.RemoveAurasByType(AuraType.ModShapeshift);
+
+            if (!player.IsAlive)
             {
-                // should remove spirit of redemption
-                if (player.HasAuraType(AuraType.SpiritOfRedemption))
-                    player.RemoveAurasByType(AuraType.ModShapeshift);
-
-                if (!player.IsAlive)
-                {
-                    player.ResurrectPlayer(1.0f);
-                    player.SpawnCorpseBones();
-                }
-
-                player.ResetAllPowers();
-                player.CombatStopWithPets(true);
-
-                player.CastSpell(player, BattlegroundConst.SPELL_PREPARATION, true);
-
-                TeleportToEntrancePosition(player);
+                player.ResurrectPlayer(1.0f);
+                player.SpawnCorpseBones();
             }
+
+            player.ResetAllPowers();
+            player.CombatStopWithPets(true);
+
+            player.SpellFactory.CastSpell(player, BattlegroundConst.SPELL_PREPARATION, true);
+
+            TeleportToEntrancePosition(player);
         }
     }
 
@@ -1023,79 +1029,88 @@ public class BgStrandOfAncients : Battleground
     You may ask what the fuck does it do?
     Prevents owner overwriting guns faction with own.
     */
+
     private void TitanRelicActivated(Player clicker)
     {
-        if (!clicker)
+        if (clicker == null)
             return;
 
-        if (CanInteractWithObject(SaObjectTypes.TITAN_RELIC))
+        if (!CanInteractWithObject(SaObjectTypes.TITAN_RELIC))
+            return;
+
+        var clickerTeamId = GetTeamIndexByTeamId(GetPlayerTeam(clicker.GUID));
+
+        if (clickerTeamId != _attackers)
+            return;
+
+        SendBroadcastText(clickerTeamId == TeamIds.Alliance ? SaBroadcastTexts.ALLIANCE_CAPTURED_TITAN_PORTAL : SaBroadcastTexts.HORDE_CAPTURED_TITAN_PORTAL, ChatMsg.BgSystemNeutral);
+
+        switch (_status)
         {
-            var clickerTeamId = GetTeamIndexByTeamId(GetPlayerTeam(clicker.GUID));
-
-            if (clickerTeamId == _attackers)
+            case SaStatus.RoundOne:
             {
-                if (clickerTeamId == TeamIds.Alliance)
-                    SendBroadcastText(SaBroadcastTexts.ALLIANCE_CAPTURED_TITAN_PORTAL, ChatMsg.BgSystemNeutral);
+                _roundScores[0].Winner = (uint)_attackers;
+                _roundScores[0].Time = _totalTime;
+
+                // Achievement Storm the Beach (1310)
+                foreach (var pair in GetPlayers())
+                {
+                    var player = ObjectAccessor.FindPlayer(pair.Key);
+
+                    if (player == null)
+                        continue;
+
+                    if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == _attackers)
+                        player.UpdateCriteria(CriteriaType.BeSpellTarget, 65246);
+                }
+
+                _attackers = _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance;
+                _status = SaStatus.SecondWarmup;
+                _totalTime = 0;
+                ToggleTimer();
+
+                var c = GetBGCreature(SaCreatureTypes.KANRETHAD);
+
+                if (c != null)
+                    SendChatMessage(c, SaTextIds.ROUND1_FINISHED);
+
+                _updateWaitTimer = 5000;
+                _signaledRoundTwo = false;
+                _signaledRoundTwoHalfMin = false;
+                _initSecondRound = true;
+                ResetObjs();
+                BgMap.UpdateAreaDependentAuras();
+                CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
+                CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
+
+                break;
+            }
+            case SaStatus.RoundTwo:
+            {
+                _roundScores[1].Winner = (uint)_attackers;
+                _roundScores[1].Time = _totalTime;
+                ToggleTimer();
+
+                // Achievement Storm the Beach (1310)
+                foreach (var pair in GetPlayers())
+                {
+                    var player = ObjectAccessor.FindPlayer(pair.Key);
+
+                    if (player == null)
+                        continue;
+
+                    if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == _attackers && _roundScores[1].Winner == _attackers)
+                        player.UpdateCriteria(CriteriaType.BeSpellTarget, 65246);
+                }
+
+                if (_roundScores[0].Time == _roundScores[1].Time)
+                    EndBattleground(0);
+                else if (_roundScores[0].Time < _roundScores[1].Time)
+                    EndBattleground(_roundScores[0].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
                 else
-                    SendBroadcastText(SaBroadcastTexts.HORDE_CAPTURED_TITAN_PORTAL, ChatMsg.BgSystemNeutral);
+                    EndBattleground(_roundScores[1].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
 
-                if (_status == SaStatus.RoundOne)
-                {
-                    _roundScores[0].Winner = (uint)_attackers;
-                    _roundScores[0].Time = _totalTime;
-
-                    // Achievement Storm the Beach (1310)
-                    foreach (var pair in GetPlayers())
-                    {
-                        var player = Global.ObjAccessor.FindPlayer(pair.Key);
-
-                        if (player)
-                            if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == _attackers)
-                                player.UpdateCriteria(CriteriaType.BeSpellTarget, 65246);
-                    }
-
-                    _attackers = _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance;
-                    _status = SaStatus.SecondWarmup;
-                    _totalTime = 0;
-                    ToggleTimer();
-
-                    var c = GetBGCreature(SaCreatureTypes.KANRETHAD);
-
-                    if (c)
-                        SendChatMessage(c, SaTextIds.ROUND1_FINISHED);
-
-                    _updateWaitTimer = 5000;
-                    _signaledRoundTwo = false;
-                    _signaledRoundTwoHalfMin = false;
-                    _initSecondRound = true;
-                    ResetObjs();
-                    BgMap.UpdateAreaDependentAuras();
-                    CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
-                    CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
-                }
-                else if (_status == SaStatus.RoundTwo)
-                {
-                    _roundScores[1].Winner = (uint)_attackers;
-                    _roundScores[1].Time = _totalTime;
-                    ToggleTimer();
-
-                    // Achievement Storm the Beach (1310)
-                    foreach (var pair in GetPlayers())
-                    {
-                        var player = Global.ObjAccessor.FindPlayer(pair.Key);
-
-                        if (player)
-                            if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == _attackers && _roundScores[1].Winner == _attackers)
-                                player.UpdateCriteria(CriteriaType.BeSpellTarget, 65246);
-                    }
-
-                    if (_roundScores[0].Time == _roundScores[1].Time)
-                        EndBattleground(0);
-                    else if (_roundScores[0].Time < _roundScores[1].Time)
-                        EndBattleground(_roundScores[0].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
-                    else
-                        EndBattleground(_roundScores[1].Winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
-                }
+                break;
             }
         }
     }
@@ -1113,22 +1128,21 @@ public class BgStrandOfAncients : Battleground
             {
                 var demolisher = GetBGCreature(i);
 
-                if (demolisher)
-                    if (demolisher.IsDead)
-                    {
-                        // Demolisher is not in list
-                        if (!_demoliserRespawnList.ContainsKey(i))
-                            _demoliserRespawnList[i] = GameTime.CurrentTimeMS + 30000;
-                        else
-                        {
-                            if (_demoliserRespawnList[i] < GameTime.CurrentTimeMS)
-                            {
-                                demolisher.Location.Relocate(SaMiscConst.NpcSpawnlocs[i]);
-                                demolisher.Respawn();
-                                _demoliserRespawnList.Remove(i);
-                            }
-                        }
-                    }
+                if (demolisher is not { IsDead: true })
+                    continue;
+
+                // Demolisher is not in list
+                if (!_demoliserRespawnList.ContainsKey(i))
+                    _demoliserRespawnList[i] = GameTime.CurrentTimeMS + 30000;
+                else
+                {
+                    if (_demoliserRespawnList[i] >= GameTime.CurrentTimeMS)
+                        continue;
+
+                    demolisher.Location.Relocate(SaMiscConst.NpcSpawnlocs[i]);
+                    demolisher.Respawn();
+                    _demoliserRespawnList.Remove(i);
+                }
             }
     }
 
@@ -1136,13 +1150,13 @@ public class BgStrandOfAncients : Battleground
     {
         var go = GetBGObject((int)objectId);
 
-        if (go)
-        {
-            if (CanInteractWithObject(objectId))
-                go.RemoveFlag(GameObjectFlags.NotSelectable);
-            else
-                go.SetFlag(GameObjectFlags.NotSelectable);
-        }
+        if (go == null)
+            return;
+
+        if (CanInteractWithObject(objectId))
+            go.RemoveFlag(GameObjectFlags.NotSelectable);
+        else
+            go.SetFlag(GameObjectFlags.NotSelectable);
     }
 
     private void UpdateObjectInteractionFlags()

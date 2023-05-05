@@ -3,11 +3,25 @@
 
 using System;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
 using Framework.Dynamic;
+using Framework.Util;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Arenas;
@@ -17,8 +31,14 @@ public class Arena : Battleground
     public ArenaTeamScore[] ArenaTeamScores = new ArenaTeamScore[SharedConst.PvpTeamsCount];
     protected TaskScheduler TaskScheduler = new();
 
-    public Arena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    public Arena(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
+                 CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
+                 GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
+                 CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, ArenaTeamManager arenaTeamManager) :
+        base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
+             guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager)
     {
+        ArenaTeamManager = arenaTeamManager;
         StartDelayTimes[BattlegroundConst.EVENT_ID_FIRST] = BattlegroundStartTimeIntervals.Delay1M;
         StartDelayTimes[BattlegroundConst.EVENT_ID_SECOND] = BattlegroundStartTimeIntervals.Delay30S;
         StartDelayTimes[BattlegroundConst.EVENT_ID_THIRD] = BattlegroundStartTimeIntervals.Delay15S;
@@ -29,6 +49,8 @@ public class Arena : Battleground
         StartMessageIds[BattlegroundConst.EVENT_ID_THIRD] = ArenaBroadcastTexts.FIFTEEN_SECONDS;
         StartMessageIds[BattlegroundConst.EVENT_ID_FOURTH] = ArenaBroadcastTexts.HAS_BEGUN;
     }
+
+    public ArenaTeamManager ArenaTeamManager { get; }
 
     public override void AddPlayer(Player player)
     {
@@ -94,8 +116,8 @@ public class Arena : Battleground
 
             // In case of arena draw, follow this logic:
             // winnerArenaTeam => ALLIANCE, loserArenaTeam => HORDE
-            var winnerArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? TeamFaction.Alliance : winner));
-            var loserArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? TeamFaction.Horde : GetOtherTeam(winner)));
+            var winnerArenaTeam = ArenaTeamManager.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? TeamFaction.Alliance : winner));
+            var loserArenaTeam = ArenaTeamManager.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? TeamFaction.Horde : GetOtherTeam(winner)));
 
             if (winnerArenaTeam != null && loserArenaTeam != null && winnerArenaTeam != loserArenaTeam)
             {
@@ -142,12 +164,12 @@ public class Arena : Battleground
                                      winnerChange,
                                      loserChange);
 
-                    if (GetDefaultValue("ArenaLog:ExtendedInfo", false))
+                    if (Configuration.GetDefaultValue("ArenaLog:ExtendedInfo", false))
                         foreach (var score in PlayerScores)
                         {
-                            var player = Global.ObjAccessor.FindPlayer(score.Key);
+                            var player = ObjectAccessor.FindPlayer(score.Key);
 
-                            if (player)
+                            if (player != null)
                                 Log.Logger.Debug("Statistics match Type: {0} for {1} (GUID: {2}, Team: {3}, IP: {4}): {5}",
                                                  ArenaType,
                                                  player.GetName(),
@@ -191,7 +213,7 @@ public class Arena : Battleground
 
                     var player = _GetPlayer(pair.Key, pair.Value.OfflineRemoveTime != 0, "Arena.EndBattleground");
 
-                    if (!player)
+                    if (player == null)
                         continue;
 
                     // per player calculation
@@ -204,7 +226,7 @@ public class Arena : Battleground
 
                         // Last standing - Rated 5v5 arena & be solely alive player
                         if (ArenaType == ArenaTypes.Team5V5 && aliveWinners == 1 && player.IsAlive)
-                            player.CastSpell(player, ArenaSpellIds.LAST_MAN_STANDING, true);
+                            player.SpellFactory.CastSpell(player, ArenaSpellIds.LAST_MAN_STANDING, true);
 
                         if (!guildAwarded)
                         {
@@ -212,12 +234,7 @@ public class Arena : Battleground
                             ulong guildId = BgMap.GetOwnerGuildId(player.GetBgTeam());
 
                             if (guildId != 0)
-                            {
-                                var guild = Global.GuildMgr.GetGuildById(guildId);
-
-                                if (guild)
-                                    guild.UpdateCriteria(CriteriaType.WinAnyRankedArena, Math.Max(winnerArenaTeam.GetRating(), 1), 0, 0, null, player);
-                            }
+                                GuildManager.GetGuildById(guildId)?.UpdateCriteria(CriteriaType.WinAnyRankedArena, Math.Max(winnerArenaTeam.GetRating(), 1), 0, 0, null, player);
                         }
 
                         winnerArenaTeam.MemberWon(player, loserMatchmakerRating, winnerMatchmakerChange);
@@ -274,15 +291,15 @@ public class Arena : Battleground
             if (GetPlayers().TryGetValue(guid, out var bgPlayer)) // check if the player was a participant of the match, or only entered through gm command (appear)
             {
                 // if the player was a match participant, calculate rating
-                var winnerArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(bgPlayer.Team)));
-                var loserArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(bgPlayer.Team));
+                var winnerArenaTeam = ArenaTeamManager.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(bgPlayer.Team)));
+                var loserArenaTeam = ArenaTeamManager.GetArenaTeamById(GetArenaTeamIdForTeam(bgPlayer.Team));
 
                 // left a rated match while the encounter was in progress, consider as loser
                 if (winnerArenaTeam != null && loserArenaTeam != null && winnerArenaTeam != loserArenaTeam)
                 {
                     var player = _GetPlayer(guid, bgPlayer.OfflineRemoveTime != 0, "Arena.RemovePlayerAtLeave");
 
-                    if (player)
+                    if (player != null)
                         loserArenaTeam.MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));
                     else
                         loserArenaTeam.OfflineMemberLost(guid, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));

@@ -2,11 +2,22 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
@@ -19,8 +30,8 @@ internal class BgEyeofStorm : Battleground
     private readonly List<ObjectGuid>[] _mPlayersNearPoint = new List<ObjectGuid>[EotSPoints.POINTS_MAX + 1];
     private readonly EotSProgressBarConsts[] _mPointBarStatus = new EotSProgressBarConsts[EotSPoints.POINTS_MAX];
     private readonly TeamFaction[] _mPointOwnedByTeam = new TeamFaction[EotSPoints.POINTS_MAX];
-    private readonly uint[] _mPointsTrigger = new uint[EotSPoints.POINTS_MAX];
     private readonly EotSPointState[] _mPointState = new EotSPointState[EotSPoints.POINTS_MAX];
+    private readonly uint[] _mPointsTrigger = new uint[EotSPoints.POINTS_MAX];
     private readonly uint[] _mTeamPointsCount = new uint[2];
     private ObjectGuid _mDroppedFlagGUID;
     private uint _mFlagCapturedBgObjectType;
@@ -29,12 +40,18 @@ internal class BgEyeofStorm : Battleground
 
     // type that should be despawned when Id is captured
     private EotSFlagState _mFlagState; // for checking Id state
+
     private int _mFlagsTimer;
     private uint _mHonorTics;
     private int _mPointAddingTimer;
     private int _mTowerCapCheckTimer;
 
-    public BgEyeofStorm(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    public BgEyeofStorm(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
+                        CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
+                        GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
+                        CreatureTextManager creatureTextManager, WorldStateManager worldStateManager) :
+        base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
+             guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager)
     {
         MBuffChange = true;
         BgObjects = new ObjectGuid[EotSObjectTypes.MAX];
@@ -122,13 +139,10 @@ internal class BgEyeofStorm : Battleground
         SpawnBGObject(EotSObjectTypes.FLAG_NETHERSTORM, BattlegroundConst.RESPAWN_ONE_DAY);
         SetFlagPicker(player.GUID);
         //get Id aura on player
-        player.CastSpell(player, EotSMisc.SPELL_NETHERSTORM_FLAG, true);
+        player.SpellFactory.CastSpell(player, EotSMisc.SPELL_NETHERSTORM_FLAG, true);
         player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
 
-        if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
-            SendBroadcastText(EotSBroadcastTexts.TAKEN_FLAG, ChatMsg.BgSystemAlliance, player);
-        else
-            SendBroadcastText(EotSBroadcastTexts.TAKEN_FLAG, ChatMsg.BgSystemHorde, player);
+        SendBroadcastText(EotSBroadcastTexts.TAKEN_FLAG, GetPlayerTeam(player.GUID) == TeamFaction.Alliance ? ChatMsg.BgSystemAlliance : ChatMsg.BgSystemHorde, player);
     }
 
     public override void EventPlayerDroppedFlag(Player player)
@@ -156,16 +170,13 @@ internal class BgEyeofStorm : Battleground
         player.RemoveAura(EotSMisc.SPELL_NETHERSTORM_FLAG);
         _mFlagState = EotSFlagState.OnGround;
         _mFlagsTimer = EotSMisc.FLAG_RESPAWN_TIME;
-        player.CastSpell(player, BattlegroundConst.SPELL_RECENTLY_DROPPED_FLAG, true);
-        player.CastSpell(player, EotSMisc.SPELL_PLAYER_DROPPED_FLAG, true);
+        player.SpellFactory.CastSpell(player, BattlegroundConst.SPELL_RECENTLY_DROPPED_FLAG, true);
+        player.SpellFactory.CastSpell(player, EotSMisc.SPELL_PLAYER_DROPPED_FLAG, true);
         //this does not work correctly :((it should remove Id carrier name)
         UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_HORDE, (int)EotSFlagState.WaitRespawn);
         UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_ALLIANCE, (int)EotSFlagState.WaitRespawn);
 
-        if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
-            SendBroadcastText(EotSBroadcastTexts.FLAG_DROPPED, ChatMsg.BgSystemAlliance);
-        else
-            SendBroadcastText(EotSBroadcastTexts.FLAG_DROPPED, ChatMsg.BgSystemHorde);
+        SendBroadcastText(EotSBroadcastTexts.FLAG_DROPPED, GetPlayerTeam(player.GUID) == TeamFaction.Alliance ? ChatMsg.BgSystemAlliance : ChatMsg.BgSystemHorde);
     }
 
     public override WorldSafeLocsEntry GetClosestGraveYard(Player player)
@@ -179,14 +190,16 @@ internal class BgEyeofStorm : Battleground
                 gID = EotSGaveyardIds.MAIN_ALLIANCE;
 
                 break;
+
             case TeamFaction.Horde:
                 gID = EotSGaveyardIds.MAIN_HORDE;
 
                 break;
+
             default: return null;
         }
 
-        var entry = Global.ObjectMgr.GetWorldSafeLoc(gID);
+        var entry = ObjectManager.GetWorldSafeLoc(gID);
         var nearestEntry = entry;
 
         if (entry == null)
@@ -200,19 +213,19 @@ internal class BgEyeofStorm : Battleground
         var plrY = player.Location.Y;
         var plrZ = player.Location.Z;
 
-        var distance = (entry.Loc.X - plrX) * (entry.Loc.X - plrX) + (entry.Loc.Y - plrY) * (entry.Loc.Y - plrY) + (entry.Loc.Z - plrZ) * (entry.Loc.Z - plrZ);
+        var distance = (entry.Location.X - plrX) * (entry.Location.X - plrX) + (entry.Location.Y - plrY) * (entry.Location.Y - plrY) + (entry.Location.Z - plrZ) * (entry.Location.Z - plrZ);
         var nearestDistance = distance;
 
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
             if (_mPointOwnedByTeam[i] == team && _mPointState[i] == EotSPointState.UnderControl)
             {
-                entry = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[i].GraveYardId);
+                entry = ObjectManager.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[i].GraveYardId);
 
                 if (entry == null)
                     Log.Logger.Error("BattlegroundEY: Graveyard {0} could not be found.", EotSMisc.MCapturingPointTypes[i].GraveYardId);
                 else
                 {
-                    distance = (entry.Loc.X - plrX) * (entry.Loc.X - plrX) + (entry.Loc.Y - plrY) * (entry.Loc.Y - plrY) + (entry.Loc.Z - plrZ) * (entry.Loc.Z - plrZ);
+                    distance = (entry.Location.X - plrX) * (entry.Location.X - plrX) + (entry.Location.Y - plrY) * (entry.Location.Y - plrY) + (entry.Location.Z - plrZ) * (entry.Location.Z - plrZ);
 
                     if (distance < nearestDistance)
                     {
@@ -227,7 +240,7 @@ internal class BgEyeofStorm : Battleground
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
-        return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EotSMisc.EXPLOIT_TELEPORT_LOCATION_HORDE);
+        return ObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EotSMisc.EXPLOIT_TELEPORT_LOCATION_HORDE);
     }
 
     public override ObjectGuid GetFlagPickerGUID(int team = -1)
@@ -259,30 +272,35 @@ internal class BgEyeofStorm : Battleground
                     TeleportPlayerToExploitLocation(player);
 
                 break;
+
             case EotSPointsTrigger.BLOOD_ELF_POINT:
                 if (_mPointState[EotSPoints.BLOOD_ELF] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.BLOOD_ELF] == GetPlayerTeam(player.GUID))
                     if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
                         EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_BLOOD_ELF);
 
                 break;
+
             case EotSPointsTrigger.FEL_REAVER_POINT:
                 if (_mPointState[EotSPoints.FEL_REAVER] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.FEL_REAVER] == GetPlayerTeam(player.GUID))
                     if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
                         EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_FEL_REAVER);
 
                 break;
+
             case EotSPointsTrigger.MAGE_TOWER_POINT:
                 if (_mPointState[EotSPoints.MAGE_TOWER] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.MAGE_TOWER] == GetPlayerTeam(player.GUID))
                     if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
                         EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_MAGE_TOWER);
 
                 break;
+
             case EotSPointsTrigger.DRAENEI_RUINS_POINT:
                 if (_mPointState[EotSPoints.DRAENEI_RUINS] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.DRAENEI_RUINS] == GetPlayerTeam(player.GUID))
                     if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
                         EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_DRAENEI_RUINS);
 
                 break;
+
             case 4512:
             case 4515:
             case 4517:
@@ -293,6 +311,7 @@ internal class BgEyeofStorm : Battleground
             case 4571:
             case 5866:
                 break;
+
             default:
                 base.HandleAreaTrigger(player, trigger, entered);
 
@@ -368,17 +387,19 @@ internal class BgEyeofStorm : Battleground
                     _mPlayersNearPoint[j].RemoveAt(i);
         }
 
-        if (IsFlagPickedup())
-            if (_mFlagKeeper == guid)
-            {
-                if (player)
-                    EventPlayerDroppedFlag(player);
-                else
-                {
-                    SetFlagPicker(ObjectGuid.Empty);
-                    RespawnFlag(true);
-                }
-            }
+        if (!IsFlagPickedup())
+            return;
+
+        if (_mFlagKeeper != guid)
+            return;
+
+        if (player != null)
+            EventPlayerDroppedFlag(player);
+        else
+        {
+            SetFlagPicker(ObjectGuid.Empty);
+            RespawnFlag(true);
+        }
     }
 
     public override void Reset()
@@ -398,7 +419,7 @@ internal class BgEyeofStorm : Battleground
         _mDroppedFlagGUID.Clear();
         _mPointAddingTimer = 0;
         _mTowerCapCheckTimer = 0;
-        var isBGWeekend = Global.BattlegroundMgr.IsBGWeekend(GetTypeID());
+        var isBGWeekend = BattlegroundManager.IsBGWeekend(GetTypeID());
         _mHonorTics = isBGWeekend ? EotSMisc.EY_WEEKEND_HONOR_TICKS : EotSMisc.NOT_EY_WEEKEND_HONOR_TICKS;
 
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
@@ -498,18 +519,18 @@ internal class BgEyeofStorm : Battleground
             return false;
         }
 
-        var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MAIN_ALLIANCE);
+        var sg = ObjectManager.GetWorldSafeLoc(EotSGaveyardIds.MAIN_ALLIANCE);
 
-        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_ALLIANCE, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
+        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_ALLIANCE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.124139f, TeamIds.Alliance))
         {
             Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
 
             return false;
         }
 
-        sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MAIN_HORDE);
+        sg = ObjectManager.GetWorldSafeLoc(EotSGaveyardIds.MAIN_HORDE);
 
-        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_HORDE, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
+        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_HORDE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.193953f, TeamIds.Horde))
         {
             Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
 
@@ -580,43 +601,41 @@ internal class BgEyeofStorm : Battleground
 
     private void CheckSomeoneJoinedPoint()
     {
-        GameObject obj;
-
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            obj = BgMap.GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
+            var obj = BgMap.GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
 
-            if (obj)
+            if (obj == null)
+                continue;
+
+            byte j = 0;
+
+            while (j < _mPlayersNearPoint[EotSPoints.POINTS_MAX].Count)
             {
-                byte j = 0;
+                var player = ObjectAccessor.FindPlayer(_mPlayersNearPoint[EotSPoints.POINTS_MAX][j]);
 
-                while (j < _mPlayersNearPoint[EotSPoints.POINTS_MAX].Count)
+                if (player == null)
                 {
-                    var player = Global.ObjAccessor.FindPlayer(_mPlayersNearPoint[EotSPoints.POINTS_MAX][j]);
+                    Log.Logger.Error("BattlegroundEY:CheckSomeoneJoinedPoint: Player ({0}) could not be found!", _mPlayersNearPoint[EotSPoints.POINTS_MAX][j].ToString());
+                    ++j;
 
-                    if (!player)
-                    {
-                        Log.Logger.Error("BattlegroundEY:CheckSomeoneJoinedPoint: Player ({0}) could not be found!", _mPlayersNearPoint[EotSPoints.POINTS_MAX][j].ToString());
-                        ++j;
-
-                        continue;
-                    }
-
-                    if (player.CanCaptureTowerPoint && player.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
-                    {
-                        //player joined point!
-                        //show progress bar
-                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_PERCENT_GREY, (uint)EotSProgressBarConsts.ProgressBarPercentGrey);
-                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_STATUS, (uint)_mPointBarStatus[i]);
-                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_SHOW, (uint)EotSProgressBarConsts.ProgressBarShow);
-                        //add player to point
-                        _mPlayersNearPoint[i].Add(_mPlayersNearPoint[EotSPoints.POINTS_MAX][j]);
-                        //remove player from "free space"
-                        _mPlayersNearPoint[EotSPoints.POINTS_MAX].RemoveAt(j);
-                    }
-                    else
-                        ++j;
+                    continue;
                 }
+
+                if (player.CanCaptureTowerPoint && player.Location.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
+                {
+                    //player joined point!
+                    //show progress bar
+                    player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_PERCENT_GREY, (uint)EotSProgressBarConsts.ProgressBarPercentGrey);
+                    player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_STATUS, (uint)_mPointBarStatus[i]);
+                    player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_SHOW, (uint)EotSProgressBarConsts.ProgressBarShow);
+                    //add player to point
+                    _mPlayersNearPoint[i].Add(_mPlayersNearPoint[EotSPoints.POINTS_MAX][j]);
+                    //remove player from "free space"
+                    _mPlayersNearPoint[EotSPoints.POINTS_MAX].RemoveAt(j);
+                }
+                else
+                    ++j;
             }
         }
     }
@@ -627,43 +646,41 @@ internal class BgEyeofStorm : Battleground
         for (byte i = 0; i < 2 * EotSPoints.POINTS_MAX; ++i)
             _mCurrentPointPlayersCount[i] = 0;
 
-        GameObject obj;
-
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            obj = BgMap.GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
+            var obj = BgMap.GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
 
-            if (obj)
+            if (obj == null)
+                continue;
+
+            byte j = 0;
+
+            while (j < _mPlayersNearPoint[i].Count)
             {
-                byte j = 0;
+                var player = ObjectAccessor.FindPlayer(_mPlayersNearPoint[i][j]);
 
-                while (j < _mPlayersNearPoint[i].Count)
+                if (player == null)
                 {
-                    var player = Global.ObjAccessor.FindPlayer(_mPlayersNearPoint[i][j]);
+                    Log.Logger.Error("BattlegroundEY:CheckSomeoneLeftPoint Player ({0}) could not be found!", _mPlayersNearPoint[i][j].ToString());
+                    //move non-existing players to "free space" - this will cause many errors showing in log, but it is a very important bug
+                    _mPlayersNearPoint[EotSPoints.POINTS_MAX].Add(_mPlayersNearPoint[i][j]);
+                    _mPlayersNearPoint[i].RemoveAt(j);
 
-                    if (!player)
-                    {
-                        Log.Logger.Error("BattlegroundEY:CheckSomeoneLeftPoint Player ({0}) could not be found!", _mPlayersNearPoint[i][j].ToString());
-                        //move non-existing players to "free space" - this will cause many errors showing in log, but it is a very important bug
-                        _mPlayersNearPoint[EotSPoints.POINTS_MAX].Add(_mPlayersNearPoint[i][j]);
-                        _mPlayersNearPoint[i].RemoveAt(j);
+                    continue;
+                }
 
-                        continue;
-                    }
-
-                    if (!player.CanCaptureTowerPoint || !player.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
-                        //move player out of point (add him to players that are out of points
-                    {
-                        _mPlayersNearPoint[EotSPoints.POINTS_MAX].Add(_mPlayersNearPoint[i][j]);
-                        _mPlayersNearPoint[i].RemoveAt(j);
-                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_SHOW, (uint)EotSProgressBarConsts.ProgressBarDontShow);
-                    }
-                    else
-                    {
-                        //player is neat Id, so update count:
-                        _mCurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(GetPlayerTeam(player.GUID))]++;
-                        ++j;
-                    }
+                if (!player.CanCaptureTowerPoint || !player.Location.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
+                //move player out of point (add him to players that are out of points
+                {
+                    _mPlayersNearPoint[EotSPoints.POINTS_MAX].Add(_mPlayersNearPoint[i][j]);
+                    _mPlayersNearPoint[i].RemoveAt(j);
+                    player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_SHOW, (uint)EotSProgressBarConsts.ProgressBarDontShow);
+                }
+                else
+                {
+                    //player is neat Id, so update count:
+                    _mCurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(GetPlayerTeam(player.GUID))]++;
+                    ++j;
                 }
             }
         }
@@ -748,9 +765,9 @@ internal class BgEyeofStorm : Battleground
         if (!BgCreatures[point].IsEmpty)
             DelCreature(point);
 
-        var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[point].GraveYardId);
+        var sg = ObjectManager.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[point].GraveYardId);
 
-        if (sg == null || !AddSpiritGuide(point, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, GetTeamIndexByTeamId(team)))
+        if (sg == null || !AddSpiritGuide(point, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.124139f, GetTeamIndexByTeamId(team)))
             Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. point: {0}, team: {1}, graveyard_id: {2}",
                              point,
                              team,
@@ -764,19 +781,16 @@ internal class BgEyeofStorm : Battleground
         if (point >= EotSPoints.POINTS_MAX)
             return;
 
-        var trigger = GetBGCreature(point + 6); //0-5 spirit guides
-
-        if (!trigger)
-            trigger = AddCreature(SharedConst.WorldTrigger, point + 6, EotSMisc.TriggerPositions[point], GetTeamIndexByTeamId(team));
+        var trigger = GetBGCreature(point + 6) ?? AddCreature(SharedConst.WorldTrigger, point + 6, EotSMisc.TriggerPositions[point], GetTeamIndexByTeamId(team)); //0-5 spirit guides
 
         //add bonus honor aura trigger creature when node is accupied
         //cast bonus aura (+50% honor in 25yards)
         //aura should only apply to players who have accupied the node, set correct faction for trigger
-        if (trigger)
-        {
-            trigger.Faction = team == TeamFaction.Alliance ? 84u : 83;
-            trigger.CastSpell(trigger, BattlegroundConst.SPELL_HONORABLE_DEFENDER25_Y, false);
-        }
+        if (trigger == null)
+            return;
+
+        trigger.Faction = team == TeamFaction.Alliance ? 84u : 83;
+        trigger.SpellFactory.CastSpell(trigger, BattlegroundConst.SPELL_HONORABLE_DEFENDER25_Y);
     }
 
     private void EventTeamLostPoint(Player player, int point)
@@ -877,7 +891,7 @@ internal class BgEyeofStorm : Battleground
 
         var obj = BgMap.GetGameObject(GetDroppedFlagGUID());
 
-        if (obj)
+        if (obj != null)
             obj.Delete();
         else
             Log.Logger.Error("BattlegroundEY: Unknown dropped Id ({0}).", GetDroppedFlagGUID().ToString());
@@ -943,49 +957,53 @@ internal class BgEyeofStorm : Battleground
                 var pointOwnerTeamId = _mPointBarStatus[point] switch
                 {
                     //find which team should own this point
-                    <= EotSProgressBarConsts.ProgressBarNeutralLow  => (uint)TeamFaction.Horde,
+                    <= EotSProgressBarConsts.ProgressBarNeutralLow => (uint)TeamFaction.Horde,
                     >= EotSProgressBarConsts.ProgressBarNeutralHigh => (uint)TeamFaction.Alliance,
-                    _                                               => (uint)EotSPointState.NoOwner
+                    _ => (uint)EotSPointState.NoOwner
                 };
 
                 for (byte i = 0; i < _mPlayersNearPoint[point].Count; ++i)
                 {
-                    var player = Global.ObjAccessor.FindPlayer(_mPlayersNearPoint[point][i]);
+                    var player = ObjectAccessor.FindPlayer(_mPlayersNearPoint[point][i]);
 
-                    if (player)
+                    if (player == null)
+                        continue;
+
+                    player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_STATUS, (uint)_mPointBarStatus[point]);
+                    var team = GetPlayerTeam(player.GUID);
+
+                    //if point owner changed we must evoke event!
+                    if (pointOwnerTeamId != (uint)_mPointOwnedByTeam[point])
                     {
-                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_STATUS, (uint)_mPointBarStatus[point]);
-                        var team = GetPlayerTeam(player.GUID);
+                        //point was uncontrolled and player is from team which captured point
+                        if (_mPointState[point] == EotSPointState.Uncontrolled && (uint)team == pointOwnerTeamId)
+                            EventTeamCapturedPoint(player, point);
 
-                        //if point owner changed we must evoke event!
-                        if (pointOwnerTeamId != (uint)_mPointOwnedByTeam[point])
-                        {
-                            //point was uncontrolled and player is from team which captured point
-                            if (_mPointState[point] == EotSPointState.Uncontrolled && (uint)team == pointOwnerTeamId)
-                                EventTeamCapturedPoint(player, point);
-
-                            //point was under control and player isn't from team which controlled it
-                            if (_mPointState[point] == EotSPointState.UnderControl && team != _mPointOwnedByTeam[point])
-                                EventTeamLostPoint(player, point);
-                        }
-
-                        // @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
-                        if (point == EotSPoints.FEL_REAVER && _mPointOwnedByTeam[point] == team)
-                            if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
-                                if (player.GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
-                                    EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_FEL_REAVER);
+                        //point was under control and player isn't from team which controlled it
+                        if (_mPointState[point] == EotSPointState.UnderControl && team != _mPointOwnedByTeam[point])
+                            EventTeamLostPoint(player, point);
                     }
+
+                    // @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
+                    if (point != EotSPoints.FEL_REAVER || _mPointOwnedByTeam[point] != team)
+                        continue;
+
+                    if (_mFlagState == 0 || GetFlagPickerGUID() != player.GUID)
+                        continue;
+
+                    if (player.Location.GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
+                        EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_FEL_REAVER);
                 }
             }
 
             var captureStatus = GetPointCaptureStatus(point);
 
-            if (_mLastPointCaptureStatus[point] != captureStatus)
-            {
-                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0);
-                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.HordeControlled       ? 2 : captureStatus == BattlegroundPointCaptureStatus.HordeCapturing    ? 1 : 0);
-                _mLastPointCaptureStatus[point] = captureStatus;
-            }
+            if (_mLastPointCaptureStatus[point] == captureStatus)
+                continue;
+
+            UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0);
+            UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.HordeControlled       ? 2 : captureStatus == BattlegroundPointCaptureStatus.HordeCapturing    ? 1 : 0);
+            _mLastPointCaptureStatus[point] = captureStatus;
         }
     }
 
@@ -997,15 +1015,9 @@ internal class BgEyeofStorm : Battleground
         {
             score = EotSScoreIds.MAX_TEAM_SCORE;
 
-            if (team == TeamIds.Alliance)
-                EndBattleground(TeamFaction.Alliance);
-            else
-                EndBattleground(TeamFaction.Horde);
+            EndBattleground(team == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
         }
 
-        if (team == TeamIds.Alliance)
-            UpdateWorldState(EotSWorldStateIds.ALLIANCE_RESOURCES, (int)score);
-        else
-            UpdateWorldState(EotSWorldStateIds.HORDE_RESOURCES, (int)score);
+        UpdateWorldState(team == TeamIds.Alliance ? EotSWorldStateIds.ALLIANCE_RESOURCES : EotSWorldStateIds.HORDE_RESOURCES, (int)score);
     }
 }

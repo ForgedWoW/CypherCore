@@ -1009,45 +1009,44 @@ public class Battleground : ZoneScript, IDisposable
             otherTeamPlayersCount = GetPlayersCountByTeam(TeamFaction.Alliance);
         }
 
-        if (Status == BattlegroundStatus.InProgress || Status == BattlegroundStatus.WaitJoin)
-        {
-            // difference based on ppl invited (not necessarily entered battle)
-            // default: allow 0
-            uint diff = 0;
+        if (Status != BattlegroundStatus.InProgress && Status != BattlegroundStatus.WaitJoin)
+            return 0;
 
-            // allow join one person if the sides are equal (to fill up bg to minPlayerPerTeam)
-            if (otherTeamInvitedCount == thisTeamInvitedCount)
-                diff = 1;
-            // allow join more ppl if the other side has more players
-            else if (otherTeamInvitedCount > thisTeamInvitedCount)
-                diff = otherTeamInvitedCount - thisTeamInvitedCount;
+        // difference based on ppl invited (not necessarily entered battle)
+        // default: allow 0
+        uint diff = 0;
 
-            // difference based on max players per team (don't allow inviting more)
-            var diff2 = thisTeamInvitedCount < GetMaxPlayersPerTeam() ? GetMaxPlayersPerTeam() - thisTeamInvitedCount : 0;
-            // difference based on players who already entered
-            // default: allow 0
-            uint diff3 = 0;
+        // allow join one person if the sides are equal (to fill up bg to minPlayerPerTeam)
+        if (otherTeamInvitedCount == thisTeamInvitedCount)
+            diff = 1;
+        // allow join more ppl if the other side has more players
+        else if (otherTeamInvitedCount > thisTeamInvitedCount)
+            diff = otherTeamInvitedCount - thisTeamInvitedCount;
 
-            // allow join one person if the sides are equal (to fill up bg minPlayerPerTeam)
-            if (otherTeamPlayersCount == thisTeamPlayersCount)
-                diff3 = 1;
-            // allow join more ppl if the other side has more players
-            else if (otherTeamPlayersCount > thisTeamPlayersCount)
-                diff3 = otherTeamPlayersCount - thisTeamPlayersCount;
-            // or other side has less than minPlayersPerTeam
-            else if (thisTeamInvitedCount <= MinPlayersPerTeam)
-                diff3 = MinPlayersPerTeam - thisTeamInvitedCount + 1;
+        // difference based on max players per team (don't allow inviting more)
+        var diff2 = thisTeamInvitedCount < GetMaxPlayersPerTeam() ? GetMaxPlayersPerTeam() - thisTeamInvitedCount : 0;
+        // difference based on players who already entered
+        // default: allow 0
+        uint diff3 = 0;
 
-            // return the minimum of the 3 differences
+        // allow join one person if the sides are equal (to fill up bg minPlayerPerTeam)
+        if (otherTeamPlayersCount == thisTeamPlayersCount)
+            diff3 = 1;
+        // allow join more ppl if the other side has more players
+        else if (otherTeamPlayersCount > thisTeamPlayersCount)
+            diff3 = otherTeamPlayersCount - thisTeamPlayersCount;
+        // or other side has less than minPlayersPerTeam
+        else if (thisTeamInvitedCount <= MinPlayersPerTeam)
+            diff3 = MinPlayersPerTeam - thisTeamInvitedCount + 1;
 
-            // min of diff and diff 2
-            diff = Math.Min(diff, diff2);
+        // return the minimum of the 3 differences
 
-            // min of diff, diff2 and diff3
-            return Math.Min(diff, diff3);
-        }
+        // min of diff and diff 2
+        diff = Math.Min(diff, diff2);
 
-        return 0;
+        // min of diff, diff2 and diff3
+        return Math.Min(diff, diff3);
+
     }
 
     public uint GetMaxPlayersPerTeam()
@@ -1089,10 +1088,7 @@ public class Battleground : ZoneScript, IDisposable
     // Used in same faction arena matches mainly
     public TeamFaction GetPlayerTeam(ObjectGuid guid)
     {
-        if (_players.TryGetValue(guid, out var player))
-            return player.Team;
-
-        return 0;
+        return _players.TryGetValue(guid, out var player) ? player.Team : (TeamFaction)0;
     }
 
     public virtual TeamFaction GetPrematureWinner()
@@ -2079,26 +2075,26 @@ public class Battleground : ZoneScript, IDisposable
     {
         _lastPlayerPositionBroadcast += diff;
 
-        if (_lastPlayerPositionBroadcast >= BattlegroundConst.PLAYER_POSITION_UPDATE_INTERVAL)
+        if (_lastPlayerPositionBroadcast < BattlegroundConst.PLAYER_POSITION_UPDATE_INTERVAL)
+            return;
+
+        _lastPlayerPositionBroadcast = 0;
+
+        BattlegroundPlayerPositions playerPositions = new();
+
+        for (var i = 0; i < _playerPositions.Count; ++i)
         {
-            _lastPlayerPositionBroadcast = 0;
+            var playerPosition = _playerPositions[i];
+            // Update position data if we found player.
+            var player = ObjectAccessor.GetPlayer(BgMap, playerPosition.Guid);
 
-            BattlegroundPlayerPositions playerPositions = new();
+            if (player != null)
+                playerPosition.Pos = player.Location;
 
-            for (var i = 0; i < _playerPositions.Count; ++i)
-            {
-                var playerPosition = _playerPositions[i];
-                // Update position data if we found player.
-                var player = ObjectAccessor.GetPlayer(BgMap, playerPosition.Guid);
-
-                if (player != null)
-                    playerPosition.Pos = player.Location;
-
-                playerPositions.FlagCarriers.Add(playerPosition);
-            }
-
-            SendPacketToAll(playerPositions);
+            playerPositions.FlagCarriers.Add(playerPosition);
         }
+
+        SendPacketToAll(playerPositions);
     }
 
     private void _ProcessProgress(uint diff)
@@ -2166,8 +2162,7 @@ public class Battleground : ZoneScript, IDisposable
 
                         // only for visual effect
                         // Spirit Heal, effect 117
-                        if (sh != null)
-                            sh.SpellFactory.CastSpell(sh, BattlegroundConst.SPELL_SPIRIT_HEAL, true);
+                        sh?.SpellFactory.CastSpell(sh, BattlegroundConst.SPELL_SPIRIT_HEAL, true);
                     }
 
                     // Resurrection visual

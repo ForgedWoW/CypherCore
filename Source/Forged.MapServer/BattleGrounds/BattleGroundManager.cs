@@ -70,7 +70,7 @@ public class BattlegroundManager
 
     public void AddBattleground(Battleground bg)
     {
-        if (bg)
+        if (bg != null)
             _bgDataStore[bg.GetTypeID()].MBattlegrounds[bg.InstanceID] = bg;
     }
 
@@ -216,7 +216,7 @@ public class BattlegroundManager
             var bgs = it.Value.MBattlegrounds;
             var bg = bgs.LookupByKey(instanceId);
 
-            if (bg)
+            if (bg != null)
                 return bg;
         }
 
@@ -233,10 +233,7 @@ public class BattlegroundManager
 
     public Battleground GetBattlegroundTemplate(BattlegroundTypeId bgTypeId)
     {
-        if (_bgDataStore.ContainsKey(bgTypeId))
-            return _bgDataStore[bgTypeId].Template;
-
-        return null;
+        return _bgDataStore.ContainsKey(bgTypeId) ? _bgDataStore[bgTypeId].Template : null;
     }
 
     public BattlegroundTypeId GetBattleMasterBG(uint entry)
@@ -559,7 +556,7 @@ public class BattlegroundManager
     {
         var bg = GetBattleground(instanceId, bgTypeId);
 
-        if (bg)
+        if (bg != null)
         {
             var mapid = bg.MapId;
             var team = player.GetBgTeam();
@@ -610,16 +607,16 @@ public class BattlegroundManager
                     {
                         bg.Update(_updateTimer);
 
-                        if (bg.ToBeDeleted())
-                        {
-                            bgs.Remove(pair.Key);
-                            var clients = data.MClientBattlegroundIds[(int)bg.BracketId];
+                        if (!bg.ToBeDeleted())
+                            return;
 
-                            if (!clients.Empty())
-                                clients.Remove(bg.ClientInstanceID);
+                        bgs.Remove(pair.Key);
+                        var clients = data.MClientBattlegroundIds[(int)bg.BracketId];
 
-                            bg.Dispose();
-                        }
+                        if (!clients.Empty())
+                            clients.Remove(bg.ClientInstanceID);
+
+                        bg.Dispose();
                     });
                 }
             }
@@ -744,7 +741,7 @@ public class BattlegroundManager
     {
         var bg = GetBattlegroundTemplate(bgTemplate.Id);
 
-        if (!bg)
+        if (bg == null)
             // Create the BG
             switch (bgTemplate.Id)
             {
@@ -752,60 +749,60 @@ public class BattlegroundManager
                 // bg = new BattlegroundAV(bgTemplate);
                 //break;
                 case BattlegroundTypeId.Ws:
-                    bg = new BgWarsongGluch(bgTemplate);
+                    bg = _classFactory.ResolvePositional<BgWarsongGluch>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.AB:
                 case BattlegroundTypeId.DomAb:
-                    bg = new BgArathiBasin(bgTemplate);
+                    bg = _classFactory.ResolvePositional<BgArathiBasin>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Na:
-                    bg = new NagrandArena(bgTemplate);
+                    bg = _classFactory.ResolvePositional<NagrandArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Be:
-                    bg = new BladesEdgeArena(bgTemplate);
+                    bg = _classFactory.ResolvePositional<BladesEdgeArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Ey:
-                    bg = new BgEyeofStorm(bgTemplate);
+                    bg = _classFactory.ResolvePositional<BgEyeofStorm>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Rl:
-                    bg = new RuinsofLordaeronArena(bgTemplate);
+                    bg = _classFactory.ResolvePositional<RuinsofLordaeronArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Sa:
-                    bg = new BgStrandOfAncients(bgTemplate);
+                    bg = _classFactory.ResolvePositional<BgStrandOfAncients>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Ds:
-                    bg = new DalaranSewersArena(bgTemplate);
+                    bg = _classFactory.ResolvePositional<DalaranSewersArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Rv:
-                    bg = new RingofValorArena(bgTemplate);
+                    bg = _classFactory.ResolvePositional<RingofValorArena>(bgTemplate);
 
                     break;
                 //case BattlegroundTypeId.IC:
                 //bg = new BattlegroundIC(bgTemplate);
                 //break;
                 case BattlegroundTypeId.Aa:
-                    bg = new Battleground(bgTemplate);
+                    bg = _classFactory.ResolvePositional<Battleground>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Rb:
-                    bg = new Battleground(bgTemplate);
+                    bg = _classFactory.ResolvePositional<Battleground>(bgTemplate);
                     bg.SetRandom(true);
 
                     break;
@@ -819,7 +816,7 @@ public class BattlegroundManager
                 break;
                 */
                 case BattlegroundTypeId.RandomEpic:
-                    bg = new Battleground(bgTemplate);
+                    bg = _classFactory.ResolvePositional<Battleground>(bgTemplate);
                     bg.SetRandom(true);
 
                     break;
@@ -878,25 +875,24 @@ public class BattlegroundManager
     {
         var bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId);
 
-        if (bgTemplate != null)
+        if (bgTemplate == null)
+            return BattlegroundTypeId.None;
+
+        Dictionary<BattlegroundTypeId, float> selectionWeights = new();
+
+        foreach (var mapId in bgTemplate.BattlemasterEntry.MapId)
         {
-            Dictionary<BattlegroundTypeId, float> selectionWeights = new();
+            if (mapId == -1)
+                break;
 
-            foreach (var mapId in bgTemplate.BattlemasterEntry.MapId)
-            {
-                if (mapId == -1)
-                    break;
+            var bg = GetBattlegroundTemplateByMapId((uint)mapId);
 
-                var bg = GetBattlegroundTemplateByMapId((uint)mapId);
-
-                if (bg != null)
-                    selectionWeights.Add(bg.Id, bg.Weight);
-            }
-
-            return selectionWeights.SelectRandomElementByWeight(i => i.Value).Key;
+            if (bg != null)
+                selectionWeights.Add(bg.Id, bg.Weight);
         }
 
-        return BattlegroundTypeId.None;
+        return selectionWeights.SelectRandomElementByWeight(i => i.Value).Key;
+
     }
 
     private bool IsArenaType(BattlegroundTypeId bgTypeId)

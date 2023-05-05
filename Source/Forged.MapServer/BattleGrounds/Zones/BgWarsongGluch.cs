@@ -3,12 +3,23 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
@@ -17,6 +28,7 @@ internal class BgWarsongGluch : Battleground
 {
     private const uint ExploitTeleportLocationAlliance = 3784;
     private const uint ExploitTeleportLocationHorde = 3785;
+    private readonly DB6Storage<AreaTriggerRecord> _areaTriggerRecords;
 
     private readonly int[] _flagsDropTimer = new int[2];
 
@@ -50,8 +62,29 @@ internal class BgWarsongGluch : Battleground
     private uint _mReputationCapture;
     // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
 
-    public BgWarsongGluch(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    public BgWarsongGluch(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
+                          CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
+                          GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
+                          CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, DB6Storage<AreaTriggerRecord> areaTriggerRecords) :
+        base(battlegroundTemplate,
+             worldManager,
+             battlegroundManager,
+             objectAccessor,
+             objectManager,
+             creatureFactory,
+             gameObjectFactory,
+             classFactory,
+             configuration,
+             characterDatabase,
+             guildManager,
+             formulas,
+             playerComputators,
+             factionStorage,
+             broadcastTextRecords,
+             creatureTextManager,
+             worldStateManager)
     {
+        _areaTriggerRecords = areaTriggerRecords;
         BgObjects = new ObjectGuid[WsgObjectTypes.MAX];
         BgCreatures = new ObjectGuid[WsgCreatureTypes.MAX];
 
@@ -102,16 +135,16 @@ internal class BgWarsongGluch : Battleground
             _flagState[TeamIds.Alliance] = WsgFlagState.OnPlayer;
             //update world state to show correct Id carrier
             UpdateFlagState(TeamFaction.Horde, WsgFlagState.OnPlayer);
-            player.CastSpell(player, WsgSpellId.SILVERWING_FLAG, true);
+            player.SpellFactory.CastSpell(player, WsgSpellId.SILVERWING_FLAG, true);
             player.StartCriteriaTimer(CriteriaStartEvent.BeSpellTarget, WsgSpellId.SILVERWING_FLAG_PICKED);
 
             if (_flagState[1] == WsgFlagState.OnPlayer)
                 _bothFlagsKept = true;
 
             if (_flagDebuffState == 1)
-                player.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
             else if (_flagDebuffState == 2)
-                player.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
         }
 
         //horde Id picked up from base
@@ -124,16 +157,16 @@ internal class BgWarsongGluch : Battleground
             _flagState[TeamIds.Horde] = WsgFlagState.OnPlayer;
             //update world state to show correct Id carrier
             UpdateFlagState(TeamFaction.Alliance, WsgFlagState.OnPlayer);
-            player.CastSpell(player, WsgSpellId.WARSONG_FLAG, true);
+            player.SpellFactory.CastSpell(player, WsgSpellId.WARSONG_FLAG, true);
             player.StartCriteriaTimer(CriteriaStartEvent.BeSpellTarget, WsgSpellId.WARSONG_FLAG_PICKED);
 
             if (_flagState[0] == WsgFlagState.OnPlayer)
                 _bothFlagsKept = true;
 
             if (_flagDebuffState == 1)
-                player.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
             else if (_flagDebuffState == 2)
-                player.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
         }
 
         //Alliance Id on ground(not in base) (returned or picked up again from ground!)
@@ -157,14 +190,14 @@ internal class BgWarsongGluch : Battleground
                 PlaySoundToAll(WsgSound.ALLIANCE_FLAG_PICKED_UP);
                 SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RESPAWN_ONE_DAY);
                 SetAllianceFlagPicker(player.GUID);
-                player.CastSpell(player, WsgSpellId.SILVERWING_FLAG, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.SILVERWING_FLAG, true);
                 _flagState[TeamIds.Alliance] = WsgFlagState.OnPlayer;
                 UpdateFlagState(TeamFaction.Horde, WsgFlagState.OnPlayer);
 
                 if (_flagDebuffState == 1)
-                    player.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
+                    player.SpellFactory.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
                 else if (_flagDebuffState == 2)
-                    player.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
+                    player.SpellFactory.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
             }
             //called in HandleGameObjectUseOpcode:
             //target_obj.Delete();
@@ -191,14 +224,14 @@ internal class BgWarsongGluch : Battleground
                 PlaySoundToAll(WsgSound.HORDE_FLAG_PICKED_UP);
                 SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RESPAWN_ONE_DAY);
                 SetHordeFlagPicker(player.GUID);
-                player.CastSpell(player, WsgSpellId.WARSONG_FLAG, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.WARSONG_FLAG, true);
                 _flagState[TeamIds.Horde] = WsgFlagState.OnPlayer;
                 UpdateFlagState(TeamFaction.Alliance, WsgFlagState.OnPlayer);
 
                 if (_flagDebuffState == 1)
-                    player.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
+                    player.SpellFactory.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
                 else if (_flagDebuffState == 2)
-                    player.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
+                    player.SpellFactory.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
             }
             //called in HandleGameObjectUseOpcode:
             //target_obj.Delete();
@@ -259,7 +292,7 @@ internal class BgWarsongGluch : Battleground
                     player.RemoveAura(WsgSpellId.BRUTAL_ASSAULT);
 
                 _flagState[TeamIds.Horde] = WsgFlagState.OnGround;
-                player.CastSpell(player, WsgSpellId.WARSONG_FLAG_DROPPED, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.WARSONG_FLAG_DROPPED, true);
                 set = true;
             }
         }
@@ -279,14 +312,14 @@ internal class BgWarsongGluch : Battleground
                     player.RemoveAura(WsgSpellId.BRUTAL_ASSAULT);
 
                 _flagState[TeamIds.Alliance] = WsgFlagState.OnGround;
-                player.CastSpell(player, WsgSpellId.SILVERWING_FLAG_DROPPED, true);
+                player.SpellFactory.CastSpell(player, WsgSpellId.SILVERWING_FLAG_DROPPED, true);
                 set = true;
             }
         }
 
         if (set)
         {
-            player.CastSpell(player, BattlegroundConst.SPELL_RECENTLY_DROPPED_FLAG, true);
+            player.SpellFactory.CastSpell(player, BattlegroundConst.SPELL_RECENTLY_DROPPED_FLAG, true);
             UpdateFlagState(team, WsgFlagState.OnGround);
 
             if (team == TeamFaction.Alliance)
@@ -308,20 +341,20 @@ internal class BgWarsongGluch : Battleground
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
         {
             if (Status == BattlegroundStatus.InProgress)
-                return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
+                return ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
 
-            return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_ALLIANCE);
+            return ObjectManager.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_ALLIANCE);
         }
 
         if (Status == BattlegroundStatus.InProgress)
-            return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
+            return ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
 
-        return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_HORDE);
+        return ObjectManager.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_HORDE);
     }
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
-        return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
+        return ObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
     }
 
     public override ObjectGuid GetFlagPickerGUID(int team = -1)
@@ -355,41 +388,51 @@ internal class BgWarsongGluch : Battleground
                     TeleportPlayerToExploitLocation(player);
 
                 break;
+
             case 3686: // Alliance elixir of speed spawn. Trigger not working, because located inside other areatrigger, can be replaced by IsWithinDist(object, dist) in Battleground.Update().
                 //buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_1];
                 break;
+
             case 3687: // Horde elixir of speed spawn. Trigger not working, because located inside other areatrigger, can be replaced by IsWithinDist(object, dist) in Battleground.Update().
                 //buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_2];
                 break;
+
             case 3706: // Alliance elixir of regeneration spawn
                 //buff_guid = BgObjects[BG_WS_OBJECT_REGENBUFF_1];
                 break;
+
             case 3708: // Horde elixir of regeneration spawn
                 //buff_guid = BgObjects[BG_WS_OBJECT_REGENBUFF_2];
                 break;
+
             case 3707: // Alliance elixir of berserk spawn
                 //buff_guid = BgObjects[BG_WS_OBJECT_BERSERKBUFF_1];
                 break;
+
             case 3709: // Horde elixir of berserk spawn
                 //buff_guid = BgObjects[BG_WS_OBJECT_BERSERKBUFF_2];
                 break;
+
             case 3646: // Alliance Flag spawn
                 if (_flagState[TeamIds.Horde] != 0 && _flagState[TeamIds.Alliance] == 0)
                     if (GetFlagPickerGUID(TeamIds.Horde) == player.GUID)
                         EventPlayerCapturedFlag(player);
 
                 break;
+
             case 3647: // Horde Flag spawn
                 if (_flagState[TeamIds.Alliance] != 0 && _flagState[TeamIds.Horde] == 0)
                     if (GetFlagPickerGUID(TeamIds.Alliance) == player.GUID)
                         EventPlayerCapturedFlag(player);
 
                 break;
+
             case 3649: // unk1
             case 3688: // unk2
             case 4628: // unk3
             case 4629: // unk4
                 break;
+
             default:
                 base.HandleAreaTrigger(player, trigger, entered);
 
@@ -486,35 +529,33 @@ internal class BgWarsongGluch : Battleground
                 if (_flagDebuffState == 0 && _flagSpellForceTimer >= 10 * Time.MINUTE * Time.IN_MILLISECONDS) //10 minutes
                 {
                     // Apply Stage 1 (Focused Assault)
-                    var player = Global.ObjAccessor.FindPlayer(_mFlagKeepers[0]);
+                    var player = ObjectAccessor.FindPlayer(_mFlagKeepers[0]);
 
-                    if (player)
-                        player.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
+                    player?.SpellFactory.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
 
-                    player = Global.ObjAccessor.FindPlayer(_mFlagKeepers[1]);
+                    player = ObjectAccessor.FindPlayer(_mFlagKeepers[1]);
 
-                    if (player)
-                        player.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
+                    player?.SpellFactory.CastSpell(player, WsgSpellId.FOCUSED_ASSAULT, true);
 
                     _flagDebuffState = 1;
                 }
                 else if (_flagDebuffState == 1 && _flagSpellForceTimer >= 900000) //15 minutes
                 {
                     // Apply Stage 2 (Brutal Assault)
-                    var player = Global.ObjAccessor.FindPlayer(_mFlagKeepers[0]);
+                    var player = ObjectAccessor.FindPlayer(_mFlagKeepers[0]);
 
-                    if (player)
+                    if (player != null)
                     {
                         player.RemoveAura(WsgSpellId.FOCUSED_ASSAULT);
-                        player.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
+                        player.SpellFactory.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
                     }
 
-                    player = Global.ObjAccessor.FindPlayer(_mFlagKeepers[1]);
+                    player = ObjectAccessor.FindPlayer(_mFlagKeepers[1]);
 
-                    if (player)
+                    if (player != null)
                     {
                         player.RemoveAura(WsgSpellId.FOCUSED_ASSAULT);
-                        player.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
+                        player.SpellFactory.CastSpell(player, WsgSpellId.BRUTAL_ASSAULT, true);
                     }
 
                     _flagDebuffState = 2;
@@ -526,17 +567,17 @@ internal class BgWarsongGluch : Battleground
                 // Both flags are in base or awaiting respawn.
                 // Remove assault debuffs, reset timers
 
-                var player = Global.ObjAccessor.FindPlayer(_mFlagKeepers[0]);
+                var player = ObjectAccessor.FindPlayer(_mFlagKeepers[0]);
 
-                if (player)
+                if (player != null)
                 {
                     player.RemoveAura(WsgSpellId.FOCUSED_ASSAULT);
                     player.RemoveAura(WsgSpellId.BRUTAL_ASSAULT);
                 }
 
-                player = Global.ObjAccessor.FindPlayer(_mFlagKeepers[1]);
+                player = ObjectAccessor.FindPlayer(_mFlagKeepers[1]);
 
-                if (player)
+                if (player != null)
                 {
                     player.RemoveAura(WsgSpellId.FOCUSED_ASSAULT);
                     player.RemoveAura(WsgSpellId.BRUTAL_ASSAULT);
@@ -553,7 +594,7 @@ internal class BgWarsongGluch : Battleground
         // sometimes Id aura not removed :(
         if (IsAllianceFlagPickedup() && _mFlagKeepers[TeamIds.Alliance] == guid)
         {
-            if (!player)
+            if (player == null)
             {
                 Log.Logger.Error("BattlegroundWS: Removing offline player who has the FLAG!!");
                 SetAllianceFlagPicker(ObjectGuid.Empty);
@@ -563,17 +604,17 @@ internal class BgWarsongGluch : Battleground
                 EventPlayerDroppedFlag(player);
         }
 
-        if (IsHordeFlagPickedup() && _mFlagKeepers[TeamIds.Horde] == guid)
+        if (!IsHordeFlagPickedup() || _mFlagKeepers[TeamIds.Horde] != guid)
+            return;
+
+        if (player == null)
         {
-            if (!player)
-            {
-                Log.Logger.Error("BattlegroundWS: Removing offline player who has the FLAG!!");
-                SetHordeFlagPicker(ObjectGuid.Empty);
-                RespawnFlag(TeamFaction.Horde, false);
-            }
-            else
-                EventPlayerDroppedFlag(player);
+            Log.Logger.Error("BattlegroundWS: Removing offline player who has the FLAG!!");
+            SetHordeFlagPicker(ObjectGuid.Empty);
+            RespawnFlag(TeamFaction.Horde, false);
         }
+        else
+            EventPlayerDroppedFlag(player);
     }
 
     public override void Reset()
@@ -590,7 +631,7 @@ internal class BgWarsongGluch : Battleground
         MTeamScores[TeamIds.Alliance] = 0;
         MTeamScores[TeamIds.Horde] = 0;
 
-        if (Global.BattlegroundMgr.IsBGWeekend(GetTypeID()))
+        if (BattlegroundManager.IsBGWeekend(GetTypeID()))
         {
             _mReputationCapture = 45;
             _mHonorWinKills = 3;
@@ -667,18 +708,18 @@ internal class BgWarsongGluch : Battleground
             return false;
         }
 
-        var sg = Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
+        var sg = ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
 
-        if (sg == null || !AddSpiritGuide(WsgCreatureTypes.SPIRIT_MAIN_ALLIANCE, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
+        if (sg == null || !AddSpiritGuide(WsgCreatureTypes.SPIRIT_MAIN_ALLIANCE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.124139f, TeamIds.Alliance))
         {
             Log.Logger.Error("BgWarsongGluch: Failed to spawn Alliance spirit guide! Battleground not created!");
 
             return false;
         }
 
-        sg = Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
+        sg = ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
 
-        if (sg == null || !AddSpiritGuide(WsgCreatureTypes.SPIRIT_MAIN_HORDE, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
+        if (sg == null || !AddSpiritGuide(WsgCreatureTypes.SPIRIT_MAIN_HORDE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.193953f, TeamIds.Horde))
         {
             Log.Logger.Error("BgWarsongGluch: Failed to spawn Horde spirit guide! Battleground not created!");
 
@@ -734,6 +775,7 @@ internal class BgWarsongGluch : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, WsObjectives.CAPTURE_FLAG);
 
                 break;
+
             case ScoreType.FlagReturns: // flags returned
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, WsObjectives.RETURN_FLAG);
 
@@ -853,10 +895,10 @@ internal class BgWarsongGluch : Battleground
 
     private void HandleFlagRoomCapturePoint(int team)
     {
-        var flagCarrier = Global.ObjAccessor.GetPlayer(BgMap, GetFlagPickerGUID(team));
+        var flagCarrier = ObjectAccessor.GetPlayer(BgMap, GetFlagPickerGUID(team));
         var areaTrigger = team == TeamIds.Alliance ? 3647 : 3646u;
 
-        if (flagCarrier != null && flagCarrier.IsInAreaTriggerRadius(CliDB.AreaTriggerStorage.LookupByKey(areaTrigger)))
+        if (flagCarrier != null && flagCarrier.IsInAreaTriggerRadius(_areaTriggerRecords.LookupByKey(areaTrigger)))
             EventPlayerCapturedFlag(flagCarrier);
     }
 
@@ -912,7 +954,7 @@ internal class BgWarsongGluch : Battleground
 
         var obj = BgMap.GetGameObject(GetDroppedFlagGUID(team));
 
-        if (obj)
+        if (obj != null)
             obj.Delete();
         else
             Log.Logger.Error("unknown droped Id ({0})", GetDroppedFlagGUID(team).ToString());
@@ -940,19 +982,17 @@ internal class BgWarsongGluch : Battleground
 
     private void UpdateFlagState(TeamFaction team, WsgFlagState value)
     {
-        int TransformValueToOtherTeamControlWorldState(WsgFlagState value)
+        int TransformValueToOtherTeamControlWorldState(WsgFlagState flagState)
         {
-            return value switch
+            return flagState switch
             {
-                WsgFlagState.OnBase      => 1,
-                WsgFlagState.OnGround    => 1,
+                WsgFlagState.OnBase => 1,
+                WsgFlagState.OnGround => 1,
                 WsgFlagState.WaitRespawn => 1,
-                WsgFlagState.OnPlayer    => 2,
-                _                        => 0
+                WsgFlagState.OnPlayer => 2,
+                _ => 0
             };
         }
-
-        ;
 
         if (team == TeamFaction.Horde)
         {
@@ -968,9 +1008,6 @@ internal class BgWarsongGluch : Battleground
 
     private void UpdateTeamScore(int team)
     {
-        if (team == TeamIds.Alliance)
-            UpdateWorldState(WsgWorldStates.FLAG_CAPTURES_ALLIANCE, (int)GetTeamScore(team));
-        else
-            UpdateWorldState(WsgWorldStates.FLAG_CAPTURES_HORDE, (int)GetTeamScore(team));
+        UpdateWorldState(team == TeamIds.Alliance ? WsgWorldStates.FLAG_CAPTURES_ALLIANCE : WsgWorldStates.FLAG_CAPTURES_HORDE, (int)GetTeamScore(team));
     }
 }
