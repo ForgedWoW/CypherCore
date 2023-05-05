@@ -60,7 +60,7 @@ public class BgStrandOfAncients : Battleground
 
     public BgStrandOfAncients(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
-        StartMessageIds[BattlegroundConst.EventIdFourth] = 0;
+        StartMessageIds[BattlegroundConst.EVENT_ID_FOURTH] = 0;
 
         BgObjects = new ObjectGuid[SaObjectTypes.MAX_OBJ];
         BgCreatures = new ObjectGuid[SaCreatureTypes.MAX + SaGraveyards.MAX];
@@ -199,7 +199,7 @@ public class BgStrandOfAncients : Battleground
         {
             SaSpellIds.ALLIANCE_CONTROL_PHASE_SHIFT => _attackers == TeamIds.Horde,
             SaSpellIds.HORDE_CONTROL_PHASE_SHIFT    => _attackers == TeamIds.Alliance,
-            BattlegroundConst.SpellPreparation      => _status is SaStatus.Warmup or SaStatus.SecondWarmup,
+            BattlegroundConst.SPELL_PREPARATION      => _status is SaStatus.Warmup or SaStatus.SecondWarmup,
             _                                       => true
         };
     }
@@ -281,7 +281,7 @@ public class BgStrandOfAncients : Battleground
                     var p = Global.ObjAccessor.FindPlayer(pair.Key);
 
                     if (p)
-                        p.RemoveAura(BattlegroundConst.SpellPreparation);
+                        p.RemoveAura(BattlegroundConst.SPELL_PREPARATION);
                 }
             }
 
@@ -549,7 +549,7 @@ public class BgStrandOfAncients : Battleground
                           0,
                           0,
                           0,
-                          BattlegroundConst.RespawnOneDay);
+                          BattlegroundConst.RESPAWN_ONE_DAY);
 
                 npc = SaCreatureTypes.RIGSPARK;
                 var rigspark = AddCreature(SaMiscConst.NpcEntries[npc], (int)npc, SaMiscConst.NpcSpawnlocs[npc], _attackers);
@@ -588,7 +588,7 @@ public class BgStrandOfAncients : Battleground
                           0,
                           0,
                           0,
-                          BattlegroundConst.RespawnOneDay);
+                          BattlegroundConst.RESPAWN_ONE_DAY);
 
                 npc = SaCreatureTypes.SPARKLIGHT;
                 var sparklight = AddCreature(SaMiscConst.NpcEntries[npc], (int)npc, SaMiscConst.NpcSpawnlocs[npc], _attackers);
@@ -628,7 +628,7 @@ public class BgStrandOfAncients : Battleground
                           0,
                           0,
                           0,
-                          BattlegroundConst.RespawnOneDay);
+                          BattlegroundConst.RESPAWN_ONE_DAY);
 
                 UpdateWorldState(SaWorldStateIds.CENTER_GY_ALLIANCE, _graveyardStatus[i] == TeamIds.Alliance ? 1 : 0);
                 UpdateWorldState(SaWorldStateIds.CENTER_GY_HORDE, _graveyardStatus[i] == TeamIds.Horde ? 1 : 0);
@@ -732,7 +732,7 @@ public class BgStrandOfAncients : Battleground
         }
 
         for (byte i = 0; i <= SaObjectTypes.PORTAL_DEFFENDER_RED; i++)
-            if (!AddObject(i, SaMiscConst.ObjEntries[i], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
+            if (!AddObject(i, SaMiscConst.ObjEntries[i], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RESPAWN_ONE_DAY))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn BG_SA_PORTAL_DEFFENDER_RED, Entry: {SaMiscConst.ObjEntries[i]}");
             }
@@ -756,14 +756,14 @@ public class BgStrandOfAncients : Battleground
                            0,
                            0,
                            0,
-                           BattlegroundConst.RespawnOneDay))
+                           BattlegroundConst.RESPAWN_ONE_DAY))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn one of the BG_SA_BOAT, Entry: {boatid}");
             }
         }
 
         for (byte i = SaObjectTypes.SIGIL1; i <= SaObjectTypes.LEFT_FLAGPOLE; i++)
-            if (!AddObject(i, SaMiscConst.ObjEntries[i], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
+            if (!AddObject(i, SaMiscConst.ObjEntries[i], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RESPAWN_ONE_DAY))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn Sigil, Entry: {SaMiscConst.ObjEntries[i]}");
             }
@@ -771,8 +771,8 @@ public class BgStrandOfAncients : Battleground
         // MAD props for Kiper for discovering those values - 4 hours of his work.
         GetBGObject(SaObjectTypes.BOAT_ONE).SetParentRotation(new Quaternion(0.0f, 0.0f, 1.0f, 0.0002f));
         GetBGObject(SaObjectTypes.BOAT_TWO).SetParentRotation(new Quaternion(0.0f, 0.0f, 1.0f, 0.00001f));
-        SpawnBGObject(SaObjectTypes.BOAT_ONE, BattlegroundConst.RespawnImmediately);
-        SpawnBGObject(SaObjectTypes.BOAT_TWO, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(SaObjectTypes.BOAT_ONE, BattlegroundConst.RESPAWN_IMMEDIATELY);
+        SpawnBGObject(SaObjectTypes.BOAT_TWO, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
         //Cannons and demolishers - NPCs are spawned
         //By capturing GYs.
@@ -787,7 +787,7 @@ public class BgStrandOfAncients : Battleground
 
         for (byte i = 0; i <= SaObjectTypes.PORTAL_DEFFENDER_RED; i++)
         {
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_IMMEDIATELY);
             GetBGObject(i).Faction = defF;
         }
 
@@ -826,7 +826,7 @@ public class BgStrandOfAncients : Battleground
         //GY capture points
         for (byte i = SaObjectTypes.CENTRAL_FLAG; i <= SaObjectTypes.LEFT_FLAG; i++)
         {
-            if (!AddObject(i, SaMiscConst.ObjEntries[i] - (_attackers == TeamIds.Alliance ? 1u : 0), SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
+            if (!AddObject(i, SaMiscConst.ObjEntries[i] - (_attackers == TeamIds.Alliance ? 1u : 0), SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RESPAWN_ONE_DAY))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn Central Flag Entry: {SaMiscConst.ObjEntries[i] - (_attackers == TeamIds.Alliance ? 1 : 0)}");
 
@@ -840,7 +840,7 @@ public class BgStrandOfAncients : Battleground
 
         for (byte i = SaObjectTypes.BOMB; i < SaObjectTypes.MAX_OBJ; i++)
         {
-            if (!AddObject(i, SaMiscConst.ObjEntries[SaObjectTypes.BOMB], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
+            if (!AddObject(i, SaMiscConst.ObjEntries[SaObjectTypes.BOMB], SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RESPAWN_ONE_DAY))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn SA Bomb Entry: {SaMiscConst.ObjEntries[SaObjectTypes.BOMB] + i}");
 
@@ -992,7 +992,7 @@ public class BgStrandOfAncients : Battleground
                 player.ResetAllPowers();
                 player.CombatStopWithPets(true);
 
-                player.CastSpell(player, BattlegroundConst.SpellPreparation, true);
+                player.CastSpell(player, BattlegroundConst.SPELL_PREPARATION, true);
 
                 TeleportToEntrancePosition(player);
             }

@@ -159,7 +159,7 @@ internal class BattlefieldWg : BattleField
             if (go)
             {
                 _defenderPortalList[TeamIds.Alliance].Add(go.GUID);
-                go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Alliance ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
+                go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Alliance ? BattlegroundConst.RESPAWN_IMMEDIATELY : BattlegroundConst.RESPAWN_ONE_DAY));
             }
 
             go = SpawnGameObject(teleporter.HordeEntry, teleporter.Pos, teleporter.Rot);
@@ -167,7 +167,7 @@ internal class BattlefieldWg : BattleField
             if (go)
             {
                 _defenderPortalList[TeamIds.Horde].Add(go.GUID);
-                go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Horde ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
+                go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Horde ? BattlegroundConst.RESPAWN_IMMEDIATELY : BattlegroundConst.RESPAWN_ONE_DAY));
             }
         }
 
@@ -334,7 +334,7 @@ internal class BattlefieldWg : BattleField
             var portal = GetGameObject(guid);
 
             if (portal)
-                portal.SetRespawnTime((int)BattlegroundConst.RespawnImmediately);
+                portal.SetRespawnTime((int)BattlegroundConst.RESPAWN_IMMEDIATELY);
         }
 
         foreach (var guid in _defenderPortalList[GetAttackerTeam()])
@@ -342,7 +342,7 @@ internal class BattlefieldWg : BattleField
             var portal = GetGameObject(guid);
 
             if (portal)
-                portal.SetRespawnTime((int)BattlegroundConst.RespawnOneDay);
+                portal.SetRespawnTime((int)BattlegroundConst.RESPAWN_ONE_DAY);
         }
 
         foreach (var guid in m_PlayersInWar[GetDefenderTeam()])

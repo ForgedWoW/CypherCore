@@ -155,7 +155,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         var bgTypeId = (BattlegroundTypeId)bgQueueTypeId.BattlemasterListId;
         // BGTemplateId returns Battleground_AA when it is arena queue.
         // Do instance id search as there is no AA bg instances.
-        var bg = Global.BattlegroundMgr.GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId == BattlegroundTypeId.AA ? BattlegroundTypeId.None : bgTypeId);
+        var bg = Global.BattlegroundMgr.GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId == BattlegroundTypeId.Aa ? BattlegroundTypeId.None : bgTypeId);
 
         if (!bg)
         {
@@ -376,10 +376,10 @@ public class BattleGroundHandler : IWorldSessionHandler
             // mercenary applies only to unrated battlegrounds
             if (!bg.IsRated() && !bg.IsArena())
             {
-                if (_player.HasAura(BattlegroundConst.SpellMercenaryContractHorde))
+                if (_player.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_HORDE))
                     return TeamFaction.Horde;
 
-                if (_player.HasAura(BattlegroundConst.SpellMercenaryContractAlliance))
+                if (_player.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_ALLIANCE))
                     return TeamFaction.Alliance;
             }
 
@@ -417,9 +417,9 @@ public class BattleGroundHandler : IWorldSessionHandler
                 return;
             }
 
-            var isInRandomBgQueue = _player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.RB, BattlegroundQueueIdType.Battleground, false, 0)) || _player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.RandomEpic, BattlegroundQueueIdType.Battleground, false, 0));
+            var isInRandomBgQueue = _player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.Rb, BattlegroundQueueIdType.Battleground, false, 0)) || _player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.RandomEpic, BattlegroundQueueIdType.Battleground, false, 0));
 
-            if (bgTypeId != BattlegroundTypeId.RB && bgTypeId != BattlegroundTypeId.RandomEpic && isInRandomBgQueue)
+            if (bgTypeId != BattlegroundTypeId.Rb && bgTypeId != BattlegroundTypeId.RandomEpic && isInRandomBgQueue)
             {
                 // player is already in random queue
                 Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatusFailed, bgQueueTypeId, Player, 0, GroupJoinBattlegroundResult.InRandomBg);
@@ -428,7 +428,7 @@ public class BattleGroundHandler : IWorldSessionHandler
                 return;
             }
 
-            if (_player.InBattlegroundQueue(true) && !isInRandomBgQueue && bgTypeId is BattlegroundTypeId.RB or BattlegroundTypeId.RandomEpic)
+            if (_player.InBattlegroundQueue(true) && !isInRandomBgQueue && bgTypeId is BattlegroundTypeId.Rb or BattlegroundTypeId.RandomEpic)
             {
                 // player is already in queue, can't start random queue
                 Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatusFailed, bgQueueTypeId, Player, 0, GroupJoinBattlegroundResult.InNonRandomBg);
@@ -523,7 +523,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         var arenatype = (ArenaTypes)ArenaTeam.GetTypeBySlot(packet.TeamSizeIndex);
 
         //check existence
-        var bg = Global.BattlegroundMgr.GetBattlegroundTemplate(BattlegroundTypeId.AA);
+        var bg = Global.BattlegroundMgr.GetBattlegroundTemplate(BattlegroundTypeId.Aa);
 
         if (!bg)
         {
@@ -532,7 +532,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             return;
         }
 
-        if (Global.DisableMgr.IsDisabledFor(DisableType.Battleground, (uint)BattlegroundTypeId.AA, null))
+        if (Global.DisableMgr.IsDisabledFor(DisableType.Battleground, (uint)BattlegroundTypeId.Aa, null))
         {
             Player.SendSysMessage(CypherStrings.ArenaDisabled);
 
@@ -656,9 +656,9 @@ public class BattleGroundHandler : IWorldSessionHandler
         var isPremade = false;
         PlayerGroup grp = null;
 
-        var arenatype = packet.Bracket == BracketType.SKIRMISH_3 ? ArenaTypes.Team3v3 : ArenaTypes.Team2v2;
+        var arenatype = packet.Bracket == BracketType.Skirmish3 ? ArenaTypes.Team3V3 : ArenaTypes.Team2V2;
 
-        var bg = BattlegroundManager.Instance.GetBattlegroundTemplate(BattlegroundTypeId.AA);
+        var bg = BattlegroundManager.Instance.GetBattlegroundTemplate(BattlegroundTypeId.Aa);
 
         if (bg == null)
             return;
@@ -678,7 +678,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             return _player.Team;
         };
 
-        if (DisableManager.Instance.IsDisabledFor(DisableType.Battleground, (uint)BattlegroundTypeId.AA, null))
+        if (DisableManager.Instance.IsDisabledFor(DisableType.Battleground, (uint)BattlegroundTypeId.Aa, null))
         {
             player.SendSysMessage(CypherStrings.ArenaDisabled);
 

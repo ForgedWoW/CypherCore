@@ -400,7 +400,7 @@ public class PlayerGroup
 
         var arenaTeamId = reference.GetArenaTeamId((byte)arenaSlot);
         var team = reference.Team;
-        var isMercenary = reference.HasAura(BattlegroundConst.SpellMercenaryContractHorde) || reference.HasAura(BattlegroundConst.SpellMercenaryContractAlliance);
+        var isMercenary = reference.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_HORDE) || reference.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_ALLIANCE);
 
         // check every member of the group to be able to join
         memberscount = 0;
@@ -438,17 +438,17 @@ public class PlayerGroup
                 return GroupJoinBattlegroundResult.BattlegroundJoinFailed; // not blizz-like
 
             // don't let join if someone from the group is in bg queue random
-            var isInRandomBgQueue = refe.Source.InBattlegroundQueueForBattlegroundQueueType(_battlegroundManager.BGQueueTypeId((ushort)BattlegroundTypeId.RB, BattlegroundQueueIdType.Battleground, false, 0)) || refe.Source.InBattlegroundQueueForBattlegroundQueueType(_battlegroundManager.BGQueueTypeId((ushort)BattlegroundTypeId.RandomEpic, BattlegroundQueueIdType.Battleground, false, 0));
+            var isInRandomBgQueue = refe.Source.InBattlegroundQueueForBattlegroundQueueType(_battlegroundManager.BGQueueTypeId((ushort)BattlegroundTypeId.Rb, BattlegroundQueueIdType.Battleground, false, 0)) || refe.Source.InBattlegroundQueueForBattlegroundQueueType(_battlegroundManager.BGQueueTypeId((ushort)BattlegroundTypeId.RandomEpic, BattlegroundQueueIdType.Battleground, false, 0));
 
-            if (bgOrTemplate.GetTypeID() != BattlegroundTypeId.AA && isInRandomBgQueue)
+            if (bgOrTemplate.GetTypeID() != BattlegroundTypeId.Aa && isInRandomBgQueue)
                 return GroupJoinBattlegroundResult.InRandomBg;
 
             // don't let join to bg queue random if someone from the group is already in bg queue
-            if ((bgOrTemplate.GetTypeID() == BattlegroundTypeId.RB || bgOrTemplate.GetTypeID() == BattlegroundTypeId.RandomEpic) && refe.Source.InBattlegroundQueue(true) && !isInRandomBgQueue)
+            if ((bgOrTemplate.GetTypeID() == BattlegroundTypeId.Rb || bgOrTemplate.GetTypeID() == BattlegroundTypeId.RandomEpic) && refe.Source.InBattlegroundQueue(true) && !isInRandomBgQueue)
                 return GroupJoinBattlegroundResult.InNonRandomBg;
 
             // check for deserter debuff in case not arena queue
-            if (bgOrTemplate.GetTypeID() != BattlegroundTypeId.AA && refe.Source.IsDeserter())
+            if (bgOrTemplate.GetTypeID() != BattlegroundTypeId.Aa && refe.Source.IsDeserter())
                 return GroupJoinBattlegroundResult.Deserters;
 
             // check if member can join any more Battleground queues
@@ -463,7 +463,7 @@ public class PlayerGroup
             if (refe.Source.HasAura(9454))
                 return GroupJoinBattlegroundResult.BattlegroundJoinFailed;
 
-            if (isMercenary != (refe.Source.HasAura(BattlegroundConst.SpellMercenaryContractHorde) || refe.Source.HasAura(BattlegroundConst.SpellMercenaryContractAlliance)))
+            if (isMercenary != (refe.Source.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_HORDE) || refe.Source.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_ALLIANCE)))
                 return GroupJoinBattlegroundResult.BattlegroundJoinMercenary;
         }
 

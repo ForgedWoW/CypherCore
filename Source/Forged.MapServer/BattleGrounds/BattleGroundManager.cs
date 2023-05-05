@@ -163,7 +163,7 @@ public class BattlegroundManager
             return null;
         }
 
-        if (bgTypeId is BattlegroundTypeId.RB or BattlegroundTypeId.AA or BattlegroundTypeId.RandomEpic)
+        if (bgTypeId is BattlegroundTypeId.Rb or BattlegroundTypeId.Aa or BattlegroundTypeId.RandomEpic)
             return null;
 
         // create a copy of the BG template
@@ -204,7 +204,7 @@ public class BattlegroundManager
         if (instanceId == 0)
             return null;
 
-        if (bgTypeId is not BattlegroundTypeId.None or BattlegroundTypeId.RB or BattlegroundTypeId.RandomEpic)
+        if (bgTypeId is not BattlegroundTypeId.None or BattlegroundTypeId.Rb or BattlegroundTypeId.RandomEpic)
         {
             var data = _bgDataStore.LookupByKey(bgTypeId);
 
@@ -381,7 +381,7 @@ public class BattlegroundManager
             bgTemplate.ScriptId = _objectManager.GetScriptId(result.Read<string>(5));
             bgTemplate.BattlemasterEntry = bl;
 
-            if (bgTemplate.Id != BattlegroundTypeId.AA && bgTemplate.Id != BattlegroundTypeId.RB && bgTemplate.Id != BattlegroundTypeId.RandomEpic)
+            if (bgTemplate.Id != BattlegroundTypeId.Aa && bgTemplate.Id != BattlegroundTypeId.Rb && bgTemplate.Id != BattlegroundTypeId.RandomEpic)
             {
                 var startId = result.Read<uint>(1);
                 var start = _objectManager.GetWorldSafeLoc(startId);
@@ -502,7 +502,7 @@ public class BattlegroundManager
 
     public void ResetHolidays()
     {
-        for (var i = BattlegroundTypeId.AV; i < BattlegroundTypeId.Max; i++)
+        for (var i = BattlegroundTypeId.Av; i < BattlegroundTypeId.Max; i++)
         {
             var bg = GetBattlegroundTemplate(i);
 
@@ -660,10 +660,10 @@ public class BattlegroundManager
 
                 foreach (var teamSize in new[]
                          {
-                             ArenaTypes.Team2v2, ArenaTypes.Team3v3, ArenaTypes.Team5v5
+                             ArenaTypes.Team2V2, ArenaTypes.Team3V3, ArenaTypes.Team5V5
                          })
                 {
-                    var ratedArenaQueueId = BGQueueTypeId((ushort)BattlegroundTypeId.AA, BattlegroundQueueIdType.Arena, true, teamSize);
+                    var ratedArenaQueueId = BGQueueTypeId((ushort)BattlegroundTypeId.Aa, BattlegroundQueueIdType.Arena, true, teamSize);
 
                     for (var bracket = BattlegroundBracketId.First; bracket < BattlegroundBracketId.Max; ++bracket)
                         GetBattlegroundQueue(ratedArenaQueueId).BattlegroundQueueUpdate(diff, bracket, 0);
@@ -680,14 +680,14 @@ public class BattlegroundManager
     {
         return holiday switch
         {
-            HolidayIds.CallToArmsAv => BattlegroundTypeId.AV,
-            HolidayIds.CallToArmsEs => BattlegroundTypeId.EY,
-            HolidayIds.CallToArmsWg => BattlegroundTypeId.WS,
-            HolidayIds.CallToArmsSa => BattlegroundTypeId.SA,
+            HolidayIds.CallToArmsAv => BattlegroundTypeId.Av,
+            HolidayIds.CallToArmsEs => BattlegroundTypeId.Ey,
+            HolidayIds.CallToArmsWg => BattlegroundTypeId.Ws,
+            HolidayIds.CallToArmsSa => BattlegroundTypeId.Sa,
             HolidayIds.CallToArmsAb => BattlegroundTypeId.AB,
-            HolidayIds.CallToArmsIc => BattlegroundTypeId.IC,
-            HolidayIds.CallToArmsTp => BattlegroundTypeId.TP,
-            HolidayIds.CallToArmsBg => BattlegroundTypeId.BFG,
+            HolidayIds.CallToArmsIc => BattlegroundTypeId.Ic,
+            HolidayIds.CallToArmsTp => BattlegroundTypeId.Tp,
+            HolidayIds.CallToArmsBg => BattlegroundTypeId.Bfg,
             _                       => BattlegroundTypeId.None
         };
     }
@@ -696,14 +696,14 @@ public class BattlegroundManager
     {
         return bgTypeId switch
         {
-            BattlegroundTypeId.AV  => HolidayIds.CallToArmsAv,
-            BattlegroundTypeId.EY  => HolidayIds.CallToArmsEs,
-            BattlegroundTypeId.WS  => HolidayIds.CallToArmsWg,
-            BattlegroundTypeId.SA  => HolidayIds.CallToArmsSa,
+            BattlegroundTypeId.Av  => HolidayIds.CallToArmsAv,
+            BattlegroundTypeId.Ey  => HolidayIds.CallToArmsEs,
+            BattlegroundTypeId.Ws  => HolidayIds.CallToArmsWg,
+            BattlegroundTypeId.Sa  => HolidayIds.CallToArmsSa,
             BattlegroundTypeId.AB  => HolidayIds.CallToArmsAb,
-            BattlegroundTypeId.IC  => HolidayIds.CallToArmsIc,
-            BattlegroundTypeId.TP  => HolidayIds.CallToArmsTp,
-            BattlegroundTypeId.BFG => HolidayIds.CallToArmsBg,
+            BattlegroundTypeId.Ic  => HolidayIds.CallToArmsIc,
+            BattlegroundTypeId.Tp  => HolidayIds.CallToArmsTp,
+            BattlegroundTypeId.Bfg => HolidayIds.CallToArmsBg,
             _                      => HolidayIds.None
         };
     }
@@ -751,7 +751,7 @@ public class BattlegroundManager
                 //case BattlegroundTypeId.AV:
                 // bg = new BattlegroundAV(bgTemplate);
                 //break;
-                case BattlegroundTypeId.WS:
+                case BattlegroundTypeId.Ws:
                     bg = new BgWarsongGluch(bgTemplate);
 
                     break;
@@ -762,49 +762,49 @@ public class BattlegroundManager
 
                     break;
 
-                case BattlegroundTypeId.NA:
+                case BattlegroundTypeId.Na:
                     bg = new NagrandArena(bgTemplate);
 
                     break;
 
-                case BattlegroundTypeId.BE:
+                case BattlegroundTypeId.Be:
                     bg = new BladesEdgeArena(bgTemplate);
 
                     break;
 
-                case BattlegroundTypeId.EY:
+                case BattlegroundTypeId.Ey:
                     bg = new BgEyeofStorm(bgTemplate);
 
                     break;
 
-                case BattlegroundTypeId.RL:
+                case BattlegroundTypeId.Rl:
                     bg = new RuinsofLordaeronArena(bgTemplate);
 
                     break;
 
-                case BattlegroundTypeId.SA:
+                case BattlegroundTypeId.Sa:
                     bg = new BgStrandOfAncients(bgTemplate);
 
                     break;
 
-                case BattlegroundTypeId.DS:
+                case BattlegroundTypeId.Ds:
                     bg = new DalaranSewersArena(bgTemplate);
 
                     break;
 
-                case BattlegroundTypeId.RV:
+                case BattlegroundTypeId.Rv:
                     bg = new RingofValorArena(bgTemplate);
 
                     break;
                 //case BattlegroundTypeId.IC:
                 //bg = new BattlegroundIC(bgTemplate);
                 //break;
-                case BattlegroundTypeId.AA:
+                case BattlegroundTypeId.Aa:
                     bg = new Battleground(bgTemplate);
 
                     break;
 
-                case BattlegroundTypeId.RB:
+                case BattlegroundTypeId.Rb:
                     bg = new Battleground(bgTemplate);
                     bg.SetRandom(true);
 
@@ -901,7 +901,7 @@ public class BattlegroundManager
 
     private bool IsArenaType(BattlegroundTypeId bgTypeId)
     {
-        return bgTypeId is BattlegroundTypeId.AA or BattlegroundTypeId.BE or BattlegroundTypeId.NA or BattlegroundTypeId.DS or BattlegroundTypeId.RV or BattlegroundTypeId.RL;
+        return bgTypeId is BattlegroundTypeId.Aa or BattlegroundTypeId.Be or BattlegroundTypeId.Na or BattlegroundTypeId.Ds or BattlegroundTypeId.Rv or BattlegroundTypeId.Rl;
     }
 
     private struct ScheduledQueueUpdate

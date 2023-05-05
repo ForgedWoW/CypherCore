@@ -68,7 +68,7 @@ internal class RuinsofLordaeronArena : Arena
     public override void StartingEventCloseDoors()
     {
         for (var i = RuinsofLordaeronObjectTypes.DOOR1; i <= RuinsofLordaeronObjectTypes.DOOR2; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_IMMEDIATELY);
     }
 
     public override void StartingEventOpenDoors()

@@ -121,7 +121,7 @@ public class EscortAI : ScriptedAI
     {
         _escortState = EscortState.None;
 
-        if (!IsCombatMovementAllowed())
+        if (!IsCombatMovementAllowed)
             SetCombatMovement(true);
 
         //add a small delay before going to first waypoint, normal in near all cases

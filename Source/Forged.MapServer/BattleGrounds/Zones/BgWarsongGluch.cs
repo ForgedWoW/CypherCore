@@ -55,9 +55,9 @@ internal class BgWarsongGluch : Battleground
         BgObjects = new ObjectGuid[WsgObjectTypes.MAX];
         BgCreatures = new ObjectGuid[WsgCreatureTypes.MAX];
 
-        StartMessageIds[BattlegroundConst.EventIdSecond] = WsgBroadcastTexts.START_ONE_MINUTE;
-        StartMessageIds[BattlegroundConst.EventIdThird] = WsgBroadcastTexts.START_HALF_MINUTE;
-        StartMessageIds[BattlegroundConst.EventIdFourth] = WsgBroadcastTexts.BATTLE_HAS_BEGUN;
+        StartMessageIds[BattlegroundConst.EVENT_ID_SECOND] = WsgBroadcastTexts.START_ONE_MINUTE;
+        StartMessageIds[BattlegroundConst.EVENT_ID_THIRD] = WsgBroadcastTexts.START_HALF_MINUTE;
+        StartMessageIds[BattlegroundConst.EVENT_ID_FOURTH] = WsgBroadcastTexts.BATTLE_HAS_BEGUN;
     }
 
     public override void AddPlayer(Player player)
@@ -97,7 +97,7 @@ internal class BgWarsongGluch : Battleground
         {
             SendBroadcastText(WsgBroadcastTexts.ALLIANCE_FLAG_PICKED_UP, ChatMsg.BgSystemHorde, player);
             PlaySoundToAll(WsgSound.ALLIANCE_FLAG_PICKED_UP);
-            SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RESPAWN_ONE_DAY);
             SetAllianceFlagPicker(player.GUID);
             _flagState[TeamIds.Alliance] = WsgFlagState.OnPlayer;
             //update world state to show correct Id carrier
@@ -119,7 +119,7 @@ internal class BgWarsongGluch : Battleground
         {
             SendBroadcastText(WsgBroadcastTexts.HORDE_FLAG_PICKED_UP, ChatMsg.BgSystemAlliance, player);
             PlaySoundToAll(WsgSound.HORDE_FLAG_PICKED_UP);
-            SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RESPAWN_ONE_DAY);
             SetHordeFlagPicker(player.GUID);
             _flagState[TeamIds.Horde] = WsgFlagState.OnPlayer;
             //update world state to show correct Id carrier
@@ -144,7 +144,7 @@ internal class BgWarsongGluch : Battleground
                 SendBroadcastText(WsgBroadcastTexts.ALLIANCE_FLAG_RETURNED, ChatMsg.BgSystemAlliance, player);
                 UpdateFlagState(TeamFaction.Horde, WsgFlagState.WaitRespawn);
                 RespawnFlag(TeamFaction.Alliance, false);
-                SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RespawnImmediately);
+                SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RESPAWN_IMMEDIATELY);
                 PlaySoundToAll(WsgSound.FLAG_RETURNED);
                 UpdatePlayerScore(player, ScoreType.FlagReturns, 1);
                 _bothFlagsKept = false;
@@ -155,7 +155,7 @@ internal class BgWarsongGluch : Battleground
             {
                 SendBroadcastText(WsgBroadcastTexts.ALLIANCE_FLAG_PICKED_UP, ChatMsg.BgSystemHorde, player);
                 PlaySoundToAll(WsgSound.ALLIANCE_FLAG_PICKED_UP);
-                SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RespawnOneDay);
+                SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RESPAWN_ONE_DAY);
                 SetAllianceFlagPicker(player.GUID);
                 player.CastSpell(player, WsgSpellId.SILVERWING_FLAG, true);
                 _flagState[TeamIds.Alliance] = WsgFlagState.OnPlayer;
@@ -178,7 +178,7 @@ internal class BgWarsongGluch : Battleground
                 SendBroadcastText(WsgBroadcastTexts.HORDE_FLAG_RETURNED, ChatMsg.BgSystemHorde, player);
                 UpdateFlagState(TeamFaction.Alliance, WsgFlagState.WaitRespawn);
                 RespawnFlag(TeamFaction.Horde, false);
-                SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RespawnImmediately);
+                SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RESPAWN_IMMEDIATELY);
                 PlaySoundToAll(WsgSound.FLAG_RETURNED);
                 UpdatePlayerScore(player, ScoreType.FlagReturns, 1);
                 _bothFlagsKept = false;
@@ -189,7 +189,7 @@ internal class BgWarsongGluch : Battleground
             {
                 SendBroadcastText(WsgBroadcastTexts.HORDE_FLAG_PICKED_UP, ChatMsg.BgSystemAlliance, player);
                 PlaySoundToAll(WsgSound.HORDE_FLAG_PICKED_UP);
-                SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RespawnOneDay);
+                SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RESPAWN_ONE_DAY);
                 SetHordeFlagPicker(player.GUID);
                 player.CastSpell(player, WsgSpellId.WARSONG_FLAG, true);
                 _flagState[TeamIds.Horde] = WsgFlagState.OnPlayer;
@@ -286,7 +286,7 @@ internal class BgWarsongGluch : Battleground
 
         if (set)
         {
-            player.CastSpell(player, BattlegroundConst.SpellRecentlyDroppedFlag, true);
+            player.CastSpell(player, BattlegroundConst.SPELL_RECENTLY_DROPPED_FLAG, true);
             UpdateFlagState(team, WsgFlagState.OnGround);
 
             if (team == TeamFaction.Alliance)
@@ -633,12 +633,12 @@ internal class BgWarsongGluch : Battleground
         }
 
         // buffs
-        result &= AddObject(WsgObjectTypes.SPEEDBUFF1, BuffEntries[0], 1449.93f, 1470.71f, 342.6346f, -1.64061f, 0, 0, 0.7313537f, -0.6819983f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.SPEEDBUFF2, BuffEntries[0], 1005.171f, 1447.946f, 335.9032f, 1.64061f, 0, 0, 0.7313537f, 0.6819984f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.REGENBUFF1, BuffEntries[1], 1317.506f, 1550.851f, 313.2344f, -0.2617996f, 0, 0, 0.1305263f, -0.9914448f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.REGENBUFF2, BuffEntries[1], 1110.451f, 1353.656f, 316.5181f, -0.6806787f, 0, 0, 0.333807f, -0.9426414f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.BERSERKBUFF1, BuffEntries[2], 1320.09f, 1378.79f, 314.7532f, 1.186824f, 0, 0, 0.5591929f, 0.8290376f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.BERSERKBUFF2, BuffEntries[2], 1139.688f, 1560.288f, 306.8432f, -2.443461f, 0, 0, 0.9396926f, -0.3420201f, BattlegroundConst.BuffRespawnTime);
+        result &= AddObject(WsgObjectTypes.SPEEDBUFF1, BuffEntries[0], 1449.93f, 1470.71f, 342.6346f, -1.64061f, 0, 0, 0.7313537f, -0.6819983f, BattlegroundConst.BUFF_RESPAWN_TIME);
+        result &= AddObject(WsgObjectTypes.SPEEDBUFF2, BuffEntries[0], 1005.171f, 1447.946f, 335.9032f, 1.64061f, 0, 0, 0.7313537f, 0.6819984f, BattlegroundConst.BUFF_RESPAWN_TIME);
+        result &= AddObject(WsgObjectTypes.REGENBUFF1, BuffEntries[1], 1317.506f, 1550.851f, 313.2344f, -0.2617996f, 0, 0, 0.1305263f, -0.9914448f, BattlegroundConst.BUFF_RESPAWN_TIME);
+        result &= AddObject(WsgObjectTypes.REGENBUFF2, BuffEntries[1], 1110.451f, 1353.656f, 316.5181f, -0.6806787f, 0, 0, 0.333807f, -0.9426414f, BattlegroundConst.BUFF_RESPAWN_TIME);
+        result &= AddObject(WsgObjectTypes.BERSERKBUFF1, BuffEntries[2], 1320.09f, 1378.79f, 314.7532f, 1.186824f, 0, 0, 0.5591929f, 0.8290376f, BattlegroundConst.BUFF_RESPAWN_TIME);
+        result &= AddObject(WsgObjectTypes.BERSERKBUFF2, BuffEntries[2], 1139.688f, 1560.288f, 306.8432f, -2.443461f, 0, 0, 0.9396926f, -0.3420201f, BattlegroundConst.BUFF_RESPAWN_TIME);
 
         if (!result)
         {
@@ -693,11 +693,11 @@ internal class BgWarsongGluch : Battleground
         for (var i = WsgObjectTypes.DOOR_A1; i <= WsgObjectTypes.DOOR_H4; ++i)
         {
             DoorClose(i);
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_IMMEDIATELY);
         }
 
         for (var i = WsgObjectTypes.A_FLAG; i <= WsgObjectTypes.BERSERKBUFF2; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_ONE_DAY);
     }
 
     public override void StartingEventOpenDoors()
@@ -709,12 +709,12 @@ internal class BgWarsongGluch : Battleground
             DoorOpen(i);
 
         for (var i = WsgObjectTypes.A_FLAG; i <= WsgObjectTypes.BERSERKBUFF2; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
-        SpawnBGObject(WsgObjectTypes.DOOR_A5, BattlegroundConst.RespawnOneDay);
-        SpawnBGObject(WsgObjectTypes.DOOR_A6, BattlegroundConst.RespawnOneDay);
-        SpawnBGObject(WsgObjectTypes.DOOR_H3, BattlegroundConst.RespawnOneDay);
-        SpawnBGObject(WsgObjectTypes.DOOR_H4, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(WsgObjectTypes.DOOR_A5, BattlegroundConst.RESPAWN_ONE_DAY);
+        SpawnBGObject(WsgObjectTypes.DOOR_A6, BattlegroundConst.RESPAWN_ONE_DAY);
+        SpawnBGObject(WsgObjectTypes.DOOR_H3, BattlegroundConst.RESPAWN_ONE_DAY);
+        SpawnBGObject(WsgObjectTypes.DOOR_H4, BattlegroundConst.RESPAWN_ONE_DAY);
 
         UpdateWorldState(WsgWorldStates.STATE_TIMER_ACTIVE, 1);
         UpdateWorldState(WsgWorldStates.STATE_TIMER, (int)(GameTime.CurrentTime + 15 * Time.MINUTE));
@@ -886,8 +886,8 @@ internal class BgWarsongGluch : Battleground
         if (captured)
         {
             //when map_update will be allowed for Battlegrounds this code will be useless
-            SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RespawnImmediately);
-            SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RESPAWN_IMMEDIATELY);
+            SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RESPAWN_IMMEDIATELY);
             SendBroadcastText(WsgBroadcastTexts.FLAGS_PLACED, ChatMsg.BgSystemNeutral);
             PlaySoundToAll(WsgSound.FLAGS_RESPAWNED); // Id respawned sound...
         }
@@ -903,9 +903,9 @@ internal class BgWarsongGluch : Battleground
         RespawnFlag(team, false);
 
         if (team == TeamFaction.Alliance)
-            SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(WsgObjectTypes.A_FLAG, BattlegroundConst.RESPAWN_IMMEDIATELY);
         else
-            SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(WsgObjectTypes.H_FLAG, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
         SendBroadcastText(WsgBroadcastTexts.FLAGS_PLACED, ChatMsg.BgSystemNeutral);
         PlaySoundToAll(WsgSound.FLAGS_RESPAWNED);

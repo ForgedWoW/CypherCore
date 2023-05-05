@@ -8,5 +8,5 @@ public enum BattlegroundSounds
     HordeWins = 8454,
     AllianceWins = 8455,
     BgStart = 3439,
-    BgStartL70etc = 11803
+    BgStartL70Etc = 11803
 }

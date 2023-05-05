@@ -6,39 +6,39 @@ namespace Framework.Constants;
 public enum BattlegroundTypeId
 {
     None = 0,          // None
-    AV = 1,            // Alterac Valley
-    WS = 2,            // Warsong Gulch
+    Av = 1,            // Alterac Valley
+    Ws = 2,            // Warsong Gulch
     AB = 3,            // Arathi Basin
-    NA = 4,            // Nagrand Arena
-    BE = 5,            // Blade'S Edge Arena
-    AA = 6,            // All Arenas
-    EY = 7,            // Eye Of The Storm
-    RL = 8,            // Ruins Of Lordaernon
-    SA = 9,            // Strand Of The Ancients
-    DS = 10,           // Dalaran Sewers
-    RV = 11,           // The Ring Of Valor
-    IC = 30,           // Isle Of Conquest
-    RB = 32,           // Random Battleground
+    Na = 4,            // Nagrand Arena
+    Be = 5,            // Blade'S Edge Arena
+    Aa = 6,            // All Arenas
+    Ey = 7,            // Eye Of The Storm
+    Rl = 8,            // Ruins Of Lordaernon
+    Sa = 9,            // Strand Of The Ancients
+    Ds = 10,           // Dalaran Sewers
+    Rv = 11,           // The Ring Of Valor
+    Ic = 30,           // Isle Of Conquest
+    Rb = 32,           // Random Battleground
     Rated10Vs10 = 100, // Rated Battleground 10 Vs 10
     Rated15Vs15 = 101, // Rated Battleground 15 Vs 15
     Rated25Vs25 = 102, // Rated Battleground 25 Vs 25
-    TP = 108,          // Twin Peaks
-    BFG = 120,         // Battle For Gilneas
+    Tp = 108,          // Twin Peaks
+    Bfg = 120,         // Battle For Gilneas
 
     // 656 = "Rated Eye Of The Storm"
     Tk = 699, // Temple Of Kotmogu
 
     // 706 = "Ctf3"
-    SM = 708,     // Silvershard Mines
-    TVA = 719,    // Tol'Viron Arena
-    DG = 754,     // Deepwind Gorge
-    TTP = 757,    // The Tiger'S Peak
-    SSvsTM = 789, // Southshore Vs. Tarren Mill
+    Sm = 708,     // Silvershard Mines
+    Tva = 719,    // Tol'Viron Arena
+    Dg = 754,     // Deepwind Gorge
+    Ttp = 757,    // The Tiger'S Peak
+    SSvsTm = 789, // Southshore Vs. Tarren Mill
     SmallD = 803, // Small Battleground D
-    BRH = 808,    // Black Rook Hold Arena
+    Brh = 808,    // Black Rook Hold Arena
 
     // 809 = "New Nagrand Arena (Legion)"
-    AF = 816, // Ashamane'S Fall
+    Af = 816, // Ashamane'S Fall
 
     // 844 = "New Blade'S Edge Arena (Legion)"
     BrawlTbg = 846, // Brawl - The Battle For Gilneas (Old City Map)

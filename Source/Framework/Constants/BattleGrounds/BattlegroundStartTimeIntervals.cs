@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum BattlegroundStartTimeIntervals
 {
-    Delay2m = 120000, // Ms (2 Minutes)
-    Delay1m = 60000,  // Ms (1 Minute)
-    Delay30s = 30000, // Ms (30 Seconds)
-    Delay15s = 15000, // Ms (15 Seconds) Used Only In Arena
+    Delay2M = 120000, // Ms (2 Minutes)
+    Delay1M = 60000,  // Ms (1 Minute)
+    Delay30S = 30000, // Ms (30 Seconds)
+    Delay15S = 15000, // Ms (15 Seconds) Used Only In Arena
     None = 0          // Ms
 }

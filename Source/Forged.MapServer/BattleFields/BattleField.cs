@@ -680,7 +680,7 @@ public class BattleField : ZoneScript
                 if (GetGraveyardById(i) != null)
                     GraveyardList[i].Resurrect();
 
-            _lastResurectTimer = BattlegroundConst.ResurrectionInterval;
+            _lastResurectTimer = BattlegroundConst.RESURRECTION_INTERVAL;
         }
         else
         {

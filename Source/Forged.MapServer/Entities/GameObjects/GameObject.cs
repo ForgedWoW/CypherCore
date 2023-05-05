@@ -3248,13 +3248,13 @@ public class GameObject : WorldObject
                         {
                             case 179785: // Silverwing Flag
                             case 179786: // Warsong Flag
-                                if (bg.GetTypeID(true) == BattlegroundTypeId.WS)
+                                if (bg.GetTypeID(true) == BattlegroundTypeId.Ws)
                                     bg.EventPlayerClickedOnFlag(player, this);
 
                                 break;
 
                             case 184142: // Netherstorm Flag
-                                if (bg.GetTypeID(true) == BattlegroundTypeId.EY)
+                                if (bg.GetTypeID(true) == BattlegroundTypeId.Ey)
                                     bg.EventPlayerClickedOnFlag(player, this);
 
                                 break;

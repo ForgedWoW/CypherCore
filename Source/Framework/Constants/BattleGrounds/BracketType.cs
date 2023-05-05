@@ -5,13 +5,13 @@ namespace Framework.Constants;
 
 public enum BracketType
 {
-    ARENA_2 = 0,
-    ARENA_3 = 1,
-    ARENA_5 = 2,
-    RATED_BG = 3,
-    SKIRMISH_2 = 4,
-    SKIRMISH_3 = 5,
-    BRAWL_BATTLEGROUND = 6,
-    BRAWL_ARENA = 7,
-    MAX
+    Arena2 = 0,
+    Arena3 = 1,
+    Arena5 = 2,
+    RatedBG = 3,
+    Skirmish2 = 4,
+    Skirmish3 = 5,
+    BrawlBattleground = 6,
+    BrawlArena = 7,
+    Max
 };

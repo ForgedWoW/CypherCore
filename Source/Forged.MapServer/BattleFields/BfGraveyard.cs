@@ -40,7 +40,7 @@ public class BfGraveyard
         _resurrectQueue.Add(playerGuid);
         var player = _objectAccessor.FindPlayer(playerGuid);
 
-        player?.SpellFactory.CastSpell(player, BattlegroundConst.SpellWaitingForResurrect, true);
+        player?.SpellFactory.CastSpell(player, BattlegroundConst.SPELL_WAITING_FOR_RESURRECT, true);
     }
 
     public float GetDistance(Player player)
@@ -96,7 +96,7 @@ public class BfGraveyard
 
         var player = _objectAccessor.FindPlayer(playerGuid);
 
-        player?.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
+        player?.RemoveAura(BattlegroundConst.SPELL_WAITING_FOR_RESURRECT);
     }
 
     public void Resurrect()
@@ -117,14 +117,14 @@ public class BfGraveyard
             {
                 var spirit = BattleField.GetCreature(_spiritGuide[ControlTeamId]);
 
-                spirit?.SpellFactory.CastSpell(spirit, BattlegroundConst.SpellSpiritHeal, true);
+                spirit?.SpellFactory.CastSpell(spirit, BattlegroundConst.SPELL_SPIRIT_HEAL, true);
             }
 
             // Resurect player
-            player.SpellFactory.CastSpell(player, BattlegroundConst.SpellResurrectionVisual, true);
+            player.SpellFactory.CastSpell(player, BattlegroundConst.SPELL_RESURRECTION_VISUAL, true);
             player.ResurrectPlayer(1.0f);
             player.SpellFactory.CastSpell(player, 6962, true);
-            player.SpellFactory.CastSpell(player, BattlegroundConst.SpellSpiritHealMana, true);
+            player.SpellFactory.CastSpell(player, BattlegroundConst.SPELL_SPIRIT_HEAL_MANA, true);
 
             player.SpawnCorpseBones(false);
         }

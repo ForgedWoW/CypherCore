@@ -34,7 +34,7 @@ public partial class Player
                 _battlegroundQueueIdRecs[i].BgQueueTypeId = val;
                 _battlegroundQueueIdRecs[i].InvitedToInstance = 0;
                 _battlegroundQueueIdRecs[i].JoinTime = (uint)GameTime.CurrentTime;
-                _battlegroundQueueIdRecs[i].Mercenary = HasAura(BattlegroundConst.SpellMercenaryContractHorde) || HasAura(BattlegroundConst.SpellMercenaryContractAlliance);
+                _battlegroundQueueIdRecs[i].Mercenary = HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_HORDE) || HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_ALLIANCE);
 
                 return i;
             }
@@ -83,7 +83,7 @@ public partial class Player
         // It is possible to call this method with a null pointer, only skipping faction check.
         if (gameobject == null)
             return !IsTotalImmune &&                                       // Damage immune
-                   !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held Id debuff
+                   !HasAura(BattlegroundConst.SPELL_RECENTLY_DROPPED_FLAG) && // Still has recently held Id debuff
                    IsAlive;                                                // Alive
 
         var playerFaction = WorldObjectCombat.GetFactionTemplateEntry();
@@ -95,7 +95,7 @@ public partial class Player
         // BUG: sometimes when player clicks on Id in AB - client won't send gameobject_use, only gameobject_report_use packet
         // Note: Mount, stealth and invisibility will be removed when used
         return !IsTotalImmune &&                                       // Damage immune
-               !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held Id debuff
+               !HasAura(BattlegroundConst.SPELL_RECENTLY_DROPPED_FLAG) && // Still has recently held Id debuff
                IsAlive;                                                // Alive
     }
 
@@ -226,7 +226,7 @@ public partial class Player
     public bool InBattlegroundQueue(bool ignoreArena = false)
     {
         for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
-            if (_battlegroundQueueIdRecs[i].BgQueueTypeId != default && (!ignoreArena || _battlegroundQueueIdRecs[i].BgQueueTypeId.BattlemasterListId != (ushort)BattlegroundTypeId.AA))
+            if (_battlegroundQueueIdRecs[i].BgQueueTypeId != default && (!ignoreArena || _battlegroundQueueIdRecs[i].BgQueueTypeId.BattlemasterListId != (ushort)BattlegroundTypeId.Aa))
                 return true;
 
         return false;
@@ -376,7 +376,7 @@ public partial class Player
         }
 
         // 'Inactive' this aura prevents the player from gaining honor points and BattlegroundTokenizer
-        if (HasAura(BattlegroundConst.SpellAuraPlayerInactive))
+        if (HasAura(BattlegroundConst.SPELL_AURA_PLAYER_INACTIVE))
             return false;
 
         var victimGuid = ObjectGuid.Empty;

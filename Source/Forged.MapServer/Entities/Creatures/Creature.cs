@@ -422,12 +422,12 @@ public partial class Creature : Unit
 
         switch (bgTypeId)
         {
-            case BattlegroundTypeId.AV:
+            case BattlegroundTypeId.Av:
                 player.PlayerTalkClass.SendGossipMenu(7616, GUID);
 
                 break;
 
-            case BattlegroundTypeId.WS:
+            case BattlegroundTypeId.Ws:
                 player.PlayerTalkClass.SendGossipMenu(7599, GUID);
 
                 break;
@@ -437,14 +437,14 @@ public partial class Creature : Unit
 
                 break;
 
-            case BattlegroundTypeId.EY:
-            case BattlegroundTypeId.NA:
-            case BattlegroundTypeId.BE:
-            case BattlegroundTypeId.AA:
-            case BattlegroundTypeId.RL:
-            case BattlegroundTypeId.SA:
-            case BattlegroundTypeId.DS:
-            case BattlegroundTypeId.RV:
+            case BattlegroundTypeId.Ey:
+            case BattlegroundTypeId.Na:
+            case BattlegroundTypeId.Be:
+            case BattlegroundTypeId.Aa:
+            case BattlegroundTypeId.Rl:
+            case BattlegroundTypeId.Sa:
+            case BattlegroundTypeId.Ds:
+            case BattlegroundTypeId.Rv:
                 player.PlayerTalkClass.SendGossipMenu(10024, GUID);
 
                 break;

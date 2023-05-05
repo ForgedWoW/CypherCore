@@ -19,15 +19,15 @@ public class Arena : Battleground
 
     public Arena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
-        StartDelayTimes[BattlegroundConst.EventIdFirst] = BattlegroundStartTimeIntervals.Delay1m;
-        StartDelayTimes[BattlegroundConst.EventIdSecond] = BattlegroundStartTimeIntervals.Delay30s;
-        StartDelayTimes[BattlegroundConst.EventIdThird] = BattlegroundStartTimeIntervals.Delay15s;
-        StartDelayTimes[BattlegroundConst.EventIdFourth] = BattlegroundStartTimeIntervals.None;
+        StartDelayTimes[BattlegroundConst.EVENT_ID_FIRST] = BattlegroundStartTimeIntervals.Delay1M;
+        StartDelayTimes[BattlegroundConst.EVENT_ID_SECOND] = BattlegroundStartTimeIntervals.Delay30S;
+        StartDelayTimes[BattlegroundConst.EVENT_ID_THIRD] = BattlegroundStartTimeIntervals.Delay15S;
+        StartDelayTimes[BattlegroundConst.EVENT_ID_FOURTH] = BattlegroundStartTimeIntervals.None;
 
-        StartMessageIds[BattlegroundConst.EventIdFirst] = ArenaBroadcastTexts.OneMinute;
-        StartMessageIds[BattlegroundConst.EventIdSecond] = ArenaBroadcastTexts.ThirtySeconds;
-        StartMessageIds[BattlegroundConst.EventIdThird] = ArenaBroadcastTexts.FifteenSeconds;
-        StartMessageIds[BattlegroundConst.EventIdFourth] = ArenaBroadcastTexts.HasBegun;
+        StartMessageIds[BattlegroundConst.EVENT_ID_FIRST] = ArenaBroadcastTexts.ONE_MINUTE;
+        StartMessageIds[BattlegroundConst.EVENT_ID_SECOND] = ArenaBroadcastTexts.THIRTY_SECONDS;
+        StartMessageIds[BattlegroundConst.EVENT_ID_THIRD] = ArenaBroadcastTexts.FIFTEEN_SECONDS;
+        StartMessageIds[BattlegroundConst.EVENT_ID_FOURTH] = ArenaBroadcastTexts.HAS_BEGUN;
     }
 
     public override void AddPlayer(Player player)
@@ -41,16 +41,16 @@ public class Arena : Battleground
         if (player.GetBgTeam() == TeamFaction.Alliance) // gold
         {
             if (player.EffectiveTeam == TeamFaction.Horde)
-                player.SpellFactory.CastSpell(player, ArenaSpellIds.HordeGoldFlag, true);
+                player.SpellFactory.CastSpell(player, ArenaSpellIds.HORDE_GOLD_FLAG, true);
             else
-                player.SpellFactory.CastSpell(player, ArenaSpellIds.AllianceGoldFlag, true);
+                player.SpellFactory.CastSpell(player, ArenaSpellIds.ALLIANCE_GOLD_FLAG, true);
         }
         else // green
         {
             if (player.EffectiveTeam == TeamFaction.Horde)
-                player.SpellFactory.CastSpell(player, ArenaSpellIds.HordeGreenFlag, true);
+                player.SpellFactory.CastSpell(player, ArenaSpellIds.HORDE_GREEN_FLAG, true);
             else
-                player.SpellFactory.CastSpell(player, ArenaSpellIds.AllianceGreenFlag, true);
+                player.SpellFactory.CastSpell(player, ArenaSpellIds.ALLIANCE_GREEN_FLAG, true);
         }
 
         UpdateArenaWorldState();
@@ -60,16 +60,16 @@ public class Arena : Battleground
     {
         base.BuildPvPLogDataPacket(out pvpLogData);
 
-        if (IsRated)
-        {
-            pvpLogData.Ratings = new PVPMatchStatistics.RatingData();
+        if (!IsRated)
+            return;
 
-            for (byte i = 0; i < SharedConst.PvpTeamsCount; ++i)
-            {
-                pvpLogData.Ratings.Postmatch[i] = ArenaTeamScores[i].PostMatchRating;
-                pvpLogData.Ratings.Prematch[i] = ArenaTeamScores[i].PreMatchRating;
-                pvpLogData.Ratings.PrematchMMR[i] = ArenaTeamScores[i].PreMatchMmr;
-            }
+        pvpLogData.Ratings = new PVPMatchStatistics.RatingData();
+
+        for (byte i = 0; i < SharedConst.PvpTeamsCount; ++i)
+        {
+            pvpLogData.Ratings.Postmatch[i] = ArenaTeamScores[i].PostMatchRating;
+            pvpLogData.Ratings.Prematch[i] = ArenaTeamScores[i].PreMatchRating;
+            pvpLogData.Ratings.PrematchMMR[i] = ArenaTeamScores[i].PreMatchMmr;
         }
     }
 
@@ -152,7 +152,7 @@ public class Arena : Battleground
                                                  ArenaType,
                                                  player.GetName(),
                                                  score.Key,
-                                                 player.GetArenaTeamId((byte)(ArenaType == ArenaTypes.Team5v5 ? 2 : ArenaType == ArenaTypes.Team3v3 ? 1 : 0)),
+                                                 player.GetArenaTeamId((byte)(ArenaType == ArenaTypes.Team5V5 ? 2 : ArenaType == ArenaTypes.Team3V3 ? 1 : 0)),
                                                  player.Session.RemoteAddress,
                                                  score.Value.ToString());
                         }
@@ -203,8 +203,8 @@ public class Arena : Battleground
                         player.UpdateCriteria(CriteriaType.WinArena, MapId);
 
                         // Last standing - Rated 5v5 arena & be solely alive player
-                        if (ArenaType == ArenaTypes.Team5v5 && aliveWinners == 1 && player.IsAlive)
-                            player.CastSpell(player, ArenaSpellIds.LastManStanding, true);
+                        if (ArenaType == ArenaTypes.Team5V5 && aliveWinners == 1 && player.IsAlive)
+                            player.CastSpell(player, ArenaSpellIds.LAST_MAN_STANDING, true);
 
                         if (!guildAwarded)
                         {

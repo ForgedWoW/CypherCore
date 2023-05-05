@@ -3660,9 +3660,9 @@ public class AuraEffect
             };
 
             if (AuraType == AuraType.BattleGroundPlayerPositionFactional)
-                playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PlayerPositionIconHordeFlag : BattlegroundConst.PlayerPositionIconAllianceFlag;
+                playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PLAYER_POSITION_ICON_HORDE_FLAG : BattlegroundConst.PLAYER_POSITION_ICON_ALLIANCE_FLAG;
             else if (AuraType == AuraType.BattleGroundPlayerPosition)
-                playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PlayerPositionIconAllianceFlag : BattlegroundConst.PlayerPositionIconHordeFlag;
+                playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PLAYER_POSITION_ICON_ALLIANCE_FLAG : BattlegroundConst.PLAYER_POSITION_ICON_HORDE_FLAG;
             else
                 Log.Logger.Warning($"Unknown aura effect {AuraType} handled by HandleBattlegroundPlayerPosition.");
 

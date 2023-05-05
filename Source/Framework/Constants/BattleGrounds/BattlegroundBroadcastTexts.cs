@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public struct BattlegroundBroadcastTexts
 {
-    public const uint AllianceWins = 10633;
-    public const uint HasBegun = 18196;
-    public const uint HordeWins = 10634;
+    public const uint ALLIANCE_WINS = 10633;
+    public const uint HAS_BEGUN = 18196;
+    public const uint HORDE_WINS = 10634;
 
-    public const uint StartHalfMinute = 18195;
-    public const uint StartOneMinute = 18194;
-    public const uint StartTwoMinutes = 18193;
+    public const uint START_HALF_MINUTE = 18195;
+    public const uint START_ONE_MINUTE = 18194;
+    public const uint START_TWO_MINUTES = 18193;
 }

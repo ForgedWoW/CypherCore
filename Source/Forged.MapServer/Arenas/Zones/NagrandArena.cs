@@ -70,7 +70,7 @@ public class NagrandArena : Arena
     public override void StartingEventCloseDoors()
     {
         for (var i = NagrandArenaObjectTypes.DOOR1; i <= NagrandArenaObjectTypes.DOOR4; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_IMMEDIATELY);
     }
 
     public override void StartingEventOpenDoors()

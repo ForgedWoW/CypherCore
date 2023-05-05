@@ -5,142 +5,142 @@ namespace Framework.Constants;
 
 public struct BattlegroundConst
 {
-    public const uint AbQuestReward = 43484;
+    public const uint AB_QUEST_REWARD = 43484;
 
-    public const uint AbQuestReward4Bases = 24061;
+    public const uint AB_QUEST_REWARD4_BASES = 24061;
 
-    public const uint AbQuestReward5Bases = 24064;
+    public const uint AB_QUEST_REWARD5_BASES = 24064;
 
-    public const uint ArenaCountdownMax = 60;
+    public const uint ARENA_COUNTDOWN_MAX = 60;
 
-    public const uint AutocloseBattleground = 120000;
+    public const uint AUTOCLOSE_BATTLEGROUND = 120000;
 
-    public const uint AvQuestKilledBoss = 23658;
+    public const uint AV_QUEST_KILLED_BOSS = 23658;
 
-    public const uint AvQuestReward = 43475;
+    public const uint AV_QUEST_REWARD = 43475;
 
-    public const uint BattlegroundCountdownMax = 120;
+    public const uint BATTLEGROUND_COUNTDOWN_MAX = 120;
 
-    public const uint BerserkerBuff = 179905;
+    public const uint BERSERKER_BUFF = 179905;
 
-    public const uint BgQueueNormalAlliance = 2;
+    public const uint BG_QUEUE_NORMAL_ALLIANCE = 2;
 
-    public const uint BgQueueNormalHorde = 3;
+    public const uint BG_QUEUE_NORMAL_HORDE = 3;
 
     //QueueGroupTypes
-    public const uint BgQueuePremadeAlliance = 0;
+    public const uint BG_QUEUE_PREMADE_ALLIANCE = 0;
 
-    public const uint BgQueuePremadeHorde = 1;
+    public const uint BG_QUEUE_PREMADE_HORDE = 1;
 
-    public const int BgQueueTypesCount = 4;
+    public const int BG_QUEUE_TYPES_COUNT = 4;
 
-    public const uint BuffRespawnTime = 180;
+    public const uint BUFF_RESPAWN_TIME = 180;
 
     //Time Intervals
-    public const uint CheckPlayerPositionInverval = 1000; // Ms
+    public const uint CHECK_PLAYER_POSITION_INVERVAL = 1000; // Ms
 
-    public const int EventIdCount = 4;
+    public const int EVENT_ID_COUNT = 4;
 
     //EventIds
-    public const int EventIdFirst = 0;
+    public const int EVENT_ID_FIRST = 0;
 
-    public const int EventIdFourth = 3;
-    public const int EventIdSecond = 1;
-    public const int EventIdThird = 2;
-    public const uint EyQuestReward = 43477;
+    public const int EVENT_ID_FOURTH = 3;
+    public const int EVENT_ID_SECOND = 1;
+    public const int EVENT_ID_THIRD = 2;
+    public const uint EY_QUEST_REWARD = 43477;
 
     //RemindInterval                 = 10000,               // Ms
-    public const uint InvitationRemindTime = 20000;
+    public const uint INVITATION_REMIND_TIME = 20000;
 
     // Ms
-    public const uint InviteAcceptWaitTime = 90000;
+    public const uint INVITE_ACCEPT_WAIT_TIME = 90000;
 
     // Ms
     // Ms
-    public const uint MaxOfflineTime = 300;
+    public const uint MAX_OFFLINE_TIME = 300;
 
-    public const sbyte PlayerPositionArenaSlot1 = 2;
-    public const sbyte PlayerPositionArenaSlot2 = 3;
-    public const sbyte PlayerPositionArenaSlot3 = 4;
-    public const sbyte PlayerPositionArenaSlot4 = 5;
-    public const sbyte PlayerPositionArenaSlot5 = 6;
-    public const sbyte PlayerPositionArenaSlotNone = 1;
-    public const sbyte PlayerPositionIconAllianceFlag = 2;
-    public const sbyte PlayerPositionIconHordeFlag = 1;
+    public const sbyte PLAYER_POSITION_ARENA_SLOT1 = 2;
+    public const sbyte PLAYER_POSITION_ARENA_SLOT2 = 3;
+    public const sbyte PLAYER_POSITION_ARENA_SLOT3 = 4;
+    public const sbyte PLAYER_POSITION_ARENA_SLOT4 = 5;
+    public const sbyte PLAYER_POSITION_ARENA_SLOT5 = 6;
+    public const sbyte PLAYER_POSITION_ARENA_SLOT_NONE = 1;
+    public const sbyte PLAYER_POSITION_ICON_ALLIANCE_FLAG = 2;
+    public const sbyte PLAYER_POSITION_ICON_HORDE_FLAG = 1;
 
     //PlayerPosition
-    public const sbyte PlayerPositionIconNone = 0;
+    public const sbyte PLAYER_POSITION_ICON_NONE = 0;
 
     // Secs
     // Secs
     // Secs
-    public const uint PlayerPositionUpdateInterval = 5000;
+    public const uint PLAYER_POSITION_UPDATE_INTERVAL = 5000;
 
-    public const uint RegenBuff = 179904;
-    public const uint RespawnImmediately = 0;
+    public const uint REGEN_BUFF = 179904;
+    public const uint RESPAWN_IMMEDIATELY = 0;
 
     // Secs
-    public const uint RespawnOneDay = 86400;
+    public const uint RESPAWN_ONE_DAY = 86400;
 
-    public const uint ResurrectionInterval = 30000; // Ms
+    public const uint RESURRECTION_INTERVAL = 30000; // Ms
 
-    public const uint SaQuestReward = 61213;
+    public const uint SA_QUEST_REWARD = 61213;
 
     //BuffObjects
-    public const uint SpeedBuff = 179871;
+    public const uint SPEED_BUFF = 179871;
 
-    public const uint SpellArenaPreparation = 32727;
+    public const uint SPELL_ARENA_PREPARATION = 32727;
 
-    public const uint SpellAuraPlayerInactive = 43681;
+    public const uint SPELL_AURA_PLAYER_INACTIVE = 43681;
 
     // Inactive
-    public const uint SpellHonorableDefender25y = 68652;
+    public const uint SPELL_HONORABLE_DEFENDER25_Y = 68652;
 
     // +50% Honor When Standing At A Capture Point That You Control, 25yards Radius (Added In 3.2)
-    public const uint SpellHonorableDefender60y = 66157;
+    public const uint SPELL_HONORABLE_DEFENDER60_Y = 66157;
 
-    public const uint SpellMercenaryAlliance1 = 193863;
+    public const uint SPELL_MERCENARY_ALLIANCE1 = 193863;
 
-    public const uint SpellMercenaryAllianceReactions = 195843;
+    public const uint SPELL_MERCENARY_ALLIANCE_REACTIONS = 195843;
 
-    public const uint SpellMercenaryContractAlliance = 193475;
+    public const uint SPELL_MERCENARY_CONTRACT_ALLIANCE = 193475;
 
     // +50% Honor When Standing At A Capture Point That You Control, 60yards Radius (Added In 3.2), Probably For 40+ Player Battlegrounds
-    public const uint SpellMercenaryContractHorde = 193472;
+    public const uint SPELL_MERCENARY_CONTRACT_HORDE = 193472;
 
-    public const uint SpellMercenaryHorde1 = 193864;
+    public const uint SPELL_MERCENARY_HORDE1 = 193864;
 
-    public const uint SpellMercenaryHordeReactions = 195838;
+    public const uint SPELL_MERCENARY_HORDE_REACTIONS = 195838;
 
-    public const uint SpellMercenaryShapeshift = 193970;
+    public const uint SPELL_MERCENARY_SHAPESHIFT = 193970;
 
     // Use This One, 32728 Not Correct
-    public const uint SpellPreparation = 44521;
+    public const uint SPELL_PREPARATION = 44521;
 
-    public const uint SpellRecentlyDroppedFlag = 42792;
+    public const uint SPELL_RECENTLY_DROPPED_FLAG = 42792;
 
-    public const uint SpellResurrectionVisual = 24171;
+    public const uint SPELL_RESURRECTION_VISUAL = 24171;
 
-    public const uint SpellSpiritHeal = 22012;
+    public const uint SPELL_SPIRIT_HEAL = 22012;
 
-    public const uint SpellSpiritHealChannel = 22011;
+    public const uint SPELL_SPIRIT_HEAL_CHANNEL = 22011;
 
     // Spirit Heal Channel
-    public const uint SpellSpiritHealChannelVisual = 3060;
+    public const uint SPELL_SPIRIT_HEAL_CHANNEL_VISUAL = 3060;
 
     // Spirit Heal
     // Resurrection Impact Visual
     // Preparation
-    public const uint SpellSpiritHealMana = 44535;
+    public const uint SPELL_SPIRIT_HEAL_MANA = 44535;
 
     //Spells
-    public const uint SpellWaitingForResurrect = 2584;
+    public const uint SPELL_WAITING_FOR_RESURRECT = 2584;
 
     // Secs
     // Secs
     // Ms
     //Quests
-    public const uint WsQuestReward = 43483;
+    public const uint WS_QUEST_REWARD = 43483;
 
     // Waiting To Resurrect
     // Spirit Heal

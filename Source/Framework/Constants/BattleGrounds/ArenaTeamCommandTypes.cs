@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ArenaTeamCommandTypes
 {
-    Create_S = 0x00,
-    Invite_SS = 0x01,
-    Quit_S = 0x03,
-    Founder_S = 0x0e
+    CreateS = 0x00,
+    InviteSs = 0x01,
+    QuitS = 0x03,
+    FounderS = 0x0e
 }

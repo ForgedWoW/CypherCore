@@ -3038,7 +3038,7 @@ public partial class Spell
 
                     if (bg != null)
                     {
-                        if (bg.GetTypeID(true) == BattlegroundTypeId.EY)
+                        if (bg.GetTypeID(true) == BattlegroundTypeId.Ey)
                             bg.EventPlayerClickedOnFlag(player, GameObjTarget);
 
                         return;

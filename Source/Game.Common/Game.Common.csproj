@@ -34,7 +34,6 @@
 		<NoWarn>1701;1702;CS0649</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Autofac" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-preview1-26619-01" />

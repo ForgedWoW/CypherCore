@@ -70,10 +70,10 @@ public class BladesEdgeArena : Arena
     public override void StartingEventCloseDoors()
     {
         for (var i = BladeEdgeObjectTypes.DOOR1; i <= BladeEdgeObjectTypes.DOOR4; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
         for (var i = BladeEdgeObjectTypes.BUFF1; i <= BladeEdgeObjectTypes.BUFF2; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_ONE_DAY);
     }
 
     public override void StartingEventOpenDoors()

@@ -4162,7 +4162,7 @@ public partial class Player
 
         if (bg != null)
         {
-            if (bg.GetTypeID(true) == BattlegroundTypeId.AV)
+            if (bg.GetTypeID(true) == BattlegroundTypeId.Av)
                 bones.Loot.FillLoot(1, LootStorageType.Creature, this, true);
         }
         // For wintergrasp Quests

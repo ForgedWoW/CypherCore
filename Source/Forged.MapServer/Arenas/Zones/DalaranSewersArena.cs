@@ -145,7 +145,7 @@ internal class DalaranSewersArena : Arena
     public override void StartingEventCloseDoors()
     {
         for (var i = DalaranSewersObjectTypes.DOOR1; i <= DalaranSewersObjectTypes.DOOR2; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(i, BattlegroundConst.RESPAWN_IMMEDIATELY);
     }
 
     public override void StartingEventOpenDoors()
@@ -159,7 +159,7 @@ internal class DalaranSewersArena : Arena
         Events.ScheduleEvent(DalaranSewersEvents.WATERFALL_WARNING, DalaranSewersData.WaterfallTimerMin, DalaranSewersData.WaterfallTimerMax);
         Events.ScheduleEvent(DalaranSewersEvents.PIPE_KNOCKBACK, DalaranSewersData.PipeKnockbackFirstDelay);
 
-        SpawnBGObject(DalaranSewersObjectTypes.WATER2, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(DalaranSewersObjectTypes.WATER2, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
         DoorOpen(DalaranSewersObjectTypes.WATER1); // Turn off collision
         DoorOpen(DalaranSewersObjectTypes.WATER2);

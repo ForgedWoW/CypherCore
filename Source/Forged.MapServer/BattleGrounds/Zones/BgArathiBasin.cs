@@ -607,14 +607,14 @@ internal class BgArathiBasin : Battleground
 
         for (var i = 0; i < ABBattlegroundNodes.DYNAMIC_NODES_COUNT; ++i)
         {
-            result &= AddObject(ABObjectTypes.BANNER_NEUTRAL + 8 * i, (uint)(NodeObjectId.BANNER0 + i), NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.BANNER_CONT_A + 8 * i, ABObjectIds.BANNER_CONT_A, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.BANNER_CONT_H + 8 * i, ABObjectIds.BANNER_CONT_H, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.BANNER_ALLY + 8 * i, ABObjectIds.BANNER_A, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.BANNER_HORDE + 8 * i, ABObjectIds.BANNER_H, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.AURA_ALLY + 8 * i, ABObjectIds.AURA_A, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.AURA_HORDE + 8 * i, ABObjectIds.AURA_H, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.AURA_CONTESTED + 8 * i, ABObjectIds.AURA_C, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RespawnOneDay);
+            result &= AddObject(ABObjectTypes.BANNER_NEUTRAL + 8 * i, (uint)(NodeObjectId.BANNER0 + i), NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.BANNER_CONT_A + 8 * i, ABObjectIds.BANNER_CONT_A, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.BANNER_CONT_H + 8 * i, ABObjectIds.BANNER_CONT_H, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.BANNER_ALLY + 8 * i, ABObjectIds.BANNER_A, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.BANNER_HORDE + 8 * i, ABObjectIds.BANNER_H, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.AURA_ALLY + 8 * i, ABObjectIds.AURA_A, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.AURA_HORDE + 8 * i, ABObjectIds.AURA_H, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.AURA_CONTESTED + 8 * i, ABObjectIds.AURA_C, NodePositions[i], 0, 0, (float)Math.Sin(NodePositions[i].Orientation / 2), (float)Math.Cos(NodePositions[i].Orientation / 2), BattlegroundConst.RESPAWN_ONE_DAY);
 
             if (!result)
             {
@@ -637,9 +637,9 @@ internal class BgArathiBasin : Battleground
         //buffs
         for (var i = 0; i < ABBattlegroundNodes.DYNAMIC_NODES_COUNT; ++i)
         {
-            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i, BuffEntries[0], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 1, BuffEntries[1], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 2, BuffEntries[2], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
+            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i, BuffEntries[0], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 1, BuffEntries[1], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RESPAWN_ONE_DAY);
+            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 2, BuffEntries[2], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RESPAWN_ONE_DAY);
 
             if (!result)
             {
@@ -659,16 +659,16 @@ internal class BgArathiBasin : Battleground
     {
         // despawn banners, auras and buffs
         for (var obj = ABObjectTypes.BANNER_NEUTRAL; obj < ABBattlegroundNodes.DYNAMIC_NODES_COUNT * 8; ++obj)
-            SpawnBGObject(obj, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(obj, BattlegroundConst.RESPAWN_ONE_DAY);
 
         for (var i = 0; i < ABBattlegroundNodes.DYNAMIC_NODES_COUNT * 3; ++i)
-            SpawnBGObject(ABObjectTypes.SPEEDBUFF_STABLES + i, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(ABObjectTypes.SPEEDBUFF_STABLES + i, BattlegroundConst.RESPAWN_ONE_DAY);
 
         // Starting doors
         DoorClose(ABObjectTypes.GATE_A);
         DoorClose(ABObjectTypes.GATE_H);
-        SpawnBGObject(ABObjectTypes.GATE_A, BattlegroundConst.RespawnImmediately);
-        SpawnBGObject(ABObjectTypes.GATE_H, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(ABObjectTypes.GATE_A, BattlegroundConst.RESPAWN_IMMEDIATELY);
+        SpawnBGObject(ABObjectTypes.GATE_H, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
         // Starting base spirit guides
         _NodeOccupied(ABBattlegroundNodes.SPIRIT_ALIANCE, TeamFaction.Alliance);
@@ -679,13 +679,13 @@ internal class BgArathiBasin : Battleground
     {
         // spawn neutral banners
         for (int banner = ABObjectTypes.BANNER_NEUTRAL, i = 0; i < 5; banner += 8, ++i)
-            SpawnBGObject(banner, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(banner, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
         for (var i = 0; i < ABBattlegroundNodes.DYNAMIC_NODES_COUNT; ++i)
         {
             //randomly select buff to spawn
             var buff = RandomHelper.IRand(0, 2);
-            SpawnBGObject(ABObjectTypes.SPEEDBUFF_STABLES + buff + i * 3, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(ABObjectTypes.SPEEDBUFF_STABLES + buff + i * 3, BattlegroundConst.RESPAWN_IMMEDIATELY);
         }
 
         DoorOpen(ABObjectTypes.GATE_A);
@@ -729,27 +729,27 @@ internal class BgArathiBasin : Battleground
 
         var obj = node * 8 + (byte)type + teamIndex;
 
-        SpawnBGObject(obj, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(obj, BattlegroundConst.RESPAWN_IMMEDIATELY);
 
         // handle aura with banner
         if (type == 0)
             return;
 
         obj = node * 8 + (type == ABNodeStatus.Occupied ? 5 + teamIndex : 7);
-        SpawnBGObject(obj, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(obj, BattlegroundConst.RESPAWN_IMMEDIATELY);
     }
 
     private void _DelBanner(byte node, ABNodeStatus type, byte teamIndex)
     {
         var obj = node * 8 + (byte)type + teamIndex;
-        SpawnBGObject(obj, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(obj, BattlegroundConst.RESPAWN_ONE_DAY);
 
         // handle aura with banner
         if (type == 0)
             return;
 
         obj = node * 8 + (type == ABNodeStatus.Occupied ? 5 + teamIndex : 7);
-        SpawnBGObject(obj, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(obj, BattlegroundConst.RESPAWN_ONE_DAY);
     }
 
     private void _NodeDeOccupied(byte node)
@@ -783,10 +783,10 @@ internal class BgArathiBasin : Battleground
                 ++capturedNodes;
 
         if (capturedNodes >= 5)
-            CastSpellOnTeam(BattlegroundConst.AbQuestReward5Bases, team);
+            CastSpellOnTeam(BattlegroundConst.AB_QUEST_REWARD5_BASES, team);
 
         if (capturedNodes >= 4)
-            CastSpellOnTeam(BattlegroundConst.AbQuestReward4Bases, team);
+            CastSpellOnTeam(BattlegroundConst.AB_QUEST_REWARD4_BASES, team);
 
         var trigger = !BgCreatures[node + 7].IsEmpty ? GetBGCreature(node + 7) : null; // 0-6 spirit guides
 
@@ -799,7 +799,7 @@ internal class BgArathiBasin : Battleground
         if (trigger)
         {
             trigger.Faction = team == TeamFaction.Alliance ? 84u : 83u;
-            trigger.CastSpell(trigger, BattlegroundConst.SpellHonorableDefender25y, false);
+            trigger.CastSpell(trigger, BattlegroundConst.SPELL_HONORABLE_DEFENDER25_Y, false);
         }
     }
 

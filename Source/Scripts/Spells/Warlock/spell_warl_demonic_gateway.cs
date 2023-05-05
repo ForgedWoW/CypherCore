@@ -20,7 +20,7 @@ public class SpellWarlDemonicGateway : SpellScript, ISpellCheckCast, IHasSpellEf
     public SpellCastResult CheckCast()
     {
         // don't allow during Arena Preparation
-        if (Caster.HasAura(BattlegroundConst.SpellArenaPreparation))
+        if (Caster.HasAura(BattlegroundConst.SPELL_ARENA_PREPARATION))
             return SpellCastResult.CantDoThatRightNow;
 
         // check if player can reach the location

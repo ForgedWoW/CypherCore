@@ -35,9 +35,9 @@ internal struct VehicleIds
     public const uint ANTI_PERSONNAL_CANNON = 27894;
 }
 
-[Script("achievement_arena_2v2_kills", ArenaTypes.Team2v2)]
-[Script("achievement_arena_3v3_kills", ArenaTypes.Team3v3)]
-[Script("achievement_arena_5v5_kills", ArenaTypes.Team5v5)]
+[Script("achievement_arena_2v2_kills", ArenaTypes.Team2V2)]
+[Script("achievement_arena_3v3_kills", ArenaTypes.Team3V3)]
+[Script("achievement_arena_5v5_kills", ArenaTypes.Team5V5)]
 internal class AchievementArenaKills : ScriptObjectAutoAddDBBound, IAchievementCriteriaOnCheck
 {
     private readonly ArenaTypes _arenaType;

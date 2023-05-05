@@ -61,7 +61,7 @@ internal class BGQueueInviteEvent : BasicEvent
         if (!bgQueue.IsPlayerInvited(_playerGuid, _bgInstanceGUID, _removeTime))
             return true; //event will be deleted
 
-        _battlegroundManager.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime - BattlegroundConst.InvitationRemindTime, _arenaType);
+        _battlegroundManager.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.INVITE_ACCEPT_WAIT_TIME - BattlegroundConst.INVITATION_REMIND_TIME, _arenaType);
         player.SendPacket(battlefieldStatus);
 
         return true; //event will be deleted
