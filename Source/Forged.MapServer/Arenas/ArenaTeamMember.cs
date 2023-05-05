@@ -34,10 +34,10 @@ public class ArenaTeamMember
         else
             PersonalRating += (ushort)mod;
 
-        if (player)
-        {
-            player.SetArenaTeamInfoField(ArenaTeam.GetSlotByType(type), ArenaTeamInfoType.PersonalRating, PersonalRating);
-            player.UpdateCriteria(CriteriaType.EarnPersonalArenaRating, PersonalRating, type);
-        }
+        if (player == null)
+            return;
+
+        player.SetArenaTeamInfoField(ArenaTeam.GetSlotByType(type), ArenaTeamInfoType.PersonalRating, PersonalRating);
+        player.UpdateCriteria(CriteriaType.EarnPersonalArenaRating, PersonalRating, type);
     }
 }

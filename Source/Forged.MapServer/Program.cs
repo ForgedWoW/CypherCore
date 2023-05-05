@@ -537,6 +537,7 @@ void RegisterInstanced()
     builder.RegisterType<BgStrandOfAncients>();
     builder.RegisterType<DalaranSewersArena>();
     builder.RegisterType<RingofValorArena>();
+    builder.RegisterType<ArenaTeam>();
 }
 
 void RegisterHandlers()

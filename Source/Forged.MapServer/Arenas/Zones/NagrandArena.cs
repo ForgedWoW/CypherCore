@@ -3,15 +3,34 @@
 
 using System;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
 public class NagrandArena : Arena
 {
-    public NagrandArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
+    public NagrandArena(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
+                        CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
+                        GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
+                        CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, ArenaTeamManager arenaTeamManager) :
+        base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
+             guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager, arenaTeamManager)
+    { }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {

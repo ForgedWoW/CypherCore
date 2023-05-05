@@ -102,7 +102,7 @@ public class SummonList : List<ObjectGuid>
 
     public void RemoveNotExisting()
     {
-        foreach (ObjectGuid id in this.Where(id => _me.ObjectAccessor.GetCreature(_me, id) == null))
+        foreach (ObjectGuid id in this.Where(id => ObjectAccessor.GetCreature(_me, id) == null))
             Remove(id);
     }
 

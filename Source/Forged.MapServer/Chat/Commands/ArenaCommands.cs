@@ -90,7 +90,7 @@ internal class ArenaCommands
             return false;
         }
 
-        ArenaTeam arena = new();
+        var arena = handler.ClassFactory.Resolve<ArenaTeam>();
 
         if (!arena.Create(captain.GetGUID(), (byte)type, name, 4293102085, 101, 4293253939, 4, 4284049911))
         {

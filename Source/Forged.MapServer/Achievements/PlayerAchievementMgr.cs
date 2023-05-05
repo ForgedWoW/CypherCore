@@ -40,13 +40,14 @@ public class PlayerAchievementMgr : AchievementManager
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
     private readonly ItemFactory _itemFactory;
+    private readonly CellCalculator _cellCalculator;
     private readonly GuildManager _guildManager;
     private readonly Player _owner;
     private readonly ScriptManager _scriptManager;
 
     public PlayerAchievementMgr(Player owner, GuildManager guildManager, ScriptManager scriptManager, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                                 DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
-                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, ClassFactory classFactory, ItemFactory itemFactory, PhasingHandler phasingHandler) :
+                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, ClassFactory classFactory, ItemFactory itemFactory, PhasingHandler phasingHandler, CellCalculator cellCalculator) :
         base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler)
     {
         _owner = owner;
@@ -55,6 +56,7 @@ public class PlayerAchievementMgr : AchievementManager
         _characterDatabase = characterDatabase;
         _classFactory = classFactory;
         _itemFactory = itemFactory;
+        _cellCalculator = cellCalculator;
     }
 
     public override void CompletedAchievement(AchievementRecord achievement, Player referencePlayer)
@@ -550,7 +552,7 @@ public class PlayerAchievementMgr : AchievementManager
         {
             var guild = _guildManager.GetGuildById(_owner.GuildId);
 
-            if (guild)
+            if (guild != null)
             {
                 BroadcastTextBuilder sayBuilder = new(_owner, ChatMsg.GuildAchievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
                 var sayDo = new LocalizedDo(sayBuilder);
@@ -575,7 +577,7 @@ public class PlayerAchievementMgr : AchievementManager
                 BroadcastTextBuilder builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
                 var localizer = new LocalizedDo(builder);
                 var worker = new PlayerDistWorker(_owner, Configuration.GetDefaultValue("ListenRange:Say", 25.0f), localizer, GridType.World);
-                CellCalculator.VisitGrid(_owner, worker, Configuration.GetDefaultValue("ListenRange:Say", 25.0f));
+                _cellCalculator.VisitGrid(_owner, worker, Configuration.GetDefaultValue("ListenRange:Say", 25.0f));
             }
         }
 

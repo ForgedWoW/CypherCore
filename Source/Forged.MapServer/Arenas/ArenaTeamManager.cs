@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Arenas;
@@ -12,11 +13,13 @@ public class ArenaTeamManager
 {
     private readonly Dictionary<uint, ArenaTeam> _arenaTeamStorage = new();
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private uint _nextArenaTeamId;
 
-    public ArenaTeamManager(CharacterDatabase characterDatabase)
+    public ArenaTeamManager(CharacterDatabase characterDatabase, ClassFactory classFactory)
     {
         _characterDatabase = characterDatabase;
+        _classFactory = classFactory;
         _nextArenaTeamId = 1;
     }
 
@@ -90,7 +93,7 @@ public class ArenaTeamManager
 
         do
         {
-            ArenaTeam newArenaTeam = new();
+            var newArenaTeam = _classFactory.Resolve<ArenaTeam>();
 
             if (!newArenaTeam.LoadArenaTeamFromDB(result) || !newArenaTeam.LoadMembersFromDB(result2))
             {

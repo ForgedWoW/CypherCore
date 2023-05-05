@@ -85,7 +85,7 @@ public class WorldBossAI : ScriptedAI
     {
         var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-        if (target)
+        if (target != null)
             AttackStart(target);
     }
 

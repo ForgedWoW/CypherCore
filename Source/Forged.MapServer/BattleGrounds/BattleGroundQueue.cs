@@ -130,12 +130,12 @@ public class BattlegroundQueue
         }
 
         //add players from group to ginfo
-        if (group)
+        if (group != null)
             for (var refe = group.FirstMember; refe != null; refe = refe.Next())
             {
                 var member = refe.Source;
 
-                if (!member)
+                if (member == null)
                     continue; // this should never happen
 
                 PlayerQueueInfo plInfo = new()
@@ -265,7 +265,7 @@ public class BattlegroundQueue
 
         var bgTemplate = _battlegroundManager.GetBattlegroundTemplate((BattlegroundTypeId)_queueId.BattlemasterListId);
 
-        if (!bgTemplate)
+        if (bgTemplate == null)
         {
             Log.Logger.Error($"Battleground: Update: bg template not found for {_queueId.BattlemasterListId}");
 
@@ -415,47 +415,47 @@ public class BattlegroundQueue
                     }
 
             //if we have 2 teams, then start new arena and invite players!
-            if (found == 2)
+            if (found != 2)
+                return;
+
+            var aTeam = queueArray[TeamIds.Alliance];
+            var hTeam = queueArray[TeamIds.Horde];
+            var arena = _battlegroundManager.CreateNewBattleground(_queueId, bracketEntry);
+
+            if (arena == null)
             {
-                var aTeam = queueArray[TeamIds.Alliance];
-                var hTeam = queueArray[TeamIds.Horde];
-                var arena = _battlegroundManager.CreateNewBattleground(_queueId, bracketEntry);
+                Log.Logger.Error("BattlegroundQueue.Update couldn't create arena instance for rated arena match!");
 
-                if (!arena)
-                {
-                    Log.Logger.Error("BattlegroundQueue.Update couldn't create arena instance for rated arena match!");
-
-                    return;
-                }
-
-                aTeam.OpponentsTeamRating = hTeam.ArenaTeamRating;
-                hTeam.OpponentsTeamRating = aTeam.ArenaTeamRating;
-                aTeam.OpponentsMatchmakerRating = hTeam.ArenaMatchmakerRating;
-                hTeam.OpponentsMatchmakerRating = aTeam.ArenaMatchmakerRating;
-                Log.Logger.Debug("setting oposite teamrating for team {0} to {1}", aTeam.ArenaTeamId, aTeam.OpponentsTeamRating);
-                Log.Logger.Debug("setting oposite teamrating for team {0} to {1}", hTeam.ArenaTeamId, hTeam.OpponentsTeamRating);
-
-                // now we must move team if we changed its faction to another faction queue, because then we will spam log by errors in Queue.RemovePlayer
-                if (aTeam.Team != TeamFaction.Alliance)
-                {
-                    _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_ALLIANCE].Insert(0, aTeam);
-                    _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_HORDE].Remove(queueArray[TeamIds.Alliance]);
-                }
-
-                if (hTeam.Team != TeamFaction.Horde)
-                {
-                    _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_HORDE].Insert(0, hTeam);
-                    _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_ALLIANCE].Remove(queueArray[TeamIds.Horde]);
-                }
-
-                arena.SetArenaMatchmakerRating(TeamFaction.Alliance, aTeam.ArenaMatchmakerRating);
-                arena.SetArenaMatchmakerRating(TeamFaction.Horde, hTeam.ArenaMatchmakerRating);
-                InviteGroupToBG(aTeam, arena, TeamFaction.Alliance);
-                InviteGroupToBG(hTeam, arena, TeamFaction.Horde);
-
-                Log.Logger.Debug("Starting rated arena match!");
-                arena.StartBattleground();
+                return;
             }
+
+            aTeam.OpponentsTeamRating = hTeam.ArenaTeamRating;
+            hTeam.OpponentsTeamRating = aTeam.ArenaTeamRating;
+            aTeam.OpponentsMatchmakerRating = hTeam.ArenaMatchmakerRating;
+            hTeam.OpponentsMatchmakerRating = aTeam.ArenaMatchmakerRating;
+            Log.Logger.Debug("setting oposite teamrating for team {0} to {1}", aTeam.ArenaTeamId, aTeam.OpponentsTeamRating);
+            Log.Logger.Debug("setting oposite teamrating for team {0} to {1}", hTeam.ArenaTeamId, hTeam.OpponentsTeamRating);
+
+            // now we must move team if we changed its faction to another faction queue, because then we will spam log by errors in Queue.RemovePlayer
+            if (aTeam.Team != TeamFaction.Alliance)
+            {
+                _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_ALLIANCE].Insert(0, aTeam);
+                _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_HORDE].Remove(queueArray[TeamIds.Alliance]);
+            }
+
+            if (hTeam.Team != TeamFaction.Horde)
+            {
+                _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_HORDE].Insert(0, hTeam);
+                _queuedGroups[(int)bracketID][BattlegroundConst.BG_QUEUE_PREMADE_ALLIANCE].Remove(queueArray[TeamIds.Horde]);
+            }
+
+            arena.SetArenaMatchmakerRating(TeamFaction.Alliance, aTeam.ArenaMatchmakerRating);
+            arena.SetArenaMatchmakerRating(TeamFaction.Horde, hTeam.ArenaMatchmakerRating);
+            InviteGroupToBG(aTeam, arena, TeamFaction.Alliance);
+            InviteGroupToBG(hTeam, arena, TeamFaction.Horde);
+
+            Log.Logger.Debug("Starting rated arena match!");
+            arena.StartBattleground();
         }
     }
 
@@ -574,8 +574,7 @@ public class BattlegroundQueue
         {
             var bg = _battlegroundManager.GetBattleground(group.IsInvitedToBGInstanceGUID, (BattlegroundTypeId)_queueId.BattlemasterListId);
 
-            if (bg)
-                bg.DecreaseInvitedCount(group.Team);
+            bg?.DecreaseInvitedCount(group.Team);
         }
 
         // remove player queue info
@@ -600,7 +599,7 @@ public class BattlegroundQueue
                 Log.Logger.Debug("UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}", guid.ToString(), group.OpponentsTeamRating);
                 var player = _objectAccessor.FindPlayer(guid);
 
-                if (player)
+                if (player != null)
                     at.MemberLost(player, group.OpponentsMatchmakerRating);
                 else
                     at.OfflineMemberLost(guid, group.OpponentsMatchmakerRating);
@@ -620,26 +619,26 @@ public class BattlegroundQueue
         // if group wasn't empty, so it wasn't deleted, and player have left a rated
         // queue . everyone from the group should leave too
         // don't remove recursively if already invited to bg!
-        if (group.IsInvitedToBGInstanceGUID == 0 && _queueId.Rated)
+        if (group.IsInvitedToBGInstanceGUID != 0 || !_queueId.Rated)
+            return;
+
+        // remove next player, this is recursive
+        // first send removal information
+        var plr2 = _objectAccessor.FindConnectedPlayer(group.Players.FirstOrDefault().Key);
+
+        if (plr2 != null)
         {
-            // remove next player, this is recursive
-            // first send removal information
-            var plr2 = _objectAccessor.FindConnectedPlayer(group.Players.FirstOrDefault().Key);
+            var queueSlot = plr2.GetBattlegroundQueueIndex(_queueId);
 
-            if (plr2)
-            {
-                var queueSlot = plr2.GetBattlegroundQueueIndex(_queueId);
+            plr2.RemoveBattlegroundQueueId(_queueId); // must be called this way, because if you move this call to
+            // queue.removeplayer, it causes bugs
 
-                plr2.RemoveBattlegroundQueueId(_queueId); // must be called this way, because if you move this call to
-                // queue.removeplayer, it causes bugs
-
-                _battlegroundManager.BuildBattlegroundStatusNone(out var battlefieldStatus, plr2, queueSlot, plr2.GetBattlegroundQueueJoinTime(_queueId));
-                plr2.SendPacket(battlefieldStatus);
-            }
-
-            // then actually delete, this may delete the group as well!
-            RemovePlayer(group.Players.First().Key, decreaseInvitedCount);
+            _battlegroundManager.BuildBattlegroundStatusNone(out var battlefieldStatus, plr2, queueSlot, plr2.GetBattlegroundQueueJoinTime(_queueId));
+            plr2.SendPacket(battlefieldStatus);
         }
+
+        // then actually delete, this may delete the group as well!
+        RemovePlayer(group.Players.First().Key, decreaseInvitedCount);
     }
 
     public void UpdateEvents(uint diff)
@@ -986,7 +985,7 @@ public class BattlegroundQueue
             var player = _objectAccessor.FindPlayer(guid);
 
             // if offline, skip him, this should not happen - player is removed from queue when he logs out
-            if (!player)
+            if (player == null)
                 continue;
 
             // invite the player

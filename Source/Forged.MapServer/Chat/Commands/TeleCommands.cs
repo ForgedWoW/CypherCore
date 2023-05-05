@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
@@ -18,7 +19,7 @@ internal class TeleCommands
 {
     private static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
     {
-        if (!GridDefines.IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
@@ -65,7 +66,7 @@ internal class TeleCommands
 
             handler.SendSysMessage(CypherStrings.TeleportingTo, nameLink, handler.GetCypherString(CypherStrings.Offline), locationName);
 
-            handler.ClassFactory.Resolve<PlayerComputators>()SavePositionInDB(new WorldLocation(mapId, pos), handler.ClassFactory.Resolve<TerrainManager>().GetZoneId(PhasingHandler.EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
+            handler.ClassFactory.Resolve<PlayerComputators>().SavePositionInDB(new WorldLocation(mapId, pos), handler.ClassFactory.Resolve<TerrainManager>().GetZoneId(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
         }
 
         return true;
@@ -176,7 +177,7 @@ internal class TeleCommands
 
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -200,7 +201,7 @@ internal class TeleCommands
 
         var grp = target.Group;
 
-        if (!grp)
+        if (grp == null)
         {
             handler.SendSysMessage(CypherStrings.NotInGroup, nameLink);
 
@@ -211,7 +212,7 @@ internal class TeleCommands
         {
             var player = refe.Source;
 
-            if (!player || !player.Session)
+            if (player?.Session == null)
                 continue;
 
             // check online security
@@ -263,7 +264,7 @@ internal class TeleCommands
 
             if (where is string && where.Equals("$home")) // References target's homebind
             {
-                if (target)
+                if (target != null)
                     target.TeleportTo(target.Homebind);
                 else
                 {
