@@ -1,30 +1,43 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class CombatHandler : IWorldSessionHandler
 {
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly WorldSession _session;
+
+    public CombatHandler(WorldSession session, ObjectAccessor objectAccessor)
+    {
+        _session = session;
+        _objectAccessor = objectAccessor;
+    }
+
     [WorldPacketHandler(ClientOpcodes.AttackStop, Processing = PacketProcessing.Inplace)]
     private void HandleAttackStop(AttackStop packet)
     {
-        Player.AttackStop();
+        if (packet != null)
+            _session.Player.AttackStop();
     }
 
     [WorldPacketHandler(ClientOpcodes.AttackSwing, Processing = PacketProcessing.Inplace)]
     private void HandleAttackSwing(AttackSwing packet)
     {
-        var enemy = Global.ObjAccessor.GetUnit(Player, packet.Victim);
+        var enemy = _objectAccessor.GetUnit(_session.Player, packet.Victim);
 
-        if (!enemy)
+        if (enemy == null)
         {
             // stop attack state at client
             SendAttackStop(null);
@@ -32,7 +45,7 @@ public class CombatHandler : IWorldSessionHandler
             return;
         }
 
-        if (!Player.WorldObjectCombat.IsValidAttackTarget(enemy))
+        if (!_session.Player.WorldObjectCombat.IsValidAttackTarget(enemy))
         {
             // stop attack state at client
             SendAttackStop(enemy);
@@ -43,11 +56,9 @@ public class CombatHandler : IWorldSessionHandler
         //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
         //! so we'll place the same check here. Note that it might be possible to reuse this snippet
         //! in other places as well.
-        var vehicle = Player.Vehicle;
-
-        if (vehicle)
+        if (_session.Player.Vehicle != null)
         {
-            var seat = vehicle.GetSeatForPassenger(Player);
+            var seat = _session.Player.Vehicle.GetSeatForPassenger(_session.Player);
 
             if (!seat.HasFlag(VehicleSeatFlags.CanAttack))
             {
@@ -57,7 +68,7 @@ public class CombatHandler : IWorldSessionHandler
             }
         }
 
-        Player.Attack(enemy, true);
+        _session.Player.Attack(enemy, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetSheathed, Processing = PacketProcessing.Inplace)]
@@ -70,11 +81,11 @@ public class CombatHandler : IWorldSessionHandler
             return;
         }
 
-        Player.Sheath = (SheathState)packet.CurrentSheathState;
+        _session.Player.Sheath = (SheathState)packet.CurrentSheathState;
     }
 
     private void SendAttackStop(Unit enemy)
     {
-        SendPacket(new SAttackStop(Player, enemy));
+        _session.SendPacket(new SAttackStop(_session.Player, enemy));
     }
 }
