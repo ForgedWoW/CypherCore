@@ -10,6 +10,7 @@ using Forged.MapServer.Networking.Packets.AdventureMap;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
@@ -27,7 +28,6 @@ public class AdventureMapHandler : IWorldSessionHandler
     }
 
     [WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
-    // ReSharper disable once UnusedMember.Local
     private void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
     {
         var quest = _objectManager.GetQuestTemplate(startQuest.QuestID);

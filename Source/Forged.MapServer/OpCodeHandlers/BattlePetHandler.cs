@@ -6,91 +6,104 @@ using Forged.MapServer.BattlePets;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.BattlePet;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class BattlePetHandler : IWorldSessionHandler
 {
+    private readonly WorldSession _session;
+    private readonly BattlePetMgr _battlePetMgr;
+
+    public BattlePetHandler(WorldSession session, BattlePetMgr battlePetMgr)
+    {
+        _session = session;
+        _battlePetMgr = battlePetMgr;
+    }
+
     [WorldPacketHandler(ClientOpcodes.BattlePetDeletePet)]
     private void HandleBattlePetDeletePet(BattlePetDeletePet battlePetDeletePet)
     {
-        BattlePetMgr.RemovePet(battlePetDeletePet.PetGuid);
+        _battlePetMgr.RemovePet(battlePetDeletePet.PetGuid);
     }
 
     [WorldPacketHandler(ClientOpcodes.BattlePetModifyName)]
     private void HandleBattlePetModifyName(BattlePetModifyName battlePetModifyName)
     {
-        BattlePetMgr.ModifyName(battlePetModifyName.PetGuid, battlePetModifyName.Name, battlePetModifyName.DeclinedNames);
+        _battlePetMgr.ModifyName(battlePetModifyName.PetGuid, battlePetModifyName.Name, battlePetModifyName.DeclinedNames);
     }
 
     [WorldPacketHandler(ClientOpcodes.BattlePetSetBattleSlot)]
     private void HandleBattlePetSetBattleSlot(BattlePetSetBattleSlot battlePetSetBattleSlot)
     {
-        var pet = BattlePetMgr.GetPet(battlePetSetBattleSlot.PetGuid);
+        var pet = _battlePetMgr.GetPet(battlePetSetBattleSlot.PetGuid);
 
-        if (pet != null)
-        {
-            var slot = BattlePetMgr.GetSlot((BattlePetSlots)battlePetSetBattleSlot.Slot);
+        if (pet == null)
+            return;
 
-            if (slot != null)
-                slot.Pet = pet.PacketInfo;
-        }
+        var slot = _battlePetMgr.GetSlot((BattlePetSlots)battlePetSetBattleSlot.Slot);
+
+        if (slot != null)
+            slot.Pet = pet.PacketInfo;
     }
 
     [WorldPacketHandler(ClientOpcodes.BattlePetSetFlags)]
     private void HandleBattlePetSetFlags(BattlePetSetFlags battlePetSetFlags)
     {
-        if (!BattlePetMgr.HasJournalLock)
+        if (!_battlePetMgr.HasJournalLock)
             return;
 
-        var pet = BattlePetMgr.GetPet(battlePetSetFlags.PetGuid);
+        var pet = _battlePetMgr.GetPet(battlePetSetFlags.PetGuid);
 
-        if (pet != null)
-        {
-            if (battlePetSetFlags.ControlType == FlagsControlType.Apply)
-                pet.PacketInfo.Flags |= (ushort)battlePetSetFlags.Flags;
-            else
-                pet.PacketInfo.Flags &= (ushort)~battlePetSetFlags.Flags;
+        if (pet == null)
+            return;
 
-            if (pet.SaveInfo != BattlePetSaveInfo.New)
-                pet.SaveInfo = BattlePetSaveInfo.Changed;
-        }
+        if (battlePetSetFlags.ControlType == FlagsControlType.Apply)
+            pet.PacketInfo.Flags |= (ushort)battlePetSetFlags.Flags;
+        else
+            pet.PacketInfo.Flags &= (ushort)~battlePetSetFlags.Flags;
+
+        if (pet.SaveInfo != BattlePetSaveInfo.New)
+            pet.SaveInfo = BattlePetSaveInfo.Changed;
     }
 
     [WorldPacketHandler(ClientOpcodes.BattlePetSummon, Processing = PacketProcessing.Inplace)]
     private void HandleBattlePetSummon(BattlePetSummon battlePetSummon)
     {
         if (_session.Player.SummonedBattlePetGUID != battlePetSummon.PetGuid)
-            BattlePetMgr.SummonPet(battlePetSummon.PetGuid);
+            _battlePetMgr.SummonPet(battlePetSummon.PetGuid);
         else
-            BattlePetMgr.DismissPet();
+            _battlePetMgr.DismissPet();
     }
 
     [WorldPacketHandler(ClientOpcodes.BattlePetUpdateNotify)]
     private void HandleBattlePetUpdateNotify(BattlePetUpdateNotify battlePetUpdateNotify)
     {
-        BattlePetMgr.UpdateBattlePetData(battlePetUpdateNotify.PetGuid);
+        _battlePetMgr.UpdateBattlePetData(battlePetUpdateNotify.PetGuid);
     }
 
     [WorldPacketHandler(ClientOpcodes.CageBattlePet)]
     private void HandleCageBattlePet(CageBattlePet cageBattlePet)
     {
-        BattlePetMgr.CageBattlePet(cageBattlePet.PetGuid);
+        _battlePetMgr.CageBattlePet(cageBattlePet.PetGuid);
     }
 
     [WorldPacketHandler(ClientOpcodes.QueryBattlePetName)]
     private void HandleQueryBattlePetName(QueryBattlePetName queryBattlePetName)
     {
-        QueryBattlePetNameResponse response = new();
-        response.BattlePetID = queryBattlePetName.BattlePetID;
+        QueryBattlePetNameResponse response = new()
+        {
+            BattlePetID = queryBattlePetName.BattlePetID
+        };
 
         var summonedBattlePet = ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, queryBattlePetName.UnitGUID);
 
-        if (!summonedBattlePet || !summonedBattlePet.IsSummon)
+        if (summonedBattlePet is not { IsSummon: true })
         {
-            SendPacket(response);
+            _session.SendPacket(response);
 
             return;
         }
@@ -102,7 +115,7 @@ public class BattlePetHandler : IWorldSessionHandler
 
         if (!petOwner.IsPlayer)
         {
-            SendPacket(response);
+            _session.SendPacket(response);
 
             return;
         }
@@ -111,7 +124,7 @@ public class BattlePetHandler : IWorldSessionHandler
 
         if (battlePet == null)
         {
-            SendPacket(response);
+            _session.SendPacket(response);
 
             return;
         }
@@ -126,6 +139,6 @@ public class BattlePetHandler : IWorldSessionHandler
 
         response.Allow = !response.Name.IsEmpty();
 
-        SendPacket(response);
+        _session.SendPacket(response);
     }
 }
