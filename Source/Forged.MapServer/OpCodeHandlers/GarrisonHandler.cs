@@ -34,7 +34,8 @@ public class GarrisonHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GarrisonGetMapData)]
     private void HandleGarrisonGetMapData(GarrisonGetMapData garrisonGetMapData)
     {
-        _session.Player.Garrison?.SendMapData(_session.Player);
+        if (garrisonGetMapData != null)
+            _session.Player.Garrison?.SendMapData(_session.Player);
     }
 
     [WorldPacketHandler(ClientOpcodes.GarrisonPurchaseBuilding)]
@@ -49,12 +50,14 @@ public class GarrisonHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GarrisonRequestBlueprintAndSpecializationData)]
     private void HandleGarrisonRequestBlueprintAndSpecializationData(GarrisonRequestBlueprintAndSpecializationData garrisonRequestBlueprintAndSpecializationData)
     {
-        _session.Player.Garrison?.SendBlueprintAndSpecializationData();
+        if (garrisonRequestBlueprintAndSpecializationData != null)
+            _session.Player.Garrison?.SendBlueprintAndSpecializationData();
     }
 
     [WorldPacketHandler(ClientOpcodes.GetGarrisonInfo)]
     private void HandleGetGarrisonInfo(GetGarrisonInfo getGarrisonInfo)
     {
-        _session.Player.Garrison?.SendInfo();
+        if (getGarrisonInfo != null)
+            _session.Player.Garrison?.SendInfo();
     }
 }
