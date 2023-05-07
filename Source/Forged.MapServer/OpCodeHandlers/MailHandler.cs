@@ -202,7 +202,7 @@ public class MailHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MailReturnToSender)]
     private void HandleMailReturnToSender(MailReturnToSender returnToSender)
     {
-        if (!CanOpenMailBox(_player.PlayerTalkClass.GetInteractionData().SourceGuid))
+        if (!CanOpenMailBox(_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid))
             return;
 
         var player = Player;
@@ -566,7 +566,7 @@ public class MailHandler : IWorldSessionHandler
 
         void mailCountCheckContinuation(TeamFaction receiverTeam, ulong mailsCount, uint receiverLevel, uint receiverAccountId, uint receiverBnetAccountId)
         {
-            if (_player != player)
+            if (_session.Player != player)
                 return;
 
             // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
@@ -692,7 +692,7 @@ public class MailHandler : IWorldSessionHandler
                     {
                         if (log)
                             Log.outCommand(AccountId,
-                                           $"GM {PlayerName} ({_player.GUID}) (Account: {AccountId}) mail item: {item.Template.GetName()} " +
+                                           $"GM {PlayerName} ({_session.Player.GUID}) (Account: {AccountId}) mail item: {item.Template.GetName()} " +
                                            $"(Entry: {item.Entry} Count: {item.Count}) to: {sendMail.Info.Target} ({receiverGuid}) (Account: {receiverAccountId})");
 
                         item.SetNotRefundable(Player); // makes the item no longer refundable
@@ -711,7 +711,7 @@ public class MailHandler : IWorldSessionHandler
                 }
 
                 if (log && sendMail.Info.SendMoney > 0)
-                    Log.outCommand(AccountId, $"GM {PlayerName} ({_player.GUID}) (Account: {AccountId}) mail money: {sendMail.Info.SendMoney} to: {sendMail.Info.Target} ({receiverGuid}) (Account: {receiverAccountId})");
+                    Log.outCommand(AccountId, $"GM {PlayerName} ({_session.Player.GUID}) (Account: {AccountId}) mail money: {sendMail.Info.SendMoney} to: {sendMail.Info.Target} ({receiverGuid}) (Account: {receiverAccountId})");
             }
 
             // If theres is an item, there is a one hour delivery delay if sent to another account's character.

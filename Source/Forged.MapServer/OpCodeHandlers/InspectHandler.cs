@@ -16,7 +16,7 @@ public class InspectHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.Inspect, Processing = PacketProcessing.Inplace)]
     private void HandleInspect(Inspect inspect)
     {
-        var player = Global.ObjAccessor.GetPlayer(_player, inspect.Target);
+        var player = Global.ObjAccessor.GetPlayer(_session.Player, inspect.Target);
 
         if (!player)
         {
@@ -89,7 +89,7 @@ public class InspectHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.QueryInspectAchievements, Processing = PacketProcessing.Inplace)]
     private void HandleQueryInspectAchievements(QueryInspectAchievements inspect)
     {
-        var player = Global.ObjAccessor.GetPlayer(_player, inspect.Guid);
+        var player = Global.ObjAccessor.GetPlayer(_session.Player, inspect.Guid);
 
         if (!player)
         {

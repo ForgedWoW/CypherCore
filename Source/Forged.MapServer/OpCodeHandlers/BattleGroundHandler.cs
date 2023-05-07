@@ -258,7 +258,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             Player.SetBgTeam(ginfo.Team);
 
             Global.BattlegroundMgr.SendToBattleground(Player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
-            Log.Logger.Debug($"Battleground: player {_player.GetName()} ({_player.GUID}) joined battle for bg {bg.GetInstanceID()}, bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
+            Log.Logger.Debug($"Battleground: player {_session.Player.GetName()} ({_session.Player.GUID}) joined battle for bg {bg.GetInstanceID()}, bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
         }
         else // leave queue
         {
@@ -286,7 +286,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             if (bgQueue.GetQueueId().TeamSize == 0)
                 Global.BattlegroundMgr.ScheduleQueueUpdate(ginfo.ArenaMatchmakerRating, bgQueueTypeId, bracketEntry.GetBracketId());
 
-            Log.Logger.Debug($"Battleground: player {_player.GetName()} ({_player.GUID}) left queue for bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
+            Log.Logger.Debug($"Battleground: player {_session.Player.GetName()} ({_session.Player.GUID}) left queue for bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
         }
     }
 
@@ -326,7 +326,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
         if (battlemasterJoin.QueueIDs.Empty())
         {
-            Log.Logger.Error($"Battleground: no bgtype received. possible cheater? {_player.GUID}");
+            Log.Logger.Error($"Battleground: no bgtype received. possible cheater? {_session.Player.GUID}");
 
             return;
         }
@@ -335,7 +335,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
         if (!Global.BattlegroundMgr.IsValidQueueId(bgQueueTypeId))
         {
-            Log.Logger.Error($"Battleground: invalid bg queue {bgQueueTypeId} received. possible cheater? {_player.GUID}");
+            Log.Logger.Error($"Battleground: invalid bg queue {bgQueueTypeId} received. possible cheater? {_session.Player.GUID}");
 
             return;
         }
@@ -369,21 +369,21 @@ public class BattleGroundHandler : IWorldSessionHandler
 
         var err = GroupJoinBattlegroundResult.None;
 
-        var grp = _player.Group;
+        var grp = _session.Player.Group;
 
         TeamFaction getQueueTeam()
         {
             // mercenary applies only to unrated battlegrounds
             if (!bg.IsRated() && !bg.IsArena())
             {
-                if (_player.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_HORDE))
+                if (_session.Player.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_HORDE))
                     return TeamFaction.Horde;
 
-                if (_player.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_ALLIANCE))
+                if (_session.Player.HasAura(BattlegroundConst.SPELL_MERCENARY_CONTRACT_ALLIANCE))
                     return TeamFaction.Alliance;
             }
 
-            return _player.Team;
+            return _session.Player.Team;
         }
 
         BattlefieldStatusFailed battlefieldStatusFailed;
@@ -417,7 +417,7 @@ public class BattleGroundHandler : IWorldSessionHandler
                 return;
             }
 
-            var isInRandomBgQueue = _player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.Rb, BattlegroundQueueIdType.Battleground, false, 0)) || _player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.RandomEpic, BattlegroundQueueIdType.Battleground, false, 0));
+            var isInRandomBgQueue = _session.Player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.Rb, BattlegroundQueueIdType.Battleground, false, 0)) || _session.Player.InBattlegroundQueueForBattlegroundQueueType(Global.BattlegroundMgr.BGQueueTypeId((ushort)BattlegroundTypeId.RandomEpic, BattlegroundQueueIdType.Battleground, false, 0));
 
             if (bgTypeId != BattlegroundTypeId.Rb && bgTypeId != BattlegroundTypeId.RandomEpic && isInRandomBgQueue)
             {
@@ -428,7 +428,7 @@ public class BattleGroundHandler : IWorldSessionHandler
                 return;
             }
 
-            if (_player.InBattlegroundQueue(true) && !isInRandomBgQueue && bgTypeId is BattlegroundTypeId.Rb or BattlegroundTypeId.RandomEpic)
+            if (_session.Player.InBattlegroundQueue(true) && !isInRandomBgQueue && bgTypeId is BattlegroundTypeId.Rb or BattlegroundTypeId.RandomEpic)
             {
                 // player is already in queue, can't start random queue
                 Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatusFailed, bgQueueTypeId, Player, 0, GroupJoinBattlegroundResult.InNonRandomBg);
@@ -451,7 +451,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             }
 
             // check Freeze debuff
-            if (_player.HasAura(9454))
+            if (_session.Player.HasAura(9454))
                 return;
 
             var bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
@@ -463,7 +463,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             Global.BattlegroundMgr.BuildBattlegroundStatusQueued(out var battlefieldStatusQueued, bg, Player, queueSlot, ginfo.JoinTime, bgQueueTypeId, avgTime, 0, false);
             SendPacket(battlefieldStatusQueued);
 
-            Log.Logger.Debug($"Battleground: player joined queue for bg queue {bgQueueTypeId}, {_player.GUID}, NAME {_player.GetName()}");
+            Log.Logger.Debug($"Battleground: player joined queue for bg queue {bgQueueTypeId}, {_session.Player.GUID}, NAME {_session.Player.GetName()}");
         }
         else
         {
@@ -581,7 +581,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         {
             Log.Logger.Debug("Battleground: arena team id {0}, leader {1} queued with matchmaker rating {2} for type {3}", Player.GetArenaTeamId(packet.TeamSizeIndex), Player.GetName(), matchmakerRating, arenatype);
 
-            ginfo = bgQueue.AddGroup(Player, grp, _player.Team, bracketEntry, false, arenaRating, matchmakerRating, ateamId);
+            ginfo = bgQueue.AddGroup(Player, grp, _session.Player.Team, bracketEntry, false, arenaRating, matchmakerRating, ateamId);
             avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
         }
 
@@ -630,7 +630,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
         if (bf != null)
         {
-            bf.PlayerAskToLeave(_player);
+            bf.PlayerAskToLeave(_session.Player);
 
             return;
         }
@@ -668,14 +668,14 @@ public class BattleGroundHandler : IWorldSessionHandler
             // mercenary applies only to unrated battlegrounds
             if (!bg.IsRated() && !bg.IsArena())
             {
-                if (_player.HasAura(193472)) // SPELL_MERCENARY_CONTRACT_HORDE
+                if (_session.Player.HasAura(193472)) // SPELL_MERCENARY_CONTRACT_HORDE
                     return TeamFaction.Horde;
 
-                if (_player.HasAura(193475)) // SPELL_MERCENARY_CONTRACT_ALLIANCE
+                if (_session.Player.HasAura(193475)) // SPELL_MERCENARY_CONTRACT_ALLIANCE
                     return TeamFaction.Alliance;
             }
 
-            return _player.Team;
+            return _session.Player.Team;
         };
 
         if (DisableManager.Instance.IsDisabledFor(DisableType.Battleground, (uint)BattlegroundTypeId.Aa, null))
@@ -691,7 +691,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         if (player.InBattleground)
             return;
 
-        var bracketEntry = Global.DB2Mgr.GetBattlegroundBracketByLevel(bg.GetMapId(), _player.Level);
+        var bracketEntry = Global.DB2Mgr.GetBattlegroundBracketByLevel(bg.GetMapId(), _session.Player.Level);
 
         if (bracketEntry == null)
             return;
@@ -702,7 +702,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         {
             if (player.IsUsingLfg)
             {
-                Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _session.Player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                 SendPacket(battlefieldStatusFailed);
 
                 return;
@@ -710,7 +710,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
             if (!player.CanJoinToBattleground(bg))
             {
-                Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _session.Player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                 SendPacket(battlefieldStatusFailed);
 
                 return;
@@ -721,14 +721,14 @@ public class BattleGroundHandler : IWorldSessionHandler
 
             if (!player.HasFreeBattlegroundQueueId)
             {
-                Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _session.Player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                 SendPacket(battlefieldStatusFailed);
 
                 return;
             }
 
             var bgQueue = BattlegroundManager.Instance.GetBattlegroundQueue(bgQueueTypeId);
-            var ginfo = bgQueue.AddGroup(_player, grp, getQueueTeam(), bracketEntry, isPremade, 0, 0);
+            var ginfo = bgQueue.AddGroup(_session.Player, grp, getQueueTeam(), bracketEntry, isPremade, 0, 0);
 
             var avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
             var queueSlot = player.AddBattlegroundQueueId(bgQueueTypeId);
@@ -743,7 +743,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
             if (grp == null)
             {
-                BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _session.Player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                 Player.Session.SendPacket(battlefieldStatuss);
 
                 return;
@@ -751,7 +751,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
             if (grp.LeaderGUID != player.GUID)
             {
-                BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _session.Player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                 Player.Session.SendPacket(battlefieldStatuss);
 
                 return;
@@ -765,7 +765,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
             if (err == default)
             {
-                ginfo = bgQueue.AddGroup(_player, null, getQueueTeam(), bracketEntry, isPremade, 0, 0);
+                ginfo = bgQueue.AddGroup(_session.Player, null, getQueueTeam(), bracketEntry, isPremade, 0, 0);
                 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
             }
 
@@ -778,7 +778,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 
                 if (err != default)
                 {
-                    BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                    BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _session.Player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                     member.Session.SendPacket(battlefieldStatuss);
 
                     continue;
@@ -821,7 +821,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             return;
         }
 
-        Log.Logger.Debug("WorldSession.HandleReportPvPAFK:  {0} [IP: {1}] reported {2}", _player.GetName(), _player.Session.RemoteAddress, reportedPlayer.GUID.ToString());
+        Log.Logger.Debug("WorldSession.HandleReportPvPAFK:  {0} [IP: {1}] reported {2}", _session.Player.GetName(), _session.Player.Session.RemoteAddress, reportedPlayer.GUID.ToString());
 
         reportedPlayer.ReportedAfkBy(Player);
     }
@@ -841,13 +841,13 @@ public class BattleGroundHandler : IWorldSessionHandler
 
             var bgTypeId = (BattlegroundTypeId)bgQueueTypeId.BattlemasterListId;
             var arenaType = (ArenaTypes)bgQueueTypeId.TeamSize;
-            bg = _player.Battleground;
+            bg = _session.Player.Battleground;
 
             if (bg && bg.QueueId == bgQueueTypeId)
             {
                 //i cannot check any variable from player class because player class doesn't know if player is in 2v2 / 3v3 or 5v5 arena
                 //so i must use bg pointer to get that information
-                Global.BattlegroundMgr.BuildBattlegroundStatusActive(out var battlefieldStatus, bg, _player, i, _player.GetBattlegroundQueueJoinTime(bgQueueTypeId), arenaType);
+                Global.BattlegroundMgr.BuildBattlegroundStatusActive(out var battlefieldStatus, bg, _session.Player, i, _session.Player.GetBattlegroundQueueJoinTime(bgQueueTypeId), arenaType);
                 SendPacket(battlefieldStatus);
 
                 continue;

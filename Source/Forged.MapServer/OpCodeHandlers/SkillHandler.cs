@@ -32,7 +32,7 @@ public class SkillHandler : IWorldSessionHandler
             return;
         }
 
-        if (!unit.CanResetTalents(_player))
+        if (!unit.CanResetTalents(_session.Player))
             return;
 
         // remove fake death
@@ -54,7 +54,7 @@ public class SkillHandler : IWorldSessionHandler
 
         foreach (var pvpTalent in packet.Talents)
         {
-            var result = _player.LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, ref learnPvpTalentFailed.SpellID);
+            var result = _session.Player.LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, ref learnPvpTalentFailed.SpellID);
 
             if (result != 0)
             {
@@ -71,7 +71,7 @@ public class SkillHandler : IWorldSessionHandler
             SendPacket(learnPvpTalentFailed);
 
         if (anythingLearned)
-            _player.SendTalentsInfoData();
+            _session.Player.SendTalentsInfoData();
     }
 
     [WorldPacketHandler(ClientOpcodes.LearnTalents, Processing = PacketProcessing.Inplace)]
@@ -82,7 +82,7 @@ public class SkillHandler : IWorldSessionHandler
 
         foreach (uint talentId in packet.Talents)
         {
-            var result = _player.LearnTalent(talentId, ref learnTalentFailed.SpellID);
+            var result = _session.Player.LearnTalent(talentId, ref learnTalentFailed.SpellID);
 
             if (result != 0)
             {
@@ -105,10 +105,10 @@ public class SkillHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]
     private void HandleTradeSkillSetFavorite(TradeSkillSetFavorite tradeSkillSetFavorite)
     {
-        if (!_player.HasSpell(tradeSkillSetFavorite.RecipeID))
+        if (!_session.Player.HasSpell(tradeSkillSetFavorite.RecipeID))
             return;
 
-        _player.SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
+        _session.Player.SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
     }
 
     [WorldPacketHandler(ClientOpcodes.UnlearnSkill, Processing = PacketProcessing.Inplace)]

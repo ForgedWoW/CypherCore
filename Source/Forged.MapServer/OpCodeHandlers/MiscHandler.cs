@@ -270,7 +270,7 @@ public class MiscHandler : IWorldSessionHandler
             if (mapEntry.Instanceable())
             {
                 // Check if we can contact the instancescript of the instance for an updated entrance location
-                var targetInstanceId = Global.MapMgr.FindInstanceIdForPlayer(at.target_mapId, _player);
+                var targetInstanceId = Global.MapMgr.FindInstanceIdForPlayer(at.target_mapId, _session.Player);
 
                 if (targetInstanceId != 0)
                 {
@@ -313,8 +313,8 @@ public class MiscHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CloseInteraction)]
     private void HandleCloseInteraction(CloseInteraction closeInteraction)
     {
-        if (_player.PlayerTalkClass.GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
-            _player.PlayerTalkClass.GetInteractionData().Reset();
+        if (_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
+            _session.Player.PlayerTalkClass.GetInteractionData().Reset();
     }
 
     [WorldPacketHandler(ClientOpcodes.CompleteCinematic)]
@@ -328,22 +328,22 @@ public class MiscHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CompleteMovie)]
     private void HandleCompleteMovie(CompleteMovie packet)
     {
-        var movie = _player.Movie;
+        var movie = _session.Player.Movie;
 
         if (movie == 0)
             return;
 
-        _player.Movie = 0;
-        ScriptManager.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
+        _session.Player.Movie = 0;
+        ScriptManager.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_session.Player, movie));
     }
 
     [WorldPacketHandler(ClientOpcodes.ConversationLineStarted)]
     private void HandleConversationLineStarted(ConversationLineStarted conversationLineStarted)
     {
-        var convo = ObjectAccessor.GetConversation(_player, conversationLineStarted.ConversationGUID);
+        var convo = ObjectAccessor.GetConversation(_session.Player, conversationLineStarted.ConversationGUID);
 
         if (convo != null)
-            ScriptManager.RunScript<IConversationOnConversationLineStarted>(script => script.OnConversationLineStarted(convo, conversationLineStarted.LineID, _player), convo.GetScriptId());
+            ScriptManager.RunScript<IConversationOnConversationLineStarted>(script => script.OnConversationLineStarted(convo, conversationLineStarted.LineID, _session.Player), convo.GetScriptId());
     }
 
     [WorldPacketHandler(ClientOpcodes.FarSight)]
@@ -401,7 +401,7 @@ public class MiscHandler : IWorldSessionHandler
     private void HandleMountSpecialAnim(MountSpecial mountSpecial)
     {
         SpecialMountAnim specialMountAnim = new();
-        specialMountAnim.UnitGUID = _player.GUID;
+        specialMountAnim.UnitGUID = _session.Player.GUID;
         specialMountAnim.SpellVisualKitIDs.AddRange(mountSpecial.SpellVisualKitIDs);
         specialMountAnim.SequenceVariation = mountSpecial.SequenceVariation;
         Player.SendMessageToSet(specialMountAnim, false);
@@ -473,7 +473,7 @@ public class MiscHandler : IWorldSessionHandler
         foreach (var itr in CliDB.UISplashScreenStorage.Values)
         {
             if (CliDB.PlayerConditionStorage.TryGetValue(itr.CharLevelConditionID, out var playerCondition))
-                if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
+                if (!ConditionManager.IsPlayerMeetingCondition(_session.Player, playerCondition))
                     continue;
 
             splashScreen = itr;
@@ -487,7 +487,7 @@ public class MiscHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.ResetInstances)]
     private void HandleResetInstances(ResetInstances packet)
     {
-        var map = _player.Map;
+        var map = _session.Player.Map;
 
         if (map != null && map.Instanceable)
             return;
@@ -502,7 +502,7 @@ public class MiscHandler : IWorldSessionHandler
             if (group.IsLFGGroup)
                 return;
 
-            group.ResetInstances(InstanceResetMethod.Manual, _player);
+            group.ResetInstances(InstanceResetMethod.Manual, _session.Player);
         }
         else
             Player.ResetInstances(InstanceResetMethod.Manual);
@@ -576,9 +576,9 @@ public class MiscHandler : IWorldSessionHandler
     private void HandleSetTaxiBenchmark(SetTaxiBenchmarkMode packet)
     {
         if (packet.Enable)
-            _player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
+            _session.Player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
         else
-            _player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
+            _session.Player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetTitle, Processing = PacketProcessing.Inplace)]
@@ -599,7 +599,7 @@ public class MiscHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.SetWarMode)]
     private void HandleSetWarMode(SetWarMode packet)
     {
-        _player.SetWarModeDesired(packet.Enable);
+        _session.Player.SetWarModeDesired(packet.Enable);
     }
 
     [WorldPacketHandler(ClientOpcodes.TogglePvp)]

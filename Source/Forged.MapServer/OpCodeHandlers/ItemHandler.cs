@@ -53,9 +53,9 @@ public class ItemHandler : IWorldSessionHandler
     {
         // bankerGUID parameter is optional, set to 0 by default.
         if (bankerGUID.IsEmpty)
-            bankerGUID = _player.PlayerTalkClass.GetInteractionData().SourceGuid;
+            bankerGUID = _session.Player.PlayerTalkClass.GetInteractionData().SourceGuid;
 
-        var isUsingBankCommand = bankerGUID == Player.GUID && bankerGUID == _player.PlayerTalkClass.GetInteractionData().SourceGuid;
+        var isUsingBankCommand = bankerGUID == Player.GUID && bankerGUID == _session.Player.PlayerTalkClass.GetInteractionData().SourceGuid;
 
         if (!isUsingBankCommand)
         {
@@ -104,11 +104,11 @@ public class ItemHandler : IWorldSessionHandler
         {
             if (!srcItem.ChildItem.IsEmpty)
             {
-                var childEquipResult = _player.CanEquipChildItem(srcItem);
+                var childEquipResult = _session.Player.CanEquipChildItem(srcItem);
 
                 if (childEquipResult != InventoryResult.Ok)
                 {
-                    _player.SendEquipError(msg, srcItem);
+                    _session.Player.SendEquipError(msg, srcItem);
 
                     return;
                 }
@@ -118,7 +118,7 @@ public class ItemHandler : IWorldSessionHandler
             pl.EquipItem(dest, srcItem, true);
 
             if (!srcItem.ChildItem.IsEmpty)
-                _player.EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
+                _session.Player.EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
 
             pl.AutoUnequipOffhandIfNeed();
         }
@@ -171,7 +171,7 @@ public class ItemHandler : IWorldSessionHandler
                 }
 
                 if (msg == InventoryResult.Ok && PlayerComputators.IsEquipmentPos(dest) && !srcItem.ChildItem.IsEmpty)
-                    msg = _player.CanEquipChildItem(srcItem);
+                    msg = _session.Player.CanEquipChildItem(srcItem);
 
                 if (msg != InventoryResult.Ok)
                 {
@@ -196,20 +196,20 @@ public class ItemHandler : IWorldSessionHandler
                     pl.EquipItem(eSrc, dstItem, true);
 
                 if (PlayerComputators.IsEquipmentPos(dest) && !srcItem.ChildItem.IsEmpty)
-                    _player.EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
+                    _session.Player.EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
             }
             else
             {
-                var parentItem = _player.GetItemByGuid(dstItem.Creator);
+                var parentItem = _session.Player.GetItemByGuid(dstItem.Creator);
 
                 if (parentItem)
                     if (PlayerComputators.IsEquipmentPos(dest))
                     {
-                        _player.AutoUnequipChildItem(parentItem);
+                        _session.Player.AutoUnequipChildItem(parentItem);
                         // dest is now empty
-                        _player.SwapItem(src, dest);
+                        _session.Player.SwapItem(src, dest);
                         // src is now empty
-                        _player.SwapItem(parentItem.Pos, src);
+                        _session.Player.SwapItem(parentItem.Pos, src);
                     }
             }
 
@@ -303,50 +303,50 @@ public class ItemHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.BuyBackItem, Processing = PacketProcessing.Inplace)]
     private void HandleBuybackItem(BuyBackItem packet)
     {
-        var creature = _player.GetNPCIfCanInteractWith(packet.VendorGUID, NPCFlags.Vendor, NPCFlags2.None);
+        var creature = _session.Player.GetNPCIfCanInteractWith(packet.VendorGUID, NPCFlags.Vendor, NPCFlags2.None);
 
         if (creature == null)
         {
             Log.Logger.Debug("WORLD: HandleBuybackItem - {0} not found or you can not interact with him.", packet.VendorGUID.ToString());
-            _player.SendSellError(SellResult.CantFindVendor, null, ObjectGuid.Empty);
+            _session.Player.SendSellError(SellResult.CantFindVendor, null, ObjectGuid.Empty);
 
             return;
         }
 
         // remove fake death
-        if (_player.HasUnitState(UnitState.Died))
-            _player.RemoveAurasByType(AuraType.FeignDeath);
+        if (_session.Player.HasUnitState(UnitState.Died))
+            _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        var pItem = _player.GetItemFromBuyBackSlot(packet.Slot);
+        var pItem = _session.Player.GetItemFromBuyBackSlot(packet.Slot);
 
         if (pItem != null)
         {
-            var price = _player.ActivePlayerData.BuybackPrice[(int)(packet.Slot - InventorySlots.BuyBackStart)];
+            var price = _session.Player.ActivePlayerData.BuybackPrice[(int)(packet.Slot - InventorySlots.BuyBackStart)];
 
-            if (!_player.HasEnoughMoney(price))
+            if (!_session.Player.HasEnoughMoney(price))
             {
-                _player.SendBuyError(BuyResult.NotEnoughtMoney, creature, pItem.Entry);
+                _session.Player.SendBuyError(BuyResult.NotEnoughtMoney, creature, pItem.Entry);
 
                 return;
             }
 
             List<ItemPosCount> dest = new();
-            var msg = _player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, pItem, false);
+            var msg = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, pItem, false);
 
             if (msg == InventoryResult.Ok)
             {
-                _player.ModifyMoney(-price);
-                _player.RemoveItemFromBuyBackSlot(packet.Slot, false);
-                _player.ItemAddedQuestCheck(pItem.Entry, pItem.Count);
-                _player.StoreItem(dest, pItem, true);
+                _session.Player.ModifyMoney(-price);
+                _session.Player.RemoveItemFromBuyBackSlot(packet.Slot, false);
+                _session.Player.ItemAddedQuestCheck(pItem.Entry, pItem.Count);
+                _session.Player.StoreItem(dest, pItem, true);
             }
             else
-                _player.SendEquipError(msg, pItem);
+                _session.Player.SendEquipError(msg, pItem);
 
             return;
         }
 
-        _player.SendBuyError(BuyResult.CantFindItem, creature, 0);
+        _session.Player.SendBuyError(BuyResult.CantFindItem, creature, 0);
     }
 
     [WorldPacketHandler(ClientOpcodes.BuyItem, Processing = PacketProcessing.Inplace)]
@@ -411,28 +411,28 @@ public class ItemHandler : IWorldSessionHandler
         // prevent drop unequipable items (in combat, for example) and non-empty bags
         if (PlayerComputators.IsEquipmentPos(pos) || PlayerComputators.IsBagPos(pos))
         {
-            var msg = _player.CanUnequipItem(pos, false);
+            var msg = _session.Player.CanUnequipItem(pos, false);
 
             if (msg != InventoryResult.Ok)
             {
-                _player.SendEquipError(msg, _player.GetItemByPos(pos));
+                _session.Player.SendEquipError(msg, _session.Player.GetItemByPos(pos));
 
                 return;
             }
         }
 
-        var pItem = _player.GetItemByPos(destroyItem.ContainerId, destroyItem.SlotNum);
+        var pItem = _session.Player.GetItemByPos(destroyItem.ContainerId, destroyItem.SlotNum);
 
         if (pItem == null)
         {
-            _player.SendEquipError(InventoryResult.ItemNotFound);
+            _session.Player.SendEquipError(InventoryResult.ItemNotFound);
 
             return;
         }
 
         if (pItem.Template.HasFlag(ItemFlags.NoUserDestroy))
         {
-            _player.SendEquipError(InventoryResult.DropBoundItem);
+            _session.Player.SendEquipError(InventoryResult.DropBoundItem);
 
             return;
         }
@@ -440,10 +440,10 @@ public class ItemHandler : IWorldSessionHandler
         if (destroyItem.Count != 0)
         {
             var i_count = destroyItem.Count;
-            _player.DestroyItemCount(pItem, ref i_count, true);
+            _session.Player.DestroyItemCount(pItem, ref i_count, true);
         }
         else
-            _player.DestroyItem(destroyItem.ContainerId, destroyItem.SlotNum, true);
+            _session.Player.DestroyItem(destroyItem.ContainerId, destroyItem.SlotNum, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.GetItemPurchaseData, Processing = PacketProcessing.Inplace)]
@@ -483,11 +483,11 @@ public class ItemHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.ReadItem, Processing = PacketProcessing.Inplace)]
     private void HandleReadItem(ReadItem readItem)
     {
-        var item = _player.GetItemByPos(readItem.PackSlot, readItem.Slot);
+        var item = _session.Player.GetItemByPos(readItem.PackSlot, readItem.Slot);
 
         if (item != null && item.Template.PageText != 0)
         {
-            var msg = _player.CanUseItem(item);
+            var msg = _session.Player.CanUseItem(item);
 
             if (msg == InventoryResult.Ok)
             {
@@ -508,17 +508,17 @@ public class ItemHandler : IWorldSessionHandler
                 SendPacket(packet);*/
 
                 Log.Logger.Information("STORAGE: Unable to read item");
-                _player.SendEquipError(msg, item);
+                _session.Player.SendEquipError(msg, item);
             }
         }
         else
-            _player.SendEquipError(InventoryResult.ItemNotFound);
+            _session.Player.SendEquipError(InventoryResult.ItemNotFound);
     }
 
     [WorldPacketHandler(ClientOpcodes.RemoveNewItem, Processing = PacketProcessing.Inplace)]
     private void HandleRemoveNewItem(RemoveNewItem removeNewItem)
     {
-        var item = _player.GetItemByGuid(removeNewItem.ItemGuid);
+        var item = _session.Player.GetItemByGuid(removeNewItem.ItemGuid);
 
         if (!item)
         {
@@ -530,7 +530,7 @@ public class ItemHandler : IWorldSessionHandler
         if (item.HasItemFlag(ItemFieldFlags.NewItem))
         {
             item.RemoveItemFlag(ItemFieldFlags.NewItem);
-            item.SetState(ItemUpdateState.Changed, _player);
+            item.SetState(ItemUpdateState.Changed, _session.Player);
         }
     }
 
@@ -554,7 +554,7 @@ public class ItemHandler : IWorldSessionHandler
 
         if (creature.Template.FlagsExtra.HasFlag(CreatureFlagsExtra.NoSellVendor))
         {
-            _player.SendSellError(SellResult.CantSellToThisMerchant, creature, packet.ItemGUID);
+            _session.Player.SendSellError(SellResult.CantSellToThisMerchant, creature, packet.ItemGUID);
 
             return;
         }
@@ -619,15 +619,15 @@ public class ItemHandler : IWorldSessionHandler
                 {
                     ulong money = pProto.SellPrice * packet.Amount;
 
-                    if (!_player.ModifyMoney((long)money)) // ensure player doesn't exceed gold limit
+                    if (!_session.Player.ModifyMoney((long)money)) // ensure player doesn't exceed gold limit
                     {
-                        _player.SendSellError(SellResult.CantSellItem, creature, packet.ItemGUID);
+                        _session.Player.SendSellError(SellResult.CantSellItem, creature, packet.ItemGUID);
 
                         return;
                     }
 
-                    _player.UpdateCriteria(CriteriaType.MoneyEarnedFromSales, money);
-                    _player.UpdateCriteria(CriteriaType.SellItemsToVendors, 1);
+                    _session.Player.UpdateCriteria(CriteriaType.MoneyEarnedFromSales, money);
+                    _session.Player.UpdateCriteria(CriteriaType.SellItemsToVendors, 1);
 
                     if (packet.Amount < pItem.Count) // need split items
                     {
@@ -704,7 +704,7 @@ public class ItemHandler : IWorldSessionHandler
 
         for (var i = 0; i < ItemConst.MaxGemSockets; ++i)
         {
-            var gem = _player.GetItemByGuid(socketGems.GemItem[i]);
+            var gem = _session.Player.GetItemByGuid(socketGems.GemItem[i]);
 
             if (gem)
             {
@@ -808,7 +808,7 @@ public class ItemHandler : IWorldSessionHandler
                                     ++limit_newcount;
                         }
 
-                    if (limit_newcount > 0 && limit_newcount > _player.GetItemLimitCategoryQuantity(limitEntry))
+                    if (limit_newcount > 0 && limit_newcount > _session.Player.GetItemLimitCategoryQuantity(limitEntry))
                     {
                         Player.SendEquipError(InventoryResult.ItemUniqueEquippableSocketed, itemTarget);
 
@@ -837,12 +837,12 @@ public class ItemHandler : IWorldSessionHandler
 
         //remove ALL mods - gem can change item level
         if (itemTarget.IsEquipped)
-            _player._ApplyItemMods(itemTarget, itemTarget.Slot, false);
+            _session.Player._ApplyItemMods(itemTarget, itemTarget.Slot, false);
 
         for (ushort i = 0; i < ItemConst.MaxGemSockets; ++i)
             if (gems[i])
             {
-                var gemScalingLevel = _player.Level;
+                var gemScalingLevel = _session.Player.Level;
                 var fixedLevel = gems[i].GetModifier(ItemModifier.TimewalkerLevel);
 
                 if (fixedLevel != 0)
@@ -858,19 +858,19 @@ public class ItemHandler : IWorldSessionHandler
             }
 
         if (itemTarget.IsEquipped)
-            _player._ApplyItemMods(itemTarget, itemTarget.Slot, true);
+            _session.Player._ApplyItemMods(itemTarget, itemTarget.Slot, true);
 
-        var childItem = _player.GetChildItemByGuid(itemTarget.ChildItem);
+        var childItem = _session.Player.GetChildItemByGuid(itemTarget.ChildItem);
 
         if (childItem)
         {
             if (childItem.IsEquipped)
-                _player._ApplyItemMods(childItem, childItem.Slot, false);
+                _session.Player._ApplyItemMods(childItem, childItem.Slot, false);
 
             childItem.CopyArtifactDataFromParent(itemTarget);
 
             if (childItem.IsEquipped)
-                _player._ApplyItemMods(childItem, childItem.Slot, true);
+                _session.Player._ApplyItemMods(childItem, childItem.Slot, true);
         }
 
         var SocketBonusToBeActivated = itemTarget.GemsFitSockets(); //current socketbonus state
@@ -934,21 +934,21 @@ public class ItemHandler : IWorldSessionHandler
         if (splitItem.Quantity == 0)
             return; //check count - if zero it's fake packet
 
-        if (!_player.IsValidPos(splitItem.FromPackSlot, splitItem.FromSlot, true))
+        if (!_session.Player.IsValidPos(splitItem.FromPackSlot, splitItem.FromSlot, true))
         {
-            _player.SendEquipError(InventoryResult.ItemNotFound);
+            _session.Player.SendEquipError(InventoryResult.ItemNotFound);
 
             return;
         }
 
-        if (!_player.IsValidPos(splitItem.ToPackSlot, splitItem.ToSlot, false)) // can be autostore pos
+        if (!_session.Player.IsValidPos(splitItem.ToPackSlot, splitItem.ToSlot, false)) // can be autostore pos
         {
-            _player.SendEquipError(InventoryResult.WrongSlot);
+            _session.Player.SendEquipError(InventoryResult.WrongSlot);
 
             return;
         }
 
-        _player.SplitItem(src, dst, (uint)splitItem.Quantity);
+        _session.Player.SplitItem(src, dst, (uint)splitItem.Quantity);
     }
 
     [WorldPacketHandler(ClientOpcodes.SwapInvItem, Processing = PacketProcessing.Inplace)]
@@ -981,14 +981,14 @@ public class ItemHandler : IWorldSessionHandler
 
         if (PlayerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot1) && !CanUseBank())
         {
-            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
             return;
         }
 
         if (PlayerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && !CanUseBank())
         {
-            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
             return;
         }
@@ -1035,14 +1035,14 @@ public class ItemHandler : IWorldSessionHandler
 
         if (PlayerComputators.IsBankPos(swapItem.ContainerSlotA, swapItem.SlotA) && !CanUseBank())
         {
-            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
             return;
         }
 
         if (PlayerComputators.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && !CanUseBank())
         {
-            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+            Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
             return;
         }

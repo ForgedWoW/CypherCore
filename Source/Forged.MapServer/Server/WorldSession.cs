@@ -1186,7 +1186,7 @@ public class WorldSession : IDisposable
 
         if (!player.Location.Map.AddPlayerToMap(player, !seamlessTeleport))
         {
-            Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap != null ? newMap.MapName : "Unknown")}) because of unknown reason!");
+            Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({newMap.MapName}) because of unknown reason!");
             player.Location.ResetMap();
             player.Location.Map = oldMap;
             player.TeleportTo(player.Homebind);

@@ -106,7 +106,7 @@ public class VoidStorageHandler : IWorldSessionHandler
                     freeBagSlots += bag.GetFreeSlots();
             }
 
-            var inventoryEnd = InventorySlots.ItemStart + _player.GetInventorySlotCount();
+            var inventoryEnd = InventorySlots.ItemStart + _session.Player.GetInventorySlotCount();
 
             for (var i = InventorySlots.ItemStart; i < inventoryEnd; i++)
                 if (!player.GetItemByPos(InventorySlots.Bag0, i))
@@ -155,7 +155,7 @@ public class VoidStorageHandler : IWorldSessionHandler
             voidItem.Guid = ObjectGuid.Create(HighGuid.Item, itemVS.ItemId);
             voidItem.Creator = item.Creator;
             voidItem.Item = new ItemInstance(itemVS);
-            voidItem.Slot = _player.AddVoidStorageItem(itemVS);
+            voidItem.Slot = _session.Player.AddVoidStorageItem(itemVS);
 
             voidStorageTransferChanges.AddedItems.Add(voidItem);
 

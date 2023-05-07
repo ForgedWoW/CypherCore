@@ -67,7 +67,7 @@ public class NPCHandler : IWorldSessionHandler
             VendorItemPkt item = new();
 
             if (CliDB.PlayerConditionStorage.TryGetValue(vendorItem.PlayerConditionId, out var playerCondition))
-                if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
+                if (!ConditionManager.IsPlayerMeetingCondition(_session.Player, playerCondition))
                     item.PlayerConditionFailed = (int)playerCondition.Id;
 
             if (vendorItem.Type == ItemVendorType.Item)
@@ -92,7 +92,7 @@ public class NPCHandler : IWorldSessionHandler
                         continue;
                 }
 
-                if (!Global.ConditionMgr.IsObjectMeetingVendorItemConditions(vendor.Entry, vendorItem.Item, _player, vendor))
+                if (!Global.ConditionMgr.IsObjectMeetingVendorItemConditions(vendor.Entry, vendorItem.Item, _session.Player, vendor))
                 {
                     Log.Logger.Debug("SendListInventory: conditions not met for creature entry {0} item {1}", vendor.Entry, vendorItem.Item);
 
@@ -233,10 +233,10 @@ public class NPCHandler : IWorldSessionHandler
             return;
         }
 
-        _player.PlayerTalkClass.GetInteractionData().Reset();
-        _player.PlayerTalkClass.GetInteractionData().SourceGuid = npc.GUID;
-        _player.PlayerTalkClass.GetInteractionData().TrainerId = trainerId;
-        trainer.SendSpells(npc, _player, SessionDbLocaleIndex);
+        _session.Player.PlayerTalkClass.GetInteractionData().Reset();
+        _session.Player.PlayerTalkClass.GetInteractionData().SourceGuid = npc.GUID;
+        _session.Player.PlayerTalkClass.GetInteractionData().TrainerId = trainerId;
+        trainer.SendSpells(npc, _session.Player, SessionDbLocaleIndex);
     }
 
     [WorldPacketHandler(ClientOpcodes.BinderActivate, Processing = PacketProcessing.Inplace)]
@@ -301,9 +301,9 @@ public class NPCHandler : IWorldSessionHandler
             }
         }
 
-        _player.PlayerTalkClass.ClearMenus();
+        _session.Player.PlayerTalkClass.ClearMenus();
 
-        if (!unit.AI.OnGossipHello(_player))
+        if (!unit.AI.OnGossipHello(_session.Player))
         {
             Player.PrepareGossipMenu(unit, unit.Template.GossipMenuId, true);
             Player.SendPreparedGossip(unit);
@@ -313,7 +313,7 @@ public class NPCHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GossipSelectOption)]
     private void HandleGossipSelectOption(GossipSelectOption packet)
     {
-        var gossipMenuItem = _player.PlayerTalkClass.GetGossipMenu().GetItem(packet.GossipOptionID);
+        var gossipMenuItem = _session.Player.PlayerTalkClass.GetGossipMenu().GetItem(packet.GossipOptionID);
 
         if (gossipMenuItem == null)
             return;
@@ -377,25 +377,25 @@ public class NPCHandler : IWorldSessionHandler
         {
             if (unit != null)
             {
-                if (!unit.AI.OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
+                if (!unit.AI.OnGossipSelectCode(_session.Player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
                     Player.OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
             }
             else
             {
-                if (!go.AI.OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
-                    _player.OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
+                if (!go.AI.OnGossipSelectCode(_session.Player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
+                    _session.Player.OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
             }
         }
         else
         {
             if (unit != null)
             {
-                if (!unit.AI.OnGossipSelect(_player, packet.GossipID, gossipMenuItem.OrderIndex))
+                if (!unit.AI.OnGossipSelect(_session.Player, packet.GossipID, gossipMenuItem.OrderIndex))
                     Player.OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
             }
             else
             {
-                if (!go.AI.OnGossipSelect(_player, packet.GossipID, gossipMenuItem.OrderIndex))
+                if (!go.AI.OnGossipSelect(_session.Player, packet.GossipID, gossipMenuItem.OrderIndex))
                     Player.OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
             }
         }
@@ -527,7 +527,7 @@ public class NPCHandler : IWorldSessionHandler
             // active<.stabled: swap petStable contents and despawn active pet if it is involved in swap
             if (petStable.CurrentPetIndex.Value == (uint)srcPetSlot)
             {
-                var oldPet = _player.CurrentPet;
+                var oldPet = _session.Player.CurrentPet;
 
                 if (oldPet != null && !oldPet.IsAlive)
                 {
@@ -536,14 +536,14 @@ public class NPCHandler : IWorldSessionHandler
                     return;
                 }
 
-                _player.RemovePet(oldPet, PetSaveMode.NotInSlot);
+                _session.Player.RemovePet(oldPet, PetSaveMode.NotInSlot);
             }
 
             if (dstPet != null)
             {
                 var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(dstPet.CreatureId);
 
-                if (creatureInfo == null || !creatureInfo.IsTameable(_player.CanTameExoticPets))
+                if (creatureInfo == null || !creatureInfo.IsTameable(_session.Player.CanTameExoticPets))
                 {
                     SendPetStableResult(StableResult.CantControlExotic);
 
@@ -559,7 +559,7 @@ public class NPCHandler : IWorldSessionHandler
             // stabled<.active: swap petStable contents and despawn active pet if it is involved in swap
             if (petStable.CurrentPetIndex.Value == (uint)dstPetSlot)
             {
-                var oldPet = _player.CurrentPet;
+                var oldPet = _session.Player.CurrentPet;
 
                 if (oldPet != null && !oldPet.IsAlive)
                 {
@@ -568,12 +568,12 @@ public class NPCHandler : IWorldSessionHandler
                     return;
                 }
 
-                _player.RemovePet(oldPet, PetSaveMode.NotInSlot);
+                _session.Player.RemovePet(oldPet, PetSaveMode.NotInSlot);
             }
 
             var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(srcPet.CreatureId);
 
-            if (creatureInfo == null || !creatureInfo.IsTameable(_player.CanTameExoticPets))
+            if (creatureInfo == null || !creatureInfo.IsTameable(_session.Player.CanTameExoticPets))
             {
                 SendPetStableResult(StableResult.CantControlExotic);
 
@@ -588,7 +588,7 @@ public class NPCHandler : IWorldSessionHandler
 
         var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_PET_SLOT_BY_ID);
         stmt.AddValue(0, (short)dstPetSlot);
-        stmt.AddValue(1, _player.GUID.Counter);
+        stmt.AddValue(1, _session.Player.GUID.Counter);
         stmt.AddValue(2, srcPet.PetNumber);
         trans.Append(stmt);
 
@@ -596,7 +596,7 @@ public class NPCHandler : IWorldSessionHandler
         {
             stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_PET_SLOT_BY_ID);
             stmt.AddValue(0, (short)srcPetSlot);
-            stmt.AddValue(1, _player.GUID.Counter);
+            stmt.AddValue(1, _session.Player.GUID.Counter);
             stmt.AddValue(2, dstPet.PetNumber);
             trans.Append(stmt);
         }
@@ -604,9 +604,9 @@ public class NPCHandler : IWorldSessionHandler
         AddTransactionCallback(DB.Characters.AsyncCommitTransaction(trans))
             .AfterComplete(success =>
             {
-                var currentPlayerGuid = _player.GUID;
+                var currentPlayerGuid = _session.Player.GUID;
 
-                if (_player && _player.GUID == currentPlayerGuid)
+                if (_session.Player && _session.Player.GUID == currentPlayerGuid)
                 {
                     if (success)
                     {
@@ -664,7 +664,7 @@ public class NPCHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.TrainerBuySpell, Processing = PacketProcessing.Inplace)]
     private void HandleTrainerBuySpell(TrainerBuySpell packet)
     {
-        var npc = _player.GetNPCIfCanInteractWith(packet.TrainerGUID, NPCFlags.Trainer, NPCFlags2.None);
+        var npc = _session.Player.GetNPCIfCanInteractWith(packet.TrainerGUID, NPCFlags.Trainer, NPCFlags2.None);
 
         if (npc == null)
         {
@@ -674,13 +674,13 @@ public class NPCHandler : IWorldSessionHandler
         }
 
         // remove fake death
-        if (_player.HasUnitState(UnitState.Died))
-            _player.RemoveAurasByType(AuraType.FeignDeath);
+        if (_session.Player.HasUnitState(UnitState.Died))
+            _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        if (_player.PlayerTalkClass.GetInteractionData().SourceGuid != packet.TrainerGUID)
+        if (_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid != packet.TrainerGUID)
             return;
 
-        if (_player.PlayerTalkClass.GetInteractionData().TrainerId != packet.TrainerID)
+        if (_session.Player.PlayerTalkClass.GetInteractionData().TrainerId != packet.TrainerID)
             return;
 
         // check present spell in trainer spell list
@@ -689,7 +689,7 @@ public class NPCHandler : IWorldSessionHandler
         if (trainer == null)
             return;
 
-        trainer.TeachSpell(npc, _player, packet.SpellID);
+        trainer.TeachSpell(npc, _session.Player, packet.SpellID);
     }
 
     [WorldPacketHandler(ClientOpcodes.TrainerList, Processing = PacketProcessing.Inplace)]

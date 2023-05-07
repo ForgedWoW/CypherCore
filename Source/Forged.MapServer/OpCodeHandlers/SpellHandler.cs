@@ -28,7 +28,7 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CancelAura, Processing = PacketProcessing.Inplace)]
     private void HandleCancelAura(CancelAura cancelAura)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(cancelAura.SpellID, _player.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(cancelAura.SpellID, _session.Player.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
@@ -63,7 +63,7 @@ public class SpellHandler : IWorldSessionHandler
     {
         //may be better send SMSG_CANCEL_AUTO_REPEAT?
         //cancel and prepare for deleting
-        _player.InterruptSpell(CurrentSpellTypes.AutoRepeat);
+        _session.Player.InterruptSpell(CurrentSpellTypes.AutoRepeat);
     }
 
     [WorldPacketHandler(ClientOpcodes.CancelCast, Processing = PacketProcessing.ThreadSafe)]
@@ -77,9 +77,9 @@ public class SpellHandler : IWorldSessionHandler
     private void HandleCancelChanneling(CancelChannelling cancelChanneling)
     {
         // ignore for remote control state (for player case)
-        var mover = _player.UnitBeingMoved;
+        var mover = _session.Player.UnitBeingMoved;
 
-        if (mover != _player && mover.IsTypeId(TypeId.Player))
+        if (mover != _session.Player && mover.IsTypeId(TypeId.Player))
             return;
 
         var spellInfo = Global.SpellMgr.GetSpellInfo((uint)cancelChanneling.ChannelSpell, mover.Map.DifficultyID);
@@ -114,12 +114,12 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CancelModSpeedNoControlAuras, Processing = PacketProcessing.Inplace)]
     private void HandleCancelModSpeedNoControlAuras(CancelModSpeedNoControlAuras cancelModSpeedNoControlAuras)
     {
-        var mover = _player.UnitBeingMoved;
+        var mover = _session.Player.UnitBeingMoved;
 
         if (mover == null || mover.GUID != cancelModSpeedNoControlAuras.TargetGUID)
             return;
 
-        _player.RemoveAurasByType(AuraType.ModSpeedNoControl,
+        _session.Player.RemoveAurasByType(AuraType.ModSpeedNoControl,
                                   aurApp =>
                                   {
                                       var spellInfo = aurApp.Base.SpellInfo;
@@ -373,7 +373,7 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MissileTrajectoryCollision)]
     private void HandleMissileTrajectoryCollision(MissileTrajectoryCollision packet)
     {
-        var caster = Global.ObjAccessor.GetUnit(_player, packet.Target);
+        var caster = Global.ObjAccessor.GetUnit(_session.Player, packet.Target);
 
         if (caster == null)
             return;
@@ -554,7 +554,7 @@ public class SpellHandler : IWorldSessionHandler
             return;
         }
 
-        var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(_player, packet.PetGUID);
+        var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, packet.PetGUID);
 
         if (pet == null)
         {
@@ -589,21 +589,21 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.SelfRes)]
     private void HandleSelfRes(SelfRes selfRes)
     {
-        List<uint> selfResSpells = _player.ActivePlayerData.SelfResSpells;
+        List<uint> selfResSpells = _session.Player.ActivePlayerData.SelfResSpells;
 
         if (!selfResSpells.Contains(selfRes.SpellId))
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(selfRes.SpellId, _player.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(selfRes.SpellId, _session.Player.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
 
-        if (_player.HasAuraType(AuraType.PreventResurrection) && !spellInfo.HasAttribute(SpellAttr7.BypassNoResurrectAura))
+        if (_session.Player.HasAuraType(AuraType.PreventResurrection) && !spellInfo.HasAttribute(SpellAttr7.BypassNoResurrectAura))
             return; // silent return, client should display error by itself and not send this opcode
 
-        _player.CastSpell(_player, selfRes.SpellId, new CastSpellExtraArgs(_player.Map.DifficultyID));
-        _player.RemoveSelfResSpell(selfRes.SpellId);
+        _session.Player.CastSpell(_session.Player, selfRes.SpellId, new CastSpellExtraArgs(_session.Player.Map.DifficultyID));
+        _session.Player.RemoveSelfResSpell(selfRes.SpellId);
     }
 
     [WorldPacketHandler(ClientOpcodes.SpellClick, Processing = PacketProcessing.Inplace)]
@@ -654,7 +654,7 @@ public class SpellHandler : IWorldSessionHandler
         if (Player.SummonSlot[slotId].IsEmpty)
             return;
 
-        var totem = ObjectAccessor.GetCreature(Player, _player.SummonSlot[slotId]);
+        var totem = ObjectAccessor.GetCreature(Player, _session.Player.SummonSlot[slotId]);
 
         if (totem is { IsTotem: true }) // && totem.GetGUID() == packet.TotemGUID)  Unknown why blizz doesnt send the guid when you right click it.
             totem.ToTotem().UnSummon();

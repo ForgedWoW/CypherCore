@@ -170,8 +170,8 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveApplyMovementForceAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleMoveApplyMovementForceAck(MoveApplyMovementForceAck moveApplyMovementForceAck)
     {
-        var mover = _player.UnitBeingMoved;
-        _player.ValidateMovementInfo(moveApplyMovementForceAck.Ack.Status);
+        var mover = _session.Player.UnitBeingMoved;
+        _session.Player.ValidateMovementInfo(moveApplyMovementForceAck.Ack.Status);
 
         // prevent tampered movement data
         if (moveApplyMovementForceAck.Ack.Status.Guid != mover.GUID)
@@ -192,10 +192,10 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveInitActiveMoverComplete, Processing = PacketProcessing.ThreadSafe)]
     private void HandleMoveInitActiveMoverComplete(MoveInitActiveMoverComplete moveInitActiveMoverComplete)
     {
-        _player.SetPlayerLocalFlag(PlayerLocalFlags.OverrideTransportServerTime);
-        _player.SetTransportServerTime((int)(GameTime.CurrentTimeMS - moveInitActiveMoverComplete.Ticks));
+        _session.Player.SetPlayerLocalFlag(PlayerLocalFlags.OverrideTransportServerTime);
+        _session.Player.SetTransportServerTime((int)(GameTime.CurrentTimeMS - moveInitActiveMoverComplete.Ticks));
 
-        _player.UpdateObjectVisibility(false);
+        _session.Player.UpdateObjectVisibility(false);
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveKnockBackAck, Processing = PacketProcessing.ThreadSafe)]
@@ -421,8 +421,8 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveRemoveMovementForceAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleMoveRemoveMovementForceAck(MoveRemoveMovementForceAck moveRemoveMovementForceAck)
     {
-        var mover = _player.UnitBeingMoved;
-        _player.ValidateMovementInfo(moveRemoveMovementForceAck.Ack.Status);
+        var mover = _session.Player.UnitBeingMoved;
+        _session.Player.ValidateMovementInfo(moveRemoveMovementForceAck.Ack.Status);
 
         // prevent tampered movement data
         if (moveRemoveMovementForceAck.Ack.Status.Guid != mover.GUID)
@@ -443,8 +443,8 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveSetModMovementForceMagnitudeAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleMoveSetModMovementForceMagnitudeAck(MovementSpeedAck setModMovementForceMagnitudeAck)
     {
-        var mover = _player.UnitBeingMoved;
-        _player.ValidateMovementInfo(setModMovementForceMagnitudeAck.Ack.Status);
+        var mover = _session.Player.UnitBeingMoved;
+        _session.Player.ValidateMovementInfo(setModMovementForceMagnitudeAck.Ack.Status);
 
         // prevent tampered movement data
         if (setModMovementForceMagnitudeAck.Ack.Status.Guid != mover.GUID)
@@ -455,11 +455,11 @@ public class MovementHandler : IWorldSessionHandler
         }
 
         // skip all except last
-        if (_player.MovementForceModMagnitudeChanges > 0)
+        if (_session.Player.MovementForceModMagnitudeChanges > 0)
         {
-            --_player.MovementForceModMagnitudeChanges;
+            --_session.Player.MovementForceModMagnitudeChanges;
 
-            if (_player.MovementForceModMagnitudeChanges == 0)
+            if (_session.Player.MovementForceModMagnitudeChanges == 0)
             {
                 var expectedModMagnitude = 1.0f;
                 var movementForces = mover.MovementForces;
@@ -469,8 +469,8 @@ public class MovementHandler : IWorldSessionHandler
 
                 if (Math.Abs(expectedModMagnitude - setModMovementForceMagnitudeAck.Speed) > 0.01f)
                 {
-                    Log.Logger.Debug($"Player {_player.GetName()} from account id {_player.Session.AccountId} kicked for incorrect movement force magnitude (must be {expectedModMagnitude} instead {setModMovementForceMagnitudeAck.Speed})");
-                    _player.Session.KickPlayer("WorldSession::HandleMoveSetModMovementForceMagnitudeAck Incorrect magnitude");
+                    Log.Logger.Debug($"Player {_session.Player.GetName()} from account id {_session.Player.Session.AccountId} kicked for incorrect movement force magnitude (must be {expectedModMagnitude} instead {setModMovementForceMagnitudeAck.Speed})");
+                    _session.Player.Session.KickPlayer("WorldSession::HandleMoveSetModMovementForceMagnitudeAck Incorrect magnitude");
 
                     return;
                 }
@@ -489,7 +489,7 @@ public class MovementHandler : IWorldSessionHandler
     private void HandleMoveSplineDoneOpcode(MoveSplineDone moveSplineDone)
     {
         var movementInfo = moveSplineDone.Status;
-        _player.ValidateMovementInfo(movementInfo);
+        _session.Player.ValidateMovementInfo(movementInfo);
 
         // in taxi flight packet received in 2 case:
         // 1) end taxi path in far (multi-node) flight
@@ -594,7 +594,7 @@ public class MovementHandler : IWorldSessionHandler
         MoveSkipTime moveSkipTime = new();
         moveSkipTime.MoverGUID = moveTimeSkipped.MoverGUID;
         moveSkipTime.TimeSkipped = moveTimeSkipped.TimeSkipped;
-        mover.SendMessageToSet(moveSkipTime, _player);
+        mover.SendMessageToSet(moveSkipTime, _session.Player);
     }
 
     [WorldPacketHandler(ClientOpcodes.WorldPortResponse, Status = SessionStatus.Transfer)]
@@ -813,8 +813,8 @@ public class MovementHandler : IWorldSessionHandler
     private void HandleSetActiveMover(SetActiveMover packet)
     {
         if (Player.Location.IsInWorld)
-            if (_player.UnitBeingMoved.GUID != packet.ActiveMover)
-                Log.Logger.Error("HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _player.UnitBeingMoved.GUID.ToString());
+            if (_session.Player.UnitBeingMoved.GUID != packet.ActiveMover)
+                Log.Logger.Error("HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _session.Player.UnitBeingMoved.GUID.ToString());
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveSetCollisionHeightAck, Processing = PacketProcessing.ThreadSafe)]
@@ -826,7 +826,7 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.SuspendTokenResponse, Status = SessionStatus.Transfer)]
     private void HandleSuspendTokenResponse(SuspendTokenResponse suspendTokenResponse)
     {
-        if (!_player.IsBeingTeleportedFar)
+        if (!_session.Player.IsBeingTeleportedFar)
             return;
 
         var loc = Player.TeleportDest;
@@ -841,10 +841,10 @@ public class MovementHandler : IWorldSessionHandler
         NewWorld packet = new();
         packet.MapID = loc.MapId;
         packet.Loc.Pos = loc;
-        packet.Reason = (uint)(!_player.IsBeingTeleportedSeamlessly ? NewWorldReason.Normal : NewWorldReason.Seamless);
+        packet.Reason = (uint)(!_session.Player.IsBeingTeleportedSeamlessly ? NewWorldReason.Normal : NewWorldReason.Seamless);
         SendPacket(packet);
 
-        if (_player.IsBeingTeleportedSeamlessly)
+        if (_session.Player.IsBeingTeleportedSeamlessly)
             HandleMoveWorldportAck();
     }
 

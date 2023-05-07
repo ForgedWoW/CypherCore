@@ -499,7 +499,7 @@ public class CliDB
         return availableDb2Locales;
     }
 
-    public void LoadGameTables(string dataPath)
+    public void LoadGameTables(string dataPath, ContainerBuilder builder)
     {
         var oldMSTime = Time.MSTime;
 
@@ -512,19 +512,19 @@ public class CliDB
             return GameTableReader.Read<T>(gtPath, fileName, ref loadedFileCount);
         }
 
-        ArtifactKnowledgeMultiplierGameTable = ReadGameTable<GtArtifactKnowledgeMultiplierRecord>("ArtifactKnowledgeMultiplier.txt");
-        ArtifactLevelXPGameTable = ReadGameTable<GtArtifactLevelXPRecord>("artifactLevelXP.txt");
-        BarberShopCostBaseGameTable = ReadGameTable<GtBarberShopCostBaseRecord>("BarberShopCostBase.txt");
-        BaseMPGameTable = ReadGameTable<GtBaseMPRecord>("BaseMp.txt");
-        BattlePetXPGameTable = ReadGameTable<GtBattlePetXPRecord>("BattlePetXP.txt");
-        CombatRatingsGameTable = ReadGameTable<GtCombatRatingsRecord>("CombatRatings.txt");
-        CombatRatingsMultByILvlGameTable = ReadGameTable<GtGenericMultByILvlRecord>("CombatRatingsMultByILvl.txt");
-        ItemSocketCostPerLevelGameTable = ReadGameTable<GtItemSocketCostPerLevelRecord>("ItemSocketCostPerLevel.txt");
-        HpPerStaGameTable = ReadGameTable<GtHpPerStaRecord>("HpPerSta.txt");
-        NpcManaCostScalerGameTable = ReadGameTable<GtNpcManaCostScalerRecord>("NPCManaCostScaler.txt");
-        SpellScalingGameTable = ReadGameTable<GtSpellScalingRecord>("SpellScaling.txt");
-        StaminaMultByILvlGameTable = ReadGameTable<GtGenericMultByILvlRecord>("StaminaMultByILvl.txt");
-        XpGameTable = ReadGameTable<GtXpRecord>("xp.txt");
+        builder.RegisterInstance(ArtifactKnowledgeMultiplierGameTable = ReadGameTable<GtArtifactKnowledgeMultiplierRecord>("ArtifactKnowledgeMultiplier.txt"));
+        builder.RegisterInstance(ArtifactLevelXPGameTable = ReadGameTable<GtArtifactLevelXPRecord>("artifactLevelXP.txt"));
+        builder.RegisterInstance(BarberShopCostBaseGameTable = ReadGameTable<GtBarberShopCostBaseRecord>("BarberShopCostBase.txt"));
+        builder.RegisterInstance(BaseMPGameTable = ReadGameTable<GtBaseMPRecord>("BaseMp.txt"));
+        builder.RegisterInstance(BattlePetXPGameTable = ReadGameTable<GtBattlePetXPRecord>("BattlePetXP.txt"));
+        builder.RegisterInstance(CombatRatingsGameTable = ReadGameTable<GtCombatRatingsRecord>("CombatRatings.txt"));
+        builder.RegisterInstance(CombatRatingsMultByILvlGameTable = ReadGameTable<GtGenericMultByILvlRecord>("CombatRatingsMultByILvl.txt"));
+        builder.RegisterInstance(ItemSocketCostPerLevelGameTable = ReadGameTable<GtItemSocketCostPerLevelRecord>("ItemSocketCostPerLevel.txt"));
+        builder.RegisterInstance(HpPerStaGameTable = ReadGameTable<GtHpPerStaRecord>("HpPerSta.txt"));
+        builder.RegisterInstance(NpcManaCostScalerGameTable = ReadGameTable<GtNpcManaCostScalerRecord>("NPCManaCostScaler.txt"));
+        builder.RegisterInstance(SpellScalingGameTable = ReadGameTable<GtSpellScalingRecord>("SpellScaling.txt"));
+        builder.RegisterInstance(StaminaMultByILvlGameTable = ReadGameTable<GtGenericMultByILvlRecord>("StaminaMultByILvl.txt"));
+        builder.RegisterInstance(XpGameTable = ReadGameTable<GtXpRecord>("xp.txt"));
 
         Log.Logger.Information("Initialized {0} DBC GameTables data stores in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
     }

@@ -222,7 +222,7 @@ public class VehicleHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.RideVehicleInteract)]
     private void HandleRideVehicleInteract(RideVehicleInteract packet)
     {
-        var player = Global.ObjAccessor.GetPlayer(_player, packet.Vehicle);
+        var player = Global.ObjAccessor.GetPlayer(_session.Player, packet.Vehicle);
 
         if (player)
         {
@@ -236,7 +236,7 @@ public class VehicleHandler : IWorldSessionHandler
                 return;
 
             // Dont' allow players to enter player vehicle on arena
-            if (!_player.Map || _player.Map.IsBattleArena)
+            if (!_session.Player.Map || _session.Player.Map.IsBattleArena)
                 return;
 
             Player.EnterVehicle(player);

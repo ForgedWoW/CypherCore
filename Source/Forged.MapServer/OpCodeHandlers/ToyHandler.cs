@@ -19,11 +19,11 @@ public class ToyHandler : IWorldSessionHandler
         if (packet.Guid.IsEmpty)
             return;
 
-        var item = _player.GetItemByGuid(packet.Guid);
+        var item = _session.Player.GetItemByGuid(packet.Guid);
 
         if (!item)
         {
-            _player.SendEquipError(InventoryResult.ItemNotFound);
+            _session.Player.SendEquipError(InventoryResult.ItemNotFound);
 
             return;
         }
@@ -31,17 +31,17 @@ public class ToyHandler : IWorldSessionHandler
         if (!Global.DB2Mgr.IsToyItem(item.Entry))
             return;
 
-        var msg = _player.CanUseItem(item);
+        var msg = _session.Player.CanUseItem(item);
 
         if (msg != InventoryResult.Ok)
         {
-            _player.SendEquipError(msg, item);
+            _session.Player.SendEquipError(msg, item);
 
             return;
         }
 
         if (_collectionMgr.AddToy(item.Entry, false, false))
-            _player.DestroyItem(item.BagSlot, item.Slot, true);
+            _session.Player.DestroyItem(item.BagSlot, item.Slot, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.ToyClearFanfare)]
@@ -76,12 +76,12 @@ public class ToyHandler : IWorldSessionHandler
             return;
         }
 
-        if (_player.IsPossessing)
+        if (_session.Player.IsPossessing)
             return;
 
-        SpellCastTargets targets = new(_player, packet.Cast);
+        SpellCastTargets targets = new(_session.Player, packet.Cast);
 
-        Spell spell = new(_player, spellInfo, TriggerCastFlags.None);
+        Spell spell = new(_session.Player, spellInfo, TriggerCastFlags.None);
 
         SpellPrepare spellPrepare = new();
         spellPrepare.ClientCastID = packet.Cast.CastID;

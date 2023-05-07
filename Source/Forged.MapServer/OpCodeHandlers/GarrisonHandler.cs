@@ -13,10 +13,10 @@ public class GarrisonHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GarrisonCancelConstruction)]
     private void HandleGarrisonCancelConstruction(GarrisonCancelConstruction garrisonCancelConstruction)
     {
-        if (!_player.GetNPCIfCanInteractWith(garrisonCancelConstruction.NpcGUID, NPCFlags.None, NPCFlags2.GarrisonArchitect))
+        if (!_session.Player.GetNPCIfCanInteractWith(garrisonCancelConstruction.NpcGUID, NPCFlags.None, NPCFlags2.GarrisonArchitect))
             return;
 
-        var garrison = _player.Garrison;
+        var garrison = _session.Player.Garrison;
 
         if (garrison != null)
             garrison.CancelBuildingConstruction(garrisonCancelConstruction.PlotInstanceID);
@@ -25,19 +25,19 @@ public class GarrisonHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GarrisonGetMapData)]
     private void HandleGarrisonGetMapData(GarrisonGetMapData garrisonGetMapData)
     {
-        var garrison = _player.Garrison;
+        var garrison = _session.Player.Garrison;
 
         if (garrison != null)
-            garrison.SendMapData(_player);
+            garrison.SendMapData(_session.Player);
     }
 
     [WorldPacketHandler(ClientOpcodes.GarrisonPurchaseBuilding)]
     private void HandleGarrisonPurchaseBuilding(GarrisonPurchaseBuilding garrisonPurchaseBuilding)
     {
-        if (!_player.GetNPCIfCanInteractWith(garrisonPurchaseBuilding.NpcGUID, NPCFlags.None, NPCFlags2.GarrisonArchitect))
+        if (!_session.Player.GetNPCIfCanInteractWith(garrisonPurchaseBuilding.NpcGUID, NPCFlags.None, NPCFlags2.GarrisonArchitect))
             return;
 
-        var garrison = _player.Garrison;
+        var garrison = _session.Player.Garrison;
 
         if (garrison != null)
             garrison.PlaceBuilding(garrisonPurchaseBuilding.PlotInstanceID, garrisonPurchaseBuilding.BuildingID);
@@ -46,7 +46,7 @@ public class GarrisonHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GarrisonRequestBlueprintAndSpecializationData)]
     private void HandleGarrisonRequestBlueprintAndSpecializationData(GarrisonRequestBlueprintAndSpecializationData garrisonRequestBlueprintAndSpecializationData)
     {
-        var garrison = _player.Garrison;
+        var garrison = _session.Player.Garrison;
 
         if (garrison != null)
             garrison.SendBlueprintAndSpecializationData();
@@ -55,7 +55,7 @@ public class GarrisonHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GetGarrisonInfo)]
     private void HandleGetGarrisonInfo(GetGarrisonInfo getGarrisonInfo)
     {
-        var garrison = _player.Garrison;
+        var garrison = _session.Player.Garrison;
 
         if (garrison != null)
             garrison.SendInfo();

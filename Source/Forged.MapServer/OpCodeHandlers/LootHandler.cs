@@ -103,7 +103,7 @@ public class LootHandler : IWorldSessionHandler
         if (!lootTarget)
             return;
 
-        AELootCreatureCheck check = new(_player, packet.Unit);
+        AELootCreatureCheck check = new(_session.Player, packet.Unit);
 
         if (!check.IsValidLootTarget(lootTarget))
             return;
@@ -115,8 +115,8 @@ public class LootHandler : IWorldSessionHandler
         Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Looting);
 
         List<Creature> corpses = new();
-        CreatureListSearcher searcher = new(_player, corpses, check, GridType.Grid);
-        CellCalculator.VisitGrid(_player, searcher, AELootCreatureCheck.LootDistance);
+        CreatureListSearcher searcher = new(_session.Player, corpses, check, GridType.Grid);
+        CellCalculator.VisitGrid(_session.Player, searcher, AELootCreatureCheck.LootDistance);
 
         if (!corpses.Empty())
             SendPacket(new AELootTargets((uint)corpses.Count + 1));
@@ -149,7 +149,7 @@ public class LootHandler : IWorldSessionHandler
         }
 
         // player on other map
-        var target = Global.ObjAccessor.GetPlayer(_player, masterLootItem.Target);
+        var target = Global.ObjAccessor.GetPlayer(_session.Player, masterLootItem.Target);
 
         if (!target)
         {
@@ -160,14 +160,14 @@ public class LootHandler : IWorldSessionHandler
 
         foreach (var req in masterLootItem.Loot)
         {
-            var loot = _player.GetAELootView().LookupByKey(req.Object);
+            var loot = _session.Player.GetAELootView().LookupByKey(req.Object);
 
             if (loot == null || loot.GetLootMethod() != LootMethod.MasterLoot)
                 return;
 
-            if (!_player.IsInRaidWith(target) || !_player.IsInMap(target))
+            if (!_session.Player.IsInRaidWith(target) || !_session.Player.IsInMap(target))
             {
-                _player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
+                _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
                 Log.Logger.Information($"MasterLootItem: Player {Player.GetName()} tried to give an item to ineligible player {target.GetName()} !");
 
                 return;
@@ -175,7 +175,7 @@ public class LootHandler : IWorldSessionHandler
 
             if (!loot.HasAllowedLooter(masterLootItem.Target))
             {
-                _player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
+                _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
 
                 return;
             }
@@ -198,11 +198,11 @@ public class LootHandler : IWorldSessionHandler
             if (msg != InventoryResult.Ok)
             {
                 if (msg == InventoryResult.ItemMaxCount)
-                    _player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterUniqueItem);
+                    _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterUniqueItem);
                 else if (msg == InventoryResult.InvFull)
-                    _player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterInvFull);
+                    _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterInvFull);
                 else
-                    _player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
+                    _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
 
                 return;
             }

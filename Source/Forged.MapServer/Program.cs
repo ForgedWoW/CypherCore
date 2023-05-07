@@ -67,6 +67,7 @@ using Forged.MapServer.SupportSystem;
 using Forged.MapServer.Text;
 using Forged.MapServer.Tools;
 using Forged.MapServer.Warden;
+using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework;
 using Framework.Constants;
@@ -152,7 +153,7 @@ void RegisterManagers()
     builder.RegisterType<CliDB>().SingleInstance().OnActivated(c =>
     {
         localeMask = c.Instance.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
-        c.Instance.LoadGameTables(dataPath);
+        c.Instance.LoadGameTables(dataPath, builder);
     });
     builder.RegisterType<M2Storage>().SingleInstance().OnActivated(a => a.Instance.LoadM2Cameras(dataPath));
     builder.RegisterType<TaxiPathGraph>().SingleInstance().OnActivated(a => a.Instance.Initialize());
@@ -426,7 +427,6 @@ void RegisterManagers()
     });
 
     builder.RegisterType<CalendarManager>().SingleInstance().OnActivated(c => c.Instance.LoadFromDB());
-    builder.RegisterType<PacketManager>().SingleInstance().OnActivated(c => c.Instance.Initialize());
     builder.RegisterType<BattlePetMgr>().SingleInstance();
     builder.RegisterType<BattlePetMgrData>().SingleInstance();
     builder.RegisterType<UnitCombatHelpers>().SingleInstance();
@@ -541,10 +541,12 @@ void RegisterInstanced()
     builder.RegisterType<ArenaTeam>();
     builder.RegisterType<CriteriaDataSet>();
     builder.RegisterType<Weather>();
+    builder.RegisterType<PacketManager>();
 }
 
 void RegisterHandlers()
 {
-    builder.RegisterType<BattlepayHandler>();
     builder.RegisterType<WorldServiceManager>();
+    builder.RegisterType<BattlepayHandler>();
+    builder.RegisterType<ArtifactHandler>();
 }

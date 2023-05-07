@@ -62,7 +62,7 @@ public class BattlePetHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.BattlePetSummon, Processing = PacketProcessing.Inplace)]
     private void HandleBattlePetSummon(BattlePetSummon battlePetSummon)
     {
-        if (_player.SummonedBattlePetGUID != battlePetSummon.PetGuid)
+        if (_session.Player.SummonedBattlePetGUID != battlePetSummon.PetGuid)
             BattlePetMgr.SummonPet(battlePetSummon.PetGuid);
         else
             BattlePetMgr.DismissPet();
@@ -86,7 +86,7 @@ public class BattlePetHandler : IWorldSessionHandler
         QueryBattlePetNameResponse response = new();
         response.BattlePetID = queryBattlePetName.BattlePetID;
 
-        var summonedBattlePet = ObjectAccessor.GetCreatureOrPetOrVehicle(_player, queryBattlePetName.UnitGUID);
+        var summonedBattlePet = ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, queryBattlePetName.UnitGUID);
 
         if (!summonedBattlePet || !summonedBattlePet.IsSummon)
         {

@@ -22,9 +22,9 @@ public class QuestHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.ChoiceResponse)]
     private void HandlePlayerChoiceResponse(ChoiceResponse choiceResponse)
     {
-        if (_player.PlayerTalkClass.GetInteractionData().PlayerChoiceId != choiceResponse.ChoiceID)
+        if (_session.Player.PlayerTalkClass.GetInteractionData().PlayerChoiceId != choiceResponse.ChoiceID)
         {
-            Log.Logger.Error($"Error in CMSG_CHOICE_RESPONSE: {GetPlayerInfo()} tried to respond to invalid player choice {choiceResponse.ChoiceID} (allowed {_player.PlayerTalkClass.GetInteractionData().PlayerChoiceId}) (possible packet-hacking detected)");
+            Log.Logger.Error($"Error in CMSG_CHOICE_RESPONSE: {GetPlayerInfo()} tried to respond to invalid player choice {choiceResponse.ChoiceID} (allowed {_session.Player.PlayerTalkClass.GetInteractionData().PlayerChoiceId}) (possible packet-hacking detected)");
 
             return;
         }
@@ -43,46 +43,46 @@ public class QuestHandler : IWorldSessionHandler
             return;
         }
 
-        ScriptManager.ForEach<IPlayerOnPlayerChoiceResponse>(p => p.OnPlayerChoiceResponse(_player, (uint)choiceResponse.ChoiceID, (uint)choiceResponse.ResponseIdentifier));
+        ScriptManager.ForEach<IPlayerOnPlayerChoiceResponse>(p => p.OnPlayerChoiceResponse(_session.Player, (uint)choiceResponse.ChoiceID, (uint)choiceResponse.ResponseIdentifier));
 
         if (playerChoiceResponse.Reward != null)
         {
             var reward = playerChoiceResponse.Reward;
 
             if (reward.TitleId != 0)
-                _player.SetTitle(CliDB.CharTitlesStorage.LookupByKey(reward.TitleId), false);
+                _session.Player.SetTitle(CliDB.CharTitlesStorage.LookupByKey(reward.TitleId), false);
 
             if (reward.PackageId != 0)
-                _player.RewardQuestPackage((uint)reward.PackageId);
+                _session.Player.RewardQuestPackage((uint)reward.PackageId);
 
-            if (reward.SkillLineId != 0 && _player.HasSkill((SkillType)reward.SkillLineId))
-                _player.UpdateSkillPro((uint)reward.SkillLineId, 1000, reward.SkillPointCount);
+            if (reward.SkillLineId != 0 && _session.Player.HasSkill((SkillType)reward.SkillLineId))
+                _session.Player.UpdateSkillPro((uint)reward.SkillLineId, 1000, reward.SkillPointCount);
 
             if (reward.HonorPointCount != 0)
-                _player.AddHonorXp(reward.HonorPointCount);
+                _session.Player.AddHonorXp(reward.HonorPointCount);
 
             if (reward.Money != 0)
-                _player.ModifyMoney((long)reward.Money, false);
+                _session.Player.ModifyMoney((long)reward.Money, false);
 
             if (reward.Xp != 0)
-                _player.GiveXP(reward.Xp, null, 0.0f);
+                _session.Player.GiveXP(reward.Xp, null, 0.0f);
 
             foreach (var item in reward.Items)
             {
                 List<ItemPosCount> dest = new();
 
-                if (_player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item.Id, (uint)item.Quantity) == InventoryResult.Ok)
+                if (_session.Player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item.Id, (uint)item.Quantity) == InventoryResult.Ok)
                 {
-                    var newItem = _player.StoreNewItem(dest, item.Id, true, ItemEnchantmentManager.GenerateItemRandomBonusListId(item.Id), null, ItemContext.QuestReward, item.BonusListIDs);
-                    _player.SendNewItem(newItem, (uint)item.Quantity, true, false);
+                    var newItem = _session.Player.StoreNewItem(dest, item.Id, true, ItemEnchantmentManager.GenerateItemRandomBonusListId(item.Id), null, ItemContext.QuestReward, item.BonusListIDs);
+                    _session.Player.SendNewItem(newItem, (uint)item.Quantity, true, false);
                 }
             }
 
             foreach (var currency in reward.Currency)
-                _player.ModifyCurrency(currency.Id, currency.Quantity);
+                _session.Player.ModifyCurrency(currency.Id, currency.Quantity);
 
             foreach (var faction in reward.Faction)
-                _player.ReputationMgr.ModifyReputation(CliDB.FactionStorage.LookupByKey(faction.Id), faction.Quantity);
+                _session.Player.ReputationMgr.ModifyReputation(CliDB.FactionStorage.LookupByKey(faction.Id), faction.Quantity);
         }
     }
 
@@ -96,7 +96,7 @@ public class QuestHandler : IWorldSessionHandler
 
         var sender = Player;
 
-        if (!_player.CanShareQuest(packet.QuestID))
+        if (!_session.Player.CanShareQuest(packet.QuestID))
         {
             sender.SendPushToPartyResponse(sender, QuestPushReason.NotAllowed);
 
@@ -280,30 +280,30 @@ public class QuestHandler : IWorldSessionHandler
             if (!quest.HasFlag(QuestFlags.PartyAccept))
                 return;
 
-            var originalPlayer = Global.ObjAccessor.FindPlayer(_player.GetPlayerSharingQuest());
+            var originalPlayer = Global.ObjAccessor.FindPlayer(_session.Player.GetPlayerSharingQuest());
 
             if (originalPlayer == null)
                 return;
 
-            if (!_player.IsInSameRaidWith(originalPlayer))
+            if (!_session.Player.IsInSameRaidWith(originalPlayer))
                 return;
 
             if (!originalPlayer.IsActiveQuest(packet.QuestID))
                 return;
 
-            if (!_player.CanTakeQuest(quest, true))
+            if (!_session.Player.CanTakeQuest(quest, true))
                 return;
 
-            if (_player.CanAddQuest(quest, true))
+            if (_session.Player.CanAddQuest(quest, true))
             {
-                _player.AddQuestAndCheckCompletion(quest, null); // NULL, this prevent DB script from duplicate running
+                _session.Player.AddQuestAndCheckCompletion(quest, null); // NULL, this prevent DB script from duplicate running
 
                 if (quest.SourceSpellID > 0)
-                    _player.CastSpell(_player, quest.SourceSpellID, true);
+                    _session.Player.CastSpell(_session.Player, quest.SourceSpellID, true);
             }
         }
 
-        _player.ClearQuestSharingInfo();
+        _session.Player.ClearQuestSharingInfo();
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverAcceptQuest, Processing = PacketProcessing.Inplace)]
@@ -312,14 +312,14 @@ public class QuestHandler : IWorldSessionHandler
         WorldObject obj;
 
         if (!packet.QuestGiverGUID.IsPlayer)
-            obj = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject | TypeMask.Item);
+            obj = Global.ObjAccessor.GetObjectByTypeMask(_session.Player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject | TypeMask.Item);
         else
             obj = Global.ObjAccessor.FindPlayer(packet.QuestGiverGUID);
 
         var CLOSE_GOSSIP_CLEAR_SHARING_INFO = new Action(() =>
         {
-            _player.PlayerTalkClass.SendCloseGossip();
-            _player.ClearQuestSharingInfo();
+            _session.Player.PlayerTalkClass.SendCloseGossip();
+            _session.Player.ClearQuestSharingInfo();
         });
 
         // no or incorrect quest giver
@@ -334,14 +334,14 @@ public class QuestHandler : IWorldSessionHandler
 
         if (playerQuestObject)
         {
-            if ((_player.GetPlayerSharingQuest().IsEmpty && _player.GetPlayerSharingQuest() != packet.QuestGiverGUID) || !playerQuestObject.CanShareQuest(packet.QuestID))
+            if ((_session.Player.GetPlayerSharingQuest().IsEmpty && _session.Player.GetPlayerSharingQuest() != packet.QuestGiverGUID) || !playerQuestObject.CanShareQuest(packet.QuestID))
             {
                 CLOSE_GOSSIP_CLEAR_SHARING_INFO();
 
                 return;
             }
 
-            if (!_player.IsInSameRaidWith(playerQuestObject))
+            if (!_session.Player.IsInSameRaidWith(playerQuestObject))
             {
                 CLOSE_GOSSIP_CLEAR_SHARING_INFO();
 
@@ -359,7 +359,7 @@ public class QuestHandler : IWorldSessionHandler
         }
 
         // some kind of WPE protection
-        if (!_player.CanInteractWithQuestGiver(obj))
+        if (!_session.Player.CanInteractWithQuestGiver(obj))
         {
             CLOSE_GOSSIP_CLEAR_SHARING_INFO();
 
@@ -371,53 +371,53 @@ public class QuestHandler : IWorldSessionHandler
         if (quest != null)
         {
             // prevent cheating
-            if (!_player.CanTakeQuest(quest, true))
+            if (!_session.Player.CanTakeQuest(quest, true))
             {
                 CLOSE_GOSSIP_CLEAR_SHARING_INFO();
 
                 return;
             }
 
-            if (!_player.GetPlayerSharingQuest().IsEmpty)
+            if (!_session.Player.GetPlayerSharingQuest().IsEmpty)
             {
-                var player = Global.ObjAccessor.FindPlayer(_player.GetPlayerSharingQuest());
+                var player = Global.ObjAccessor.FindPlayer(_session.Player.GetPlayerSharingQuest());
 
                 if (player != null)
                 {
-                    player.SendPushToPartyResponse(_player, QuestPushReason.Accepted);
-                    _player.ClearQuestSharingInfo();
+                    player.SendPushToPartyResponse(_session.Player, QuestPushReason.Accepted);
+                    _session.Player.ClearQuestSharingInfo();
                 }
             }
 
-            if (_player.CanAddQuest(quest, true))
+            if (_session.Player.CanAddQuest(quest, true))
             {
-                _player.AddQuestAndCheckCompletion(quest, obj);
+                _session.Player.AddQuestAndCheckCompletion(quest, obj);
 
                 if (quest.HasFlag(QuestFlags.PartyAccept))
                 {
-                    var group = _player.Group;
+                    var group = _session.Player.Group;
 
                     if (group)
                         for (var refe = group.FirstMember; refe != null; refe = refe.Next())
                         {
                             var player = refe.Source;
 
-                            if (!player || player == _player || !player.IsInMap(_player)) // not self and in same map
+                            if (!player || player == _session.Player || !player.IsInMap(_session.Player)) // not self and in same map
                                 continue;
 
                             if (player.CanTakeQuest(quest, true))
                             {
-                                player.SetQuestSharingInfo(_player.GUID, quest.Id);
+                                player.SetQuestSharingInfo(_session.Player.GUID, quest.Id);
 
                                 //need confirmation that any gossip window will close
                                 player.PlayerTalkClass.SendCloseGossip();
 
-                                _player.SendQuestConfirmAccept(quest, player);
+                                _session.Player.SendQuestConfirmAccept(quest, player);
                             }
                         }
                 }
 
-                _player.PlayerTalkClass.SendCloseGossip();
+                _session.Player.PlayerTalkClass.SendCloseGossip();
 
                 return;
             }
@@ -442,7 +442,7 @@ public class QuestHandler : IWorldSessionHandler
 
                     if (rewardProto == null)
                     {
-                        Log.Logger.Error("Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get invalid reward item (Item Entry: {2}) for quest {3} (possible packet-hacking detected)", _player.GetName(), _player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
+                        Log.Logger.Error("Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get invalid reward item (Item Entry: {2}) for quest {3} (possible packet-hacking detected)", _session.Player.GetName(), _session.Player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
 
                         return;
                     }
@@ -467,7 +467,7 @@ public class QuestHandler : IWorldSessionHandler
                                 if (questPackageItem.ItemID != packet.Choice.Item.ItemID)
                                     continue;
 
-                                if (_player.CanSelectQuestPackageItem(questPackageItem))
+                                if (_session.Player.CanSelectQuestPackageItem(questPackageItem))
                                 {
                                     itemValid = true;
 
@@ -494,7 +494,7 @@ public class QuestHandler : IWorldSessionHandler
 
                     if (!itemValid)
                     {
-                        Log.Logger.Error("Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get reward item (Item Entry: {2}) wich is not a reward for quest {3} (possible packet-hacking detected)", _player.GetName(), _player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
+                        Log.Logger.Error("Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get reward item (Item Entry: {2}) wich is not a reward for quest {3} (possible packet-hacking detected)", _session.Player.GetName(), _session.Player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
 
                         return;
                     }
@@ -503,7 +503,7 @@ public class QuestHandler : IWorldSessionHandler
                 case LootItemType.Currency:
                     if (!CliDB.CurrencyTypesStorage.HasRecord(packet.Choice.Item.ItemID))
                     {
-                        Log.Logger.Error($"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_player.GetName()} ({_player.GUID}) tried to get invalid reward currency (Currency ID: {packet.Choice.Item.ItemID}) for quest {packet.QuestID} (possible packet-hacking detected)");
+                        Log.Logger.Error($"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_session.Player.GetName()} ({_session.Player.GUID}) tried to get invalid reward currency (Currency ID: {packet.Choice.Item.ItemID}) for quest {packet.QuestID} (possible packet-hacking detected)");
 
                         return;
                     }
@@ -520,7 +520,7 @@ public class QuestHandler : IWorldSessionHandler
 
                     if (!currencyValid)
                     {
-                        Log.Logger.Error($"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_player.GetName()} ({_player.GUID}) tried to get reward currency (Currency ID: {packet.Choice.Item.ItemID}) wich is not a reward for quest {packet.QuestID} (possible packet-hacking detected)");
+                        Log.Logger.Error($"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_session.Player.GetName()} ({_session.Player.GUID}) tried to get reward currency (Currency ID: {packet.Choice.Item.ItemID}) wich is not a reward for quest {packet.QuestID} (possible packet-hacking detected)");
 
                         return;
                     }
@@ -532,47 +532,47 @@ public class QuestHandler : IWorldSessionHandler
 
         if (!quest.HasFlag(QuestFlags.AutoComplete))
         {
-            obj = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
+            obj = Global.ObjAccessor.GetObjectByTypeMask(_session.Player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
 
             if (!obj || !obj.HasInvolvedQuest(packet.QuestID))
                 return;
 
             // some kind of WPE protection
-            if (!_player.CanInteractWithQuestGiver(obj))
+            if (!_session.Player.CanInteractWithQuestGiver(obj))
                 return;
         }
 
-        if ((!_player.CanSeeStartQuest(quest) && _player.GetQuestStatus(packet.QuestID) == QuestStatus.None) ||
-            (_player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete && !quest.IsAutoComplete))
+        if ((!_session.Player.CanSeeStartQuest(quest) && _session.Player.GetQuestStatus(packet.QuestID) == QuestStatus.None) ||
+            (_session.Player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete && !quest.IsAutoComplete))
         {
             Log.Logger.Error<string, string, uint>("Error in QuestStatus.Complete: player {0} ({1}) tried to complete quest {2}, but is not allowed to do so (possible packet-hacking or high latency)",
-                                                   _player.GetName(),
-                                                   _player.GUID.ToString(),
+                                                   _session.Player.GetName(),
+                                                   _session.Player.GUID.ToString(),
                                                    packet.QuestID);
 
             return;
         }
 
-        if (_player.CanRewardQuest(quest, true)) // First, check if player is allowed to turn the quest in (all objectives completed). If not, we send players to the offer reward screen
+        if (_session.Player.CanRewardQuest(quest, true)) // First, check if player is allowed to turn the quest in (all objectives completed). If not, we send players to the offer reward screen
         {
-            if (_player.CanRewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, true)) // Then check if player can receive the reward item (if inventory is not full, if player doesn't have too many unique items, and so on). If not, the client will close the gossip window
+            if (_session.Player.CanRewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, true)) // Then check if player can receive the reward item (if inventory is not full, if player doesn't have too many unique items, and so on). If not, the client will close the gossip window
             {
-                var bg = _player.Battleground;
+                var bg = _session.Player.Battleground;
 
                 if (bg != null)
-                    bg.HandleQuestComplete(packet.QuestID, _player);
+                    bg.HandleQuestComplete(packet.QuestID, _session.Player);
 
                 Player.RewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, obj);
             }
         }
         else
-            _player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
+            _session.Player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverCloseQuest, Processing = PacketProcessing.Inplace)]
     private void HandleQuestgiverCloseQuest(QuestGiverCloseQuest questGiverCloseQuest)
     {
-        if (_player.FindQuestSlot(questGiverCloseQuest.QuestID) >= SharedConst.MaxQuestLogSize)
+        if (_session.Player.FindQuestSlot(questGiverCloseQuest.QuestID) >= SharedConst.MaxQuestLogSize)
             return;
 
         var quest = Global.ObjectMgr.GetQuestTemplate(questGiverCloseQuest.QuestID);
@@ -580,7 +580,7 @@ public class QuestHandler : IWorldSessionHandler
         if (quest == null)
             return;
 
-        ScriptManager.RunScript<IQuestOnAckAutoAccept>(script => script.OnAcknowledgeAutoAccept(_player, quest), quest.ScriptId);
+        ScriptManager.RunScript<IQuestOnAckAutoAccept>(script => script.OnAcknowledgeAutoAccept(_session.Player, quest), quest.ScriptId);
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverCompleteQuest, Processing = PacketProcessing.Inplace)]
@@ -601,7 +601,7 @@ public class QuestHandler : IWorldSessionHandler
         if (autoCompleteMode)
             obj = Player;
         else
-            obj = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
+            obj = Global.ObjAccessor.GetObjectByTypeMask(_session.Player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
 
         if (!obj)
             return;
@@ -612,46 +612,46 @@ public class QuestHandler : IWorldSessionHandler
                 return;
 
             // some kind of WPE protection
-            if (!_player.CanInteractWithQuestGiver(obj))
+            if (!_session.Player.CanInteractWithQuestGiver(obj))
                 return;
         }
         else
         {
             // Do not allow completing quests on other players.
-            if (packet.QuestGiverGUID != _player.GUID)
+            if (packet.QuestGiverGUID != _session.Player.GUID)
                 return;
         }
 
-        if (!_player.CanSeeStartQuest(quest) && _player.GetQuestStatus(packet.QuestID) == QuestStatus.None)
+        if (!_session.Player.CanSeeStartQuest(quest) && _session.Player.GetQuestStatus(packet.QuestID) == QuestStatus.None)
         {
             Log.Logger.Error<string, string, uint>("Possible hacking attempt: Player {0} ({1}) tried to complete quest [entry: {2}] without being in possession of the quest!",
-                                                   _player.GetName(),
-                                                   _player.GUID.ToString(),
+                                                   _session.Player.GetName(),
+                                                   _session.Player.GUID.ToString(),
                                                    packet.QuestID);
 
             return;
         }
 
-        if (_player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete)
+        if (_session.Player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete)
         {
             if (quest.IsRepeatable)
-                _player.PlayerTalkClass.SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _player.CanCompleteRepeatableQuest(quest), false);
+                _session.Player.PlayerTalkClass.SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _session.Player.CanCompleteRepeatableQuest(quest), false);
             else
-                _player.PlayerTalkClass.SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _player.CanRewardQuest(quest, false), false);
+                _session.Player.PlayerTalkClass.SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _session.Player.CanRewardQuest(quest, false), false);
         }
         else
         {
             if (quest.HasQuestObjectiveType(QuestObjectiveType.Item)) // some items required
-                _player.PlayerTalkClass.SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _player.CanRewardQuest(quest, false), false);
+                _session.Player.PlayerTalkClass.SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _session.Player.CanRewardQuest(quest, false), false);
             else // no items required
-                _player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
+                _session.Player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
         }
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverHello, Processing = PacketProcessing.Inplace)]
     private void HandleQuestgiverHello(QuestGiverHello packet)
     {
-        var creature = _player.GetNPCIfCanInteractWith(packet.QuestGiverGUID, NPCFlags.QuestGiver, NPCFlags2.None);
+        var creature = _session.Player.GetNPCIfCanInteractWith(packet.QuestGiverGUID, NPCFlags.QuestGiver, NPCFlags2.None);
 
         if (creature == null)
         {
@@ -661,8 +661,8 @@ public class QuestHandler : IWorldSessionHandler
         }
 
         // remove fake death
-        if (_player.HasUnitState(UnitState.Died))
-            _player.RemoveAurasByType(AuraType.FeignDeath);
+        if (_session.Player.HasUnitState(UnitState.Died))
+            _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
         // Stop the npc if moving
         var pause = creature.MovementTemplate.GetInteractionPauseTimer();
@@ -672,24 +672,24 @@ public class QuestHandler : IWorldSessionHandler
 
         creature.HomePosition = creature.Location;
 
-        _player.PlayerTalkClass.ClearMenus();
+        _session.Player.PlayerTalkClass.ClearMenus();
 
-        if (creature.AI.OnGossipHello(_player))
+        if (creature.AI.OnGossipHello(_session.Player))
             return;
 
-        _player.PrepareGossipMenu(creature, creature.Template.GossipMenuId, true);
-        _player.SendPreparedGossip(creature);
+        _session.Player.PrepareGossipMenu(creature, creature.Template.GossipMenuId, true);
+        _session.Player.SendPreparedGossip(creature);
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverQueryQuest, Processing = PacketProcessing.Inplace)]
     private void HandleQuestgiverQueryQuest(QuestGiverQueryQuest packet)
     {
         // Verify that the guid is valid and is a questgiver or involved in the requested quest
-        var obj = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject | TypeMask.Item);
+        var obj = Global.ObjAccessor.GetObjectByTypeMask(_session.Player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject | TypeMask.Item);
 
         if (!obj || (!obj.HasQuest(packet.QuestID) && !obj.HasInvolvedQuest(packet.QuestID)))
         {
-            _player.PlayerTalkClass.SendCloseGossip();
+            _session.Player.PlayerTalkClass.SendCloseGossip();
 
             return;
         }
@@ -698,47 +698,47 @@ public class QuestHandler : IWorldSessionHandler
 
         if (quest != null)
         {
-            if (!_player.CanTakeQuest(quest, true))
+            if (!_session.Player.CanTakeQuest(quest, true))
                 return;
 
-            if (quest.IsAutoAccept && _player.CanAddQuest(quest, true))
-                _player.AddQuestAndCheckCompletion(quest, obj);
+            if (quest.IsAutoAccept && _session.Player.CanAddQuest(quest, true))
+                _session.Player.AddQuestAndCheckCompletion(quest, obj);
 
             if (quest.IsAutoComplete)
-                _player.PlayerTalkClass.SendQuestGiverRequestItems(quest, obj.GUID, _player.CanCompleteQuest(quest.Id), true);
+                _session.Player.PlayerTalkClass.SendQuestGiverRequestItems(quest, obj.GUID, _session.Player.CanCompleteQuest(quest.Id), true);
             else
-                _player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, obj.GUID, true, false);
+                _session.Player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, obj.GUID, true, false);
         }
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverRequestReward, Processing = PacketProcessing.Inplace)]
     private void HandleQuestgiverRequestReward(QuestGiverRequestReward packet)
     {
-        var obj = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
+        var obj = Global.ObjAccessor.GetObjectByTypeMask(_session.Player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
 
         if (obj == null || !obj.HasInvolvedQuest(packet.QuestID))
             return;
 
         // some kind of WPE protection
-        if (!_player.CanInteractWithQuestGiver(obj))
+        if (!_session.Player.CanInteractWithQuestGiver(obj))
             return;
 
-        if (_player.CanCompleteQuest(packet.QuestID))
-            _player.CompleteQuest(packet.QuestID);
+        if (_session.Player.CanCompleteQuest(packet.QuestID))
+            _session.Player.CompleteQuest(packet.QuestID);
 
-        if (_player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete)
+        if (_session.Player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete)
             return;
 
         var quest = Global.ObjectMgr.GetQuestTemplate(packet.QuestID);
 
         if (quest != null)
-            _player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
+            _session.Player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverStatusMultipleQuery)]
     private void HandleQuestgiverStatusMultipleQuery(QuestGiverStatusMultipleQuery packet)
     {
-        _player.SendQuestGiverStatusMultiple();
+        _session.Player.SendQuestGiverStatusMultiple();
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverStatusQuery, Processing = PacketProcessing.Inplace)]
@@ -746,7 +746,7 @@ public class QuestHandler : IWorldSessionHandler
     {
         var questStatus = QuestGiverStatus.None;
 
-        var questgiver = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
+        var questgiver = Global.ObjAccessor.GetObjectByTypeMask(_session.Player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
 
         if (!questgiver)
         {
@@ -759,11 +759,11 @@ public class QuestHandler : IWorldSessionHandler
         {
             case TypeId.Unit:
                 if (!questgiver.AsCreature.IsHostileTo(Player)) // do not show quest status to enemies
-                    questStatus = _player.GetQuestDialogStatus(questgiver);
+                    questStatus = _session.Player.GetQuestDialogStatus(questgiver);
 
                 break;
             case TypeId.GameObject:
-                questStatus = _player.GetQuestDialogStatus(questgiver);
+                questStatus = _session.Player.GetQuestDialogStatus(questgiver);
 
                 break;
             default:
@@ -773,13 +773,13 @@ public class QuestHandler : IWorldSessionHandler
         }
 
         //inform client about status of quest
-        _player.PlayerTalkClass.SendQuestGiverStatus(questStatus, packet.QuestGiverGUID);
+        _session.Player.PlayerTalkClass.SendQuestGiverStatus(questStatus, packet.QuestGiverGUID);
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverStatusTrackedQuery)]
     private void HandleQuestgiverStatusTrackedQueryOpcode(QuestGiverStatusTrackedQuery questGiverStatusTrackedQuery)
     {
-        _player.SendQuestGiverStatusMultiple(questGiverStatusTrackedQuery.QuestGiverGUIDs);
+        _session.Player.SendQuestGiverStatusMultiple(questGiverStatusTrackedQuery.QuestGiverGUIDs);
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestLogRemoveQuest, Processing = PacketProcessing.Inplace)]
@@ -787,60 +787,60 @@ public class QuestHandler : IWorldSessionHandler
     {
         if (packet.Entry < SharedConst.MaxQuestLogSize)
         {
-            var questId = _player.GetQuestSlotQuestId(packet.Entry);
+            var questId = _session.Player.GetQuestSlotQuestId(packet.Entry);
 
             if (questId != 0)
             {
-                if (!_player.TakeQuestSourceItem(questId, true))
+                if (!_session.Player.TakeQuestSourceItem(questId, true))
                     return; // can't un-equip some items, reject quest cancel
 
                 var quest = Global.ObjectMgr.GetQuestTemplate(questId);
-                var oldStatus = _player.GetQuestStatus(questId);
+                var oldStatus = _session.Player.GetQuestStatus(questId);
 
                 if (quest != null)
                 {
                     if (quest.LimitTime != 0)
-                        _player.RemoveTimedQuest(questId);
+                        _session.Player.RemoveTimedQuest(questId);
 
                     if (quest.HasFlag(QuestFlags.Pvp))
                     {
-                        _player.PvpInfo.IsHostile = _player.PvpInfo.IsInHostileArea || _player.HasPvPForcingQuest();
-                        _player.UpdatePvPState();
+                        _session.Player.PvpInfo.IsHostile = _session.Player.PvpInfo.IsInHostileArea || _session.Player.HasPvPForcingQuest();
+                        _session.Player.UpdatePvPState();
                     }
                 }
 
-                _player.SetQuestSlot(packet.Entry, 0);
-                _player.TakeQuestSourceItem(questId, true); // remove quest src item from player
-                _player.AbandonQuest(questId);              // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements. 
-                _player.RemoveActiveQuest(questId);
-                _player.RemoveCriteriaTimer(CriteriaStartEvent.AcceptQuest, questId);
+                _session.Player.SetQuestSlot(packet.Entry, 0);
+                _session.Player.TakeQuestSourceItem(questId, true); // remove quest src item from player
+                _session.Player.AbandonQuest(questId);              // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements. 
+                _session.Player.RemoveActiveQuest(questId);
+                _session.Player.RemoveCriteriaTimer(CriteriaStartEvent.AcceptQuest, questId);
 
-                Log.Logger.Information<string, uint>("Player {0} abandoned quest {1}", _player.GUID.ToString(), questId);
+                Log.Logger.Information<string, uint>("Player {0} abandoned quest {1}", _session.Player.GUID.ToString(), questId);
 
-                ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(_player, questId));
+                ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(_session.Player, questId));
 
                 if (quest != null)
-                    ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(_player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
+                    ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(_session.Player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
             }
 
-            _player.UpdateCriteria(CriteriaType.AbandonAnyQuest, 1);
+            _session.Player.UpdateCriteria(CriteriaType.AbandonAnyQuest, 1);
         }
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestPushResult)]
     private void HandleQuestPushResult(QuestPushResult packet)
     {
-        if (!_player.GetPlayerSharingQuest().IsEmpty)
+        if (!_session.Player.GetPlayerSharingQuest().IsEmpty)
         {
-            if (_player.GetPlayerSharingQuest() == packet.SenderGUID)
+            if (_session.Player.GetPlayerSharingQuest() == packet.SenderGUID)
             {
-                var player = Global.ObjAccessor.FindPlayer(_player.GetPlayerSharingQuest());
+                var player = Global.ObjAccessor.FindPlayer(_session.Player.GetPlayerSharingQuest());
 
                 if (player)
-                    player.SendPushToPartyResponse(_player, packet.Result);
+                    player.SendPushToPartyResponse(_session.Player, packet.Result);
             }
 
-            _player.ClearQuestSharingInfo();
+            _session.Player.ClearQuestSharingInfo();
         }
     }
 
@@ -850,7 +850,7 @@ public class QuestHandler : IWorldSessionHandler
         var quest = Global.ObjectMgr.GetQuestTemplate(packet.QuestID);
 
         if (quest != null)
-            _player.PlayerTalkClass.SendQuestQueryResponse(quest);
+            _session.Player.PlayerTalkClass.SendQuestQueryResponse(quest);
         else
         {
             QueryQuestInfoResponse response = new()

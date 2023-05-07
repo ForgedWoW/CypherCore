@@ -69,8 +69,8 @@ public class PetHandler : IWorldSessionHandler
         if (Player.CritterGUID == pet.GUID)
             if (pet.IsCreature && pet.IsSummon)
             {
-                if (!_player.SummonedBattlePetGUID.IsEmpty && _player.SummonedBattlePetGUID == pet.BattlePetCompanionGUID)
-                    _player.SetBattlePetData(null);
+                if (!_session.Player.SummonedBattlePetGUID.IsEmpty && _session.Player.SummonedBattlePetGUID == pet.BattlePetCompanionGUID)
+                    _session.Player.SetBattlePetData(null);
 
                 pet.ToTempSummon().UnSummon();
             }
@@ -86,7 +86,7 @@ public class PetHandler : IWorldSessionHandler
         var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.Pet);
 
         if (pet && pet.AsPet && pet.AsPet.PetType == PetType.Hunter)
-            _player.RemovePet((Pet)pet, PetSaveMode.AsDeleted);
+            _session.Player.RemovePet((Pet)pet, PetSaveMode.AsDeleted);
     }
 
     [WorldPacketHandler(ClientOpcodes.PetAction)]
@@ -551,7 +551,7 @@ public class PetHandler : IWorldSessionHandler
         var isdeclined = packet.RenameData.HasDeclinedNames;
         var name = packet.RenameData.NewName;
 
-        var petStable = _player.PetStable1;
+        var petStable = _session.Player.PetStable1;
         var pet = ObjectAccessor.GetPet(Player, petguid);
 
         // check it!
@@ -559,7 +559,7 @@ public class PetHandler : IWorldSessionHandler
             !pet.IsPet ||
             pet.AsPet.PetType != PetType.Hunter ||
             !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
-            pet.OwnerGUID != _player.GUID ||
+            pet.OwnerGUID != _session.Player.GUID ||
             pet.GetCharmInfo() == null ||
             petStable == null ||
             petStable.GetCurrentPet() == null ||
@@ -643,7 +643,7 @@ public class PetHandler : IWorldSessionHandler
 
         List<Unit> pets = new();
 
-        foreach (var controlled in _player.Controlled)
+        foreach (var controlled in _session.Player.Controlled)
             if (controlled.Entry == pet.Entry && controlled.IsAlive)
                 pets.Add(controlled);
 
@@ -722,7 +722,7 @@ public class PetHandler : IWorldSessionHandler
 
         List<Unit> pets = new();
 
-        foreach (var controlled in _player.Controlled)
+        foreach (var controlled in _session.Player.Controlled)
             if (controlled.Entry == pet.Entry && controlled.IsAlive)
                 pets.Add(controlled);
 
@@ -787,23 +787,23 @@ public class PetHandler : IWorldSessionHandler
         // Handle the packet CMSG_REQUEST_PET_INFO - sent when player does ingame /reload command
 
         // Packet sent when player has a pet
-        if (_player.CurrentPet)
-            _player.PetSpellInitialize();
+        if (_session.Player.CurrentPet)
+            _session.Player.PetSpellInitialize();
         else
         {
-            var charm = _player.Charmed;
+            var charm = _session.Player.Charmed;
 
             if (charm != null)
             {
                 // Packet sent when player has a possessed unit
                 if (charm.HasUnitState(UnitState.Possessed))
-                    _player.PossessSpellInitialize();
+                    _session.Player.PossessSpellInitialize();
                 // Packet sent when player controlling a vehicle
                 else if (charm.HasUnitFlag(UnitFlags.PlayerControlled) && charm.HasUnitFlag(UnitFlags.Possessed))
-                    _player.VehicleSpellInitialize();
+                    _session.Player.VehicleSpellInitialize();
                 // Packet sent when player has a charmed unit
                 else
-                    _player.CharmSpellInitialize();
+                    _session.Player.CharmSpellInitialize();
             }
         }
     }

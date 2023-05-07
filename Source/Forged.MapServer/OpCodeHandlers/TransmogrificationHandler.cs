@@ -136,7 +136,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
                     return;
 
                 // add cost
-                cost += itemTransmogrified.GetSellPrice(_player);
+                cost += itemTransmogrified.GetSellPrice(_session.Player);
             }
             else
                 resetAppearanceItems.Add(itemTransmogrified);

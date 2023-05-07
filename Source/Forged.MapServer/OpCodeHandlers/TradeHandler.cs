@@ -289,7 +289,7 @@ public class TradeHandler : IWorldSessionHandler
 
             if (my_spell_id != 0)
             {
-                var spellEntry = Global.SpellMgr.GetSpellInfo(my_spell_id, _player.Map.DifficultyID);
+                var spellEntry = Global.SpellMgr.GetSpellInfo(my_spell_id, _session.Player.Map.DifficultyID);
                 var castItem = my_trade.SpellCastItem;
 
                 if (spellEntry == null ||
@@ -777,7 +777,7 @@ public class TradeHandler : IWorldSessionHandler
                     Log.Logger.Debug("partner storing: {0}", myItems[i].GUID.ToString());
 
                     if (HasPermission(RBACPermissions.LogGmTrade))
-                        Log.outCommand(_player.Session.AccountId,
+                        Log.outCommand(_session.Player.Session.AccountId,
                                        "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
                                        Player.GetName(),
                                        Player.Session.AccountId,
