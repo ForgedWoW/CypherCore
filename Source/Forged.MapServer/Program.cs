@@ -67,7 +67,6 @@ using Forged.MapServer.SupportSystem;
 using Forged.MapServer.Text;
 using Forged.MapServer.Tools;
 using Forged.MapServer.Warden;
-using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework;
 using Framework.Constants;
@@ -549,4 +548,5 @@ void RegisterHandlers()
     builder.RegisterType<WorldServiceManager>();
     builder.RegisterType<BattlepayHandler>();
     builder.RegisterType<ArtifactHandler>();
+    builder.RegisterType<BattleGroundHandler>();
 }

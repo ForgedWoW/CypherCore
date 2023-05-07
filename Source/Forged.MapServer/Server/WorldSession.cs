@@ -67,8 +67,8 @@ public class WorldSession : IDisposable
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
     private readonly GameObjectManager _gameObjectManager;
-    private readonly GuildManager _guildManager;
     private readonly GridDefines _gridDefines;
+    private readonly GuildManager _guildManager;
     private readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
     private readonly InstanceLockManager _instanceLockManager;
     private readonly LoginDatabase _loginDatabase;
@@ -90,8 +90,10 @@ public class WorldSession : IDisposable
     private bool _forceExit;
     private bool _inQueue;
     private ConnectToKey _instanceConnectKey;
+    private string _loadingPlayerInfo;
     private long _logoutTime;
 
+    private string _playerInfo;
     private ObjectGuid _playerLoading;
 
     // code processed in LoginPlayer
@@ -210,27 +212,6 @@ public class WorldSession : IDisposable
     public WorldSocket Socket { get; set; }
     private bool IsConnectionIdle => _timeOutTime < GameTime.CurrentTime && !_inQueue;
 
-    public void Dispose()
-    {
-        _cancellationToken.Cancel();
-
-        // unload player if not unloaded
-        if (Player != null)
-            LogoutPlayer(true);
-
-        // - If have unclosed socket, close it
-        if (Socket != null)
-        {
-            Socket.CloseSocket();
-            Socket = null;
-        }
-
-        // empty incoming packet queue
-        _recvQueue.Complete();
-
-        _loginDatabase.Execute("UPDATE account SET online = 0 WHERE id = {0};", AccountId); // One-time query
-    }
-
     public SQLQueryHolderCallback<TR> AddQueryHolderCallback<TR>(SQLQueryHolderCallback<TR> callback)
     {
         return (SQLQueryHolderCallback<TR>)_queryHolderProcessor.AddCallback(callback);
@@ -255,6 +236,27 @@ public class WorldSession : IDisposable
             KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
 
         return false;
+    }
+
+    public void Dispose()
+    {
+        _cancellationToken.Cancel();
+
+        // unload player if not unloaded
+        if (Player != null)
+            LogoutPlayer(true);
+
+        // - If have unclosed socket, close it
+        if (Socket != null)
+        {
+            Socket.CloseSocket();
+            Socket = null;
+        }
+
+        // empty incoming packet queue
+        _recvQueue.Complete();
+
+        _loginDatabase.Execute("UPDATE account SET online = 0 WHERE id = {0};", AccountId); // One-time query
     }
 
     public void DoLootRelease(Loot loot)
@@ -394,6 +396,12 @@ public class WorldSession : IDisposable
 
     public string GetPlayerInfo()
     {
+        if (!_playerLoading.IsEmpty && !string.IsNullOrEmpty(_loadingPlayerInfo))
+            return _loadingPlayerInfo;
+
+        if (Player != null && !string.IsNullOrEmpty(_playerInfo))
+            return _playerInfo;
+
         StringBuilder ss = new();
         ss.Append("[Player: ");
 
@@ -404,7 +412,14 @@ public class WorldSession : IDisposable
 
         ss.Append($"Account: {AccountId}]");
 
-        return ss.ToString();
+        var infp = ss.ToString();
+
+        if (!_playerLoading.IsEmpty)
+            _loadingPlayerInfo = infp;
+        else if (Player != null)
+            _playerInfo = infp;
+
+        return infp;
     }
 
     public bool HasPermission(RBACPermissions permission)
@@ -689,7 +704,6 @@ public class WorldSession : IDisposable
         SetLogoutStartTime(0);
     }
 
-
     public void QueuePacket(WorldPacket packet)
     {
         _recvQueue.Post(packet);
@@ -972,7 +986,6 @@ public class WorldSession : IDisposable
 
         ProcessQueryCallbacks();
 
-
         if (Socket != null && Socket.IsOpen && _warden != null)
             _warden.Update(diff);
 
@@ -998,7 +1011,6 @@ public class WorldSession : IDisposable
 
         if (Socket == null)
             return false; //Will remove this session from the world session map
-
 
         return true;
     }
@@ -1042,6 +1054,7 @@ public class WorldSession : IDisposable
                             handler.Invoke(packet);
 
                         break;
+
                     case SessionStatus.LoggedinOrRecentlyLogout:
                         if (Player == null && !PlayerRecentlyLoggedOut && !PlayerLogout)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet and not recently logout");
@@ -1049,6 +1062,7 @@ public class WorldSession : IDisposable
                             handler.Invoke(packet);
 
                         break;
+
                     case SessionStatus.Transfer:
                         if (Player == null)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet");
@@ -1058,6 +1072,7 @@ public class WorldSession : IDisposable
                             handler.Invoke(packet);
 
                         break;
+
                     case SessionStatus.Authed:
                         // prevent cheating with skip queue wait
                         if (_inQueue)
@@ -1074,6 +1089,7 @@ public class WorldSession : IDisposable
                             handler.Invoke(packet);
 
                         break;
+
                     default:
                         Log.Logger.Error("Received not handled opcode {0} from {1}", (ClientOpcodes)packet.Opcode, GetPlayerInfo());
 
@@ -1106,7 +1122,7 @@ public class WorldSession : IDisposable
         return _accountData[(int)type];
     }
 
-    void HandleMoveWorldportAck()
+    private void HandleMoveWorldportAck()
     {
         var player = Player;
 

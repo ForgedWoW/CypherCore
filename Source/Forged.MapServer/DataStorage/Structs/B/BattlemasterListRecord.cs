@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BattlemasterListRecord
+public sealed record BattlemasterListRecord
 {
     public BattlemasterListFlags Flags;
     public string GameType;

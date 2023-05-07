@@ -14,6 +14,7 @@ using Forged.MapServer.Networking.Packets.Artifact;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
@@ -170,15 +171,15 @@ public class ArtifactHandler : IWorldSessionHandler
                 break;
             }
 
-            if (totalPurchasedArtifactPower < tier.MaxNumTraits)
-            {
-                artifactTier = tier.ArtifactTier;
+            if (totalPurchasedArtifactPower >= tier.MaxNumTraits)
+                continue;
 
-                break;
-            }
+            artifactTier = tier.ArtifactTier;
+
+            break;
         }
 
-        artifactTier = Math.Max(artifactTier, (uint)currentArtifactTier);
+        artifactTier = Math.Max(artifactTier, currentArtifactTier);
 
         for (var i = currentArtifactTier; i <= artifactTier; ++i)
             artifact.InitArtifactPowers(artifact.Template.ArtifactID, (byte)i);
@@ -273,13 +274,13 @@ public class ArtifactHandler : IWorldSessionHandler
 
             artifact.SetArtifactPower(artifactPower.ArtifactPowerId, (byte)(artifactPower.PurchasedRank - oldPurchasedRank), (byte)(artifactPower.CurrentRankWithBonus - oldPurchasedRank));
 
-            if (artifact.IsEquipped)
-            {
-                var artifactPowerRank = _db2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, 0);
+            if (!artifact.IsEquipped)
+                continue;
 
-                if (artifactPowerRank != null)
-                    _session.Player.ApplyArtifactPowerRank(artifact, artifactPowerRank, false);
-            }
+            var artifactPowerRank = _db2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, 0);
+
+            if (artifactPowerRank != null)
+                _session.Player.ApplyArtifactPowerRank(artifact, artifactPowerRank, false);
         }
 
         foreach (var power in artifact.ItemData.ArtifactPowers)

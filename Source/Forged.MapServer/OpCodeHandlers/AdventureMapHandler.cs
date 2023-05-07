@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Linq;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Globals;
@@ -28,6 +27,7 @@ public class AdventureMapHandler : IWorldSessionHandler
     }
 
     [WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
+    // ReSharper disable once UnusedMember.Local
     private void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
     {
         var quest = _objectManager.GetQuestTemplate(startQuest.QuestID);
