@@ -84,13 +84,13 @@ internal class ObjectGuidInfo
         if (typeEnd == -1)
             return ObjectGuid.FromStringFailed;
 
-        if (!Enum.TryParse<HighGuid>(guidString.Substring(0, typeEnd), out var type))
+        if (!Enum.TryParse<HighGuid>(guidString[..typeEnd], out var type))
             return ObjectGuid.FromStringFailed;
 
         if (type >= HighGuid.Count)
             return ObjectGuid.FromStringFailed;
 
-        return ClientParseFunction[type](type, guidString.Substring(typeEnd + 1));
+        return ClientParseFunction[type](type, guidString[(typeEnd + 1)..]);
     }
 
     private static string FormatChatChannel(HighGuid typeName, ObjectGuid guid)

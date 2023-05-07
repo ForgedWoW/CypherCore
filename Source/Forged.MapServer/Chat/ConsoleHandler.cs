@@ -38,7 +38,7 @@ public class ConsoleHandler : CommandHandler
 
         // Console allows using commands both with and without leading indicator
         if (str[0] == '.' || str[0] == '!')
-            str = str.Substring(1);
+            str = str[1..];
 
         return _ParseCommands(str);
     }

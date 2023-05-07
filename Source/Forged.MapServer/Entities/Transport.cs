@@ -359,13 +359,13 @@ public class Transport : GameObject, ITransport
 
         var summon = mask switch
         {
-            UnitTypeMask.Summon => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false),
-            UnitTypeMask.Guardian => ClassFactory.ResolvePositional<Guardian>(properties, summoner, false),
-            UnitTypeMask.Puppet => ClassFactory.ResolvePositional<Puppet>(properties, summoner),
-            UnitTypeMask.Totem => ClassFactory.ResolvePositional<Totem>(properties, summoner),
-            UnitTypeMask.Minion => ClassFactory.ResolvePositional<Minion>(properties, summoner, false),
+            UnitTypeMask.Summon => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summoner, false),
+            UnitTypeMask.Guardian => ClassFactory.ResolveWithPositionalParameters<Guardian>(properties, summoner, false),
+            UnitTypeMask.Puppet => ClassFactory.ResolveWithPositionalParameters<Puppet>(properties, summoner),
+            UnitTypeMask.Totem => ClassFactory.ResolveWithPositionalParameters<Totem>(properties, summoner),
+            UnitTypeMask.Minion => ClassFactory.ResolveWithPositionalParameters<Minion>(properties, summoner, false),
             // ReSharper disable once UnreachableSwitchArmDueToIntegerAnalysis
-            _ => ClassFactory.ResolvePositional<TempSummon>(properties, summoner, false)
+            _ => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summoner, false)
         };
 
         var newPos = pos.Copy();
@@ -527,7 +527,7 @@ public class Transport : GameObject, ITransport
         ScriptManager.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
 
         var newActive = Location.Map.IsGridLoaded(x, y);
-        var oldCell = ClassFactory.ResolvePositional<Cell>(Location.X, Location.Y);
+        var oldCell = ClassFactory.ResolveWithPositionalParameters<Cell>(Location.X, Location.Y);
 
         Location.Relocate(x, y, z, o);
         StationaryPosition.Orientation = o;
@@ -544,7 +544,7 @@ public class Transport : GameObject, ITransport
         lock (_staticPassengers)
             if (_staticPassengers.Empty() && newActive) // 1. and 2.
                 LoadStaticPassengers();
-            else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(ClassFactory.ResolvePositional<Cell>(Location.X, Location.Y))) // 3.
+            else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(ClassFactory.ResolveWithPositionalParameters<Cell>(Location.X, Location.Y))) // 3.
                 UnloadStaticPassengers();
             else
                 UpdatePassengerPositions(_staticPassengers);

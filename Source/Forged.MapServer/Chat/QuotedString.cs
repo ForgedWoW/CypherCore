@@ -35,7 +35,7 @@ internal struct QuotedString
         {
             if (args[i] == QUOTE)
             {
-                var (remainingToken, tail) = args.Substring(i + 1).Tokenize();
+                var (remainingToken, tail) = args[(i + 1)..].Tokenize();
 
                 if (remainingToken.IsEmpty()) // if this is not empty, then we did not consume the full token
                     return new ChatCommandResult(tail);

@@ -92,9 +92,9 @@ public class Channel
         foreach (string token in tokens)
         {
             // legacy db content might not have 0x prefix, account for that
-            var bannedGuidStr = token.Contains("0x") ? token.Substring(2) : token;
+            var bannedGuidStr = token.Contains("0x") ? token[2..] : token;
             ObjectGuid banned = new();
-            banned.SetRawValue(ulong.Parse(bannedGuidStr.Substring(0, 16)), ulong.Parse(bannedGuidStr.Substring(16)));
+            banned.SetRawValue(ulong.Parse(bannedGuidStr[..16]), ulong.Parse(bannedGuidStr[16..]));
 
             if (banned.IsEmpty)
                 continue;

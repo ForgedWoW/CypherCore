@@ -5,43 +5,50 @@ using System.Collections.Generic;
 using System.Net;
 using Bgs.Protocol;
 using Bgs.Protocol.GameUtilities.V1;
+using Forged.MapServer.Server;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Serialization;
 using Framework.Web;
+using Game.Common.Handlers;
 using Google.Protobuf;
 using Serilog;
 
 namespace Forged.MapServer.Services;
 
-public class WorldService
+public class WorldService : IWorldSocketHandler
 {
+    private readonly RealmManager _realmManager;
+    private readonly WorldSession _session;
+
+    public WorldService(WorldSession session, RealmManager realmManager)
+    {
+        _session = session;
+        _realmManager = realmManager;
+    }
+
     [Service(OriginalHash.GameUtilitiesService, 10)]
     private BattlenetRpcErrorCode HandleGetAllValuesForAttribute(GetAllValuesForAttributeRequest request, GetAllValuesForAttributeResponse response)
     {
-        if (!request.AttributeKey.Contains("Command_RealmListRequest_v1"))
-        {
-            Global.RealmMgr.WriteSubRegions(response);
+        if (request.AttributeKey.Contains("Command_RealmListRequest_v1"))
+            return BattlenetRpcErrorCode.RpcNotImplemented;
 
-            return BattlenetRpcErrorCode.Ok;
-        }
+        _realmManager.WriteSubRegions(response);
 
-        return BattlenetRpcErrorCode.RpcNotImplemented;
+        return BattlenetRpcErrorCode.Ok;
     }
 
     [Service(OriginalHash.GameUtilitiesService, 1)]
     private BattlenetRpcErrorCode HandleProcessClientRequest(ClientRequest request, ClientResponse response)
     {
         Attribute command = null;
-        Dictionary<string, Variant> Params = new();
+        Dictionary<string, Variant> requestParameters = new();
 
-        string removeSuffix(string str)
+        string RemoveSuffix(string str)
         {
             var pos = str.IndexOf('_');
 
-            if (pos != -1)
-                return str.Substring(0, pos);
-
-            return str;
+            return pos != -1 ? str[..pos] : str;
         }
 
         for (var i = 0; i < request.Attribute.Count; ++i)
@@ -51,50 +58,48 @@ public class WorldService
             if (attr.Name.Contains("Command_"))
             {
                 command = attr;
-                Params[removeSuffix(attr.Name)] = attr.Value;
+                requestParameters[RemoveSuffix(attr.Name)] = attr.Value;
             }
             else
-                Params[attr.Name] = attr.Value;
+                requestParameters[attr.Name] = attr.Value;
         }
 
-        if (command == null)
-        {
-            Log.Logger.Error("{0} sent ClientRequest with no command.", GetPlayerInfo());
+        if (command != null)
+            return RemoveSuffix(command.Name) switch
+            {
+                "Command_RealmListRequest_v1" => HandleRealmListRequest(requestParameters, response),
+                "Command_RealmJoinRequest_v1" => HandleRealmJoinRequest(requestParameters, response),
+                _ => BattlenetRpcErrorCode.RpcNotImplemented
+            };
 
-            return BattlenetRpcErrorCode.RpcMalformedRequest;
-        }
+        Log.Logger.Error("{0} sent ClientRequest with no command.", _session.GetPlayerInfo());
 
-        return removeSuffix(command.Name) switch
-        {
-            "Command_RealmListRequest_v1" => HandleRealmListRequest(Params, response),
-            "Command_RealmJoinRequest_v1" => HandleRealmJoinRequest(Params, response),
-            _                             => BattlenetRpcErrorCode.RpcNotImplemented
-        };
+        return BattlenetRpcErrorCode.RpcMalformedRequest;
     }
 
-    private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Variant> Params, ClientResponse response)
+    private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Variant> requestParameters, ClientResponse response)
     {
-        if (Params.TryGetValue("Param_RealmAddress", out var realmAddress))
-            return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue,
-                                             Global.WorldMgr.Realm.Build,
-                                             IPAddress.Parse((string)RemoteAddress),
-                                             RealmListSecret,
-                                             SessionDbcLocale,
-                                             OS,
-                                             AccountName,
+        if (requestParameters.TryGetValue("Param_RealmAddress", out var realmAddress))
+            return _realmManager.JoinRealm((uint)realmAddress.UintValue,
+                                             WorldManager.Realm.Build,
+                                             IPAddress.Parse(_session.RemoteAddress),
+                                             _session.RealmListSecret,
+                                             _session.SessionDbcLocale,
+                                             _session.OS,
+                                             _session.AccountName,
                                              response);
 
         return BattlenetRpcErrorCode.Ok;
     }
 
-    private BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Variant> Params, ClientResponse response)
+    private BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Variant> requestParameters, ClientResponse response)
     {
         var subRegionId = "";
 
-        if (Params.TryGetValue("Command_RealmListRequest_v1", out var subRegion))
+        if (requestParameters.TryGetValue("Command_RealmListRequest_v1", out var subRegion))
             subRegionId = subRegion.StringValue;
 
-        var compressed = Global.RealmMgr.GetRealmList(Global.WorldMgr.Realm.Build, subRegionId);
+        var compressed = _realmManager.GetRealmList(WorldManager.Realm.Build, subRegionId);
 
         if (compressed.Empty())
             return BattlenetRpcErrorCode.UtilServerFailedToSerializeResponse;
@@ -112,7 +117,7 @@ public class WorldService
 
         var realmCharacterCounts = new RealmCharacterCountList();
 
-        foreach (var characterCount in RealmCharacterCounts)
+        foreach (var characterCount in _session.RealmCharacterCounts)
         {
             RealmCharacterCountEntry countEntry = new()
             {

@@ -935,7 +935,7 @@ public partial class Player
 
         _LoadCUFProfiles(holder.GetResult(PlayerLoginQueryLoad.CufProfiles));
 
-        var garrison = ClassFactory.ResolvePositional<Garrison>(this);
+        var garrison = ClassFactory.ResolveWithPositionalParameters<Garrison>(this);
 
         if (garrison.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.Garrison),
                                 holder.GetResult(PlayerLoginQueryLoad.GarrisonBlueprints),
@@ -2084,7 +2084,7 @@ public partial class Player
             while (problematicItems.Count != 0)
             {
                 var subject = GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
-                var draft = ClassFactory.ResolvePositional<MailDraft>(subject, "There were problems with equipping item(s).");
+                var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>(subject, "There were problems with equipping item(s).");
 
                 for (var i = 0; problematicItems.Count != 0 && i < SharedConst.MaxMailItems; ++i)
                     draft.AddItem(problematicItems.Dequeue());

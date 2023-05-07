@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.Weather;
+using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.Maps;
 
 public class ZoneDynamicInfo
 {
-    public Weather.Weather DefaultWeather { get; set; }
+    public Weather DefaultWeather { get; set; }
     public float Intensity { get; set; }
     public List<LightOverride> LightOverrides { get; set; } = new();
     public uint MusicId { get; set; }

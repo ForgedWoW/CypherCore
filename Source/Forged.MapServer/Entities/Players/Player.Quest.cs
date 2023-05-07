@@ -1837,9 +1837,9 @@ public partial class Player
             var questMailSender = quest.RewardMailSenderEntry;
 
             if (questMailSender != 0)
-                ClassFactory.ResolvePositional<MailDraft>(mailTemplateID, true).SendMailTo(trans, this, new MailSender(questMailSender), MailCheckMask.HasBody, quest.RewardMailDelay);
+                ClassFactory.ResolveWithPositionalParameters<MailDraft>(mailTemplateID, true).SendMailTo(trans, this, new MailSender(questMailSender), MailCheckMask.HasBody, quest.RewardMailDelay);
             else
-                ClassFactory.ResolvePositional<MailDraft>(mailTemplateID, true).SendMailTo(trans, this, new MailSender(questGiver), MailCheckMask.HasBody, quest.RewardMailDelay);
+                ClassFactory.ResolveWithPositionalParameters<MailDraft>(mailTemplateID, true).SendMailTo(trans, this, new MailSender(questGiver), MailCheckMask.HasBody, quest.RewardMailDelay);
 
             CharacterDatabase.CommitTransaction(trans);
         }

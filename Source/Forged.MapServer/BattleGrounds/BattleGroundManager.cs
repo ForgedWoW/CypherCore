@@ -749,60 +749,60 @@ public class BattlegroundManager
                 // bg = new BattlegroundAV(bgTemplate);
                 //break;
                 case BattlegroundTypeId.Ws:
-                    bg = _classFactory.ResolvePositional<BgWarsongGluch>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<BgWarsongGluch>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.AB:
                 case BattlegroundTypeId.DomAb:
-                    bg = _classFactory.ResolvePositional<BgArathiBasin>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<BgArathiBasin>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Na:
-                    bg = _classFactory.ResolvePositional<NagrandArena>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<NagrandArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Be:
-                    bg = _classFactory.ResolvePositional<BladesEdgeArena>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<BladesEdgeArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Ey:
-                    bg = _classFactory.ResolvePositional<BgEyeofStorm>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<BgEyeofStorm>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Rl:
-                    bg = _classFactory.ResolvePositional<RuinsofLordaeronArena>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<RuinsofLordaeronArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Sa:
-                    bg = _classFactory.ResolvePositional<BgStrandOfAncients>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<BgStrandOfAncients>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Ds:
-                    bg = _classFactory.ResolvePositional<DalaranSewersArena>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<DalaranSewersArena>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Rv:
-                    bg = _classFactory.ResolvePositional<RingofValorArena>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<RingofValorArena>(bgTemplate);
 
                     break;
                 //case BattlegroundTypeId.IC:
                 //bg = new BattlegroundIC(bgTemplate);
                 //break;
                 case BattlegroundTypeId.Aa:
-                    bg = _classFactory.ResolvePositional<Battleground>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<Battleground>(bgTemplate);
 
                     break;
 
                 case BattlegroundTypeId.Rb:
-                    bg = _classFactory.ResolvePositional<Battleground>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<Battleground>(bgTemplate);
                     bg.SetRandom(true);
 
                     break;
@@ -816,7 +816,7 @@ public class BattlegroundManager
                 break;
                 */
                 case BattlegroundTypeId.RandomEpic:
-                    bg = _classFactory.ResolvePositional<Battleground>(bgTemplate);
+                    bg = _classFactory.ResolveWithPositionalParameters<Battleground>(bgTemplate);
                     bg.SetRandom(true);
 
                     break;

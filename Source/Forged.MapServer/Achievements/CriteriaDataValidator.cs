@@ -214,7 +214,7 @@ public class CriteriaDataValidator
                 return false;
 
             case CriteriaDataType.TGender:
-                if (criteriaData.Gender.Gender <= (int)Framework.Constants.Gender.None)
+                if (criteriaData.Gender.Gender <= (int)Gender.None)
                     return true;
 
                 Log.Logger.Error("Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_T_GENDER ({2}) has wrong gender in value1 ({3}), ignored.",

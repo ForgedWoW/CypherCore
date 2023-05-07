@@ -120,7 +120,7 @@ public class PlayerAchievementMgr : AchievementManager
         if (reward.SenderCreatureId == 0)
             return;
 
-        var draft = _classFactory.ResolvePositional<MailDraft>(reward.MailTemplateId, true);
+        var draft = _classFactory.ResolveWithPositionalParameters<MailDraft>(reward.MailTemplateId, true);
 
         if (reward.MailTemplateId == 0)
         {
@@ -141,7 +141,7 @@ public class PlayerAchievementMgr : AchievementManager
                 }
             }
 
-            draft = _classFactory.ResolvePositional<MailDraft>(subject, text);
+            draft = _classFactory.ResolveWithPositionalParameters<MailDraft>(subject, text);
         }
 
         SQLTransaction trans = new();

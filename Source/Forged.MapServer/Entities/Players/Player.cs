@@ -619,7 +619,7 @@ public partial class Player : Unit
             offItem.SaveToDB(trans);              // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
             var subject = GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
-            ClassFactory.ResolvePositional<MailDraft>(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
+            ClassFactory.ResolveWithPositionalParameters<MailDraft>(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
 
             CharacterDatabase.CommitTransaction(trans);
         }
@@ -1281,7 +1281,7 @@ public partial class Player : Unit
 
     public void CreateGarrison(uint garrSiteId)
     {
-        Garrison = ClassFactory.ResolvePositional<Garrison>(this);
+        Garrison = ClassFactory.ResolveWithPositionalParameters<Garrison>(this);
 
         if (!Garrison.Create(garrSiteId))
             Garrison = null;
@@ -1941,7 +1941,7 @@ public partial class Player : Unit
         {
             //- TODO: Poor design of mail system
             SQLTransaction trans = new();
-            ClassFactory.ResolvePositional<MailDraft>(mailReward.MailTemplateId, true).SendMailTo(trans, this, new MailSender(MailMessageType.Creature, mailReward.SenderEntry));
+            ClassFactory.ResolveWithPositionalParameters<MailDraft>(mailReward.MailTemplateId, true).SendMailTo(trans, this, new MailSender(MailMessageType.Creature, mailReward.SenderEntry));
             CharacterDatabase.CommitTransaction(trans);
         }
 
@@ -3674,7 +3674,7 @@ public partial class Player : Unit
         if (!PetGUID.IsEmpty)
             return;
 
-        var newPet = ClassFactory.ResolvePositional<Pet>(this, PetType.Max);
+        var newPet = ClassFactory.ResolveWithPositionalParameters<Pet>(this, PetType.Max);
         newPet.LoadPetFromDB(this, 0, TemporaryUnsummonedPetNumber, true);
 
         TemporaryUnsummonedPetNumber = 0;
@@ -5308,7 +5308,7 @@ public partial class Player : Unit
 
         var petStable = PetStable;
 
-        var pet = ClassFactory.ResolvePositional<Pet>(this, PetType.Summon);
+        var pet = ClassFactory.ResolveWithPositionalParameters<Pet>(this, PetType.Summon);
 
         if (pet.LoadPetFromDB(this, entry, 0, false, slot))
         {
@@ -6401,7 +6401,7 @@ public partial class Player : Unit
         // prevent existence 2 corpse for player
         SpawnCorpseBones();
 
-        var corpse = ClassFactory.ResolvePositional<Corpse>(Convert.ToBoolean(_extraFlags & PlayerExtraFlags.PVPDeath) ? CorpseType.ResurrectablePVP : CorpseType.ResurrectablePVE);
+        var corpse = ClassFactory.ResolveWithPositionalParameters<Corpse>(Convert.ToBoolean(_extraFlags & PlayerExtraFlags.PVPDeath) ? CorpseType.ResurrectablePVP : CorpseType.ResurrectablePVE);
         SetPvPDeath(false);
 
         if (!corpse.Create(Location.Map.GenerateLowGuid(HighGuid.Corpse), this))

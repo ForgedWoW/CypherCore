@@ -6,21 +6,27 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IWeather;
+using Forged.MapServer.World;
 using Serilog;
+using Forged.MapServer.MapWeather;
 
-namespace Forged.MapServer.Weather;
+namespace Forged.MapServer.MapWeather;
 
 public class Weather
 {
     private readonly IntervalTimer _timer = new();
     private readonly WeatherData _weatherChances;
+    private readonly WorldManager _worldManager;
+    private readonly ScriptManager _scriptManager;
     private float _intensity;
     private WeatherType _type;
 
-    public Weather(uint zoneId, WeatherData weatherChances)
+    public Weather(uint zoneId, WeatherData weatherChances, WorldManager worldManager, ScriptManager scriptManager)
     {
         Zone = zoneId;
         _weatherChances = weatherChances;
+        _worldManager = worldManager;
+        _scriptManager = scriptManager;
         _timer.Interval = 10 * Time.MINUTE * Time.IN_MILLISECONDS;
         _type = WeatherType.Fine;
         _intensity = 0;
@@ -229,14 +235,14 @@ public class Weather
                     return false;
         }
 
-        ScriptManager.RunScript<IWeatherOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
+        _scriptManager.RunScript<IWeatherOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
 
         return true;
     }
 
     public bool UpdateWeather()
     {
-        var player = Global.WorldMgr.FindPlayerInZone(Zone);
+        var player = _worldManager.FindPlayerInZone(Zone);
 
         if (player == null)
             return false;
@@ -254,7 +260,7 @@ public class Weather
         WeatherPkt weather = new(state, _intensity);
 
         //- Returns false if there were no players found to update
-        if (!Global.WorldMgr.SendZoneMessage(Zone, weather))
+        if (!_worldManager.SendZoneMessage(Zone, weather))
             return false;
 
         // Log the event
@@ -279,7 +285,7 @@ public class Weather
 
         Log.Logger.Debug("Change the weather of zone {0} to {1}.", Zone, wthstr);
 
-        ScriptManager.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
+        _scriptManager.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
 
         return true;
     }

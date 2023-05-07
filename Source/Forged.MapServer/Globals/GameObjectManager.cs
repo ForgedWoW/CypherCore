@@ -8251,7 +8251,7 @@ public sealed class GameObjectManager
         // for example set of race quests can lead to single not race specific quest
         do
         {
-            var newQuest = _classFactory.ResolvePositional<Quest.Quest>(result.GetFields());
+            var newQuest = _classFactory.ResolveWithPositionalParameters<Quest.Quest>(result.GetFields());
             _questTemplates[newQuest.Id] = newQuest;
 
             if (newQuest.IsAutoPush)

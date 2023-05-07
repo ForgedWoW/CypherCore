@@ -27,9 +27,9 @@ using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Text;
-using Forged.MapServer.Weather;
 using Framework.Constants;
 using Serilog;
+using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.AI.SmartScripts;
 

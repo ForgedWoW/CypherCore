@@ -21,12 +21,12 @@ using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
-using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Framework.Util;
+using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.Chat.Commands;
 

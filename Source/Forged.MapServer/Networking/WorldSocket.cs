@@ -595,7 +595,7 @@ public class WorldSocket : SocketBase
         // Initialize Warden system only if it is enabled by config
         //if (wardenActive)
         //_worldSession.InitWarden(_sessionKey);
-
+        _packetManager.Initialize(_worldSession);
         _queryProcessor.AddCallback(_worldSession.LoadPermissionsAsync().WithCallback(LoadSessionPermissionsCallback));
         AsyncRead();
     }

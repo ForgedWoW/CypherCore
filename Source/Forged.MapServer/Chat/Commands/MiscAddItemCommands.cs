@@ -26,7 +26,7 @@ internal class MiscAddItemCommands
 
         if (args[0] == '[') // [name] manual form
         {
-            var itemName = args.NextString("]").Substring(1);
+            var itemName = args.NextString("]")[1..];
 
             if (!string.IsNullOrEmpty(itemName))
             {
@@ -289,7 +289,7 @@ internal class MiscAddItemCommands
 
             if (!itemNameStr.IsEmpty())
             {
-                var itemName = itemNameStr.Substring(1);
+                var itemName = itemNameStr[1..];
 
                 var itr = handler.CliDB.ItemSparseStorage.Values.FirstOrDefault(sparse =>
                 {

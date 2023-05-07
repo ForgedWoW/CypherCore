@@ -138,11 +138,11 @@ public class WorldSession : IDisposable
         RecruiterId = recruiter;
         IsARecruiter = isARecruiter;
         _expireTime = 60000; // 1 min after socket loss, session is deleted
-        BattlePetMgr = _classFactory.ResolvePositional<BattlePetMgr>(this);
-        CollectionMgr = _classFactory.ResolvePositional<CollectionMgr>(this);
-        BattlePayMgr = _classFactory.ResolvePositional<BattlepayManager>(this);
-        CommandHandler = _classFactory.ResolvePositional<CommandHandler>(this);
-        _antiDos = _classFactory.ResolvePositional<DosProtection>(this);
+        BattlePetMgr = _classFactory.ResolveWithPositionalParameters<BattlePetMgr>(this);
+        CollectionMgr = _classFactory.ResolveWithPositionalParameters<CollectionMgr>(this);
+        BattlePayMgr = _classFactory.ResolveWithPositionalParameters<BattlepayManager>(this);
+        CommandHandler = _classFactory.ResolveWithPositionalParameters<CommandHandler>(this);
+        _antiDos = _classFactory.ResolveWithPositionalParameters<DosProtection>(this);
 
         _recvQueue = new ActionBlock<WorldPacket>(ProcessQueue,
                                                   new ExecutionDataflowBlockOptions
@@ -1039,14 +1039,14 @@ public class WorldSession : IDisposable
                         }
 
                         if (Player.Location.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(this, packet);
+                            handler.Invoke(packet);
 
                         break;
                     case SessionStatus.LoggedinOrRecentlyLogout:
                         if (Player == null && !PlayerRecentlyLoggedOut && !PlayerLogout)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet and not recently logout");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(this, packet);
+                            handler.Invoke(packet);
 
                         break;
                     case SessionStatus.Transfer:
@@ -1055,7 +1055,7 @@ public class WorldSession : IDisposable
                         else if (Player.Location.IsInWorld)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player is still in world");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(this, packet);
+                            handler.Invoke(packet);
 
                         break;
                     case SessionStatus.Authed:
@@ -1071,7 +1071,7 @@ public class WorldSession : IDisposable
                             PlayerRecentlyLoggedOut = false;
 
                         if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(this, packet);
+                            handler.Invoke(packet);
 
                         break;
                     default:

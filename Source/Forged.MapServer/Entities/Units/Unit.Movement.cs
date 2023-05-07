@@ -51,7 +51,7 @@ public partial class Unit
         if (!CliDB.VehicleStorage.TryGetValue(id, out var vehInfo))
             return false;
 
-        VehicleKit = ClassFactory.ResolvePositional<Vehicle>(this, vehInfo, creatureEntry);
+        VehicleKit = ClassFactory.ResolveWithPositionalParameters<Vehicle>(this, vehInfo, creatureEntry);
         UpdateFlag.Vehicle = true;
         UnitTypeMask |= UnitTypeMask.Vehicle;
 

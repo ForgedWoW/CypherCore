@@ -82,7 +82,7 @@ internal class SendCommands
         MailSender sender = new(MailMessageType.Normal, handler.Session != null ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
 
         // fill mail
-        var draft = handler.ClassFactory.ResolvePositional<MailDraft>(subject, text);
+        var draft = handler.ClassFactory.ResolveWithPositionalParameters<MailDraft>(subject, text);
 
         SQLTransaction trans = new();
 
@@ -128,7 +128,7 @@ internal class SendCommands
         // @todo Fix poor design
         SQLTransaction trans = new();
 
-        handler.ClassFactory.ResolvePositional<MailDraft>(subject, text)
+        handler.ClassFactory.ResolveWithPositionalParameters<MailDraft>(subject, text)
                .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
         handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
@@ -202,7 +202,7 @@ internal class SendCommands
 
         SQLTransaction trans = new();
 
-        handler.ClassFactory.ResolvePositional<MailDraft>(subject, text)
+        handler.ClassFactory.ResolveWithPositionalParameters<MailDraft>(subject, text)
                .AddMoney((uint)money)
                .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 

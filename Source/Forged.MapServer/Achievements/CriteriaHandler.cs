@@ -19,12 +19,12 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
-using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.Achievements;
 

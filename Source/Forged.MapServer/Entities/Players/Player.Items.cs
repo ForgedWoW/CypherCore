@@ -3327,7 +3327,7 @@ public partial class Player
         if (toBeMailedCurrentEquipment.Count > 0)
         {
             var trans = new SQLTransaction();
-            var draft = ClassFactory.ResolvePositional<MailDraft>("Inventory Full: Old Equipment.", "To equip your new gear, your old gear had to be unequiped. You did not have enough free bag space, the items that could not be added to your bag you can find in this mail.");
+            var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>("Inventory Full: Old Equipment.", "To equip your new gear, your old gear had to be unequiped. You did not have enough free bag space, the items that could not be added to your bag you can find in this mail.");
 
             foreach (var currentEquiped in toBeMailedCurrentEquipment)
             {
@@ -3356,7 +3356,7 @@ public partial class Player
         if (toBeMailedNewItems.Count > 0)
         {
             var trans = new SQLTransaction();
-            var draft = ClassFactory.ResolvePositional<MailDraft>("Inventory Full: New Gear.", "You did not have enough free bag space to add all your complementary new gear to your bags, those that did not fit you can find in this mail.");
+            var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>("Inventory Full: New Gear.", "You did not have enough free bag space to add all your complementary new gear to your bags, those that did not fit you can find in this mail.");
 
             foreach (var item in toBeMailedNewItems)
             {
@@ -4318,7 +4318,7 @@ public partial class Player
     public void SendABunchOfItemsInMail(List<uint> bunchOfItems, string mailSubject, List<uint> bonusListIDs = default)
     {
         var trans = new SQLTransaction();
-        var draft = ClassFactory.ResolvePositional<MailDraft>(mailSubject, "This is a system message. Do not answer! Don't forget to take out the items! :)");
+        var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>(mailSubject, "This is a system message. Do not answer! Don't forget to take out the items! :)");
 
         foreach (var item in bunchOfItems)
         {
@@ -4425,7 +4425,7 @@ public partial class Player
     public void SendItemRetrievalMail(uint itemEntry, uint count, ItemContext context)
     {
         MailSender sender = new(MailMessageType.Creature, 34337);
-        var draft = ClassFactory.ResolvePositional<MailDraft>("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
+        var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
         SQLTransaction trans = new();
 
         var item = ItemFactory.CreateItem(itemEntry, count, context);
@@ -4693,7 +4693,7 @@ public partial class Player
 
                 var sendItemsBatch = new Action<int, int>((batchNumber, batchSize) =>
                 {
-                    var draft = ClassFactory.ResolvePositional<MailDraft>(GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
+                    var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>(GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
 
                     for (var j = 0; j < batchSize; ++j)
                         draft.AddItem(unstorableItems[batchNumber * SharedConst.MaxMailItems + j]);

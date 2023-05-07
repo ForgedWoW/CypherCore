@@ -30,7 +30,7 @@ internal class AddonChannelCommandHandler : CommandHandler
             return false;
 
         var opcode = str[0];
-        _echo = str.Substring(1);
+        _echo = str[1..];
 
         switch (opcode)
         {
@@ -44,7 +44,7 @@ internal class AddonChannelCommandHandler : CommandHandler
                     return false;
 
                 _humanReadable = opcode == 'h';
-                var cmd = str.Substring(5);
+                var cmd = str[5..];
 
                 if (_ParseCommands(cmd)) // actual command starts at str[5]
                 {

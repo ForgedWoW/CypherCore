@@ -585,7 +585,7 @@ public class CommandHandler
         if (text[1] == ' ')
             return false;
 
-        return _ParseCommands(text.Substring(1));
+        return _ParseCommands(text[1..]);
     }
 
     public string PlayerLink(string name)

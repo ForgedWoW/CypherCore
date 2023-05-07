@@ -1,14 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-namespace Forged.MapServer.Weather;
+namespace Forged.MapServer.MapWeather;
 
-public enum WeatherType
+public struct WeatherSeasonChances
 {
-    Fine = 0,
-    Rain = 1,
-    Snow = 2,
-    Storm = 3,
-    Thunders = 86,
-    BlackRain = 90
+    public uint RainChance;
+    public uint SnowChance;
+    public uint StormChance;
 }

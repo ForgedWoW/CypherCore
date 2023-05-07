@@ -4,14 +4,24 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using Autofac;
+using Forged.MapServer.Server;
+using Forged.MapServer.Services;
 using Framework.Constants;
+using Game.Common.Handlers;
 using Serilog;
 
 namespace Forged.MapServer.Networking;
 
 public class PacketManager
 {
+    private readonly IContainer _container;
     private readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
+
+    public PacketManager(IContainer container)
+    {
+        _container = container;
+    }
 
     public bool ContainsHandler(ClientOpcodes opcode)
     {
@@ -23,13 +33,13 @@ public class PacketManager
         return _clientPacketTable.LookupByKey(opcode);
     }
 
-    public void Initialize()
+    public void Initialize(WorldSession session)
     {
-        var currentAsm = Assembly.GetExecutingAssembly();
+        var impl = _container.Resolve<IEnumerable<IWorldSocketHandler>>(new PositionalParameter(0, session));
 
-        foreach (var type in currentAsm.GetTypes())
+        foreach (var worldSocketHandler in impl)
         {
-            foreach (var methodInfo in type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+            foreach (var methodInfo in worldSocketHandler.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
                 foreach (var msgAttr in methodInfo.GetCustomAttributes<WorldPacketHandlerAttribute>())
                 {
@@ -63,7 +73,7 @@ public class PacketManager
                         continue;
                     }
 
-                    _clientPacketTable[msgAttr.Opcode] = new PacketHandler(methodInfo, msgAttr.Status, msgAttr.Processing, parameters[0].ParameterType);
+                    _clientPacketTable[msgAttr.Opcode] = new PacketHandler(worldSocketHandler, session, methodInfo, msgAttr.Status, msgAttr.Processing, parameters[0].ParameterType);
                 }
             }
         }

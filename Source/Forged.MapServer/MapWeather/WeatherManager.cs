@@ -6,7 +6,7 @@ using Forged.MapServer.Globals;
 using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Weather;
+namespace Forged.MapServer.MapWeather;
 
 public class WeatherManager
 {

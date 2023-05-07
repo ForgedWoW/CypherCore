@@ -96,8 +96,8 @@ internal class BanListCommands
                 {
                     var timeBan = banInfo.Read<long>(0);
                     var tmBan = Time.UnixTimeToDateTime(timeBan);
-                    var bannedby = banInfo.Read<string>(2).Substring(0, 15);
-                    var banreason = banInfo.Read<string>(3).Substring(0, 15);
+                    var bannedby = banInfo.Read<string>(2)[..15];
+                    var banreason = banInfo.Read<string>(3)[..15];
 
                     if (banInfo.Read<long>(0) == banInfo.Read<long>(1))
                         handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
@@ -186,12 +186,12 @@ internal class BanListCommands
                     long timeBan = banInfo.Read<uint>(0);
                     DateTime tmBan;
                     tmBan = Time.UnixTimeToDateTime(timeBan);
-                    var bannedby = banInfo.Read<string>(2).Substring(0, 15);
-                    var banreason = banInfo.Read<string>(3).Substring(0, 15);
+                    var bannedby = banInfo.Read<string>(2)[..15];
+                    var banreason = banInfo.Read<string>(3)[..15];
 
                     if (banInfo.Read<uint>(0) == banInfo.Read<uint>(1))
                         handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
-                                               accountName.Substring(0, 15),
+                                               accountName[..15],
                                                tmBan.Year % 100,
                                                tmBan.Month + 1,
                                                tmBan.Day,
@@ -206,7 +206,7 @@ internal class BanListCommands
                         tmUnban = Time.UnixTimeToDateTime(timeUnban);
 
                         handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
-                                               accountName.Substring(0, 15),
+                                               accountName[..15],
                                                tmBan.Year % 100,
                                                tmBan.Month + 1,
                                                tmBan.Day,
@@ -278,8 +278,8 @@ internal class BanListCommands
 
                 long timeBan = result.Read<uint>(1);
                 var tmBan = Time.UnixTimeToDateTime(timeBan);
-                var bannedby = result.Read<string>(3).Substring(0, 15);
-                var banreason = result.Read<string>(4).Substring(0, 15);
+                var bannedby = result.Read<string>(3)[..15];
+                var banreason = result.Read<string>(4)[..15];
 
                 if (result.Read<uint>(1) == result.Read<uint>(2))
                     handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",

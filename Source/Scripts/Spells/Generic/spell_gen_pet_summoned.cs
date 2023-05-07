@@ -34,7 +34,7 @@ internal class SpellGenPetSummoned : SpellScript, IHasSpellEffects
             return;
 
         var newPetType = (player.Class == PlayerClass.Hunter) ? PetType.Hunter : PetType.Summon;
-        var newPet = ClassFactory.ResolvePositional<Pet>(player, newPetType);
+        var newPet = ClassFactory.ResolveWithPositionalParameters<Pet>(player, newPetType);
 
         if (!newPet.LoadPetFromDB(player, 0, player.LastPetNumber, true))
             return;

@@ -16,10 +16,10 @@ using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IUnit;
-using Forged.MapServer.Weather;
 using Framework.Constants;
 using Framework.Dynamic;
 using Serilog;
+using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.Spells.Auras;
 

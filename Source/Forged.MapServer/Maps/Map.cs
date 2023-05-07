@@ -42,7 +42,6 @@ using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IMap;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IWorldState;
-using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
@@ -51,6 +50,7 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.Maps;
 
@@ -715,7 +715,7 @@ public class Map : IDisposable
             !IsRemovalGrid(corpse.Location.X, corpse.Location.Y))
         {
             // Create bones, don't change Corpse
-            bones = ClassFactory.ResolvePositional<Corpse>(CorpseType.Bones);
+            bones = ClassFactory.ResolveWithPositionalParameters<Corpse>(CorpseType.Bones);
             bones.Create(corpse.GUID.Counter, this);
 
             bones.ReplaceAllCorpseDynamicFlags((CorpseDynFlags)(byte)corpse.CorpseData.DynamicFlags);
@@ -1169,7 +1169,7 @@ public class Map : IDisposable
         return result;
     }
 
-    public Weather.Weather GetOrGenerateZoneDefaultWeather(uint zoneId)
+    public Weather GetOrGenerateZoneDefaultWeather(uint zoneId)
     {
         var weatherData = WeatherManager.GetWeatherData(zoneId);
 
@@ -1184,7 +1184,7 @@ public class Map : IDisposable
         if (info.DefaultWeather != null)
             return info.DefaultWeather;
 
-        info.DefaultWeather = new Weather.Weather(zoneId, weatherData);
+        info.DefaultWeather = ClassFactory.ResolveWithPositionalParameters<Weather>(zoneId, weatherData);
         info.DefaultWeather.ReGenerate();
         info.DefaultWeather.UpdateWeather();
 
@@ -1505,7 +1505,7 @@ public class Map : IDisposable
                 continue;
             }
 
-            var corpse = ClassFactory.ResolvePositional<Corpse>(type);
+            var corpse = ClassFactory.ResolveWithPositionalParameters<Corpse>(type);
 
             if (!corpse.LoadCorpseFromDB(GenerateLowGuid(HighGuid.Corpse), result.GetFields()))
                 continue;
@@ -2452,13 +2452,13 @@ public class Map : IDisposable
 
         var summon = mask switch
         {
-            UnitTypeMask.Summon   => ClassFactory.ResolvePositional<TempSummon>(properties, summonerUnit, false),
-            UnitTypeMask.Guardian => ClassFactory.ResolvePositional<Guardian>(properties, summonerUnit, false),
-            UnitTypeMask.Puppet   => ClassFactory.ResolvePositional<Puppet>(properties, summonerUnit),
-            UnitTypeMask.Totem    => ClassFactory.ResolvePositional<Totem>(properties, summonerUnit),
-            UnitTypeMask.Minion   => ClassFactory.ResolvePositional<Minion>(properties, summonerUnit, false),
+            UnitTypeMask.Summon   => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summonerUnit, false),
+            UnitTypeMask.Guardian => ClassFactory.ResolveWithPositionalParameters<Guardian>(properties, summonerUnit, false),
+            UnitTypeMask.Puppet   => ClassFactory.ResolveWithPositionalParameters<Puppet>(properties, summonerUnit),
+            UnitTypeMask.Totem    => ClassFactory.ResolveWithPositionalParameters<Totem>(properties, summonerUnit),
+            UnitTypeMask.Minion   => ClassFactory.ResolveWithPositionalParameters<Minion>(properties, summonerUnit, false),
             // ReSharper disable once UnreachableSwitchArmDueToIntegerAnalysis
-            _                     => ClassFactory.ResolvePositional<TempSummon>(properties, summonerUnit, false)
+            _                     => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summonerUnit, false)
         };
 
         if (!summon.Create(GenerateLowGuid(HighGuid.Creature), this, entry, pos, null, vehId, true))
@@ -4737,7 +4737,7 @@ public class Map : IDisposable
         else if (zoneDynamicInfo.DefaultWeather != null)
             zoneDynamicInfo.DefaultWeather.SendWeatherUpdateToPlayer(player);
         else
-            Weather.Weather.SendFineWeatherUpdateToPlayer(player);
+Weather.SendFineWeatherUpdateToPlayer(player);
     }
 
     private void SetGrid(Grid grid, uint x, uint y)

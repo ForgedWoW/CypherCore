@@ -43,7 +43,7 @@ internal class Hyperlink
                     continue;
                 }
 
-                var info = ParseHyperlink(str.Substring(pos));
+                var info = ParseHyperlink(str[pos..]);
 
                 if (info == null) // todo fix me || !ValidateLinkInfo(info))
                     return false;
@@ -127,7 +127,7 @@ internal class Hyperlink
             return null;
 
         // ok, valid hyperlink, return info
-        return new HyperlinkInfo(currentString.Substring(pos), color, currentString.Substring(tagStart, tagLength), currentString.Substring(dataStart, dataLength), currentString.Substring(textStart, textLength));
+        return new HyperlinkInfo(currentString[pos..], color, currentString.Substring(tagStart, tagLength), currentString.Substring(dataStart, dataLength), currentString.Substring(textStart, textLength));
     }
 
     public static ChatCommandResult TryParse(out dynamic value, Type type, CommandHandler handler, string arg)

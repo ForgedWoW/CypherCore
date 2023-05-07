@@ -24,7 +24,6 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
-using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
@@ -33,6 +32,7 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.Conditions;
 

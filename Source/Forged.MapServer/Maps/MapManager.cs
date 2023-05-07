@@ -493,7 +493,7 @@ public class MapManager
 
         Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
-        var map = _classFactory.ResolvePositional<InstanceMap>(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
+        var map = _classFactory.ResolveWithPositionalParameters<InstanceMap>(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
 
         map.LoadRespawnTimes();
         map.LoadCorpseData();

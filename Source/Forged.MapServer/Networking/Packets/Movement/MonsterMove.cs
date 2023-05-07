@@ -101,7 +101,7 @@ public class MonsterMove : ServerPacket
             else
             {
                 var lastIdx = spline.PointCount - 3;
-                var realPath = new Span<Vector3>(spline.Points).Slice(1);
+                var realPath = new Span<Vector3>(spline.Points)[1..];
 
                 movementSpline.Points.Add(realPath[lastIdx]);
 

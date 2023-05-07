@@ -52,7 +52,7 @@ public class ScenarioManager
         };
 
         if (_scenarioData.TryGetValue(scenarioID, out var scenarioData))
-            return _classFactory.ResolvePositional<InstanceScenario>(map, scenarioData);
+            return _classFactory.ResolveWithPositionalParameters<InstanceScenario>(map, scenarioData);
 
         Log.Logger.Error("Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
                          scenarioID,

@@ -248,10 +248,10 @@ public class PlayerComputators
                             continue;
                         }
 
-                        var draft = _classFactory.ResolvePositional<MailDraft>(subject, body);
+                        var draft = _classFactory.ResolveWithPositionalParameters<MailDraft>(subject, body);
 
                         if (mailTemplateId != 0)
-                            draft = _classFactory.ResolvePositional<MailDraft>(mailTemplateId, false); // items are already included
+                            draft = _classFactory.ResolveWithPositionalParameters<MailDraft>(mailTemplateId, false); // items are already included
 
                         if (itemsByMail.TryGetValue(mailID, out var itemsList))
                         {

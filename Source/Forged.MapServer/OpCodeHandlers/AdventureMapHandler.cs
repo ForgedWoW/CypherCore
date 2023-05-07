@@ -3,8 +3,12 @@
 
 using System.Linq;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.AdventureMap;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 
@@ -12,20 +16,31 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class AdventureMapHandler : IWorldSessionHandler
 {
+    private readonly WorldSession _session;
+    private readonly GameObjectManager _objectManager;
+    private readonly DB6Storage<AdventureMapPOIRecord> _adventureMapPOIRecords;
+
+    public AdventureMapHandler(WorldSession session, GameObjectManager objectManager, DB6Storage<AdventureMapPOIRecord> adventureMapPOIRecords)
+    {
+        _session = session;
+        _objectManager = objectManager;
+        _adventureMapPOIRecords = adventureMapPOIRecords;
+    }
+
     [WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
     private void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
     {
-        var quest = Global.ObjectMgr.GetQuestTemplate(startQuest.QuestID);
+        var quest = _objectManager.GetQuestTemplate(startQuest.QuestID);
 
         if (quest == null)
             return;
 
-        var adventureMapPOI = CliDB.AdventureMapPOIStorage.Values.FirstOrDefault(adventureMap => { return adventureMap.QuestID == startQuest.QuestID && _player.MeetPlayerCondition(adventureMap.PlayerConditionID); });
+        var adventureMapPOI = _adventureMapPOIRecords.Values.FirstOrDefault(adventureMap => adventureMap.QuestID == startQuest.QuestID && _session.Player.MeetPlayerCondition(adventureMap.PlayerConditionID));
 
         if (adventureMapPOI == null)
             return;
 
-        if (_player.CanTakeQuest(quest, true))
-            _player.AddQuestAndCheckCompletion(quest, _player);
+        if (_session.Player.CanTakeQuest(quest, true))
+            _session.Player.AddQuestAndCheckCompletion(quest, _session.Player);
     }
 }

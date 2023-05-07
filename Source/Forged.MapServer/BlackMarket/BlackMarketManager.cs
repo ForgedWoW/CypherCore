@@ -250,7 +250,7 @@ public class BlackMarketManager
         if (oldBidder != null)
             SendBlackMarketOutbidNotification(oldBidder.Session, entry.GetTemplate());
 
-        _classFactory.ResolvePositional<MailDraft>(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
+        _classFactory.ResolveWithPositionalParameters<MailDraft>(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
                      .AddMoney(entry.CurrentBid)
                      .SendMailTo(trans, new MailReceiver(oldBidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
     }
@@ -316,7 +316,7 @@ public class BlackMarketManager
         if (bidder != null)
             SendBlackMarketWonNotification(bidder.Session, entry, item);
 
-        _classFactory.ResolvePositional<MailDraft>(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Won), entry.BuildAuctionMailBody())
+        _classFactory.ResolveWithPositionalParameters<MailDraft>(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Won), entry.BuildAuctionMailBody())
                      .AddItem(item)
                      .SendMailTo(trans, new MailReceiver(bidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
 

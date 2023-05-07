@@ -62,8 +62,8 @@ public class SpellInfo
 
         foreach (var spellEffect in data.Effects)
         {
-            Effects.EnsureWritableListIndex(spellEffect.Key, classFactory.ResolvePositional<SpellEffectInfo>(this, null));
-            Effects[spellEffect.Key] = classFactory.ResolvePositional<SpellEffectInfo>(this, spellEffect.Value);
+            Effects.EnsureWritableListIndex(spellEffect.Key, classFactory.ResolveWithPositionalParameters<SpellEffectInfo>(this, null));
+            Effects[spellEffect.Key] = classFactory.ResolveWithPositionalParameters<SpellEffectInfo>(this, spellEffect.Value);
         }
 
         // Correct EffectIndex for blank effects
@@ -307,8 +307,8 @@ public class SpellInfo
 
         foreach (var spellEffect in effects)
         {
-            Effects.EnsureWritableListIndex(spellEffect.EffectIndex, classFactory.ResolvePositional<SpellEffectInfo>(this, null));
-            Effects[spellEffect.EffectIndex] = classFactory.ResolvePositional<SpellEffectInfo>(this, spellEffect);
+            Effects.EnsureWritableListIndex(spellEffect.EffectIndex, classFactory.ResolveWithPositionalParameters<SpellEffectInfo>(this, null));
+            Effects[spellEffect.EffectIndex] = classFactory.ResolveWithPositionalParameters<SpellEffectInfo>(this, spellEffect);
         }
 
         // Correct EffectIndex for blank effects

@@ -371,7 +371,7 @@ public partial class Spell
         if (!player.Location.IsInWorld)
             return;
 
-        var dynObj = _classFactory.ResolvePositional<DynamicObject>(true);
+        var dynObj = _classFactory.ResolveWithPositionalParameters<DynamicObject>(true);
 
         if (!dynObj.CreateDynamicObject(player.Location.Map.GenerateLowGuid(HighGuid.DynamicObject), player, SpellInfo, DestTarget, radius, DynamicObjectType.FarsightFocus, SpellVisual))
             return;
@@ -3158,7 +3158,7 @@ public partial class Spell
         if (!unitCaster.Location.IsInWorld)
             return;
 
-        var dynObj = _classFactory.ResolvePositional<DynamicObject>(false);
+        var dynObj = _classFactory.ResolveWithPositionalParameters<DynamicObject>(false);
 
         if (!dynObj.CreateDynamicObject(unitCaster.Location.Map.GenerateLowGuid(HighGuid.DynamicObject), unitCaster, SpellInfo, DestTarget, radius, DynamicObjectType.AreaSpell, SpellVisual))
         {

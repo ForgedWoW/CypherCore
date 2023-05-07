@@ -3790,7 +3790,7 @@ public sealed class SpellManager
 
                 _serversideSpellNames.Add(new ServersideSpellName(spellId, spellsResult.Read<string>(66)));
 
-                SpellInfo spellInfo = _classFactory.ResolvePositional<SpellInfo>(_serversideSpellNames.Last().Name, difficulty, spellEffects[(spellId, difficulty)]);
+                SpellInfo spellInfo = _classFactory.ResolveWithPositionalParameters<SpellInfo>(_serversideSpellNames.Last().Name, difficulty, spellEffects[(spellId, difficulty)]);
                 spellInfo.CategoryId = spellsResult.Read<uint>(2);
                 spellInfo.Dispel = (DispelType)spellsResult.Read<uint>(3);
                 spellInfo.Mechanic = (Mechanics)spellsResult.Read<uint>(4);
@@ -4067,7 +4067,7 @@ public sealed class SpellManager
             //first key = id, difficulty
             //second key = id
 
-            AddSpellInfo(_classFactory.ResolvePositional<SpellInfo>(spellNameEntry, data.Key.difficulty, data.Value));
+            AddSpellInfo(_classFactory.ResolveWithPositionalParameters<SpellInfo>(spellNameEntry, data.Key.difficulty, data.Value));
         }
 
         Log.Logger.Information("Loaded SpellInfo store in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));

@@ -67,13 +67,13 @@ using Forged.MapServer.SupportSystem;
 using Forged.MapServer.Text;
 using Forged.MapServer.Tools;
 using Forged.MapServer.Warden;
-using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework;
 using Framework.Constants;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
+using Forged.MapServer.MapWeather;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -546,4 +546,5 @@ void RegisterInstanced()
 void RegisterHandlers()
 {
     builder.RegisterType<BattlepayHandler>();
+    builder.RegisterType<WorldServiceManager>();
 }
