@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtCombatRatingsRecord
+public sealed record GtCombatRatingsRecord
 {
     public float Amplify;
     public float ArmorPenetration;

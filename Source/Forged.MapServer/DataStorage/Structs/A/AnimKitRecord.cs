@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AnimKitRecord
+public sealed record AnimKitRecord
 {
     public uint Id;
     public ushort LowDefAnimKitID;

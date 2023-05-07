@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class ModifierTreeRecord
+public sealed record ModifierTreeRecord
 {
     public sbyte Amount;
     public uint Asset;

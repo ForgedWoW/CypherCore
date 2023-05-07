@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellXSpellVisualRecord
+public sealed record SpellXSpellVisualRecord
 {
     public int ActiveIconFileID;
     public uint CasterPlayerConditionID;

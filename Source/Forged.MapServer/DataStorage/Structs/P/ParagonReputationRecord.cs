@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class ParagonReputationRecord
+public sealed record ParagonReputationRecord
 {
     public uint FactionID;
     public uint Id;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ImportPriceWeaponRecord
+public sealed record ImportPriceWeaponRecord
 {
     public float Data;
     public uint Id;

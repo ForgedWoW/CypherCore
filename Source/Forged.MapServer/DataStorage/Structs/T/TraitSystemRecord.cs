@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitSystemRecord
+public sealed record TraitSystemRecord
 {
     public int Field_10_0_0_44795_001;
     public uint Id;

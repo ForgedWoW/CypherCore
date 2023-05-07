@@ -5,7 +5,7 @@ using Framework.Dynamic;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellClassOptionsRecord
+public sealed record SpellClassOptionsRecord
 {
     public uint Id;
     public uint ModalNextSpell;

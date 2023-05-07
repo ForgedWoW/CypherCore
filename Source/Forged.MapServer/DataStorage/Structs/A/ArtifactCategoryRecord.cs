@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactCategoryRecord
+public sealed record ArtifactCategoryRecord
 {
     public uint Id;
     public short XpMultCurrencyID;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PhaseXPhaseGroupRecord
+public sealed record PhaseXPhaseGroupRecord
 {
     public uint Id;
     public uint PhaseGroupID;

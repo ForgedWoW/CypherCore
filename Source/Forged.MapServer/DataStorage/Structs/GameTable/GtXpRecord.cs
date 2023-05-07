@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtXpRecord
+public sealed record GtXpRecord
 {
     public float Divisor;
     public float Junk;

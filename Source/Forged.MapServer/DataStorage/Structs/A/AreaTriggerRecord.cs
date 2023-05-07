@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AreaTriggerRecord
+public sealed record AreaTriggerRecord
 {
     public short AreaTriggerActionSetID;
     public float BoxHeight;

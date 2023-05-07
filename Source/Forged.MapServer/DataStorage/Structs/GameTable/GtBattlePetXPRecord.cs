@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtBattlePetXPRecord
+public sealed record GtBattlePetXPRecord
 {
     public float Wins;
     public float Xp;

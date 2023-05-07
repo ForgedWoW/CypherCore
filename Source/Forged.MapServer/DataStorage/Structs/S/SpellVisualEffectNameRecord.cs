@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellVisualEffectNameRecord
+public sealed record SpellVisualEffectNameRecord
 {
     public float Alpha;
     public float BaseMissileSpeed;

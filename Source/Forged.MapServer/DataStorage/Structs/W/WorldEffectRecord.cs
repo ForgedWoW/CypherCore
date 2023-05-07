@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.W;
 
-public sealed class WorldEffectRecord
+public sealed record WorldEffectRecord
 {
     public ushort CombatConditionID;
     public uint Id;

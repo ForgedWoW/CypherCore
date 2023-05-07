@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ConversationLineRecord
+public sealed record ConversationLineRecord
 {
     public int AdditionalDuration;
     public ushort AnimKitID;

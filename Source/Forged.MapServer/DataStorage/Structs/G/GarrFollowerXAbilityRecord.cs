@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrFollowerXAbilityRecord
+public sealed record GarrFollowerXAbilityRecord
 {
     public byte FactionIndex;
     public ushort GarrAbilityID;

@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CinematicCameraRecord
+public sealed record CinematicCameraRecord
 {
     public uint ConversationID;
     public uint FileDataID;

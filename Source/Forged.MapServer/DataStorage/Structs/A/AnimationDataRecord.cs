@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AnimationDataRecord
+public sealed record AnimationDataRecord
 {
     public int BehaviorID;
     public byte BehaviorTier;

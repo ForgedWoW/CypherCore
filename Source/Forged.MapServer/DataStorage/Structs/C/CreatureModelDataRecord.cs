@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureModelDataRecord
+public sealed record CreatureModelDataRecord
 {
     public float AttachedEffectScale;
     public uint BloodID;

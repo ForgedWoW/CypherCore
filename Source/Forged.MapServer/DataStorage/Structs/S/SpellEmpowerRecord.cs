@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellEmpowerRecord
+public sealed record SpellEmpowerRecord
 {
     public uint Id;
     public uint OtherValue;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellAuraOptionsRecord
+public sealed record SpellAuraOptionsRecord
 {
     public ushort CumulativeAura;
     public byte DifficultyID;

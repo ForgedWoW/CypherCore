@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CinematicSequencesRecord
+public sealed record CinematicSequencesRecord
 {
     public ushort[] Camera = new ushort[8];
     public uint Id;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrPlotBuildingRecord
+public sealed record GarrPlotBuildingRecord
 {
     public byte GarrBuildingID;
     public byte GarrPlotID;

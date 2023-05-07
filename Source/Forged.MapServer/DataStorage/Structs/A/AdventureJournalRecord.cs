@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AdventureJournalRecord
+public sealed record AdventureJournalRecord
 {
     public ushort BattleMasterListID;
     public uint[] BonusPlayerConditionID = new uint[2];

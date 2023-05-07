@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellPowerDifficultyRecord
+public sealed record SpellPowerDifficultyRecord
 {
     public byte DifficultyID;
     public uint Id;

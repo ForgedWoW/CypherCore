@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PowerDisplayRecord
+public sealed record PowerDisplayRecord
 {
     public byte ActualType;
     public byte Blue;

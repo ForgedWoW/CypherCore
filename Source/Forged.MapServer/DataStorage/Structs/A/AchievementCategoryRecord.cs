@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AchievementCategoryRecord
+public sealed record AchievementCategoryRecord
 {
     public uint Id;
     public LocalizedString Name;

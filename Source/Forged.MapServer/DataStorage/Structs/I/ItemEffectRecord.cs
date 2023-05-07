@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemEffectRecord
+public sealed record ItemEffectRecord
 {
     public int CategoryCoolDownMSec;
     public short Charges;

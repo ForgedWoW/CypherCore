@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SummonPropertiesRecord
+public sealed record SummonPropertiesRecord
 {
     public SummonCategory Control;
     public uint Faction;

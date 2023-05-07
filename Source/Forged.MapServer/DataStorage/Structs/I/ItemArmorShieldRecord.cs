@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemArmorShieldRecord
+public sealed record ItemArmorShieldRecord
 {
     public uint Id;
     public ushort ItemLevel;

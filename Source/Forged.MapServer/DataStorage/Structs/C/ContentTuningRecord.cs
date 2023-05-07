@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ContentTuningRecord
+public sealed record ContentTuningRecord
 {
     public int ExpansionID;
     public int Flags;

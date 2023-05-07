@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellItemEnchantmentRecord
+public sealed record SpellItemEnchantmentRecord
 {
     public byte Charges;
     public byte ConditionID;

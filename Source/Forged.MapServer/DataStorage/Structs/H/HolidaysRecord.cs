@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.H;
 
-public sealed class HolidaysRecord
+public sealed record HolidaysRecord
 {
     public sbyte CalendarFilterType;
     public byte[] CalendarFlags = new byte[SharedConst.MaxHolidayFlags];

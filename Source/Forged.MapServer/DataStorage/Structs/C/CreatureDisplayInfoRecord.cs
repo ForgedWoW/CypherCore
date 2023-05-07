@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureDisplayInfoRecord
+public sealed record CreatureDisplayInfoRecord
 {
     public ushort AnimReplacementSetID;
     public byte BloodID;

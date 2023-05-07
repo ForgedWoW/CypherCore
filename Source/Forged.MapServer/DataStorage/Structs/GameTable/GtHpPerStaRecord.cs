@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtHpPerStaRecord
+public sealed record GtHpPerStaRecord
 {
     public float Health;
 }

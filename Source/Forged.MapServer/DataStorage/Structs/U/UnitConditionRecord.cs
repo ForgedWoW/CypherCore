@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UnitConditionRecord
+public sealed record UnitConditionRecord
 {
     public byte Flags;
     public uint Id;

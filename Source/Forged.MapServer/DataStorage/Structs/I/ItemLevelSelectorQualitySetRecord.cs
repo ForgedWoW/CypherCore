@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemLevelSelectorQualitySetRecord
+public sealed record ItemLevelSelectorQualitySetRecord
 {
     public uint Id;
     public short IlvlEpic;

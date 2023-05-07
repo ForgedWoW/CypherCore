@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AchievementRecord
+public sealed record AchievementRecord
 {
     public ushort Category;
     public int CovenantID;

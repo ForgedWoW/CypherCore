@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteItemMilestonePowerRecord
+public sealed record AzeriteItemMilestonePowerRecord
 {
     public int AutoUnlock;
     public int AzeritePowerID;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CorruptionEffectsRecord
+public sealed record CorruptionEffectsRecord
 {
     public uint Aura;
     public int Flags;

@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CurrencyContainerRecord
+public sealed record CurrencyContainerRecord
 {
     public LocalizedString ContainerDescription;
     public int ContainerIconID;

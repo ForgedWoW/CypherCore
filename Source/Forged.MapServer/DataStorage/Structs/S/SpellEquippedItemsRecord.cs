@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellEquippedItemsRecord
+public sealed record SpellEquippedItemsRecord
 {
     public sbyte EquippedItemClass;
     public int EquippedItemInvTypes;

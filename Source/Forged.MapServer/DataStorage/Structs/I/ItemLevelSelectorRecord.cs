@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemLevelSelectorRecord
+public sealed record ItemLevelSelectorRecord
 {
     public ushort AzeriteUnlockMappingSet;
     public uint Id;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrClassSpecRecord
+public sealed record GarrClassSpecRecord
 {
     public string ClassSpec;
     public string ClassSpecFemale;

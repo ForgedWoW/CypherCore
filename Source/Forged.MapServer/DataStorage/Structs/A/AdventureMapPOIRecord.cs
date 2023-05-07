@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AdventureMapPOIRecord
+public sealed record AdventureMapPOIRecord
 {
     public uint AreaTableID;
     public string Description;

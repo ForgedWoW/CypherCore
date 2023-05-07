@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpecializationSpellsRecord
+public sealed record SpecializationSpellsRecord
 {
     public string Description;
     public byte DisplayOrder;

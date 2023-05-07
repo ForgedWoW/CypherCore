@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellReagentsCurrencyRecord
+public sealed record SpellReagentsCurrencyRecord
 {
     public ushort CurrencyCount;
     public ushort CurrencyTypesID;

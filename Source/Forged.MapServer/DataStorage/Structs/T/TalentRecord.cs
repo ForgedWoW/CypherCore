@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TalentRecord
+public sealed record TalentRecord
 {
     public byte[] CategoryMask = new byte[2];
     public byte ClassID;

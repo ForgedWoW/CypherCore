@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrAbilityRecord
+public sealed record GarrAbilityRecord
 {
     public string Description;
     public ushort FactionChangeGarrAbilityID;

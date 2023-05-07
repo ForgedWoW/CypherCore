@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UiMapRecord
+public sealed record UiMapRecord
 {
     public int AlternateUiMapGroup;
     public int BkgAtlasID;

@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitDefinitionRecord
+public sealed record TraitDefinitionRecord
 {
     public uint Id;
     public LocalizedString OverrideDescription;

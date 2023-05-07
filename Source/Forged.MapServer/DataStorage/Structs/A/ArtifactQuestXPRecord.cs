@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactQuestXPRecord
+public sealed record ArtifactQuestXPRecord
 {
     public uint[] Difficulty = new uint[10];
     public uint Id;

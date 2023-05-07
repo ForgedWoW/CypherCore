@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MountRecord
+public sealed record MountRecord
 {
     public string Description;
     public MountFlags Flags;

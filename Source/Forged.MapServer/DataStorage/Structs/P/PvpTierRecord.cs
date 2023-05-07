@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PvpTierRecord
+public sealed record PvpTierRecord
 {
     public sbyte BracketID;
     public uint Id;

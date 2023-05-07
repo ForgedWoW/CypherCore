@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CharTitlesRecord
+public sealed record CharTitlesRecord
 {
     public sbyte Flags;
     public uint Id;

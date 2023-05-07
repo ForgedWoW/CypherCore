@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CurrencyTypesRecord
+public sealed record CurrencyTypesRecord
 {
     public int AwardConditionID;
     public int CategoryID;

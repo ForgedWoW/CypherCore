@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellCastingRequirementsRecord
+public sealed record SpellCastingRequirementsRecord
 {
     public byte FacingCasterFlags;
     public uint Id;

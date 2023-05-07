@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellRecord
+public sealed record SpellRecord
 {
     public string AuraDescription_lang;
     public string Description_lang;

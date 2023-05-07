@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellInterruptsRecord
+public sealed record SpellInterruptsRecord
 {
     public int[] AuraInterruptFlags = new int[2];
     public int[] ChannelInterruptFlags = new int[2];

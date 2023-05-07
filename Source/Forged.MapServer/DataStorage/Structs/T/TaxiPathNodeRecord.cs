@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TaxiPathNodeRecord
+public sealed record TaxiPathNodeRecord
 {
     public uint ArrivalEventID;
     public ushort ContinentID;

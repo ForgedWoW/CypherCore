@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TransportRotationRecord
+public sealed record TransportRotationRecord
 {
     public uint GameObjectsID;
     public uint Id;

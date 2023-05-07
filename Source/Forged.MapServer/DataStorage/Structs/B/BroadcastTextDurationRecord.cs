@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BroadcastTextDurationRecord
+public sealed record BroadcastTextDurationRecord
 {
     public int BroadcastTextID;
     public int Duration;

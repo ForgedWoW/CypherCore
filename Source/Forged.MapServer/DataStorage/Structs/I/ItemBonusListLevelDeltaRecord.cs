@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemBonusListLevelDeltaRecord
+public sealed record ItemBonusListLevelDeltaRecord
 {
     public uint Id;
     public short ItemLevelDelta;

@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.V;
 
-public sealed class VehicleSeatRecord
+public sealed record VehicleSeatRecord
 {
     public sbyte AttachmentID;
     public Vector3 AttachmentOffset;

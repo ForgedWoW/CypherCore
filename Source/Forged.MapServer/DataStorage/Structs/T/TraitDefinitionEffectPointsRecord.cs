@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitDefinitionEffectPointsRecord
+public sealed record TraitDefinitionEffectPointsRecord
 {
     public int CurveID;
     public int EffectIndex;

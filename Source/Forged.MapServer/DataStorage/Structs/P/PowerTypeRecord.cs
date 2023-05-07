@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PowerTypeRecord
+public sealed record PowerTypeRecord
 {
     public int CenterPower;
     public string CostGlobalStringTag;

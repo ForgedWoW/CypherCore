@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.Q;
 
-public sealed class QuestPackageItemRecord
+public sealed record QuestPackageItemRecord
 {
     public QuestPackageFilter DisplayType;
     public uint Id;

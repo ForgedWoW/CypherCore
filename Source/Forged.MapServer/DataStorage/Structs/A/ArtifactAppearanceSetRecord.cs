@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactAppearanceSetRecord
+public sealed record ArtifactAppearanceSetRecord
 {
     public ushort AltHandUICameraID;
     public uint ArtifactID;

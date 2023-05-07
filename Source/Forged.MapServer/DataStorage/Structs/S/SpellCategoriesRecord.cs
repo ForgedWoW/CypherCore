@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellCategoriesRecord
+public sealed record SpellCategoriesRecord
 {
     public ushort Category;
     public ushort ChargeCategory;

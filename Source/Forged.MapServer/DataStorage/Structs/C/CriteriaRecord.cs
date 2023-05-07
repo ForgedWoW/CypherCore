@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CriteriaRecord
+public sealed record CriteriaRecord
 {
     public uint Asset;
     public ushort EligibilityWorldStateID;

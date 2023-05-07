@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrFollowerRecord
+public sealed record GarrFollowerRecord
 {
     public int AllianceCreatureID;
     public byte AllianceFlavorGarrStringID;

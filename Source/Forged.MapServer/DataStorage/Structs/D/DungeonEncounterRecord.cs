@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.D;
 
-public sealed class DungeonEncounterRecord
+public sealed record DungeonEncounterRecord
 {
     public sbyte Bit;
     public int CompleteWorldStateID;

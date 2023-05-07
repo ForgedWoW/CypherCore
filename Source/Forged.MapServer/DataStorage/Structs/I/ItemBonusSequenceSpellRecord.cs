@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemBonusSequenceSpellRecord
+public sealed record ItemBonusSequenceSpellRecord
 {
     public uint Id;
     public int ItemID;

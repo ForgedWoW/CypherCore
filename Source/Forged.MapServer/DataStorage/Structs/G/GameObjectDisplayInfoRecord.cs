@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GameObjectDisplayInfoRecord
+public sealed record GameObjectDisplayInfoRecord
 {
     public int FileDataID;
     public float[] GeoBox = new float[6];

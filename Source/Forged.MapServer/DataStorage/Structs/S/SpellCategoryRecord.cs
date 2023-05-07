@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellCategoryRecord
+public sealed record SpellCategoryRecord
 {
     public int ChargeRecoveryTime;
     public SpellCategoryFlags Flags;

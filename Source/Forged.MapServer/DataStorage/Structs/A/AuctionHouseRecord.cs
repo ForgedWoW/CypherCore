@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AuctionHouseRecord
+public sealed record AuctionHouseRecord
 {
     public byte ConsignmentRate;
     public byte DepositRate;

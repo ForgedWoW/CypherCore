@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CriteriaTreeRecord
+public sealed record CriteriaTreeRecord
 {
     public uint Amount;
     public uint CriteriaID;

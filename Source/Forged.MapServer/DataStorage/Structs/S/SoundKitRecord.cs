@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SoundKitRecord
+public sealed record SoundKitRecord
 {
     public ushort BusOverwriteID;
     public sbyte DialogType;

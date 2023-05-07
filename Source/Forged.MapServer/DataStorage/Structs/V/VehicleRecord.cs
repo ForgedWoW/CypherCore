@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.V;
 
-public sealed class VehicleRecord
+public sealed record VehicleRecord
 {
     public float CameraFadeDistScalarMax;
     public float CameraFadeDistScalarMin;

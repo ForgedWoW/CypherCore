@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.N;
 
-public sealed class NumTalentsAtLevelRecord
+public sealed record NumTalentsAtLevelRecord
 {
     public uint Id;
     public uint NumTalents;

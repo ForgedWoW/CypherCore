@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrTalentTreeRecord
+public sealed record GarrTalentTreeRecord
 {
     public int ClassID;
     public int CurrencyID;

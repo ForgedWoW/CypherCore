@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UiMapLinkRecord
+public sealed record UiMapLinkRecord
 {
     public int ChildUiMapID;
     public int Flags;

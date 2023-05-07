@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SceneScriptRecord
+public sealed record SceneScriptRecord
 {
     public ushort FirstSceneScriptID;
     public uint Id;

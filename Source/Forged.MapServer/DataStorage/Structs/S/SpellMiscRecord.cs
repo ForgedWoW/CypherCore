@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellMiscRecord
+public sealed record SpellMiscRecord
 {
     public uint ActiveIconFileDataID;
     public int ActiveSpellVisualScript;

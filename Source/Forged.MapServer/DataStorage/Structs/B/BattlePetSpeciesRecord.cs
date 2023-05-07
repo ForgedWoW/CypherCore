@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BattlePetSpeciesRecord
+public sealed record BattlePetSpeciesRecord
 {
     public int CardUIModelSceneID;
     public int CovenantID;

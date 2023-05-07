@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.Q;
 
-public sealed class QuestMoneyRewardRecord
+public sealed record QuestMoneyRewardRecord
 {
     public uint[] Difficulty = new uint[10];
     public uint Id;

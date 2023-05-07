@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemLimitCategoryRecord
+public sealed record ItemLimitCategoryRecord
 {
     public byte Flags;
     public uint Id;

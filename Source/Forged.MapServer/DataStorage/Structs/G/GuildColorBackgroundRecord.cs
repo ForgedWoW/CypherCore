@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GuildColorBackgroundRecord
+public sealed record GuildColorBackgroundRecord
 {
     public byte Blue;
     public byte Green;

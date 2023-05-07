@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemPriceBaseRecord
+public sealed record ItemPriceBaseRecord
 {
     public float Armor;
     public uint Id;

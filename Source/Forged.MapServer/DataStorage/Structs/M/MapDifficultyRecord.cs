@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapDifficultyRecord
+public sealed record MapDifficultyRecord
 {
     public int ContentTuningID;
     public uint DifficultyID;

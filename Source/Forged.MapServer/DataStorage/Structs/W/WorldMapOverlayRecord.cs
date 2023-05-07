@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.W;
 
-public sealed class WorldMapOverlayRecord
+public sealed record WorldMapOverlayRecord
 {
     public uint[] AreaID = new uint[SharedConst.MaxWorldMapOverlayArea];
     public uint Flags;

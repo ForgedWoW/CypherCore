@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemBonusListGroupEntryRecord
+public sealed record ItemBonusListGroupEntryRecord
 {
     public uint Id;
     public uint ItemBonusListGroupID;

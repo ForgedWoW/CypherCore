@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AreaPOIRecord
+public sealed record AreaPOIRecord
 {
     public short AreaID;
     public ushort ContinentID;

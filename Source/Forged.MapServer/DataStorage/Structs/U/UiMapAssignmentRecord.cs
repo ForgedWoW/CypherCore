@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UiMapAssignmentRecord
+public sealed record UiMapAssignmentRecord
 {
     public int AreaID;
     public uint Id;

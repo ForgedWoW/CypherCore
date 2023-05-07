@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LightRecord
+public sealed record LightRecord
 {
     public short ContinentID;
     public Vector3 GameCoords;

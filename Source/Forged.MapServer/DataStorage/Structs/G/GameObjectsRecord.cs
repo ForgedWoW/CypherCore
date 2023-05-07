@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GameObjectsRecord
+public sealed record GameObjectsRecord
 {
     public uint DisplayID;
     public uint Id;

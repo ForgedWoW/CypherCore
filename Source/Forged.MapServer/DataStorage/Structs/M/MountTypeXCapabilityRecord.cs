@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MountTypeXCapabilityRecord
+public sealed record MountTypeXCapabilityRecord
 {
     public uint Id;
     public ushort MountCapabilityID;

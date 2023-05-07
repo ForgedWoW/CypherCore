@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellShapeshiftRecord
+public sealed record SpellShapeshiftRecord
 {
     public uint Id;
     public uint[] ShapeshiftExclude = new uint[2];

@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.F;
 
-public sealed class FriendshipRepReactionRecord
+public sealed record FriendshipRepReactionRecord
 {
     public uint FriendshipRepID;
     public uint Id;

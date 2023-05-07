@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrRacesRecord
+public sealed record ChrRacesRecord
 {
     public int Alliance;
     public float[] AlteredFormCustomizeOffsetFallback = new float[3];

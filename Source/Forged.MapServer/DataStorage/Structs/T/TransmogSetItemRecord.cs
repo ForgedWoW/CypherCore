@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TransmogSetItemRecord
+public sealed record TransmogSetItemRecord
 {
     public int Flags;
     public uint Id;

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteTierUnlockSetRecord
+public sealed record AzeriteTierUnlockSetRecord
 {
     public AzeriteTierUnlockSetFlags Flags;
     public uint Id;

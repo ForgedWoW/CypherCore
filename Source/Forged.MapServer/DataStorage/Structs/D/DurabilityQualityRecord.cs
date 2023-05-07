@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.D;
 
-public sealed class DurabilityQualityRecord
+public sealed record DurabilityQualityRecord
 {
     public float Data;
     public uint Id;

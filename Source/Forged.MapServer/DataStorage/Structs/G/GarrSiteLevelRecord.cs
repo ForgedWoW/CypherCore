@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrSiteLevelRecord
+public sealed record GarrSiteLevelRecord
 {
     public byte GarrLevel;
     public uint GarrSiteID;

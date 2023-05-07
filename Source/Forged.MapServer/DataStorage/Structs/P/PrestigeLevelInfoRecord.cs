@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PrestigeLevelInfoRecord
+public sealed record PrestigeLevelInfoRecord
 {
     public int AwardedAchievementID;
     public int BadgeTextureFileDataID;

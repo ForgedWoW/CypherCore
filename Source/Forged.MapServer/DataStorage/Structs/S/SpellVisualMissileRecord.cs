@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellVisualMissileRecord
+public sealed record SpellVisualMissileRecord
 {
     public uint AnimKitID;
     public sbyte Attachment;

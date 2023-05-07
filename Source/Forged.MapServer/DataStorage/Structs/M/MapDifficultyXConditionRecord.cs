@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapDifficultyXConditionRecord
+public sealed record MapDifficultyXConditionRecord
 {
     public LocalizedString FailureDescription;
     public uint Id;

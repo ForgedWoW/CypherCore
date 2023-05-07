@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemDisenchantLootRecord
+public sealed record ItemDisenchantLootRecord
 {
     public uint Class;
     public sbyte ExpansionID;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteEmpoweredItemRecord
+public sealed record AzeriteEmpoweredItemRecord
 {
     public uint AzeritePowerSetID;
     public uint AzeriteTierUnlockSetID;

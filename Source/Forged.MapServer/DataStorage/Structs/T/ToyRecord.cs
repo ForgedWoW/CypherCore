@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class ToyRecord
+public sealed record ToyRecord
 {
     public byte Flags;
     public uint Id;

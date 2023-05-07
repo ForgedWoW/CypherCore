@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SkillLineRecord
+public sealed record SkillLineRecord
 {
     public string AlternateVerb;
     public sbyte CanLink;

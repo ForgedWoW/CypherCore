@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PvpTalentRecord
+public sealed record PvpTalentRecord
 {
     public int ActionBarSpellID;
     public string Description;

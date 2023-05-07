@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellDurationRecord
+public sealed record SpellDurationRecord
 {
     public int Duration;
     public uint Id;

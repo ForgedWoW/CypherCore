@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteEssenceRecord
+public sealed record AzeriteEssenceRecord
 {
     public string Description;
     public uint Id;

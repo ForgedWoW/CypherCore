@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellRangeRecord
+public sealed record SpellRangeRecord
 {
     public string DisplayName;
     public string DisplayNameShort;

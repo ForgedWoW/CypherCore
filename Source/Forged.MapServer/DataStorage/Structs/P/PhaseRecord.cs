@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PhaseRecord
+public sealed record PhaseRecord
 {
     public PhaseEntryFlags Flags;
     public uint Id;

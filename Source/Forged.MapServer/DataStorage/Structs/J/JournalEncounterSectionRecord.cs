@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.J;
 
-public sealed class JournalEncounterSectionRecord
+public sealed record JournalEncounterSectionRecord
 {
     public LocalizedString BodyText;
     public sbyte DifficultyMask;

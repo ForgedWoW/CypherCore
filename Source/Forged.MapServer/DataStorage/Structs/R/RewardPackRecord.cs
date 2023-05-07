@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.R;
 
-public sealed class RewardPackRecord
+public sealed record RewardPackRecord
 {
     public byte ArtifactXPCategoryID;
     public byte ArtifactXPDifficulty;

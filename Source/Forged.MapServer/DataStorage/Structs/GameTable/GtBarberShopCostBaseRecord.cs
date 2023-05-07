@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtBarberShopCostBaseRecord
+public sealed record GtBarberShopCostBaseRecord
 {
     public float Cost;
 }

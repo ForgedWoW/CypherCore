@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GlyphBindableSpellRecord
+public sealed record GlyphBindableSpellRecord
 {
     public uint GlyphPropertiesID;
     public uint Id;

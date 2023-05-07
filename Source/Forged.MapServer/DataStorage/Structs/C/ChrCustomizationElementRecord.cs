@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationElementRecord
+public sealed record ChrCustomizationElementRecord
 {
     public int ChrCustItemGeoModifyID;
     public int ChrCustomizationBoneSetID;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BattlePetBreedQualityRecord
+public sealed record BattlePetBreedQualityRecord
 {
     public uint Id;
     public int MaxQualityRoll;

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemBonusRecord
+public sealed record ItemBonusRecord
 {
     public ItemBonusType BonusType;
     public uint Id;

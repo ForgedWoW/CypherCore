@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactAppearanceRecord
+public sealed record ArtifactAppearanceRecord
 {
     public ushort ArtifactAppearanceSetID;
     public byte DisplayIndex;

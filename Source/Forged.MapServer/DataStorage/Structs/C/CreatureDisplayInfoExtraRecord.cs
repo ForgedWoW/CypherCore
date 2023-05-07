@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureDisplayInfoExtraRecord
+public sealed record CreatureDisplayInfoExtraRecord
 {
     public int BakeMaterialResourcesID;
     public sbyte DisplayClassID;

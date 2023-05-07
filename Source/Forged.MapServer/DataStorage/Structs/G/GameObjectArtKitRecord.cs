@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GameObjectArtKitRecord
+public sealed record GameObjectArtKitRecord
 {
     public int AttachModelFileID;
     public uint Id;

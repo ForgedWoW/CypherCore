@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChatChannelsRecord
+public sealed record ChatChannelsRecord
 {
     public sbyte FactionGroup;
     public ChannelDBCFlags Flags;

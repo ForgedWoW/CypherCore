@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrClassUIDisplayRecord
+public sealed record ChrClassUIDisplayRecord
 {
     public uint AdvGuidePlayerConditionID;
     public byte ChrClassesID;

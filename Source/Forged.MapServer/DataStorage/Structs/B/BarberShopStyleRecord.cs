@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BarberShopStyleRecord
+public sealed record BarberShopStyleRecord
 {
     public float CostModifier;
     public byte Data;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.E;
 
-public sealed class EmotesTextSoundRecord
+public sealed record EmotesTextSoundRecord
 {
     public byte ClassId;
     public uint EmotesTextId;

@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BroadcastTextRecord
+public sealed record BroadcastTextRecord
 {
     public uint ChatBubbleDurationMs;
     public int ConditionID;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemLimitCategoryConditionRecord
+public sealed record ItemLimitCategoryConditionRecord
 {
     public sbyte AddQuantity;
     public uint Id;

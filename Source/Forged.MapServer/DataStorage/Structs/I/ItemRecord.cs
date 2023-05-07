@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemRecord
+public sealed record ItemRecord
 {
     public ItemClass ClassID;
     public int ContentTuningID;

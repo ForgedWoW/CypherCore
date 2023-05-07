@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitCurrencySourceRecord
+public sealed record TraitCurrencySourceRecord
 {
     public uint AchievementID;
     public int Amount;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemAppearanceRecord
+public sealed record ItemAppearanceRecord
 {
     public int DefaultIconFileDataID;
     public int DisplayType;

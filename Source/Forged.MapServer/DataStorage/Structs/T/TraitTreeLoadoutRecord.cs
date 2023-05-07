@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitTreeLoadoutRecord
+public sealed record TraitTreeLoadoutRecord
 {
     public int ChrSpecializationID;
     public uint Id;

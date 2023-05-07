@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.N;
 
-public sealed class NameGenRecord
+public sealed record NameGenRecord
 {
     public uint Id;
     public string Name;

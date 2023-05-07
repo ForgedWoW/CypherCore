@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LanguagesRecord
+public sealed record LanguagesRecord
 {
     public int Flags;
     public uint Id;

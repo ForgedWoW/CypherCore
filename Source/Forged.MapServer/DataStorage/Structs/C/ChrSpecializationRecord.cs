@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrSpecializationRecord
+public sealed record ChrSpecializationRecord
 {
     public int AnimReplacements;
     public byte ClassID;

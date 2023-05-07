@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapRecord
+public sealed record MapRecord
 {
     public ushort AreaTableID;
     public Vector2 Corpse;

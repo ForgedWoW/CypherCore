@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.E;
 
-public sealed class ExpectedStatRecord
+public sealed record ExpectedStatRecord
 {
     public float ArmorConstant;
     public float CreatureArmor;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LiquidTypeRecord
+public sealed record LiquidTypeRecord
 {
     public float AmbDarkenIntensity;
     public float[] Coefficient = new float[4];

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellCastTimesRecord
+public sealed record SpellCastTimesRecord
 {
     public int Base;
     public uint Id;

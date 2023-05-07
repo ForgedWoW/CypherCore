@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PlayerConditionRecord
+public sealed record PlayerConditionRecord
 {
     public ushort[] Achievement = new ushort[4];
     public uint AchievementLogic;

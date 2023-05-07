@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.D;
 
-public sealed class DifficultyRecord
+public sealed record DifficultyRecord
 {
     public byte FallbackDifficultyID;
     public DifficultyFlags Flags;

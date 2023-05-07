@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellVisualRecord
+public sealed record SpellVisualRecord
 {
     public uint AnimEventSoundID;
     public uint CasterSpellVisualID;

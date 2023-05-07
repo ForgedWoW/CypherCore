@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapChallengeModeRecord
+public sealed record MapChallengeModeRecord
 {
     public short[] CriteriaCount = new short[3];
     public uint ExpansionLevel;

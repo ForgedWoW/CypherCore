@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrBuildingRecord
+public sealed record GarrBuildingRecord
 {
     public uint AllianceGameObjectID;
     public string AllianceName;

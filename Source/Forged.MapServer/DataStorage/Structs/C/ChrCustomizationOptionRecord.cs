@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationOptionRecord
+public sealed record ChrCustomizationOptionRecord
 {
     public int AddedInPatch;
     public float BarberShopCostModifier;

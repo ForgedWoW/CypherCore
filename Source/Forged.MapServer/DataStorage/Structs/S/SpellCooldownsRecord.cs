@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellCooldownsRecord
+public sealed record SpellCooldownsRecord
 {
     public uint AuraSpellID;
     public uint CategoryRecoveryTime;

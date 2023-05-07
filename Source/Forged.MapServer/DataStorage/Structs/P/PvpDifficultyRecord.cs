@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PvpDifficultyRecord
+public sealed record PvpDifficultyRecord
 {
     public uint Id { get; set; }
     public uint MapID { get; set; }

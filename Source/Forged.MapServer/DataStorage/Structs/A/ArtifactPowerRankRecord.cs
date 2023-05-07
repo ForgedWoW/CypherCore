@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactPowerRankRecord
+public sealed record ArtifactPowerRankRecord
 {
     public uint ArtifactPowerID;
     public float AuraPointsOverride;

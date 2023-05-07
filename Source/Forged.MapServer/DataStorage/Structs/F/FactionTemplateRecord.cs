@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.F;
 
-public sealed class FactionTemplateRecord
+public sealed record FactionTemplateRecord
 {
     public ushort[] Enemies = new ushort[MAX_FACTION_RELATIONS];
     public byte EnemyGroup;

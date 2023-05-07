@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemExtendedCostRecord
+public sealed record ItemExtendedCostRecord
 {
     public byte ArenaBracket;
     public uint[] CurrencyCount = new uint[ItemConst.MaxItemExtCostCurrencies];

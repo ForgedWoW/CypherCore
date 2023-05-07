@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TaxiNodesRecord
+public sealed record TaxiNodesRecord
 {
     public ushort CharacterBitNumber;
     public uint ConditionID;

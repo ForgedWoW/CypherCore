@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrMissionRecord
+public sealed record GarrMissionRecord
 {
     public uint AreaID;
     public int AutoCombatantEnvCasterID;

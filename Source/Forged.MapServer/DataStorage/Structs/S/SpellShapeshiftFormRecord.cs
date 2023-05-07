@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellShapeshiftFormRecord
+public sealed record SpellShapeshiftFormRecord
 {
     public int AttackIconFileID;
     public sbyte BonusActionBar;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.D;
 
-public sealed class DestructibleModelDataRecord
+public sealed record DestructibleModelDataRecord
 {
     public byte DoNotHighlight;
     public byte EjectDirection;

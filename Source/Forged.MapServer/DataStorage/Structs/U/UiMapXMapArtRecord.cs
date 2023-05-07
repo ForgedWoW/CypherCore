@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UiMapXMapArtRecord
+public sealed record UiMapXMapArtRecord
 {
     public uint Id;
     public int PhaseID;

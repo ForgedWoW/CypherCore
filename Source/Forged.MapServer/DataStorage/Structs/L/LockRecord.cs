@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LockRecord
+public sealed record LockRecord
 {
     public byte[] Action = new byte[SharedConst.MaxLockCase];
     public int Flags;

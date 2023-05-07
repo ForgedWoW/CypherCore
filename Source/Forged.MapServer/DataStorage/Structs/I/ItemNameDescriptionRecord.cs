@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemNameDescriptionRecord
+public sealed record ItemNameDescriptionRecord
 {
     public int Color;
     public LocalizedString Description;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationDisplayInfoRecord
+public sealed record ChrCustomizationDisplayInfoRecord
 {
     public float BarberShopHeightOffset;
     public float BarberShopMinCameraDistance;

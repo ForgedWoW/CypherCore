@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MountXDisplayRecord
+public sealed record MountXDisplayRecord
 {
     public uint CreatureDisplayInfoID;
     public uint Id;

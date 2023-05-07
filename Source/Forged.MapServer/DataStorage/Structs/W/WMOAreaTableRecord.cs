@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.W;
 
-public sealed class WMOAreaTableRecord
+public sealed record WMOAreaTableRecord
 {
     public ushort AmbienceID;
     public string AreaName;

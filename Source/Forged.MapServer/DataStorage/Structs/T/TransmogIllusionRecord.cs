@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TransmogIllusionRecord
+public sealed record TransmogIllusionRecord
 {
     public int Flags;
     public uint Id;

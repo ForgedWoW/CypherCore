@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.W;
 
-public sealed class WorldStateExpressionRecord
+public sealed record WorldStateExpressionRecord
 {
     public string Expression;
     public uint Id;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UISplashScreenRecord
+public sealed record UISplashScreenRecord
 {
     public int AllianceQuestID;
     public string BottomLeftFeatureDesc;

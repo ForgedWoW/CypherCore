@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CurvePointRecord
+public sealed record CurvePointRecord
 {
     public ushort CurveID;
     public uint Id;

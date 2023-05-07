@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SkillRaceClassInfoRecord
+public sealed record SkillRaceClassInfoRecord
 {
     public sbyte Availability;
     public int ClassMask;

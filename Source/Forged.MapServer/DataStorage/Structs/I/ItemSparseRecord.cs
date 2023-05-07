@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemSparseRecord
+public sealed record ItemSparseRecord
 {
     public short AllowableClass;
     public long AllowableRace;

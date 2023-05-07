@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureFamilyRecord
+public sealed record CreatureFamilyRecord
 {
     public int IconFileID;
     public uint Id;

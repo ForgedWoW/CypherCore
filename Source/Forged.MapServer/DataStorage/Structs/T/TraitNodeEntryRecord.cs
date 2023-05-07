@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitNodeEntryRecord
+public sealed record TraitNodeEntryRecord
 {
     public uint Id;
     public int MaxRanks;

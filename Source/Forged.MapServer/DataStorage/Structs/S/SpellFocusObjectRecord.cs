@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellFocusObjectRecord
+public sealed record SpellFocusObjectRecord
 {
     public uint Id;
     public string Name;

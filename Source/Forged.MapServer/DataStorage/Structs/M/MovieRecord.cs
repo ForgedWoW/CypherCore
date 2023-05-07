@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MovieRecord
+public sealed record MovieRecord
 {
     public uint AudioFileDataID;
     public uint Id;

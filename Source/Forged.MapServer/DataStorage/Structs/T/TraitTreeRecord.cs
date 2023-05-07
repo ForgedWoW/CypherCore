@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitTreeRecord
+public sealed record TraitTreeRecord
 {
     public int FirstTraitNodeID;
     public int Flags;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitNodeXTraitCostRecord
+public sealed record TraitNodeXTraitCostRecord
 {
     public uint Id;
     public int TraitCostID;

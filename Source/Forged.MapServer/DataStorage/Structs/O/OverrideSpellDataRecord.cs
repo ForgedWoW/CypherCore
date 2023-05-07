@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.O;
 
-public sealed class OverrideSpellDataRecord
+public sealed record OverrideSpellDataRecord
 {
     public byte Flags;
     public uint Id;

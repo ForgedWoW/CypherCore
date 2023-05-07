@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.N;
 
-public sealed class NamesReservedLocaleRecord
+public sealed record NamesReservedLocaleRecord
 {
     public uint Id;
     public byte LocaleMask;

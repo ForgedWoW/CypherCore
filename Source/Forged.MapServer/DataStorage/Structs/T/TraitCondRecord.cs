@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitCondRecord
+public sealed record TraitCondRecord
 {
     public uint AchievementID;
     public int CondType;

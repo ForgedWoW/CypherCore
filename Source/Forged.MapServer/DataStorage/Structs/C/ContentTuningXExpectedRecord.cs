@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ContentTuningXExpectedRecord
+public sealed record ContentTuningXExpectedRecord
 {
     public uint ContentTuningID;
     public int ExpectedStatModID;

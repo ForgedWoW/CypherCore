@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GemPropertiesRecord
+public sealed record GemPropertiesRecord
 {
     public ushort EnchantId;
     public uint Id;

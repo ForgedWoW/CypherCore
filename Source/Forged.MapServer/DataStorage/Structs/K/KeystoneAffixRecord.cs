@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.K;
 
-public sealed class KeystoneAffixRecord
+public sealed record KeystoneAffixRecord
 {
     public LocalizedString Description;
     public int FiledataID;

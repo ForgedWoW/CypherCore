@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GlyphPropertiesRecord
+public sealed record GlyphPropertiesRecord
 {
     public byte GlyphExclusiveCategoryID;
     public byte GlyphType;

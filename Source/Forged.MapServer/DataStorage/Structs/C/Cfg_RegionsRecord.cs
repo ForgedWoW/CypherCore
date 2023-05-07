@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class Cfg_RegionsRecord
+public sealed record Cfg_RegionsRecord
 {
     public uint ChallengeOrigin;
     public uint Id;

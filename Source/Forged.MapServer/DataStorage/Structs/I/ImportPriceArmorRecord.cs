@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ImportPriceArmorRecord
+public sealed record ImportPriceArmorRecord
 {
     public float ChainModifier;
     public float ClothModifier;

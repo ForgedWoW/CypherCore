@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationChoiceRecord
+public sealed record ChrCustomizationChoiceRecord
 {
     public int AddedInPatch;
     public uint ChrCustomizationOptionID;

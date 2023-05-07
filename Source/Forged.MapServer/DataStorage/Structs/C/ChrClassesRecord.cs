@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrClassesRecord
+public sealed record ChrClassesRecord
 {
     public int AlteredFormCharacterCreationIdleVisualFallback;
     public uint ArmorTypeMask;

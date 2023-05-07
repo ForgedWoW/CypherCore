@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MailTemplateRecord
+public sealed record MailTemplateRecord
 {
     public LocalizedString Body;
     public uint Id;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.K;
 
-public sealed class KeyChainRecord
+public sealed record KeyChainRecord
 {
     public uint Id;
     public byte[] Key = new byte[32];

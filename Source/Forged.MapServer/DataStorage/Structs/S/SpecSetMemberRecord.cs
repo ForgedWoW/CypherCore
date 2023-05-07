@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpecSetMemberRecord
+public sealed record SpecSetMemberRecord
 {
     public uint ChrSpecializationID;
     public uint Id;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AreaGroupMemberRecord
+public sealed record AreaGroupMemberRecord
 {
     public uint AreaGroupID;
     public ushort AreaID;
