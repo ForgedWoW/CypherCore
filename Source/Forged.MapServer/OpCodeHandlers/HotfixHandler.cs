@@ -9,14 +9,15 @@ using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+
 // ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class HotfixHandler : IWorldSessionHandler
 {
-    private readonly WorldSession _session;
     private readonly DB2Manager _db2Manager;
+    private readonly WorldSession _session;
 
     public HotfixHandler(WorldSession session, DB2Manager db2Manager)
     {
@@ -60,7 +61,6 @@ public class HotfixHandler : IWorldSessionHandler
             _session.SendPacket(dbReply);
         }
     }
-
 
     [WorldPacketHandler(ClientOpcodes.HotfixRequest, Status = SessionStatus.Authed)]
     private void HandleHotfixRequest(HotfixRequest hotfixQuery)
