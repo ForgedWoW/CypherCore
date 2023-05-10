@@ -5,18 +5,29 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Hotfix;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class HotfixHandler : IWorldSessionHandler
 {
+    private readonly WorldSession _session;
+    private readonly DB2Manager _db2Manager;
+
+    public HotfixHandler(WorldSession session, DB2Manager db2Manager)
+    {
+        _session = session;
+        _db2Manager = db2Manager;
+    }
+
     [WorldPacketHandler(ClientOpcodes.DbQueryBulk, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
     private void HandleDBQueryBulk(DBQueryBulk dbQuery)
     {
-        var store = Global.DB2Mgr.GetStorage(dbQuery.TableHash);
+        var store = _db2Manager.GetStorage(dbQuery.TableHash);
 
         foreach (var record in dbQuery.Queries)
         {
@@ -30,9 +41,9 @@ public class HotfixHandler : IWorldSessionHandler
             {
                 dbReply.Status = HotfixRecord.Status.Valid;
                 dbReply.Timestamp = (uint)GameTime.CurrentTime;
-                store.WriteRecord(record.RecordID, SessionDbcLocale, dbReply.Data);
+                store.WriteRecord(record.RecordID, _session.SessionDbcLocale, dbReply.Data);
 
-                var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(dbQuery.TableHash, record.RecordID, SessionDbcLocale);
+                var optionalDataEntries = _db2Manager.GetHotfixOptionalData(dbQuery.TableHash, record.RecordID, _session.SessionDbcLocale);
 
                 foreach (var optionalData in optionalDataEntries)
                 {
@@ -42,11 +53,11 @@ public class HotfixHandler : IWorldSessionHandler
             }
             else
             {
-                Log.Logger.Verbose("CMSG_DB_QUERY_BULK: {0} requested non-existing entry {1} in datastore: {2}", GetPlayerInfo(), record.RecordID, dbQuery.TableHash);
+                Log.Logger.Verbose("CMSG_DB_QUERY_BULK: {0} requested non-existing entry {1} in datastore: {2}", _session.GetPlayerInfo(), record.RecordID, dbQuery.TableHash);
                 dbReply.Timestamp = (uint)GameTime.CurrentTime;
             }
 
-            SendPacket(dbReply);
+            _session.SendPacket(dbReply);
         }
     }
 
@@ -54,7 +65,7 @@ public class HotfixHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.HotfixRequest, Status = SessionStatus.Authed)]
     private void HandleHotfixRequest(HotfixRequest hotfixQuery)
     {
-        var hotfixes = Global.DB2Mgr.GetHotfixData();
+        var hotfixes = _db2Manager.GetHotfixData();
 
         HotfixConnect hotfixQueryResponse = new();
 
@@ -69,14 +80,14 @@ public class HotfixHandler : IWorldSessionHandler
 
                     if (hotfixRecord.HotfixStatus == HotfixRecord.Status.Valid)
                     {
-                        var storage = Global.DB2Mgr.GetStorage(hotfixRecord.TableHash);
+                        var storage = _db2Manager.GetStorage(hotfixRecord.TableHash);
 
                         if (storage != null && storage.HasRecord((uint)hotfixRecord.RecordID))
                         {
                             var pos = hotfixQueryResponse.HotfixContent.GetSize();
-                            storage.WriteRecord((uint)hotfixRecord.RecordID, SessionDbcLocale, hotfixQueryResponse.HotfixContent);
+                            storage.WriteRecord((uint)hotfixRecord.RecordID, _session.SessionDbcLocale, hotfixQueryResponse.HotfixContent);
 
-                            var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(hotfixRecord.TableHash, (uint)hotfixRecord.RecordID, SessionDbcLocale);
+                            var optionalDataEntries = _db2Manager.GetHotfixOptionalData(hotfixRecord.TableHash, (uint)hotfixRecord.RecordID, _session.SessionDbcLocale);
 
                             if (optionalDataEntries != null)
                                 foreach (var optionalData in optionalDataEntries)
@@ -89,7 +100,7 @@ public class HotfixHandler : IWorldSessionHandler
                         }
                         else
                         {
-                            var blobData = Global.DB2Mgr.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, SessionDbcLocale);
+                            var blobData = _db2Manager.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, _session.SessionDbcLocale);
 
                             if (blobData != null)
                             {
@@ -105,6 +116,6 @@ public class HotfixHandler : IWorldSessionHandler
                     hotfixQueryResponse.Hotfixes.Add(hotfixData);
                 }
 
-        SendPacket(hotfixQueryResponse);
+        _session.SendPacket(hotfixQueryResponse);
     }
 }
