@@ -427,7 +427,7 @@ void RegisterManagers()
 
     builder.RegisterType<CalendarManager>().SingleInstance().OnActivated(c => c.Instance.LoadFromDB());
     builder.RegisterType<BattlePetMgr>().SingleInstance();
-    builder.RegisterType<BattlePetMgrData>().SingleInstance();
+    builder.RegisterType<BattlePetData>().SingleInstance();
     builder.RegisterType<UnitCombatHelpers>().SingleInstance();
     builder.RegisterType<PlayerComputators>().SingleInstance();
     builder.RegisterType<CommandManager>().SingleInstance();

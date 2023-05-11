@@ -18,19 +18,19 @@ public class BattlePet
     public long NameTimestamp;
     public BattlePetStruct PacketInfo;
     public BattlePetSaveInfo SaveInfo;
-    private readonly BattlePetMgrData _battlePetMgr;
+    private readonly BattlePetData _battlePet;
     private readonly DB6Storage<BattlePetBreedQualityRecord> _battlePetBreedQualityRecords;
 
-    public BattlePet(BattlePetMgrData battlePetMgr, DB6Storage<BattlePetBreedQualityRecord> battlePetBreedQualityRecords)
+    public BattlePet(BattlePetData battlePet, DB6Storage<BattlePetBreedQualityRecord> battlePetBreedQualityRecords)
     {
-        _battlePetMgr = battlePetMgr;
+        _battlePet = battlePet;
         _battlePetBreedQualityRecords = battlePetBreedQualityRecords;
     }
 
     public void CalculateStats()
     {
         // get base breed stats
-        if (!_battlePetMgr.BattlePetBreedStates.TryGetValue(PacketInfo.Breed, out var breedState)) // non existing breed id
+        if (!_battlePet.BattlePetBreedStates.TryGetValue(PacketInfo.Breed, out var breedState)) // non existing breed id
             return;
 
         float health = breedState[BattlePetState.StatStamina];
@@ -38,7 +38,7 @@ public class BattlePet
         float speed = breedState[BattlePetState.StatSpeed];
 
         // modify stats depending on species - not all pets have this
-        if (_battlePetMgr.BattlePetSpeciesStates.TryGetValue(PacketInfo.Species, out var speciesState))
+        if (_battlePet.BattlePetSpeciesStates.TryGetValue(PacketInfo.Species, out var speciesState))
         {
             health += speciesState[BattlePetState.StatStamina];
             power += speciesState[BattlePetState.StatPower];

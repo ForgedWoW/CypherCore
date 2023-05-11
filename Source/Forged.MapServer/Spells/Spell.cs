@@ -71,7 +71,7 @@ public partial class Spell : IDisposable
     private readonly HashSet<int> _applyMultiplierMask = new();
 
     private readonly BattleFieldManager _battleFieldManager;
-    private readonly BattlePetMgrData _battlePetMgrData;
+    private readonly BattlePetData _battlePetData;
     private readonly bool _canReflect;
 
     private readonly CellCalculator _cellCalculator;
@@ -167,7 +167,7 @@ public partial class Spell : IDisposable
                  SkillPerfectItems skillPerfectItems, SkillExtraItems skillExtraItems, ItemEnchantmentManager itemEnchantmentManager, GameObjectManager gameObjectManager, InstanceLockManager instanceLockManager,
                  CliDB cliDb, BattleFieldManager battleFieldManager, UnitCombatHelpers combatHelpers, SpellManager spellManager, GroupManager groupManager, ScriptManager scriptManager, LootStoreBox lootStoreBox,
                  WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator, TraitMgr traitMgr, GameObjectFactory gameObjectFactory, PhasingHandler phasingHandler,
-                 BattlePetMgrData battlePetMgrData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, 
+                 BattlePetData battlePetData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, 
                  ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, 
                  ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
@@ -192,7 +192,7 @@ public partial class Spell : IDisposable
         _traitMgr = traitMgr;
         _gameObjectFactory = gameObjectFactory;
         _phasingHandler = phasingHandler;
-        _battlePetMgrData = battlePetMgrData;
+        _battlePetData = battlePetData;
         _outdoorPvPManager = outdoorPvPManager;
         _objectAccessor = objectAccessor;
         _creatureTextManager = creatureTextManager;

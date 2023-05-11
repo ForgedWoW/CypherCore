@@ -32,7 +32,7 @@ public sealed class SpellManager
 
     private static readonly Dictionary<int, PetAura> DefaultPetAuras = new();
 
-    private readonly BattlePetMgrData _battlePetMgrData;
+    private readonly BattlePetData _battlePetData;
     private readonly ClassFactory _classFactory;
 
     private readonly CliDB _cliDB;
@@ -104,14 +104,14 @@ public sealed class SpellManager
 
     private readonly WorldDatabase _worldDatabase;
 
-    public SpellManager(GameObjectManager objectManager, CliDB cliDB, WorldDatabase worldDatabase, DB2Manager db2Manager, LanguageManager languageManager, BattlePetMgrData battlePetMgrData, ClassFactory classFactory)
+    public SpellManager(GameObjectManager objectManager, CliDB cliDB, WorldDatabase worldDatabase, DB2Manager db2Manager, LanguageManager languageManager, BattlePetData battlePetData, ClassFactory classFactory)
     {
         _objectManager = objectManager;
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
         _db2Manager = db2Manager;
         _languageManager = languageManager;
-        _battlePetMgrData = battlePetMgrData;
+        _battlePetData = battlePetData;
         _classFactory = classFactory;
         var currentAsm = Assembly.GetExecutingAssembly();
 
@@ -3924,7 +3924,7 @@ public sealed class SpellManager
                 if (_cliDB.SummonPropertiesStorage.TryGetValue((uint)effect.EffectMiscValue[1], out var summonProperties))
                     if (summonProperties.Slot == (int)SummonSlot.MiniPet && summonProperties.GetFlags().HasFlag(SummonPropertiesFlags.SummonFromBattlePetJournal))
                         if (battlePetSpeciesByCreature.TryGetValue((uint)effect.EffectMiscValue[0], out var battlePetSpecies))
-                            _battlePetMgrData.AddBattlePetSpeciesBySpell(effect.SpellID, battlePetSpecies);
+                            _battlePetData.AddBattlePetSpeciesBySpell(effect.SpellID, battlePetSpecies);
 
             if (effect.Effect == (int)SpellEffectName.Language)
                 _languageManager.LoadSpellEffectLanguage(effect);

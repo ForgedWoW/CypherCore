@@ -22,7 +22,7 @@ namespace Forged.MapServer.Battlepay;
 public class BattlepayManager
 {
     private readonly BattlePayDataStoreMgr _battlePayDataStoreMgr;
-    private readonly BattlePetMgrData _battlePetMgr;
+    private readonly BattlePetData _battlePet;
     private readonly IConfiguration _configuration;
     private readonly SortedDictionary<uint, BpayProduct> _existProducts = new();
     private readonly LoginDatabase _loginDatabase;
@@ -30,10 +30,10 @@ public class BattlepayManager
     private ulong _distributionIDCount;
     private ulong _purchaseIDCount;
 
-    public BattlepayManager(WorldSession session, BattlePetMgrData battlePetMgr, LoginDatabase loginDatabase, IConfiguration configuration, BattlePayDataStoreMgr battlePayDataStoreMgr)
+    public BattlepayManager(WorldSession session, BattlePetData battlePet, LoginDatabase loginDatabase, IConfiguration configuration, BattlePayDataStoreMgr battlePayDataStoreMgr)
     {
         _session = session;
-        _battlePetMgr = battlePetMgr;
+        _battlePet = battlePet;
         _loginDatabase = loginDatabase;
         _configuration = configuration;
         _battlePayDataStoreMgr = battlePayDataStoreMgr;
@@ -53,11 +53,11 @@ public class BattlepayManager
 
     public void AddBattlePetFromBpayShop(uint battlePetCreatureID)
     {
-        var speciesEntry = _battlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID);
+        var speciesEntry = _battlePet.GetBattlePetSpeciesByCreature(battlePetCreatureID);
 
-        if (_battlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
+        if (_battlePet.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
         {
-            _session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetMgr.SelectPetDisplay(speciesEntry), _battlePetMgr.RollPetBreed(speciesEntry.Id), _battlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+            _session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePet.SelectPetDisplay(speciesEntry), _battlePet.RollPetBreed(speciesEntry.Id), _battlePet.GetDefaultPetQuality(speciesEntry.Id));
 
             //it gives back false information need to get the pet guid from the add pet method somehow
             SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _session.Player.GameObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);

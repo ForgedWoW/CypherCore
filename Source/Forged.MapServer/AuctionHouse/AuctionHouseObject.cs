@@ -35,7 +35,7 @@ public class AuctionHouseObject
 {
     private readonly AuctionHouseRecord _auctionHouse;
     private readonly AuctionManager _auctionManager;
-    private readonly BattlePetMgrData _battlePetMgr;
+    private readonly BattlePetData _battlePet;
     private readonly SortedDictionary<AuctionsBucketKey, AuctionsBucketData> _buckets = new();
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
@@ -64,7 +64,7 @@ public class AuctionHouseObject
     private readonly WorldManager _worldManager;
 
     public AuctionHouseObject(uint auctionHouseId, CliDB cliDB, CharacterDatabase characterDatabase, AuctionManager auctionManager, IConfiguration configuration,
-                              ScriptManager scriptManager, DB2Manager db2Manager, GameObjectManager objectManager, BattlePetMgrData battlePetMgr, CharacterCache characterCache,
+                              ScriptManager scriptManager, DB2Manager db2Manager, GameObjectManager objectManager, BattlePetData battlePet, CharacterCache characterCache,
                               WorldManager worldManager, ObjectAccessor objectAccessor, ClassFactory classFactory)
     {
         _cliDB = cliDB;
@@ -74,7 +74,7 @@ public class AuctionHouseObject
         _scriptManager = scriptManager;
         _db2Manager = db2Manager;
         _objectManager = objectManager;
-        _battlePetMgr = battlePetMgr;
+        _battlePet = battlePet;
         _characterCache = characterCache;
         _worldManager = worldManager;
         _objectAccessor = objectAccessor;
@@ -413,7 +413,7 @@ public class AuctionHouseObject
                         if (player.HasSpell((uint)itemTemplate.Effects[1].SpellID))
                             continue;
 
-                        var battlePetSpecies = _battlePetMgr.GetBattlePetSpeciesBySpell((uint)itemTemplate.Effects[1].SpellID);
+                        var battlePetSpecies = _battlePet.GetBattlePetSpeciesBySpell((uint)itemTemplate.Effects[1].SpellID);
 
                         if (battlePetSpecies != null)
                             if (knownPetSpecies.Get((int)battlePetSpecies.Id))

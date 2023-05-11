@@ -16,7 +16,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class Trainer
 {
-    private readonly BattlePetMgrData _battlePetMgr;
+    private readonly BattlePetData _battlePet;
     private readonly ConditionManager _conditionManager;
     private readonly string[] _greeting = new string[(int)Locale.Total];
     private readonly uint _id;
@@ -24,13 +24,13 @@ public class Trainer
     private readonly List<TrainerSpell> _spells;
     private readonly TrainerType _type;
 
-    public Trainer(uint id, TrainerType type, string greeting, List<TrainerSpell> spells, ConditionManager conditionManager, BattlePetMgrData battlePetMgr, SpellManager spellManager)
+    public Trainer(uint id, TrainerType type, string greeting, List<TrainerSpell> spells, ConditionManager conditionManager, BattlePetData battlePet, SpellManager spellManager)
     {
         _id = id;
         _type = type;
         _spells = spells;
         _conditionManager = conditionManager;
-        _battlePetMgr = battlePetMgr;
+        _battlePet = battlePet;
         _spellManager = spellManager;
 
         _greeting[(int)Locale.enUS] = greeting;
@@ -91,7 +91,7 @@ public class Trainer
         }
 
         var sendSpellVisual = true;
-        var speciesEntry = _battlePetMgr.GetBattlePetSpeciesBySpell(trainerSpell.SpellId);
+        var speciesEntry = _battlePet.GetBattlePetSpeciesBySpell(trainerSpell.SpellId);
 
         if (speciesEntry != null)
         {
@@ -129,7 +129,7 @@ public class Trainer
 
             if (speciesEntry != null)
             {
-                player.Session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetMgr.SelectPetDisplay(speciesEntry), _battlePetMgr.RollPetBreed(speciesEntry.Id), _battlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+                player.Session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePet.SelectPetDisplay(speciesEntry), _battlePet.RollPetBreed(speciesEntry.Id), _battlePet.GetDefaultPetQuality(speciesEntry.Id));
                 // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
                 // marking as dependent prevents saving the spell to database (intended)
                 dependent = true;

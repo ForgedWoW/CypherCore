@@ -11,7 +11,7 @@ using Serilog;
 
 namespace Forged.MapServer.Chat;
 
-public class BattlePetMgrData
+public class BattlePetData
 {
     public Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetBreedStates = new();
     public Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetSpeciesStates = new();
@@ -23,7 +23,7 @@ public class BattlePetMgrData
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public BattlePetMgrData(LoginDatabase loginDatabase, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager)
+    public BattlePetData(LoginDatabase loginDatabase, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;

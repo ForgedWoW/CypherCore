@@ -2805,11 +2805,11 @@ public partial class Spell
 
                 var dependent = false;
 
-                var speciesEntry = _battlePetMgrData.GetBattlePetSpeciesBySpell((uint)itemEffect.SpellID);
+                var speciesEntry = _battlePetData.GetBattlePetSpeciesBySpell((uint)itemEffect.SpellID);
 
                 if (speciesEntry != null)
                 {
-                    player.Session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetMgrData.SelectPetDisplay(speciesEntry), _battlePetMgrData.RollPetBreed(speciesEntry.Id), _battlePetMgrData.GetDefaultPetQuality(speciesEntry.Id));
+                    player.Session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetData.SelectPetDisplay(speciesEntry), _battlePetData.RollPetBreed(speciesEntry.Id), _battlePetData.GetDefaultPetQuality(speciesEntry.Id));
                     // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
                     // marking as dependent prevents saving the spell to database (intended)
                     dependent = true;

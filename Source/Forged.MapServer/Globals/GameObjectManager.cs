@@ -10248,7 +10248,7 @@ public sealed class GameObjectManager
                     spellsByTrainer.Remove(trainerId);
                 }
 
-                _trainers.Add(trainerId, new Trainer(trainerId, trainerType, greeting, spells, _classFactory.Resolve<ConditionManager>(), _classFactory.Resolve<BattlePetMgrData>(), _classFactory.Resolve<SpellManager>()));
+                _trainers.Add(trainerId, new Trainer(trainerId, trainerType, greeting, spells, _classFactory.Resolve<ConditionManager>(), _classFactory.Resolve<BattlePetData>(), _classFactory.Resolve<SpellManager>()));
             } while (trainersResult.NextRow());
 
         foreach (var unusedSpells in spellsByTrainer.KeyValueList)
