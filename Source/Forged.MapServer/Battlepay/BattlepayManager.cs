@@ -377,7 +377,7 @@ public class BattlepayManager
                         player.SendABunchOfItemsInMail(itemstosendinmail, "Ingame Shop - You bought an item set!");
                 }
 
-                    break;
+                break;
 
                 case ProductType.Gold: // 30
                     if (!player.Session.IsLogingOut)
@@ -947,17 +947,17 @@ public class BattlepayManager
                     }
 
                     break;
-                /*
-            case Battlepay::VueloDL:
-                if (!player)
-                    player->AddItem(128706, 1);
-                player->CompletedAchievement(sAchievementStore.LookupEntry(10018));
-                player->CompletedAchievement(sAchievementStore.LookupEntry(11190));
-                player->CompletedAchievement(sAchievementStore.LookupEntry(11446));
-                player->GetSession()->SendNotification("|cff00FF00Has aprendido poder volar en las Islas Abruptas, Costas Abruptas y Draenor");
-                break;
-                //
-                    */
+                    /*
+                case Battlepay::VueloDL:
+                    if (!player)
+                        player->AddItem(128706, 1);
+                    player->CompletedAchievement(sAchievementStore.LookupEntry(10018));
+                    player->CompletedAchievement(sAchievementStore.LookupEntry(11190));
+                    player->CompletedAchievement(sAchievementStore.LookupEntry(11446));
+                    player->GetSession()->SendNotification("|cff00FF00Has aprendido poder volar en las Islas Abruptas, Costas Abruptas y Draenor");
+                    break;
+                    //
+                        */
             }
         }
         /*
@@ -1336,7 +1336,6 @@ public class BattlepayManager
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
             }
-            
             }
             break;
         }
@@ -1350,7 +1349,6 @@ public class BattlepayManager
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
             }
-            
             }
             break;
         }
@@ -1361,14 +1359,11 @@ public class BattlepayManager
             case CharacterBoost:
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
-
-            
             }
             break;
         }
         case Battlepay::Properties::DistributionStatus::BATTLE_PAY_DIST_STATUS_AVAILABLE:
         case Battlepay::Properties::DistributionStatus::BATTLE_PAY_DIST_STATUS_NONE:
-        
         }
         */
     }
