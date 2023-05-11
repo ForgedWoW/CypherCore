@@ -27,6 +27,7 @@ using Forged.MapServer.Networking.Packets.Duel;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Talent;
+using Forged.MapServer.Networking.Packets.Taxi;
 using Forged.MapServer.Networking.Packets.Trait;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IQuest;
@@ -36,6 +37,9 @@ using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedMember.Global
 
 namespace Forged.MapServer.Spells;
 
@@ -244,8 +248,8 @@ public partial class Spell
             group.SetDungeonDifficultyID(SpellInfo.Difficulty);
             _groupManager.AddGroup(group);
         }
-        else if (group.IsMember(creature.GUID))
-            return;
+        //else if (group.IsMember(creature.GUID))
+        //    return;
 
         /* if (m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue == 1)
             group->AddCreatureMember(creature);
@@ -1090,13 +1094,17 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (UnitTarget == null || !UnitTarget.IsTypeId(TypeId.Player))
+        if (UnitTarget == null || !UnitTarget.TryGetAsPlayer(out var player))
             return;
 
         var nodeid = (uint)EffectInfo.MiscValue;
 
-        if (_cliDb.TaxiNodesStorage.ContainsKey(nodeid))
-            UnitTarget.AsPlayer.Session.SendDiscoverNewTaxiNode(nodeid);
+        if (!_cliDb.TaxiNodesStorage.ContainsKey(nodeid))
+            return;
+
+        if (player.Taxi.SetTaximaskNode(nodeid))
+            player.Session.SendPacket(new NewTaxiPath());
+
     }
 
     [SpellEffectHandler(SpellEffectName.Disenchant)]
@@ -5415,11 +5423,11 @@ public partial class Spell
     [SpellEffectHandler(SpellEffectName.TradeSkill)]
     private void EffectTradeSkill()
     {
-        if (_effectHandleMode != SpellEffectHandleMode.Hit)
-            return;
+        //if (_effectHandleMode != SpellEffectHandleMode.Hit)
+        //    return;
 
-        if (!Caster.IsTypeId(TypeId.Player))
-            return;
+        //if (!Caster.IsTypeId(TypeId.Player))
+        //    return;
 
         // TODO Not implemented.
         // uint skillid =  GetEffect(i].MiscValue;
@@ -5797,7 +5805,7 @@ public partial class Spell
 
                                            if (!castItemGuid.IsEmpty && triggerSpellInfo.HasAttribute(SpellAttr2.RetainItemCast))
                                            {
-                                               var triggeringAuraCaster = caster?.AsPlayer;
+                                               var triggeringAuraCaster = caster.AsPlayer;
 
                                                if (triggeringAuraCaster != null)
                                                    args.CastItem = triggeringAuraCaster.GetItemByGuid(castItemGuid);
