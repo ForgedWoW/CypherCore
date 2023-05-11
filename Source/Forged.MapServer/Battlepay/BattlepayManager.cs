@@ -24,7 +24,6 @@ public class BattlepayManager
     private readonly BattlePayDataStoreMgr _battlePayDataStoreMgr;
     private readonly BattlePetData _battlePet;
     private readonly IConfiguration _configuration;
-    private readonly SortedDictionary<uint, BpayProduct> _existProducts = new();
     private readonly LoginDatabase _loginDatabase;
     private readonly WorldSession _session;
     private ulong _distributionIDCount;
@@ -55,13 +54,13 @@ public class BattlepayManager
     {
         var speciesEntry = _battlePet.GetBattlePetSpeciesByCreature(battlePetCreatureID);
 
-        if (_battlePet.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
-        {
-            _session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePet.SelectPetDisplay(speciesEntry), _battlePet.RollPetBreed(speciesEntry.Id), _battlePet.GetDefaultPetQuality(speciesEntry.Id));
+        if (_battlePet.GetBattlePetSpeciesByCreature(battlePetCreatureID) == null)
+            return;
 
-            //it gives back false information need to get the pet guid from the add pet method somehow
-            SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _session.Player.GameObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
-        }
+        _session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePet.SelectPetDisplay(speciesEntry), _battlePet.RollPetBreed(speciesEntry.Id), _battlePet.GetDefaultPetQuality(speciesEntry.Id));
+
+        //it gives back false information need to get the pet guid from the add pet method somehow
+        SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _session.Player.GameObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
     }
 
     public bool AlreadyOwnProduct(uint itemId)
@@ -89,12 +88,12 @@ public class BattlepayManager
 
         _session.SendPacket(upgrade);
 
-        new BattlePayStartDistributionAssignToTargetResponse
-        {
-            DistributionID = distributionId,
-            unkint1 = 0,
-            unkint2 = 0
-        };
+        //new BattlePayStartDistributionAssignToTargetResponse
+        //{
+        //    DistributionID = distributionId,
+        //    unkint1 = 0,
+        //    unkint2 = 0
+        //};
 
         _session.SendPacket(upgrade);
 
@@ -156,7 +155,7 @@ public class BattlepayManager
     {
         var player = _session.Player;
 
-        if (!player)
+        if (player == null)
             return;
 
         var productInfo = _battlePayDataStoreMgr.GetProductInfoForProduct(purchase.ProductID);
@@ -173,7 +172,7 @@ public class BattlepayManager
                 case ProductType.Item: // 0
                     itemsToSendIfInventoryFull.Clear();
 
-                    if (itemTemplate != null && player)
+                    if (itemTemplate != null)
                     {
                         if (player.GetFreeInventorySpace() > product.Unk1)
                             player.AddItemWithToast(product.Flags, (ushort)product.Unk1, 0);
@@ -246,7 +245,7 @@ public class BattlepayManager
                     break;
 
                 case ProductType.Pet: // 2
-                    if (player)       // if logged in
+                    if (!player.Session.IsLogingOut)       // if logged in
                         player.Session.BattlePayMgr.AddBattlePetFromBpayShop(product.ItemId);
                     else
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
@@ -259,7 +258,7 @@ public class BattlepayManager
                     break;
 
                 case ProductType.WoWToken: // 4
-                    if (itemTemplate != null && player)
+                    if (itemTemplate != null && !player.Session.IsLogingOut)
                     {
                         if (player.GetFreeInventorySpace() > product.Unk1)
                             player.AddItemWithToast(product.Flags, (ushort)product.Unk1, 0);
@@ -275,8 +274,8 @@ public class BattlepayManager
 
                     break;
 
-                case ProductType.NameChange: // 5
-                    if (player)              // if logged in
+                case ProductType.NameChange:         // 5
+                    if (!player.Session.IsLogingOut) // if logged in
                         player.SetAtLoginFlag(AtLoginFlags.Rename);
                     else
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
@@ -284,7 +283,7 @@ public class BattlepayManager
                     break;
 
                 case ProductType.FactionChange:                            // 6
-                    if (player)                                            // if logged in
+                    if (!player.Session.IsLogingOut)                       // if logged in
                         player.SetAtLoginFlag(AtLoginFlags.ChangeFaction); // not ok for 6 or 3 faction change - only does once yet
                     else
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
@@ -292,7 +291,7 @@ public class BattlepayManager
                     break;
 
                 case ProductType.RaceChange:                            // 8
-                    if (player)                                         // if logged in
+                    if (!player.Session.IsLogingOut)                    // if logged in
                         player.SetAtLoginFlag(AtLoginFlags.ChangeRace); // not ok for 6 or 3 faction change - only does once yet
                     else
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
@@ -311,15 +310,15 @@ public class BattlepayManager
 
                     break;
 
-                case ProductType.Expansion: // 18
-                    if (player)             // if logged in
+                case ProductType.Expansion:          // 18
+                    if (!player.Session.IsLogingOut) // if logged in
                         //player->SendMovieStart(936); // Play SL Intro - xD what else in a private server we don't sell expansions
                         player.SendMovieStart(957); // Play SL Outro - we are preparing for dragonflight xD
 
                     break;
 
                 case ProductType.GameTime: // 20
-                    if (itemTemplate != null && player)
+                    if (itemTemplate != null && !player.Session.IsLogingOut)
                     {
                         if (player.GetFreeInventorySpace() > product.Unk1)
                             player.AddItemWithToast(product.Flags, (ushort)product.Unk1, 0);
@@ -381,13 +380,13 @@ public class BattlepayManager
                     break;
 
                 case ProductType.Gold: // 30
-                    if (player)
+                    if (!player.Session.IsLogingOut)
                         player.ModifyMoney(product.Unk7);
 
                     break;
 
                 case ProductType.Currency: // 31
-                    if (player)
+                    if (!player.Session.IsLogingOut)
                         player.ModifyCurrency(product.Flags, (int)product.Unk1); // implement currencyID in DB
 
                     break;
@@ -751,7 +750,7 @@ public class BattlepayManager
                                     break;
                 */
                 case ProductType.PremadePve:
-                    if (!player) // Bags
+                    if (!player.Session.IsLogingOut) // Bags
                         for (var slot = InventorySlots.BagStart; slot < InventorySlots.BagEnd; slot++)
                             player.EquipNewItem(slot, 142075, ItemContext.None, true);
 
@@ -979,7 +978,7 @@ public class BattlepayManager
         var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
         stmt.AddValue(0, _session.AccountId);
         stmt.AddValue(1, WorldManager.Realm.Id.VirtualRealmAddress);
-        stmt.AddValue(2, _session.Player ? _session.Player.GUID.Counter : 0);
+        stmt.AddValue(2, _session.Player != null ? _session.Player.GUID.Counter : 0);
         stmt.AddValue(3, purchase.ProductID);
         stmt.AddValue(4, displayInfo.Name1);
         stmt.AddValue(5, purchase.CurrentPrice);
