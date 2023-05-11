@@ -549,4 +549,12 @@ void RegisterHandlers()
     builder.RegisterType<BattlepayHandler>();
     builder.RegisterType<ArtifactHandler>();
     builder.RegisterType<BattleGroundHandler>();
+    builder.RegisterType<BattlePetHandler>();
+    builder.RegisterType<BlackMarketHandlers>();
+    builder.RegisterType<CombatHandler>();
+    builder.RegisterType<GarrisonHandler>();
+    builder.RegisterType<GuildHandler>();
+    builder.RegisterType<HotfixHandler>();
+    builder.RegisterType<InspectHandler>();
+    builder.RegisterType<ItemHandler>();
 }
