@@ -186,7 +186,7 @@ public class WorldSession : IDisposable
     public uint Latency { get; set; }
     public string OS { get; }
     public Player Player { get; set; }
-    public bool PlayerDisconnected => !(Socket != null && Socket.IsOpen);
+    public bool PlayerDisconnected => Socket is not { IsOpen: true };
     public bool PlayerLoading => !_playerLoading.IsEmpty;
     public bool PlayerLogout { get; private set; }
 
@@ -1443,7 +1443,7 @@ public class WorldSession : IDisposable
         SendPacket(new AvailableHotfixes(_realm.Id.VirtualRealmAddress, _db2Manager.GetHotfixData()));
     }
 
-    private void SetLogoutStartTime(long requestTime)
+    public void SetLogoutStartTime(long requestTime)
     {
         _logoutTime = requestTime;
     }
