@@ -2,7 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -14,93 +15,110 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Loot;
+using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class LootHandler : IWorldSessionHandler
 {
+    private readonly CellCalculator _cellCalculator;
+    private readonly DB6Storage<ChrSpecializationRecord> _chrSpecializationRecords;
+    private readonly LootItemStorage _lootItemStorage;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly WorldSession _session;
+    private readonly UnitCombatHelpers _unitCombatHelpers;
+
+    public LootHandler(WorldSession session, UnitCombatHelpers unitCombatHelpers, CellCalculator cellCalculator, ObjectAccessor objectAccessor,
+                       DB6Storage<ChrSpecializationRecord> chrSpecializationRecords, LootItemStorage lootItemStorage)
+    {
+        _session = session;
+        _unitCombatHelpers = unitCombatHelpers;
+        _cellCalculator = cellCalculator;
+        _objectAccessor = objectAccessor;
+        _chrSpecializationRecords = chrSpecializationRecords;
+        _lootItemStorage = lootItemStorage;
+    }
+
     [WorldPacketHandler(ClientOpcodes.LootItem)]
     private void HandleAutostoreLootItem(LootItemPkt packet)
     {
-        var player = Player;
-        var aeResult = player.GetAELootView().Count > 1 ? new AELootResult() : null;
+        var aeResult = _session.Player.GetAELootView().Count > 1 ? new AELootResult() : null;
 
         // @todo Implement looting by LootObject guid
         foreach (var req in packet.Loot)
         {
-            if (!player.GetAELootView().TryGetValue(req.Object, out var loot))
+            if (!_session.Player.GetAELootView().TryGetValue(req.Object, out var loot))
             {
-                player.SendLootRelease(ObjectGuid.Empty);
+                _session.Player.SendLootRelease(ObjectGuid.Empty);
 
                 continue;
             }
-
-            var lguid = loot.GetOwnerGUID();
-
-            if (lguid.IsGameObject)
+            if (loot.OwnerGuid.IsGameObject)
             {
-                var go = player.Map.GetGameObject(lguid);
+                var go = _session.Player.Location.Map.GetGameObject(loot.OwnerGuid);
 
                 // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-                if (!go || (go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole && !go.IsWithinDistInMap(player)))
+                if (go == null || (go.OwnerGUID != _session.Player.GUID && go.GoType != GameObjectTypes.FishingHole && !go.IsWithinDistInMap(_session.Player)))
                 {
-                    player.SendLootRelease(lguid);
+                    _session.Player.SendLootRelease(loot.OwnerGuid);
 
                     continue;
                 }
             }
-            else if (lguid.IsCreatureOrVehicle)
+            else if (loot.OwnerGuid.IsCreatureOrVehicle)
             {
-                var creature = player.Map.GetCreature(lguid);
+                var creature = _session.Player.Location.Map.GetCreature(loot.OwnerGuid);
 
                 if (creature == null)
                 {
-                    player.SendLootError(req.Object, lguid, LootError.NoLoot);
+                    _session.Player.SendLootError(req.Object, loot.OwnerGuid, LootError.NoLoot);
 
                     continue;
                 }
 
-                if (!creature.IsWithinDistInMap(player, AELootCreatureCheck.LootDistance))
+                if (!creature.Location.IsWithinDistInMap(_session.Player, AELootCreatureCheck.LootDistance))
                 {
-                    player.SendLootError(req.Object, lguid, LootError.TooFar);
+                    _session.Player.SendLootError(req.Object, loot.OwnerGuid, LootError.TooFar);
 
                     continue;
                 }
             }
 
-            player.StoreLootItem(lguid, req.LootListID, loot, aeResult);
+            _session.Player.StoreLootItem(loot.OwnerGuid, req.LootListID, loot, aeResult);
 
             // If player is removing the last LootItem, delete the empty container.
-            if (loot.IsLooted() && lguid.IsItem)
-                player.Session.DoLootRelease(loot);
+            if (loot.IsLooted() && loot.OwnerGuid.IsItem)
+                _session.Player.Session.DoLootRelease(loot);
         }
 
         if (aeResult != null)
             foreach (var resultValue in aeResult.ByOrder)
             {
-                player.SendNewItem(resultValue.Item, resultValue.Count, false, false, true, resultValue.DungeonEncounterId);
-                player.UpdateCriteria(CriteriaType.LootItem, resultValue.Item.Entry, resultValue.Count);
-                player.UpdateCriteria(CriteriaType.GetLootByType, resultValue.Item.Entry, resultValue.Count, (ulong)resultValue.LootType);
-                player.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.Item.Entry, resultValue.Count);
+                _session.Player.SendNewItem(resultValue.Item, resultValue.Count, false, false, true, resultValue.DungeonEncounterId);
+                _session.Player.UpdateCriteria(CriteriaType.LootItem, resultValue.Item.Entry, resultValue.Count);
+                _session.Player.UpdateCriteria(CriteriaType.GetLootByType, resultValue.Item.Entry, resultValue.Count, (ulong)resultValue.LootType);
+                _session.Player.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.Item.Entry, resultValue.Count);
             }
 
-        UnitCombatHelpers.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+        _unitCombatHelpers.ProcSkillsAndAuras(_session.Player, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
     }
 
     [WorldPacketHandler(ClientOpcodes.LootUnit)]
     private void HandleLoot(LootUnit packet)
     {
         // Check possible cheat
-        if (!Player.IsAlive || !packet.Unit.IsCreatureOrVehicle)
+        if (!_session.Player.IsAlive || !packet.Unit.IsCreatureOrVehicle)
             return;
 
-        var lootTarget = ObjectAccessor.GetCreature(Player, packet.Unit);
+        var lootTarget = ObjectAccessor.GetCreature(_session.Player, packet.Unit);
 
-        if (!lootTarget)
+        if (lootTarget == null)
             return;
 
         AELootCreatureCheck check = new(_session.Player, packet.Unit);
@@ -109,30 +127,30 @@ public class LootHandler : IWorldSessionHandler
             return;
 
         // interrupt cast
-        if (Player.IsNonMeleeSpellCast(false))
-            Player.InterruptNonMeleeSpells(false);
+        if (_session.Player.IsNonMeleeSpellCast(false))
+            _session.Player.InterruptNonMeleeSpells(false);
 
-        Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Looting);
+        _session.Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Looting);
 
         List<Creature> corpses = new();
         CreatureListSearcher searcher = new(_session.Player, corpses, check, GridType.Grid);
-        CellCalculator.VisitGrid(_session.Player, searcher, AELootCreatureCheck.LootDistance);
+        _cellCalculator.VisitGrid(_session.Player, searcher, AELootCreatureCheck.LootDistance);
 
         if (!corpses.Empty())
-            SendPacket(new AELootTargets((uint)corpses.Count + 1));
+            _session.SendPacket(new AELootTargets((uint)corpses.Count + 1));
 
-        Player.SendLoot(lootTarget.GetLootForPlayer(Player));
+        _session.Player.SendLoot(lootTarget.GetLootForPlayer(_session.Player));
 
-        if (!corpses.Empty())
+        if (corpses.Empty())
+            return;
+
+        // main target
+        _session.SendPacket(new AELootTargetsAck());
+
+        foreach (var creature in corpses)
         {
-            // main target
-            SendPacket(new AELootTargetsAck());
-
-            foreach (var creature in corpses)
-            {
-                Player.SendLoot(creature.GetLootForPlayer(Player), true);
-                SendPacket(new AELootTargetsAck());
-            }
+            _session.Player.SendLoot(creature.GetLootForPlayer(_session.Player), true);
+            _session.SendPacket(new AELootTargetsAck());
         }
     }
 
@@ -141,19 +159,19 @@ public class LootHandler : IWorldSessionHandler
     {
         AELootResult aeResult = new();
 
-        if (Player.Group == null || Player.Group.LooterGuid != Player.GUID)
+        if (_session.Player.Group == null || _session.Player.Group.LooterGuid != _session.Player.GUID)
         {
-            Player.SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.DidntKill);
+            _session.Player.SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.DidntKill);
 
             return;
         }
 
         // player on other map
-        var target = Global.ObjAccessor.GetPlayer(_session.Player, masterLootItem.Target);
+        var target = _objectAccessor.GetPlayer(_session.Player, masterLootItem.Target);
 
-        if (!target)
+        if (target == null)
         {
-            Player.SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.PlayerNotFound);
+            _session.Player.SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.PlayerNotFound);
 
             return;
         }
@@ -162,35 +180,35 @@ public class LootHandler : IWorldSessionHandler
         {
             var loot = _session.Player.GetAELootView().LookupByKey(req.Object);
 
-            if (loot == null || loot.GetLootMethod() != LootMethod.MasterLoot)
+            if (loot is not { LootMethod: LootMethod.MasterLoot })
                 return;
 
-            if (!_session.Player.IsInRaidWith(target) || !_session.Player.IsInMap(target))
+            if (!_session.Player.IsInRaidWith(target) || !_session.Player.Location.IsInMap(target))
             {
-                _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
-                Log.Logger.Information($"MasterLootItem: Player {Player.GetName()} tried to give an item to ineligible player {target.GetName()} !");
+                _session.Player.SendLootError(req.Object, loot.OwnerGuid, LootError.MasterOther);
+                Log.Logger.Information($"MasterLootItem: Player {_session.Player.GetName()} tried to give an item to ineligible player {target.GetName()} !");
 
                 return;
             }
 
             if (!loot.HasAllowedLooter(masterLootItem.Target))
             {
-                _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
+                _session.Player.SendLootError(req.Object, loot.OwnerGuid, LootError.MasterOther);
 
                 return;
             }
 
-            if (req.LootListID >= loot.items.Count)
+            if (req.LootListID >= loot.Items.Count)
             {
-                Log.Logger.Debug($"MasterLootItem: Player {Player.GetName()} might be using a hack! (slot {req.LootListID}, size {loot.items.Count})");
+                Log.Logger.Debug($"MasterLootItem: Player {_session.Player.GetName()} might be using a hack! (slot {req.LootListID}, size {loot.Items.Count})");
 
                 return;
             }
 
-            var item = loot.items[req.LootListID];
+            var item = loot.Items[req.LootListID];
 
             List<ItemPosCount> dest = new();
-            var msg = target.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item.itemid, item.count);
+            var msg = target.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item.Itemid, item.Count);
 
             if (!item.HasAllowedLooter(target.GUID))
                 msg = InventoryResult.CantEquipEver;
@@ -198,25 +216,25 @@ public class LootHandler : IWorldSessionHandler
             if (msg != InventoryResult.Ok)
             {
                 if (msg == InventoryResult.ItemMaxCount)
-                    _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterUniqueItem);
+                    _session.Player.SendLootError(req.Object, loot.OwnerGuid, LootError.MasterUniqueItem);
                 else if (msg == InventoryResult.InvFull)
-                    _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterInvFull);
+                    _session.Player.SendLootError(req.Object, loot.OwnerGuid, LootError.MasterInvFull);
                 else
-                    _session.Player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
+                    _session.Player.SendLootError(req.Object, loot.OwnerGuid, LootError.MasterOther);
 
                 return;
             }
 
             // now move item from loot to target inventory
-            var newitem = target.StoreNewItem(dest, item.itemid, true, item.randomBonusListId, item.GetAllowedLooters(), item.context, item.BonusListIDs);
-            aeResult.Add(newitem, item.count, loot.loot_type, loot.GetDungeonEncounterId());
+            var newitem = target.StoreNewItem(dest, item.Itemid, true, item.RandomBonusListId, item.GetAllowedLooters(), item.Context, item.BonusListIDs);
+            aeResult.Add(newitem, item.Count, loot.LootType, loot.DungeonEncounterId);
 
             // mark as looted
-            item.count = 0;
-            item.is_looted = true;
+            item.Count = 0;
+            item.IsLooted = true;
 
-            loot.NotifyItemRemoved(req.LootListID, Player.Location.Map);
-            --loot.unlootedCount;
+            loot.NotifyItemRemoved(req.LootListID, _session.Player.Location.Map);
+            --loot.UnlootedCount;
         }
 
         foreach (var resultValue in aeResult.ByOrder)
@@ -231,19 +249,19 @@ public class LootHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.LootMoney)]
     private void HandleLootMoney(LootMoney lootMoney)
     {
-        var player = Player;
+        if (lootMoney == null) return;
 
-        foreach (var lootView in player.GetAELootView())
+        foreach (var lootView in _session.Player.GetAELootView())
         {
             var loot = lootView.Value;
-            var guid = loot.GetOwnerGUID();
-            var shareMoney = loot.loot_type == LootType.Corpse;
+            var guid = loot.OwnerGuid;
+            var shareMoney = loot.LootType == LootType.Corpse;
 
-            loot.NotifyMoneyRemoved(player.Map);
+            loot.NotifyMoneyRemoved(_session.Player.Location.Map);
 
-            if (shareMoney && player.Group != null) //item, pickpocket and players can be looted only single player
+            if (shareMoney && _session.Player.Group != null) //item, pickpocket and players can be looted only single player
             {
-                var group = player.Group;
+                var group = _session.Player.Group;
 
                 List<Player> playersNear = new();
 
@@ -251,17 +269,17 @@ public class LootHandler : IWorldSessionHandler
                 {
                     var member = refe.Source;
 
-                    if (!member)
+                    if (member == null)
                         continue;
 
                     if (!loot.HasAllowedLooter(member.GUID))
                         continue;
 
-                    if (player.IsAtGroupRewardDistance(member))
+                    if (_session.Player.IsAtGroupRewardDistance(member))
                         playersNear.Add(member);
                 }
 
-                var goldPerPlayer = (ulong)(loot.gold / playersNear.Count);
+                var goldPerPlayer = (ulong)(loot.Gold / playersNear.Count);
 
                 foreach (var pl in playersNear)
                 {
@@ -270,36 +288,42 @@ public class LootHandler : IWorldSessionHandler
                     pl.ModifyMoney((long)(goldPerPlayer + goldMod));
                     pl.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, goldPerPlayer);
 
-                    LootMoneyNotify packet = new();
-                    packet.Money = goldPerPlayer;
-                    packet.MoneyMod = goldMod;
-                    packet.SoleLooter = playersNear.Count <= 1 ? true : false;
+                    LootMoneyNotify packet = new()
+                    {
+                        Money = goldPerPlayer,
+                        MoneyMod = goldMod,
+                        SoleLooter = playersNear.Count <= 1
+                    };
+
                     pl.SendPacket(packet);
                 }
             }
             else
             {
-                var goldMod = MathFunctions.CalculatePct((uint)loot.gold, (double)player.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
+                var goldMod = MathFunctions.CalculatePct(loot.Gold, _session.Player.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
 
-                player.ModifyMoney((long)(loot.gold + goldMod));
-                player.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, loot.gold);
+                _session.Player.ModifyMoney(loot.Gold + goldMod);
+                _session.Player.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, loot.Gold);
 
-                LootMoneyNotify packet = new();
-                packet.Money = loot.gold;
-                packet.MoneyMod = goldMod;
-                packet.SoleLooter = true; // "You loot..."
-                SendPacket(packet);
+                LootMoneyNotify packet = new()
+                {
+                    Money = loot.Gold,
+                    MoneyMod = goldMod,
+                    SoleLooter = true // "You loot..."
+                };
+
+                _session.SendPacket(packet);
             }
 
-            loot.gold = 0;
+            loot.Gold = 0;
 
             // Delete the money loot record from the DB
-            if (loot.loot_type == LootType.Item)
-                Global.LootItemStorage.RemoveStoredMoneyForContainer(guid.Counter);
+            if (loot.LootType == LootType.Item)
+                _lootItemStorage.RemoveStoredMoneyForContainer(guid.Counter);
 
             // Delete container if empty
             if (loot.IsLooted() && guid.IsItem)
-                player.Session.DoLootRelease(loot);
+                _session.DoLootRelease(loot);
         }
     }
 
@@ -308,18 +332,18 @@ public class LootHandler : IWorldSessionHandler
     {
         // cheaters can modify lguid to prevent correct apply loot release code and re-loot
         // use internal stored guid
-        var loot = Player.GetLootByWorldObjectGUID(packet.Unit);
+        var loot = _session.Player.GetLootByWorldObjectGUID(packet.Unit);
 
         if (loot != null)
-            DoLootRelease(loot);
+            _session.DoLootRelease(loot);
     }
 
     [WorldPacketHandler(ClientOpcodes.LootRoll)]
     private void HandleLootRoll(LootRollPacket packet)
     {
-        var lootRoll = Player.GetLootRoll(packet.LootObj, packet.LootListID);
+        var lootRoll = _session.Player.GetLootRoll(packet.LootObj, packet.LootListID);
 
-        lootRoll?.PlayerVote(Player, packet.RollType);
+        lootRoll?.PlayerVote(_session.Player, packet.RollType);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetLootSpecialization)]
@@ -327,12 +351,14 @@ public class LootHandler : IWorldSessionHandler
     {
         if (packet.SpecID != 0)
         {
-            if (CliDB.ChrSpecializationStorage.TryGetValue(packet.SpecID, out var chrSpec))
-                if (chrSpec.ClassID == (uint)Player.Class)
-                    Player.SetLootSpecId(packet.SpecID);
+            if (!_chrSpecializationRecords.TryGetValue(packet.SpecID, out var chrSpec))
+                return;
+
+            if (chrSpec.ClassID == (uint)_session.Player.Class)
+                _session.Player.SetLootSpecId(packet.SpecID);
         }
         else
-            Player.SetLootSpecId(0);
+            _session.Player.SetLootSpecId(0);
     }
 
     private class AELootCreatureCheck : ICheck<Creature>
@@ -358,18 +384,12 @@ public class LootHandler : IWorldSessionHandler
             if (creature.IsAlive)
                 return false;
 
-            if (!_looter.Location.IsWithinDist(creature, LootDistance))
-                return false;
-
-            return _looter.IsAllowedToLoot(creature);
+            return _looter.Location.IsWithinDist(creature, LootDistance) && _looter.IsAllowedToLoot(creature);
         }
 
         private bool IsValidAELootTarget(Creature creature)
         {
-            if (creature.GUID == _mainLootTarget)
-                return false;
-
-            return IsValidLootTarget(creature);
+            return creature.GUID != _mainLootTarget && IsValidLootTarget(creature);
         }
     }
 }
