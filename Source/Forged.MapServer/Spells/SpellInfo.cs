@@ -1732,7 +1732,7 @@ public class SpellInfo
                     double flatMod = 0;
                     double pctMod = 1.0f;
                     modOwner.GetSpellModValues(this, mod, spell, powerCost, ref flatMod, ref pctMod);
-                    powerCost = powerCost * pctMod;
+                    powerCost *= pctMod;
                 }
             }
         }

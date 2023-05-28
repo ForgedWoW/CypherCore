@@ -252,10 +252,10 @@ public partial class Spell : IDisposable
         _classFactory = classFactory;
 
         if (info.HasAttribute(SpellAttr2.DoNotReportSpellFailure) || _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc))
-            _triggeredCastFlags = _triggeredCastFlags | TriggerCastFlags.DontReportCastError;
+            _triggeredCastFlags |= TriggerCastFlags.DontReportCastError;
 
         if (SpellInfo.HasAttribute(SpellAttr4.AllowCastWhileCasting) || _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc))
-            _triggeredCastFlags = _triggeredCastFlags | TriggerCastFlags.IgnoreCastInProgress;
+            _triggeredCastFlags |= TriggerCastFlags.IgnoreCastInProgress;
 
         CastItemLevel = -1;
 

@@ -557,4 +557,7 @@ void RegisterHandlers()
     builder.RegisterType<HotfixHandler>();
     builder.RegisterType<InspectHandler>();
     builder.RegisterType<ItemHandler>();
+    builder.RegisterType<LogoutHandler>();
+    builder.RegisterType<LootHandler>();
+    builder.RegisterType<MailHandler>();
 }

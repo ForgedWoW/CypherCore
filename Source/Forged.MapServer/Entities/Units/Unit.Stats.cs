@@ -58,10 +58,10 @@ public partial class Unit
 
     public double CalculateAoeAvoidance(double damage, uint schoolMask, ObjectGuid casterGuid)
     {
-        damage = damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModAoeDamageAvoidance, schoolMask);
+        damage *= GetTotalAuraMultiplierByMiscMask(AuraType.ModAoeDamageAvoidance, schoolMask);
 
         if (casterGuid.IsAnyTypeCreature)
-            damage = damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModCreatureAoeDamageAvoidance, schoolMask);
+            damage *= GetTotalAuraMultiplierByMiscMask(AuraType.ModCreatureAoeDamageAvoidance, schoolMask);
 
         return damage;
     }

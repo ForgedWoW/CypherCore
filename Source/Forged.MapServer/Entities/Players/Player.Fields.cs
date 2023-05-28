@@ -416,7 +416,7 @@ public partial class Player
             var loading = Session.PlayerLoading;
 
             if (!loading)
-                MoneyChanged((uint)value);
+                MoneyChanged(value);
 
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), value);
 

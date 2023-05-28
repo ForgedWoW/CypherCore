@@ -333,7 +333,7 @@ public partial class Unit
             if (speedXy < 0)
             {
                 speedXy = -speedXy;
-                o = o - MathF.PI;
+                o -= MathF.PI;
             }
 
             var vcos = MathF.Cos(o);

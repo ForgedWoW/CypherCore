@@ -217,7 +217,7 @@ public class Conversation : WorldObject
 
             var convoLine = CliDB.ConversationLineStorage.LookupByKey(line.Id); // never null for conversationTemplate->Lines
 
-            for (var locale = Locale.enUS; locale < Locale.Total; locale = locale + 1)
+            for (var locale = Locale.enUS; locale < Locale.Total; locale += 1)
             {
                 if (locale == Locale.None)
                     continue;

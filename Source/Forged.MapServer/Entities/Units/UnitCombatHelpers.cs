@@ -1428,7 +1428,7 @@ public class UnitCombatHelpers
     public void ScaleDamage(Unit attacker, Unit victim, ref double damage)
     {
         if (attacker != null)
-            damage = damage * attacker.GetDamageMultiplierForTarget(victim);
+            damage *= attacker.GetDamageMultiplierForTarget(victim);
     }
 
     public double SpellCriticalDamageBonus(Unit caster, SpellInfo spellProto, double damage, Unit victim = null)
@@ -1473,7 +1473,7 @@ public class UnitCombatHelpers
         damage += critBonus;
 
         if (caster != null)
-            damage = damage * caster.GetTotalAuraMultiplier(AuraType.ModCriticalHealingAmount);
+            damage *= caster.GetTotalAuraMultiplier(AuraType.ModCriticalHealingAmount);
 
         return damage;
     }

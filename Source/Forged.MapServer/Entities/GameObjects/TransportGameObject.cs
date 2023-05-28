@@ -261,7 +261,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
                     progressPct = pathPctBetweenStops * timeSinceStopProgressPct + stopSourcePathPct;
 
                     if (progressPct > 1.0f)
-                        progressPct = progressPct - 1.0f;
+                        progressPct -= 1.0f;
                 }
                 else
                 {

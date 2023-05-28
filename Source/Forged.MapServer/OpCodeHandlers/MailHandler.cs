@@ -4,54 +4,96 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bgs.Protocol.Account.V1;
+using Forged.MapServer.Accounts;
+using Forged.MapServer.Cache;
+using Forged.MapServer.Chat.Commands;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.M;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Mail;
 using Forged.MapServer.Networking.Packets.NPC;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Game.Common;
 using Game.Common.Handlers;
+using Microsoft.Extensions.Configuration;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class MailHandler : IWorldSessionHandler
 {
+    private readonly BNetAccountManager _bNetAccountManager;
+    private readonly CharacterCache _characterCache;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly GuildManager _guildManager;
+    private readonly DB6Storage<MailTemplateRecord> _mailTemplateRecords;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldSession _session;
+
+    public MailHandler(WorldSession session, ClassFactory classFactory, GameObjectManager objectManager, DB6Storage<MailTemplateRecord> mailTemplateRecords,
+                       CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, CharacterCache characterCache, IConfiguration configuration, GuildManager guildManager,
+                       CliDB cliDB, BNetAccountManager bNetAccountManager)
+    {
+        _session = session;
+        _classFactory = classFactory;
+        _objectManager = objectManager;
+        _mailTemplateRecords = mailTemplateRecords;
+        _characterDatabase = characterDatabase;
+        _objectAccessor = objectAccessor;
+        _characterCache = characterCache;
+        _configuration = configuration;
+        _guildManager = guildManager;
+        _cliDB = cliDB;
+        _bNetAccountManager = bNetAccountManager;
+    }
+
     public void SendShowMailBox(ObjectGuid guid)
     {
-        NPCInteractionOpenResult npcInteraction = new();
-        npcInteraction.Npc = guid;
-        npcInteraction.InteractionType = PlayerInteractionType.MailInfo;
-        npcInteraction.Success = true;
-        SendPacket(npcInteraction);
+        _session.SendPacket(new NPCInteractionOpenResult()
+        {
+            Npc = guid,
+            InteractionType = PlayerInteractionType.MailInfo,
+            Success = true
+        });
     }
 
     private bool CanOpenMailBox(ObjectGuid guid)
     {
-        if (guid == Player.GUID)
+        if (guid == _session.Player.GUID)
         {
-            if (!HasPermission(RBACPermissions.CommandMailbox))
-            {
-                Log.Logger.Warning("{0} attempt open mailbox in cheating way.", Player.GetName());
+            if (_session.HasPermission(RBACPermissions.CommandMailbox))
+                return true;
 
-                return false;
-            }
+            Log.Logger.Warning("{0} attempt open mailbox in cheating way.", _session.Player.GetName());
+
+            return false;
         }
-        else if (guid.IsGameObject)
+
+        if (guid.IsGameObject)
         {
-            if (!Player.GetGameObjectIfCanInteractWith(guid, GameObjectTypes.Mailbox))
+            if (_session.Player.GetGameObjectIfCanInteractWith(guid, GameObjectTypes.Mailbox) == null)
                 return false;
         }
         else if (guid.IsAnyTypeCreature)
         {
-            if (!Player.GetNPCIfCanInteractWith(guid, NPCFlags.Mailbox, NPCFlags2.None))
+            if (_session.Player.GetNPCIfCanInteractWith(guid, NPCFlags.Mailbox, NPCFlags2.None) == null)
                 return false;
         }
         else
@@ -60,16 +102,14 @@ public class MailHandler : IWorldSessionHandler
         return true;
     }
 
-    //called when player lists his received mails
+    //called when _session.Player lists his received mails
     [WorldPacketHandler(ClientOpcodes.MailGetList)]
     private void HandleGetMailList(MailGetList getList)
     {
         if (!CanOpenMailBox(getList.Mailbox))
             return;
 
-        var player = Player;
-
-        var mails = player.Mails;
+        var mails = _session.Player.Mails;
 
         MailListResult response = new();
         var curTime = GameTime.CurrentTime;
@@ -77,97 +117,94 @@ public class MailHandler : IWorldSessionHandler
         foreach (var m in mails)
         {
             // skip deleted or not delivered (deliver delay not expired) mails
-            if (m.state == MailState.Deleted || curTime < m.deliver_time)
+            if (m.State == MailState.Deleted || curTime < m.DeliverTime)
                 continue;
 
             // max. 100 mails can be sent
             if (response.Mails.Count < 100)
-                response.Mails.Add(new MailListEntry(m, player));
+                response.Mails.Add(new MailListEntry(m, _session.Player));
         }
 
-        player.PlayerTalkClass.GetInteractionData().Reset();
-        player.PlayerTalkClass.GetInteractionData().SourceGuid = getList.Mailbox;
-        SendPacket(response);
+        _session.Player.PlayerTalkClass.InteractionData.Reset();
+        _session.Player.PlayerTalkClass.InteractionData.SourceGuid = getList.Mailbox;
+        _session.SendPacket(response);
 
         // recalculate m_nextMailDelivereTime and unReadMails
-        Player.UpdateNextMailTimeAndUnreads();
+        _session.Player.UpdateNextMailTimeAndUnreads();
     }
 
-    //used when player copies mail body to his inventory
+    //used when _session.Player copies mail body to his inventory
     [WorldPacketHandler(ClientOpcodes.MailCreateTextItem)]
     private void HandleMailCreateTextItem(MailCreateTextItem createTextItem)
     {
         if (!CanOpenMailBox(createTextItem.Mailbox))
             return;
 
-        var player = Player;
+        var m = _session.Player.GetMail(createTextItem.MailID);
 
-        var m = player.GetMail(createTextItem.MailID);
-
-        if (m == null || (string.IsNullOrEmpty(m.body) && m.mailTemplateId == 0) || m.state == MailState.Deleted || m.deliver_time > GameTime.CurrentTime)
+        if (m == null || (string.IsNullOrEmpty(m.Body) && m.MailTemplateId == 0) || m.State == MailState.Deleted || m.DeliverTime > GameTime.CurrentTime)
         {
-            player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.InternalError);
+            _session.Player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.InternalError);
 
             return;
         }
 
-        Item bodyItem = new(); // This is not bag and then can be used new Item.
+        var bodyItem = _classFactory.Resolve<Item>(); // This is not bag and then can be used new Item.
 
-        if (!bodyItem.Create(Global.ObjectMgr.GetGenerator(HighGuid.Item).Generate(), 8383, ItemContext.None, player))
+        if (!bodyItem.Create(_objectManager.GetGenerator(HighGuid.Item).Generate(), 8383, ItemContext.None, _session.Player))
             return;
 
         // in mail template case we need create new item text
-        if (m.mailTemplateId != 0)
+        if (m.MailTemplateId != 0)
         {
-            if (!CliDB.MailTemplateStorage.TryGetValue(m.mailTemplateId, out var mailTemplateEntry))
+            if (!_mailTemplateRecords.TryGetValue(m.MailTemplateId, out var mailTemplateEntry))
             {
-                player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.InternalError);
+                _session.Player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.InternalError);
 
                 return;
             }
 
-            bodyItem.SetText(mailTemplateEntry.Body[SessionDbcLocale]);
+            bodyItem.SetText(mailTemplateEntry.Body[_session.SessionDbcLocale]);
         }
         else
-            bodyItem.SetText(m.body);
+            bodyItem.SetText(m.Body);
 
-        if (m.messageType == MailMessageType.Normal)
-            bodyItem.SetCreator(ObjectGuid.Create(HighGuid.Player, m.sender));
+        if (m.MessageType == MailMessageType.Normal)
+            bodyItem.SetCreator(ObjectGuid.Create(HighGuid.Player, m.Sender));
 
         bodyItem.SetItemFlag(ItemFieldFlags.Readable);
 
         Log.Logger.Information("HandleMailCreateTextItem mailid={0}", createTextItem.MailID);
 
         List<ItemPosCount> dest = new();
-        var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, bodyItem);
+        var msg = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, bodyItem);
 
         if (msg == InventoryResult.Ok)
         {
-            m.checkMask = m.checkMask | MailCheckMask.Copied;
-            m.state = MailState.Changed;
-            player.MailsUpdated = true;
+            m.CheckMask |= MailCheckMask.Copied;
+            m.State = MailState.Changed;
+            _session.Player.MailsUpdated = true;
 
-            player.StoreItem(dest, bodyItem, true);
-            player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.Ok);
+            _session.Player.StoreItem(dest, bodyItem, true);
+            _session.Player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.Ok);
         }
         else
-            player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.EquipError, msg);
+            _session.Player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.EquipError, msg);
     }
 
     //called when client deletes mail
     [WorldPacketHandler(ClientOpcodes.MailDelete)]
     private void HandleMailDelete(MailDelete mailDelete)
     {
-        var m = Player.GetMail(mailDelete.MailID);
-        var player = Player;
-        player.MailsUpdated = true;
+        var m = _session.Player.GetMail(mailDelete.MailID);
+        _session.Player.MailsUpdated = true;
 
         if (m != null)
         {
             // delete shouldn't show up for COD mails
             if (m.Cod != 0)
             {
-                player.SendMailResult(mailDelete.MailID, MailResponseType.Deleted, MailResponseResult.InternalError);
+                _session.Player.SendMailResult(mailDelete.MailID, MailResponseType.Deleted, MailResponseResult.InternalError);
 
                 return;
             }
@@ -175,7 +212,7 @@ public class MailHandler : IWorldSessionHandler
             m.State = MailState.Deleted;
         }
 
-        player.SendMailResult(mailDelete.MailID, MailResponseType.Deleted, MailResponseResult.Ok);
+        _session.Player.SendMailResult(mailDelete.MailID, MailResponseType.Deleted, MailResponseResult.Ok);
     }
 
     //called when mail is read
@@ -185,32 +222,30 @@ public class MailHandler : IWorldSessionHandler
         if (!CanOpenMailBox(markAsRead.Mailbox))
             return;
 
-        var player = Player;
-        var m = player.GetMail(markAsRead.MailID);
+        var m = _session.Player.GetMail(markAsRead.MailID);
 
-        if (m != null && m.state != MailState.Deleted)
-        {
-            if (player.UnReadMails != 0)
-                --player.UnReadMails;
+        if (m == null || m.State == MailState.Deleted)
+            return;
 
-            m.checkMask = m.checkMask | MailCheckMask.Read;
-            player.MailsUpdated = true;
-            m.state = MailState.Changed;
-        }
+        if (_session.Player.UnReadMails != 0)
+            --_session.Player.UnReadMails;
+
+        m.CheckMask |= MailCheckMask.Read;
+        _session.Player.MailsUpdated = true;
+        m.State = MailState.Changed;
     }
 
     [WorldPacketHandler(ClientOpcodes.MailReturnToSender)]
     private void HandleMailReturnToSender(MailReturnToSender returnToSender)
     {
-        if (!CanOpenMailBox(_session.Player.PlayerTalkClass.GetInteractionData().SourceGuid))
+        if (!CanOpenMailBox(_session.Player.PlayerTalkClass.InteractionData.SourceGuid))
             return;
 
-        var player = Player;
-        var m = player.GetMail(returnToSender.MailID);
+        var m = _session.Player.GetMail(returnToSender.MailID);
 
-        if (m == null || m.state == MailState.Deleted || m.deliver_time > GameTime.CurrentTime || m.sender != returnToSender.SenderGUID.Counter)
+        if (m == null || m.State == MailState.Deleted || m.DeliverTime > GameTime.CurrentTime || m.Sender != returnToSender.SenderGUID.Counter)
         {
-            player.SendMailResult(returnToSender.MailID, MailResponseType.ReturnedToSender, MailResponseResult.InternalError);
+            _session.Player.SendMailResult(returnToSender.MailID, MailResponseType.ReturnedToSender, MailResponseResult.InternalError);
 
             return;
         }
@@ -218,155 +253,153 @@ public class MailHandler : IWorldSessionHandler
         //we can return mail now, so firstly delete the old one
         SQLTransaction trans = new();
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
         stmt.AddValue(0, returnToSender.MailID);
         trans.Append(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
         stmt.AddValue(0, returnToSender.MailID);
         trans.Append(stmt);
 
-        player.RemoveMail(returnToSender.MailID);
+        _session.Player.RemoveMail(returnToSender.MailID);
 
-        // only return mail if the player exists (and delete if not existing)
-        if (m.messageType == MailMessageType.Normal && m.sender != 0)
+        // only return mail if the _session.Player exists (and delete if not existing)
+        if (m.MessageType == MailMessageType.Normal && m.Sender != 0)
         {
-            var draft = _classFactory.ResolvePositional<MailDraft>(m.subject, m.body);
+            var draft = _classFactory.ResolveWithPositionalParameters<MailDraft>(m.Subject, m.Body);
 
-            if (m.mailTemplateId != 0)
-                draft = _classFactory.ResolvePositional<MailDraft>(m.mailTemplateId, false); // items already included
+            if (m.MailTemplateId != 0)
+                draft = _classFactory.ResolveWithPositionalParameters<MailDraft>(m.MailTemplateId, false); // items already included
 
             if (m.HasItems())
-                foreach (var itemInfo in m.items)
+                foreach (var itemInfo in m.Items)
                 {
-                    var item = player.GetMItem(itemInfo.item_guid);
+                    var item = _session.Player.GetMItem(itemInfo.ItemGUID);
 
-                    if (item)
+                    if (item != null)
                         draft.AddItem(item);
 
-                    player.RemoveMItem(itemInfo.item_guid);
+                    _session.Player.RemoveMItem(itemInfo.ItemGUID);
                 }
 
-            draft.AddMoney(m.money).SendReturnToSender(AccountId, m.receiver, m.sender, trans);
+            draft.AddMoney(m.Money).SendReturnToSender(_session.AccountId, m.Receiver, m.Sender, trans);
         }
 
-        DB.Characters.CommitTransaction(trans);
+        _characterDatabase.CommitTransaction(trans);
 
-        player.SendMailResult(returnToSender.MailID, MailResponseType.ReturnedToSender, MailResponseResult.Ok);
+        _session.Player.SendMailResult(returnToSender.MailID, MailResponseType.ReturnedToSender, MailResponseResult.Ok);
     }
 
-    //called when player takes item attached in mail
+    //called when _session.Player takes item attached in mail
     [WorldPacketHandler(ClientOpcodes.MailTakeItem)]
     private void HandleMailTakeItem(MailTakeItem takeItem)
     {
-        var AttachID = takeItem.AttachID;
+        var attachID = takeItem.AttachID;
 
         if (!CanOpenMailBox(takeItem.Mailbox))
             return;
 
-        var player = Player;
+        var m = _session.Player.GetMail(takeItem.MailID);
 
-        var m = player.GetMail(takeItem.MailID);
-
-        if (m == null || m.state == MailState.Deleted || m.deliver_time > GameTime.CurrentTime)
+        if (m == null || m.State == MailState.Deleted || m.DeliverTime > GameTime.CurrentTime)
         {
-            player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.InternalError);
+            _session.Player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.InternalError);
 
             return;
         }
 
         // verify that the mail has the item to avoid cheaters taking COD items without paying
-        if (!Enumerable.Any<MailItemInfo>(m.items, p => p.ItemGUID == AttachID))
+        if (m.Items.All(p => p.ItemGUID != attachID))
         {
-            player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.InternalError);
+            _session.Player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.InternalError);
 
             return;
         }
 
         // prevent cheating with skip client money check
-        if (!player.HasEnoughMoney(m.COD))
+        if (!_session.Player.HasEnoughMoney(m.Cod))
         {
-            player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.NotEnoughMoney);
+            _session.Player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.NotEnoughMoney);
 
             return;
         }
 
-        var it = player.GetMItem(takeItem.AttachID);
+        var it = _session.Player.GetMItem(takeItem.AttachID);
 
         List<ItemPosCount> dest = new();
-        var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, it);
+        var msg = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, it);
 
         if (msg == InventoryResult.Ok)
         {
             SQLTransaction trans = new();
             m.RemoveItem(takeItem.AttachID);
-            m.removedItems.Add(takeItem.AttachID);
+            m.RemovedItems.Add(takeItem.AttachID);
 
-            if (m.COD > 0) //if there is COD, take COD money from player and send them to sender by mail
+            if (m.Cod > 0) //if there is COD, take COD money from _session.Player and send them to sender by mail
             {
-                var sender_guid = ObjectGuid.Create(HighGuid.Player, m.sender);
-                var receiver = Global.ObjAccessor.FindPlayer(sender_guid);
+                var senderGUID = ObjectGuid.Create(HighGuid.Player, m.Sender);
+                var receiver = _objectAccessor.FindPlayer(senderGUID);
 
-                uint sender_accId = 0;
+                uint senderAccId = 0;
 
-                if (HasPermission(RBACPermissions.LogGmTrade))
+                if (_session.HasPermission(RBACPermissions.LogGmTrade))
                 {
-                    string sender_name;
+                    string senderName;
 
-                    if (receiver)
+                    if (receiver != null)
                     {
-                        sender_accId = receiver.Session.AccountId;
-                        sender_name = receiver.GetName();
+                        senderAccId = receiver.Session.AccountId;
+                        senderName = receiver.GetName();
                     }
                     else
                     {
                         // can be calculated early
-                        sender_accId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(sender_guid);
+                        senderAccId = _characterCache.GetCharacterAccountIdByGuid(senderGUID);
 
-                        if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(sender_guid, out sender_name))
-                            sender_name = Global.ObjectMgr.GetCypherString(CypherStrings.Unknown);
+                        if (!_characterCache.GetCharacterNameByGuid(senderGUID, out senderName))
+                            senderName = _objectManager.GetCypherString(CypherStrings.Unknown);
                     }
 
-                    Log.outCommand(AccountId,
-                                   "GM {0} (Account: {1}) receiver mail item: {2} (Entry: {3} Count: {4}) and send COD money: {5} to player: {6} (Account: {7})",
-                                   PlayerName,
-                                   AccountId,
+                    Log.Logger.ForContext<GMCommands>().Information(
+                                   "GM {0} (Account: {1}) receiver mail item: {2} (Entry: {3} Count: {4}) and send COD money: {5} to _session.Player: {6} (Account: {7})",
+                                   _session.PlayerName,
+                                   _session.AccountId,
                                    it.Template.GetName(),
                                    it.Entry,
                                    it.Count,
-                                   m.COD,
-                                   sender_name,
-                                   sender_accId);
+                                   m.Cod,
+                                   senderName,
+                                   senderAccId);
                 }
-                else if (!receiver)
-                    sender_accId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(sender_guid);
+                else if (receiver == null)
+                    senderAccId = _characterCache.GetCharacterAccountIdByGuid(senderGUID);
 
-                // check player existence
-                if (receiver || sender_accId != 0)
-                    _classFactory.ResolvePositional<MailDraft>(m.subject, "")
-                                 .AddMoney(m.COD)
-                                 .SendMailTo(trans, new MailReceiver(receiver, m.sender), new MailSender(MailMessageType.Normal, m.receiver), MailCheckMask.CodPayment);
+                // check _session.Player existence
+                if (receiver == null || senderAccId != 0)
+                    _classFactory.ResolveWithPositionalParameters<MailDraft>(m.Subject, "")
+                                 .AddMoney(m.Cod)
+                                 .SendMailTo(trans, new MailReceiver(receiver, m.Sender), new MailSender(MailMessageType.Normal, m.Receiver), MailCheckMask.CodPayment);
 
-                player.ModifyMoney(-(long)m.COD);
+                _session.Player.ModifyMoney(-(long)m.Cod);
             }
 
-            m.COD = 0;
-            m.state = MailState.Changed;
-            player.MailsUpdated = true;
-            player.RemoveMItem(it.GUID.Counter);
+            m.Cod = 0;
+            m.State = MailState.Changed;
+            _session.Player.MailsUpdated = true;
+            _session.Player.RemoveMItem(it.GUID.Counter);
 
             var count = it.Count;                   // save counts before store and possible merge with deleting
             it.SetState(ItemUpdateState.Unchanged); // need to set this state, otherwise item cannot be removed later, if neccessary
-            player.MoveItemToInventory(dest, it, true);
+            _session.Player.MoveItemToInventory(dest, it, true);
 
-            player.SaveInventoryAndGoldToDB(trans);
-            player._SaveMail(trans);
-            DB.Characters.CommitTransaction(trans);
+            _session.Player.SaveInventoryAndGoldToDB(trans);
+            _session.Player._SaveMail(trans);
+            _characterDatabase.CommitTransaction(trans);
 
-            player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.Ok, 0, takeItem.AttachID, count);
+            _session.Player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.Ok, 0, takeItem.AttachID, count);
         }
         else
-            player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.EquipError, msg);
+            _session.Player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.EquipError, msg);
     }
 
     [WorldPacketHandler(ClientOpcodes.MailTakeMoney)]
@@ -375,53 +408,54 @@ public class MailHandler : IWorldSessionHandler
         if (!CanOpenMailBox(takeMoney.Mailbox))
             return;
 
-        var player = Player;
-
-        var m = player.GetMail(takeMoney.MailID);
+        var m = _session.Player.GetMail(takeMoney.MailID);
 
         if (m == null ||
-            m.state == MailState.Deleted ||
-            m.deliver_time > GameTime.CurrentTime ||
-            (takeMoney.Money > 0 && m.money != takeMoney.Money))
+            m.State == MailState.Deleted ||
+            m.DeliverTime > GameTime.CurrentTime ||
+            (takeMoney.Money > 0 && m.Money != takeMoney.Money))
         {
-            player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.InternalError);
+            _session.Player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.InternalError);
 
             return;
         }
 
-        if (!player.ModifyMoney((long)m.money, false))
+        if (!_session.Player.ModifyMoney(m.Money, false))
         {
-            player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.EquipError, InventoryResult.TooMuchGold);
+            _session.Player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.EquipError, InventoryResult.TooMuchGold);
 
             return;
         }
 
-        m.money = 0;
-        m.state = MailState.Changed;
-        player.MailsUpdated = true;
+        m.Money = 0;
+        m.State = MailState.Changed;
+        _session.Player.MailsUpdated = true;
 
-        player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.Ok);
+        _session.Player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.Ok);
 
         // save money and mail to prevent cheating
         SQLTransaction trans = new();
-        player.SaveGoldToDB(trans);
-        player._SaveMail(trans);
-        DB.Characters.CommitTransaction(trans);
+        _session.Player.SaveGoldToDB(trans);
+        _session.Player._SaveMail(trans);
+        _characterDatabase.CommitTransaction(trans);
     }
 
     [WorldPacketHandler(ClientOpcodes.QueryNextMailTime)]
     private void HandleQueryNextMailTime(MailQueryNextMailTime queryNextMailTime)
     {
+        if (queryNextMailTime == null)
+            return;
+
         MailQueryNextTimeResult result = new();
 
-        if (Player.UnReadMails > 0)
+        if (_session.Player.UnReadMails > 0)
         {
             result.NextMailTime = 0.0f;
 
             var now = GameTime.CurrentTime;
             List<ulong> sentSenders = new();
 
-            foreach (var mail in Player.Mails)
+            foreach (var mail in _session.Player.Mails)
             {
                 if (mail.CheckMask.HasAnyFlag(MailCheckMask.Read))
                     continue;
@@ -446,7 +480,7 @@ public class MailHandler : IWorldSessionHandler
         else
             result.NextMailTime = -Time.DAY;
 
-        SendPacket(result);
+        _session.SendPacket(result);
     }
 
     [WorldPacketHandler(ClientOpcodes.SendMail)]
@@ -454,7 +488,7 @@ public class MailHandler : IWorldSessionHandler
     {
         if (sendMail.Info.Attachments.Count > SharedConst.MaxClientMailItems) // client limit
         {
-            Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.TooManyAttachments);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.TooManyAttachments);
 
             return;
         }
@@ -465,28 +499,26 @@ public class MailHandler : IWorldSessionHandler
         if (string.IsNullOrEmpty(sendMail.Info.Target))
             return;
 
-        if (!ValidateHyperlinksAndMaybeKick(sendMail.Info.Subject) || !ValidateHyperlinksAndMaybeKick(sendMail.Info.Body))
+        if (!_session.ValidateHyperlinksAndMaybeKick(sendMail.Info.Subject) || !_session.ValidateHyperlinksAndMaybeKick(sendMail.Info.Body))
             return;
 
-        var player = Player;
-
-        if (player.Level < GetDefaultValue("LevelReq:Mail", 1))
+        if (_session.Player.Level < _configuration.GetDefaultValue("LevelReq:Mail", 1))
         {
-            SendNotification(CypherStrings.MailSenderReq, GetDefaultValue("LevelReq:Mail", 1));
+            _session.SendNotification(CypherStrings.MailSenderReq, _configuration.GetDefaultValue("LevelReq:Mail", 1));
 
             return;
         }
 
         var receiverGuid = ObjectGuid.Empty;
 
-        if (GameObjectManager.NormalizePlayerName(ref sendMail.Info.Target))
-            receiverGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(sendMail.Info.Target);
+        if (_objectManager.NormalizePlayerName(ref sendMail.Info.Target))
+            receiverGuid = _characterCache.GetCharacterGuidByName(sendMail.Info.Target);
 
         if (receiverGuid.IsEmpty)
         {
-            Log.Logger.Information("Player {0} is sending mail to {1} (GUID: not existed!) with subject {2}" +
+            Log.Logger.Information("_session.Player {0} is sending mail to {1} (GUID: not existed!) with subject {2}" +
                                    "and body {3} includes {4} items, {5} copper and {6} COD copper with StationeryID = {7}",
-                                   GetPlayerInfo(),
+                                   _session.GetPlayerInfo(),
                                    sendMail.Info.Target,
                                    sendMail.Info.Subject,
                                    sendMail.Info.Body,
@@ -495,17 +527,17 @@ public class MailHandler : IWorldSessionHandler
                                    sendMail.Info.Cod,
                                    sendMail.Info.StationeryID);
 
-            player.SendMailResult(0, MailResponseType.Send, MailResponseResult.RecipientNotFound);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.RecipientNotFound);
 
             return;
         }
 
         if (sendMail.Info.SendMoney < 0)
         {
-            Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
 
-            Log.Logger.Warning("Player {0} attempted to send mail to {1} ({2}) with negative money value (SendMoney: {3})",
-                               GetPlayerInfo(),
+            Log.Logger.Warning("_session.Player {0} attempted to send mail to {1} ({2}) with negative money value (SendMoney: {3})",
+                               _session.GetPlayerInfo(),
                                sendMail.Info.Target,
                                receiverGuid.ToString(),
                                sendMail.Info.SendMoney);
@@ -515,10 +547,10 @@ public class MailHandler : IWorldSessionHandler
 
         if (sendMail.Info.Cod < 0)
         {
-            Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
 
-            Log.Logger.Warning("Player {0} attempted to send mail to {1} ({2}) with negative COD value (Cod: {3})",
-                               GetPlayerInfo(),
+            Log.Logger.Warning("_session.Player {0} attempted to send mail to {1} ({2}) with negative COD value (Cod: {3})",
+                               _session.GetPlayerInfo(),
                                sendMail.Info.Target,
                                receiverGuid.ToString(),
                                sendMail.Info.Cod);
@@ -526,9 +558,9 @@ public class MailHandler : IWorldSessionHandler
             return;
         }
 
-        Log.Logger.Information("Player {0} is sending mail to {1} ({2}) with subject {3} and body {4}" +
+        Log.Logger.Information("_session.Player {0} is sending mail to {1} ({2}) with subject {3} and body {4}" +
                                "includes {5} items, {6} copper and {7} COD copper with StationeryID = {8}",
-                               GetPlayerInfo(),
+                               _session.GetPlayerInfo(),
                                sendMail.Info.Target,
                                receiverGuid.ToString(),
                                sendMail.Info.Subject,
@@ -538,9 +570,9 @@ public class MailHandler : IWorldSessionHandler
                                sendMail.Info.Cod,
                                sendMail.Info.StationeryID);
 
-        if (player.GUID == receiverGuid)
+        if (_session.Player.GUID == receiverGuid)
         {
-            player.SendMailResult(0, MailResponseType.Send, MailResponseResult.CannotSendToSelf);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.CannotSendToSelf);
 
             return;
         }
@@ -552,27 +584,24 @@ public class MailHandler : IWorldSessionHandler
         // Check for overflow
         if (reqmoney < sendMail.Info.SendMoney)
         {
-            player.SendMailResult(0, MailResponseType.Send, MailResponseResult.NotEnoughMoney);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.NotEnoughMoney);
 
             return;
         }
 
-        if (!player.HasEnoughMoney(reqmoney) && !player.IsGameMaster)
+        if (!_session.Player.HasEnoughMoney(reqmoney) && !_session.Player.IsGameMaster)
         {
-            player.SendMailResult(0, MailResponseType.Send, MailResponseResult.NotEnoughMoney);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.NotEnoughMoney);
 
             return;
         }
 
-        void mailCountCheckContinuation(TeamFaction receiverTeam, ulong mailsCount, uint receiverLevel, uint receiverAccountId, uint receiverBnetAccountId)
+        void MailCountCheckContinue(TeamFaction receiverTeam, ulong mailsCount, uint receiverLevel, uint receiverAccountId, uint receiverBnetAccountId)
         {
-            if (_session.Player != player)
-                return;
-
             // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
             if (mailsCount > 100)
             {
-                player.SendMailResult(0, MailResponseType.Send, MailResponseResult.RecipientCapReached);
+                _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.RecipientCapReached);
 
                 return;
             }
@@ -582,31 +611,31 @@ public class MailHandler : IWorldSessionHandler
 
             foreach (var att in sendMail.Info.Attachments)
             {
-                var item = player.GetItemByGuid(att.ItemGUID);
+                var item = _session.Player.GetItemByGuid(att.ItemGUID);
 
-                if (item != null)
-                {
-                    var itemProto = item.Template;
+                if (item == null)
+                    continue;
 
-                    if (itemProto == null || !itemProto.HasFlag(ItemFlags.IsBoundToAccount))
-                    {
-                        accountBound = false;
+                var itemProto = item.Template;
 
-                        break;
-                    }
-                }
+                if (itemProto != null && itemProto.HasFlag(ItemFlags.IsBoundToAccount))
+                    continue;
+
+                accountBound = false;
+
+                break;
             }
 
-            if (!accountBound && player.Team != receiverTeam && !HasPermission(RBACPermissions.TwoSideInteractionMail))
+            if (!accountBound && _session.Player.Team != receiverTeam && !_session.HasPermission(RBACPermissions.TwoSideInteractionMail))
             {
-                player.SendMailResult(0, MailResponseType.Send, MailResponseResult.NotYourTeam);
+                _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.NotYourTeam);
 
                 return;
             }
 
-            if (receiverLevel < GetDefaultValue("LevelReq:Mail", 1))
+            if (receiverLevel < _configuration.GetDefaultValue("LevelReq:Mail", 1))
             {
-                SendNotification(CypherStrings.MailReceiverReq, GetDefaultValue("LevelReq:Mail", 1));
+                _session.SendNotification(CypherStrings.MailReceiverReq, _configuration.GetDefaultValue("LevelReq:Mail", 1));
 
                 return;
             }
@@ -617,53 +646,53 @@ public class MailHandler : IWorldSessionHandler
             {
                 if (att.ItemGUID.IsEmpty)
                 {
-                    player.SendMailResult(0, MailResponseType.Send, MailResponseResult.MailAttachmentInvalid);
+                    _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.MailAttachmentInvalid);
 
                     return;
                 }
 
-                var item = player.GetItemByGuid(att.ItemGUID);
+                var item = _session.Player.GetItemByGuid(att.ItemGUID);
 
                 // prevent sending bag with items (cheat: can be placed in bag after adding equipped empty bag to mail)
                 if (item == null)
                 {
-                    player.SendMailResult(0, MailResponseType.Send, MailResponseResult.MailAttachmentInvalid);
+                    _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.MailAttachmentInvalid);
 
                     return;
                 }
 
                 if (!item.CanBeTraded(true))
                 {
-                    player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.MailBoundItem);
+                    _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.MailBoundItem);
 
                     return;
                 }
 
-                if (item.IsBoundAccountWide && item.IsSoulBound && player.Session.AccountId != receiverAccountId)
-                    if (!item.IsBattlenetAccountBound || player.Session.BattlenetAccountId == 0 || player.Session.BattlenetAccountId != receiverBnetAccountId)
+                if (item.IsBoundAccountWide && item.IsSoulBound && _session.Player.Session.AccountId != receiverAccountId)
+                    if (!item.IsBattlenetAccountBound || _session.Player.Session.BattlenetAccountId == 0 || _session.Player.Session.BattlenetAccountId != receiverBnetAccountId)
                     {
-                        player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.NotSameAccount);
+                        _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.NotSameAccount);
 
                         return;
                     }
 
                 if (item.Template.HasFlag(ItemFlags.Conjured) || item.ItemData.Expiration != 0)
                 {
-                    player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.MailBoundItem);
+                    _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.MailBoundItem);
 
                     return;
                 }
 
                 if (sendMail.Info.Cod != 0 && item.IsWrapped)
                 {
-                    player.SendMailResult(0, MailResponseType.Send, MailResponseResult.CantSendWrappedCod);
+                    _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.CantSendWrappedCod);
 
                     return;
                 }
 
                 if (item.IsNotEmptyBag)
                 {
-                    player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.DestroyNonemptyBag);
+                    _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.DestroyNonemptyBag);
 
                     return;
                 }
@@ -671,32 +700,31 @@ public class MailHandler : IWorldSessionHandler
                 items.Add(item);
             }
 
-            player.SendMailResult(0, MailResponseType.Send, MailResponseResult.Ok);
+            _session.Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.Ok);
 
-            player.ModifyMoney(-reqmoney);
-            player.UpdateCriteria(CriteriaType.MoneySpentOnPostage, cost);
+            _session.Player.ModifyMoney(-reqmoney);
+            _session.Player.UpdateCriteria(CriteriaType.MoneySpentOnPostage, cost);
 
             var needItemDelay = false;
 
-            MailDraft draft = new(sendMail.Info.Subject, sendMail.Info.Body);
+            var draft = _classFactory.ResolveWithPositionalParameters<MailDraft>(sendMail.Info.Subject, sendMail.Info.Body);
 
             var trans = new SQLTransaction();
 
             if (!sendMail.Info.Attachments.Empty() || sendMail.Info.SendMoney > 0)
             {
-                var log = HasPermission(RBACPermissions.LogGmTrade);
+                var log = _session.HasPermission(RBACPermissions.LogGmTrade);
 
                 if (!sendMail.Info.Attachments.Empty())
                 {
                     foreach (var item in items)
                     {
                         if (log)
-                            Log.outCommand(AccountId,
-                                           $"GM {PlayerName} ({_session.Player.GUID}) (Account: {AccountId}) mail item: {item.Template.GetName()} " +
+                            Log.Logger.ForContext<GMCommands>().Information($"GM {_session.PlayerName} ({_session.Player.GUID}) (Account: {_session.AccountId}) mail item: {item.Template.GetName()} " +
                                            $"(Entry: {item.Entry} Count: {item.Count}) to: {sendMail.Info.Target} ({receiverGuid}) (Account: {receiverAccountId})");
 
-                        item.SetNotRefundable(Player); // makes the item no longer refundable
-                        player.MoveItemFromInventory(item.BagSlot, item.Slot, true);
+                        item.SetNotRefundable(_session.Player); // makes the item no longer refundable
+                        _session.Player.MoveItemFromInventory(item.BagSlot, item.Slot, true);
 
                         item.DeleteFromInventoryDB(trans); // deletes item from character's inventory
                         item.SetOwnerGUID(receiverGuid);
@@ -707,22 +735,22 @@ public class MailHandler : IWorldSessionHandler
                     }
 
                     // if item send to character at another account, then apply item delivery delay
-                    needItemDelay = player.Session.AccountId != receiverAccountId;
+                    needItemDelay = _session.Player.Session.AccountId != receiverAccountId;
                 }
 
                 if (log && sendMail.Info.SendMoney > 0)
-                    Log.outCommand(AccountId, $"GM {PlayerName} ({_session.Player.GUID}) (Account: {AccountId}) mail money: {sendMail.Info.SendMoney} to: {sendMail.Info.Target} ({receiverGuid}) (Account: {receiverAccountId})");
+                    Log.Logger.ForContext<GMCommands>().Information($"GM {_session.PlayerName} ({_session.Player.GUID}) (Account: {_session.AccountId}) mail money: {sendMail.Info.SendMoney} to: {sendMail.Info.Target} ({receiverGuid}) (Account: {receiverAccountId})");
             }
 
             // If theres is an item, there is a one hour delivery delay if sent to another account's character.
-            var deliver_delay = needItemDelay ? GetDefaultValue("MailDeliveryDelay", Time.HOUR) : 0;
+            var deliverDelay = needItemDelay ? _configuration.GetDefaultValue("MailDeliveryDelay", Time.HOUR) : 0;
 
             // Mail sent between guild members arrives instantly
-            var guild = Global.GuildMgr.GetGuildById(player.GuildId);
+            var guild = _guildManager.GetGuildById(_session.Player.GuildId);
 
             if (guild != null)
                 if (guild.IsMember(receiverGuid))
-                    deliver_delay = 0;
+                    deliverDelay = 0;
 
             // don't ask for COD if there are no items
             if (sendMail.Info.Attachments.Empty())
@@ -731,36 +759,36 @@ public class MailHandler : IWorldSessionHandler
             // will delete item or place to receiver mail list
             draft.AddMoney((ulong)sendMail.Info.SendMoney)
                  .AddCod((uint)sendMail.Info.Cod)
-                 .SendMailTo(trans, new MailReceiver(Global.ObjAccessor.FindConnectedPlayer(receiverGuid), receiverGuid.Counter), new MailSender(player), sendMail.Info.Body.IsEmpty() ? MailCheckMask.Copied : MailCheckMask.HasBody, deliver_delay);
+                 .SendMailTo(trans, _objectAccessor.FindConnectedPlayer(receiverGuid), new MailSender(_session.Player), sendMail.Info.Body.IsEmpty() ? MailCheckMask.Copied : MailCheckMask.HasBody, (uint)deliverDelay);
 
-            player.SaveInventoryAndGoldToDB(trans);
-            DB.Characters.CommitTransaction(trans);
+            _session.Player.SaveInventoryAndGoldToDB(trans);
+            _characterDatabase.CommitTransaction(trans);
         }
 
-        var receiver = Global.ObjAccessor.FindPlayer(receiverGuid);
+        var receiver = _objectAccessor.FindPlayer(receiverGuid);
 
         if (receiver != null)
-            mailCountCheckContinuation(receiver.Team, receiver.MailSize, receiver.Level, receiver.Session.AccountId, receiver.Session.BattlenetAccountId);
+            MailCountCheckContinue(receiver.Team, receiver.MailSize, receiver.Level, receiver.Session.AccountId, receiver.Session.BattlenetAccountId);
         else
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_COUNT);
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_COUNT);
             stmt.AddValue(0, receiverGuid.Counter);
 
-            QueryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt)
+            _session.QueryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt)
                                          .WithChainingCallback((queryCallback, mailCountResult) =>
                                          {
-                                             var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(receiverGuid);
+                                             var characterInfo = _characterCache.GetCharacterCacheByGuid(receiverGuid);
 
                                              if (characterInfo != null)
                                                  queryCallback.WithCallback(bnetAccountResult =>
                                                               {
-                                                                  mailCountCheckContinuation(Player.TeamForRace(characterInfo.RaceId),
+                                                                  MailCountCheckContinue(Player.TeamForRace(characterInfo.RaceId, _cliDB),
                                                                                              !mailCountResult.IsEmpty() ? mailCountResult.Read<ulong>(0) : 0,
                                                                                              characterInfo.Level,
                                                                                              characterInfo.AccountId,
                                                                                              !bnetAccountResult.IsEmpty() ? bnetAccountResult.Read<uint>(0) : 0);
                                                               })
-                                                              .SetNextQuery(Global.BNetAccountMgr.GetIdByGameAccountAsync(characterInfo.AccountId));
+                                                              .SetNextQuery(_bNetAccountManager.GetIdByGameAccountAsync(characterInfo.AccountId));
                                          }));
         }
     }

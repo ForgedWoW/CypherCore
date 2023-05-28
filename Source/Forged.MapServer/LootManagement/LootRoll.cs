@@ -143,12 +143,12 @@ public class LootRoll
         _voteMask = RollMask.AllMask;
 
         if (itemTemplate.HasFlag(ItemFlags2.CanOnlyRollGreed))
-            _voteMask = _voteMask & ~RollMask.Need;
+            _voteMask &= ~RollMask.Need;
 
         var disenchant = GetItemDisenchantLoot();
 
         if (disenchant == null || disenchant.SkillRequired > enchantingSkill)
-            _voteMask = _voteMask & ~RollMask.Disenchant;
+            _voteMask &= ~RollMask.Disenchant;
 
         if (playerCount > 1) // check if more than one player can loot this item
         {

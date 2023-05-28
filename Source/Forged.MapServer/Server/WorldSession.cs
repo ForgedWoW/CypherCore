@@ -986,7 +986,7 @@ public class WorldSession : IDisposable
 
         ProcessQueryCallbacks();
 
-        if (Socket != null && Socket.IsOpen && _warden != null)
+        if (Socket is { IsOpen: true } && _warden != null)
             _warden.Update(diff);
 
         // If necessary, log the player out
@@ -994,25 +994,38 @@ public class WorldSession : IDisposable
             LogoutPlayer(true);
 
         //- Cleanup socket if need
-        if (Socket != null && !Socket.IsOpen)
-        {
-            if (Player != null && _warden != null)
-                _warden.Update(diff);
+        if (Socket == null || Socket.IsOpen)
+            return Socket != null;
 
-            _expireTime -= _expireTime > diff ? diff : _expireTime;
+        if (Player != null && _warden != null)
+            _warden.Update(diff);
 
-            if (_expireTime < diff || _forceExit || Player == null)
-                if (Socket != null)
-                {
-                    Socket.CloseSocket();
-                    Socket = null;
-                }
-        }
+        _expireTime -= _expireTime > diff ? diff : _expireTime;
+
+        if (_expireTime >= diff && !_forceExit && Player != null)
+            return Socket != null;
 
         if (Socket == null)
-            return false; //Will remove this session from the world session map
+            return Socket != null;
 
-        return true;
+        Socket.CloseSocket();
+        Socket = null;
+
+        return Socket != null;
+        //Will remove this session from the world session map
+    }
+
+    public bool ValidateHyperlinksAndMaybeKick(string str)
+    {
+        if (Hyperlink.CheckAllLinks(str))
+            return true;
+
+        Log.Logger.Error($"Player {Player.GetName()} {Player.GUID} sent a message with an invalid link:\n{str}");
+
+        if (_configuration.GetDefaultValue("ChatStrictLinkChecking:Kick", 0) != 0)
+            KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
+
+        return false;
     }
 
     private long DrainQueue(ConcurrentQueue<WorldPacket> queue)
@@ -1424,17 +1437,20 @@ public class WorldSession : IDisposable
     {
         var handler = _packetManager.GetHandler((ClientOpcodes)packet.Opcode);
 
-        if (handler != null)
+        if (handler == null)
+            return;
+
+        if (handler.ProcessingPlace != PacketProcessing.Inplace)
         {
-            if (handler.ProcessingPlace == PacketProcessing.Inplace)
-            {
-                _inPlaceQueue.Enqueue(packet);
-                _asyncMessageQueueSemaphore.Set();
-            }
-            else if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
+            if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
                 _threadSafeQueue.Enqueue(packet);
             else
                 _threadUnsafe.Enqueue(packet);
+        }
+        else
+        {
+            _inPlaceQueue.Enqueue(packet);
+            _asyncMessageQueueSemaphore.Set();
         }
     }
 

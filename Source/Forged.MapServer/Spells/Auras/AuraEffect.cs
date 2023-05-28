@@ -5540,7 +5540,7 @@ public class AuraEffect
 
         var gainMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
 
-        damage = damage * gainMultiplier;
+        damage *= gainMultiplier;
 
         HealInfo healInfo = new(caster, target, damage, SpellInfo, SpellInfo.SchoolMask);
         caster.HealBySpell(healInfo);

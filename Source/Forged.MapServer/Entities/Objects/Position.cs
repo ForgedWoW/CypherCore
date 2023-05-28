@@ -307,7 +307,7 @@ public class Position
         X = (float)(X + (offset.X * Math.Cos(Orientation) + offset.Y * Math.Sin(Orientation + MathFunctions.PI)));
         Y = (float)(Y + (offset.Y * Math.Cos(Orientation) + offset.X * Math.Sin(Orientation)));
         Z += offset.Z;
-        Orientation = Orientation + offset.Orientation;
+        Orientation += offset.Orientation;
     }
 
     public float ToAbsoluteAngle(float relAngle)

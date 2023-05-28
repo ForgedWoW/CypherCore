@@ -1372,7 +1372,7 @@ public partial class Player : Unit
         if (IsImmuneToEnvironmentalDamage())
             return 0;
 
-        damage = damage * GetTotalAuraMultiplier(AuraType.ModEnvironmentalDamageTaken);
+        damage *= GetTotalAuraMultiplier(AuraType.ModEnvironmentalDamageTaken);
 
         // Absorb, resist some environmental damage type
         double absorb = 0;
@@ -2055,7 +2055,7 @@ public partial class Player : Unit
         var height = movementInfo.Pos.Z;
         height = Location.UpdateGroundPositionZ(movementInfo.Pos.X, movementInfo.Pos.Y, height);
 
-        damage = damage * GetTotalAuraMultiplier(AuraType.ModifyFallDamagePct);
+        damage *= GetTotalAuraMultiplier(AuraType.ModifyFallDamagePct);
 
         if (damage > 0)
         {
@@ -2876,6 +2876,26 @@ public partial class Player : Unit
         SendPacket(packet);
     }
 
+    public bool ModifyMoney(ulong amount, bool sendError = true)
+    {
+        if (amount == 0)
+            return true;
+
+        ScriptManager.ForEach<IPlayerOnMoneyChanged>(p => p.OnMoneyChanged(this, (long)amount));
+
+        if (Money <= PlayerConst.MaxMoneyAmount - amount)
+            Money += amount;
+        else
+        {
+            if (sendError)
+                SendEquipError(InventoryResult.TooMuchGold);
+
+            return false;
+        }
+
+        return true;
+    }
+
     public bool ModifyMoney(long amount, bool sendError = true)
     {
         if (amount == 0)
@@ -2884,11 +2904,11 @@ public partial class Player : Unit
         ScriptManager.ForEach<IPlayerOnMoneyChanged>(p => p.OnMoneyChanged(this, amount));
 
         if (amount < 0)
-            Money = (ulong)(Money > (ulong)-amount ? (long)Money + amount : 0);
+            Money -= (ulong)(amount * -1);
         else
         {
             if (Money <= PlayerConst.MaxMoneyAmount - (ulong)amount)
-                Money = Money + (ulong)amount;
+                Money += (ulong)amount;
             else
             {
                 if (sendError)

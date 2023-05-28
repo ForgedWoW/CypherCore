@@ -3356,7 +3356,7 @@ public partial class Spell
         // add log data before multiplication (need power amount, not damage)
         ExecuteLogEffectTakeTargetPower(EffectInfo.Effect, UnitTarget, powerType, (uint)newDamage, 0.0f);
 
-        newDamage = newDamage * dmgMultiplier;
+        newDamage *= dmgMultiplier;
 
         DamageInEffects += newDamage;
     }
@@ -6070,10 +6070,10 @@ public partial class Spell
             var weaponTotalPct = unitCaster.GetPctModifierValue(unitMod, UnitModifierPctType.Total);
 
             if (fixedBonus != 0)
-                fixedBonus = fixedBonus * weaponTotalPct;
+                fixedBonus *= weaponTotalPct;
 
             if (spellBonus != 0)
-                spellBonus = spellBonus * weaponTotalPct;
+                spellBonus *= weaponTotalPct;
         }
 
         var weaponDamage = unitCaster.CalculateDamage(AttackType, normalized, addPctMods);
@@ -6092,14 +6092,14 @@ public partial class Spell
                     break;
 
                 case SpellEffectName.WeaponPercentDamage:
-                    weaponDamage = weaponDamage * weaponDamagePercentMod;
+                    weaponDamage *= weaponDamagePercentMod;
 
                     break;
                 // not weapon damage effect, just skip
             }
 
         weaponDamage += spellBonus;
-        weaponDamage = weaponDamage * totalDamagePercentMod;
+        weaponDamage *= totalDamagePercentMod;
 
         // prevent negative damage
         weaponDamage = Math.Max(weaponDamage, 0);

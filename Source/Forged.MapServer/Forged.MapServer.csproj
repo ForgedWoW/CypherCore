@@ -45,6 +45,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Serilog.Sinks.Discord" Version="1.2.1" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\Framework\Framework.csproj" />
         <ProjectReference Include="..\Game.Common\Game.Common.csproj" />
     </ItemGroup>

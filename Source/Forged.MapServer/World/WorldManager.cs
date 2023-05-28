@@ -1507,7 +1507,7 @@ public class WorldManager
     {
         Log.Logger.Information("Calendar deletion of old events.");
 
-        _nextCalendarOldEventsDeletionTime = _nextCalendarOldEventsDeletionTime + Time.DAY;
+        _nextCalendarOldEventsDeletionTime += Time.DAY;
         SetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID, (int)_nextCalendarOldEventsDeletionTime);
         _calendarManager.DeleteOldEvents();
     }
