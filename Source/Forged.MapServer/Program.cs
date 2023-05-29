@@ -562,4 +562,5 @@ void RegisterHandlers()
     builder.RegisterType<MailHandler>();
     builder.RegisterType<MiscHandler>();
     builder.RegisterType<MovementHandler>();
+    builder.RegisterType<MythicPlusHandler>();
 }
