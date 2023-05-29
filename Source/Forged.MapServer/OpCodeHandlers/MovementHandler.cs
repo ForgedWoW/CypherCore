@@ -895,9 +895,11 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.SetActiveMover)]
     private void HandleSetActiveMover(SetActiveMover packet)
     {
-        if (_session.Player.Location.IsInWorld)
-            if (_session.Player.UnitBeingMoved.GUID != packet.ActiveMover)
-                Log.Logger.Error("HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _session.Player.UnitBeingMoved.GUID.ToString());
+        if (!_session.Player.Location.IsInWorld)
+            return;
+
+        if (_session.Player.UnitBeingMoved.GUID != packet.ActiveMover)
+            Log.Logger.Error("HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _session.Player.UnitBeingMoved.GUID.ToString());
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveSetCollisionHeightAck, Processing = PacketProcessing.ThreadSafe)]
@@ -912,7 +914,7 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.SuspendTokenResponse, Status = SessionStatus.Transfer)]
     private void HandleSuspendTokenResponse(SuspendTokenResponse suspendTokenResponse)
     {
-        if (!_session.Player.IsBeingTeleportedFar)
+        if (suspendTokenResponse == null || !_session.Player.IsBeingTeleportedFar)
             return;
 
         var loc = _session.Player.TeleportDest;
