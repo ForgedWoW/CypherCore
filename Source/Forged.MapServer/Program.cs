@@ -561,4 +561,5 @@ void RegisterHandlers()
     builder.RegisterType<LootHandler>();
     builder.RegisterType<MailHandler>();
     builder.RegisterType<MiscHandler>();
+    builder.RegisterType<MovementHandler>();
 }

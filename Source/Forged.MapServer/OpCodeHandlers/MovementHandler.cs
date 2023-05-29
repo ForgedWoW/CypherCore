@@ -6,9 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Movement.Generators;
@@ -16,15 +19,63 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Instance;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Movement;
+using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
+using Framework.Collections;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class MovementHandler : IWorldSessionHandler
 {
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
+    private readonly GridDefines _gridDefines;
+    private readonly InstanceLockManager _instanceLockManager;
+    private readonly MapManager _mapManager;
+    private readonly DB6Storage<MapRecord> _mapRecords;
+    private readonly Dictionary<uint, uint> _pendingTimeSyncRequests = new();
+    private readonly WorldSession _session;
+    private readonly DB6Storage<TaxiNodesRecord> _taxiNodesRecords;
+    private readonly CircularBuffer<Tuple<long, uint>> _timeSyncClockDeltaQueue = new(6);
+    private readonly UnitCombatHelpers _unitCombatHelpers;
+    private long _timeSyncClockDelta;
+    // key: counter. value: server time when packet with that counter was sent.
+
+    public MovementHandler(WorldSession session, GridDefines gridDefines, UnitCombatHelpers unitCombatHelpers, DB6Storage<TaxiNodesRecord> taxiNodesRecords, DB6Storage<MapRecord> mapRecords,
+                           MapManager mapManager, CliDB cliDB, DB2Manager db2Manager, InstanceLockManager instanceLockManager)
+    {
+        _session = session;
+        _gridDefines = gridDefines;
+        _unitCombatHelpers = unitCombatHelpers;
+        _taxiNodesRecords = taxiNodesRecords;
+        _mapRecords = mapRecords;
+        _mapManager = mapManager;
+        _cliDB = cliDB;
+        _db2Manager = db2Manager;
+        _instanceLockManager = instanceLockManager;
+    }
+
+    private uint AdjustClientMovementTime(uint time)
+    {
+        var movementTime = time + _timeSyncClockDelta;
+
+        if (_timeSyncClockDelta == 0 || movementTime is < 0 or > 0xFFFFFFFF)
+        {
+            Log.Logger.Warning("The computed movement time using clockDelta is erronous. Using fallback instead");
+
+            return GameTime.CurrentTimeMS;
+        }
+        else
+        {
+            return (uint)movementTime;
+        }
+    }
+
     private void ComputeNewClockDelta()
     {
         // implementation of the technique described here: https://web.archive.org/web/20180430214420/http://www.mine-control.com/zack/timesync/timesync.html
@@ -75,57 +126,66 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveForceWalkSpeedChangeAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleForceSpeedChangeAck(MovementSpeedAck packet)
     {
-        Player.ValidateMovementInfo(packet.Ack.Status);
+        _session.Player.ValidateMovementInfo(packet.Ack.Status);
 
         // now can skip not our packet
-        if (Player.GUID != packet.Ack.Status.Guid)
+        if (_session.Player.GUID != packet.Ack.Status.Guid)
             return;
 
         /*----------------*/
         // client ACK send one packet for mounted/run case and need skip all except last from its
         // in other cases anti-cheat check can be fail in false case
-        UnitMoveType move_type;
+        UnitMoveType unitMoveType;
 
         var opcode = packet.GetOpcode();
 
         switch (opcode)
         {
             case ClientOpcodes.MoveForceWalkSpeedChangeAck:
-                move_type = UnitMoveType.Walk;
+                unitMoveType = UnitMoveType.Walk;
 
                 break;
+
             case ClientOpcodes.MoveForceRunSpeedChangeAck:
-                move_type = UnitMoveType.Run;
+                unitMoveType = UnitMoveType.Run;
 
                 break;
+
             case ClientOpcodes.MoveForceRunBackSpeedChangeAck:
-                move_type = UnitMoveType.RunBack;
+                unitMoveType = UnitMoveType.RunBack;
 
                 break;
+
             case ClientOpcodes.MoveForceSwimSpeedChangeAck:
-                move_type = UnitMoveType.Swim;
+                unitMoveType = UnitMoveType.Swim;
 
                 break;
+
             case ClientOpcodes.MoveForceSwimBackSpeedChangeAck:
-                move_type = UnitMoveType.SwimBack;
+                unitMoveType = UnitMoveType.SwimBack;
 
                 break;
+
             case ClientOpcodes.MoveForceTurnRateChangeAck:
-                move_type = UnitMoveType.TurnRate;
+                unitMoveType = UnitMoveType.TurnRate;
 
                 break;
+
             case ClientOpcodes.MoveForceFlightSpeedChangeAck:
-                move_type = UnitMoveType.Flight;
+                unitMoveType = UnitMoveType.Flight;
 
                 break;
+
             case ClientOpcodes.MoveForceFlightBackSpeedChangeAck:
-                move_type = UnitMoveType.FlightBack;
+                unitMoveType = UnitMoveType.FlightBack;
 
                 break;
+
             case ClientOpcodes.MoveForcePitchRateChangeAck:
-                move_type = UnitMoveType.PitchRate;
+                unitMoveType = UnitMoveType.PitchRate;
 
                 break;
+
             default:
                 Log.Logger.Error("WorldSession.HandleForceSpeedChangeAck: Unknown move type opcode: {0}", opcode);
 
@@ -134,36 +194,36 @@ public class MovementHandler : IWorldSessionHandler
 
         // skip all forced speed changes except last and unexpected
         // in run/mounted case used one ACK and it must be skipped. m_forced_speed_changes[MOVE_RUN] store both.
-        if (Player.ForcedSpeedChanges[(int)move_type] > 0)
+        if (_session.Player.ForcedSpeedChanges[(int)unitMoveType] > 0)
         {
-            --Player.ForcedSpeedChanges[(int)move_type];
+            --_session.Player.ForcedSpeedChanges[(int)unitMoveType];
 
-            if (Player.ForcedSpeedChanges[(int)move_type] > 0)
+            if (_session.Player.ForcedSpeedChanges[(int)unitMoveType] > 0)
                 return;
         }
 
-        if (Player.Transport == null && Math.Abs(Player.GetSpeed(move_type) - packet.Speed) > 0.01f)
+        if (_session.Player.Transport != null || !(Math.Abs(_session.Player.GetSpeed(unitMoveType) - packet.Speed) > 0.01f))
+            return;
+
+        if (_session.Player.GetSpeed(unitMoveType) > packet.Speed) // must be greater - just correct
         {
-            if (Player.GetSpeed(move_type) > packet.Speed) // must be greater - just correct
-            {
-                Log.Logger.Error("{0}SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
-                                 move_type,
-                                 Player.GetName(),
-                                 Player.GetSpeed(move_type),
-                                 packet.Speed);
+            Log.Logger.Error("{0}SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
+                             unitMoveType,
+                             _session.Player.GetName(),
+                             _session.Player.GetSpeed(unitMoveType),
+                             packet.Speed);
 
-                Player.SetSpeedRate(move_type, Player.GetSpeedRate(move_type));
-            }
-            else // must be lesser - cheating
-            {
-                Log.Logger.Debug("Player {0} from account id {1} kicked for incorrect speed (must be {2} instead {3})",
-                                 Player.GetName(),
-                                 Player.Session.AccountId,
-                                 Player.GetSpeed(move_type),
-                                 packet.Speed);
+            _session.Player.SetSpeedRate(unitMoveType, _session.Player.GetSpeedRate(unitMoveType));
+        }
+        else // must be lesser - cheating
+        {
+            Log.Logger.Debug("Player {0} from account id {1} kicked for incorrect speed (must be {2} instead {3})",
+                             _session.Player.GetName(),
+                             _session.AccountId,
+                             _session.Player.GetSpeed(unitMoveType),
+                             packet.Speed);
 
-                Player.Session.KickPlayer("WorldSession::HandleForceSpeedChangeAck Incorrect speed");
-            }
+            _session.KickPlayer("WorldSession::HandleForceSpeedChangeAck Incorrect speed");
         }
     }
 
@@ -183,10 +243,11 @@ public class MovementHandler : IWorldSessionHandler
 
         moveApplyMovementForceAck.Ack.Status.Time = AdjustClientMovementTime(moveApplyMovementForceAck.Ack.Status.Time);
 
-        MoveUpdateApplyMovementForce updateApplyMovementForce = new();
-        updateApplyMovementForce.Status = moveApplyMovementForceAck.Ack.Status;
-        updateApplyMovementForce.Force = moveApplyMovementForceAck.Force;
-        mover.SendMessageToSet(updateApplyMovementForce, false);
+        mover.SendMessageToSet(new MoveUpdateApplyMovementForce()
+        {
+            Status = moveApplyMovementForceAck.Ack.Status,
+            Force = moveApplyMovementForceAck.Force
+        }, false);
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveInitActiveMoverComplete, Processing = PacketProcessing.ThreadSafe)]
@@ -201,17 +262,20 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveKnockBackAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleMoveKnockBackAck(MoveKnockBackAck movementAck)
     {
-        Player.ValidateMovementInfo(movementAck.Ack.Status);
+        _session.Player.ValidateMovementInfo(movementAck.Ack.Status);
 
-        if (Player.UnitBeingMoved.GUID != movementAck.Ack.Status.Guid)
+        if (_session.Player.UnitBeingMoved.GUID != movementAck.Ack.Status.Guid)
             return;
 
         movementAck.Ack.Status.Time = AdjustClientMovementTime(movementAck.Ack.Status.Time);
-        Player.MovementInfo = movementAck.Ack.Status;
+        _session.Player.MovementInfo = movementAck.Ack.Status;
 
-        MoveUpdateKnockBack updateKnockBack = new();
-        updateKnockBack.Status = Player.MovementInfo;
-        Player.SendMessageToSet(updateKnockBack, false);
+        MoveUpdateKnockBack updateKnockBack = new()
+        {
+            Status = _session.Player.MovementInfo
+        };
+
+        _session.Player.SendMessageToSet(updateKnockBack, false);
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveChangeTransport, Processing = PacketProcessing.ThreadSafe)]
@@ -263,18 +327,18 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveWaterWalkAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleMovementAckMessage(MovementAckMessage movementAck)
     {
-        Player.ValidateMovementInfo(movementAck.Ack.Status);
+        _session.Player.ValidateMovementInfo(movementAck.Ack.Status);
     }
 
     private void HandleMovementOpcode(ClientOpcodes opcode, MovementInfo movementInfo)
     {
-        var mover = Player.UnitBeingMoved;
+        var mover = _session.Player.UnitBeingMoved;
         var plrMover = mover.AsPlayer;
 
-        if (plrMover && plrMover.IsBeingTeleported)
+        if (plrMover is { IsBeingTeleported: true })
             return;
 
-        Player.ValidateMovementInfo(movementInfo);
+        _session.Player.ValidateMovementInfo(movementInfo);
 
         if (movementInfo.Guid != mover.GUID)
         {
@@ -286,12 +350,11 @@ public class MovementHandler : IWorldSessionHandler
         if (!movementInfo.Pos.IsPositionValid)
             return;
 
-
         if (!mover.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
             return;
 
         // stop some emotes at player move
-        if (plrMover && plrMover.EmoteState != 0)
+        if (plrMover != null && plrMover.EmoteState != 0)
             plrMover.EmoteState = Emote.OneshotNone;
 
         //handle special cases
@@ -304,13 +367,13 @@ public class MovementHandler : IWorldSessionHandler
             if (Math.Abs(movementInfo.Transport.Pos.X) > 75f || Math.Abs(movementInfo.Transport.Pos.Y) > 75f || Math.Abs(movementInfo.Transport.Pos.Z) > 75f)
                 return;
 
-            if (!GridDefines.IsValidMapCoord(movementInfo.Pos.X + movementInfo.Transport.Pos.X,
-                                             movementInfo.Pos.Y + movementInfo.Transport.Pos.Y,
-                                             movementInfo.Pos.Z + movementInfo.Transport.Pos.Z,
-                                             movementInfo.Pos.Orientation + movementInfo.Transport.Pos.Orientation))
+            if (!_gridDefines.IsValidMapCoord(movementInfo.Pos.X + movementInfo.Transport.Pos.X,
+                                              movementInfo.Pos.Y + movementInfo.Transport.Pos.Y,
+                                              movementInfo.Pos.Z + movementInfo.Transport.Pos.Z,
+                                              movementInfo.Pos.Orientation + movementInfo.Transport.Pos.Orientation))
                 return;
 
-            if (plrMover)
+            if (plrMover != null)
             {
                 if (plrMover.Transport == null)
                 {
@@ -339,14 +402,14 @@ public class MovementHandler : IWorldSessionHandler
                 }
             }
 
-            if (mover.Transport == null && !mover.Vehicle)
+            if (mover.Transport == null && mover.Vehicle == null)
                 movementInfo.Transport.Reset();
         }
-        else if (plrMover && plrMover.Transport != null) // if we were on a transport, leave
+        else if (plrMover is { Transport: { } }) // if we were on a transport, leave
             plrMover.Transport.RemovePassenger(plrMover);
 
         // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-        if (opcode == ClientOpcodes.MoveFallLand && plrMover && !plrMover.IsInFlight)
+        if (opcode == ClientOpcodes.MoveFallLand && plrMover is { IsInFlight: false })
             plrMover.HandleFall(movementInfo);
 
         // interrupt parachutes upon falling or landing in water
@@ -360,62 +423,69 @@ public class MovementHandler : IWorldSessionHandler
         // Some vehicles allow the passenger to turn by himself
         var vehicle = mover.Vehicle;
 
-        if (vehicle)
+        if (vehicle != null)
         {
             var seat = vehicle.GetSeatForPassenger(mover);
 
-            if (seat != null)
-                if (seat.HasFlag(VehicleSeatFlags.AllowTurning))
-                    if (movementInfo.Pos.Orientation != mover.Location.Orientation)
-                    {
-                        mover.Location.Orientation = movementInfo.Pos.Orientation;
-                        mover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Turning);
-                    }
+            if (seat == null)
+                return;
+
+            if (!seat.HasFlag(VehicleSeatFlags.AllowTurning))
+                return;
+
+            if (movementInfo.Pos.Orientation != mover.Location.Orientation)
+            {
+                mover.Location.Orientation = movementInfo.Pos.Orientation;
+                mover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Turning);
+            }
 
             return;
         }
 
         mover.UpdatePosition(movementInfo.Pos);
 
-        MoveUpdate moveUpdate = new();
-        moveUpdate.Status = mover.MovementInfo;
-        mover.SendMessageToSet(moveUpdate, Player);
-
-        if (plrMover) // nothing is charmed, or player charmed
+        MoveUpdate moveUpdate = new()
         {
-            if (plrMover.IsSitState && movementInfo.HasMovementFlag(MovementFlag.MaskMoving | MovementFlag.MaskTurning))
-                plrMover.SetStandState(UnitStandStateType.Stand);
+            Status = mover.MovementInfo
+        };
 
-            plrMover.UpdateFallInformationIfNeed(movementInfo, opcode);
+        mover.SendMessageToSet(moveUpdate, _session.Player);
 
-            if (movementInfo.Pos.Z < plrMover.Location.Map.GetMinHeight(plrMover.Location.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
-            {
-                if (!(plrMover.Battleground && plrMover.Battleground.HandlePlayerUnderMap(Player)))
-                    // NOTE: this is actually called many times while falling
-                    // even after the player has been teleported away
-                    // @todo discard movement packets after the player is rooted
+        if (plrMover == null) // nothing is charmed, or player charmed
+            return;
+
+        if (plrMover.IsSitState && movementInfo.HasMovementFlag(MovementFlag.MaskMoving | MovementFlag.MaskTurning))
+            plrMover.SetStandState(UnitStandStateType.Stand);
+
+        plrMover.UpdateFallInformationIfNeed(movementInfo, opcode);
+
+        if (movementInfo.Pos.Z < plrMover.Location.Map.GetMinHeight(plrMover.Location.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
+        {
+            if (!(plrMover.Battleground != null && plrMover.Battleground.HandlePlayerUnderMap(_session.Player)))
+                // NOTE: this is actually called many times while falling
+                // even after the player has been teleported away
+                // @todo discard movement packets after the player is rooted
+                if (plrMover.IsAlive)
+                {
+                    Log.Logger.Debug($"FALLDAMAGE Below map. Map min height: {plrMover.Location.Map.GetMinHeight(plrMover.Location.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
+                    plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
+                    plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)_session.Player.MaxHealth);
+
+                    // player can be alive if GM/etc
+                    // change the death state to CORPSE to prevent the death timer from
+                    // starting in the next player update
                     if (plrMover.IsAlive)
-                    {
-                        Log.Logger.Debug($"FALLDAMAGE Below map. Map min height: {plrMover.Location.Map.GetMinHeight(plrMover.Location.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
-                        plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
-                        plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)Player.MaxHealth);
-
-                        // player can be alive if GM/etc
-                        // change the death state to CORPSE to prevent the death timer from
-                        // starting in the next player update
-                        if (plrMover.IsAlive)
-                            plrMover.KillPlayer();
-                    }
-            }
-            else
-                plrMover.RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
-
-            if (opcode == ClientOpcodes.MoveJump)
-            {
-                plrMover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.Jump); // Mind Control
-                UnitCombatHelpers.ProcSkillsAndAuras(plrMover, null, new ProcFlagsInit(ProcFlags.Jump), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
-            }
+                        plrMover.KillPlayer();
+                }
         }
+        else
+            plrMover.RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
+
+        if (opcode != ClientOpcodes.MoveJump)
+            return;
+
+        plrMover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.Jump); // Mind Control
+        _unitCombatHelpers.ProcSkillsAndAuras(plrMover, null, new ProcFlagsInit(ProcFlags.Jump), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveRemoveMovementForceAck, Processing = PacketProcessing.ThreadSafe)]
@@ -434,9 +504,12 @@ public class MovementHandler : IWorldSessionHandler
 
         moveRemoveMovementForceAck.Ack.Status.Time = AdjustClientMovementTime(moveRemoveMovementForceAck.Ack.Status.Time);
 
-        MoveUpdateRemoveMovementForce updateRemoveMovementForce = new();
-        updateRemoveMovementForce.Status = moveRemoveMovementForceAck.Ack.Status;
-        updateRemoveMovementForce.TriggerGUID = moveRemoveMovementForceAck.ID;
+        MoveUpdateRemoveMovementForce updateRemoveMovementForce = new()
+        {
+            Status = moveRemoveMovementForceAck.Ack.Status,
+            TriggerGUID = moveRemoveMovementForceAck.ID
+        };
+
         mover.SendMessageToSet(updateRemoveMovementForce, false);
     }
 
@@ -479,9 +552,12 @@ public class MovementHandler : IWorldSessionHandler
 
         setModMovementForceMagnitudeAck.Ack.Status.Time = AdjustClientMovementTime(setModMovementForceMagnitudeAck.Ack.Status.Time);
 
-        MoveUpdateSpeed updateModMovementForceMagnitude = new(ServerOpcodes.MoveUpdateModMovementForceMagnitude);
-        updateModMovementForceMagnitude.Status = setModMovementForceMagnitudeAck.Ack.Status;
-        updateModMovementForceMagnitude.Speed = setModMovementForceMagnitudeAck.Speed;
+        MoveUpdateSpeed updateModMovementForceMagnitude = new(ServerOpcodes.MoveUpdateModMovementForceMagnitude)
+        {
+            Status = setModMovementForceMagnitudeAck.Ack.Status,
+            Speed = setModMovementForceMagnitudeAck.Speed
+        };
+
         mover.SendMessageToSet(updateModMovementForceMagnitude, false);
     }
 
@@ -496,44 +572,46 @@ public class MovementHandler : IWorldSessionHandler
         // 2) switch from one map to other in case multim-map taxi path
         // we need process only (1)
 
-        var curDest = Player.Taxi.GetTaxiDestination();
+        var curDest = _session.Player.Taxi.GetTaxiDestination();
 
         if (curDest != 0)
         {
-            var curDestNode = CliDB.TaxiNodesStorage.LookupByKey(curDest);
+            var curDestNode = _taxiNodesRecords.LookupByKey(curDest);
 
             // far teleport case
-            if (curDestNode != null && curDestNode.ContinentID != Player.Location.MapId && Player.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Flight)
-                if (Player.MotionMaster.GetCurrentMovementGenerator() is FlightPathMovementGenerator flight)
-                {
-                    // short preparations to continue flight
-                    flight.SetCurrentNodeAfterTeleport();
-                    var node = flight.Path[(int)flight.GetCurrentNode()];
-                    flight.SkipCurrentNode();
+            if (curDestNode == null || curDestNode.ContinentID == _session.Player.Location.MapId || _session.Player.MotionMaster.GetCurrentMovementGeneratorType() != MovementGeneratorType.Flight)
+                return;
 
-                    Player.TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, Player.Location.Orientation);
-                }
+            if (_session.Player.MotionMaster.GetCurrentMovementGenerator() is not FlightPathMovementGenerator flight)
+                return;
+
+            // short preparations to continue flight
+            flight.SetCurrentNodeAfterTeleport();
+            var node = flight.Path[(int)flight.GetCurrentNode()];
+            flight.SkipCurrentNode();
+
+            _session.Player.TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, _session.Player.Location.Orientation);
 
             return;
         }
 
         // at this point only 1 node is expected (final destination)
-        if (Player.Taxi.GetPath().Count != 1)
+        if (_session.Player.Taxi.GetPath().Count != 1)
             return;
 
-        Player.CleanupAfterTaxiFlight();
-        Player.SetFallInformation(0, Player.Location.Z);
+        _session.Player.CleanupAfterTaxiFlight();
+        _session.Player.SetFallInformation(0, _session.Player.Location.Z);
 
-        if (Player.PvpInfo.IsHostile)
-            Player.CastSpell(Player, 2479, true);
+        if (_session.Player.PvpInfo.IsHostile)
+            _session.Player.SpellFactory.CastSpell(2479, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveTeleportAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleMoveTeleportAck(MoveTeleportAck packet)
     {
-        var plMover = Player.UnitBeingMoved.AsPlayer;
+        var plMover = _session.Player.UnitBeingMoved.AsPlayer;
 
-        if (!plMover || !plMover.IsBeingTeleportedNear)
+        if (plMover is not { IsBeingTeleportedNear: true })
             return;
 
         if (packet.MoverGUID != plMover.GUID)
@@ -541,17 +619,17 @@ public class MovementHandler : IWorldSessionHandler
 
         plMover.SetSemaphoreTeleportNear(false);
 
-        var old_zone = plMover.Location.Zone;
+        var oldZone = plMover.Location.Zone;
 
         var dest = plMover.TeleportDest;
 
         plMover.UpdatePosition(dest, true);
-        plMover.SetFallInformation(0, Player.Location.Z);
+        plMover.SetFallInformation(0, _session.Player.Location.Z);
 
         plMover.UpdateZone(plMover.Location.Zone, plMover.Location.Area);
 
         // new zone
-        if (old_zone != plMover.Location.Zone)
+        if (oldZone != plMover.Location.Zone)
         {
             // honorless target
             if (plMover.PvpInfo.IsHostile)
@@ -563,20 +641,20 @@ public class MovementHandler : IWorldSessionHandler
         }
 
         // resummon pet
-        Player.ResummonPetTemporaryUnSummonedIfAny();
+        _session.Player.ResummonPetTemporaryUnSummonedIfAny();
 
         //lets process all delayed operations on successful teleport
-        Player.ProcessDelayedOperations();
+        _session.Player.ProcessDelayedOperations();
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveTimeSkipped, Processing = PacketProcessing.Inplace)]
     private void HandleMoveTimeSkipped(MoveTimeSkipped moveTimeSkipped)
     {
-        var mover = Player.UnitBeingMoved;
+        var mover = _session.Player.UnitBeingMoved;
 
         if (mover == null)
         {
-            Log.Logger.Warning($"WorldSession.HandleMoveTimeSkipped wrong mover state from the unit moved by {Player.GUID}");
+            Log.Logger.Warning($"WorldSession.HandleMoveTimeSkipped wrong mover state from the unit moved by {_session.Player.GUID}");
 
             return;
         }
@@ -584,193 +662,198 @@ public class MovementHandler : IWorldSessionHandler
         // prevent tampered movement data
         if (moveTimeSkipped.MoverGUID != mover.GUID)
         {
-            Log.Logger.Warning($"WorldSession.HandleMoveTimeSkipped wrong guid from the unit moved by {Player.GUID}");
+            Log.Logger.Warning($"WorldSession.HandleMoveTimeSkipped wrong guid from the unit moved by {_session.Player.GUID}");
 
             return;
         }
 
         mover.MovementInfo.Time += moveTimeSkipped.TimeSkipped;
 
-        MoveSkipTime moveSkipTime = new();
-        moveSkipTime.MoverGUID = moveTimeSkipped.MoverGUID;
-        moveSkipTime.TimeSkipped = moveTimeSkipped.TimeSkipped;
+        MoveSkipTime moveSkipTime = new()
+        {
+            MoverGUID = moveTimeSkipped.MoverGUID,
+            TimeSkipped = moveTimeSkipped.TimeSkipped
+        };
+
         mover.SendMessageToSet(moveSkipTime, _session.Player);
     }
 
     [WorldPacketHandler(ClientOpcodes.WorldPortResponse, Status = SessionStatus.Transfer)]
     private void HandleMoveWorldportAck(WorldPortResponse packet)
     {
+        if (packet == null)
+            return;
+
         HandleMoveWorldportAck();
     }
 
     private void HandleMoveWorldportAck()
     {
-        var player = Player;
-
         // ignore unexpected far teleports
-        if (!player.IsBeingTeleportedFar)
+        if (!_session.Player.IsBeingTeleportedFar)
             return;
 
-        var seamlessTeleport = player.IsBeingTeleportedSeamlessly;
-        player.SetSemaphoreTeleportFar(false);
+        var seamlessTeleport = _session.Player.IsBeingTeleportedSeamlessly;
+        _session.Player.SetSemaphoreTeleportFar(false);
 
         // get the teleport destination
-        var loc = player.TeleportDest;
+        var loc = _session.Player.TeleportDest;
 
         // possible errors in the coordinate validity check
-        if (!GridDefines.IsValidMapCoord((WorldLocation)loc))
+        if (!_gridDefines.IsValidMapCoord(loc))
         {
-            LogoutPlayer(false);
+            _session.LogoutPlayer(false);
 
             return;
         }
 
         // get the destination map entry, not the current one, this will fix homebind and reset greeting
-        var mapEntry = CliDB.MapStorage.LookupByKey(loc.MapId);
+        var mapEntry = _mapRecords.LookupByKey(loc.MapId);
 
         // reset instance validity, except if going to an instance inside an instance
-        if (!player.InstanceValid && !mapEntry.IsDungeon())
-            player.InstanceValid = true;
+        if (!_session.Player.InstanceValid && !mapEntry.IsDungeon())
+            _session.Player.InstanceValid = true;
 
-        var oldMap = player.Map;
-        var newMap = Player.TeleportDestInstanceId.HasValue ? Global.MapMgr.FindMap(loc.MapId, Player.TeleportDestInstanceId.Value) : Global.MapMgr.CreateMap(loc.MapId, Player);
+        var oldMap = _session.Player.Location.Map;
+        var newMap = _session.Player.TeleportDestInstanceId.HasValue ? _mapManager.FindMap(loc.MapId, _session.Player.TeleportDestInstanceId.Value) : _mapManager.CreateMap(loc.MapId, _session.Player);
 
-        var transportInfo = player.MovementInfo.Transport;
-        var transport = player.Transport;
+        var transportInfo = _session.Player.MovementInfo.Transport;
+        var transport = _session.Player.Transport;
 
-        if (transport != null)
-            transport.RemovePassenger(player);
+        transport?.RemovePassenger(_session.Player);
 
-        if (player.IsInWorld)
+        if (_session.Player.Location.IsInWorld)
         {
-            Log.Logger.Error($"Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
-            oldMap.RemovePlayerFromMap(player, false);
+            Log.Logger.Error($"Player (Name {_session.Player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
+            oldMap.RemovePlayerFromMap(_session.Player, false);
         }
 
         // relocate the player to the teleport destination
         // the CannotEnter checks are done in TeleporTo but conditions may change
         // while the player is in transit, for example the map may get full
-        if (newMap == null || newMap.CannotEnter(player) != null)
+        if (newMap == null || newMap.CannotEnter(_session.Player) != null)
         {
-            Log.Logger.Error($"Map {loc.MapId} could not be created for {(newMap ? newMap.MapName : "Unknown")} ({player.GUID}), porting player to homebind");
-            player.TeleportTo(player.Homebind);
+            Log.Logger.Error($"Map {loc.MapId} could not be created for {(newMap != null ? newMap.MapName : "Unknown")} ({_session.Player.GUID}), porting player to homebind");
+            _session.Player.TeleportTo(_session.Player.Homebind);
 
             return;
         }
 
-        var z = loc.Z + player.HoverOffset;
-        player.Location.Relocate(loc.X, loc.Y, z, loc.Orientation);
-        player.SetFallInformation(0, player.Location.Z);
+        var z = loc.Z + _session.Player.HoverOffset;
+        _session.Player.Location.Relocate(loc.X, loc.Y, z, loc.Orientation);
+        _session.Player.SetFallInformation(0, _session.Player.Location.Z);
 
-        player.Location.ResetMap();
-        player.Location.Map = newMap;
-        player.CheckAddToMap();
+        _session.Player.Location.ResetMap();
+        _session.Player.Location.Map = newMap;
+        _session.Player.CheckAddToMap();
 
-        ResumeToken resumeToken = new();
-        resumeToken.SequenceIndex = player.MovementCounter;
-        resumeToken.Reason = seamlessTeleport ? 2 : 1u;
-        SendPacket(resumeToken);
+        ResumeToken resumeToken = new()
+        {
+            SequenceIndex = _session.Player.MovementCounter,
+            Reason = seamlessTeleport ? 2 : 1u
+        };
+
+        _session.SendPacket(resumeToken);
 
         if (!seamlessTeleport)
-            player.SendInitialPacketsBeforeAddToMap();
+            _session.Player.SendInitialPacketsBeforeAddToMap();
 
         // move player between transport copies on each map
         var newTransport = newMap.GetTransport(transportInfo.Guid);
 
         if (newTransport != null)
         {
-            player.MovementInfo.Transport = transportInfo;
-            newTransport.AddPassenger(player);
+            _session.Player.MovementInfo.Transport = transportInfo;
+            newTransport.AddPassenger(_session.Player);
         }
 
-        if (!player.Map.AddPlayerToMap(player, !seamlessTeleport))
+        if (!_session.Player.Location.Map.AddPlayerToMap(_session.Player, !seamlessTeleport))
         {
-            Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
-            player.Location.ResetMap();
-            player.Location.Map = oldMap;
-            player.CheckAddToMap();
-            player.TeleportTo(player.Homebind);
+            Log.Logger.Error($"WORLD: failed to teleport player {_session.Player.GetName()} ({_session.Player.GUID}) to map {loc.MapId} ({newMap.MapName}) because of unknown reason!");
+            _session.Player.Location.ResetMap();
+            _session.Player.Location.Map = oldMap;
+            _session.Player.CheckAddToMap();
+            _session.Player.TeleportTo(_session.Player.Homebind);
 
             return;
         }
 
         // Battleground state prepare (in case join to BG), at relogin/tele player not invited
         // only add to bg group and object, if the player was invited (else he entered through command)
-        if (player.InBattleground)
+        if (_session.Player.InBattleground)
         {
             // cleanup setting if outdated
             if (!mapEntry.IsBattlegroundOrArena())
             {
                 // We're not in BG
-                player.SetBattlegroundId(0, BattlegroundTypeId.None);
+                _session.Player.SetBattlegroundId(0, BattlegroundTypeId.None);
                 // reset destination bg team
-                player.SetBgTeam(0);
+                _session.Player.SetBgTeam(0);
             }
             // join to bg case
             else
             {
-                var bg = player.Battleground;
-
-                if (bg)
-                    if (player.IsInvitedForBattlegroundInstance(player.BattlegroundId))
-                        bg.AddPlayer(player);
+                if (_session.Player.Battleground != null)
+                    if (_session.Player.IsInvitedForBattlegroundInstance(_session.Player.BattlegroundId))
+                        _session.Player.Battleground.AddPlayer(_session.Player);
             }
         }
 
         if (!seamlessTeleport)
-            player.SendInitialPacketsAfterAddToMap();
+            _session.Player.SendInitialPacketsAfterAddToMap();
         else
         {
-            player.UpdateVisibilityForPlayer();
-            var garrison = player.Garrison;
+            _session.Player.UpdateVisibilityForPlayer();
+            var garrison = _session.Player.Garrison;
 
-            if (garrison != null)
-                garrison.SendRemoteInfo();
+            garrison?.SendRemoteInfo();
         }
 
         // flight fast teleport case
-        if (player.IsInFlight)
+        if (_session.Player.IsInFlight)
         {
-            if (!player.InBattleground)
+            if (!_session.Player.InBattleground)
             {
-                if (!seamlessTeleport)
-                {
-                    // short preparations to continue flight
-                    var movementGenerator = player.MotionMaster.GetCurrentMovementGenerator();
-                    movementGenerator.Initialize(player);
-                }
+                if (seamlessTeleport)
+                    return;
+
+                // short preparations to continue flight
+                var movementGenerator = _session.Player.MotionMaster.GetCurrentMovementGenerator();
+                movementGenerator.Initialize(_session.Player);
 
                 return;
             }
 
             // Battlegroundstate prepare, stop flight
-            player.FinishTaxiFlight();
+            _session.Player.FinishTaxiFlight();
         }
 
-        if (!player.IsAlive && Extensions.HasAnyFlag(player.TeleportOptions, TeleportToOptions.ReviveAtTeleport))
-            player.ResurrectPlayer(0.5f);
+        if (!_session.Player.IsAlive && _session.Player.TeleportOptions.HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
+            _session.Player.ResurrectPlayer(0.5f);
 
         // resurrect character at enter into instance where his corpse exist after add to map
-        if (mapEntry.IsDungeon() && !player.IsAlive)
-            if (player.CorpseLocation.MapId == mapEntry.Id)
+        if (mapEntry.IsDungeon() && !_session.Player.IsAlive)
+            if (_session.Player.CorpseLocation.MapId == mapEntry.Id)
             {
-                player.ResurrectPlayer(0.5f, false);
-                player.SpawnCorpseBones();
+                _session.Player.ResurrectPlayer(0.5f);
+                _session.Player.SpawnCorpseBones();
             }
 
         if (mapEntry.IsDungeon())
         {
             // check if this instance has a reset time and send it to player if so
-            MapDb2Entries entries = new(mapEntry.Id, newMap.DifficultyID);
+            MapDb2Entries entries = new(mapEntry.Id, newMap.DifficultyID, _cliDB, _db2Manager);
 
             if (entries.MapDifficulty.HasResetSchedule())
             {
-                RaidInstanceMessage raidInstanceMessage = new();
-                raidInstanceMessage.Type = InstanceResetWarningType.Welcome;
-                raidInstanceMessage.MapID = mapEntry.Id;
-                raidInstanceMessage.DifficultyID = newMap.DifficultyID;
+                RaidInstanceMessage raidInstanceMessage = new()
+                {
+                    Type = InstanceResetWarningType.Welcome,
+                    MapID = mapEntry.Id,
+                    DifficultyID = newMap.DifficultyID
+                };
 
-                var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(Player.GUID, entries);
+                var playerLock = _instanceLockManager.FindActiveInstanceLock(_session.Player.GUID, entries);
 
                 if (playerLock != null)
                 {
@@ -783,36 +866,36 @@ public class MovementHandler : IWorldSessionHandler
                     raidInstanceMessage.Extended = false;
                 }
 
-                SendPacket(raidInstanceMessage);
+                _session.SendPacket(raidInstanceMessage);
             }
 
             // check if instance is valid
-            if (!player.CheckInstanceValidity(false))
-                player.InstanceValid = false;
+            if (!_session.Player.CheckInstanceValidity(false))
+                _session.Player.InstanceValid = false;
         }
 
         // update zone immediately, otherwise leave channel will cause crash in mtmap
-        player.UpdateZone(player.Location.Zone, player.Location.Area);
+        _session.Player.UpdateZone(_session.Player.Location.Zone, _session.Player.Location.Area);
 
         // honorless target
-        if (player.PvpInfo.IsHostile)
-            player.CastSpell(player, 2479, true);
+        if (_session.Player.PvpInfo.IsHostile)
+            _session.Player.SpellFactory.CastSpell(2479, true);
 
         // in friendly area
-        else if (player.IsPvP && !player.HasPlayerFlag(PlayerFlags.InPVP))
-            player.UpdatePvP(false, false);
+        else if (_session.Player.IsPvP && !_session.Player.HasPlayerFlag(PlayerFlags.InPVP))
+            _session.Player.UpdatePvP(false);
 
         // resummon pet
-        player.ResummonPetTemporaryUnSummonedIfAny();
+        _session.Player.ResummonPetTemporaryUnSummonedIfAny();
 
         //lets process all delayed operations on successful teleport
-        player.ProcessDelayedOperations();
+        _session.Player.ProcessDelayedOperations();
     }
 
     [WorldPacketHandler(ClientOpcodes.SetActiveMover)]
     private void HandleSetActiveMover(SetActiveMover packet)
     {
-        if (Player.Location.IsInWorld)
+        if (_session.Player.Location.IsInWorld)
             if (_session.Player.UnitBeingMoved.GUID != packet.ActiveMover)
                 Log.Logger.Error("HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _session.Player.UnitBeingMoved.GUID.ToString());
     }
@@ -820,7 +903,10 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.MoveSetCollisionHeightAck, Processing = PacketProcessing.ThreadSafe)]
     private void HandleSetCollisionHeightAck(MoveSetCollisionHeightAck packet)
     {
-        Player.ValidateMovementInfo(packet.Data.Status);
+        if (packet == null)
+            return;
+
+        _session.Player.ValidateMovementInfo(packet.Data.Status);
     }
 
     [WorldPacketHandler(ClientOpcodes.SuspendTokenResponse, Status = SessionStatus.Transfer)]
@@ -829,20 +915,25 @@ public class MovementHandler : IWorldSessionHandler
         if (!_session.Player.IsBeingTeleportedFar)
             return;
 
-        var loc = Player.TeleportDest;
+        var loc = _session.Player.TeleportDest;
 
-        if (CliDB.MapStorage.LookupByKey(loc.MapId).IsDungeon())
+        if (_mapRecords.LookupByKey(loc.MapId).IsDungeon())
         {
-            UpdateLastInstance updateLastInstance = new();
-            updateLastInstance.MapID = loc.MapId;
-            SendPacket(updateLastInstance);
+            _session.SendPacket(new UpdateLastInstance()
+            {
+                MapID = loc.MapId
+            });
         }
 
-        NewWorld packet = new();
-        packet.MapID = loc.MapId;
-        packet.Loc.Pos = loc;
-        packet.Reason = (uint)(!_session.Player.IsBeingTeleportedSeamlessly ? NewWorldReason.Normal : NewWorldReason.Seamless);
-        SendPacket(packet);
+        _session.SendPacket(new NewWorld()
+        {
+            MapID = loc.MapId,
+            Loc =
+            {
+                Pos = loc
+            },
+            Reason = (uint)(!_session.Player.IsBeingTeleportedSeamlessly ? NewWorldReason.Normal : NewWorldReason.Seamless)
+        });
 
         if (_session.Player.IsBeingTeleportedSeamlessly)
             HandleMoveWorldportAck();
@@ -869,7 +960,7 @@ public class MovementHandler : IWorldSessionHandler
         where
         serverTime: time that was displayed on the clock of the SERVER at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
         clientTime:  time that was displayed on the clock of the CLIENT at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
-      
+
         Once clockDelta has been computed, we can compute the time of an event on server clock when we know the time of that same event on the client clock,
         using the following relation:
         serverTime = clockDelta + clientTime

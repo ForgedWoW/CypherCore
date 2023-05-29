@@ -10,6 +10,8 @@ using Framework.Constants;
 using Google.Protobuf;
 using Serilog;
 
+// ReSharper disable PossibleNullReferenceException
+
 namespace Forged.MapServer.Services;
 
 public class WorldServiceHandler

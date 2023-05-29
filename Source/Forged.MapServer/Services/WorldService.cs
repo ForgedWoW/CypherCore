@@ -14,6 +14,8 @@ using Game.Common.Handlers;
 using Google.Protobuf;
 using Serilog;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.Services;
 
 public class WorldService : IWorldSocketHandler
