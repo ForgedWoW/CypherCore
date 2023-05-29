@@ -394,6 +394,11 @@ public class WorldSession : IDisposable
             DoLootRelease(loot);
     }
 
+    public AccountData GetAccountData(AccountDataTypes type)
+    {
+        return _accountData[(int)type];
+    }
+
     public string GetPlayerInfo()
     {
         if (!_playerLoading.IsEmpty && !string.IsNullOrEmpty(_loadingPlayerInfo))
@@ -485,10 +490,12 @@ public class WorldSession : IDisposable
         if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
             return true;
 
-        if (_registeredAddonPrefixes.Empty())
-            return false;
+        return !_registeredAddonPrefixes.Empty() && _registeredAddonPrefixes.Contains(prefix);
+    }
 
-        return _registeredAddonPrefixes.Contains(prefix);
+    public void ClearRegisteredAddons()
+    {
+        _registeredAddonPrefixes.Clear();
     }
 
     public void KickPlayer(string reason)
@@ -962,6 +969,11 @@ public class WorldSession : IDisposable
         _inQueue = state;
     }
 
+    public void SetLogoutStartTime(long requestTime)
+    {
+        _logoutTime = requestTime;
+    }
+
     public bool UpdateMap(uint diff)
     {
         DrainQueue(_threadSafeQueue);
@@ -1128,11 +1140,6 @@ public class WorldSession : IDisposable
         }
 
         return currentTime;
-    }
-
-    private AccountData GetAccountData(AccountDataTypes type)
-    {
-        return _accountData[(int)type];
     }
 
     private void HandleMoveWorldportAck()
@@ -1457,11 +1464,6 @@ public class WorldSession : IDisposable
     private void SendAvailableHotfixes()
     {
         SendPacket(new AvailableHotfixes(_realm.Id.VirtualRealmAddress, _db2Manager.GetHotfixData()));
-    }
-
-    public void SetLogoutStartTime(long requestTime)
-    {
-        _logoutTime = requestTime;
     }
 
     private bool ShouldLogOut(long currTime)

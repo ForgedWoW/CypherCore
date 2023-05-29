@@ -560,4 +560,5 @@ void RegisterHandlers()
     builder.RegisterType<LogoutHandler>();
     builder.RegisterType<LootHandler>();
     builder.RegisterType<MailHandler>();
+    builder.RegisterType<MiscHandler>();
 }
