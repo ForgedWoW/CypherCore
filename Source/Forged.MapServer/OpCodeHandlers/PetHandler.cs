@@ -24,7 +24,7 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class PetHandler : IWorldSessionHandler
 {
-    private bool CheckStableMaster(ObjectGuid guid)
+    public bool CheckStableMaster(ObjectGuid guid)
     {
         // spell case or GM
         if (guid == Player.GUID)

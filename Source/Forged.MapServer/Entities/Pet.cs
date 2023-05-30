@@ -165,7 +165,7 @@ public class Pet : Guardian
                 // Current pet
                 case PetSaveMode.AsCurrent:
                 {
-                    var currentSlot = stable.GetCurrentActivePetIndex();
+                    var currentSlot = stable.CurrentActivePetIndex;
 
                     if (currentSlot != null && stable.ActivePets[currentSlot.Value] != null)
                         return Tuple.Create(stable.ActivePets[currentSlot.Value], (PetSaveMode)currentSlot.Value);
@@ -854,7 +854,7 @@ public class Pet : Guardian
 
         if (mode == PetSaveMode.AsCurrent)
         {
-            var activeSlot = owner.PetStable.GetCurrentActivePetIndex();
+            var activeSlot = owner.PetStable.CurrentActivePetIndex;
 
             if (activeSlot.HasValue)
                 mode = (PetSaveMode)activeSlot;
@@ -883,7 +883,7 @@ public class Pet : Guardian
             var actionBar = GenerateActionBarData();
 
             FillPetInfo(owner.PetStable.GetCurrentPet());
-            var currentIndex = owner.PetStable.GetCurrentActivePetIndex();
+            var currentIndex = owner.PetStable.CurrentActivePetIndex;
             stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET);
             stmt.AddValue(0, GetCharmInfo().GetPetNumber());
             stmt.AddValue(1, Entry);

@@ -225,6 +225,11 @@ public class WorldSession : IDisposable
         return AccountExpansion >= Expansion.BattleForAzeroth;
     }
 
+    public void ClearRegisteredAddons()
+    {
+        _registeredAddonPrefixes.Clear();
+    }
+
     public bool DisallowHyperlinksAndMaybeKick(string str)
     {
         if (!str.Contains('|'))
@@ -491,11 +496,6 @@ public class WorldSession : IDisposable
             return true;
 
         return !_registeredAddonPrefixes.Empty() && _registeredAddonPrefixes.Contains(prefix);
-    }
-
-    public void ClearRegisteredAddons()
-    {
-        _registeredAddonPrefixes.Clear();
     }
 
     public void KickPlayer(string reason)
@@ -1038,6 +1038,11 @@ public class WorldSession : IDisposable
             KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
 
         return false;
+    }
+
+    internal TransactionCallback AddTransactionCallback(TransactionCallback callback)
+    {
+        return _transactionCallbacks.AddCallback(callback);
     }
 
     private long DrainQueue(ConcurrentQueue<WorldPacket> queue)

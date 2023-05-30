@@ -563,4 +563,5 @@ void RegisterHandlers()
     builder.RegisterType<MiscHandler>();
     builder.RegisterType<MovementHandler>();
     builder.RegisterType<MythicPlusHandler>();
+    builder.RegisterType<NPCHandler>();
 }

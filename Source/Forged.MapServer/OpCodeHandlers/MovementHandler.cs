@@ -207,7 +207,7 @@ public class MovementHandler : IWorldSessionHandler
 
         if (_session.Player.GetSpeed(unitMoveType) > packet.Speed) // must be greater - just correct
         {
-            Log.Logger.Error("{0}SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
+            Log.Logger.Error("{0} SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
                              unitMoveType,
                              _session.Player.GetName(),
                              _session.Player.GetSpeed(unitMoveType),

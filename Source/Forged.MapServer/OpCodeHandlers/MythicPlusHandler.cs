@@ -8,6 +8,8 @@ using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class MythicPlusHandler : IWorldSessionHandler
