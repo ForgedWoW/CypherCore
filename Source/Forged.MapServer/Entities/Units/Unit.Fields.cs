@@ -92,6 +92,13 @@ public partial class Unit
     public HashSet<AuraApplication> AppliedAuras => _appliedAuras.AuraApplications;
     public int AppliedAurasCount => _appliedAuras.Count;
     public Pet AsPet => this as Pet;
+    public bool TryGetAsPet(out Pet pet)
+    {
+        pet = AsPet;
+
+        return pet != null;
+    }
+
     public List<Unit> Attackers => AttackerList;
     public IUnitAI BaseAI => Ai;
     public double BaseSpellCritChance { get; set; }
