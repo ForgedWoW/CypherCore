@@ -460,6 +460,7 @@ public partial class Player
     public PetStable PetStable { get; set; } = new();
     public PlayerComputators PlayerComputators { get; }
     public PlayerData PlayerData { get; set; }
+    public ItemFactory ItemFactory { get; set; }
 
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }

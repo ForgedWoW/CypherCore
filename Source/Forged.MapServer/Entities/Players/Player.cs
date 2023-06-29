@@ -118,6 +118,7 @@ public partial class Player : Unit
         SkillDiscovery = classFactory.Resolve<SkillDiscovery>();
         Formulas = classFactory.Resolve<Formulas>();
         Taxi = classFactory.Resolve<PlayerTaxi>();
+        ItemFactory = classFactory.Resolve<ItemFactory>();
         Session = session;
 
         // players always accept

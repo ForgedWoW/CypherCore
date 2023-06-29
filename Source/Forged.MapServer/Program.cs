@@ -565,4 +565,6 @@ void RegisterHandlers()
     builder.RegisterType<MythicPlusHandler>();
     builder.RegisterType<NPCHandler>();
     builder.RegisterType<PetHandler>();
+    builder.RegisterType<QuestHandler>();
+    builder.RegisterType<SceneHandler>();
 }
