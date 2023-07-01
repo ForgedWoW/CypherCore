@@ -208,6 +208,7 @@ void RegisterManagers()
     builder.RegisterType<GarrisonManager>().SingleInstance().OnActivated(g => g.Instance.Initialize());
     builder.RegisterType<GameObjectManager>().SingleInstance().OnActivated(o =>
     {
+        o.Instance.Initialize(o.Context.Resolve<ClassFactory>());
         o.Instance.Inject(o.Context.Resolve<DB2Manager>());
         o.Instance.SetHighestGuids();
 
