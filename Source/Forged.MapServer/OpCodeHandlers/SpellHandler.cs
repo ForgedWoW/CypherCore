@@ -2,7 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
+using System.Linq;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.L;
+using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -13,7 +16,9 @@ using Forged.MapServer.Networking.Packets.GameObject;
 using Forged.MapServer.Networking.Packets.Pet;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Totem;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IItem;
+using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
@@ -21,14 +26,43 @@ using Framework.Database;
 using Game.Common.Handlers;
 using Serilog;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class SpellHandler : IWorldSessionHandler
 {
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CollectionMgr _collectionMgr;
+    private readonly DB6Storage<LockRecord> _lockRecords;
+    private readonly LootStoreBox _lootStoreBox;
+    private readonly MovementHandler _movementHandler;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly ScriptManager _scriptManager;
+    private readonly WorldSession _session;
+    private readonly DB6Storage<SpellKeyboundOverrideRecord> _spellKeyboundOverrideRecords;
+    private readonly SpellManager _spellManager;
+
+    public SpellHandler(WorldSession session, SpellManager spellManager, MovementHandler movementHandler, DB6Storage<SpellKeyboundOverrideRecord> spellKeyboundOverrideRecords,
+                        ObjectAccessor objectAccessor, DB6Storage<LockRecord> lockRecords, CharacterDatabase characterDatabase, LootStoreBox lootStoreBox,
+                        CollectionMgr collectionMgr, ScriptManager scriptManager)
+    {
+        _session = session;
+        _spellManager = spellManager;
+        _movementHandler = movementHandler;
+        _spellKeyboundOverrideRecords = spellKeyboundOverrideRecords;
+        _objectAccessor = objectAccessor;
+        _lockRecords = lockRecords;
+        _characterDatabase = characterDatabase;
+        _lootStoreBox = lootStoreBox;
+        _collectionMgr = collectionMgr;
+        _scriptManager = scriptManager;
+    }
+
     [WorldPacketHandler(ClientOpcodes.CancelAura, Processing = PacketProcessing.Inplace)]
     private void HandleCancelAura(CancelAura cancelAura)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(cancelAura.SpellID, _session.Player.Map.DifficultyID);
+        var spellInfo = _spellManager.GetSpellInfo(cancelAura.SpellID, _session.Player.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
@@ -40,11 +74,10 @@ public class SpellHandler : IWorldSessionHandler
         // channeled spell case (it currently casted then)
         if (spellInfo.IsChanneled)
         {
-            var curSpell = Player.GetCurrentSpell(CurrentSpellTypes.Channeled);
+            var curSpell = _session.Player.GetCurrentSpell(CurrentSpellTypes.Channeled);
 
-            if (curSpell != null)
-                if (curSpell.SpellInfo.Id == cancelAura.SpellID)
-                    Player.InterruptSpell(CurrentSpellTypes.Channeled);
+            if (curSpell != null && curSpell.SpellInfo.Id == cancelAura.SpellID)
+                _session.Player.InterruptSpell(CurrentSpellTypes.Channeled);
 
             return;
         }
@@ -55,7 +88,7 @@ public class SpellHandler : IWorldSessionHandler
         if (!spellInfo.IsPositive || spellInfo.IsPassive)
             return;
 
-        Player.RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, AuraRemoveMode.Cancel);
+        _session.Player.RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, AuraRemoveMode.Cancel);
     }
 
     [WorldPacketHandler(ClientOpcodes.CancelAutoRepeatSpell, Processing = PacketProcessing.Inplace)]
@@ -63,14 +96,15 @@ public class SpellHandler : IWorldSessionHandler
     {
         //may be better send SMSG_CANCEL_AUTO_REPEAT?
         //cancel and prepare for deleting
+        if (packet == null) return;
         _session.Player.InterruptSpell(CurrentSpellTypes.AutoRepeat);
     }
 
     [WorldPacketHandler(ClientOpcodes.CancelCast, Processing = PacketProcessing.ThreadSafe)]
     private void HandleCancelCast(CancelCast packet)
     {
-        if (Player.IsNonMeleeSpellCast(false))
-            Player.InterruptNonMeleeSpells(false, packet.SpellID, false);
+        if (_session.Player.IsNonMeleeSpellCast(false))
+            _session.Player.InterruptNonMeleeSpells(false, packet.SpellID, false);
     }
 
     [WorldPacketHandler(ClientOpcodes.CancelChannelling, Processing = PacketProcessing.Inplace)]
@@ -82,7 +116,7 @@ public class SpellHandler : IWorldSessionHandler
         if (mover != _session.Player && mover.IsTypeId(TypeId.Player))
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo((uint)cancelChanneling.ChannelSpell, mover.Map.DifficultyID);
+        var spellInfo = _spellManager.GetSpellInfo((uint)cancelChanneling.ChannelSpell, mover.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
@@ -102,7 +136,8 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CancelGrowthAura, Processing = PacketProcessing.Inplace)]
     private void HandleCancelGrowthAura(CancelGrowthAura cancelGrowthAura)
     {
-        Player.RemoveAurasByType(AuraType.ModScale,
+        if (cancelGrowthAura == null) return;
+        _session.Player.RemoveAurasByType(AuraType.ModScale,
                                  aurApp =>
                                  {
                                      var spellInfo = aurApp.Base.SpellInfo;
@@ -131,7 +166,7 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CancelMountAura, Processing = PacketProcessing.Inplace)]
     private void HandleCancelMountAura(CancelMountAura packet)
     {
-        Player.RemoveAurasByType(AuraType.Mounted,
+        _session.Player.RemoveAurasByType(AuraType.Mounted,
                                  aurApp =>
                                  {
                                      var spellInfo = aurApp.Base.SpellInfo;
@@ -144,12 +179,12 @@ public class SpellHandler : IWorldSessionHandler
     private void HandleCastSpell(CastSpell cast)
     {
         // ignore for remote control state (for player case)
-        var mover = Player.UnitBeingMoved;
+        var mover = _session.Player.UnitBeingMoved;
 
-        if (mover != Player && mover.IsTypeId(TypeId.Player))
+        if (mover != _session.Player && mover.IsTypeId(TypeId.Player))
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(cast.Cast.SpellID, mover.Location.Map.DifficultyID);
+        var spellInfo = _spellManager.GetSpellInfo(cast.Cast.SpellID, mover.Location.Map.DifficultyID);
 
         if (spellInfo == null)
         {
@@ -167,10 +202,10 @@ public class SpellHandler : IWorldSessionHandler
         {
             // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
             // change caster to player and let him cast
-            if (!Player.IsOnVehicle(caster) || spellInfo.CheckVehicle(Player) != SpellCastResult.SpellCastOk)
+            if (!_session.Player.IsOnVehicle(caster) || spellInfo.CheckVehicle(_session.Player) != SpellCastResult.SpellCastOk)
                 return;
 
-            caster = Player;
+            caster = _session.Player;
         }
 
         var triggerFlag = TriggerCastFlags.None;
@@ -182,7 +217,6 @@ public class SpellHandler : IWorldSessionHandler
         if (caster.IsTypeId(TypeId.Player) && !caster.AsPlayer.HasActiveSpell(spellInfo.Id) && !spellInfo.HasEffect(SpellEffectName.ChangeRaidMarker) && !spellInfo.HasAttribute(SpellAttr8.RaidMarker))
         {
             var allow = false;
-
 
             // allow casting of unknown spells for special lock cases
             var go = targets.GOTarget;
@@ -206,7 +240,7 @@ public class SpellHandler : IWorldSessionHandler
         spellInfo = caster.GetCastSpellInfo(spellInfo);
 
         // can't use our own spells when we're in possession of another unit,
-        if (Player.IsPossessing)
+        if (_session.Player.IsPossessing)
             return;
 
         // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
@@ -232,14 +266,17 @@ public class SpellHandler : IWorldSessionHandler
         }
 
         if (cast.Cast.MoveUpdate != null)
-            HandleMovementOpcode(ClientOpcodes.MoveStop, cast.Cast.MoveUpdate);
+            _movementHandler.HandleMovementOpcode(ClientOpcodes.MoveStop, cast.Cast.MoveUpdate);
 
-        Spell spell = new(caster, spellInfo, triggerFlag);
+        var spell = caster.SpellFactory.NewSpell(spellInfo, triggerFlag);
 
-        SpellPrepare spellPrepare = new();
-        spellPrepare.ClientCastID = cast.Cast.CastID;
-        spellPrepare.ServerCastID = spell.CastId;
-        SendPacket(spellPrepare);
+        SpellPrepare spellPrepare = new()
+        {
+            ClientCastID = cast.Cast.CastID,
+            ServerCastID = spell.CastId
+        };
+
+        _session.SendPacket(spellPrepare);
 
         spell.FromClient = true;
         spell.SpellMisc.Data0 = cast.Cast.Misc[0];
@@ -251,48 +288,45 @@ public class SpellHandler : IWorldSessionHandler
     private void HandleGameobjectReportUse(GameObjReportUse packet)
     {
         // ignore for remote control state
-        if (Player.UnitBeingMoved != Player)
+        if (_session.Player.UnitBeingMoved != _session.Player)
             return;
 
-        var go = Player.GetGameObjectIfCanInteractWith(packet.Guid);
+        var go = _session.Player.GetGameObjectIfCanInteractWith(packet.Guid);
 
-        if (go)
-        {
-            if (go.AI.OnGossipHello(Player))
-                return;
+        if (go == null || go.AI.OnGossipHello(_session.Player))
+            return;
 
-            Player.UpdateCriteria(CriteriaType.UseGameobject, go.Entry);
-        }
+        _session.Player.UpdateCriteria(CriteriaType.UseGameobject, go.Entry);
     }
 
     [WorldPacketHandler(ClientOpcodes.GameObjUse, Processing = PacketProcessing.Inplace)]
     private void HandleGameObjectUse(GameObjUse packet)
     {
-        var obj = Player.GetGameObjectIfCanInteractWith(packet.Guid);
+        var obj = _session.Player.GetGameObjectIfCanInteractWith(packet.Guid);
 
-        if (obj)
-        {
-            // ignore for remote control state
-            if (Player.UnitBeingMoved != Player)
-                if (!(Player.IsOnVehicle(Player.UnitBeingMoved) || Player.IsMounted) && !obj.Template.IsUsableMounted())
-                    return;
+        if (obj == null)
+            return;
 
-            obj.Use(Player);
-        }
+        // ignore for remote control state
+        if (_session.Player.UnitBeingMoved != _session.Player)
+            if (!(_session.Player.IsOnVehicle(_session.Player.UnitBeingMoved) || _session.Player.IsMounted) && !obj.Template.IsUsableMounted())
+                return;
+
+        obj.Use(_session.Player);
     }
 
     [WorldPacketHandler(ClientOpcodes.KeyboundOverride, Processing = PacketProcessing.ThreadSafe)]
     private void HandleKeyboundOverride(KeyboundOverride keyboundOverride)
     {
-        var player = Player;
+        var player = _session.Player;
 
         if (!player.HasAuraTypeWithMiscvalue(AuraType.KeyboundOverride, keyboundOverride.OverrideID))
             return;
 
-        if (!CliDB.SpellKeyboundOverrideStorage.TryGetValue(keyboundOverride.OverrideID, out var spellKeyboundOverride))
+        if (!_spellKeyboundOverrideRecords.TryGetValue(keyboundOverride.OverrideID, out var spellKeyboundOverride))
             return;
 
-        player.CastSpell(player, spellKeyboundOverride.Data);
+        player.SpellFactory.CastSpell(player, spellKeyboundOverride.Data);
     }
 
     [WorldPacketHandler(ClientOpcodes.GetMirrorImageData)]
@@ -301,30 +335,30 @@ public class SpellHandler : IWorldSessionHandler
         var guid = packet.UnitGUID;
 
         // Get unit for which data is needed by client
-        var unit = Global.ObjAccessor.GetUnit(Player, guid);
+        var unit = _objectAccessor.GetUnit(_session.Player, guid);
 
-        if (!unit)
+        if (unit == null)
             return;
 
         if (!unit.HasAuraType(AuraType.CloneCaster))
             return;
 
         // Get creator of the unit (SPELL_AURA_CLONE_CASTER does not stack)
-        var creator = unit.GetAuraEffectsByType(AuraType.CloneCaster).FirstOrDefault().Caster;
+        var creator = unit.GetAuraEffectsByType(AuraType.CloneCaster).FirstOrDefault()?.Caster;
 
-        if (!creator)
+        if (creator == null)
             return;
 
-        var player = creator.AsPlayer;
-
-        if (player)
+        if (creator.TryGetAsPlayer(out var player))
         {
-            MirrorImageComponentedData mirrorImageComponentedData = new();
-            mirrorImageComponentedData.UnitGUID = guid;
-            mirrorImageComponentedData.DisplayID = (int)creator.DisplayId;
-            mirrorImageComponentedData.RaceID = (byte)creator.Race;
-            mirrorImageComponentedData.Gender = (byte)creator.Gender;
-            mirrorImageComponentedData.ClassID = (byte)creator.Class;
+            MirrorImageComponentedData mirrorImageComponentedData = new()
+            {
+                UnitGUID = guid,
+                DisplayID = (int)creator.DisplayId,
+                RaceID = (byte)creator.Race,
+                Gender = (byte)creator.Gender,
+                ClassID = (byte)creator.Class
+            };
 
             foreach (var customization in player.PlayerData.Customizations)
             {
@@ -338,7 +372,7 @@ public class SpellHandler : IWorldSessionHandler
             }
 
             var guild = player.Guild;
-            mirrorImageComponentedData.GuildGUID = guild ? guild.GetGUID() : ObjectGuid.Empty;
+            mirrorImageComponentedData.GuildGUID = guild?.GetGUID() ?? ObjectGuid.Empty;
 
             byte[] itemSlots =
             {
@@ -348,37 +382,33 @@ public class SpellHandler : IWorldSessionHandler
             // Display items in visible slots
             foreach (var slot in itemSlots)
             {
-                uint itemDisplayId;
                 var item = player.GetItemByPos(InventorySlots.Bag0, slot);
 
-                if (item != null)
-                    itemDisplayId = item.GetDisplayId(player);
-                else
-                    itemDisplayId = 0;
+                var itemDisplayId = item?.GetDisplayId(player) ?? 0;
 
                 mirrorImageComponentedData.ItemDisplayID.Add((int)itemDisplayId);
             }
 
-            SendPacket(mirrorImageComponentedData);
+            _session.SendPacket(mirrorImageComponentedData);
         }
         else
         {
-            MirrorImageCreatureData data = new();
-            data.UnitGUID = guid;
-            data.DisplayID = (int)creator.DisplayId;
-            SendPacket(data);
+            MirrorImageCreatureData data = new()
+            {
+                UnitGUID = guid,
+                DisplayID = (int)creator.DisplayId
+            };
+
+            _session.SendPacket(data);
         }
     }
 
     [WorldPacketHandler(ClientOpcodes.MissileTrajectoryCollision)]
     private void HandleMissileTrajectoryCollision(MissileTrajectoryCollision packet)
     {
-        var caster = Global.ObjAccessor.GetUnit(_session.Player, packet.Target);
+        var caster = _objectAccessor.GetUnit(_session.Player, packet.Target);
 
-        if (caster == null)
-            return;
-
-        var spell = caster.FindCurrentSpellBySpellId(packet.SpellID);
+        var spell = caster?.FindCurrentSpellBySpellId(packet.SpellID);
 
         if (spell == null || !spell.Targets.HasDst)
             return;
@@ -390,17 +420,20 @@ public class SpellHandler : IWorldSessionHandler
         // we changed dest, recalculate flight time
         spell.RecalculateDelayMomentForDst();
 
-        NotifyMissileTrajectoryCollision data = new();
-        data.Caster = packet.Target;
-        data.CastID = packet.CastID;
-        data.CollisionPos = packet.CollisionPos;
+        NotifyMissileTrajectoryCollision data = new()
+        {
+            Caster = packet.Target,
+            CastID = packet.CastID,
+            CollisionPos = packet.CollisionPos
+        };
+
         caster.SendMessageToSet(data, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.OpenItem, Processing = PacketProcessing.Inplace)]
     private void HandleOpenItem(OpenItem packet)
     {
-        var player = Player;
+        var player = _session.Player;
 
         // ignore for remote control state
         if (player.UnitBeingMoved != player)
@@ -416,7 +449,7 @@ public class SpellHandler : IWorldSessionHandler
 
         var item = player.GetItemByPos(packet.Slot, packet.PackSlot);
 
-        if (!item)
+        if (item == null)
         {
             player.SendEquipError(InventoryResult.ItemNotFound);
 
@@ -437,7 +470,7 @@ public class SpellHandler : IWorldSessionHandler
         {
             player.SendEquipError(InventoryResult.ClientLockedOut, item);
 
-            Log.Logger.Error("Possible hacking attempt: Player {0} [guid: {1}] tried to open item [guid: {2}, entry: {3}] which is not openable!",
+            Log.Logger.Error("Possible hacking attempt: _session.Player {0} [guid: {1}] tried to open item [guid: {2}, entry: {3}] which is not openable!",
                              player.GetName(),
                              player.GUID.ToString(),
                              item.GUID.ToString(),
@@ -451,7 +484,7 @@ public class SpellHandler : IWorldSessionHandler
 
         if (lockId != 0)
         {
-            if (!CliDB.LockStorage.ContainsKey(lockId))
+            if (!_lockRecords.ContainsKey(lockId))
             {
                 player.SendEquipError(InventoryResult.ItemLocked, item);
                 Log.Logger.Error("WORLD:OpenItem: item [guid = {0}] has an unknown lockId: {1}!", item.GUID.ToString(), lockId);
@@ -470,30 +503,30 @@ public class SpellHandler : IWorldSessionHandler
 
         if (item.IsWrapped) // wrapped?
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_GIFT_BY_ITEM);
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_GIFT_BY_ITEM);
             stmt.AddValue(0, item.GUID.Counter);
 
             var pos = item.Pos;
             var itemGuid = item.GUID;
 
-            _queryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt)
+            _session.QueryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt)
                                           .WithCallback(result => HandleOpenWrappedItemCallback(pos, itemGuid, result)));
         }
         else
         {
             // If item doesn't already have loot, attempt to load it. If that
             // fails then this is first time opening, generate loot
-            if (!item.LootGenerated && !Global.LootItemStorage.LoadStoredLoot(item, player))
+            if (!item.LootGenerated && !_session.Player.LootItemStorage.LoadStoredLoot(item, player))
             {
-                Loot loot = new(player.Map, item.GUID, LootType.Item, null);
+                Loot loot = _session.Player.LootFactory.GenerateLoot(player.Location.Map, item.GUID, LootType.Item);
                 item.Loot = loot;
                 loot.GenerateMoneyLoot(item.Template.MinMoneyLoot, item.Template.MaxMoneyLoot);
-                loot.FillLoot(item.Entry, LootStoreBox.Items, player, true, loot.Gold != 0);
+                loot.FillLoot(item.Entry, _lootStoreBox.Items, player, true, loot.Gold != 0);
 
                 // Force save the loot and money items that were just rolled
                 //  Also saves the container item ID in Loot struct (not to DB)
                 if (loot.Gold > 0 || loot.UnlootedCount > 0)
-                    Global.LootItemStorage.AddNewStoredLoot(item.GUID.Counter, loot, player);
+                    _session.Player.LootItemStorage.AddNewStoredLoot(item.GUID.Counter, loot, player);
             }
 
             if (item.Loot != null)
@@ -505,12 +538,9 @@ public class SpellHandler : IWorldSessionHandler
 
     private void HandleOpenWrappedItemCallback(ushort pos, ObjectGuid itemGuid, SQLResult result)
     {
-        if (!Player)
-            return;
+        var item = _session.Player?.GetItemByPos(pos);
 
-        var item = Player.GetItemByPos(pos);
-
-        if (!item)
+        if (item == null)
             return;
 
         if (item.GUID != itemGuid || !item.IsWrapped) // during getting result, gift was swapped with another item
@@ -519,7 +549,7 @@ public class SpellHandler : IWorldSessionHandler
         if (result.IsEmpty())
         {
             Log.Logger.Error($"Wrapped item {item.GUID} don't have record in character_gifts table and will deleted");
-            Player.DestroyItem(item.BagSlot, item.Slot, true);
+            _session.Player.DestroyItem(item.BagSlot, item.Slot, true);
 
             return;
         }
@@ -533,21 +563,21 @@ public class SpellHandler : IWorldSessionHandler
         item.Entry = entry;
         item.ReplaceAllItemFlags((ItemFieldFlags)flags);
         item.SetMaxDurability(item.Template.MaxDurability);
-        item.SetState(ItemUpdateState.Changed, Player);
+        item.SetState(ItemUpdateState.Changed, _session.Player);
 
-        Player.SaveInventoryAndGoldToDB(trans);
+        _session.Player.SaveInventoryAndGoldToDB(trans);
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GIFT);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GIFT);
         stmt.AddValue(0, itemGuid.Counter);
         trans.Append(stmt);
 
-        DB.Characters.CommitTransaction(trans);
+        _characterDatabase.CommitTransaction(trans);
     }
 
     [WorldPacketHandler(ClientOpcodes.PetCancelAura, Processing = PacketProcessing.Inplace)]
     private void HandlePetCancelAura(PetCancelAura packet)
     {
-        if (!Global.SpellMgr.HasSpellInfo(packet.SpellID, Difficulty.None))
+        if (!_spellManager.HasSpellInfo(packet.SpellID))
         {
             Log.Logger.Error("WORLD: unknown PET spell id {0}", packet.SpellID);
 
@@ -558,14 +588,14 @@ public class SpellHandler : IWorldSessionHandler
 
         if (pet == null)
         {
-            Log.Logger.Error("HandlePetCancelAura: Attempt to cancel an aura for non-existant {0} by player '{1}'", packet.PetGUID.ToString(), Player.GetName());
+            Log.Logger.Error("HandlePetCancelAura: Attempt to cancel an aura for non-existant {0} by player '{1}'", packet.PetGUID.ToString(), _session.Player.GetName());
 
             return;
         }
 
-        if (pet != Player.GetGuardianPet() && pet != Player.Charmed)
+        if (pet != _session.Player.GetGuardianPet() && pet != _session.Player.Charmed)
         {
-            Log.Logger.Error("HandlePetCancelAura: {0} is not a pet of player '{1}'", packet.PetGUID.ToString(), Player.GetName());
+            Log.Logger.Error("HandlePetCancelAura: {0} is not a pet of player '{1}'", packet.PetGUID.ToString(), _session.Player.GetName());
 
             return;
         }
@@ -583,7 +613,8 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.RequestCategoryCooldowns, Processing = PacketProcessing.Inplace)]
     private void HandleRequestCategoryCooldowns(RequestCategoryCooldowns requestCategoryCooldowns)
     {
-        Player.SendSpellCategoryCooldowns();
+        if (requestCategoryCooldowns == null) return;
+        _session.Player.SendSpellCategoryCooldowns();
     }
 
     [WorldPacketHandler(ClientOpcodes.SelfRes)]
@@ -594,7 +625,7 @@ public class SpellHandler : IWorldSessionHandler
         if (!selfResSpells.Contains(selfRes.SpellId))
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(selfRes.SpellId, _session.Player.Map.DifficultyID);
+        var spellInfo = _spellManager.GetSpellInfo(selfRes.SpellId, _session.Player.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
@@ -602,7 +633,7 @@ public class SpellHandler : IWorldSessionHandler
         if (_session.Player.HasAuraType(AuraType.PreventResurrection) && !spellInfo.HasAttribute(SpellAttr7.BypassNoResurrectAura))
             return; // silent return, client should display error by itself and not send this opcode
 
-        _session.Player.CastSpell(_session.Player, selfRes.SpellId, new CastSpellExtraArgs(_session.Player.Map.DifficultyID));
+        _session.Player.SpellFactory.CastSpell(_session.Player, selfRes.SpellId, new CastSpellExtraArgs(_session.Player.Location.Map.DifficultyID));
         _session.Player.RemoveSelfResSpell(selfRes.SpellId);
     }
 
@@ -610,39 +641,39 @@ public class SpellHandler : IWorldSessionHandler
     private void HandleSpellClick(SpellClick packet)
     {
         // this will get something not in world. crash
-        var unit = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.SpellClickUnitGuid);
+        var unit = ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, packet.SpellClickUnitGuid);
 
         if (unit is not { Location.IsInWorld: true })
             return;
 
         // @todo Unit.SetCharmedBy: 28782 is not in world but 0 is trying to charm it! . crash
 
-        unit.HandleSpellClick(Player);
+        unit.HandleSpellClick(_session.Player);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetEmpowerMinHoldStagePercent)]
     private void HandleSpellEmpowerMinHoldPct(SpellEmpowerMinHold packet)
     {
-        Player.EmpoweredSpellMinHoldPct = packet.HoldPct;
+        _session.Player.EmpoweredSpellMinHoldPct = packet.HoldPct;
     }
 
     [WorldPacketHandler(ClientOpcodes.SpellEmpowerRelease)]
     private void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
     {
-        Player.UpdateEmpowerState(EmpowerState.Canceled, packet.SpellID);
+        _session.Player.UpdateEmpowerState(EmpowerState.Canceled, packet.SpellID);
     }
 
     [WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
     private void HandleSpellEmpowerRelestart(SpellEmpowerRelease packet)
     {
-        Player.UpdateEmpowerState(EmpowerState.Empowering, packet.SpellID);
+        _session.Player.UpdateEmpowerState(EmpowerState.Empowering, packet.SpellID);
     }
 
     [WorldPacketHandler(ClientOpcodes.TotemDestroyed, Processing = PacketProcessing.Inplace)]
     private void HandleTotemDestroyed(TotemDestroyed totemDestroyed)
     {
         // ignore for remote control state
-        if (Player.UnitBeingMoved != Player)
+        if (_session.Player.UnitBeingMoved != _session.Player)
             return;
 
         var slotId = totemDestroyed.Slot;
@@ -651,10 +682,10 @@ public class SpellHandler : IWorldSessionHandler
         if (slotId >= SharedConst.MaxTotemSlot)
             return;
 
-        if (Player.SummonSlot[slotId].IsEmpty)
+        if (_session.Player.SummonSlot[slotId].IsEmpty)
             return;
 
-        var totem = ObjectAccessor.GetCreature(Player, _session.Player.SummonSlot[slotId]);
+        var totem = ObjectAccessor.GetCreature(_session.Player, _session.Player.SummonSlot[slotId]);
 
         if (totem is { IsTotem: true }) // && totem.GetGUID() == packet.TotemGUID)  Unknown why blizz doesnt send the guid when you right click it.
             totem.ToTotem().UnSummon();
@@ -663,10 +694,10 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.UpdateMissileTrajectory)]
     private void HandleUpdateMissileTrajectory(UpdateMissileTrajectory packet)
     {
-        var caster = Global.ObjAccessor.GetUnit(Player, packet.Guid);
-        var spell = caster ? caster.GetCurrentSpell(CurrentSpellTypes.Generic) : null;
+        var caster = _objectAccessor.GetUnit(_session.Player, packet.Guid);
+        var spell = caster?.GetCurrentSpell(CurrentSpellTypes.Generic);
 
-        if (!spell || spell.SpellInfo.Id != packet.SpellID || spell.CastId != packet.CastID || !spell.Targets.HasDst || !spell.Targets.HasSrc)
+        if (spell == null || spell.SpellInfo.Id != packet.SpellID || spell.CastId != packet.CastID || !spell.Targets.HasDst || !spell.Targets.HasSrc)
             return;
 
         var pos = spell.Targets.SrcPos;
@@ -681,7 +712,7 @@ public class SpellHandler : IWorldSessionHandler
         spell.Targets.Speed = packet.Speed;
 
         if (packet.Status != null)
-            Player.ValidateMovementInfo(packet.Status);
+            _session.Player.ValidateMovementInfo(packet.Status);
         /*public uint opcode;
             recvPacket >> opcode;
             recvPacket.SetOpcode(CMSG_MOVE_STOP); // always set to CMSG_MOVE_STOP in client SetOpcode
@@ -691,7 +722,7 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.UseItem, Processing = PacketProcessing.Inplace)]
     private void HandleUseItem(UseItem packet)
     {
-        var user = Player;
+        var user = _session.Player;
 
         // ignore for remote control state
         if (user.UnitBeingMoved != user)
@@ -758,15 +789,17 @@ public class SpellHandler : IWorldSessionHandler
         if (user.IsInCombat)
             foreach (var effect in item.Effects)
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo((uint)effect.SpellID, user.Map.DifficultyID);
+                var spellInfo = _spellManager.GetSpellInfo((uint)effect.SpellID, user.Location.Map.DifficultyID);
 
-                if (spellInfo != null)
-                    if (!spellInfo.CanBeUsedInCombat)
-                    {
-                        user.SendEquipError(InventoryResult.NotInCombat, item);
+                if (spellInfo == null)
+                    continue;
 
-                        return;
-                    }
+                if (spellInfo.CanBeUsedInCombat)
+                    continue;
+
+                user.SendEquipError(InventoryResult.NotInCombat, item);
+
+                return;
             }
 
         // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
@@ -775,7 +808,7 @@ public class SpellHandler : IWorldSessionHandler
             {
                 item.SetState(ItemUpdateState.Changed, user);
                 item.SetBinding(true);
-                CollectionMgr.AddItemAppearance(item);
+                _collectionMgr.AddItemAppearance(item);
             }
 
         user.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.ItemUse);
@@ -783,8 +816,8 @@ public class SpellHandler : IWorldSessionHandler
         SpellCastTargets targets = new(user, packet.Cast);
 
         // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-        if (!ScriptManager.RunScriptRet<IItemOnUse>(p => p.OnUse(user, item, targets, packet.Cast.CastID), item.ScriptId))
-            // no script or script not process request by self
+        // no script or script not process request by self
+        if (!_scriptManager.RunScriptRet<IItemOnUse>(p => p.OnUse(user, item, targets, packet.Cast.CastID), item.ScriptId))
             user.CastItemUseSpell(item, targets, packet.Cast.CastID, packet.Cast.Misc);
     }
 }

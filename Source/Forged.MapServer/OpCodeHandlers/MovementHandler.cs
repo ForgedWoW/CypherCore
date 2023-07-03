@@ -330,7 +330,7 @@ public class MovementHandler : IWorldSessionHandler
         _session.Player.ValidateMovementInfo(movementAck.Ack.Status);
     }
 
-    private void HandleMovementOpcode(ClientOpcodes opcode, MovementInfo movementInfo)
+    public void HandleMovementOpcode(ClientOpcodes opcode, MovementInfo movementInfo)
     {
         var mover = _session.Player.UnitBeingMoved;
         var plrMover = mover.AsPlayer;

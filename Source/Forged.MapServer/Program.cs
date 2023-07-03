@@ -569,4 +569,5 @@ void RegisterHandlers()
     builder.RegisterType<QuestHandler>();
     builder.RegisterType<SceneHandler>();
     builder.RegisterType<SkillHandler>();
+    builder.RegisterType<SpellHandler>();
 }
