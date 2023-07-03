@@ -247,8 +247,12 @@ public sealed class GameObjectManager
     private PhasingHandler _phasingHandler;
     private GridDefines _gridDefines;
     private QuestPoolManager _questPoolManager;
+    private ItemFactory _itemFactory;
+    private AzeriteItemFactory _azeriteItemFactory;
+    private AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
 
-    public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory, CharacterDatabase characterDatabase, LoginDatabase loginDatabase)
+    public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
+                             CharacterDatabase characterDatabase, LoginDatabase loginDatabase)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
@@ -262,6 +266,13 @@ public sealed class GameObjectManager
             _difficultyEntries[i] = new List<uint>();
             _hasDifficultyEntries[i] = new List<uint>();
         }
+    }
+
+    public void Initialize(ClassFactory cf)
+    {
+        _itemFactory = cf.Resolve<ItemFactory>();
+        _azeriteItemFactory = cf.Resolve<AzeriteItemFactory>();
+        _azeriteEmpoweredItemFactory = cf.Resolve<AzeriteEmpoweredItemFactory>();
     }
 
     public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts { get; set; } = new();
@@ -775,12 +786,12 @@ public sealed class GameObjectManager
         {
             return rank switch // define rates for each elite rank
             {
-                CreatureEliteType.Normal    => _configuration.GetDefaultValue("Rate:Creature:Normal:Damage", 1.0f),
-                CreatureEliteType.Elite     => _configuration.GetDefaultValue("Rate:Creature:Elite:Elite:Damage", 1.0f),
+                CreatureEliteType.Normal => _configuration.GetDefaultValue("Rate:Creature:Normal:Damage", 1.0f),
+                CreatureEliteType.Elite => _configuration.GetDefaultValue("Rate:Creature:Elite:Elite:Damage", 1.0f),
                 CreatureEliteType.RareElite => _configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:Damage", 1.0f),
                 CreatureEliteType.WorldBoss => _configuration.GetDefaultValue("Rate:Creature:Elite:WORLDBOSS:Damage", 1.0f),
-                CreatureEliteType.Rare      => _configuration.GetDefaultValue("Rate:Creature:Elite:RARE:Damage", 1.0f),
-                _                           => _configuration.GetDefaultValue("Rate:Creature:Elite:Elite:Damage", 1.0f)
+                CreatureEliteType.Rare => _configuration.GetDefaultValue("Rate:Creature:Elite:RARE:Damage", 1.0f),
+                _ => _configuration.GetDefaultValue("Rate:Creature:Elite:Elite:Damage", 1.0f)
             };
         }
 
@@ -1372,9 +1383,9 @@ public sealed class GameObjectManager
     {
         return team switch
         {
-            TeamFaction.Horde    => GetWorldSafeLoc(10),
+            TeamFaction.Horde => GetWorldSafeLoc(10),
             TeamFaction.Alliance => GetWorldSafeLoc(4),
-            _                    => null
+            _ => null
         };
     }
 
@@ -1644,17 +1655,17 @@ public sealed class GameObjectManager
     {
         return expansion switch
         {
-            Expansion.Classic            => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Classic", 30),
-            Expansion.BurningCrusade     => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BurningCrusade", 30),
+            Expansion.Classic => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Classic", 30),
+            Expansion.BurningCrusade => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BurningCrusade", 30),
             Expansion.WrathOfTheLichKing => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WrathOfTheLichKing", 30),
-            Expansion.Cataclysm          => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Cataclysm", 35),
-            Expansion.MistsOfPandaria    => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.MistsOfPandaria", 35),
-            Expansion.WarlordsOfDraenor  => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WarlordsOfDraenor", 40),
-            Expansion.Legion             => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Legion", 45),
-            Expansion.BattleForAzeroth   => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BattleForAzeroth", 50),
-            Expansion.ShadowLands        => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60),
-            Expansion.Dragonflight       => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70),
-            _                            => 0
+            Expansion.Cataclysm => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Cataclysm", 35),
+            Expansion.MistsOfPandaria => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.MistsOfPandaria", 35),
+            Expansion.WarlordsOfDraenor => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WarlordsOfDraenor", 40),
+            Expansion.Legion => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Legion", 45),
+            Expansion.BattleForAzeroth => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BattleForAzeroth", 50),
+            Expansion.ShadowLands => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60),
+            Expansion.Dragonflight => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70),
+            _ => 0
         };
     }
 
@@ -1966,10 +1977,10 @@ public sealed class GameObjectManager
     {
         return type switch
         {
-            ScriptsType.Spell    => SpellScripts,
-            ScriptsType.Event    => EventScripts,
+            ScriptsType.Spell => SpellScripts,
+            ScriptsType.Event => EventScripts,
             ScriptsType.Waypoint => WaypointScripts,
-            _                    => null
+            _ => null
         };
     }
 
@@ -1977,10 +1988,10 @@ public sealed class GameObjectManager
     {
         return type switch
         {
-            ScriptsType.Spell    => "spell_scripts",
-            ScriptsType.Event    => "event_scripts",
+            ScriptsType.Spell => "spell_scripts",
+            ScriptsType.Event => "event_scripts",
             ScriptsType.Waypoint => "waypoint_scripts",
-            _                    => ""
+            _ => ""
         };
     }
 
@@ -1996,10 +2007,10 @@ public sealed class GameObjectManager
 
         return type switch
         {
-            SpawnObjectType.Creature    => GetCreatureData(spawnId),
-            SpawnObjectType.GameObject  => GetGameObjectData(spawnId),
+            SpawnObjectType.Creature => GetCreatureData(spawnId),
+            SpawnObjectType.GameObject => GetGameObjectData(spawnId),
             SpawnObjectType.AreaTrigger => _areaTriggerDataStorage.GetAreaTriggerSpawn(spawnId),
-            _                           => null
+            _ => null
         };
     }
 
@@ -2389,7 +2400,7 @@ public sealed class GameObjectManager
 
         _accessRequirementStorage.Clear();
 
-        //                                          0      1           2          3          4           5      6             7             8                      9     
+        //                                          0      1           2          3          4           5      6             7             8                      9
         var result = _worldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
 
         if (result.IsEmpty())
@@ -2729,7 +2740,6 @@ public sealed class GameObjectManager
                 Log.Logger.Error($"Creature (GUID: {guid}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
                 creatureAddon.Emote = 0;
             }
-
 
             if (creatureAddon.AiAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
             {
@@ -4260,6 +4270,7 @@ public sealed class GameObjectManager
             {
                 case GameObjectTypes.QuestGiver:
                     break;
+
                 case GameObjectTypes.Chest:
                 {
                     // scan GO chest with loot including quest items
@@ -4516,6 +4527,7 @@ public sealed class GameObjectManager
                     case GameObjectTypes.Trap:
                     case GameObjectTypes.SpellFocus:
                         break;
+
                     default:
                         Log.Logger.Error("Gameobject (GUID: {0} Entry {1} GoType: {2}) doesn't have a displayId ({3}), not loaded.", guid, entry, gInfo.type, gInfo.displayId);
 
@@ -4781,6 +4793,7 @@ public sealed class GameObjectManager
                         CheckGONoDamageImmuneId(got, got.Door.noDamageImmune, 3);
 
                         break;
+
                     case GameObjectTypes.Button: //1
                         if (got.Button.open != 0)
                             CheckGOLockId(got, got.Button.open, 1);
@@ -4788,6 +4801,7 @@ public sealed class GameObjectManager
                         CheckGONoDamageImmuneId(got, got.Button.noDamageImmune, 4);
 
                         break;
+
                     case GameObjectTypes.QuestGiver: //2
                         if (got.QuestGiver.open != 0)
                             CheckGOLockId(got, got.QuestGiver.open, 0);
@@ -4795,6 +4809,7 @@ public sealed class GameObjectManager
                         CheckGONoDamageImmuneId(got, got.QuestGiver.noDamageImmune, 5);
 
                         break;
+
                     case GameObjectTypes.Chest: //3
                         if (got.Chest.open != 0)
                             CheckGOLockId(got, got.Chest.open, 0);
@@ -4805,15 +4820,18 @@ public sealed class GameObjectManager
                             CheckGOLinkedTrapId(got, got.Chest.linkedTrap, 7);
 
                         break;
+
                     case GameObjectTypes.Trap: //6
                         if (got.Trap.open != 0)
                             CheckGOLockId(got, got.Trap.open, 0);
 
                         break;
+
                     case GameObjectTypes.Chair: //7
                         CheckAndFixGOChairHeightId(got, ref got.Chair.chairheight, 1);
 
                         break;
+
                     case GameObjectTypes.SpellFocus: //8
                         if (got.SpellFocus.spellFocusType != 0)
                             if (!_cliDB.SpellFocusObjectStorage.ContainsKey(got.SpellFocus.spellFocusType))
@@ -4827,6 +4845,7 @@ public sealed class GameObjectManager
                             CheckGOLinkedTrapId(got, got.SpellFocus.linkedTrap, 2);
 
                         break;
+
                     case GameObjectTypes.Goober: //10
                         if (got.Goober.open != 0)
                             CheckGOLockId(got, got.Goober.open, 0);
@@ -4843,16 +4862,19 @@ public sealed class GameObjectManager
                             CheckGOLinkedTrapId(got, got.Goober.linkedTrap, 12);
 
                         break;
+
                     case GameObjectTypes.AreaDamage: //12
                         if (got.AreaDamage.open != 0)
                             CheckGOLockId(got, got.AreaDamage.open, 0);
 
                         break;
+
                     case GameObjectTypes.Camera: //13
                         if (got.Camera.open != 0)
                             CheckGOLockId(got, got.Camera.open, 0);
 
                         break;
+
                     case GameObjectTypes.MapObjTransport: //15
                     {
                         if (got.MoTransport.taxiPathID != 0)
@@ -4875,6 +4897,7 @@ public sealed class GameObjectManager
                         CheckGOSpellId(got, got.SpellCaster.spell, 0);
 
                         break;
+
                     case GameObjectTypes.FlagStand: //24
                         if (got.FlagStand.open != 0)
                             CheckGOLockId(got, got.FlagStand.open, 0);
@@ -4882,11 +4905,13 @@ public sealed class GameObjectManager
                         CheckGONoDamageImmuneId(got, got.FlagStand.noDamageImmune, 5);
 
                         break;
+
                     case GameObjectTypes.FishingHole: //25
                         if (got.FishingHole.open != 0)
                             CheckGOLockId(got, got.FishingHole.open, 4);
 
                         break;
+
                     case GameObjectTypes.FlagDrop: //26
                         if (got.FlagDrop.open != 0)
                             CheckGOLockId(got, got.FlagDrop.open, 0);
@@ -4894,6 +4919,7 @@ public sealed class GameObjectManager
                         CheckGONoDamageImmuneId(got, got.FlagDrop.noDamageImmune, 3);
 
                         break;
+
                     case GameObjectTypes.BarberChair: //32
                         CheckAndFixGOChairHeightId(got, ref got.BarberChair.chairheight, 0);
 
@@ -4909,6 +4935,7 @@ public sealed class GameObjectManager
                         }
 
                         break;
+
                     case GameObjectTypes.GarrisonBuilding:
                     {
                         var transportMap = got.GarrisonBuilding.SpawnMap;
@@ -4917,7 +4944,8 @@ public sealed class GameObjectManager
                             _transportMaps.Add((ushort)transportMap);
                     }
 
-                        break;
+                    break;
+
                     case GameObjectTypes.GatheringNode:
                         if (got.GatheringNode.open != 0)
                             CheckGOLockId(got, got.GatheringNode.open, 0);
@@ -5004,6 +5032,7 @@ public sealed class GameObjectManager
                     case GameObjectTypes.Chest:
                     case GameObjectTypes.FishingHole:
                         break;
+
                     default:
                         Log.Logger.Error($"GameObject (Entry {entry} GoType: {got.type}) cannot be looted but has maxgold set in `gameobject_template_addon`.");
 
@@ -5510,6 +5539,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 default:
                     Log.Logger.Error("Table `instance_encounters` has an invalid credit type ({0}) for encounter {1} ({2}), skipped!",
                                      creditType,
@@ -7559,7 +7589,7 @@ public sealed class GameObjectManager
             for (var i = 0; i < (int)Race.Max; ++i)
                 raceStatModifiers[i] = new short[(int)Stats.Max];
 
-            //                                         0     1    2    3    4 
+            //                                         0     1    2    3    4
             var result = _worldDatabase.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
 
             if (result.IsEmpty())
@@ -7920,6 +7950,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 case 1: // GameObject
                     if (GetGameObjectTemplate(id) == null)
                     {
@@ -7929,6 +7960,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 default:
                     continue;
             }
@@ -7958,7 +7990,7 @@ public sealed class GameObjectManager
         for (var i = 0; i < 2; ++i)
             _questGreetingStorage[i] = new Dictionary<uint, QuestGreeting>();
 
-        //                                         0   1          2                3     
+        //                                         0   1          2                3
         var result = _worldDatabase.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
 
         if (result.IsEmpty())
@@ -7986,6 +8018,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 case 1: // GameObject
                     if (GetGameObjectTemplate(id) == null)
                     {
@@ -7995,6 +8028,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 default:
                     continue;
             }
@@ -8258,7 +8292,6 @@ public sealed class GameObjectManager
                 _questTemplatesAutoPush.Add(newQuest);
         } while (result.NextRow());
 
-
         // Load `quest_reward_choice_items`
         //                               0        1      2      3      4      5      6
         result = _worldDatabase.Query("SELECT QuestID, Type1, Type2, Type3, Type4, Type5, Type6 FROM quest_reward_choice_items");
@@ -8276,7 +8309,6 @@ public sealed class GameObjectManager
                     Log.Logger.Error($"Table `quest_reward_choice_items` has data for quest {questId} but such quest does not exist");
             } while (result.NextRow());
 
-
         // Load `quest_reward_display_spell`
         //                               0        1        2
         result = _worldDatabase.Query("SELECT QuestID, SpellID, PlayerConditionID FROM quest_reward_display_spell ORDER BY QuestID ASC, Idx ASC");
@@ -8293,7 +8325,6 @@ public sealed class GameObjectManager
                 else
                     Log.Logger.Error($"Table `quest_reward_display_spell` has data for quest {questId} but such quest does not exist");
             } while (result.NextRow());
-
 
         // Load `quest_details`
         //                               0   1       2       3       4       5            6            7            8
@@ -8702,6 +8733,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
 
                         break;
+
                     case QuestObjectiveType.Monster:
                         if (GetCreatureTemplate((uint)obj.ObjectID) == null)
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8710,6 +8742,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
                         break;
+
                     case QuestObjectiveType.GameObject:
                         if (GetGameObjectTemplate((uint)obj.ObjectID) == null)
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8718,6 +8751,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
 
                         break;
+
                     case QuestObjectiveType.TalkTo:
                         if (GetCreatureTemplate((uint)obj.ObjectID) == null)
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8726,6 +8760,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
                         break;
+
                     case QuestObjectiveType.MinReputation:
                     case QuestObjectiveType.MaxReputation:
                     case QuestObjectiveType.IncreaseReputation:
@@ -8736,6 +8771,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
+
                     case QuestObjectiveType.PlayerKills:
                         if (obj.Amount <= 0)
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8744,6 +8780,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
 
                         break;
+
                     case QuestObjectiveType.Currency:
                     case QuestObjectiveType.HaveCurrency:
                     case QuestObjectiveType.ObtainCurrency:
@@ -8760,6 +8797,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
 
                         break;
+
                     case QuestObjectiveType.LearnSpell:
                         if (!_spellManager.HasSpellInfo((uint)obj.ObjectID))
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8768,6 +8806,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
+
                     case QuestObjectiveType.WinPetBattleAgainstNpc:
                         if (obj.ObjectID != 0 && GetCreatureTemplate((uint)obj.ObjectID) == null)
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8776,6 +8815,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
+
                     case QuestObjectiveType.DefeatBattlePet:
                         if (!_cliDB.BattlePetSpeciesStorage.ContainsKey((uint)obj.ObjectID))
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8784,6 +8824,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
+
                     case QuestObjectiveType.CriteriaTree:
                         if (!_cliDB.CriteriaTreeStorage.ContainsKey((uint)obj.ObjectID))
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8792,6 +8833,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
+
                     case QuestObjectiveType.AreaTrigger:
                         if (!_cliDB.AreaTriggerStorage.ContainsKey((uint)obj.ObjectID) && obj.ObjectID != -1)
                             if (_configuration.GetDefaultValue("load:autoclean", false))
@@ -8800,6 +8842,7 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
+
                     case QuestObjectiveType.AreaTriggerEnter:
                     case QuestObjectiveType.AreaTriggerExit:
                         if (_areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, false)) == null && _areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, true)) != null)
@@ -8809,10 +8852,12 @@ public sealed class GameObjectManager
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
+
                     case QuestObjectiveType.Money:
                     case QuestObjectiveType.WinPvpPetBattles:
                     case QuestObjectiveType.ProgressBar:
                         break;
+
                     default:
                         if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
@@ -8866,6 +8911,7 @@ public sealed class GameObjectManager
                             }
 
                             break;
+
                         case LootItemType.Currency:
                             if (!_cliDB.CurrencyTypesStorage.HasRecord(id))
                             {
@@ -8874,6 +8920,7 @@ public sealed class GameObjectManager
                             }
 
                             break;
+
                         default:
                             Log.Logger.Error($"QuestId {qinfo.Id} has `RewardChoiceItemType{j + 1}` = {qinfo.RewardChoiceItemType[j]} but it is not a valid item type, reward removed.");
                             qinfo.RewardChoiceItemId[j] = 0;
@@ -8940,7 +8987,6 @@ public sealed class GameObjectManager
                         qinfo.RewardFactionId[j] = 0; // quest will not reward this
                     }
                 }
-
                 else if (qinfo.RewardFactionOverride[j] != 0)
                     Log.Logger.Error("QuestId {0} has `RewardFactionId{1}` = 0 but `RewardFactionValueIdOverride{2}` = {3}.",
                                      qinfo.Id,
@@ -8962,7 +9008,6 @@ public sealed class GameObjectManager
 
                     qinfo.RewardSpell = 0; // no spell will be casted on player
                 }
-
                 else if (!_spellManager.IsSpellValid(spellInfo))
                 {
                     Log.Logger.Error("QuestId {0} has `RewardSpellCast` = {1} but spell {2} is broken, quest will not have a spell reward.",
@@ -10101,6 +10146,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 case SummonerType.GameObject:
                     if (GetGameObjectTemplate(summonerId) == null)
                     {
@@ -10110,6 +10156,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 case SummonerType.Map:
                     if (!_cliDB.MapStorage.ContainsKey(summonerId))
                     {
@@ -10119,6 +10166,7 @@ public sealed class GameObjectManager
                     }
 
                     break;
+
                 default:
                     Log.Logger.Error("Table `creature_summon_groups` has unhandled summoner type {0} for summoner {1}, skipped.", summonerType, summonerId);
 
@@ -10705,7 +10753,6 @@ public sealed class GameObjectManager
 
         var found = false;
 
-
         foreach (var data in range)
         {
             // skip not matching safezone id
@@ -10730,16 +10777,16 @@ public sealed class GameObjectManager
         GraveYardStorage.Remove(zoneId);
 
         // remove link from DB
-        if (persist)
-        {
-            var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GRAVEYARD_ZONE);
+        if (!persist)
+            return;
 
-            stmt.AddValue(0, id);
-            stmt.AddValue(1, zoneId);
-            stmt.AddValue(2, (uint)team);
+        var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GRAVEYARD_ZONE);
 
-            _worldDatabase.Execute(stmt);
-        }
+        stmt.AddValue(0, id);
+        stmt.AddValue(1, zoneId);
+        stmt.AddValue(2, (uint)team);
+
+        _worldDatabase.Execute(stmt);
     }
 
     public bool RemoveVendorItem(uint entry, uint item, ItemVendorType type, bool persist = true)
@@ -10750,16 +10797,16 @@ public sealed class GameObjectManager
         if (!iter.RemoveItem(item, type))
             return false;
 
-        if (persist)
-        {
-            var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_NPC_VENDOR);
+        if (!persist)
+            return true;
 
-            stmt.AddValue(0, entry);
-            stmt.AddValue(1, item);
-            stmt.AddValue(2, (byte)type);
+        var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_NPC_VENDOR);
 
-            _worldDatabase.Execute(stmt);
-        }
+        stmt.AddValue(0, entry);
+        stmt.AddValue(1, item);
+        stmt.AddValue(2, (byte)type);
+
+        _worldDatabase.Execute(stmt);
 
         return true;
     }
@@ -10850,9 +10897,9 @@ public sealed class GameObjectManager
                     // mail open and then not returned
                     foreach (var itemInfo in m.Items)
                     {
-                        ItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
-                        AzeriteItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
-                        AzeriteEmpoweredItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
+                        _itemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
+                        _azeriteItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
+                        _azeriteEmpoweredItemFactory.DeleteFromDB(null, itemInfo.ItemGUID);
                     }
 
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
@@ -11163,6 +11210,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
 
                     break;
+
                 case PlayerClass.Paladin:
                     info.Stats[0] += (lvl > 3 ? 1 : 0);
                     info.Stats[1] += (lvl > 33 ? 2 : (lvl > 1 ? 1 : 0));
@@ -11170,6 +11218,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 6 && (lvl % 2) != 0 ? 1 : 0);
 
                     break;
+
                 case PlayerClass.Hunter:
                     info.Stats[0] += (lvl > 4 ? 1 : 0);
                     info.Stats[1] += (lvl > 4 ? 1 : 0);
@@ -11177,6 +11226,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 8 && (lvl % 2) != 0 ? 1 : 0);
 
                     break;
+
                 case PlayerClass.Rogue:
                     info.Stats[0] += (lvl > 5 ? 1 : 0);
                     info.Stats[1] += (lvl > 4 ? 1 : 0);
@@ -11184,6 +11234,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 8 && (lvl % 2) == 0 ? 1 : 0);
 
                     break;
+
                 case PlayerClass.Priest:
                     info.Stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
                     info.Stats[1] += (lvl > 5 ? 1 : 0);
@@ -11191,6 +11242,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 22 ? 2 : (lvl > 1 ? 1 : 0));
 
                     break;
+
                 case PlayerClass.Shaman:
                     info.Stats[0] += (lvl > 34 ? 1 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
                     info.Stats[1] += (lvl > 4 ? 1 : 0);
@@ -11198,6 +11250,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 5 ? 1 : 0);
 
                     break;
+
                 case PlayerClass.Mage:
                     info.Stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
                     info.Stats[1] += (lvl > 5 ? 1 : 0);
@@ -11205,6 +11258,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 24 ? 2 : (lvl > 1 ? 1 : 0));
 
                     break;
+
                 case PlayerClass.Warlock:
                     info.Stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
                     info.Stats[1] += (lvl > 38 ? 2 : (lvl > 3 ? 1 : 0));
@@ -11212,6 +11266,7 @@ public sealed class GameObjectManager
                     info.Stats[3] += (lvl > 33 ? 2 : (lvl > 2 ? 1 : 0));
 
                     break;
+
                 case PlayerClass.Druid:
                     info.Stats[0] += (lvl > 38 ? 2 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
                     info.Stats[1] += (lvl > 32 ? 2 : (lvl > 4 ? 1 : 0));
@@ -11350,20 +11405,20 @@ public sealed class GameObjectManager
             RealmZones.Unknown => // any language
                 LanguageType.Any,
             RealmZones.Development => LanguageType.Any,
-            RealmZones.TestServer  => LanguageType.Any,
-            RealmZones.QaServer    => LanguageType.Any,
+            RealmZones.TestServer => LanguageType.Any,
+            RealmZones.QaServer => LanguageType.Any,
             RealmZones.UnitedStates => // extended-Latin
                 LanguageType.ExtendenLatin,
-            RealmZones.Oceanic      => LanguageType.ExtendenLatin,
+            RealmZones.Oceanic => LanguageType.ExtendenLatin,
             RealmZones.LatinAmerica => LanguageType.ExtendenLatin,
-            RealmZones.English      => LanguageType.ExtendenLatin,
-            RealmZones.German       => LanguageType.ExtendenLatin,
-            RealmZones.French       => LanguageType.ExtendenLatin,
-            RealmZones.Spanish      => LanguageType.ExtendenLatin,
+            RealmZones.English => LanguageType.ExtendenLatin,
+            RealmZones.German => LanguageType.ExtendenLatin,
+            RealmZones.French => LanguageType.ExtendenLatin,
+            RealmZones.Spanish => LanguageType.ExtendenLatin,
             RealmZones.Korea => // East-Asian
                 LanguageType.EastAsia,
             RealmZones.Taiwan => LanguageType.EastAsia,
-            RealmZones.China  => LanguageType.EastAsia,
+            RealmZones.China => LanguageType.EastAsia,
             RealmZones.Russian => // Cyrillic
                 LanguageType.Cyrillic,
             _ => create ? LanguageType.BasicLatin : LanguageType.Any
@@ -11384,6 +11439,7 @@ public sealed class GameObjectManager
                         return true;
 
                     return false;
+
                 case LanguageType.ExtendenLatin:
                     if (wchar >= 0x00C0 && wchar <= 0x00D6) // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
                         return true;
@@ -11407,6 +11463,7 @@ public sealed class GameObjectManager
                         return true;
 
                     return false;
+
                 case LanguageType.Cyrillic:
                     if (wchar >= 0x0410 && wchar <= 0x044F) // CYRILLIC CAPITAL LETTER A - CYRILLIC SMALL LETTER YA
                         return true;
@@ -11415,6 +11472,7 @@ public sealed class GameObjectManager
                         return true;
 
                     return false;
+
                 case LanguageType.EastAsia:
                     if (wchar >= 0x1100 && wchar <= 0x11F9) // Hangul Jamo
                         return true;
