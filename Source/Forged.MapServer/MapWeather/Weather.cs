@@ -8,7 +8,6 @@ using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IWeather;
 using Forged.MapServer.World;
 using Serilog;
-using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.MapWeather;
 

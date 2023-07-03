@@ -225,7 +225,7 @@ public class Formulas
         float rate;
 
         if (isRaid)
-            // FIXME: Must apply decrease modifiers depending on raid size.
+            // TODO: Must apply decrease modifiers depending on raid size.
             // set to < 1 to, so client will display raid related strings
             rate = 0.99f;
         else
