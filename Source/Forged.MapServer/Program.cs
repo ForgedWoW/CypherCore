@@ -567,4 +567,5 @@ void RegisterHandlers()
     builder.RegisterType<PetHandler>();
     builder.RegisterType<QuestHandler>();
     builder.RegisterType<SceneHandler>();
+    builder.RegisterType<SkillHandler>();
 }

@@ -1,22 +1,35 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Forged.MapServer.Entities.Players;
+using System;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Talent;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class SkillHandler : IWorldSessionHandler
 {
+    private readonly DB2Manager _db2Manager;
+    private readonly WorldSession _session;
+
+    public SkillHandler(WorldSession session, DB2Manager db2Manager)
+    {
+        _session = session;
+        _db2Manager = db2Manager;
+    }
+
     [WorldPacketHandler(ClientOpcodes.ConfirmRespecWipe)]
     private void HandleConfirmRespecWipe(ConfirmRespecWipe confirmRespecWipe)
     {
-        var unit = Player.GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, NPCFlags.Trainer, NPCFlags2.None);
+        var unit = _session.Player.GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, NPCFlags.Trainer, NPCFlags2.None);
 
         if (unit == null)
         {
@@ -36,14 +49,14 @@ public class SkillHandler : IWorldSessionHandler
             return;
 
         // remove fake death
-        if (Player.HasUnitState(UnitState.Died))
-            Player.RemoveAurasByType(AuraType.FeignDeath);
+        if (_session.Player.HasUnitState(UnitState.Died))
+            _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        if (!Player.ResetTalents())
+        if (!_session.Player.ResetTalents())
             return;
 
-        Player.SendTalentsInfoData();
-        unit.CastSpell(Player, 14867, true); //spell: "Untalent Visual Effect"
+        _session.Player.SendTalentsInfoData();
+        unit.SpellFactory.CastSpell(14867, true); //spell: "Untalent Visual Effect"
     }
 
     [WorldPacketHandler(ClientOpcodes.LearnPvpTalents, Processing = PacketProcessing.Inplace)]
@@ -68,7 +81,7 @@ public class SkillHandler : IWorldSessionHandler
         }
 
         if (learnPvpTalentFailed.Reason != 0)
-            SendPacket(learnPvpTalentFailed);
+            _session.SendPacket(learnPvpTalentFailed);
 
         if (anythingLearned)
             _session.Player.SendTalentsInfoData();
@@ -96,10 +109,10 @@ public class SkillHandler : IWorldSessionHandler
         }
 
         if (learnTalentFailed.Reason != 0)
-            SendPacket(learnTalentFailed);
+            _session.SendPacket(learnTalentFailed);
 
         if (anythingLearned)
-            Player.SendTalentsInfoData();
+            _session.Player.SendTalentsInfoData();
     }
 
     [WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]
@@ -114,11 +127,11 @@ public class SkillHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.UnlearnSkill, Processing = PacketProcessing.Inplace)]
     private void HandleUnlearnSkill(UnlearnSkill packet)
     {
-        var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(packet.SkillLine, Player.Race, Player.Class);
+        var rcEntry = _db2Manager.GetSkillRaceClassInfo(packet.SkillLine, _session.Player.Race, _session.Player.Class);
 
         if (rcEntry == null || !rcEntry.Flags.HasAnyFlag(SkillRaceClassInfoFlags.Unlearnable))
             return;
 
-        Player.SetSkill(packet.SkillLine, 0, 0, 0);
+        _session.Player.SetSkill(packet.SkillLine, 0, 0, 0);
     }
 }
