@@ -166,6 +166,7 @@ public class SpellHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CancelMountAura, Processing = PacketProcessing.Inplace)]
     private void HandleCancelMountAura(CancelMountAura packet)
     {
+        if (packet == null) return;
         _session.Player.RemoveAurasByType(AuraType.Mounted,
                                  aurApp =>
                                  {
