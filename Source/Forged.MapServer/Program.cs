@@ -571,4 +571,5 @@ void RegisterHandlers()
     builder.RegisterType<SkillHandler>();
     builder.RegisterType<SpellHandler>();
     builder.RegisterType<TaxiHandler>();
+    builder.RegisterType<TimeHandler>();
 }
