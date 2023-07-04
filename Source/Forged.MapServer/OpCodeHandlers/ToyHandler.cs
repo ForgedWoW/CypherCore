@@ -1,18 +1,39 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Toy;
+using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class ToyHandler : IWorldSessionHandler
 {
+    private readonly CollectionMgr _collectionMgr;
+    private readonly DB2Manager _db2Manager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly WorldSession _session;
+    private readonly SpellManager _spellManager;
+
+    public ToyHandler(WorldSession session, CollectionMgr collectionMgr, DB2Manager db2Manager, SpellManager spellManager, GameObjectManager gameObjectManager)
+    {
+        _session = session;
+        _collectionMgr = collectionMgr;
+        _db2Manager = db2Manager;
+        _spellManager = spellManager;
+        _gameObjectManager = gameObjectManager;
+    }
+
     [WorldPacketHandler(ClientOpcodes.AddToy)]
     private void HandleAddToy(AddToy packet)
     {
@@ -21,14 +42,14 @@ public class ToyHandler : IWorldSessionHandler
 
         var item = _session.Player.GetItemByGuid(packet.Guid);
 
-        if (!item)
+        if (item == null)
         {
             _session.Player.SendEquipError(InventoryResult.ItemNotFound);
 
             return;
         }
 
-        if (!Global.DB2Mgr.IsToyItem(item.Entry))
+        if (!_db2Manager.IsToyItem(item.Entry))
             return;
 
         var msg = _session.Player.CanUseItem(item);
@@ -54,7 +75,7 @@ public class ToyHandler : IWorldSessionHandler
     private void HandleUseToy(UseToy packet)
     {
         var itemId = packet.Cast.Misc[0];
-        var item = Global.ObjectMgr.GetItemTemplate(itemId);
+        var item = _gameObjectManager.GetItemTemplate(itemId);
 
         if (item == null)
             return;
@@ -67,7 +88,7 @@ public class ToyHandler : IWorldSessionHandler
         if (effect == null)
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(packet.Cast.SpellID, Difficulty.None);
+        var spellInfo = _spellManager.GetSpellInfo(packet.Cast.SpellID);
 
         if (spellInfo == null)
         {
@@ -81,12 +102,15 @@ public class ToyHandler : IWorldSessionHandler
 
         SpellCastTargets targets = new(_session.Player, packet.Cast);
 
-        Spell spell = new(_session.Player, spellInfo, TriggerCastFlags.None);
+        var spell = _session.Player.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
 
-        SpellPrepare spellPrepare = new();
-        spellPrepare.ClientCastID = packet.Cast.CastID;
-        spellPrepare.ServerCastID = spell.CastId;
-        SendPacket(spellPrepare);
+        SpellPrepare spellPrepare = new()
+        {
+            ClientCastID = packet.Cast.CastID,
+            ServerCastID = spell.CastId
+        };
+
+        _session.SendPacket(spellPrepare);
 
         spell.FromClient = true;
         spell.CastItemEntry = itemId;

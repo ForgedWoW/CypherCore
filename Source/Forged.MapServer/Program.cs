@@ -573,4 +573,5 @@ void RegisterHandlers()
     builder.RegisterType<TaxiHandler>();
     builder.RegisterType<TimeHandler>();
     builder.RegisterType<WoWTokenHandler>();
+    builder.RegisterType<ToyHandler>();
 }
