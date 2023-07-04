@@ -570,4 +570,5 @@ void RegisterHandlers()
     builder.RegisterType<SceneHandler>();
     builder.RegisterType<SkillHandler>();
     builder.RegisterType<SpellHandler>();
+    builder.RegisterType<TaxiHandler>();
 }
