@@ -3,39 +3,43 @@
 
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Token;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.OpCodeHandlers;
 
-public class TokenHandler : IWorldSessionHandler
+public class WoWTokenHandler : IWorldSessionHandler
 {
+    private readonly WorldSession _session;
+
+    public WoWTokenHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
     [WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
     private void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
     {
-        CommerceTokenGetLogResponse response = new()
+        _session.SendPacket(new CommerceTokenGetLogResponse()
         {
             // @todo: fix 6.x implementation
             UnkInt = commerceTokenGetLog.UnkInt,
             Result = TokenResult.Success
-        };
-
-        SendPacket(response);
+        });
     }
 
     [WorldPacketHandler(ClientOpcodes.CommerceTokenGetMarketPrice)]
     private void HandleCommerceTokenGetMarketPrice(CommerceTokenGetMarketPrice commerceTokenGetMarketPrice)
     {
-        CommerceTokenGetMarketPriceResponse response = new()
+        _session.SendPacket(new CommerceTokenGetMarketPriceResponse()
         {
             // @todo: 6.x fix implementation
             CurrentMarketPrice = 300000000,
             UnkInt = commerceTokenGetMarketPrice.UnkInt,
             Result = TokenResult.Success
-        };
-
-        //packet.ReadUInt32("UnkInt32");
-
-        SendPacket(response);
+        });
     }
 }

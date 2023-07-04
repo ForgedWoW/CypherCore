@@ -572,4 +572,5 @@ void RegisterHandlers()
     builder.RegisterType<SpellHandler>();
     builder.RegisterType<TaxiHandler>();
     builder.RegisterType<TimeHandler>();
+    builder.RegisterType<WoWTokenHandler>();
 }
