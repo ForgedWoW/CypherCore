@@ -575,4 +575,5 @@ void RegisterHandlers()
     builder.RegisterType<WoWTokenHandler>();
     builder.RegisterType<ToyHandler>();
     builder.RegisterType<VehicleHandler>();
+    builder.RegisterType<VoidStorageHandler>();
 }
