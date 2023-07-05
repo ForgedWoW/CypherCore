@@ -2,40 +2,57 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.NPC;
 using Forged.MapServer.Networking.Packets.Transmogification;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class TransmogrificationHandler : IWorldSessionHandler
 {
+    private readonly CliDB _cliDB;
+    private readonly CollectionMgr _collectionMgr;
+    private readonly DB2Manager _db2Manager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly WorldSession _session;
+
+    public TransmogrificationHandler(WorldSession session, CliDB cliDB, CollectionMgr collectionMgr, GameObjectManager gameObjectManager, DB2Manager db2Manager)
+    {
+        _session = session;
+        _cliDB = cliDB;
+        _collectionMgr = collectionMgr;
+        _gameObjectManager = gameObjectManager;
+        _db2Manager = db2Manager;
+    }
+
     public void SendOpenTransmogrifier(ObjectGuid guid)
     {
-        NPCInteractionOpenResult npcInteraction = new();
-        npcInteraction.Npc = guid;
-        npcInteraction.InteractionType = PlayerInteractionType.Transmogrifier;
-        npcInteraction.Success = true;
-        SendPacket(npcInteraction);
+        _session.SendPacket(new NPCInteractionOpenResult
+        {
+            Npc = guid,
+            InteractionType = PlayerInteractionType.Transmogrifier,
+            Success = true
+        });
     }
 
     [WorldPacketHandler(ClientOpcodes.TransmogrifyItems)]
     private void HandleTransmogrifyItems(TransmogrifyItems transmogrifyItems)
     {
-        var player = Player;
-
         // Validate
-        if (!player.GetNPCIfCanInteractWith(transmogrifyItems.Npc, NPCFlags.Transmogrifier, NPCFlags2.None))
+        if (_session.Player.GetNPCIfCanInteractWith(transmogrifyItems.Npc, NPCFlags.Transmogrifier, NPCFlags2.None) == null)
         {
-            Log.Logger.Debug("WORLD: HandleTransmogrifyItems - Unit (GUID: {0}) not found or player can't interact with it.", transmogrifyItems.ToString());
+            Log.Logger.Debug("WORLD: HandleTransmogrifyItems - Unit (GUID: {0}) not found or _session.Player can't interact with it.", transmogrifyItems.ToString());
 
             return;
         }
@@ -48,91 +65,32 @@ public class TransmogrificationHandler : IWorldSessionHandler
         List<Item> resetIllusionItems = new();
         List<uint> bindAppearances = new();
 
-        bool validateAndStoreTransmogItem(Item itemTransmogrified, uint itemModifiedAppearanceId, bool isSecondary)
-        {
-            if (!CliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var itemModifiedAppearance))
-            {
-                Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
-
-                return false;
-            }
-
-            if (isSecondary && itemTransmogrified.Template.InventoryType != InventoryType.Shoulders)
-            {
-                Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify secondary appearance to non-shoulder item.");
-
-                return false;
-            }
-
-            bool hasAppearance, isTemporary;
-            (hasAppearance, isTemporary) = CollectionMgr.HasItemAppearance(itemModifiedAppearanceId);
-
-            if (!hasAppearance)
-            {
-                Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he has not collected ({itemModifiedAppearanceId}).");
-
-                return false;
-            }
-
-            var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemModifiedAppearance.ItemID);
-
-            if (player.CanUseItem(itemTemplate) != InventoryResult.Ok)
-            {
-                Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he can never use ({itemModifiedAppearanceId}).");
-
-                return false;
-            }
-
-            // validity of the transmogrification items
-            if (!ItemFactory.CanTransmogrifyItemWithItem(itemTransmogrified, itemModifiedAppearance))
-            {
-                Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} failed CanTransmogrifyItemWithItem ({itemTransmogrified.Entry} with appearance {itemModifiedAppearanceId}).");
-
-                return false;
-            }
-
-            if (!transmogItems.ContainsKey(itemTransmogrified))
-                transmogItems[itemTransmogrified] = new uint[2];
-
-            if (!isSecondary)
-                transmogItems[itemTransmogrified][0] = itemModifiedAppearanceId;
-            else
-                transmogItems[itemTransmogrified][1] = itemModifiedAppearanceId;
-
-            if (isTemporary)
-                bindAppearances.Add(itemModifiedAppearanceId);
-
-            return true;
-        }
-
-        ;
-
         foreach (var transmogItem in transmogrifyItems.Items)
         {
             // slot of the transmogrified item
             if (transmogItem.Slot >= EquipmentSlot.End)
             {
-                Log.Logger.Debug("WORLD: HandleTransmogrifyItems - Player ({0}, name: {1}) tried to transmogrify wrong slot {2} when transmogrifying items.", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
+                Log.Logger.Debug("WORLD: HandleTransmogrifyItems - _session.Player ({0}, name: {1}) tried to transmogrify wrong slot {2} when transmogrifying items.", _session.Player.GUID.ToString(), _session.Player.GetName(), transmogItem.Slot);
 
                 return;
             }
 
             // transmogrified item
-            var itemTransmogrified = player.GetItemByPos(InventorySlots.Bag0, (byte)transmogItem.Slot);
+            var itemTransmogrified = _session.Player.GetItemByPos(InventorySlots.Bag0, (byte)transmogItem.Slot);
 
-            if (!itemTransmogrified)
+            if (itemTransmogrified == null)
             {
-                Log.Logger.Debug("WORLD: HandleTransmogrifyItems - Player (GUID: {0}, name: {1}) tried to transmogrify an invalid item in a valid slot (slot: {2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
+                Log.Logger.Debug("WORLD: HandleTransmogrifyItems - _session.Player (GUID: {0}, name: {1}) tried to transmogrify an invalid item in a valid slot (slot: {2}).", _session.Player.GUID.ToString(), _session.Player.GetName(), transmogItem.Slot);
 
                 return;
             }
 
             if (transmogItem.ItemModifiedAppearanceID != 0 || transmogItem.SecondaryItemModifiedAppearanceID > 0)
             {
-                if (transmogItem.ItemModifiedAppearanceID != 0 && !validateAndStoreTransmogItem(itemTransmogrified, (uint)transmogItem.ItemModifiedAppearanceID, false))
+                if (transmogItem.ItemModifiedAppearanceID != 0 && !ValidateAndStoreTransmogItem(itemTransmogrified, (uint)transmogItem.ItemModifiedAppearanceID, false, transmogItems, bindAppearances))
                     return;
 
-                if (transmogItem.SecondaryItemModifiedAppearanceID > 0 && !validateAndStoreTransmogItem(itemTransmogrified, (uint)transmogItem.SecondaryItemModifiedAppearanceID, true))
+                if (transmogItem.SecondaryItemModifiedAppearanceID > 0 && !ValidateAndStoreTransmogItem(itemTransmogrified, (uint)transmogItem.SecondaryItemModifiedAppearanceID, true, transmogItems, bindAppearances))
                     return;
 
                 // add cost
@@ -145,24 +103,24 @@ public class TransmogrificationHandler : IWorldSessionHandler
             {
                 if (transmogItem.Slot != EquipmentSlot.MainHand && transmogItem.Slot != EquipmentSlot.OffHand)
                 {
-                    Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion into non-weapon slot ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
+                    Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion into non-weapon slot ({2}).", _session.Player.GUID.ToString(), _session.Player.GetName(), transmogItem.Slot);
 
                     return;
                 }
 
-                var illusion = Global.DB2Mgr.GetTransmogIllusionForEnchantment((uint)transmogItem.SpellItemEnchantmentID);
+                var illusion = _db2Manager.GetTransmogIllusionForEnchantment((uint)transmogItem.SpellItemEnchantmentID);
 
                 if (illusion == null)
                 {
-                    Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using invalid enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
+                    Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using invalid enchant ({2}).", _session.Player.GUID.ToString(), _session.Player.GetName(), transmogItem.SpellItemEnchantmentID);
 
                     return;
                 }
 
-                if (CliDB.PlayerConditionStorage.TryGetValue(illusion.UnlockConditionID, out var condition))
-                    if (!ConditionManager.IsPlayerMeetingCondition(player, condition))
+                if (_cliDB.PlayerConditionStorage.TryGetValue((uint)illusion.UnlockConditionID, out var condition))
+                    if (!_session.Player.ConditionManager.IsPlayerMeetingCondition(_session.Player, condition))
                     {
-                        Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
+                        Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", _session.Player.GUID.ToString(), _session.Player.GetName(), transmogItem.SpellItemEnchantmentID);
 
                         return;
                     }
@@ -174,12 +132,12 @@ public class TransmogrificationHandler : IWorldSessionHandler
                 resetIllusionItems.Add(itemTransmogrified);
         }
 
-        if (!player.HasAuraType(AuraType.RemoveTransmogCost) && cost != 0) // 0 cost if reverting look
+        if (!_session.Player.HasAuraType(AuraType.RemoveTransmogCost) && cost != 0) // 0 cost if reverting look
         {
-            if (!player.HasEnoughMoney(cost))
+            if (!_session.Player.HasEnoughMoney(cost))
                 return;
 
-            player.ModifyMoney(-cost);
+            _session.Player.ModifyMoney(-cost);
         }
 
         // Everything is fine, proceed
@@ -227,24 +185,22 @@ public class TransmogrificationHandler : IWorldSessionHandler
                 if (transmogrified.GetModifier(ItemModifier.TransmogSecondaryAppearanceSpec4) == 0)
                     transmogrified.SetModifier(ItemModifier.TransmogSecondaryAppearanceSpec4, transmogrified.GetModifier(ItemModifier.TransmogSecondaryAppearanceAllSpecs));
 
-                transmogrified.SetModifier(ItemConst.AppearanceModifierSlotBySpec[player.GetActiveTalentGroup()], transmogPair.Value[0]);
-                transmogrified.SetModifier(ItemConst.SecondaryAppearanceModifierSlotBySpec[player.GetActiveTalentGroup()], transmogPair.Value[1]);
+                transmogrified.SetModifier(ItemConst.AppearanceModifierSlotBySpec[_session.Player.GetActiveTalentGroup()], transmogPair.Value[0]);
+                transmogrified.SetModifier(ItemConst.SecondaryAppearanceModifierSlotBySpec[_session.Player.GetActiveTalentGroup()], transmogPair.Value[1]);
             }
 
-            player.SetVisibleItemSlot(transmogrified.Slot, transmogrified);
+            _session.Player.SetVisibleItemSlot(transmogrified.Slot, transmogrified);
 
-            transmogrified.SetNotRefundable(player);
-            transmogrified.ClearSoulboundTradeable(player);
-            transmogrified.SetState(ItemUpdateState.Changed, player);
+            transmogrified.SetNotRefundable(_session.Player);
+            transmogrified.ClearSoulboundTradeable(_session.Player);
+            transmogrified.SetState(ItemUpdateState.Changed, _session.Player);
         }
 
-        foreach (var illusionPair in illusionItems)
+        foreach (var (transmogrified, group) in illusionItems)
         {
-            var transmogrified = illusionPair.Key;
-
             if (!transmogrifyItems.CurrentSpecOnly)
             {
-                transmogrified.SetModifier(ItemModifier.EnchantIllusionAllSpecs, illusionPair.Value);
+                transmogrified.SetModifier(ItemModifier.EnchantIllusionAllSpecs, group);
                 transmogrified.SetModifier(ItemModifier.EnchantIllusionSpec1, 0);
                 transmogrified.SetModifier(ItemModifier.EnchantIllusionSpec2, 0);
                 transmogrified.SetModifier(ItemModifier.EnchantIllusionSpec3, 0);
@@ -264,14 +220,14 @@ public class TransmogrificationHandler : IWorldSessionHandler
                 if (transmogrified.GetModifier(ItemModifier.EnchantIllusionSpec4) == 0)
                     transmogrified.SetModifier(ItemModifier.EnchantIllusionSpec4, transmogrified.GetModifier(ItemModifier.EnchantIllusionAllSpecs));
 
-                transmogrified.SetModifier(ItemConst.IllusionModifierSlotBySpec[player.GetActiveTalentGroup()], illusionPair.Value);
+                transmogrified.SetModifier(ItemConst.IllusionModifierSlotBySpec[_session.Player.GetActiveTalentGroup()], group);
             }
 
-            player.SetVisibleItemSlot(transmogrified.Slot, transmogrified);
+            _session.Player.SetVisibleItemSlot(transmogrified.Slot, transmogrified);
 
-            transmogrified.SetNotRefundable(player);
-            transmogrified.ClearSoulboundTradeable(player);
-            transmogrified.SetState(ItemUpdateState.Changed, player);
+            transmogrified.SetNotRefundable(_session.Player);
+            transmogrified.ClearSoulboundTradeable(_session.Player);
+            transmogrified.SetState(ItemUpdateState.Changed, _session.Player);
         }
 
         foreach (var item in resetAppearanceItems)
@@ -316,13 +272,13 @@ public class TransmogrificationHandler : IWorldSessionHandler
                 if (item.GetModifier(ItemModifier.TransmogSecondaryAppearanceSpec4) == 0)
                     item.SetModifier(ItemModifier.TransmogSecondaryAppearanceSpec4, item.GetModifier(ItemModifier.TransmogSecondaryAppearanceAllSpecs));
 
-                item.SetModifier(ItemConst.AppearanceModifierSlotBySpec[player.GetActiveTalentGroup()], 0);
-                item.SetModifier(ItemConst.SecondaryAppearanceModifierSlotBySpec[player.GetActiveTalentGroup()], 0);
+                item.SetModifier(ItemConst.AppearanceModifierSlotBySpec[_session.Player.GetActiveTalentGroup()], 0);
+                item.SetModifier(ItemConst.SecondaryAppearanceModifierSlotBySpec[_session.Player.GetActiveTalentGroup()], 0);
                 item.SetModifier(ItemModifier.EnchantIllusionAllSpecs, 0);
             }
 
-            item.SetState(ItemUpdateState.Changed, player);
-            player.SetVisibleItemSlot(item.Slot, item);
+            item.SetState(ItemUpdateState.Changed, _session.Player);
+            _session.Player.SetVisibleItemSlot(item.Slot, item);
         }
 
         foreach (var item in resetIllusionItems)
@@ -349,29 +305,85 @@ public class TransmogrificationHandler : IWorldSessionHandler
                 if (item.GetModifier(ItemModifier.EnchantIllusionSpec4) == 0)
                     item.SetModifier(ItemModifier.EnchantIllusionSpec4, item.GetModifier(ItemModifier.EnchantIllusionAllSpecs));
 
-                item.SetModifier(ItemConst.IllusionModifierSlotBySpec[player.GetActiveTalentGroup()], 0);
+                item.SetModifier(ItemConst.IllusionModifierSlotBySpec[_session.Player.GetActiveTalentGroup()], 0);
                 item.SetModifier(ItemModifier.TransmogAppearanceAllSpecs, 0);
             }
 
-            item.SetState(ItemUpdateState.Changed, player);
-            player.SetVisibleItemSlot(item.Slot, item);
+            item.SetState(ItemUpdateState.Changed, _session.Player);
+            _session.Player.SetVisibleItemSlot(item.Slot, item);
         }
 
         foreach (var itemModifedAppearanceId in bindAppearances)
         {
-            var itemsProvidingAppearance = CollectionMgr.GetItemsProvidingTemporaryAppearance(itemModifedAppearanceId);
+            var itemsProvidingAppearance = _collectionMgr.GetItemsProvidingTemporaryAppearance(itemModifedAppearanceId);
 
             foreach (var itemGuid in itemsProvidingAppearance)
             {
-                var item = player.GetItemByGuid(itemGuid);
+                var item = _session.Player.GetItemByGuid(itemGuid);
 
-                if (item)
-                {
-                    item.SetNotRefundable(player);
-                    item.ClearSoulboundTradeable(player);
-                    CollectionMgr.AddItemAppearance(item);
-                }
+                if (item == null)
+                    continue;
+
+                item.SetNotRefundable(_session.Player);
+                item.ClearSoulboundTradeable(_session.Player);
+                _collectionMgr.AddItemAppearance(item);
             }
         }
+    }
+
+    private bool ValidateAndStoreTransmogItem(Item itemTransmogrified, uint itemModifiedAppearanceId, bool isSecondary, Dictionary<Item, uint[]> transmogItems, List<uint> bindAppearances)
+    {
+        if (!_cliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var itemModifiedAppearance))
+        {
+            Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {_session.Player.GUID}, Name: {_session.Player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
+
+            return false;
+        }
+
+        if (isSecondary && itemTransmogrified.Template.InventoryType != InventoryType.Shoulders)
+        {
+            Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {_session.Player.GUID}, Name: {_session.Player.GetName()} tried to transmogrify secondary appearance to non-shoulder item.");
+
+            return false;
+        }
+
+        var (hasAppearance, isTemporary) = _collectionMgr.HasItemAppearance(itemModifiedAppearanceId);
+
+        if (!hasAppearance)
+        {
+            Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {_session.Player.GUID}, Name: {_session.Player.GetName()} tried to transmogrify using appearance he has not collected ({itemModifiedAppearanceId}).");
+
+            return false;
+        }
+
+        var itemTemplate = _gameObjectManager.GetItemTemplate(itemModifiedAppearance.ItemID);
+
+        if (_session.Player.CanUseItem(itemTemplate) != InventoryResult.Ok)
+        {
+            Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {_session.Player.GUID}, Name: {_session.Player.GetName()} tried to transmogrify using appearance he can never use ({itemModifiedAppearanceId}).");
+
+            return false;
+        }
+
+        // validity of the transmogrification items
+        if (!_session.Player.ItemFactory.CanTransmogrifyItemWithItem(itemTransmogrified, itemModifiedAppearance))
+        {
+            Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {_session.Player.GUID}, Name: {_session.Player.GetName()} failed CanTransmogrifyItemWithItem ({itemTransmogrified.Entry} with appearance {itemModifiedAppearanceId}).");
+
+            return false;
+        }
+
+        if (!transmogItems.ContainsKey(itemTransmogrified))
+            transmogItems[itemTransmogrified] = new uint[2];
+
+        if (!isSecondary)
+            transmogItems[itemTransmogrified][0] = itemModifiedAppearanceId;
+        else
+            transmogItems[itemTransmogrified][1] = itemModifiedAppearanceId;
+
+        if (isTemporary)
+            bindAppearances.Add(itemModifiedAppearanceId);
+
+        return true;
     }
 }
