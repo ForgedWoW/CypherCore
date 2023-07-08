@@ -576,4 +576,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<TransmogrificationHandler>();
     builder.RegisterType<VehicleHandler>();
     builder.RegisterType<VoidStorageHandler>();
+    builder.RegisterType<TradeHandler>();
 }
