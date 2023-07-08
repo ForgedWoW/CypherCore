@@ -3230,7 +3230,6 @@ public sealed class SpellManager
     public void LoadSpellInfoCustomAttributes()
     {
         var oldMSTime = Time.MSTime;
-        var oldMSTime2 = oldMSTime;
 
         var result = _worldDatabase.Query("SELECT entry, attributes FROM spell_custom_attr");
 
@@ -3270,7 +3269,7 @@ public sealed class SpellManager
                 ++count;
             } while (result.NextRow());
 
-            Log.Logger.Information("Loaded {0} spell custom attributes from DB in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime2));
+            Log.Logger.Information("Loaded {0} spell custom attributes from DB in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
 
         List<uint> talentSpells = new();

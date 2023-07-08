@@ -2494,9 +2494,8 @@ public class Map : IDisposable
 
                 if (replacedObject != null)
                 {
-                    var originalSmoothPhasingInfo = smoothPhasingInfo;
-                    originalSmoothPhasingInfo.ReplaceObject = summon.GUID;
-                    replacedObject.Visibility.GetOrCreateSmoothPhasing().SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
+                    smoothPhasingInfo.ReplaceObject = summon.GUID;
+                    replacedObject.Visibility.GetOrCreateSmoothPhasing().SetViewerDependentInfo(privateObjectOwner, smoothPhasingInfo);
 
                     summon.DemonCreatorGUID = privateObjectOwner;
                 }

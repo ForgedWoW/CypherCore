@@ -311,10 +311,9 @@ public class Guardian : Minion
                          */
                         var basedamage = GetBaseDamageForLevel(petlevel);
 
-                        var weaponBaseMinDamage = basedamage;
                         var weaponBaseMaxDamage = basedamage * 1.5f;
 
-                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, weaponBaseMinDamage);
+                        SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, basedamage);
                         SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, weaponBaseMaxDamage);
 
                         break;

@@ -3,4 +3,4 @@
 
 namespace Game.Common.Handlers;
 
-public interface IWorldSocketHandler { }
+public interface IWorldServiceHandler { }

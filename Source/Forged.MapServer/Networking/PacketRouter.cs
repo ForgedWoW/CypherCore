@@ -1,44 +1,41 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Concurrent;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Autofac;
 using Forged.MapServer.Server;
-using Forged.MapServer.Services;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
 
 namespace Forged.MapServer.Networking;
 
-public class PacketManager
+public class PacketRouter
 {
+    private readonly Dictionary<ClientOpcodes, PacketProcessor> _clientPacketTable = new();
     private readonly IContainer _container;
-    private readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
+    private readonly Dictionary<Type, IWorldSessionHandler> _opCodeHandler = new();
 
-    public PacketManager(IContainer container)
+    public PacketRouter(IContainer container)
     {
         _container = container;
     }
 
-    public bool ContainsHandler(ClientOpcodes opcode)
+    public bool ContainsProcessor(ClientOpcodes opcode)
     {
         return _clientPacketTable.ContainsKey(opcode);
     }
 
-    public PacketHandler GetHandler(ClientOpcodes opcode)
-    {
-        return _clientPacketTable.LookupByKey(opcode);
-    }
-
     public void Initialize(WorldSession session)
     {
-        var impl = _container.Resolve<IEnumerable<IWorldSocketHandler>>(new PositionalParameter(0, session));
+        var impl = _container.Resolve<IEnumerable<IWorldSessionHandler>>(new PositionalParameter(0, session));
 
         foreach (var worldSocketHandler in impl)
         {
+            _opCodeHandler[worldSocketHandler.GetType()] = worldSocketHandler;
+
             foreach (var methodInfo in worldSocketHandler.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
                 foreach (var msgAttr in methodInfo.GetCustomAttributes<WorldPacketHandlerAttribute>())
@@ -73,9 +70,28 @@ public class PacketManager
                         continue;
                     }
 
-                    _clientPacketTable[msgAttr.Opcode] = new PacketHandler(worldSocketHandler, session, methodInfo, msgAttr.Status, msgAttr.Processing, parameters[0].ParameterType);
+                    _clientPacketTable[msgAttr.Opcode] = new PacketProcessor(worldSocketHandler, session, methodInfo, msgAttr.Status, msgAttr.Processing, parameters[0].ParameterType);
                 }
             }
         }
+    }
+
+    public bool TryGetOpCodeHandler<T>(out T opCodeHandler) where T : IWorldSessionHandler
+    {
+        var found = _opCodeHandler.TryGetValue(typeof(T), out var handler);
+
+        if (!found)
+        {
+            opCodeHandler = default;
+            return false;
+        }
+
+        opCodeHandler = (T)handler;
+        return true;
+    }
+
+    public bool TryGetProcessor(ClientOpcodes opcode, out PacketProcessor packetProcessor)
+    {
+        return _clientPacketTable.TryGetValue(opcode, out packetProcessor);
     }
 }

@@ -9,14 +9,14 @@ using Game.Common.Handlers;
 
 namespace Forged.MapServer.Networking;
 
-public class PacketHandler
+public class PacketProcessor
 {
-    private readonly IWorldSocketHandler _handler;
+    private readonly IWorldSessionHandler _handler;
     private readonly WorldSession _session;
     private readonly MethodInfo _info;
     private readonly Type _packetType;
 
-    public PacketHandler(IWorldSocketHandler handler, WorldSession session, MethodInfo info, SessionStatus status, PacketProcessing processingplace, Type type)
+    public PacketProcessor(IWorldSessionHandler handler, WorldSession session, MethodInfo info, SessionStatus status, PacketProcessing processingplace, Type type)
     {
         SessionStatus = status;
         ProcessingPlace = processingplace;

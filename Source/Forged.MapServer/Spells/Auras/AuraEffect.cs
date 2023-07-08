@@ -391,10 +391,8 @@ public class AuraEffect
                 // Spell own damage at apply won't break CC
                 if (spellInfo != null && spellInfo == SpellInfo)
                 {
-                    var aura = Base;
-
                     // called from spellcast, should not have ticked yet
-                    if (aura.Duration == aura.MaxDuration)
+                    if (Base.Duration == Base.MaxDuration)
                         return false;
                 }
 
@@ -5732,16 +5730,14 @@ public class AuraEffect
 
         var dmgMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
 
-        var spellProto = SpellInfo;
-
         // maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
-        SpellNonMeleeDamage damageInfo = new(caster, target, spellProto, Base.SpellVisual, spellProto.SchoolMask, Base.CastId)
+        SpellNonMeleeDamage damageInfo = new(caster, target, SpellInfo, Base.SpellVisual, SpellInfo.SchoolMask, Base.CastId)
         {
             PeriodicLog = true
         };
 
         // no SpellDamageBonus for burn mana
-        caster.CalculateSpellDamageTaken(damageInfo, gain * dmgMultiplier, spellProto);
+        caster.CalculateSpellDamageTaken(damageInfo, gain * dmgMultiplier, SpellInfo);
 
         Caster.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 

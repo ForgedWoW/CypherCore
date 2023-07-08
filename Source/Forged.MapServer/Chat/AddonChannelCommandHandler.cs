@@ -83,9 +83,8 @@ internal class AddonChannelCommandHandler : CommandHandler
 
         for (lastpos = 0, pos = str.IndexOf('\n', lastpos); pos != -1; lastpos = pos + 1, pos = str.IndexOf('\n', lastpos))
         {
-            var line = msg;
-            line.Append(str, lastpos, pos - lastpos);
-            Send(line.ToString());
+            msg.Append(str, lastpos, pos - lastpos);
+            Send(msg.ToString());
         }
 
         msg.Append(str, lastpos, pos - lastpos);

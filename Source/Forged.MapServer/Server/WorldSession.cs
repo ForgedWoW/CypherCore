@@ -74,7 +74,6 @@ public class WorldSession : IDisposable
     private readonly LoginDatabase _loginDatabase;
     private readonly MapManager _mapManager;
     private readonly OutdoorPvPManager _outdoorPvPManager;
-    private readonly PacketManager _packetManager;
     private readonly AsyncCallbackProcessor<ISqlCallback> _queryHolderProcessor = new();
     private readonly Realm _realm;
     private readonly ActionBlock<WorldPacket> _recvQueue;
@@ -92,7 +91,6 @@ public class WorldSession : IDisposable
     private ConnectToKey _instanceConnectKey;
     private string _loadingPlayerInfo;
     private long _logoutTime;
-
     private string _playerInfo;
     private ObjectGuid _playerLoading;
 
@@ -103,7 +101,7 @@ public class WorldSession : IDisposable
     private uint _timeSyncNextCounter;
     private uint _timeSyncTimer;
     private TutorialsFlag _tutorialsChanged;
-    private Warden.Warden _warden; // Remains NULL if Warden system is not enabled by config
+    private Warden.Warden _warden;
 
     public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, long muteTime, string os, Locale locale, uint recruiter, bool isARecruiter, ClassFactory classFactory)
     {
@@ -124,7 +122,7 @@ public class WorldSession : IDisposable
         _cliDB = classFactory.Resolve<CliDB>();
         _mapManager = classFactory.Resolve<MapManager>();
         _db2Manager = classFactory.Resolve<DB2Manager>();
-        _packetManager = classFactory.Resolve<PacketManager>();
+        PacketRouter = classFactory.Resolve<PacketRouter>();
         _gameObjectManager = classFactory.Resolve<GameObjectManager>();
         _characterTemplateDataStorage = classFactory.Resolve<CharacterTemplateDataStorage>();
         _scriptManager = classFactory.Resolve<ScriptManager>();
@@ -161,13 +159,14 @@ public class WorldSession : IDisposable
         _loginDatabase.Execute("UPDATE account SET online = 1 WHERE id = {0};", AccountId); // One-time query
     }
 
+    // Remains NULL if Warden system is not enabled by config
     public Expansion AccountExpansion { get; }
+
     public ObjectGuid AccountGUID => ObjectGuid.Create(HighGuid.WowAccount, AccountId);
     public uint AccountId { get; }
     public string AccountName { get; }
     public ObjectGuid BattlenetAccountGUID => ObjectGuid.Create(HighGuid.BNetAccount, BattlenetAccountId);
     public uint BattlenetAccountId { get; }
-
     public BattlepayManager BattlePayMgr { get; }
 
     // Battle Pets
@@ -185,6 +184,7 @@ public class WorldSession : IDisposable
     public bool IsLogingOut => _logoutTime != 0 || PlayerLogout;
     public uint Latency { get; set; }
     public string OS { get; }
+    public PacketRouter PacketRouter { get; }
     public Player Player { get; set; }
     public bool PlayerDisconnected => Socket is not { IsOpen: true };
     public bool PlayerLoading => !_playerLoading.IsEmpty;
@@ -206,7 +206,7 @@ public class WorldSession : IDisposable
 
     public uint RecruiterId { get; }
     public string RemoteAddress { get; }
-    public AccountTypes Security { get; private set; }
+    public AccountTypes Security { get; }
     public Locale SessionDbcLocale { get; }
     public Locale SessionDbLocaleIndex { get; }
     public WorldSocket Socket { get; set; }
@@ -293,20 +293,29 @@ public class WorldSession : IDisposable
 
             if (loot.IsLooted() || go.GoType is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole)
             {
-                if (go.GoType == GameObjectTypes.FishingNode)
-                    go.SetLootState(LootState.JustDeactivated);
-                else if (go.GoType == GameObjectTypes.FishingHole)
+                switch (go.GoType)
                 {
-                    // The fishing hole used once more
-                    go.AddUse(); // if the max usage is reached, will be despawned in next tick
-
-                    if (go.UseCount >= go.GoValue.FishingHole.MaxOpens)
+                    case GameObjectTypes.FishingNode:
                         go.SetLootState(LootState.JustDeactivated);
-                    else
-                        go.SetLootState(LootState.Ready);
+
+                        break;
+                    case GameObjectTypes.FishingHole:
+                    {
+                        // The fishing hole used once more
+                        // if the max usage is reached, will be despawned in next tick
+                        go.AddUse();
+                        go.SetLootState(go.UseCount >= go.GoValue.FishingHole.MaxOpens ? LootState.JustDeactivated : LootState.Ready);
+
+                        break;
+                    }
+                    default:
+                    {
+                        if (go.GoType != GameObjectTypes.GatheringNode && go.IsFullyLooted)
+                            go.SetLootState(LootState.JustDeactivated);
+
+                        break;
+                    }
                 }
-                else if (go.GoType != GameObjectTypes.GatheringNode && go.IsFullyLooted)
-                    go.SetLootState(LootState.JustDeactivated);
 
                 go.OnLootRelease(player);
             }
@@ -511,31 +520,29 @@ public class WorldSession : IDisposable
 
     public void LoadPermissions()
     {
-        var id = AccountId;
         var secLevel = Security;
 
         Log.Logger.Debug("WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
-                         id,
+                         AccountId,
                          AccountName,
                          _realm.Id.Index,
                          secLevel);
 
-        RBACData = new RBACData(id, AccountName, (int)_realm.Id.Index, _classFactory.Resolve<AccountManager>(), _classFactory.Resolve<LoginDatabase>(), (byte)secLevel);
+        RBACData = new RBACData(AccountId, AccountName, (int)_realm.Id.Index, _classFactory.Resolve<AccountManager>(), _classFactory.Resolve<LoginDatabase>(), (byte)secLevel);
         RBACData.LoadFromDB();
     }
 
     public QueryCallback LoadPermissionsAsync()
     {
-        var id = AccountId;
         var secLevel = Security;
 
         Log.Logger.Debug("WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
-                         id,
+                         AccountId,
                          AccountName,
                          _realm.Id.Index,
                          secLevel);
 
-        RBACData = new RBACData(id, AccountName, (int)_realm.Id.Index, _classFactory.Resolve<AccountManager>(), _classFactory.Resolve<LoginDatabase>(), (byte)secLevel);
+        RBACData = new RBACData(AccountId, AccountName, (int)_realm.Id.Index, _classFactory.Resolve<AccountManager>(), _classFactory.Resolve<LoginDatabase>(), (byte)secLevel);
 
         return RBACData.LoadFromDBAsync();
     }
@@ -559,7 +566,7 @@ public class WorldSession : IDisposable
             return;
 
         // finish pending transfers before starting the logout
-        while (Player != null && Player.IsBeingTeleportedFar)
+        while (Player is { IsBeingTeleportedFar: true })
             HandleMoveWorldportAck();
 
         PlayerLogout = true;
@@ -607,12 +614,12 @@ public class WorldSession : IDisposable
             {
                 var bgQueueTypeId = Player.GetBattlegroundQueueTypeId(i);
 
-                if (bgQueueTypeId != default)
-                {
-                    Player.RemoveBattlegroundQueueId(bgQueueTypeId);
-                    var queue = _battlegroundManager.GetBattlegroundQueue(bgQueueTypeId);
-                    queue.RemovePlayer(Player.GUID, true);
-                }
+                if (bgQueueTypeId == default)
+                    continue;
+
+                Player.RemoveBattlegroundQueueId(bgQueueTypeId);
+                var queue = _battlegroundManager.GetBattlegroundQueue(bgQueueTypeId);
+                queue.RemovePlayer(Player.GUID, true);
             }
 
             // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
@@ -785,10 +792,8 @@ public class WorldSession : IDisposable
                 Time = (uint)GameTime.CurrentTime
             };
 
-            var realm = _realm;
-
             // Send current home realm. Also there is no need to send it later in realm queries.
-            response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.VirtualRealmAddress, true, false, realm.Name, realm.NormalizedName));
+            response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(_realm.Id.VirtualRealmAddress, true, false, _realm.Name, _realm.NormalizedName));
 
             if (HasPermission(RBACPermissions.UseCharacterTemplates))
                 foreach (var templ in _characterTemplateDataStorage.GetCharacterTemplates().Values)
@@ -1062,9 +1067,14 @@ public class WorldSession : IDisposable
         {
             try
             {
-                var handler = _packetManager.GetHandler((ClientOpcodes)packet.Opcode);
+                if (!PacketRouter.TryGetProcessor((ClientOpcodes)packet.Opcode, out var packetProcessor))
+                {
+                    Log.Logger.Error("Unknown opcode {0} from {1}", packet.Opcode, GetPlayerInfo());
 
-                switch (handler.SessionStatus)
+                    continue;
+                }       
+
+                switch (packetProcessor.SessionStatus)
                 {
                     case SessionStatus.Loggedin:
                         if (Player == null)
@@ -1081,25 +1091,25 @@ public class WorldSession : IDisposable
                         }
 
                         if (Player.Location.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(packet);
+                            packetProcessor.Invoke(packet);
 
                         break;
 
                     case SessionStatus.LoggedinOrRecentlyLogout:
                         if (Player == null && !PlayerRecentlyLoggedOut && !PlayerLogout)
-                            LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet and not recently logout");
+                            LogUnexpectedOpcode(packet, packetProcessor.SessionStatus, "the player has not logged in yet and not recently logout");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(packet);
+                            packetProcessor.Invoke(packet);
 
                         break;
 
                     case SessionStatus.Transfer:
                         if (Player == null)
-                            LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet");
+                            LogUnexpectedOpcode(packet, packetProcessor.SessionStatus, "the player has not logged in yet");
                         else if (Player.Location.IsInWorld)
-                            LogUnexpectedOpcode(packet, handler.SessionStatus, "the player is still in world");
+                            LogUnexpectedOpcode(packet, packetProcessor.SessionStatus, "the player is still in world");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(packet);
+                            packetProcessor.Invoke(packet);
 
                         break;
 
@@ -1107,7 +1117,7 @@ public class WorldSession : IDisposable
                         // prevent cheating with skip queue wait
                         if (_inQueue)
                         {
-                            LogUnexpectedOpcode(packet, handler.SessionStatus, "the player not pass queue yet");
+                            LogUnexpectedOpcode(packet, packetProcessor.SessionStatus, "the player not pass queue yet");
 
                             break;
                         }
@@ -1116,7 +1126,7 @@ public class WorldSession : IDisposable
                             PlayerRecentlyLoggedOut = false;
 
                         if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(packet);
+                            packetProcessor.Invoke(packet);
 
                         break;
 
@@ -1208,10 +1218,11 @@ public class WorldSession : IDisposable
         player.Location.ResetMap();
         player.Location.Map = newMap;
 
-        ResumeToken resumeToken = new();
-        resumeToken.SequenceIndex = player.MovementCounter;
-        resumeToken.Reason = seamlessTeleport ? 2 : 1u;
-        SendPacket(resumeToken);
+        SendPacket(new ResumeToken()
+        {
+            SequenceIndex = player.MovementCounter,
+            Reason = seamlessTeleport ? 2 : 1u
+        });
 
         if (!seamlessTeleport)
             player.SendInitialPacketsBeforeAddToMap();
@@ -1299,10 +1310,12 @@ public class WorldSession : IDisposable
 
             if (entries.MapDifficulty.HasResetSchedule())
             {
-                RaidInstanceMessage raidInstanceMessage = new();
-                raidInstanceMessage.Type = InstanceResetWarningType.Welcome;
-                raidInstanceMessage.MapID = mapEntry.Id;
-                raidInstanceMessage.DifficultyID = newMap.DifficultyID;
+                RaidInstanceMessage raidInstanceMessage = new()
+                {
+                    Type = InstanceResetWarningType.Welcome,
+                    MapID = mapEntry.Id,
+                    DifficultyID = newMap.DifficultyID
+                };
 
                 var playerLock = _instanceLockManager.FindActiveInstanceLock(Player.GUID, entries);
 
@@ -1447,14 +1460,12 @@ public class WorldSession : IDisposable
 
     private void ProcessQueue(WorldPacket packet)
     {
-        var handler = _packetManager.GetHandler((ClientOpcodes)packet.Opcode);
-
-        if (handler == null)
+        if (!PacketRouter.TryGetProcessor((ClientOpcodes)packet.Opcode, out var packetProcessor))
             return;
 
-        if (handler.ProcessingPlace != PacketProcessing.Inplace)
+        if (packetProcessor.ProcessingPlace != PacketProcessing.Inplace)
         {
-            if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
+            if (packetProcessor.ProcessingPlace == PacketProcessing.ThreadSafe)
                 _threadSafeQueue.Enqueue(packet);
             else
                 _threadUnsafe.Enqueue(packet);

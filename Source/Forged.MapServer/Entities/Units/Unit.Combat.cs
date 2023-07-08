@@ -531,18 +531,17 @@ public partial class Unit
             if ((!IsPet && PlayerMovingMe1 == null) || IsInCombatWith(victim))
                 return victim;
 
-        var mgr = CombatManager;
         // pick arbitrary targets; our pvp combat > owner's pvp combat > our pve combat > owner's pve combat
         var owner = CharmerOrOwner;
 
-        if (mgr.HasPvPCombat())
-            return mgr.PvPCombatRefs.First().Value.GetOther(this);
+        if (CombatManager.HasPvPCombat())
+            return CombatManager.PvPCombatRefs.First().Value.GetOther(this);
 
         if (owner && owner.CombatManager.HasPvPCombat())
             return owner.CombatManager.PvPCombatRefs.First().Value.GetOther(owner);
 
-        if (mgr.HasPvECombat())
-            return mgr.PvECombatRefs.First().Value.GetOther(this);
+        if (CombatManager.HasPvECombat())
+            return CombatManager.PvECombatRefs.First().Value.GetOther(this);
 
         if (owner && owner.CombatManager.HasPvECombat())
             return owner.CombatManager.PvECombatRefs.First().Value.GetOther(owner);

@@ -49,18 +49,16 @@ public class UpdateMask
 
     public static UpdateMask operator &(UpdateMask left, UpdateMask right)
     {
-        var result = left;
-        result.And(right);
+        left.And(right);
 
-        return result;
+        return left;
     }
 
     public static UpdateMask operator |(UpdateMask left, UpdateMask right)
     {
-        var result = left;
-        result.Or(right);
+        left.Or(right);
 
-        return result;
+        return left;
     }
 
     public void And(UpdateMask right)

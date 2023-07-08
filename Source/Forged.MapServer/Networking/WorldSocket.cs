@@ -52,7 +52,7 @@ public class WorldSocket : SocketBase
     private readonly SocketBuffer _headerBuffer;
     private readonly LoginDatabase _loginDatabase;
     private readonly SocketBuffer _packetBuffer;
-    private readonly PacketManager _packetManager;
+    private readonly PacketRouter _packetRouter;
     private readonly Realm _realm;
     private readonly RealmManager _realmManager;
     private readonly object _sendlock = new();
@@ -68,11 +68,11 @@ public class WorldSocket : SocketBase
     private byte[] _sessionKey;
     private WorldSession _worldSession;
 
-    public WorldSocket(Socket socket, LoginDatabase loginDatabase, PacketManager packetManager,
+    public WorldSocket(Socket socket, LoginDatabase loginDatabase, PacketRouter packetRouter,
                        Realm realm, RealmManager realmManager, IConfiguration configuration, WorldManager worldManager, ClassFactory classFactory, PacketLog packetLog) : base(socket)
     {
         _loginDatabase = loginDatabase;
-        _packetManager = packetManager;
+        _packetRouter = packetRouter;
         _realm = realm;
         _realmManager = realmManager;
         _configuration = configuration;
@@ -595,7 +595,7 @@ public class WorldSocket : SocketBase
         // Initialize Warden system only if it is enabled by config
         //if (wardenActive)
         //_worldSession.InitWarden(_sessionKey);
-        _packetManager.Initialize(_worldSession);
+        _packetRouter.Initialize(_worldSession);
         _queryProcessor.AddCallback(_worldSession.LoadPermissionsAsync().WithCallback(LoadSessionPermissionsCallback));
         AsyncRead();
     }
@@ -896,7 +896,7 @@ public class WorldSocket : SocketBase
 
                     Log.Logger.Verbose("Received opcode: {0} ({1})", (ClientOpcodes)packet.Opcode, packet.Opcode);
 
-                    if (!_packetManager.ContainsHandler(opcode))
+                    if (!_packetRouter.ContainsProcessor(opcode))
                     {
                         Log.Logger.Error($"No defined handler for opcode {opcode} ({packet.Opcode}) sent by {_worldSession.GetPlayerInfo()}");
 

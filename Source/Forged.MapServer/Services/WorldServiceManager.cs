@@ -22,7 +22,7 @@ public class WorldServiceManager
 
     public void LoadHandlers(IContainer container, WorldSession session)
     {
-        var impl = container.Resolve<IEnumerable<IWorldSocketHandler>>(new PositionalParameter(0, session));
+        var impl = container.Resolve<IEnumerable<IWorldServiceHandler>>(new PositionalParameter(0, session));
 
         foreach (var handler in impl)
         {

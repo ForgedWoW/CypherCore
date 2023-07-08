@@ -266,9 +266,7 @@ public partial class Unit
             case DiminishingGroup.Taunt:
                 if (IsTypeId(TypeId.Unit) && AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.ObeysTauntDiminishingReturns))
                 {
-                    var diminish = previousLevel;
-
-                    switch (diminish)
+                    switch (previousLevel)
                     {
                         case DiminishingLevels.Level1:
                             break;
@@ -302,9 +300,7 @@ public partial class Unit
                     (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.Player &&
                      (targetOwner?.IsAffectedByDiminishingReturns ?? IsAffectedByDiminishingReturns)))
                 {
-                    var diminish = previousLevel;
-
-                    switch (diminish)
+                    switch (previousLevel)
                     {
                         case DiminishingLevels.Level1:
                             break;
@@ -323,9 +319,7 @@ public partial class Unit
                     (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.Player &&
                      (targetOwner?.IsAffectedByDiminishingReturns ?? IsAffectedByDiminishingReturns)))
                 {
-                    var diminish = previousLevel;
-
-                    switch (diminish)
+                    switch (previousLevel)
                     {
                         case DiminishingLevels.Level1:
                             break;

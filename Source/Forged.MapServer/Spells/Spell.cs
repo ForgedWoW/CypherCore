@@ -8733,14 +8733,13 @@ public partial class Spell : IDisposable
         if (_channelTargetEffectMask.Count == 0)
             return true;
 
-        var channelTargetEffectMask = _channelTargetEffectMask;
         var channelAuraMask = new HashSet<int>();
 
         foreach (var spellEffectInfo in SpellInfo.Effects)
             if (spellEffectInfo.IsEffectName(SpellEffectName.ApplyAura))
                 channelAuraMask.Add(spellEffectInfo.EffectIndex);
 
-        channelAuraMask.IntersectWith(channelTargetEffectMask);
+        channelAuraMask.IntersectWith(_channelTargetEffectMask);
 
         float range = 0;
 
@@ -8756,7 +8755,7 @@ public partial class Spell : IDisposable
         }
 
         foreach (var targetInfo in UniqueTargetInfo)
-            if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask.ToMask() & targetInfo.Effects.ToMask()))
+            if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(_channelTargetEffectMask.ToMask() & targetInfo.Effects.ToMask()))
             {
                 var unit = Caster.GUID == targetInfo.TargetGuid ? Caster.AsUnit : Caster.ObjectAccessor.GetUnit(Caster, targetInfo.TargetGuid);
 
@@ -8798,12 +8797,12 @@ public partial class Spell : IDisposable
                         }
                     }
 
-                    channelTargetEffectMask.ExceptWith(targetInfo.Effects); // remove from need alive mask effect that have alive target
+                    _channelTargetEffectMask.ExceptWith(targetInfo.Effects); // remove from need alive mask effect that have alive target
                 }
             }
 
         // is all effects from m_needAliveTargetMask have alive targets
-        return channelTargetEffectMask.Count == 0;
+        return _channelTargetEffectMask.Count == 0;
     }
 
     private void UpdateEmpoweredSpell(uint difftime)

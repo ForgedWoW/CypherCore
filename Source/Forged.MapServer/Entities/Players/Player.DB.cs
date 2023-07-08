@@ -665,12 +665,11 @@ public partial class Player
         SaveRecallPosition();
 
         var now = GameTime.CurrentTime;
-        var time = logoutTime;
 
-        SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LogoutTime), time);
+        SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LogoutTime), logoutTime);
 
         // since last logout (in seconds)
-        var timeDiff = (uint)(now - time);
+        var timeDiff = (uint)(now - logoutTime);
 
         // set value, including drunk invisibility detection
         // calculate sobering. after 15 minutes logged out, the player will be sober again
@@ -694,7 +693,7 @@ public partial class Player
 
         // Honor system
         // Update Honor kills data
-        _lastHonorUpdateTime = time;
+        _lastHonorUpdateTime = logoutTime;
         UpdateHonorFields();
 
         _deathExpireTime = deathExpireTime;
@@ -812,9 +811,7 @@ public partial class Player
 
         SpellHistory.LoadFromDb<Player>(holder.GetResult(PlayerLoginQueryLoad.SpellCooldowns), holder.GetResult(PlayerLoginQueryLoad.SpellCharges));
 
-        var savedHealth = health;
-
-        if (savedHealth == 0)
+        if (health == 0)
             DeathState = DeathState.Corpse;
 
         // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
@@ -829,7 +826,7 @@ public partial class Player
         UpdateAllStats();
 
         // restore remembered power/health values (but not more max values)
-        SetHealth(savedHealth > MaxHealth ? MaxHealth : savedHealth);
+        SetHealth(health > MaxHealth ? MaxHealth : health);
         var loadedPowers = 0;
 
         for (PowerType i = 0; i < PowerType.Max; ++i)

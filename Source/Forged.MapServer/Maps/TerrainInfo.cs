@@ -185,8 +185,7 @@ public class TerrainInfo
 
     public uint GetAreaId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
     {
-        var vmapZ = z;
-        var hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, out _, out var adtId, out var rootId, out var groupId, dynamicMapTree);
+        var hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, z, out _, out var adtId, out var rootId, out var groupId, dynamicMapTree);
 
         uint gridAreaId = 0;
         var gridMapHeight = MapConst.InvalidHeight;
@@ -201,7 +200,7 @@ public class TerrainInfo
         uint areaId = 0;
 
         // floor is the height we are closer to (but only if above)
-        if (hasVmapArea && MathFunctions.fuzzyGe(z, vmapZ - MapConst.GroundHeightTolerance) && (MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || vmapZ > gridMapHeight))
+        if (hasVmapArea && MathFunctions.fuzzyGe(z, z - MapConst.GroundHeightTolerance) && (MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || z > gridMapHeight))
         {
             // wmo found
             var wmoEntry = Global.DB2Mgr.GetWMOAreaTable(rootId, adtId, groupId);

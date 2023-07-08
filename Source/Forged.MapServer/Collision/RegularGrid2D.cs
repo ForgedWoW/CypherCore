@@ -103,7 +103,6 @@ public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, n
             return;
         }
 
-        var voxel = CELL_SIZE;
         float kxInv = ray.invDirection().X, bx = ray.Origin.X;
         float kyInv = ray.invDirection().Y, by = ray.Origin.Y;
 
@@ -113,31 +112,31 @@ public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, n
         if (kxInv >= 0)
         {
             stepX = 1;
-            var xBorder = (cell.X + 1) * voxel;
+            var xBorder = (cell.X + 1) * CELL_SIZE;
             tMaxX = (xBorder - bx) * kxInv;
         }
         else
         {
             stepX = -1;
-            var xBorder = (cell.X - 1) * voxel;
+            var xBorder = (cell.X - 1) * CELL_SIZE;
             tMaxX = (xBorder - bx) * kxInv;
         }
 
         if (kyInv >= 0)
         {
             stepY = 1;
-            var yBorder = (cell.Y + 1) * voxel;
+            var yBorder = (cell.Y + 1) * CELL_SIZE;
             tMaxY = (yBorder - by) * kyInv;
         }
         else
         {
             stepY = -1;
-            var yBorder = (cell.Y - 1) * voxel;
+            var yBorder = (cell.Y - 1) * CELL_SIZE;
             tMaxY = (yBorder - by) * kyInv;
         }
 
-        var tDeltaX = voxel * Math.Abs(kxInv);
-        var tDeltaY = voxel * Math.Abs(kyInv);
+        var tDeltaX = CELL_SIZE * Math.Abs(kxInv);
+        var tDeltaY = CELL_SIZE * Math.Abs(kyInv);
 
         do
         {

@@ -18,7 +18,7 @@ using Serilog;
 
 namespace Forged.MapServer.Services;
 
-public class WorldService : IWorldSocketHandler
+public class WorldService : IWorldServiceHandler
 {
     private readonly RealmManager _realmManager;
     private readonly WorldSession _session;
@@ -53,10 +53,8 @@ public class WorldService : IWorldSocketHandler
             return pos != -1 ? str[..pos] : str;
         }
 
-        for (var i = 0; i < request.Attribute.Count; ++i)
+        foreach (var attr in request.Attribute)
         {
-            var attr = request.Attribute[i];
-
             if (attr.Name.Contains("Command_"))
             {
                 command = attr;

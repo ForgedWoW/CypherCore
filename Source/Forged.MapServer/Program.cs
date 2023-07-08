@@ -142,7 +142,7 @@ void RegisterServerTypes()
     RegisterManagers();
     RegisterFactories();
     RegisterInstanced();
-    RegisterHandlers();
+    RegisterOpCodeHandlers();
 }
 
 void RegisterManagers()
@@ -476,7 +476,6 @@ void RegisterInstanced()
     builder.RegisterType<CinematicManager>();
     builder.RegisterType<ReputationMgr>();
     builder.RegisterType<SceneMgr>();
-    builder.RegisterType<WorldServiceManager>();
     builder.RegisterType<AreaTrigger>();
     builder.RegisterType<QuestMenu>();
     builder.RegisterType<GameObject>();
@@ -541,10 +540,10 @@ void RegisterInstanced()
     builder.RegisterType<ArenaTeam>();
     builder.RegisterType<CriteriaDataSet>();
     builder.RegisterType<Weather>();
-    builder.RegisterType<PacketManager>();
+    builder.RegisterType<PacketRouter>();
 }
 
-void RegisterHandlers()
+void RegisterOpCodeHandlers()
 {
     builder.RegisterType<WorldServiceManager>();
     builder.RegisterType<BattlepayHandler>();

@@ -344,9 +344,8 @@ public class BIH
             Hi = _bounds.Hi
         };
 
-        var nodeBox = gridBox;
         // seed subdivide function
-        Subdivide(0, (int)(dat.NumPrims - 1), tempTree, dat, gridBox, nodeBox, 0, 1, stats);
+        Subdivide(0, (int)(dat.NumPrims - 1), tempTree, dat, gridBox, gridBox, 0, 1, stats);
     }
 
     private void CreateNode(List<uint> tempTree, int nodeIndex, int left, int right)

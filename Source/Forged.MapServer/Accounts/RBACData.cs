@@ -299,9 +299,8 @@ public class RBACData
         // Get the list of granted permissions
         Permissions = GrantedPermissions;
         ExpandPermissions(Permissions);
-        var revoked = DeniedPermissions;
-        ExpandPermissions(revoked);
-        RemovePermissions(Permissions, revoked);
+        ExpandPermissions(DeniedPermissions);
+        RemovePermissions(Permissions, DeniedPermissions);
     }
 
     private void ClearData()

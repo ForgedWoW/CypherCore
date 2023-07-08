@@ -508,13 +508,12 @@ public class LFGQueue
             }
 
             StringBuilder o;
-            var debugRoles = proposalRoles;
 
             if (!Global.LFGMgr.CheckGroupRoles(proposalRoles))
             {
                 o = new StringBuilder();
 
-                foreach (var it in debugRoles)
+                foreach (var it in proposalRoles)
                     o.Append($", {it.Key}: {GetRolesString(it.Value)}");
 
                 Log.Logger.Debug("CheckCompatibility: ({0}) Roles not compatible{1}", strGuids, o.ToString());
