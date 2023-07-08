@@ -260,7 +260,7 @@ public partial class Unit
             }
             else
             {
-                var auraEffect = meleeAttackOverrides.Find(aurEff => { return aurEff.GetSpellEffectInfo().MiscValue != 0; });
+                var auraEffect = meleeAttackOverrides.Find(aurEff => aurEff.GetSpellEffectInfo().MiscValue != 0);
 
                 if (auraEffect != null)
                 {
@@ -352,7 +352,7 @@ public partial class Unit
         var myPlayerOwner = CharmerOrOwnerPlayerOrPlayerItself;
         var targetPlayerOwner = target.CharmerOrOwnerPlayerOrPlayerItself;
 
-        if (!myPlayerOwner || !targetPlayerOwner || myPlayerOwner.Duel != null && myPlayerOwner.Duel.Opponent == targetPlayerOwner)
+        if (myPlayerOwner == null || targetPlayerOwner == null || myPlayerOwner.Duel != null && myPlayerOwner.Duel.Opponent == targetPlayerOwner)
             return;
 
         myPlayerOwner.UpdatePvP(true);
@@ -493,7 +493,7 @@ public partial class Unit
 
         var weapon = AsPlayer.GetWeaponForAttack(attType, true);
 
-        if (!weapon)
+        if (weapon == null)
             return 2.0f;
 
         if (!normalized)
@@ -537,13 +537,13 @@ public partial class Unit
         if (CombatManager.HasPvPCombat())
             return CombatManager.PvPCombatRefs.First().Value.GetOther(this);
 
-        if (owner && owner.CombatManager.HasPvPCombat())
+        if (owner != null && owner.CombatManager.HasPvPCombat())
             return owner.CombatManager.PvPCombatRefs.First().Value.GetOther(owner);
 
         if (CombatManager.HasPvECombat())
             return CombatManager.PvECombatRefs.First().Value.GetOther(this);
 
-        if (owner && owner.CombatManager.HasPvECombat())
+        if (owner != null && owner.CombatManager.HasPvECombat())
             return owner.CombatManager.PvECombatRefs.First().Value.GetOther(owner);
 
         return null;
@@ -695,7 +695,7 @@ public partial class Unit
 
     public bool IsWithinMeleeRangeAt(Position pos, Unit obj)
     {
-        if (!obj || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
+        if (obj == null || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
             return false;
 
         var dx = pos.X - obj.Location.X;
