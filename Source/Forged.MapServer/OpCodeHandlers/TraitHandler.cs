@@ -2,20 +2,40 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Forged.MapServer.DataStorage;
-using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Trait;
+using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Game.Common.Handlers;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class TraitHandler : IWorldSessionHandler
 {
+    private readonly WorldSession _session;
+    private readonly DB6Storage<TraitDefinitionRecord> _traitDefinitionRecords;
+    private readonly TraitMgr _traitMgr;
+    private readonly DB6Storage<TraitNodeEntryRecord> _traitNodeEntryRecords;
+    private readonly DB6Storage<TraitNodeRecord> _traitNodeRecords;
+    private readonly DB6Storage<TraitTreeRecord> _traitTreeRecords;
+
+    public TraitHandler(WorldSession session, TraitMgr traitMgr, DB6Storage<TraitNodeEntryRecord> traitNodeEntryRecords, DB6Storage<TraitNodeRecord> traitNodeRecords,
+                        DB6Storage<TraitTreeRecord> traitTreeRecords, DB6Storage<TraitDefinitionRecord> traitDefinitionRecords)
+    {
+        _session = session;
+        _traitMgr = traitMgr;
+        _traitNodeEntryRecords = traitNodeEntryRecords;
+        _traitNodeRecords = traitNodeRecords;
+        _traitTreeRecords = traitTreeRecords;
+        _traitDefinitionRecords = traitDefinitionRecords;
+    }
+
     [WorldPacketHandler(ClientOpcodes.ClassTalentsDeleteConfig)]
     private void HandleClassTalentsDeleteConfig(ClassTalentsDeleteConfig classTalentsDeleteConfig)
     {
@@ -37,27 +57,31 @@ public class TraitHandler : IWorldSessionHandler
         if ((classTalentsRequestNewConfig.Config.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != (int)TraitCombatConfigFlags.None)
             return;
 
-        long configCount = Enumerable.Count<TraitConfig>(_session.Player.ActivePlayerData.TraitConfigs.Values, traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
+        long configCount = _session.Player.ActivePlayerData.TraitConfigs.Values.Count(traitConfig => (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat &&
+                                                                                                     ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None);
 
         if (configCount >= TraitMgr.MAX_COMBAT_TRAIT_CONFIGS)
             return;
 
-        int findFreeLocalIdentifier()
+        int FindFreeLocalIdentifier()
         {
             var index = 1;
 
-            while (_session.Player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _session.Player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == index; }) >= 0)
+            while (_session.Player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat &&
+                                                                                            traitConfig.ChrSpecializationID == _session.Player.GetPrimarySpecialization() &&
+                                                                                            traitConfig.LocalIdentifier == index) >= 0)
                 ++index;
 
             return index;
         }
 
         classTalentsRequestNewConfig.Config.ChrSpecializationID = (int)_session.Player.GetPrimarySpecialization();
-        classTalentsRequestNewConfig.Config.LocalIdentifier = findFreeLocalIdentifier();
+        classTalentsRequestNewConfig.Config.LocalIdentifier = FindFreeLocalIdentifier();
 
-        foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _session.Player))
+        foreach (var grantedEntry in _traitMgr.GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _session.Player))
         {
-            if (!classTalentsRequestNewConfig.Config.Entries.LookupByKey(grantedEntry.TraitNodeID)?.TryGetValue(grantedEntry.TraitNodeEntryID, out var newEntry))
+            if (!classTalentsRequestNewConfig.Config.Entries.TryGetValue(grantedEntry.TraitNodeID, out var traitEntryPackets) ||
+                !traitEntryPackets.TryGetValue(grantedEntry.TraitNodeEntryID, out var newEntry))
             {
                 newEntry = new TraitEntryPacket();
                 classTalentsRequestNewConfig.Config.AddEntry(newEntry);
@@ -68,12 +92,12 @@ public class TraitHandler : IWorldSessionHandler
             newEntry.Rank = grantedEntry.Rank;
             newEntry.GrantedRanks = grantedEntry.GrantedRanks;
 
-            if (CliDB.TraitNodeEntryStorage.TryGetValue(grantedEntry.TraitNodeEntryID, out var traitNodeEntry))
-                if (newEntry.Rank + newEntry.GrantedRanks > traitNodeEntry.MaxRanks)
-                    newEntry.Rank = Math.Max(0, traitNodeEntry.MaxRanks - newEntry.GrantedRanks);
+            if (_traitNodeEntryRecords.TryGetValue((uint)grantedEntry.TraitNodeEntryID, out var traitNodeEntry) &&
+                newEntry.Rank + newEntry.GrantedRanks > traitNodeEntry.MaxRanks)
+                newEntry.Rank = Math.Max(0, traitNodeEntry.MaxRanks - newEntry.GrantedRanks);
         }
 
-        var validationResult = TraitMgr.ValidateConfig(classTalentsRequestNewConfig.Config, _session.Player);
+        var validationResult = _traitMgr.ValidateConfig(classTalentsRequestNewConfig.Config, _session.Player);
 
         if (validationResult != TalentLearnResult.LearnOk)
             return;
@@ -101,10 +125,10 @@ public class TraitHandler : IWorldSessionHandler
 
             var freeLocalIdentifier = 1;
 
-            while (_session.Player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _session.Player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == freeLocalIdentifier; }) >= 0)
+            while (_session.Player.ActivePlayerData.TraitConfigs.FindIndexIf(tCfg => (TraitConfigType)(int)tCfg.Type == TraitConfigType.Combat && tCfg.ChrSpecializationID == _session.Player.GetPrimarySpecialization() && tCfg.LocalIdentifier == freeLocalIdentifier) >= 0)
                 ++freeLocalIdentifier;
 
-            TraitMgr.InitializeStarterBuildTraitConfig(newConfigState, _session.Player);
+            _traitMgr.InitializeStarterBuildTraitConfig(newConfigState, _session.Player);
             newConfigState.CombatConfigFlags |= TraitCombatConfigFlags.StarterBuild;
             newConfigState.LocalIdentifier = freeLocalIdentifier;
 
@@ -130,21 +154,21 @@ public class TraitHandler : IWorldSessionHandler
 
         if (existingConfig == null)
         {
-            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+            _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
             return;
         }
 
         if (_session.Player.IsInCombat)
         {
-            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedAffectingCombat));
+            _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedAffectingCombat));
 
             return;
         }
 
-        if (_session.Player.Battleground && _session.Player.Battleground.GetStatus() == BattlegroundStatus.InProgress)
+        if (_session.Player.Battleground is { Status: BattlegroundStatus.InProgress })
         {
-            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.InPvpMatch));
+            _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.InPvpMatch));
 
             return;
         }
@@ -155,7 +179,8 @@ public class TraitHandler : IWorldSessionHandler
         foreach (var kvp in traitsCommitConfig.Config.Entries.Values)
             foreach (var newEntry in kvp.Values)
             {
-                if (!newConfigState.Entries.LookupByKey(newEntry.TraitNodeID)?.TryGetValue(newEntry.TraitNodeEntryID, out var traitEntry))
+                if (!newConfigState.Entries.TryGetValue(newEntry.TraitNodeID, out var traitEntryPackets) ||
+                    !traitEntryPackets.TryGetValue(newEntry.TraitNodeEntryID, out var traitEntry))
                 {
                     newConfigState.AddEntry(newEntry);
 
@@ -164,51 +189,51 @@ public class TraitHandler : IWorldSessionHandler
 
                 if (traitEntry.Rank > newEntry.Rank)
                 {
-                    if (!CliDB.TraitNodeStorage.TryGetValue(newEntry.TraitNodeID, out var traitNode))
+                    if (!_traitNodeRecords.TryGetValue((uint)newEntry.TraitNodeID, out var traitNode))
                     {
-                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                        _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
                         return;
                     }
 
-                    if (!CliDB.TraitTreeStorage.TryGetValue(traitNode.TraitTreeID, out var traitTree))
+                    if (!_traitTreeRecords.TryGetValue((uint)traitNode.TraitTreeID, out var traitTree))
                     {
-                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                        _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
                         return;
                     }
 
                     if (traitTree.GetFlags().HasFlag(TraitTreeFlag.CannotRefund))
                     {
-                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedCantRemoveTalent));
+                        _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedCantRemoveTalent));
 
                         return;
                     }
 
-                    if (!CliDB.TraitNodeEntryStorage.TryGetValue(newEntry.TraitNodeEntryID, out var traitNodeEntry))
+                    if (!_traitNodeEntryRecords.TryGetValue((uint)newEntry.TraitNodeEntryID, out var traitNodeEntry))
                     {
-                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                        _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
                         return;
                     }
 
-                    if (!CliDB.TraitDefinitionStorage.TryGetValue(traitNodeEntry.TraitDefinitionID, out var traitDefinition))
+                    if (!_traitDefinitionRecords.TryGetValue((uint)traitNodeEntry.TraitDefinitionID, out var traitDefinition))
                     {
-                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                        _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
                         return;
                     }
 
                     if (traitDefinition.SpellID != 0 && _session.Player.SpellHistory.HasCooldown(traitDefinition.SpellID))
                     {
-                        SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.SpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
+                        _session.SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.SpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
 
                         return;
                     }
 
                     if (traitDefinition.VisibleSpellID != 0 && _session.Player.SpellHistory.HasCooldown(traitDefinition.VisibleSpellID))
                     {
-                        SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.VisibleSpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
+                        _session.SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.VisibleSpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
 
                         return;
                     }
@@ -222,11 +247,11 @@ public class TraitHandler : IWorldSessionHandler
                     newConfigState.Entries.Remove(traitEntry.TraitNodeID);
             }
 
-        var validationResult = TraitMgr.ValidateConfig(newConfigState, _session.Player, true);
+        var validationResult = _traitMgr.ValidateConfig(newConfigState, _session.Player, true);
 
         if (validationResult != TalentLearnResult.LearnOk)
         {
-            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)validationResult));
+            _session.SendPacket(new TraitConfigCommitFailed(configId, 0, (int)validationResult));
 
             return;
         }

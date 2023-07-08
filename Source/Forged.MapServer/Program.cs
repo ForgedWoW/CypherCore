@@ -577,4 +577,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<VehicleHandler>();
     builder.RegisterType<VoidStorageHandler>();
     builder.RegisterType<TradeHandler>();
+    builder.RegisterType<TraitHandler>();
 }
