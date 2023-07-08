@@ -22,16 +22,18 @@ public class AreaTriggerDataStorage
     private readonly Dictionary<ulong, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId = new();
     private readonly Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
     private readonly CliDB _cliDB;
+    private readonly GridDefines _gridDefines;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB)
+    public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB, GridDefines gridDefines)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _configuration = configuration;
         _cliDB = cliDB;
+        _gridDefines = gridDefines;
     }
 
     public AreaTriggerCreateProperties GetAreaTriggerCreateProperties(uint spellMiscValue)
@@ -86,7 +88,7 @@ public class AreaTriggerDataStorage
                     continue;
                 }
 
-                if (!GridDefines.IsValidMapCoord(location))
+                if (!_gridDefines.IsValidMapCoord(location))
                 {
                     Log.Logger.Error($"Table `areatrigger` has listed an invalid position: SpawnId: {spawnId}, MapId: {location.MapId}, Position: {location}");
 
@@ -125,7 +127,7 @@ public class AreaTriggerDataStorage
                 spawn.SpawnGroupData = _objectManager.GetLegacySpawnGroup();
 
                 // Add the trigger to a map::cell map, which is later used by GridLoader to query
-                var cellCoord = GridDefines.ComputeCellCoord(spawn.SpawnPoint.X, spawn.SpawnPoint.Y);
+                var cellCoord = _gridDefines.ComputeCellCoord(spawn.SpawnPoint.X, spawn.SpawnPoint.Y);
 
                 if (!_areaTriggerSpawnsByLocation.TryGetValue((spawn.MapId, cellCoord.GetId()), out var val))
                 {
