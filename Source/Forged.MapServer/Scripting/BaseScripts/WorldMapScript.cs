@@ -2,18 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Maps;
+using Forged.MapServer.Scripting.Interfaces;
 using Serilog;
 
 namespace Forged.MapServer.Scripting.BaseScripts;
 
-public class WorldMapScript : MapScript<Map>
+public class WorldMapScript : MapScript<Map>, IScriptAutoAdd
 {
     public WorldMapScript(string name, uint mapId) : base(name, mapId)
     {
         if (GetEntry() != null &&
             !GetEntry().IsWorldMap())
             Log.Logger.Error("WorldMapScript for map {0} is invalid.", mapId);
-
-        ScriptManager.AddScript(this);
     }
 }

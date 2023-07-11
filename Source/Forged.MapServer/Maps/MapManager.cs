@@ -12,6 +12,7 @@ using Forged.MapServer.Garrisons;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -27,6 +28,7 @@ public class MapManager
 {
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
+    private readonly ScriptManager _scriptManager;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
@@ -42,7 +44,7 @@ public class MapManager
     private uint _scheduledScripts;
 
     public MapManager(IConfiguration configuration, CliDB cliDB, InstanceLockManager instanceLockManager, DB2Manager db2Manager,
-                      CharacterDatabase characterDatabase, ScenarioManager scenarioManager, ClassFactory classFactory)
+                      CharacterDatabase characterDatabase, ScenarioManager scenarioManager, ClassFactory classFactory, ScriptManager scriptManager)
     {
         _configuration = configuration;
         _cliDB = cliDB;
@@ -51,6 +53,7 @@ public class MapManager
         _characterDatabase = characterDatabase;
         _scenarioManager = scenarioManager;
         _classFactory = classFactory;
+        _scriptManager = scriptManager;
         _gridCleanUpDelay = (uint)configuration.GetDefaultValue("GridCleanUpDelay", 5 * Time.MINUTE * Time.IN_MILLISECONDS);
         _timer.Interval = configuration.GetDefaultValue("MapUpdateInterval", 10);
         var numThreads = configuration.GetDefaultValue("MapUpdate:Threads", 10);
@@ -325,7 +328,7 @@ public class MapManager
     {
         foreach (var (_, mapEntry) in _cliDB.MapStorage)
             if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
-                _ = new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
+                _scriptManager.AddScript(new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id));
     }
 
     public void InitializeVisibilityDistanceInfo()

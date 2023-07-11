@@ -531,370 +531,370 @@ public class CliDB
 
     #region Main Collections
 
-    public DB6Storage<AchievementRecord> AchievementStorage;
-    public DB6Storage<AchievementCategoryRecord> AchievementCategoryStorage;
-    public DB6Storage<AdventureJournalRecord> AdventureJournalStorage;
-    public DB6Storage<AdventureMapPOIRecord> AdventureMapPOIStorage;
-    public DB6Storage<AnimationDataRecord> AnimationDataStorage;
-    public DB6Storage<AnimKitRecord> AnimKitStorage;
-    public DB6Storage<AreaGroupMemberRecord> AreaGroupMemberStorage;
-    public DB6Storage<AreaTableRecord> AreaTableStorage;
-    public DB6Storage<AreaPOIRecord> AreaPOIStorage;
-    public DB6Storage<AreaPOIStateRecord> AreaPOIStateStorage;
-    public DB6Storage<AreaTriggerRecord> AreaTriggerStorage;
-    public DB6Storage<ArmorLocationRecord> ArmorLocationStorage;
-    public DB6Storage<ArtifactRecord> ArtifactStorage;
-    public DB6Storage<ArtifactAppearanceRecord> ArtifactAppearanceStorage;
-    public DB6Storage<ArtifactAppearanceSetRecord> ArtifactAppearanceSetStorage;
-    public DB6Storage<ArtifactCategoryRecord> ArtifactCategoryStorage;
-    public DB6Storage<ArtifactPowerRecord> ArtifactPowerStorage;
-    public DB6Storage<ArtifactPowerLinkRecord> ArtifactPowerLinkStorage;
-    public DB6Storage<ArtifactPowerPickerRecord> ArtifactPowerPickerStorage;
-    public DB6Storage<ArtifactPowerRankRecord> ArtifactPowerRankStorage;
-    public DB6Storage<ArtifactQuestXPRecord> ArtifactQuestXPStorage;
-    public DB6Storage<ArtifactTierRecord> ArtifactTierStorage;
-    public DB6Storage<ArtifactUnlockRecord> ArtifactUnlockStorage;
-    public DB6Storage<AuctionHouseRecord> AuctionHouseStorage;
-    public DB6Storage<AzeriteEmpoweredItemRecord> AzeriteEmpoweredItemStorage;
-    public DB6Storage<AzeriteEssenceRecord> AzeriteEssenceStorage;
-    public DB6Storage<AzeriteEssencePowerRecord> AzeriteEssencePowerStorage;
-    public DB6Storage<AzeriteItemRecord> AzeriteItemStorage;
-    public DB6Storage<AzeriteItemMilestonePowerRecord> AzeriteItemMilestonePowerStorage;
-    public DB6Storage<AzeriteKnowledgeMultiplierRecord> AzeriteKnowledgeMultiplierStorage;
-    public DB6Storage<AzeriteLevelInfoRecord> AzeriteLevelInfoStorage;
-    public DB6Storage<AzeritePowerRecord> AzeritePowerStorage;
-    public DB6Storage<AzeritePowerSetMemberRecord> AzeritePowerSetMemberStorage;
-    public DB6Storage<AzeriteTierUnlockRecord> AzeriteTierUnlockStorage;
-    public DB6Storage<AzeriteTierUnlockSetRecord> AzeriteTierUnlockSetStorage;
-    public DB6Storage<AzeriteUnlockMappingRecord> AzeriteUnlockMappingStorage;
-    public DB6Storage<BankBagSlotPricesRecord> BankBagSlotPricesStorage;
-    public DB6Storage<BannedAddonsRecord> BannedAddOnsStorage;
-    public DB6Storage<BarberShopStyleRecord> BarberShopStyleStorage;
-    public DB6Storage<BattlePetBreedQualityRecord> BattlePetBreedQualityStorage;
-    public DB6Storage<BattlePetBreedStateRecord> BattlePetBreedStateStorage;
-    public DB6Storage<BattlePetSpeciesRecord> BattlePetSpeciesStorage;
-    public DB6Storage<BattlePetSpeciesStateRecord> BattlePetSpeciesStateStorage;
-    public DB6Storage<BattlemasterListRecord> BattlemasterListStorage;
-    public DB6Storage<BroadcastTextRecord> BroadcastTextStorage;
-    public DB6Storage<BroadcastTextDurationRecord> BroadcastTextDurationStorage;
-    public DB6Storage<Cfg_RegionsRecord> CfgRegionsStorage;
-    public DB6Storage<CharTitlesRecord> CharTitlesStorage;
-    public DB6Storage<CharacterLoadoutRecord> CharacterLoadoutStorage;
-    public DB6Storage<CharacterLoadoutItemRecord> CharacterLoadoutItemStorage;
-    public DB6Storage<ChatChannelsRecord> ChatChannelsStorage;
-    public DB6Storage<ChrClassUIDisplayRecord> ChrClassUIDisplayStorage;
-    public DB6Storage<ChrClassesRecord> ChrClassesStorage;
-    public DB6Storage<ChrClassesXPowerTypesRecord> ChrClassesXPowerTypesStorage;
-    public DB6Storage<ChrCustomizationChoiceRecord> ChrCustomizationChoiceStorage;
-    public DB6Storage<ChrCustomizationDisplayInfoRecord> ChrCustomizationDisplayInfoStorage;
-    public DB6Storage<ChrCustomizationElementRecord> ChrCustomizationElementStorage;
-    public DB6Storage<ChrCustomizationReqRecord> ChrCustomizationReqStorage;
-    public DB6Storage<ChrCustomizationReqChoiceRecord> ChrCustomizationReqChoiceStorage;
-    public DB6Storage<ChrModelRecord> ChrModelStorage;
-    public DB6Storage<ChrRaceXChrModelRecord> ChrRaceXChrModelStorage;
-    public DB6Storage<ChrCustomizationOptionRecord> ChrCustomizationOptionStorage;
-    public DB6Storage<ChrRacesRecord> ChrRacesStorage;
-    public DB6Storage<ChrSpecializationRecord> ChrSpecializationStorage;
-    public DB6Storage<CinematicCameraRecord> CinematicCameraStorage;
-    public DB6Storage<CinematicSequencesRecord> CinematicSequencesStorage;
-    public DB6Storage<ContentTuningRecord> ContentTuningStorage;
-    public DB6Storage<ContentTuningXExpectedRecord> ContentTuningXExpectedStorage;
-    public DB6Storage<ConversationLineRecord> ConversationLineStorage;
-    public DB6Storage<CorruptionEffectsRecord> CorruptionEffectsStorage;
-    public DB6Storage<CreatureDisplayInfoRecord> CreatureDisplayInfoStorage;
-    public DB6Storage<CreatureDisplayInfoExtraRecord> CreatureDisplayInfoExtraStorage;
-    public DB6Storage<CreatureFamilyRecord> CreatureFamilyStorage;
-    public DB6Storage<CreatureModelDataRecord> CreatureModelDataStorage;
-    public DB6Storage<CreatureTypeRecord> CreatureTypeStorage;
-    public DB6Storage<CriteriaRecord> CriteriaStorage;
-    public DB6Storage<CriteriaTreeRecord> CriteriaTreeStorage;
-    public DB6Storage<CurrencyContainerRecord> CurrencyContainerStorage;
-    public DB6Storage<CurrencyTypesRecord> CurrencyTypesStorage;
-    public DB6Storage<CurveRecord> CurveStorage;
-    public DB6Storage<CurvePointRecord> CurvePointStorage;
-    public DB6Storage<DestructibleModelDataRecord> DestructibleModelDataStorage;
-    public DB6Storage<DifficultyRecord> DifficultyStorage;
-    public DB6Storage<DungeonEncounterRecord> DungeonEncounterStorage;
-    public DB6Storage<DurabilityCostsRecord> DurabilityCostsStorage;
-    public DB6Storage<DurabilityQualityRecord> DurabilityQualityStorage;
-    public DB6Storage<EmotesRecord> EmotesStorage;
-    public DB6Storage<EmotesTextRecord> EmotesTextStorage;
-    public DB6Storage<EmotesTextSoundRecord> EmotesTextSoundStorage;
-    public DB6Storage<ExpectedStatRecord> ExpectedStatStorage;
-    public DB6Storage<ExpectedStatModRecord> ExpectedStatModStorage;
-    public DB6Storage<FactionRecord> FactionStorage;
-    public DB6Storage<FactionTemplateRecord> FactionTemplateStorage;
-    public DB6Storage<FriendshipRepReactionRecord> FriendshipRepReactionStorage;
-    public DB6Storage<FriendshipReputationRecord> FriendshipReputationStorage;
-    public DB6Storage<GameObjectArtKitRecord> GameObjectArtKitStorage;
-    public DB6Storage<GameObjectDisplayInfoRecord> GameObjectDisplayInfoStorage;
-    public DB6Storage<GameObjectsRecord> GameObjectsStorage;
-    public DB6Storage<GarrAbilityRecord> GarrAbilityStorage;
-    public DB6Storage<GarrBuildingRecord> GarrBuildingStorage;
-    public DB6Storage<GarrBuildingPlotInstRecord> GarrBuildingPlotInstStorage;
-    public DB6Storage<GarrClassSpecRecord> GarrClassSpecStorage;
-    public DB6Storage<GarrFollowerRecord> GarrFollowerStorage;
-    public DB6Storage<GarrFollowerXAbilityRecord> GarrFollowerXAbilityStorage;
-    public DB6Storage<GarrMissionRecord> GarrMissionStorage;
-    public DB6Storage<GarrPlotBuildingRecord> GarrPlotBuildingStorage;
-    public DB6Storage<GarrPlotRecord> GarrPlotStorage;
-    public DB6Storage<GarrPlotInstanceRecord> GarrPlotInstanceStorage;
-    public DB6Storage<GarrSiteLevelRecord> GarrSiteLevelStorage;
-    public DB6Storage<GarrSiteLevelPlotInstRecord> GarrSiteLevelPlotInstStorage;
-    public DB6Storage<GarrTalentTreeRecord> GarrTalentTreeStorage;
-    public DB6Storage<GemPropertiesRecord> GemPropertiesStorage;
-    public DB6Storage<GlobalCurveRecord> GlobalCurveStorage;
-    public DB6Storage<GlyphBindableSpellRecord> GlyphBindableSpellStorage;
-    public DB6Storage<GlyphPropertiesRecord> GlyphPropertiesStorage;
-    public DB6Storage<GlyphRequiredSpecRecord> GlyphRequiredSpecStorage;
-    public DB6Storage<GossipNPCOptionRecord> GossipNPCOptionStorage;
-    public DB6Storage<GuildColorBackgroundRecord> GuildColorBackgroundStorage;
-    public DB6Storage<GuildColorBorderRecord> GuildColorBorderStorage;
-    public DB6Storage<GuildColorEmblemRecord> GuildColorEmblemStorage;
-    public DB6Storage<GuildPerkSpellsRecord> GuildPerkSpellsStorage;
-    public DB6Storage<HeirloomRecord> HeirloomStorage;
-    public DB6Storage<HolidaysRecord> HolidaysStorage;
-    public DB6Storage<ImportPriceArmorRecord> ImportPriceArmorStorage;
-    public DB6Storage<ImportPriceQualityRecord> ImportPriceQualityStorage;
-    public DB6Storage<ImportPriceShieldRecord> ImportPriceShieldStorage;
-    public DB6Storage<ImportPriceWeaponRecord> ImportPriceWeaponStorage;
-    public DB6Storage<ItemAppearanceRecord> ItemAppearanceStorage;
-    public DB6Storage<ItemArmorQualityRecord> ItemArmorQualityStorage;
-    public DB6Storage<ItemArmorShieldRecord> ItemArmorShieldStorage;
+    public DB6Storage<AchievementRecord> AchievementStorage { get; private set; }
+    public DB6Storage<AchievementCategoryRecord> AchievementCategoryStorage { get; private set; }
+    public DB6Storage<AdventureJournalRecord> AdventureJournalStorage { get; private set; }
+    public DB6Storage<AdventureMapPOIRecord> AdventureMapPOIStorage { get; private set; }
+    public DB6Storage<AnimationDataRecord> AnimationDataStorage { get; private set; }
+    public DB6Storage<AnimKitRecord> AnimKitStorage { get; private set; }
+    public DB6Storage<AreaGroupMemberRecord> AreaGroupMemberStorage { get; private set; }
+    public DB6Storage<AreaTableRecord> AreaTableStorage { get; private set; }
+    public DB6Storage<AreaPOIRecord> AreaPOIStorage { get; private set; }
+    public DB6Storage<AreaPOIStateRecord> AreaPOIStateStorage { get; private set; }
+    public DB6Storage<AreaTriggerRecord> AreaTriggerStorage { get; private set; }
+    public DB6Storage<ArmorLocationRecord> ArmorLocationStorage { get; private set; }
+    public DB6Storage<ArtifactRecord> ArtifactStorage { get; private set; }
+    public DB6Storage<ArtifactAppearanceRecord> ArtifactAppearanceStorage { get; private set; }
+    public DB6Storage<ArtifactAppearanceSetRecord> ArtifactAppearanceSetStorage { get; private set; }
+    public DB6Storage<ArtifactCategoryRecord> ArtifactCategoryStorage { get; private set; }
+    public DB6Storage<ArtifactPowerRecord> ArtifactPowerStorage { get; private set; }
+    public DB6Storage<ArtifactPowerLinkRecord> ArtifactPowerLinkStorage { get; private set; }
+    public DB6Storage<ArtifactPowerPickerRecord> ArtifactPowerPickerStorage { get; private set; }
+    public DB6Storage<ArtifactPowerRankRecord> ArtifactPowerRankStorage { get; private set; }
+    public DB6Storage<ArtifactQuestXPRecord> ArtifactQuestXPStorage { get; private set; }
+    public DB6Storage<ArtifactTierRecord> ArtifactTierStorage { get; private set; }
+    public DB6Storage<ArtifactUnlockRecord> ArtifactUnlockStorage { get; private set; }
+    public DB6Storage<AuctionHouseRecord> AuctionHouseStorage { get; private set; }
+    public DB6Storage<AzeriteEmpoweredItemRecord> AzeriteEmpoweredItemStorage { get; private set; }
+    public DB6Storage<AzeriteEssenceRecord> AzeriteEssenceStorage { get; private set; }
+    public DB6Storage<AzeriteEssencePowerRecord> AzeriteEssencePowerStorage { get; private set; }
+    public DB6Storage<AzeriteItemRecord> AzeriteItemStorage { get; private set; }
+    public DB6Storage<AzeriteItemMilestonePowerRecord> AzeriteItemMilestonePowerStorage { get; private set; }
+    public DB6Storage<AzeriteKnowledgeMultiplierRecord> AzeriteKnowledgeMultiplierStorage { get; private set; }
+    public DB6Storage<AzeriteLevelInfoRecord> AzeriteLevelInfoStorage { get; private set; }
+    public DB6Storage<AzeritePowerRecord> AzeritePowerStorage { get; private set; }
+    public DB6Storage<AzeritePowerSetMemberRecord> AzeritePowerSetMemberStorage { get; private set; }
+    public DB6Storage<AzeriteTierUnlockRecord> AzeriteTierUnlockStorage { get; private set; }
+    public DB6Storage<AzeriteTierUnlockSetRecord> AzeriteTierUnlockSetStorage { get; private set; }
+    public DB6Storage<AzeriteUnlockMappingRecord> AzeriteUnlockMappingStorage { get; private set; }
+    public DB6Storage<BankBagSlotPricesRecord> BankBagSlotPricesStorage { get; private set; }
+    public DB6Storage<BannedAddonsRecord> BannedAddOnsStorage { get; private set; }
+    public DB6Storage<BarberShopStyleRecord> BarberShopStyleStorage { get; private set; }
+    public DB6Storage<BattlePetBreedQualityRecord> BattlePetBreedQualityStorage { get; private set; }
+    public DB6Storage<BattlePetBreedStateRecord> BattlePetBreedStateStorage { get; private set; }
+    public DB6Storage<BattlePetSpeciesRecord> BattlePetSpeciesStorage { get; private set; }
+    public DB6Storage<BattlePetSpeciesStateRecord> BattlePetSpeciesStateStorage { get; private set; }
+    public DB6Storage<BattlemasterListRecord> BattlemasterListStorage { get; private set; }
+    public DB6Storage<BroadcastTextRecord> BroadcastTextStorage { get; private set; }
+    public DB6Storage<BroadcastTextDurationRecord> BroadcastTextDurationStorage { get; private set; }
+    public DB6Storage<Cfg_RegionsRecord> CfgRegionsStorage { get; private set; }
+    public DB6Storage<CharTitlesRecord> CharTitlesStorage { get; private set; }
+    public DB6Storage<CharacterLoadoutRecord> CharacterLoadoutStorage { get; private set; }
+    public DB6Storage<CharacterLoadoutItemRecord> CharacterLoadoutItemStorage { get; private set; }
+    public DB6Storage<ChatChannelsRecord> ChatChannelsStorage { get; private set; }
+    public DB6Storage<ChrClassUIDisplayRecord> ChrClassUIDisplayStorage { get; private set; }
+    public DB6Storage<ChrClassesRecord> ChrClassesStorage { get; private set; }
+    public DB6Storage<ChrClassesXPowerTypesRecord> ChrClassesXPowerTypesStorage { get; private set; }
+    public DB6Storage<ChrCustomizationChoiceRecord> ChrCustomizationChoiceStorage { get; private set; }
+    public DB6Storage<ChrCustomizationDisplayInfoRecord> ChrCustomizationDisplayInfoStorage { get; private set; }
+    public DB6Storage<ChrCustomizationElementRecord> ChrCustomizationElementStorage { get; private set; }
+    public DB6Storage<ChrCustomizationReqRecord> ChrCustomizationReqStorage { get; private set; }
+    public DB6Storage<ChrCustomizationReqChoiceRecord> ChrCustomizationReqChoiceStorage { get; private set; }
+    public DB6Storage<ChrModelRecord> ChrModelStorage { get; private set; }
+    public DB6Storage<ChrRaceXChrModelRecord> ChrRaceXChrModelStorage { get; private set; }
+    public DB6Storage<ChrCustomizationOptionRecord> ChrCustomizationOptionStorage { get; private set; }
+    public DB6Storage<ChrRacesRecord> ChrRacesStorage { get; private set; }
+    public DB6Storage<ChrSpecializationRecord> ChrSpecializationStorage { get; private set; }
+    public DB6Storage<CinematicCameraRecord> CinematicCameraStorage { get; private set; }
+    public DB6Storage<CinematicSequencesRecord> CinematicSequencesStorage { get; private set; }
+    public DB6Storage<ContentTuningRecord> ContentTuningStorage { get; private set; }
+    public DB6Storage<ContentTuningXExpectedRecord> ContentTuningXExpectedStorage { get; private set; }
+    public DB6Storage<ConversationLineRecord> ConversationLineStorage { get; private set; }
+    public DB6Storage<CorruptionEffectsRecord> CorruptionEffectsStorage { get; private set; }
+    public DB6Storage<CreatureDisplayInfoRecord> CreatureDisplayInfoStorage { get; private set; }
+    public DB6Storage<CreatureDisplayInfoExtraRecord> CreatureDisplayInfoExtraStorage { get; private set; }
+    public DB6Storage<CreatureFamilyRecord> CreatureFamilyStorage { get; private set; }
+    public DB6Storage<CreatureModelDataRecord> CreatureModelDataStorage { get; private set; }
+    public DB6Storage<CreatureTypeRecord> CreatureTypeStorage { get; private set; }
+    public DB6Storage<CriteriaRecord> CriteriaStorage { get; private set; }
+    public DB6Storage<CriteriaTreeRecord> CriteriaTreeStorage { get; private set; }
+    public DB6Storage<CurrencyContainerRecord> CurrencyContainerStorage { get; private set; }
+    public DB6Storage<CurrencyTypesRecord> CurrencyTypesStorage { get; private set; }
+    public DB6Storage<CurveRecord> CurveStorage { get; private set; }
+    public DB6Storage<CurvePointRecord> CurvePointStorage { get; private set; }
+    public DB6Storage<DestructibleModelDataRecord> DestructibleModelDataStorage { get; private set; }
+    public DB6Storage<DifficultyRecord> DifficultyStorage { get; private set; }
+    public DB6Storage<DungeonEncounterRecord> DungeonEncounterStorage { get; private set; }
+    public DB6Storage<DurabilityCostsRecord> DurabilityCostsStorage { get; private set; }
+    public DB6Storage<DurabilityQualityRecord> DurabilityQualityStorage { get; private set; }
+    public DB6Storage<EmotesRecord> EmotesStorage { get; private set; }
+    public DB6Storage<EmotesTextRecord> EmotesTextStorage { get; private set; }
+    public DB6Storage<EmotesTextSoundRecord> EmotesTextSoundStorage { get; private set; }
+    public DB6Storage<ExpectedStatRecord> ExpectedStatStorage { get; private set; }
+    public DB6Storage<ExpectedStatModRecord> ExpectedStatModStorage { get; private set; }
+    public DB6Storage<FactionRecord> FactionStorage { get; private set; }
+    public DB6Storage<FactionTemplateRecord> FactionTemplateStorage { get; private set; }
+    public DB6Storage<FriendshipRepReactionRecord> FriendshipRepReactionStorage { get; private set; }
+    public DB6Storage<FriendshipReputationRecord> FriendshipReputationStorage { get; private set; }
+    public DB6Storage<GameObjectArtKitRecord> GameObjectArtKitStorage { get; private set; }
+    public DB6Storage<GameObjectDisplayInfoRecord> GameObjectDisplayInfoStorage { get; private set; }
+    public DB6Storage<GameObjectsRecord> GameObjectsStorage { get; private set; }
+    public DB6Storage<GarrAbilityRecord> GarrAbilityStorage { get; private set; }
+    public DB6Storage<GarrBuildingRecord> GarrBuildingStorage { get; private set; }
+    public DB6Storage<GarrBuildingPlotInstRecord> GarrBuildingPlotInstStorage { get; private set; }
+    public DB6Storage<GarrClassSpecRecord> GarrClassSpecStorage { get; private set; }
+    public DB6Storage<GarrFollowerRecord> GarrFollowerStorage { get; private set; }
+    public DB6Storage<GarrFollowerXAbilityRecord> GarrFollowerXAbilityStorage { get; private set; }
+    public DB6Storage<GarrMissionRecord> GarrMissionStorage { get; private set; }
+    public DB6Storage<GarrPlotBuildingRecord> GarrPlotBuildingStorage { get; private set; }
+    public DB6Storage<GarrPlotRecord> GarrPlotStorage { get; private set; }
+    public DB6Storage<GarrPlotInstanceRecord> GarrPlotInstanceStorage { get; private set; }
+    public DB6Storage<GarrSiteLevelRecord> GarrSiteLevelStorage { get; private set; }
+    public DB6Storage<GarrSiteLevelPlotInstRecord> GarrSiteLevelPlotInstStorage { get; private set; }
+    public DB6Storage<GarrTalentTreeRecord> GarrTalentTreeStorage { get; private set; }
+    public DB6Storage<GemPropertiesRecord> GemPropertiesStorage { get; private set; }
+    public DB6Storage<GlobalCurveRecord> GlobalCurveStorage { get; private set; }
+    public DB6Storage<GlyphBindableSpellRecord> GlyphBindableSpellStorage { get; private set; }
+    public DB6Storage<GlyphPropertiesRecord> GlyphPropertiesStorage { get; private set; }
+    public DB6Storage<GlyphRequiredSpecRecord> GlyphRequiredSpecStorage { get; private set; }
+    public DB6Storage<GossipNPCOptionRecord> GossipNPCOptionStorage { get; private set; }
+    public DB6Storage<GuildColorBackgroundRecord> GuildColorBackgroundStorage { get; private set; }
+    public DB6Storage<GuildColorBorderRecord> GuildColorBorderStorage { get; private set; }
+    public DB6Storage<GuildColorEmblemRecord> GuildColorEmblemStorage { get; private set; }
+    public DB6Storage<GuildPerkSpellsRecord> GuildPerkSpellsStorage { get; private set; }
+    public DB6Storage<HeirloomRecord> HeirloomStorage { get; private set; }
+    public DB6Storage<HolidaysRecord> HolidaysStorage { get; private set; }
+    public DB6Storage<ImportPriceArmorRecord> ImportPriceArmorStorage { get; private set; }
+    public DB6Storage<ImportPriceQualityRecord> ImportPriceQualityStorage { get; private set; }
+    public DB6Storage<ImportPriceShieldRecord> ImportPriceShieldStorage { get; private set; }
+    public DB6Storage<ImportPriceWeaponRecord> ImportPriceWeaponStorage { get; private set; }
+    public DB6Storage<ItemAppearanceRecord> ItemAppearanceStorage { get; private set; }
+    public DB6Storage<ItemArmorQualityRecord> ItemArmorQualityStorage { get; private set; }
+    public DB6Storage<ItemArmorShieldRecord> ItemArmorShieldStorage { get; private set; }
 
-    public DB6Storage<ItemArmorTotalRecord> ItemArmorTotalStorage;
+    public DB6Storage<ItemArmorTotalRecord> ItemArmorTotalStorage { get; private set; }
 
-    //public DB6Storage<ItemBagFamilyRecord> ItemBagFamilyStorage;
-    public DB6Storage<ItemBonusRecord> ItemBonusStorage;
-    public DB6Storage<ItemBonusListLevelDeltaRecord> ItemBonusListLevelDeltaStorage;
-    public DB6Storage<ItemBonusTreeNodeRecord> ItemBonusTreeNodeStorage;
-    public DB6Storage<ItemClassRecord> ItemClassStorage;
-    public DB6Storage<ItemChildEquipmentRecord> ItemChildEquipmentStorage;
-    public DB6Storage<ItemCurrencyCostRecord> ItemCurrencyCostStorage;
-    public DB6Storage<ItemDamageRecord> ItemDamageAmmoStorage;
-    public DB6Storage<ItemDamageRecord> ItemDamageOneHandStorage;
-    public DB6Storage<ItemDamageRecord> ItemDamageOneHandCasterStorage;
-    public DB6Storage<ItemDamageRecord> ItemDamageTwoHandStorage;
-    public DB6Storage<ItemDamageRecord> ItemDamageTwoHandCasterStorage;
-    public DB6Storage<ItemDisenchantLootRecord> ItemDisenchantLootStorage;
-    public DB6Storage<ItemEffectRecord> ItemEffectStorage;
-    public DB6Storage<ItemRecord> ItemStorage;
-    public DB6Storage<ItemExtendedCostRecord> ItemExtendedCostStorage;
-    public DB6Storage<ItemLevelSelectorRecord> ItemLevelSelectorStorage;
-    public DB6Storage<ItemLevelSelectorQualityRecord> ItemLevelSelectorQualityStorage;
-    public DB6Storage<ItemLevelSelectorQualitySetRecord> ItemLevelSelectorQualitySetStorage;
-    public DB6Storage<ItemLimitCategoryRecord> ItemLimitCategoryStorage;
-    public DB6Storage<ItemLimitCategoryConditionRecord> ItemLimitCategoryConditionStorage;
-    public DB6Storage<ItemModifiedAppearanceRecord> ItemModifiedAppearanceStorage;
-    public DB6Storage<ItemModifiedAppearanceExtraRecord> ItemModifiedAppearanceExtraStorage;
-    public DB6Storage<ItemNameDescriptionRecord> ItemNameDescriptionStorage;
-    public DB6Storage<ItemPriceBaseRecord> ItemPriceBaseStorage;
-    public DB6Storage<ItemSearchNameRecord> ItemSearchNameStorage;
-    public DB6Storage<ItemSetRecord> ItemSetStorage;
-    public DB6Storage<ItemSetSpellRecord> ItemSetSpellStorage;
-    public DB6Storage<ItemSparseRecord> ItemSparseStorage;
-    public DB6Storage<ItemSpecRecord> ItemSpecStorage;
-    public DB6Storage<ItemSpecOverrideRecord> ItemSpecOverrideStorage;
-    public DB6Storage<ItemXBonusTreeRecord> ItemXBonusTreeStorage;
-    public DB6Storage<ItemXItemEffectRecord> ItemXItemEffectStorage;
-    public DB6Storage<JournalEncounterRecord> JournalEncounterStorage;
-    public DB6Storage<JournalEncounterSectionRecord> JournalEncounterSectionStorage;
-    public DB6Storage<JournalInstanceRecord> JournalInstanceStorage;
+    //public DB6Storage<ItemBagFamilyRecord> ItemBagFamilyStorage { get; private set; }
+    public DB6Storage<ItemBonusRecord> ItemBonusStorage { get; private set; }
+    public DB6Storage<ItemBonusListLevelDeltaRecord> ItemBonusListLevelDeltaStorage { get; private set; }
+    public DB6Storage<ItemBonusTreeNodeRecord> ItemBonusTreeNodeStorage { get; private set; }
+    public DB6Storage<ItemClassRecord> ItemClassStorage { get; private set; }
+    public DB6Storage<ItemChildEquipmentRecord> ItemChildEquipmentStorage { get; private set; }
+    public DB6Storage<ItemCurrencyCostRecord> ItemCurrencyCostStorage { get; private set; }
+    public DB6Storage<ItemDamageRecord> ItemDamageAmmoStorage { get; private set; }
+    public DB6Storage<ItemDamageRecord> ItemDamageOneHandStorage { get; private set; }
+    public DB6Storage<ItemDamageRecord> ItemDamageOneHandCasterStorage { get; private set; }
+    public DB6Storage<ItemDamageRecord> ItemDamageTwoHandStorage { get; private set; }
+    public DB6Storage<ItemDamageRecord> ItemDamageTwoHandCasterStorage { get; private set; }
+    public DB6Storage<ItemDisenchantLootRecord> ItemDisenchantLootStorage { get; private set; }
+    public DB6Storage<ItemEffectRecord> ItemEffectStorage { get; private set; }
+    public DB6Storage<ItemRecord> ItemStorage { get; private set; }
+    public DB6Storage<ItemExtendedCostRecord> ItemExtendedCostStorage { get; private set; }
+    public DB6Storage<ItemLevelSelectorRecord> ItemLevelSelectorStorage { get; private set; }
+    public DB6Storage<ItemLevelSelectorQualityRecord> ItemLevelSelectorQualityStorage { get; private set; }
+    public DB6Storage<ItemLevelSelectorQualitySetRecord> ItemLevelSelectorQualitySetStorage { get; private set; }
+    public DB6Storage<ItemLimitCategoryRecord> ItemLimitCategoryStorage { get; private set; }
+    public DB6Storage<ItemLimitCategoryConditionRecord> ItemLimitCategoryConditionStorage { get; private set; }
+    public DB6Storage<ItemModifiedAppearanceRecord> ItemModifiedAppearanceStorage { get; private set; }
+    public DB6Storage<ItemModifiedAppearanceExtraRecord> ItemModifiedAppearanceExtraStorage { get; private set; }
+    public DB6Storage<ItemNameDescriptionRecord> ItemNameDescriptionStorage { get; private set; }
+    public DB6Storage<ItemPriceBaseRecord> ItemPriceBaseStorage { get; private set; }
+    public DB6Storage<ItemSearchNameRecord> ItemSearchNameStorage { get; private set; }
+    public DB6Storage<ItemSetRecord> ItemSetStorage { get; private set; }
+    public DB6Storage<ItemSetSpellRecord> ItemSetSpellStorage { get; private set; }
+    public DB6Storage<ItemSparseRecord> ItemSparseStorage { get; private set; }
+    public DB6Storage<ItemSpecRecord> ItemSpecStorage { get; private set; }
+    public DB6Storage<ItemSpecOverrideRecord> ItemSpecOverrideStorage { get; private set; }
+    public DB6Storage<ItemXBonusTreeRecord> ItemXBonusTreeStorage { get; private set; }
+    public DB6Storage<ItemXItemEffectRecord> ItemXItemEffectStorage { get; private set; }
+    public DB6Storage<JournalEncounterRecord> JournalEncounterStorage { get; private set; }
+    public DB6Storage<JournalEncounterSectionRecord> JournalEncounterSectionStorage { get; private set; }
+    public DB6Storage<JournalInstanceRecord> JournalInstanceStorage { get; private set; }
 
-    public DB6Storage<JournalTierRecord> JournalTierStorage;
+    public DB6Storage<JournalTierRecord> JournalTierStorage { get; private set; }
 
-    //public DB6Storage<KeyChainRecord> KeyChainStorage;
-    public DB6Storage<KeystoneAffixRecord> KeystoneAffixStorage;
-    public DB6Storage<LanguageWordsRecord> LanguageWordsStorage;
-    public DB6Storage<LanguagesRecord> LanguagesStorage;
-    public DB6Storage<LFGDungeonsRecord> LFGDungeonsStorage;
-    public DB6Storage<LightRecord> LightStorage;
-    public DB6Storage<LiquidTypeRecord> LiquidTypeStorage;
-    public DB6Storage<LockRecord> LockStorage;
-    public DB6Storage<MailTemplateRecord> MailTemplateStorage;
-    public DB6Storage<MapRecord> MapStorage;
-    public DB6Storage<MapChallengeModeRecord> MapChallengeModeStorage;
-    public DB6Storage<MapDifficultyRecord> MapDifficultyStorage;
-    public DB6Storage<MapDifficultyXConditionRecord> MapDifficultyXConditionStorage;
-    public DB6Storage<MawPowerRecord> MawPowerStorage;
-    public DB6Storage<ModifierTreeRecord> ModifierTreeStorage;
-    public DB6Storage<MountCapabilityRecord> MountCapabilityStorage;
-    public DB6Storage<MountRecord> MountStorage;
-    public DB6Storage<MountTypeXCapabilityRecord> MountTypeXCapabilityStorage;
-    public DB6Storage<MountXDisplayRecord> MountXDisplayStorage;
-    public DB6Storage<MovieRecord> MovieStorage;
-    public DB6Storage<NameGenRecord> NameGenStorage;
-    public DB6Storage<NamesProfanityRecord> NamesProfanityStorage;
-    public DB6Storage<NamesReservedRecord> NamesReservedStorage;
-    public DB6Storage<NamesReservedLocaleRecord> NamesReservedLocaleStorage;
-    public DB6Storage<NumTalentsAtLevelRecord> NumTalentsAtLevelStorage;
-    public DB6Storage<OverrideSpellDataRecord> OverrideSpellDataStorage;
-    public DB6Storage<ParagonReputationRecord> ParagonReputationStorage;
-    public DB6Storage<PhaseRecord> PhaseStorage;
-    public DB6Storage<PhaseXPhaseGroupRecord> PhaseXPhaseGroupStorage;
-    public DB6Storage<PlayerConditionRecord> PlayerConditionStorage;
-    public DB6Storage<PowerDisplayRecord> PowerDisplayStorage;
-    public DB6Storage<PowerTypeRecord> PowerTypeStorage;
-    public DB6Storage<PrestigeLevelInfoRecord> PrestigeLevelInfoStorage;
-    public DB6Storage<PvpDifficultyRecord> PvpDifficultyStorage;
-    public DB6Storage<PvpItemRecord> PvpItemStorage;
-    public DB6Storage<PvpTalentRecord> PvpTalentStorage;
-    public DB6Storage<PvpTalentCategoryRecord> PvpTalentCategoryStorage;
-    public DB6Storage<PvpTalentSlotUnlockRecord> PvpTalentSlotUnlockStorage;
-    public DB6Storage<PvpTierRecord> PvpTierStorage;
-    public DB6Storage<QuestFactionRewardRecord> QuestFactionRewardStorage;
-    public DB6Storage<QuestInfoRecord> QuestInfoStorage;
-    public DB6Storage<QuestPOIBlobEntry> QuestPOIBlobStorage;
-    public DB6Storage<QuestPOIPointEntry> QuestPOIPointStorage;
-    public DB6Storage<QuestLineXQuestRecord> QuestLineXQuestStorage;
-    public DB6Storage<QuestMoneyRewardRecord> QuestMoneyRewardStorage;
-    public DB6Storage<QuestPackageItemRecord> QuestPackageItemStorage;
-    public DB6Storage<QuestSortRecord> QuestSortStorage;
-    public DB6Storage<QuestV2Record> QuestV2Storage;
-    public DB6Storage<QuestXPRecord> QuestXPStorage;
-    public DB6Storage<RandPropPointsRecord> RandPropPointsStorage;
-    public DB6Storage<RewardPackRecord> RewardPackStorage;
-    public DB6Storage<RewardPackXCurrencyTypeRecord> RewardPackXCurrencyTypeStorage;
-    public DB6Storage<RewardPackXItemRecord> RewardPackXItemStorage;
-    public DB6Storage<ScenarioRecord> ScenarioStorage;
-    public DB6Storage<ScenarioStepRecord> ScenarioStepStorage;
-    public DB6Storage<SceneScriptRecord> SceneScriptStorage;
-    public DB6Storage<SceneScriptGlobalTextRecord> SceneScriptGlobalTextStorage;
-    public DB6Storage<SceneScriptPackageRecord> SceneScriptPackageStorage;
-    public DB6Storage<SceneScriptTextRecord> SceneScriptTextStorage;
-    public DB6Storage<SkillLineRecord> SkillLineStorage;
-    public DB6Storage<SkillLineAbilityRecord> SkillLineAbilityStorage;
-    public DB6Storage<SkillLineXTraitTreeRecord> SkillLineXTraitTreeStorage;
-    public DB6Storage<SkillRaceClassInfoRecord> SkillRaceClassInfoStorage;
-    public DB6Storage<SoulbindConduitRankRecord> SoulbindConduitRankStorage;
-    public DB6Storage<SoundKitRecord> SoundKitStorage;
-    public DB6Storage<SpecializationSpellsRecord> SpecializationSpellsStorage;
-    public DB6Storage<SpecSetMemberRecord> SpecSetMemberStorage;
-    public DB6Storage<SpellRecord> SpellStorage;
-    public DB6Storage<SpellAuraOptionsRecord> SpellAuraOptionsStorage;
-    public DB6Storage<SpellAuraRestrictionsRecord> SpellAuraRestrictionsStorage;
-    public DB6Storage<SpellCastTimesRecord> SpellCastTimesStorage;
-    public DB6Storage<SpellCastingRequirementsRecord> SpellCastingRequirementsStorage;
-    public DB6Storage<SpellCategoriesRecord> SpellCategoriesStorage;
-    public DB6Storage<SpellCategoryRecord> SpellCategoryStorage;
-    public DB6Storage<SpellClassOptionsRecord> SpellClassOptionsStorage;
-    public DB6Storage<SpellCooldownsRecord> SpellCooldownsStorage;
-    public DB6Storage<SpellDurationRecord> SpellDurationStorage;
-    public DB6Storage<SpellEffectRecord> SpellEffectStorage;
-    public DB6Storage<SpellEmpowerRecord> SpellEmpowerStorage;
-    public DB6Storage<SpellEmpowerStageRecord> SpellEmpowerStageStorage;
-    public DB6Storage<SpellEquippedItemsRecord> SpellEquippedItemsStorage;
-    public DB6Storage<SpellFocusObjectRecord> SpellFocusObjectStorage;
-    public DB6Storage<SpellInterruptsRecord> SpellInterruptsStorage;
-    public DB6Storage<SpellItemEnchantmentRecord> SpellItemEnchantmentStorage;
-    public DB6Storage<SpellItemEnchantmentConditionRecord> SpellItemEnchantmentConditionStorage;
-    public DB6Storage<SpellKeyboundOverrideRecord> SpellKeyboundOverrideStorage;
-    public DB6Storage<SpellLabelRecord> SpellLabelStorage;
-    public DB6Storage<SpellLearnSpellRecord> SpellLearnSpellStorage;
-    public DB6Storage<SpellLevelsRecord> SpellLevelsStorage;
-    public DB6Storage<SpellMiscRecord> SpellMiscStorage;
-    public DB6Storage<SpellNameRecord> SpellNameStorage;
-    public DB6Storage<SpellPowerRecord> SpellPowerStorage;
-    public DB6Storage<SpellPowerDifficultyRecord> SpellPowerDifficultyStorage;
-    public DB6Storage<SpellProcsPerMinuteRecord> SpellProcsPerMinuteStorage;
-    public DB6Storage<SpellProcsPerMinuteModRecord> SpellProcsPerMinuteModStorage;
-    public DB6Storage<SpellRadiusRecord> SpellRadiusStorage;
-    public DB6Storage<SpellRangeRecord> SpellRangeStorage;
-    public DB6Storage<SpellReagentsRecord> SpellReagentsStorage;
-    public DB6Storage<SpellReagentsCurrencyRecord> SpellReagentsCurrencyStorage;
-    public DB6Storage<SpellReplacementRecord> SpellReplacementStorage;
-    public DB6Storage<SpellScalingRecord> SpellScalingStorage;
-    public DB6Storage<SpellShapeshiftRecord> SpellShapeshiftStorage;
-    public DB6Storage<SpellShapeshiftFormRecord> SpellShapeshiftFormStorage;
-    public DB6Storage<SpellTargetRestrictionsRecord> SpellTargetRestrictionsStorage;
-    public DB6Storage<SpellTotemsRecord> SpellTotemsStorage;
-    public DB6Storage<SpellVisualRecord> SpellVisualStorage;
-    public DB6Storage<SpellVisualEffectNameRecord> SpellVisualEffectNameStorage;
-    public DB6Storage<SpellVisualMissileRecord> SpellVisualMissileStorage;
-    public DB6Storage<SpellVisualKitRecord> SpellVisualKitStorage;
-    public DB6Storage<SpellXSpellVisualRecord> SpellXSpellVisualStorage;
-    public DB6Storage<SummonPropertiesRecord> SummonPropertiesStorage;
-    public DB6Storage<TactKeyRecord> TactKeyStorage;
-    public DB6Storage<TalentRecord> TalentStorage;
-    public DB6Storage<TaxiNodesRecord> TaxiNodesStorage;
-    public DB6Storage<TaxiPathRecord> TaxiPathStorage;
-    public DB6Storage<TaxiPathNodeRecord> TaxiPathNodeStorage;
-    public DB6Storage<TotemCategoryRecord> TotemCategoryStorage;
-    public DB6Storage<ToyRecord> ToyStorage;
-    public DB6Storage<TraitCondRecord> TraitCondStorage;
-    public DB6Storage<TraitCostRecord> TraitCostStorage;
-    public DB6Storage<TraitCurrencyRecord> TraitCurrencyStorage;
-    public DB6Storage<TraitCurrencySourceRecord> TraitCurrencySourceStorage;
-    public DB6Storage<TraitDefinitionRecord> TraitDefinitionStorage;
-    public DB6Storage<TraitDefinitionEffectPointsRecord> TraitDefinitionEffectPointsStorage;
-    public DB6Storage<TraitEdgeRecord> TraitEdgeStorage;
-    public DB6Storage<TraitNodeRecord> TraitNodeStorage;
-    public DB6Storage<TraitNodeEntryRecord> TraitNodeEntryStorage;
-    public DB6Storage<TraitNodeEntryXTraitCondRecord> TraitNodeEntryXTraitCondStorage;
-    public DB6Storage<TraitNodeEntryXTraitCostRecord> TraitNodeEntryXTraitCostStorage;
-    public DB6Storage<TraitNodeGroupRecord> TraitNodeGroupStorage;
-    public DB6Storage<TraitNodeGroupXTraitCondRecord> TraitNodeGroupXTraitCondStorage;
-    public DB6Storage<TraitNodeGroupXTraitCostRecord> TraitNodeGroupXTraitCostStorage;
-    public DB6Storage<TraitNodeGroupXTraitNodeRecord> TraitNodeGroupXTraitNodeStorage;
-    public DB6Storage<TraitNodeXTraitCondRecord> TraitNodeXTraitCondStorage;
-    public DB6Storage<TraitNodeXTraitCostRecord> TraitNodeXTraitCostStorage;
-    public DB6Storage<TraitNodeXTraitNodeEntryRecord> TraitNodeXTraitNodeEntryStorage;
-    public DB6Storage<TraitSystemRecord> TraitSystemStorage;
-    public DB6Storage<TraitTreeRecord> TraitTreeStorage;
-    public DB6Storage<TraitTreeLoadoutRecord> TraitTreeLoadoutStorage;
-    public DB6Storage<TraitTreeLoadoutEntryRecord> TraitTreeLoadoutEntryStorage;
-    public DB6Storage<TraitTreeXTraitCostRecord> TraitTreeXTraitCostStorage;
-    public DB6Storage<TraitTreeXTraitCurrencyRecord> TraitTreeXTraitCurrencyStorage;
-    public DB6Storage<TransmogHolidayRecord> TransmogHolidayStorage;
-    public DB6Storage<TransmogIllusionRecord> TransmogIllusionStorage;
-    public DB6Storage<TransmogSetRecord> TransmogSetStorage;
-    public DB6Storage<TransmogSetGroupRecord> TransmogSetGroupStorage;
-    public DB6Storage<TransmogSetItemRecord> TransmogSetItemStorage;
-    public DB6Storage<TransportAnimationRecord> TransportAnimationStorage;
-    public DB6Storage<TransportRotationRecord> TransportRotationStorage;
-    public DB6Storage<UiMapRecord> UiMapStorage;
-    public DB6Storage<UiMapAssignmentRecord> UiMapAssignmentStorage;
-    public DB6Storage<UiMapLinkRecord> UiMapLinkStorage;
-    public DB6Storage<UiMapXMapArtRecord> UiMapXMapArtStorage;
-    public DB6Storage<UISplashScreenRecord> UISplashScreenStorage;
-    public DB6Storage<UnitConditionRecord> UnitConditionStorage;
-    public DB6Storage<UnitPowerBarRecord> UnitPowerBarStorage;
-    public DB6Storage<VehicleRecord> VehicleStorage;
-    public DB6Storage<VehicleSeatRecord> VehicleSeatStorage;
-    public DB6Storage<WMOAreaTableRecord> WMOAreaTableStorage;
-    public DB6Storage<WorldEffectRecord> WorldEffectStorage;
-    public DB6Storage<WorldMapOverlayRecord> WorldMapOverlayStorage;
-    public DB6Storage<WorldStateExpressionRecord> WorldStateExpressionStorage;
-    public DB6Storage<CharBaseInfo> CharBaseInfoStorage;
+    //public DB6Storage<KeyChainRecord> KeyChainStorage { get; private set; }
+    public DB6Storage<KeystoneAffixRecord> KeystoneAffixStorage { get; private set; }
+    public DB6Storage<LanguageWordsRecord> LanguageWordsStorage { get; private set; }
+    public DB6Storage<LanguagesRecord> LanguagesStorage { get; private set; }
+    public DB6Storage<LFGDungeonsRecord> LFGDungeonsStorage { get; private set; }
+    public DB6Storage<LightRecord> LightStorage { get; private set; }
+    public DB6Storage<LiquidTypeRecord> LiquidTypeStorage { get; private set; }
+    public DB6Storage<LockRecord> LockStorage { get; private set; }
+    public DB6Storage<MailTemplateRecord> MailTemplateStorage { get; private set; }
+    public DB6Storage<MapRecord> MapStorage { get; private set; }
+    public DB6Storage<MapChallengeModeRecord> MapChallengeModeStorage { get; private set; }
+    public DB6Storage<MapDifficultyRecord> MapDifficultyStorage { get; private set; }
+    public DB6Storage<MapDifficultyXConditionRecord> MapDifficultyXConditionStorage { get; private set; }
+    public DB6Storage<MawPowerRecord> MawPowerStorage { get; private set; }
+    public DB6Storage<ModifierTreeRecord> ModifierTreeStorage { get; private set; }
+    public DB6Storage<MountCapabilityRecord> MountCapabilityStorage { get; private set; }
+    public DB6Storage<MountRecord> MountStorage { get; private set; }
+    public DB6Storage<MountTypeXCapabilityRecord> MountTypeXCapabilityStorage { get; private set; }
+    public DB6Storage<MountXDisplayRecord> MountXDisplayStorage { get; private set; }
+    public DB6Storage<MovieRecord> MovieStorage { get; private set; }
+    public DB6Storage<NameGenRecord> NameGenStorage { get; private set; }
+    public DB6Storage<NamesProfanityRecord> NamesProfanityStorage { get; private set; }
+    public DB6Storage<NamesReservedRecord> NamesReservedStorage { get; private set; }
+    public DB6Storage<NamesReservedLocaleRecord> NamesReservedLocaleStorage { get; private set; }
+    public DB6Storage<NumTalentsAtLevelRecord> NumTalentsAtLevelStorage { get; private set; }
+    public DB6Storage<OverrideSpellDataRecord> OverrideSpellDataStorage { get; private set; }
+    public DB6Storage<ParagonReputationRecord> ParagonReputationStorage { get; private set; }
+    public DB6Storage<PhaseRecord> PhaseStorage { get; private set; }
+    public DB6Storage<PhaseXPhaseGroupRecord> PhaseXPhaseGroupStorage { get; private set; }
+    public DB6Storage<PlayerConditionRecord> PlayerConditionStorage { get; private set; }
+    public DB6Storage<PowerDisplayRecord> PowerDisplayStorage { get; private set; }
+    public DB6Storage<PowerTypeRecord> PowerTypeStorage { get; private set; }
+    public DB6Storage<PrestigeLevelInfoRecord> PrestigeLevelInfoStorage { get; private set; }
+    public DB6Storage<PvpDifficultyRecord> PvpDifficultyStorage { get; private set; }
+    public DB6Storage<PvpItemRecord> PvpItemStorage { get; private set; }
+    public DB6Storage<PvpTalentRecord> PvpTalentStorage { get; private set; }
+    public DB6Storage<PvpTalentCategoryRecord> PvpTalentCategoryStorage { get; private set; }
+    public DB6Storage<PvpTalentSlotUnlockRecord> PvpTalentSlotUnlockStorage { get; private set; }
+    public DB6Storage<PvpTierRecord> PvpTierStorage { get; private set; }
+    public DB6Storage<QuestFactionRewardRecord> QuestFactionRewardStorage { get; private set; }
+    public DB6Storage<QuestInfoRecord> QuestInfoStorage { get; private set; }
+    public DB6Storage<QuestPOIBlobEntry> QuestPOIBlobStorage { get; private set; }
+    public DB6Storage<QuestPOIPointEntry> QuestPOIPointStorage { get; private set; }
+    public DB6Storage<QuestLineXQuestRecord> QuestLineXQuestStorage { get; private set; }
+    public DB6Storage<QuestMoneyRewardRecord> QuestMoneyRewardStorage { get; private set; }
+    public DB6Storage<QuestPackageItemRecord> QuestPackageItemStorage { get; private set; }
+    public DB6Storage<QuestSortRecord> QuestSortStorage { get; private set; }
+    public DB6Storage<QuestV2Record> QuestV2Storage { get; private set; }
+    public DB6Storage<QuestXPRecord> QuestXPStorage { get; private set; }
+    public DB6Storage<RandPropPointsRecord> RandPropPointsStorage { get; private set; }
+    public DB6Storage<RewardPackRecord> RewardPackStorage { get; private set; }
+    public DB6Storage<RewardPackXCurrencyTypeRecord> RewardPackXCurrencyTypeStorage { get; private set; }
+    public DB6Storage<RewardPackXItemRecord> RewardPackXItemStorage { get; private set; }
+    public DB6Storage<ScenarioRecord> ScenarioStorage { get; private set; }
+    public DB6Storage<ScenarioStepRecord> ScenarioStepStorage { get; private set; }
+    public DB6Storage<SceneScriptRecord> SceneScriptStorage { get; private set; }
+    public DB6Storage<SceneScriptGlobalTextRecord> SceneScriptGlobalTextStorage { get; private set; }
+    public DB6Storage<SceneScriptPackageRecord> SceneScriptPackageStorage { get; private set; }
+    public DB6Storage<SceneScriptTextRecord> SceneScriptTextStorage { get; private set; }
+    public DB6Storage<SkillLineRecord> SkillLineStorage { get; private set; }
+    public DB6Storage<SkillLineAbilityRecord> SkillLineAbilityStorage { get; private set; }
+    public DB6Storage<SkillLineXTraitTreeRecord> SkillLineXTraitTreeStorage { get; private set; }
+    public DB6Storage<SkillRaceClassInfoRecord> SkillRaceClassInfoStorage { get; private set; }
+    public DB6Storage<SoulbindConduitRankRecord> SoulbindConduitRankStorage { get; private set; }
+    public DB6Storage<SoundKitRecord> SoundKitStorage { get; private set; }
+    public DB6Storage<SpecializationSpellsRecord> SpecializationSpellsStorage { get; private set; }
+    public DB6Storage<SpecSetMemberRecord> SpecSetMemberStorage { get; private set; }
+    public DB6Storage<SpellRecord> SpellStorage { get; private set; }
+    public DB6Storage<SpellAuraOptionsRecord> SpellAuraOptionsStorage { get; private set; }
+    public DB6Storage<SpellAuraRestrictionsRecord> SpellAuraRestrictionsStorage { get; private set; }
+    public DB6Storage<SpellCastTimesRecord> SpellCastTimesStorage { get; private set; }
+    public DB6Storage<SpellCastingRequirementsRecord> SpellCastingRequirementsStorage { get; private set; }
+    public DB6Storage<SpellCategoriesRecord> SpellCategoriesStorage { get; private set; }
+    public DB6Storage<SpellCategoryRecord> SpellCategoryStorage { get; private set; }
+    public DB6Storage<SpellClassOptionsRecord> SpellClassOptionsStorage { get; private set; }
+    public DB6Storage<SpellCooldownsRecord> SpellCooldownsStorage { get; private set; }
+    public DB6Storage<SpellDurationRecord> SpellDurationStorage { get; private set; }
+    public DB6Storage<SpellEffectRecord> SpellEffectStorage { get; private set; }
+    public DB6Storage<SpellEmpowerRecord> SpellEmpowerStorage { get; private set; }
+    public DB6Storage<SpellEmpowerStageRecord> SpellEmpowerStageStorage { get; private set; }
+    public DB6Storage<SpellEquippedItemsRecord> SpellEquippedItemsStorage { get; private set; }
+    public DB6Storage<SpellFocusObjectRecord> SpellFocusObjectStorage { get; private set; }
+    public DB6Storage<SpellInterruptsRecord> SpellInterruptsStorage { get; private set; }
+    public DB6Storage<SpellItemEnchantmentRecord> SpellItemEnchantmentStorage { get; private set; }
+    public DB6Storage<SpellItemEnchantmentConditionRecord> SpellItemEnchantmentConditionStorage { get; private set; }
+    public DB6Storage<SpellKeyboundOverrideRecord> SpellKeyboundOverrideStorage { get; private set; }
+    public DB6Storage<SpellLabelRecord> SpellLabelStorage { get; private set; }
+    public DB6Storage<SpellLearnSpellRecord> SpellLearnSpellStorage { get; private set; }
+    public DB6Storage<SpellLevelsRecord> SpellLevelsStorage { get; private set; }
+    public DB6Storage<SpellMiscRecord> SpellMiscStorage { get; private set; }
+    public DB6Storage<SpellNameRecord> SpellNameStorage { get; private set; }
+    public DB6Storage<SpellPowerRecord> SpellPowerStorage { get; private set; }
+    public DB6Storage<SpellPowerDifficultyRecord> SpellPowerDifficultyStorage { get; private set; }
+    public DB6Storage<SpellProcsPerMinuteRecord> SpellProcsPerMinuteStorage { get; private set; }
+    public DB6Storage<SpellProcsPerMinuteModRecord> SpellProcsPerMinuteModStorage { get; private set; }
+    public DB6Storage<SpellRadiusRecord> SpellRadiusStorage { get; private set; }
+    public DB6Storage<SpellRangeRecord> SpellRangeStorage { get; private set; }
+    public DB6Storage<SpellReagentsRecord> SpellReagentsStorage { get; private set; }
+    public DB6Storage<SpellReagentsCurrencyRecord> SpellReagentsCurrencyStorage { get; private set; }
+    public DB6Storage<SpellReplacementRecord> SpellReplacementStorage { get; private set; }
+    public DB6Storage<SpellScalingRecord> SpellScalingStorage { get; private set; }
+    public DB6Storage<SpellShapeshiftRecord> SpellShapeshiftStorage { get; private set; }
+    public DB6Storage<SpellShapeshiftFormRecord> SpellShapeshiftFormStorage { get; private set; }
+    public DB6Storage<SpellTargetRestrictionsRecord> SpellTargetRestrictionsStorage { get; private set; }
+    public DB6Storage<SpellTotemsRecord> SpellTotemsStorage { get; private set; }
+    public DB6Storage<SpellVisualRecord> SpellVisualStorage { get; private set; }
+    public DB6Storage<SpellVisualEffectNameRecord> SpellVisualEffectNameStorage { get; private set; }
+    public DB6Storage<SpellVisualMissileRecord> SpellVisualMissileStorage { get; private set; }
+    public DB6Storage<SpellVisualKitRecord> SpellVisualKitStorage { get; private set; }
+    public DB6Storage<SpellXSpellVisualRecord> SpellXSpellVisualStorage { get; private set; }
+    public DB6Storage<SummonPropertiesRecord> SummonPropertiesStorage { get; private set; }
+    public DB6Storage<TactKeyRecord> TactKeyStorage { get; private set; }
+    public DB6Storage<TalentRecord> TalentStorage { get; private set; }
+    public DB6Storage<TaxiNodesRecord> TaxiNodesStorage { get; private set; }
+    public DB6Storage<TaxiPathRecord> TaxiPathStorage { get; private set; }
+    public DB6Storage<TaxiPathNodeRecord> TaxiPathNodeStorage { get; private set; }
+    public DB6Storage<TotemCategoryRecord> TotemCategoryStorage { get; private set; }
+    public DB6Storage<ToyRecord> ToyStorage { get; private set; }
+    public DB6Storage<TraitCondRecord> TraitCondStorage { get; private set; }
+    public DB6Storage<TraitCostRecord> TraitCostStorage { get; private set; }
+    public DB6Storage<TraitCurrencyRecord> TraitCurrencyStorage { get; private set; }
+    public DB6Storage<TraitCurrencySourceRecord> TraitCurrencySourceStorage { get; private set; }
+    public DB6Storage<TraitDefinitionRecord> TraitDefinitionStorage { get; private set; }
+    public DB6Storage<TraitDefinitionEffectPointsRecord> TraitDefinitionEffectPointsStorage { get; private set; }
+    public DB6Storage<TraitEdgeRecord> TraitEdgeStorage { get; private set; }
+    public DB6Storage<TraitNodeRecord> TraitNodeStorage { get; private set; }
+    public DB6Storage<TraitNodeEntryRecord> TraitNodeEntryStorage { get; private set; }
+    public DB6Storage<TraitNodeEntryXTraitCondRecord> TraitNodeEntryXTraitCondStorage { get; private set; }
+    public DB6Storage<TraitNodeEntryXTraitCostRecord> TraitNodeEntryXTraitCostStorage { get; private set; }
+    public DB6Storage<TraitNodeGroupRecord> TraitNodeGroupStorage { get; private set; }
+    public DB6Storage<TraitNodeGroupXTraitCondRecord> TraitNodeGroupXTraitCondStorage { get; private set; }
+    public DB6Storage<TraitNodeGroupXTraitCostRecord> TraitNodeGroupXTraitCostStorage { get; private set; }
+    public DB6Storage<TraitNodeGroupXTraitNodeRecord> TraitNodeGroupXTraitNodeStorage { get; private set; }
+    public DB6Storage<TraitNodeXTraitCondRecord> TraitNodeXTraitCondStorage { get; private set; }
+    public DB6Storage<TraitNodeXTraitCostRecord> TraitNodeXTraitCostStorage { get; private set; }
+    public DB6Storage<TraitNodeXTraitNodeEntryRecord> TraitNodeXTraitNodeEntryStorage { get; private set; }
+    public DB6Storage<TraitSystemRecord> TraitSystemStorage { get; private set; }
+    public DB6Storage<TraitTreeRecord> TraitTreeStorage { get; private set; }
+    public DB6Storage<TraitTreeLoadoutRecord> TraitTreeLoadoutStorage { get; private set; }
+    public DB6Storage<TraitTreeLoadoutEntryRecord> TraitTreeLoadoutEntryStorage { get; private set; }
+    public DB6Storage<TraitTreeXTraitCostRecord> TraitTreeXTraitCostStorage { get; private set; }
+    public DB6Storage<TraitTreeXTraitCurrencyRecord> TraitTreeXTraitCurrencyStorage { get; private set; }
+    public DB6Storage<TransmogHolidayRecord> TransmogHolidayStorage { get; private set; }
+    public DB6Storage<TransmogIllusionRecord> TransmogIllusionStorage { get; private set; }
+    public DB6Storage<TransmogSetRecord> TransmogSetStorage { get; private set; }
+    public DB6Storage<TransmogSetGroupRecord> TransmogSetGroupStorage { get; private set; }
+    public DB6Storage<TransmogSetItemRecord> TransmogSetItemStorage { get; private set; }
+    public DB6Storage<TransportAnimationRecord> TransportAnimationStorage { get; private set; }
+    public DB6Storage<TransportRotationRecord> TransportRotationStorage { get; private set; }
+    public DB6Storage<UiMapRecord> UiMapStorage { get; private set; }
+    public DB6Storage<UiMapAssignmentRecord> UiMapAssignmentStorage { get; private set; }
+    public DB6Storage<UiMapLinkRecord> UiMapLinkStorage { get; private set; }
+    public DB6Storage<UiMapXMapArtRecord> UiMapXMapArtStorage { get; private set; }
+    public DB6Storage<UISplashScreenRecord> UISplashScreenStorage { get; private set; }
+    public DB6Storage<UnitConditionRecord> UnitConditionStorage { get; private set; }
+    public DB6Storage<UnitPowerBarRecord> UnitPowerBarStorage { get; private set; }
+    public DB6Storage<VehicleRecord> VehicleStorage { get; private set; }
+    public DB6Storage<VehicleSeatRecord> VehicleSeatStorage { get; private set; }
+    public DB6Storage<WMOAreaTableRecord> WMOAreaTableStorage { get; private set; }
+    public DB6Storage<WorldEffectRecord> WorldEffectStorage { get; private set; }
+    public DB6Storage<WorldMapOverlayRecord> WorldMapOverlayStorage { get; private set; }
+    public DB6Storage<WorldStateExpressionRecord> WorldStateExpressionStorage { get; private set; }
+    public DB6Storage<CharBaseInfo> CharBaseInfoStorage { get; private set; }
 
     #endregion
 
     #region GameTables
 
-    public GameTable<GtArtifactKnowledgeMultiplierRecord> ArtifactKnowledgeMultiplierGameTable;
-    public GameTable<GtArtifactLevelXPRecord> ArtifactLevelXPGameTable;
-    public GameTable<GtBarberShopCostBaseRecord> BarberShopCostBaseGameTable;
-    public GameTable<GtBaseMPRecord> BaseMPGameTable;
-    public GameTable<GtBattlePetXPRecord> BattlePetXPGameTable;
-    public GameTable<GtCombatRatingsRecord> CombatRatingsGameTable;
-    public GameTable<GtGenericMultByILvlRecord> CombatRatingsMultByILvlGameTable;
-    public GameTable<GtHpPerStaRecord> HpPerStaGameTable;
-    public GameTable<GtItemSocketCostPerLevelRecord> ItemSocketCostPerLevelGameTable;
-    public GameTable<GtNpcManaCostScalerRecord> NpcManaCostScalerGameTable;
-    public GameTable<GtSpellScalingRecord> SpellScalingGameTable;
-    public GameTable<GtGenericMultByILvlRecord> StaminaMultByILvlGameTable;
-    public GameTable<GtXpRecord> XpGameTable;
+    public GameTable<GtArtifactKnowledgeMultiplierRecord> ArtifactKnowledgeMultiplierGameTable { get; private set; }
+    public GameTable<GtArtifactLevelXPRecord> ArtifactLevelXPGameTable { get; private set; }
+    public GameTable<GtBarberShopCostBaseRecord> BarberShopCostBaseGameTable { get; private set; }
+    public GameTable<GtBaseMPRecord> BaseMPGameTable { get; private set; }
+    public GameTable<GtBattlePetXPRecord> BattlePetXPGameTable { get; private set; }
+    public GameTable<GtCombatRatingsRecord> CombatRatingsGameTable { get; private set; }
+    public GameTable<GtGenericMultByILvlRecord> CombatRatingsMultByILvlGameTable { get; private set; }
+    public GameTable<GtHpPerStaRecord> HpPerStaGameTable { get; private set; }
+    public GameTable<GtItemSocketCostPerLevelRecord> ItemSocketCostPerLevelGameTable { get; private set; }
+    public GameTable<GtNpcManaCostScalerRecord> NpcManaCostScalerGameTable { get; private set; }
+    public GameTable<GtSpellScalingRecord> SpellScalingGameTable { get; private set; }
+    public GameTable<GtGenericMultByILvlRecord> StaminaMultByILvlGameTable { get; private set; }
+    public GameTable<GtXpRecord> XpGameTable { get; private set; }
 
     #endregion
 
     #region Taxi Collections
 
-    public byte[] TaxiNodesMask;
-    public byte[] OldContinentsNodesMask;
-    public byte[] HordeTaxiNodesMask;
-    public byte[] AllianceTaxiNodesMask;
-    public Dictionary<uint, Dictionary<uint, TaxiPathBySourceAndDestination>> TaxiPathSetBySource = new();
-    public Dictionary<uint, TaxiPathNodeRecord[]> TaxiPathNodesByPath = new();
+    public byte[] TaxiNodesMask { get; private set; }
+    public byte[] OldContinentsNodesMask { get; private set; }
+    public byte[] HordeTaxiNodesMask { get; private set; }
+    public byte[] AllianceTaxiNodesMask { get; private set; }
+    public Dictionary<uint, Dictionary<uint, TaxiPathBySourceAndDestination>> TaxiPathSetBySource { get; private set; } = new();
+    public Dictionary<uint, TaxiPathNodeRecord[]> TaxiPathNodesByPath { get; private set; } = new();
 
     #endregion
 
