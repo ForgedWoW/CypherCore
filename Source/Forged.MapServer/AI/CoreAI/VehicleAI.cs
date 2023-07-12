@@ -66,17 +66,17 @@ public class VehicleAI : CreatureAI
         {
             var vehicleKit = Me.VehicleKit;
 
-            if (vehicleKit)
+            if (vehicleKit != null)
                 foreach (var pair in vehicleKit.Seats)
                 {
                     var passenger = Me.ObjectAccessor.GetUnit(Me, pair.Value.Passenger.Guid);
 
-                    if (!passenger)
+                    if (passenger == null)
                         continue;
 
                     var player = passenger.AsPlayer;
 
-                    if (!player)
+                    if (player == null)
                         continue;
 
                     if (Me.ConditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, Me.Entry, player, Me))

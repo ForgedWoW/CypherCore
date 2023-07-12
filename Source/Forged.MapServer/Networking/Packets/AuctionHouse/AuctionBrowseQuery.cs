@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Networking.Packets.Addon;
 using Framework.Constants;
@@ -12,6 +14,7 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionBrowseQuery : ClientPacket
 {
+    private readonly DB6Storage<BattlePetSpeciesRecord> _battlePetSpeciesRecords;
     public ObjectGuid Auctioneer;
     public AuctionHouseFilterMask Filters;
     public Array<AuctionListFilterClass> ItemClassFilters = new(7);
@@ -23,7 +26,10 @@ internal class AuctionBrowseQuery : ClientPacket
     public uint Offset;
     public Array<AuctionSortDef> Sorts = new(2);
     public AddOnInfo? TaintedBy;
-    public AuctionBrowseQuery(WorldPacket packet) : base(packet) { }
+    public AuctionBrowseQuery(WorldPacket packet, DB6Storage<BattlePetSpeciesRecord> battlePetSpeciesRecords) : base(packet)
+    {
+        _battlePetSpeciesRecords = battlePetSpeciesRecords;
+    }
 
     public override void Read()
     {
@@ -35,7 +41,7 @@ internal class AuctionBrowseQuery : ClientPacket
         var knownPetSize = WorldPacket.ReadUInt32();
         MaxPetLevel = WorldPacket.ReadInt8();
 
-        var sizeLimit = CliDB.BattlePetSpeciesStorage.GetNumRows() / 8 + 1;
+        var sizeLimit = _battlePetSpeciesRecords.GetNumRows() / 8 + 1;
 
         if (knownPetSize >= sizeLimit)
             throw new Exception($"Attempted to read more array elements from packet {knownPetSize} than allowed {sizeLimit}");
@@ -63,5 +69,3 @@ internal class AuctionBrowseQuery : ClientPacket
             ItemClassFilters[i] = new AuctionListFilterClass(WorldPacket);
     }
 }
-
-//Structs

@@ -429,12 +429,17 @@ public class ScriptManager
         _scriptClassByType.Clear();
     }
 
-    private static void RegisterActivators(Dictionary<string, IScriptActivator> activators, Type type)
+    private void RegisterActivators(Dictionary<string, IScriptActivator> activators, Type type)
     {
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
             return;
 
-        var asa = (IScriptActivator)Activator.CreateInstance(type);
+        IScriptActivator asa = null;
+
+        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
+            asa = Activator.CreateInstance(type, _classFactory) as IScriptActivator;
+        else
+            asa = Activator.CreateInstance(type) as IScriptActivator;
 
         if (asa == null)
             return;
@@ -443,12 +448,17 @@ public class ScriptManager
             activators[t] = asa;
     }
 
-    private static void RegisterRegistors(Dictionary<Type, IScriptRegister> registers, Type type)
+    private void RegisterRegistors(Dictionary<Type, IScriptRegister> registers, Type type)
     {
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
             return;
 
-        var newReg = (IScriptRegister)Activator.CreateInstance(type);
+        IScriptRegister newReg = null;
+
+        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
+            newReg = Activator.CreateInstance(type, _classFactory) as IScriptRegister;
+        else
+            newReg = Activator.CreateInstance(type) as IScriptRegister;
 
         if (newReg != null)
             registers[newReg.AttributeType] = newReg;
