@@ -10,7 +10,6 @@ using System.Net;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Calendar;
-using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Collision.Models;

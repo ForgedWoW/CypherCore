@@ -578,4 +578,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<VoidStorageHandler>();
     builder.RegisterType<TradeHandler>();
     builder.RegisterType<TraitHandler>();
+    builder.RegisterType<AuctionHandler>();
 }
