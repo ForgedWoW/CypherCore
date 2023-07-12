@@ -13,6 +13,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.OpCodeHandlers;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
@@ -32,6 +33,7 @@ public class AuctionManager
     private readonly IConfiguration _configuration;
     private readonly AuctionHouseObject _goblinAuctions;
     private readonly AuctionHouseObject _hordeAuctions;
+    private readonly ItemFactory _itemFactory;
     private readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
     private readonly AuctionHouseObject _neutralAuctions;
     private readonly ObjectAccessor _objectAccessor;
@@ -43,7 +45,7 @@ public class AuctionManager
     private uint _replicateIdGenerator;
 
     public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache, IConfiguration configuration,
-                          ObjectAccessor objectAccessor, ClassFactory classFactory)
+                          ObjectAccessor objectAccessor, ClassFactory classFactory, ItemFactory itemFactory)
     {
         _characterDatabase = characterDatabase;
         _cliDB = cliDB;
@@ -51,6 +53,7 @@ public class AuctionManager
         _characterCache = characterCache;
         _configuration = configuration;
         _objectAccessor = objectAccessor;
+        _itemFactory = itemFactory;
         _hordeAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 6));
         _allianceAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 2));
         _neutralAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 1));
@@ -123,7 +126,8 @@ public class AuctionManager
 
         if (throttleObject.QueriesRemaining == 0)
         {
-            player.Session.SendAuctionCommandResult(0, command, AuctionResult.AuctionHouseBusy, throttleObject.PeriodEnd - now);
+            if (player.Session.PacketRouter.TryGetOpCodeHandler(out AuctionHandler auctionHandler))
+                auctionHandler.SendAuctionCommandResult(0, command, AuctionResult.AuctionHouseBusy, throttleObject.PeriodEnd - now);
 
             return new AuctionThrottleResult(TimeSpan.Zero, true);
         }
@@ -267,7 +271,7 @@ public class AuctionManager
                 continue;
             }
 
-            var item = ItemFactory.NewItemOrBag(proto);
+            var item = _itemFactory.NewItemOrBag(proto);
 
             if (!item.LoadFromDB(itemGuid, ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(51)), result.GetFields(), itemEntry))
             {
@@ -465,14 +469,13 @@ public class AuctionManager
 
         var now = GameTime.Now;
 
-        if (now >= _playerThrottleObjectsCleanupTime)
-        {
-            foreach (var pair in _playerThrottleObjects.ToList())
-                if (pair.Value.PeriodEnd < now)
-                    _playerThrottleObjects.Remove(pair.Key);
+        if (now < _playerThrottleObjectsCleanupTime)
+            return;
 
-            _playerThrottleObjectsCleanupTime = now + TimeSpan.FromHours(1);
-        }
+        foreach (var pair in _playerThrottleObjects.ToList().Where(pair => pair.Value.PeriodEnd < now))
+            _playerThrottleObjects.Remove(pair.Key);
+
+        _playerThrottleObjectsCleanupTime = now + TimeSpan.FromHours(1);
     }
 
     public void UpdatePendingAuctions()

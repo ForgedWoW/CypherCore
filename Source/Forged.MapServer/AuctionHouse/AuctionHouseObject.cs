@@ -18,6 +18,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Networking.Packets.AuctionHouse;
 using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IAuctionHouse;
 using Forged.MapServer.World;
@@ -545,14 +546,16 @@ public class AuctionHouseObject
 
         if (!_buckets.TryGetValue(AuctionsBucketKey.ForCommodity(itemTemplate), out var bucketItr))
         {
-            player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
+            if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                auctionManager.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
             return false;
         }
 
         if (!_commodityQuotes.TryGetValue(player.GUID, out var quote))
         {
-            player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
+            if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                auctionManager.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
             return false;
         }
@@ -585,7 +588,8 @@ public class AuctionHouseObject
         // not enough items on auction house
         if (remainingQuantity != 0)
         {
-            player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
+            if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                auctionManager.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
             return false;
         }
@@ -594,14 +598,16 @@ public class AuctionHouseObject
         // but we allow lower price if new items were posted at lower price
         if (totalPrice > quote.TotalPrice)
         {
-            player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
+            if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                auctionManager.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
             return false;
         }
 
         if (!player.HasEnoughMoney(totalPrice))
         {
-            player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
+            if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                auctionManager.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
             return false;
         }
@@ -641,9 +647,10 @@ public class AuctionHouseObject
                 {
                     var clonedItem = auctionItem.CloneItem(remainingQuantity, player);
 
-                    if (!clonedItem)
+                    if (clonedItem == null)
                     {
-                        player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
+                        if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                            auctionManager.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
                         return false;
                     }
@@ -689,7 +696,8 @@ public class AuctionHouseObject
             {
                 owner.UpdateCriteria(CriteriaType.MoneyEarnedFromAuctions, profit);
                 owner.UpdateCriteria(CriteriaType.HighestAuctionSale, profit);
-                owner.Session.SendAuctionClosedNotification(auction, _configuration.GetDefaultValue("MailDeliveryDelay", Time.FHOUR), true);
+                if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                    auctionManager.SendAuctionClosedNotification(auction, _configuration.GetDefaultValue("MailDeliveryDelay", Time.FHOUR), true);
             }
 
             _classFactory.ResolveWithPositionalParameters<MailDraft>(_auctionManager.BuildCommodityAuctionMailSubject(AuctionMailType.Sold, itemId, boughtFromAuction),
@@ -704,7 +712,7 @@ public class AuctionHouseObject
         foreach (var batch in items)
         {
             var mail = _classFactory.ResolveWithPositionalParameters<MailDraft>(_auctionManager.BuildCommodityAuctionMailSubject(AuctionMailType.Won, itemId, batch.Quantity),
-                                                                  _auctionManager.BuildAuctionWonMailBody(uniqueSeller.Value, batch.TotalPrice, batch.Quantity));
+                                                                  _auctionManager.BuildAuctionWonMailBody(uniqueSeller, batch.TotalPrice, batch.Quantity));
 
             for (var i = 0; i < batch.ItemsCount; ++i)
             {
@@ -911,8 +919,8 @@ public class AuctionHouseObject
         // owner exist
         if (owner != null || _characterCache.HasCharacterCacheEntry(auction.Owner)) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
         {
-            if (owner != null)
-                owner.Session.SendAuctionClosedNotification(auction, 0.0f, false);
+            if (owner != null && owner.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                auctionManager.SendAuctionClosedNotification(auction, 0.0f, false);
 
             var itemIndex = 0;
 
@@ -1017,8 +1025,8 @@ public class AuctionHouseObject
             owner.UpdateCriteria(CriteriaType.HighestAuctionSale, auction.BidAmount);
 
             //send auction owner notification, bidder must be current!
-            owner. //send auction owner notification, bidder must be current!
-                Session.SendAuctionClosedNotification(auction, _configuration.GetDefaultValue("MailDeliveryDelay", Time.FHOUR), true);
+            if (owner.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
+                auctionManager.SendAuctionClosedNotification(auction, _configuration.GetDefaultValue("MailDeliveryDelay", Time.FHOUR), true);
         }
 
         _classFactory.ResolveWithPositionalParameters<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Sold, auction),
