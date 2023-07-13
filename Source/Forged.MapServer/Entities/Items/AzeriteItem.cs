@@ -126,7 +126,7 @@ public class AzeriteItem : Item
 
     public override void DeleteFromDB(SQLTransaction trans)
     {
-        AzeriteItemFactory.DeleteFromDB(trans, GUID.Counter);
+        _azeriteItemFactory.DeleteFromDB(trans, GUID.Counter);
         base.DeleteFromDB(trans);
     }
 
@@ -142,9 +142,9 @@ public class AzeriteItem : Item
 
     public uint GetEssenceRank(uint azeriteEssenceId)
     {
-        var index = AzeriteItemData.UnlockedEssences.FindIndexIf(essence => { return essence.AzeriteEssenceID == azeriteEssenceId; });
+        var index = AzeriteItemData.UnlockedEssences.FindIndexIf(essence => essence.AzeriteEssenceID == azeriteEssenceId);
 
-        return index < 0 ? (uint)0 : AzeriteItemData.UnlockedEssences[index].Rank;
+        return index < 0 ? 0 : AzeriteItemData.UnlockedEssences[index].Rank;
     }
 
     public uint GetLevel()
@@ -459,7 +459,7 @@ public class AzeriteItem : Item
         while (beginDate < now && knowledge < PlayerConst.MaxAzeriteItemKnowledgeLevel)
         {
             ++knowledge;
-            beginDate.AddDays(7);
+            beginDate = beginDate.AddDays(7);
         }
 
         return knowledge;
