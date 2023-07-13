@@ -580,4 +580,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<TraitHandler>();
     builder.RegisterType<AuctionHandler>();
     builder.RegisterType<AuthenticationHandler>();
+    builder.RegisterType<AzeriteHandler>();
 }
