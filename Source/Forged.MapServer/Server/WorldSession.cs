@@ -36,7 +36,7 @@ using Forged.MapServer.Networking.Packets.Hotfix;
 using Forged.MapServer.Networking.Packets.Instance;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Movement;
-using Forged.MapServer.Networking.Packets.System;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
@@ -61,7 +61,6 @@ public class WorldSession : IDisposable
     private readonly BattlegroundManager _battlegroundManager;
     private readonly CancellationTokenSource _cancellationToken = new();
     private readonly CharacterDatabase _characterDatabase;
-    private readonly CharacterTemplateDataStorage _characterTemplateDataStorage;
     private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
@@ -124,7 +123,6 @@ public class WorldSession : IDisposable
         _db2Manager = classFactory.Resolve<DB2Manager>();
         PacketRouter = classFactory.Resolve<PacketRouter>();
         _gameObjectManager = classFactory.Resolve<GameObjectManager>();
-        _characterTemplateDataStorage = classFactory.Resolve<CharacterTemplateDataStorage>();
         _scriptManager = classFactory.Resolve<ScriptManager>();
         _socialManager = classFactory.Resolve<SocialManager>();
         _guildManager = classFactory.Resolve<GuildManager>();
@@ -772,73 +770,6 @@ public class WorldSession : IDisposable
         SendPacket(accountDataTimes);
     }
 
-    public void SendAuthResponse(BattlenetRpcErrorCode code, bool queued, uint queuePos = 0)
-    {
-        AuthResponse response = new()
-        {
-            Result = code
-        };
-
-        if (code == BattlenetRpcErrorCode.Ok)
-        {
-            response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-            var forceRaceAndClass = _configuration.GetDefaultValue("character:EnforceRaceAndClassExpansions", true);
-
-            response.SuccessInfo = new AuthResponse.AuthSuccessInfo
-            {
-                ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)Expansion,
-                AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)AccountExpansion,
-                VirtualRealmAddress = _realm.Id.VirtualRealmAddress,
-                Time = (uint)GameTime.CurrentTime
-            };
-
-            // Send current home realm. Also there is no need to send it later in realm queries.
-            response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(_realm.Id.VirtualRealmAddress, true, false, _realm.Name, _realm.NormalizedName));
-
-            if (HasPermission(RBACPermissions.UseCharacterTemplates))
-                foreach (var templ in _characterTemplateDataStorage.GetCharacterTemplates().Values)
-                    response.SuccessInfo.Templates.Add(templ);
-
-            response.SuccessInfo.AvailableClasses = _gameObjectManager.GetClassExpansionRequirements();
-        }
-
-        if (queued)
-        {
-            AuthWaitInfo waitInfo = new()
-            {
-                WaitCount = queuePos
-            };
-
-            response.WaitInfo = waitInfo;
-        }
-
-        SendPacket(response);
-    }
-
-    public void SendAuthWaitQueue(uint position)
-    {
-        if (position != 0)
-        {
-            WaitQueueUpdate waitQueueUpdate = new();
-            waitQueueUpdate.WaitInfo.WaitCount = position;
-            waitQueueUpdate.WaitInfo.WaitTime = 0;
-            waitQueueUpdate.WaitInfo.HasFCM = false;
-            SendPacket(waitQueueUpdate);
-        }
-        else
-            SendPacket(new WaitQueueFinish());
-    }
-
-    public void SendClientCacheVersion(uint version)
-    {
-        ClientCacheVersion cache = new()
-        {
-            CacheVersion = version
-        };
-
-        SendPacket(cache); //enabled it
-    }
-
     public void SendConnectToInstance(ConnectToSerial serial)
     {
         var instanceAddress = _realm.GetAddressForClient(IPAddress.Parse(RemoteAddress));
@@ -870,34 +801,6 @@ public class WorldSession : IDisposable
         }
 
         SendPacket(connectTo);
-    }
-
-    public void SendFeatureSystemStatusGlueScreen()
-    {
-        FeatureSystemStatusGlueScreen features = new()
-        {
-            BpayStoreAvailable = _configuration.GetDefaultValue("FeatureSystem:BpayStore:Enabled", false),
-            BpayStoreDisabledByParentalControls = false,
-            CharUndeleteEnabled = _configuration.GetDefaultValue("FeatureSystem:CharacterUndelete:Enabled", false),
-            BpayStoreEnabled = _configuration.GetDefaultValue("FeatureSystem:BpayStore:Enabled", false),
-            MaxCharactersPerRealm = _configuration.GetDefaultValue("CharactersPerRealm", 60),
-            MinimumExpansionLevel = (int)Expansion.Classic,
-            MaximumExpansionLevel = _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)
-        };
-
-        var europaTicketConfig = new EuropaTicketConfig();
-        europaTicketConfig.ThrottleState.MaxTries = 10;
-        europaTicketConfig.ThrottleState.PerMilliseconds = 60000;
-        europaTicketConfig.ThrottleState.TryCount = 1;
-        europaTicketConfig.ThrottleState.LastResetTimeBeforeNow = 111111;
-        europaTicketConfig.TicketsEnabled = _configuration.GetDefaultValue("Support:TicketsEnabled", false);
-        europaTicketConfig.BugsEnabled = _configuration.GetDefaultValue("Support:BugsEnabled", false);
-        europaTicketConfig.ComplaintsEnabled = _configuration.GetDefaultValue("Support:ComplaintsEnabled", false);
-        europaTicketConfig.SuggestionsEnabled = _configuration.GetDefaultValue("Support:SuggestionsEnabled", false);
-
-        features.EuropaTicketSystemStatus = europaTicketConfig;
-
-        SendPacket(features);
     }
 
     public void SendNotification(CypherStrings str, params object[] args)
@@ -933,19 +836,6 @@ public class WorldSession : IDisposable
         }
 
         Socket.SendPacket(packet);
-    }
-
-    public void SendSetTimeZoneInformation()
-    {
-        // @todo: replace dummy values
-        SetTimeZoneInformation packet = new()
-        {
-            ServerTimeTZ = "Europe/Paris",
-            GameTimeTZ = "Europe/Paris",
-            ServerRegionalTZ = "Europe/Paris"
-        };
-
-        SendPacket(packet); //enabled it
     }
 
     public void SendTimeSync()
@@ -1358,6 +1248,19 @@ public class WorldSession : IDisposable
 
     private void InitializeSessionCallback(SQLQueryHolder<AccountInfoQueryLoad> holder, SQLQueryHolder<AccountInfoQueryLoad> realmHolder)
     {
+        if (!PacketRouter.TryGetOpCodeHandler(out AuthenticationHandler authenticationHandler))
+        {
+            Log.Logger.Error("WORLD: failed to get AuthenticationHandler!"); // should NEVER happen
+            SendPacket(new ConnectionStatus()
+            {
+                State = 0
+            });
+
+            Socket?.CloseSocket();
+            Socket = null;
+            return;
+        }
+
         LoadAccountData(realmHolder.GetResult(AccountInfoQueryLoad.GlobalAccountDataIndexPerRealm), AccountDataTypes.GlobalCacheMask);
         LoadTutorialsData(realmHolder.GetResult(AccountInfoQueryLoad.TutorialsIndexPerRealm));
         CollectionMgr.LoadAccountToys(holder.GetResult(AccountInfoQueryLoad.GlobalAccountToys));
@@ -1367,16 +1270,16 @@ public class WorldSession : IDisposable
         CollectionMgr.LoadAccountTransmogIllusions(holder.GetResult(AccountInfoQueryLoad.TransmogIllusions));
 
         if (!_inQueue)
-            SendAuthResponse(BattlenetRpcErrorCode.Ok, false);
+            authenticationHandler.SendAuthResponse(BattlenetRpcErrorCode.Ok, false);
         else
-            SendAuthWaitQueue(0);
+            authenticationHandler.SendAuthWaitQueue(0);
 
         SetInQueue(false);
         ResetTimeOutTime(false);
 
-        SendSetTimeZoneInformation();
-        SendFeatureSystemStatusGlueScreen();
-        SendClientCacheVersion(_configuration.GetDefaultValue("ClientCacheVersion", 0u));
+        authenticationHandler.SendSetTimeZoneInformation();
+        authenticationHandler.SendFeatureSystemStatusGlueScreen();
+        authenticationHandler.SendClientCacheVersion(_configuration.GetDefaultValue("ClientCacheVersion", 0u));
         SendAvailableHotfixes();
         SendAccountDataTimes(ObjectGuid.Empty, AccountDataTypes.GlobalCacheMask);
         SendTutorialsData();

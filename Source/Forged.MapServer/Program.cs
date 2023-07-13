@@ -579,4 +579,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<TradeHandler>();
     builder.RegisterType<TraitHandler>();
     builder.RegisterType<AuctionHandler>();
+    builder.RegisterType<AuthenticationHandler>();
 }

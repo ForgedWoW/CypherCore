@@ -225,31 +225,31 @@ public sealed class GameObjectManager
     // first free id for selected id type
     private uint _auctionId;
 
+    private AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
+    private AzeriteItemFactory _azeriteItemFactory;
     private ConditionManager _conditionManager;
     private ulong _creatureSpawnId;
     private DB2Manager _db2Manager;
     private DisableManager _disableManager;
     private ulong _equipmentSetGuid;
     private ulong _gameObjectSpawnId;
+    private GridDefines _gridDefines;
     private uint _hiPetNumber;
+    private ItemFactory _itemFactory;
     private LFGManager _lfgManager;
     private LootStoreBox _lootStoreBox;
     private ulong _mailId;
     private MapManager _mapManager;
     private ObjectAccessor _objectAccessor;
+    private PhasingHandler _phasingHandler;
     private uint[] _playerXPperLevel;
+    private QuestPoolManager _questPoolManager;
     private ScriptManager _scriptManager;
     private SpellManager _spellManager;
     private TerrainManager _terrainManager;
     private TransportManager _transportManager;
     private ulong _voidItemId;
     private WorldManager _worldManager;
-    private PhasingHandler _phasingHandler;
-    private GridDefines _gridDefines;
-    private QuestPoolManager _questPoolManager;
-    private ItemFactory _itemFactory;
-    private AzeriteItemFactory _azeriteItemFactory;
-    private AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase)
@@ -268,25 +268,32 @@ public sealed class GameObjectManager
         }
     }
 
-    public void Initialize(ClassFactory cf)
-    {
-        _itemFactory = cf.Resolve<ItemFactory>();
-        _azeriteItemFactory = cf.Resolve<AzeriteItemFactory>();
-        _azeriteEmpoweredItemFactory = cf.Resolve<AzeriteEmpoweredItemFactory>();
-    }
+    public List<RaceClassAvailability> ClassExpansionRequirements => _classExpansionRequirementStorage;
 
     public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts { get; set; } = new();
+
     public Dictionary<uint, uint> FactionChangeAchievements { get; set; } = new();
+
     public Dictionary<uint, uint> FactionChangeItemsAllianceToHorde { get; set; } = new();
+
     public Dictionary<uint, uint> FactionChangeItemsHordeToAlliance { get; set; } = new();
+
     public Dictionary<uint, uint> FactionChangeQuests { get; set; } = new();
+
     public Dictionary<uint, uint> FactionChangeReputation { get; set; } = new();
+
     public Dictionary<uint, uint> FactionChangeSpells { get; set; } = new();
+
     public Dictionary<uint, uint> FactionChangeTitles { get; set; } = new();
+
     public Dictionary<uint, GameTele> GameTeleStorage { get; set; } = new();
+
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
+
     public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos { get; } = new();
+
     public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts { get; set; } = new();
+
     public Dictionary<uint, MultiMap<uint, ScriptInfo>> WaypointScripts { get; set; } = new();
 
     public void AddCreatureToGrid(CreatureData data)
@@ -1096,11 +1103,6 @@ public sealed class GameObjectManager
                 return classAvailability;
 
         return null;
-    }
-
-    public List<RaceClassAvailability> GetClassExpansionRequirements()
-    {
-        return _classExpansionRequirementStorage;
     }
 
     public WorldSafeLocsEntry GetClosestGraveYard(WorldLocation location, TeamFaction team, WorldObject conditionObject)
@@ -2186,6 +2188,13 @@ public sealed class GameObjectManager
     public bool HasPersonalSpawns(uint mapid, Difficulty spawnMode, uint phaseId)
     {
         return _mapPersonalObjectGuidsStore.ContainsKey((mapid, spawnMode, phaseId));
+    }
+
+    public void Initialize(ClassFactory cf)
+    {
+        _itemFactory = cf.Resolve<ItemFactory>();
+        _azeriteItemFactory = cf.Resolve<AzeriteItemFactory>();
+        _azeriteEmpoweredItemFactory = cf.Resolve<AzeriteEmpoweredItemFactory>();
     }
 
     public void InitializeQueriesData(QueryDataGroup mask)
