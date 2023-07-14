@@ -9,6 +9,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
@@ -17,6 +18,13 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class ChannelHandler : IWorldSessionHandler
 {
+	private readonly WorldSession _session;
+
+    public ChannelHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
 	[WorldPacketHandler(ClientOpcodes.ChatJoinChannel)]
 	void HandleJoinChannel(JoinChannel packet)
 	{

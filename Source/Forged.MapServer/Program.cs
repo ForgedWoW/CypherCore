@@ -584,4 +584,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<BankHandler>();
     builder.RegisterType<BattlenetHandler>();
     builder.RegisterType<CalendarHandler>();
+    builder.RegisterType<ChannelHandler>();
 }
