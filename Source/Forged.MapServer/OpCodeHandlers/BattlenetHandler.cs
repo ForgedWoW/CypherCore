@@ -6,22 +6,28 @@ using System.Collections.Generic;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Battlenet;
 using Forged.MapServer.Server;
+using Forged.MapServer.Services;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Google.Protobuf;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
+// ReSharper disable CollectionNeverQueried.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class BattlenetHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly WorldServiceManager _serviceManager;
     private readonly Dictionary<uint, Action<CodedInputStream>> _battlenetResponseCallbacks = new();
     private uint _battlenetRequestToken;
 
-    public BattlenetHandler(WorldSession session)
+    public BattlenetHandler(WorldSession session, WorldServiceManager serviceManager)
     {
         _session = session;
+        _serviceManager = serviceManager;
     }
 
     public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, IMessage response)
@@ -77,11 +83,11 @@ public class BattlenetHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.BattlenetRequest, Status = SessionStatus.Authed)]
 	void HandleBattlenetRequest(BattlenetRequest request)
 	{
-		var handler = Global.ServiceMgr.GetHandler(request.Method.GetServiceHash(), request.Method.GetMethodId());
+		var handler = _serviceManager.GetHandler(request.Method.GetServiceHash(), request.Method.GetMethodId());
 
 		if (handler != null)
 		{
-			handler.Invoke(this, request.Method, new CodedInputStream(request.Data));
+			handler.Invoke(_session, request.Method, new CodedInputStream(request.Data));
 		}
 		else
 		{
