@@ -153,7 +153,7 @@ public class CharacterHandler : IWorldSessionHandler
 		LoginQueryHolder holder = new(AccountId, _playerLoading);
 		holder.Initialize();
 
-		SendPacket(new ResumeComms(ConnectionType.Instance));
+		_session.SendPacket(new ResumeComms(ConnectionType.Instance));
 
 		AddQueryHolderCallback(DB.Characters.DelayQueryHolder(holder)).AfterComplete(holder => HandlePlayerLogin((LoginQueryHolder)holder));
 	}
@@ -184,7 +184,7 @@ public class CharacterHandler : IWorldSessionHandler
 		LoginVerifyWorld loginVerifyWorld = new();
 		loginVerifyWorld.MapID = (int)pCurrChar.Location.MapId;
 		loginVerifyWorld.Pos = pCurrChar.Location;
-		SendPacket(loginVerifyWorld);
+		_session.SendPacket(loginVerifyWorld);
 
 		// load player specific part before send times
 		LoadAccountData(holder.GetResult(PlayerLoginQueryLoad.AccountData), AccountDataTypes.PerCharacterCacheMask);
@@ -195,7 +195,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		MOTD motd = new();
 		motd.Text = Global.WorldMgr.Motd;
-		SendPacket(motd);
+		_session.SendPacket(motd);
 
 		SendSetTimeZoneInformation();
 
@@ -207,7 +207,7 @@ public class CharacterHandler : IWorldSessionHandler
 			if (WorldConfig.GetBoolValue(WorldCfg.ArenaSeasonInProgress))
 				seasonInfo.CurrentArenaSeason = WorldConfig.GetIntValue(WorldCfg.ArenaSeasonId);
 
-			SendPacket(seasonInfo);
+			_session.SendPacket(seasonInfo);
 		}
 
 		var resultGuild = holder.GetResult(PlayerLoginQueryLoad.Guild);
@@ -501,7 +501,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		_playerLoading.Clear();
-		SendPacket(new CharacterLoginFailed(reason));
+		_session.SendPacket(new CharacterLoginFailed(reason));
 	}
 
 	public void SendFeatureSystemStatus()
@@ -542,7 +542,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		features.TextToSpeechFeatureEnabled = false;
 
-		SendPacket(features);
+		_session.SendPacket(features);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.EnumCharacters, Status = SessionStatus.Authed)]
@@ -644,7 +644,7 @@ public class CharacterHandler : IWorldSessionHandler
 			charResult.RaceUnlockData.Add(raceUnlock);
 		}
 
-		SendPacket(charResult);
+		_session.SendPacket(charResult);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.EnumCharactersDeletedByClient, Status = SessionStatus.Authed)]
@@ -683,7 +683,7 @@ public class CharacterHandler : IWorldSessionHandler
 				charEnum.Characters.Add(charInfo);
 			} while (result.NextRow());
 
-		SendPacket(charEnum);
+		_session.SendPacket(charEnum);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CreateCharacter, Status = SessionStatus.Authed)]
@@ -1205,7 +1205,7 @@ public class CharacterHandler : IWorldSessionHandler
 		result.Success = true;
 		result.Name = Global.DB2Mgr.GetNameGenEntry(packet.Race, packet.Sex);
 
-		SendPacket(result);
+		_session.SendPacket(result);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ReorderCharacters, Status = SessionStatus.Authed)]
@@ -1325,7 +1325,7 @@ public class CharacterHandler : IWorldSessionHandler
 		// prevent character rename to invalid name
 		if (!ObjectManager.NormalizePlayerName(ref checkCharacterNameAvailability.Name))
 		{
-			SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameNoName));
+			_session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameNoName));
 
 			return;
 		}
@@ -1334,7 +1334,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (res != ResponseCodes.CharNameSuccess)
 		{
-			SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, res));
+			_session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, res));
 
 			return;
 		}
@@ -1342,7 +1342,7 @@ public class CharacterHandler : IWorldSessionHandler
 		// check name limitations
 		if (!HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(checkCharacterNameAvailability.Name))
 		{
-			SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameReserved));
+			_session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameReserved));
 
 			return;
 		}
@@ -1352,7 +1352,7 @@ public class CharacterHandler : IWorldSessionHandler
 		stmt.AddValue(0, checkCharacterNameAvailability.Name);
 
 		var sequenceIndex = checkCharacterNameAvailability.SequenceIndex;
-		_queryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt).WithCallback(result => { SendPacket(new CheckCharacterNameAvailabilityResult(sequenceIndex, !result.IsEmpty() ? ResponseCodes.CharCreateNameInUse : ResponseCodes.Success)); }));
+		_queryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt).WithCallback(result => { _session.SendPacket(new CheckCharacterNameAvailabilityResult(sequenceIndex, !result.IsEmpty() ? ResponseCodes.CharCreateNameInUse : ResponseCodes.Success)); }));
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestForcedReactions)]
@@ -1528,14 +1528,14 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (!go)
 		{
-			SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
+			_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
 
 			return;
 		}
 
 		if (Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.Template.BarberChair.chairheight))
 		{
-			SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
+			_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
 
 			return;
 		}
@@ -1544,12 +1544,12 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (!Player.HasEnoughMoney(cost))
 		{
-			SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NoMoney));
+			_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NoMoney));
 
 			return;
 		}
 
-		SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.Success));
+		_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.Success));
 
 		_session.Player.ModifyMoney(-cost);
 		_session.Player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
@@ -1871,7 +1871,7 @@ public class CharacterHandler : IWorldSessionHandler
 		UseEquipmentSetResult result = new();
 		result.GUID = useEquipmentSet.GUID;
 		result.Reason = 0; // 4 - equipment swap failed - inventory is full
-		SendPacket(result);
+		_session.SendPacket(result);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CharRaceOrFactionChange, Status = SessionStatus.Authed)]
@@ -2673,7 +2673,7 @@ public class CharacterHandler : IWorldSessionHandler
 		foreach (var id in graveyardIds)
 			packet.CemeteryID.Add(id);
 
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ReclaimCorpse)]
@@ -2779,7 +2779,7 @@ public class CharacterHandler : IWorldSessionHandler
 		response.Code = result;
 		response.Guid = guid;
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	void SendCharDelete(ResponseCodes result)
@@ -2787,7 +2787,7 @@ public class CharacterHandler : IWorldSessionHandler
 		DeleteChar response = new();
 		response.Code = result;
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	void SendCharRename(ResponseCodes result, CharacterRenameInfo renameInfo)
@@ -2799,7 +2799,7 @@ public class CharacterHandler : IWorldSessionHandler
 		if (result == ResponseCodes.Success)
 			packet.Guid = renameInfo.Guid;
 
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	void SendCharCustomize(ResponseCodes result, CharCustomizeInfo customizeInfo)
@@ -2807,14 +2807,14 @@ public class CharacterHandler : IWorldSessionHandler
 		if (result == ResponseCodes.Success)
 		{
 			CharCustomizeSuccess response = new(customizeInfo);
-			SendPacket(response);
+			_session.SendPacket(response);
 		}
 		else
 		{
 			CharCustomizeFailure failed = new();
 			failed.Result = (byte)result;
 			failed.CharGUID = customizeInfo.CharGUID;
-			SendPacket(failed);
+			_session.SendPacket(failed);
 		}
 	}
 
@@ -2833,7 +2833,7 @@ public class CharacterHandler : IWorldSessionHandler
 			packet.Display.RaceID = (byte)factionChangeInfo.RaceID;
 		}
 
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	void SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid)
@@ -2842,7 +2842,7 @@ public class CharacterHandler : IWorldSessionHandler
 		packet.ResultCode = result;
 		packet.Player = guid;
 
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	void SendUndeleteCooldownStatusResponse(uint currentCooldown, uint maxCooldown)
@@ -2852,7 +2852,7 @@ public class CharacterHandler : IWorldSessionHandler
 		response.MaxCooldown = maxCooldown;
 		response.CurrentCooldown = currentCooldown;
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	void SendUndeleteCharacterResponse(CharacterUndeleteResult result, CharacterUndeleteInfo undeleteInfo)
@@ -2861,7 +2861,7 @@ public class CharacterHandler : IWorldSessionHandler
 		response.UndeleteInfo = undeleteInfo;
 		response.Result = result;
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 }
 

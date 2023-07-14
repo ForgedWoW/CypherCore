@@ -19,7 +19,7 @@ public class TokenHandler : IWorldSessionHandler
 		response.UnkInt = commerceTokenGetLog.UnkInt;
 		response.Result = TokenResult.Success;
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetMarketPrice)]
@@ -33,6 +33,6 @@ public class TokenHandler : IWorldSessionHandler
 		response.Result = TokenResult.Success;
 		//packet.ReadUInt32("UnkInt32");
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 }

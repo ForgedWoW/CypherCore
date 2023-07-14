@@ -88,7 +88,7 @@ public class LFGHandler : IWorldSessionHandler
 			lfgPlayerInfo.Dungeons.Add(playerDungeonInfo);
 		}
 
-		SendPacket(lfgPlayerInfo);
+		_session.SendPacket(lfgPlayerInfo);
 	}
 
 	public void SendLfgPartyLockInfo()
@@ -124,7 +124,7 @@ public class LFGHandler : IWorldSessionHandler
 		}
 
 		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_PARTY_INFO {0}", GetPlayerInfo());
-		SendPacket(lfgPartyInfo);
+		_session.SendPacket(lfgPartyInfo);
 	}
 
 	public void SendLfgUpdateStatus(LfgUpdateData updateData, bool party)
@@ -178,7 +178,7 @@ public class LFGHandler : IWorldSessionHandler
 		lfgUpdateStatus.Queued = queued;
 		lfgUpdateStatus.QueueMapID = Global.LFGMgr.GetDungeonMapId(_player.GUID);
 
-		SendPacket(lfgUpdateStatus);
+		_session.SendPacket(lfgUpdateStatus);
 	}
 
 	public void SendLfgRoleChosen(ObjectGuid guid, LfgRoles roles)
@@ -187,7 +187,7 @@ public class LFGHandler : IWorldSessionHandler
 		roleChosen.Player = guid;
 		roleChosen.RoleMask = roles;
 		roleChosen.Accepted = roles > 0;
-		SendPacket(roleChosen);
+		_session.SendPacket(roleChosen);
 	}
 
 	public void SendLfgRoleCheckUpdate(LfgRoleCheck roleCheck)
@@ -227,7 +227,7 @@ public class LFGHandler : IWorldSessionHandler
 			}
 		}
 
-		SendPacket(lfgRoleCheckUpdate);
+		_session.SendPacket(lfgRoleCheckUpdate);
 	}
 
 	public void SendLfgJoinResult(LfgJoinResultData joinData)
@@ -267,7 +267,7 @@ public class LFGHandler : IWorldSessionHandler
 			lfgJoinResult.BlackList.Add(blackList);
 		}
 
-		SendPacket(lfgJoinResult);
+		_session.SendPacket(lfgJoinResult);
 	}
 
 	public void SendLfgQueueStatus(LfgQueueStatusData queueData)
@@ -306,7 +306,7 @@ public class LFGHandler : IWorldSessionHandler
 		lfgQueueStatus.LastNeeded[2] = queueData.dps;
 		lfgQueueStatus.QueuedTime = queueData.queuedTime;
 
-		SendPacket(lfgQueueStatus);
+		_session.SendPacket(lfgQueueStatus);
 	}
 
 	public void SendLfgPlayerReward(LfgPlayerRewardData rewardData)
@@ -343,7 +343,7 @@ public class LFGHandler : IWorldSessionHandler
 				lfgPlayerReward.Rewards.Add(new LFGPlayerRewards(currencyId, rewardData.quest.RewardCurrencyCount[i], 0, true));
 		}
 
-		SendPacket(lfgPlayerReward);
+		_session.SendPacket(lfgPlayerReward);
 	}
 
 	public void SendLfgBootProposalUpdate(LfgPlayerBoot boot)
@@ -386,7 +386,7 @@ public class LFGHandler : IWorldSessionHandler
 		lfgBootPlayer.Info.TimeLeft = secsleft;                                     // Time Left
 		lfgBootPlayer.Info.VotesNeeded = SharedConst.LFGKickVotesNeeded;            // Needed Votes
 		lfgBootPlayer.Info.Reason = boot.reason;                                    // Kick reason
-		SendPacket(lfgBootPlayer);
+		_session.SendPacket(lfgBootPlayer);
 	}
 
 	public void SendLfgProposalUpdate(LfgProposal proposal)
@@ -436,24 +436,24 @@ public class LFGHandler : IWorldSessionHandler
 			lfgProposalUpdate.Players.Add(proposalPlayer);
 		}
 
-		SendPacket(lfgProposalUpdate);
+		_session.SendPacket(lfgProposalUpdate);
 	}
 
 	public void SendLfgDisabled()
 	{
-		SendPacket(new LfgDisabled());
+		_session.SendPacket(new LfgDisabled());
 	}
 
 	public void SendLfgOfferContinue(uint dungeonEntry)
 	{
 		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_OFFER_CONTINUE {0} dungeon entry: {1}", GetPlayerInfo(), dungeonEntry);
-		SendPacket(new LfgOfferContinue(Global.LFGMgr.GetLFGDungeonEntry(dungeonEntry)));
+		_session.SendPacket(new LfgOfferContinue(Global.LFGMgr.GetLFGDungeonEntry(dungeonEntry)));
 	}
 
 	public void SendLfgTeleportError(LfgTeleportResult err)
 	{
 		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_TELEPORT_DENIED {0} reason: {1}", GetPlayerInfo(), err);
-		SendPacket(new LfgTeleportDenied(err));
+		_session.SendPacket(new LfgTeleportDenied(err));
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DfJoin)]

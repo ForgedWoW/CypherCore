@@ -150,7 +150,7 @@ public class SocialHandler : IWorldSessionHandler
 				break;
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.WhoIs)]
@@ -208,7 +208,7 @@ public class SocialHandler : IWorldSessionHandler
 
 		WhoIsResponse response = new();
 		response.AccountName = packet.CharName + "'s " + "account is " + acc + ", e-mail: " + email + ", last ip: " + lastip;
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SendContactList)]
@@ -386,6 +386,6 @@ public class SocialHandler : IWorldSessionHandler
 	{
 		SocialContractRequestResponse response = new();
 		response.ShowSocialContract = false;
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 }

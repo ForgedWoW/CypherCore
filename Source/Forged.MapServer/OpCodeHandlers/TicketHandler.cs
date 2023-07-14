@@ -18,7 +18,7 @@ public class TicketHandler : IWorldSessionHandler
 	{
 		//TODO: Implement GmCase and handle this packet correctly
 		GMTicketCaseStatus status = new();
-		SendPacket(status);
+		_session.SendPacket(status);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GmTicketGetSystemStatus, Processing = PacketProcessing.Inplace)]
@@ -28,7 +28,7 @@ public class TicketHandler : IWorldSessionHandler
 		// Note: This disables the whole customer support UI after trying to send a ticket in disabled state (MessageBox: "GM Help Tickets are currently unavaiable."). UI remains disabled until the character relogs.
 		GMTicketSystemStatusPkt response = new();
 		response.Status = Global.SupportMgr.GetSupportSystemStatus() ? 1 : 0;
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SubmitUserFeedback)]
@@ -101,6 +101,6 @@ public class TicketHandler : IWorldSessionHandler
 		ComplaintResult result = new();
 		result.ComplaintType = packet.ComplaintType;
 		result.Result = 0;
-		SendPacket(result);
+		_session.SendPacket(result);
 	}
 }

@@ -26,7 +26,7 @@ public class GroupHandler : IWorldSessionHandler
 		packet.ResultData = val;
 		packet.ResultGUID = ObjectGuid.Empty;
 
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PartyInvite)]
@@ -121,7 +121,7 @@ public class GroupHandler : IWorldSessionHandler
 				// tell the player that they were invited but it failed as they were already in a group
 				partyInvite = new PartyInvite();
 				partyInvite.Initialize(invitingPlayer, packet.ProposedRoles, false);
-				invitedPlayer.SendPacket(partyInvite);
+				invitedPlayer._session.SendPacket(partyInvite);
 			}
 
 			return;
@@ -174,7 +174,7 @@ public class GroupHandler : IWorldSessionHandler
 
 		partyInvite = new PartyInvite();
 		partyInvite.Initialize(invitingPlayer, packet.ProposedRoles, true);
-		invitedPlayer.SendPacket(partyInvite);
+		invitedPlayer._session.SendPacket(partyInvite);
 
 		SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.Ok);
 	}
@@ -245,7 +245,7 @@ public class GroupHandler : IWorldSessionHandler
 
 			// report
 			GroupDecline decline = new(Player.GetName());
-			leader.SendPacket(decline);
+			leader._session.SendPacket(decline);
 		}
 	}
 
@@ -335,7 +335,7 @@ public class GroupHandler : IWorldSessionHandler
 		}
 		else
 		{
-			SendPacket(roleChangedInform);
+			_session.SendPacket(roleChangedInform);
 		}
 	}
 
@@ -627,7 +627,7 @@ public class GroupHandler : IWorldSessionHandler
 			partyMemberStats.Initialize(player);
 		}
 
-		SendPacket(partyMemberStats);
+		_session.SendPacket(partyMemberStats);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestRaidInfo)]

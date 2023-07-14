@@ -54,7 +54,7 @@ public class ChannelHandler : IWorldSessionHandler
 				ChannelNotify channelNotify = new();
 				channelNotify.Type = ChatNotify.InvalidNameNotice;
 				channelNotify.Channel = packet.ChannelName;
-				SendPacket(channelNotify);
+				_session.SendPacket(channelNotify);
 
 				return;
 			}

@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Battlenet;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Google.Protobuf;
@@ -13,29 +15,44 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class BattlenetHandler : IWorldSessionHandler
 {
-	public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, IMessage response)
+    private readonly WorldSession _session;
+    private readonly Dictionary<uint, Action<CodedInputStream>> _battlenetResponseCallbacks = new();
+    private uint _battlenetRequestToken;
+
+    public BattlenetHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, IMessage response)
 	{
-		Response bnetResponse = new();
-		bnetResponse.BnetStatus = BattlenetRpcErrorCode.Ok;
-		bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
+		Response bnetResponse = new()
+        {
+            BnetStatus = BattlenetRpcErrorCode.Ok
+        };
+
+        bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
 		bnetResponse.Method.ObjectId = 1;
 		bnetResponse.Method.Token = token;
 
 		if (response.CalculateSize() != 0)
 			bnetResponse.Data.WriteBytes(response.ToByteArray());
 
-		SendPacket(bnetResponse);
+		_session.SendPacket(bnetResponse);
 	}
 
 	public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, BattlenetRpcErrorCode status)
 	{
-		Response bnetResponse = new();
-		bnetResponse.BnetStatus = status;
-		bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
+		Response bnetResponse = new()
+        {
+            BnetStatus = status
+        };
+
+        bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
 		bnetResponse.Method.ObjectId = 1;
 		bnetResponse.Method.Token = token;
 
-		SendPacket(bnetResponse);
+		_session.SendPacket(bnetResponse);
 	}
 
 	public void SendBattlenetRequest(uint serviceHash, uint methodId, IMessage request, Action<CodedInputStream> callback)
@@ -54,7 +71,7 @@ public class BattlenetHandler : IWorldSessionHandler
 		if (request.CalculateSize() != 0)
 			notification.Data.WriteBytes(request.ToByteArray());
 
-		SendPacket(notification);
+		_session.SendPacket(notification);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlenetRequest, Status = SessionStatus.Authed)]
@@ -69,21 +86,24 @@ public class BattlenetHandler : IWorldSessionHandler
 		else
 		{
 			SendBattlenetResponse(request.Method.GetServiceHash(), request.Method.GetMethodId(), request.Method.Token, BattlenetRpcErrorCode.RpcNotImplemented);
-			Log.outDebug(LogFilter.SessionRpc, "{0} tried to call invalid service {1}", GetPlayerInfo(), request.Method.GetServiceHash());
+			Log.Logger.Debug( "{0} tried to call invalid service {1}", _session.GetPlayerInfo(), request.Method.GetServiceHash());
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ChangeRealmTicket, Status = SessionStatus.Authed)]
 	void HandleBattlenetChangeRealmTicket(ChangeRealmTicket changeRealmTicket)
 	{
-		RealmListSecret = changeRealmTicket.Secret;
+		_session.RealmListSecret = changeRealmTicket.Secret;
 
-		ChangeRealmTicketResponse realmListTicket = new();
-		realmListTicket.Token = changeRealmTicket.Token;
-		realmListTicket.Allow = true;
-		realmListTicket.Ticket = new Framework.IO.ByteBuffer();
-		realmListTicket.Ticket.WriteCString("WorldserverRealmListTicket");
+		ChangeRealmTicketResponse realmListTicket = new()
+        {
+            Token = changeRealmTicket.Token,
+            Allow = true,
+            Ticket = new Framework.IO.ByteBuffer()
+        };
 
-		SendPacket(realmListTicket);
+        realmListTicket.Ticket.WriteCString("WorldserverRealmListTicket");
+
+		_session.SendPacket(realmListTicket);
 	}
 }

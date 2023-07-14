@@ -676,21 +676,21 @@ public class ChatHandler : IWorldSessionHandler
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Ignored, Language.Universal, _player, _player, _player.GetName());
-		player.SendPacket(data);
+		player._session.SendPacket(data);
 	}
 
 	void SendChatPlayerNotfoundNotice(string name)
 	{
-		SendPacket(new ChatPlayerNotfound(name));
+		_session.SendPacket(new ChatPlayerNotfound(name));
 	}
 
 	void SendPlayerAmbiguousNotice(string name)
 	{
-		SendPacket(new ChatPlayerAmbiguous(name));
+		_session.SendPacket(new ChatPlayerAmbiguous(name));
 	}
 
 	void SendChatRestricted(ChatRestrictionType restriction)
 	{
-		SendPacket(new ChatRestricted(restriction));
+		_session.SendPacket(new ChatRestricted(restriction));
 	}
 }

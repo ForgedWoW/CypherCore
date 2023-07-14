@@ -45,7 +45,7 @@ public class QueryHandler : IWorldSessionHandler
 			response.Players.Add(nameCacheLookupResult);
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryTime, Processing = PacketProcessing.Inplace)]
@@ -58,7 +58,7 @@ public class QueryHandler : IWorldSessionHandler
 	{
 		QueryTimeResponse queryTimeResponse = new();
 		queryTimeResponse.CurrentTime = GameTime.GetGameTime();
-		SendPacket(queryTimeResponse);
+		_session.SendPacket(queryTimeResponse);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryGameObject, Processing = PacketProcessing.Inplace)]
@@ -87,7 +87,7 @@ public class QueryHandler : IWorldSessionHandler
 				}
 			}
 
-			SendPacket(queryGameObjectResponse);
+			_session.SendPacket(queryGameObjectResponse);
 		}
 		else
 		{
@@ -96,7 +96,7 @@ public class QueryHandler : IWorldSessionHandler
 			QueryGameObjectResponse response = new();
 			response.GameObjectID = packet.GameObjectID;
 			response.Guid = packet.Guid;
-			SendPacket(response);
+			_session.SendPacket(response);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class QueryHandler : IWorldSessionHandler
 				}
 			}
 
-			SendPacket(queryCreatureResponse);
+			_session.SendPacket(queryCreatureResponse);
 		}
 		else
 		{
@@ -141,7 +141,7 @@ public class QueryHandler : IWorldSessionHandler
 
 			QueryCreatureResponse response = new();
 			response.CreatureID = packet.CreatureID;
-			SendPacket(response);
+			_session.SendPacket(response);
 		}
 	}
 
@@ -166,7 +166,7 @@ public class QueryHandler : IWorldSessionHandler
 		if (!response.Allow)
 			Log.outError(LogFilter.Sql, "HandleNpcTextQuery: no BroadcastTextID found for text {0} in `npc_text table`", packet.TextID);
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryPageText, Processing = PacketProcessing.Inplace)]
@@ -206,7 +206,7 @@ public class QueryHandler : IWorldSessionHandler
 		}
 
 		response.Allow = !response.Pages.Empty();
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryCorpseLocationFromClient)]
@@ -219,7 +219,7 @@ public class QueryHandler : IWorldSessionHandler
 		{
 			packet.Valid = false; // corpse not found
 			packet.Player = queryCorpseLocation.Player;
-			SendPacket(packet);
+			_session.SendPacket(packet);
 
 			return;
 		}
@@ -259,7 +259,7 @@ public class QueryHandler : IWorldSessionHandler
 		packet.ActualMapID = (int)mapID;
 		packet.Position = new Vector3(x, y, z);
 		packet.Transport = ObjectGuid.Empty;
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryCorpseTransport)]
@@ -281,7 +281,7 @@ public class QueryHandler : IWorldSessionHandler
 			}
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryQuestCompletionNpcs, Processing = PacketProcessing.Inplace)]
@@ -311,7 +311,7 @@ public class QueryHandler : IWorldSessionHandler
 			response.QuestCompletionNPCs.Add(questCompletionNPC);
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestPoiQuery, Processing = PacketProcessing.Inplace)]
@@ -337,7 +337,7 @@ public class QueryHandler : IWorldSessionHandler
 					response.QuestPOIDataStats.Add(poiData);
 			}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ItemTextQuery, Processing = PacketProcessing.Inplace)]
@@ -354,7 +354,7 @@ public class QueryHandler : IWorldSessionHandler
 			queryItemTextResponse.Text = item.Text;
 		}
 
-		SendPacket(queryItemTextResponse);
+		_session.SendPacket(queryItemTextResponse);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryRealmName, Processing = PacketProcessing.Inplace)]

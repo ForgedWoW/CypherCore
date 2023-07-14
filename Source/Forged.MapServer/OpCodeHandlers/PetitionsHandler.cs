@@ -29,7 +29,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		if (petition == null)
 		{
 			responsePacket.Allow = false;
-			SendPacket(responsePacket);
+			_session.SendPacket(responsePacket);
 			Log.Logger.Debug($"CMSG_PETITION_Select failed for petition ({petitionGuid})");
 
 			return;
@@ -47,7 +47,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		responsePacket.Allow = true;
 		responsePacket.Info = petitionInfo;
 
-		SendPacket(responsePacket);
+		_session.SendPacket(responsePacket);
 	}
 
 	public void SendPetitionShowList(ObjectGuid guid)
@@ -67,7 +67,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		ServerPetitionShowList packet = new();
 		packet.Unit = guid;
 		packet.Price = WorldConfig.GetUIntValue(WorldCfg.CharterCostGuild);
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetitionBuy)]
@@ -196,7 +196,7 @@ public class PetitionsHandler : IWorldSessionHandler
 			signaturesPacket.Signatures.Add(signaturePkt);
 		}
 
-		SendPacket(signaturesPacket);
+		_session.SendPacket(signaturesPacket);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryPetition)]
@@ -242,7 +242,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		PetitionRenameGuildResponse renameResponse = new();
 		renameResponse.PetitionGuid = packet.PetitionGuid;
 		renameResponse.NewGuildName = packet.NewGuildName;
-		SendPacket(renameResponse);
+		_session.SendPacket(renameResponse);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SignPetition)]
@@ -302,13 +302,13 @@ public class PetitionsHandler : IWorldSessionHandler
 			signResult.Error = PetitionSigns.AlreadySigned;
 
 			// close at signer side
-			SendPacket(signResult);
+			_session.SendPacket(signResult);
 
 			// update for owner if online
 			var owner = Global.ObjAccessor.FindConnectedPlayer(ownerGuid);
 
 			if (owner != null)
-				owner.Session.SendPacket(signResult);
+				owner.Session._session.SendPacket(signResult);
 
 			return;
 		}
@@ -319,7 +319,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		Log.Logger.Debug("PETITION SIGN: {0} by player: {1} ({2} Account: {3})", packet.PetitionGUID.ToString(), Player.GetName(), Player.GUID.ToString(), AccountId);
 
 		signResult.Error = PetitionSigns.Ok;
-		SendPacket(signResult);
+		_session.SendPacket(signResult);
 
 		// update signs count on charter
 		var item = _player.GetItemByGuid(packet.PetitionGUID);
@@ -334,7 +334,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		var owner1 = Global.ObjAccessor.FindPlayer(ownerGuid);
 
 		if (owner1)
-			owner1.SendPacket(signResult);
+			owner1._session.SendPacket(signResult);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DeclinePetition)]
@@ -352,7 +352,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		{
 			PetitionDeclined packet = new PetitionDeclined();
 			packet.Decliner = _player.GetGUID();
-			owner.GetSession().SendPacket(packet);
+			owner.GetSession()._session.SendPacket(packet);
 		}
 		*/
 	}
@@ -424,7 +424,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		if (Player.GuildId != 0)
 		{
 			resultPacket.Result = PetitionTurns.AlreadyInGuild;
-			SendPacket(resultPacket);
+			_session.SendPacket(resultPacket);
 
 			return;
 		}
@@ -444,7 +444,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		if (signatures.Count < requiredSignatures)
 		{
 			resultPacket.Result = PetitionTurns.NeedMoreSignatures;
-			SendPacket(resultPacket);
+			_session.SendPacket(resultPacket);
 
 			return;
 		}
@@ -478,7 +478,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		Log.Logger.Debug($"Player {Player.GetName()} ({Player.GUID}) turning in petition {packet.Item}");
 
 		resultPacket.Result = PetitionTurns.Ok;
-		SendPacket(resultPacket);
+		_session.SendPacket(resultPacket);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetitionShowList)]

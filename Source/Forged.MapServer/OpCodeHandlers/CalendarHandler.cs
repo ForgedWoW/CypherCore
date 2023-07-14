@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.Serialization;
 using Forged.MapServer.Calendar;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Maps.Instances;
@@ -25,7 +26,7 @@ public class CalendarHandler : IWorldSessionHandler
 		calendarRaidLockoutAdded.MapID = (int)instanceLock.GetMapId();
 		calendarRaidLockoutAdded.DifficultyID = instanceLock.GetDifficultyId();
 		calendarRaidLockoutAdded.TimeRemaining = (int)(instanceLock.GetEffectiveExpiryTime() - GameTime.GetSystemTime()).TotalSeconds;
-		SendPacket(calendarRaidLockoutAdded);
+		_session.SendPacket(calendarRaidLockoutAdded);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CalendarGet)]
@@ -85,7 +86,7 @@ public class CalendarHandler : IWorldSessionHandler
 			packet.RaidLockouts.Add(lockoutInfo);
 		}
 
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CalendarGetEvent)]
@@ -604,7 +605,7 @@ public class CalendarHandler : IWorldSessionHandler
 		var guid = Player.GUID;
 		var pending = Global.CalendarMgr.GetPlayerNumPending(guid);
 
-		SendPacket(new CalendarSendNumPending(pending));
+		_session.SendPacket(new CalendarSendNumPending(pending));
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetSavedInstanceExtend)]
@@ -625,7 +626,7 @@ public class CalendarHandler : IWorldSessionHandler
 		calendarRaidLockoutUpdated.DifficultyID = setSavedInstanceExtend.DifficultyID;
 		calendarRaidLockoutUpdated.OldTimeRemaining = (int)Math.Max((expiryTimes.Item1 - GameTime.GetSystemTime()).TotalSeconds, 0);
 		calendarRaidLockoutUpdated.NewTimeRemaining = (int)Math.Max((expiryTimes.Item2 - GameTime.GetSystemTime()).TotalSeconds, 0);
-		SendPacket(calendarRaidLockoutUpdated);
+		_session.SendPacket(calendarRaidLockoutUpdated);
 	}
 
 	void SendCalendarRaidLockoutRemoved(InstanceLock instanceLock)
@@ -634,6 +635,6 @@ public class CalendarHandler : IWorldSessionHandler
 		calendarRaidLockoutRemoved.InstanceID = instanceLock.GetInstanceId();
 		calendarRaidLockoutRemoved.MapID = (int)instanceLock.GetMapId();
 		calendarRaidLockoutRemoved.DifficultyID = instanceLock.GetDifficultyId();
-		SendPacket(calendarRaidLockoutRemoved);
+		_session.SendPacket(calendarRaidLockoutRemoved);
 	}
 }

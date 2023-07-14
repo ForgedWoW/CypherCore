@@ -35,6 +35,6 @@ public class ScenarioHandler : IWorldSessionHandler
 			}
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 }

@@ -76,7 +76,7 @@ public class ItemHandler : IWorldSessionHandler
             OwnerGuid = playerguid
         };
 
-        _session.SendPacket(data);
+        _session._session.SendPacket(data);
     }
 
     public bool CanUseBank(ObjectGuid bankerGUID = default)
@@ -522,7 +522,7 @@ public class ItemHandler : IWorldSessionHandler
                     Item = item.GUID
                 };
 
-                _session.SendPacket(packet);
+                _session._session.SendPacket(packet);
             }
             else
             {
@@ -531,7 +531,7 @@ public class ItemHandler : IWorldSessionHandler
                 packet.Item = item.GetGUID();
                 packet.Subcode = ??;
                 packet.Delay = ??;
-                _session.SendPacket(packet);*/
+                _session._session.SendPacket(packet);*/
 
                 Log.Logger.Information("STORAGE: Unable to read item");
                 _session.Player.SendEquipError(msg, item);
@@ -925,7 +925,7 @@ public class ItemHandler : IWorldSessionHandler
         // Placeholder to prevent completely locking out bags clientside
 
         if (sortBags == null) return;
-        _session.SendPacket(new BagCleanupFinished());
+        _session._session.SendPacket(new BagCleanupFinished());
     }
 
     [WorldPacketHandler(ClientOpcodes.SortBankBags, Processing = PacketProcessing.Inplace)]
@@ -935,7 +935,7 @@ public class ItemHandler : IWorldSessionHandler
         // Placeholder to prevent completely locking out bags clientside
 
         if (sortBankBags == null) return;
-        _session.SendPacket(new BagCleanupFinished());
+        _session._session.SendPacket(new BagCleanupFinished());
     }
 
     [WorldPacketHandler(ClientOpcodes.SortReagentBankBags, Processing = PacketProcessing.Inplace)]
@@ -945,7 +945,7 @@ public class ItemHandler : IWorldSessionHandler
         // Placeholder to prevent completely locking out bags clientside
 
         if (sortReagentBankBags == null) return;
-        _session.SendPacket(new BagCleanupFinished());
+        _session._session.SendPacket(new BagCleanupFinished());
     }
 
     [WorldPacketHandler(ClientOpcodes.SplitItem, Processing = PacketProcessing.Inplace)]
