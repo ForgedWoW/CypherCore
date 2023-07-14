@@ -79,7 +79,7 @@ public class ItemHandler : IWorldSessionHandler
         _session.SendPacket(data);
     }
 
-    private bool CanUseBank(ObjectGuid bankerGUID = default)
+    public bool CanUseBank(ObjectGuid bankerGUID = default)
     {
         // bankerGUID parameter is optional, set to 0 by default.
         if (bankerGUID.IsEmpty)
@@ -1012,14 +1012,14 @@ public class ItemHandler : IWorldSessionHandler
             return;
         }
 
-        if (_playerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot1) && !CanUseBank())
+        if (_playerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot1) && _session.PacketRouter.TryGetOpCodeHandler(out ItemHandler bankHandler) && !bankHandler.CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
 
             return;
         }
 
-        if (_playerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && !CanUseBank())
+        if (_playerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && _session.PacketRouter.TryGetOpCodeHandler(out ItemHandler bankHandler) && !bankHandler.CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
 
@@ -1063,14 +1063,14 @@ public class ItemHandler : IWorldSessionHandler
             return;
         }
 
-        if (_playerComputators.IsBankPos(swapItem.ContainerSlotA, swapItem.SlotA) && !CanUseBank())
+        if (_playerComputators.IsBankPos(swapItem.ContainerSlotA, swapItem.SlotA) && _session.PacketRouter.TryGetOpCodeHandler(out ItemHandler bankHandler) && !bankHandler.CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
 
             return;
         }
 
-        if (_playerComputators.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && !CanUseBank())
+        if (_playerComputators.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && _session.PacketRouter.TryGetOpCodeHandler(out ItemHandler bankHandler) && !bankHandler.CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
 

@@ -475,7 +475,7 @@ public class CharacterHandler : IWorldSessionHandler
 			SendNotification(CypherStrings.GmOn);
 
 		var IP_str = RemoteAddress;
-		Log.outDebug(LogFilter.Network, $"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_session.Player.XP}/{_session.Player.XPForNextLevel} ({_session.Player.XPForNextLevel - _session.Player.XP} left)");
+		Log.Logger.Debug($"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_session.Player.XP}/{_session.Player.XPForNextLevel} ({_session.Player.XPForNextLevel - _session.Player.XP} left)");
 
 		if (!pCurrChar.IsStandState && !pCurrChar.HasUnitState(UnitState.Stunned))
 			pCurrChar.SetStandState(UnitStandStateType.Stand);
@@ -599,7 +599,7 @@ public class CharacterHandler : IWorldSessionHandler
 				if (!customizationsForChar.Empty())
 					charInfo.Customizations = new Array<ChrCustomizationChoice>(customizationsForChar.ToArray());
 
-				Log.outDebug(LogFilter.Network, "Loading Character {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
+				Log.Logger.Debug("Loading Character {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
 
 				if (!charResult.IsDeletedCharacters)
 				{
@@ -728,7 +728,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (classEntry == null)
 		{
-			Log.outError(LogFilter.Network, "Class ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.ClassId, AccountId);
+			Log.Logger.Error("Class ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.ClassId, AccountId);
 			SendCharCreate(ResponseCodes.CharCreateFailed);
 
 			return;
@@ -738,7 +738,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (raceEntry == null)
 		{
-			Log.outError(LogFilter.Network, "Race ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.RaceId, AccountId);
+			Log.Logger.Error("Race ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.RaceId, AccountId);
 			SendCharCreate(ResponseCodes.CharCreateFailed);
 
 			return;
@@ -817,7 +817,7 @@ public class CharacterHandler : IWorldSessionHandler
 		{
 			if (raceEntry.GetFlags().HasFlag(ChrRacesFlag.NPCOnly))
 			{
-				Log.outError(LogFilter.Network, $"Race ({charCreate.CreateInfo.RaceId}) was not playable but requested while creating new char for account (ID: {AccountId}): wrong DBC files or cheater?");
+				Log.Logger.Error($"Race ({charCreate.CreateInfo.RaceId}) was not playable but requested while creating new char for account (ID: {AccountId}): wrong DBC files or cheater?");
 				SendCharCreate(ResponseCodes.CharCreateDisabled);
 
 				return;
@@ -848,7 +848,7 @@ public class CharacterHandler : IWorldSessionHandler
 		// prevent character creating with invalid name
 		if (!ObjectManager.NormalizePlayerName(ref charCreate.CreateInfo.Name))
 		{
-			Log.outError(LogFilter.Network, "Account:[{0}] but tried to Create character with empty [name] ", AccountId);
+			Log.Logger.Error("Account:[{0}] but tried to Create character with empty [name] ", AccountId);
 			SendCharCreate(ResponseCodes.CharNameNoName);
 
 			return;
@@ -1189,14 +1189,14 @@ public class CharacterHandler : IWorldSessionHandler
 	{
 		if (!Player.IsValidRace((Race)packet.Race))
 		{
-			Log.outError(LogFilter.Network, "Invalid race ({0}) sent by accountId: {1}", packet.Race, AccountId);
+			Log.Logger.Error("Invalid race ({0}) sent by accountId: {1}", packet.Race, AccountId);
 
 			return;
 		}
 
 		if (!Player.IsValidGender((Gender)packet.Sex))
 		{
-			Log.outError(LogFilter.Network, "Invalid gender ({0}) sent by accountId: {1}", packet.Sex, AccountId);
+			Log.Logger.Error("Invalid gender ({0}) sent by accountId: {1}", packet.Sex, AccountId);
 
 			return;
 		}
@@ -1230,18 +1230,18 @@ public class CharacterHandler : IWorldSessionHandler
 	{
 		if (PlayerLoading || Player != null)
 		{
-			Log.outError(LogFilter.Network, "Player tries to login again, AccountId = {0}", AccountId);
+			Log.Logger.Error("Player tries to login again, AccountId = {0}", AccountId);
 			KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
 
 			return;
 		}
 
 		_playerLoading = playerLogin.Guid;
-		Log.outDebug(LogFilter.Network, "Character {0} logging in", playerLogin.Guid.ToString());
+		Log.Logger.Debug("Character {0} logging in", playerLogin.Guid.ToString());
 
 		if (!_legitCharacters.Contains(playerLogin.Guid))
 		{
-			Log.outError(LogFilter.Network, "Account ({0}) can't login with that character ({1}).", AccountId, playerLogin.Guid.ToString());
+			Log.Logger.Error("Account ({0}) can't login with that character ({1}).", AccountId, playerLogin.Guid.ToString());
 			KickPlayer("WorldSession::HandlePlayerLoginOpcode Trying to login with a character of another account");
 
 			return;
@@ -1279,7 +1279,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 				if (index >= SharedConst.MaxAccountTutorialValues)
 				{
-					Log.outError(LogFilter.Network, "CMSG_TUTORIAL_FLAG received bad TutorialBit {0}.", packet.TutorialBit);
+					Log.Logger.Error("CMSG_TUTORIAL_FLAG received bad TutorialBit {0}.", packet.TutorialBit);
 
 					return;
 				}
@@ -1301,7 +1301,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 				break;
 			default:
-				Log.outError(LogFilter.Network, "CMSG_TUTORIAL_FLAG received unknown TutorialAction {0}.", packet.Action);
+				Log.Logger.Error("CMSG_TUTORIAL_FLAG received unknown TutorialAction {0}.", packet.Action);
 
 				return;
 		}

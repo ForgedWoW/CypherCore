@@ -366,7 +366,7 @@ public class SocialHandler : IWorldSessionHandler
 	void HandleDelIgnore(DelIgnore packet)
 	{
 		// @todo: handle VirtualRealmAddress
-		Log.outDebug(LogFilter.Network, "WorldSession.HandleDelIgnoreOpcode: {0}", packet.Player.Guid.ToString());
+		Log.Logger.Debug("WorldSession.HandleDelIgnoreOpcode: {0}", packet.Player.Guid.ToString());
 
 		Player.Social.RemoveFromSocialList(packet.Player.Guid, SocialFlag.Ignored);
 
@@ -377,7 +377,7 @@ public class SocialHandler : IWorldSessionHandler
 	void HandleSetContactNotes(SetContactNotes packet)
 	{
 		// @todo: handle VirtualRealmAddress
-		Log.outDebug(LogFilter.Network, "WorldSession.HandleSetContactNotesOpcode: Contact: {0}, Notes: {1}", packet.Player.Guid.ToString(), packet.Notes);
+		Log.Logger.Debug("WorldSession.HandleSetContactNotesOpcode: Contact: {0}, Notes: {1}", packet.Player.Guid.ToString(), packet.Notes);
 		Player.Social.SetFriendNote(packet.Player.Guid, packet.Notes);
 	}
 

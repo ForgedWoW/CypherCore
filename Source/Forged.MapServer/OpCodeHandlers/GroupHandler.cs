@@ -194,7 +194,7 @@ public class GroupHandler : IWorldSessionHandler
 
 			if (group.LeaderGUID == Player.GUID)
 			{
-				Log.outError(LogFilter.Network, "HandleGroupAcceptOpcode: player {0} ({1}) tried to accept an invite to his own group", Player.GetName(), Player.GUID.ToString());
+				Log.Logger.Error("HandleGroupAcceptOpcode: player {0} ({1}) tried to accept an invite to his own group", Player.GetName(), Player.GUID.ToString());
 
 				return;
 			}
@@ -644,7 +644,7 @@ public class GroupHandler : IWorldSessionHandler
 		if (!Player) // needed because STATUS_AUTHED
 		{
 			if (packet.PassOnLoot)
-				Log.outError(LogFilter.Network, "CMSG_OPT_OUT_OF_LOOT value<>0 for not-loaded character!");
+				Log.Logger.Error("CMSG_OPT_OUT_OF_LOOT value<>0 for not-loaded character!");
 
 			return;
 		}

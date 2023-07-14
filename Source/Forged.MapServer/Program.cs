@@ -581,4 +581,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<AuctionHandler>();
     builder.RegisterType<AuthenticationHandler>();
     builder.RegisterType<AzeriteHandler>();
+    builder.RegisterType<BankHandler>();
 }

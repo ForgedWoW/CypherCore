@@ -91,7 +91,7 @@ public class QueryHandler : IWorldSessionHandler
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (ENTRY: {packet.GameObjectID})");
+			Log.Logger.Debug($"WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (ENTRY: {packet.GameObjectID})");
 
 			QueryGameObjectResponse response = new();
 			response.GameObjectID = packet.GameObjectID;
@@ -137,7 +137,7 @@ public class QueryHandler : IWorldSessionHandler
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: {packet.CreatureID})");
+			Log.Logger.Debug($"WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: {packet.CreatureID})");
 
 			QueryCreatureResponse response = new();
 			response.CreatureID = packet.CreatureID;
@@ -295,7 +295,7 @@ public class QueryHandler : IWorldSessionHandler
 
 			if (Global.ObjectMgr.GetQuestTemplate(questID) == null)
 			{
-				Log.outDebug(LogFilter.Network, "WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, Player.GUID);
+				Log.Logger.Debug("WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, Player.GUID);
 
 				continue;
 			}

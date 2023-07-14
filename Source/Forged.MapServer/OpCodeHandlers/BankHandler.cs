@@ -2,337 +2,355 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Bank;
 using Forged.MapServer.Networking.Packets.NPC;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class BankHandler : IWorldSessionHandler
 {
-	public void SendShowBank(ObjectGuid guid)
-	{
-		_player.PlayerTalkClass.GetInteractionData().Reset();
-		_player.PlayerTalkClass.GetInteractionData().SourceGuid = guid;
-		NPCInteractionOpenResult npcInteraction = new();
-		npcInteraction.Npc = guid;
-		npcInteraction.InteractionType = PlayerInteractionType.Banker;
-		npcInteraction.Success = true;
-		SendPacket(npcInteraction);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.AutobankItem, Processing = PacketProcessing.Inplace)]
-	void HandleAutoBankItem(AutoBankItem packet)
-	{
-		if (!CanUseBank())
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleAutoBankItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
-
-			return;
-		}
-
-		var item = Player.GetItemByPos(packet.Bag, packet.Slot);
-
-		if (!item)
-			return;
-
-		List<ItemPosCount> dest = new();
-		var msg = Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
-
-		if (msg != InventoryResult.Ok)
-		{
-			Player.SendEquipError(msg, item);
-
-			return;
-		}
-
-		if (dest.Count == 1 && dest[0].Pos == item.Pos)
-		{
-			Player.SendEquipError(InventoryResult.CantSwap, item);
-
-			return;
-		}
-
-		Player.RemoveItem(packet.Bag, packet.Slot, true);
-		Player.ItemRemovedQuestCheck(item.Entry, item.Count);
-		Player.BankItem(dest, item, true);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.BankerActivate, Processing = PacketProcessing.Inplace)]
-	void HandleBankerActivate(Hello packet)
-	{
-		var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Banker, NPCFlags2.None);
-
-		if (!unit)
-		{
-			Log.outError(LogFilter.Network, "HandleBankerActivate: {0} not found or you can not interact with him.", packet.Unit.ToString());
-
-			return;
-		}
-
-		if (Player.HasUnitState(UnitState.Died))
-			Player.RemoveAurasByType(AuraType.FeignDeath);
-
-		SendShowBank(packet.Unit);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.AutostoreBankItem, Processing = PacketProcessing.Inplace)]
-	void HandleAutoStoreBankItem(AutoStoreBankItem packet)
-	{
-		if (!CanUseBank())
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleAutoBankItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+    private readonly DB6Storage<BankBagSlotPricesRecord> _bagSlotPricesRecords;
+    private readonly PlayerComputators _playerComputators;
+    private readonly WorldSession _session;
+
+    public BankHandler(WorldSession session, PlayerComputators playerComputators, DB6Storage<BankBagSlotPricesRecord> bagSlotPricesRecords)
+    {
+        _session = session;
+        _playerComputators = playerComputators;
+        _bagSlotPricesRecords = bagSlotPricesRecords;
+    }
+
+    public void SendShowBank(ObjectGuid guid)
+    {
+        _session.Player.PlayerTalkClass.InteractionData.Reset();
+        _session.Player.PlayerTalkClass.InteractionData.SourceGuid = guid;
+        NPCInteractionOpenResult npcInteraction = new()
+        {
+            Npc = guid,
+            InteractionType = PlayerInteractionType.Banker,
+            Success = true
+        };
+
+        _session.SendPacket(npcInteraction);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.AutobankItem, Processing = PacketProcessing.Inplace)]
+    private void HandleAutoBankItem(AutoBankItem packet)
+    {
+        if (_session.PacketRouter.TryGetOpCodeHandler(out ItemHandler itemHandler) && !itemHandler.CanUseBank())
+        {
+            Log.Logger.Debug($"WORLD: HandleAutoBankItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
+
+            return;
+        }
+
+        var item = _session.Player.GetItemByPos(packet.Bag, packet.Slot);
 
-			return;
-		}
+        if (item == null)
+            return;
+
+        List<ItemPosCount> dest = new();
+        var msg = _session.Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
+
+        if (msg != InventoryResult.Ok)
+        {
+            _session.Player.SendEquipError(msg, item);
+
+            return;
+        }
+
+        if (dest.Count == 1 && dest[0].Pos == item.Pos)
+        {
+            _session.Player.SendEquipError(InventoryResult.CantSwap, item);
+
+            return;
+        }
+
+        _session.Player.RemoveItem(packet.Bag, packet.Slot, true);
+        _session.Player.ItemRemovedQuestCheck(item.Entry, item.Count);
+        _session.Player.BankItem(dest, item, true);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.AutobankReagent)]
+    private void HandleAutoBankReagent(AutoBankReagent autoBankReagent)
+    {
+        if (_session.PacketRouter.TryGetOpCodeHandler(out ItemHandler itemHandler) && !itemHandler.CanUseBank())
+        {
+            Log.Logger.Debug($"WORLD: HandleAutoBankReagentOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
+
+            return;
+        }
+
+        if (!_session.Player.IsReagentBankUnlocked)
+        {
+            _session.Player.SendEquipError(InventoryResult.ReagentBankLocked);
+
+            return;
+        }
+
+        var item = _session.Player.GetItemByPos(autoBankReagent.PackSlot, autoBankReagent.Slot);
+
+        if (item == null)
+            return;
+
+        List<ItemPosCount> dest = new();
+        var msg = _session.Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false, true, true);
+
+        if (msg != InventoryResult.Ok)
+        {
+            _session.Player.SendEquipError(msg, item);
+
+            return;
+        }
+
+        if (dest.Count == 1 && dest[0].Pos == item.Pos)
+        {
+            _session.Player.SendEquipError(InventoryResult.CantSwap, item);
+
+            return;
+        }
+
+        _session.Player.RemoveItem(autoBankReagent.PackSlot, autoBankReagent.Slot, true);
+        _session.Player.BankItem(dest, item, true);
+    }
 
-		var item = Player.GetItemByPos(packet.Bag, packet.Slot);
-
-		if (!item)
-			return;
-
-		if (Player.IsBankPos(packet.Bag, packet.Slot)) // moving from bank to inventory
-		{
-			List<ItemPosCount> dest = new();
-			var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
-
-			if (msg != InventoryResult.Ok)
-			{
-				Player.SendEquipError(msg, item);
-
-				return;
-			}
+    [WorldPacketHandler(ClientOpcodes.AutostoreBankItem, Processing = PacketProcessing.Inplace)]
+    private void HandleAutoStoreBankItem(AutoStoreBankItem packet)
+    {
+        if (_session.PacketRouter.TryGetOpCodeHandler(out ItemHandler itemHandler) && !itemHandler.CanUseBank())
+        {
+            Log.Logger.Debug($"WORLD: HandleAutoBankItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
+
+            return;
+        }
+
+        var item = _session.Player.GetItemByPos(packet.Bag, packet.Slot);
+
+        if (item == null)
+            return;
+
+        if (_playerComputators.IsBankPos(packet.Bag, packet.Slot)) // moving from bank to inventory
+        {
+            List<ItemPosCount> dest = new();
+            var msg = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item);
 
-			Player.RemoveItem(packet.Bag, packet.Slot, true);
-			var storedItem = Player.StoreItem(dest, item, true);
+            if (msg != InventoryResult.Ok)
+            {
+                _session.Player.SendEquipError(msg, item);
 
-			if (storedItem)
-				Player.ItemAddedQuestCheck(storedItem.Entry, storedItem.Count);
-		}
-		else // moving from inventory to bank
-		{
-			List<ItemPosCount> dest = new();
-			var msg = Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
+                return;
+            }
+
+            _session.Player.RemoveItem(packet.Bag, packet.Slot, true);
+            var storedItem = _session.Player.StoreItem(dest, item, true);
+
+            if (storedItem != null)
+                _session.Player.ItemAddedQuestCheck(storedItem.Entry, storedItem.Count);
+        }
+        else // moving from inventory to bank
+        {
+            List<ItemPosCount> dest = new();
+            var msg = _session.Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
+
+            if (msg != InventoryResult.Ok)
+            {
+                _session.Player.SendEquipError(msg, item);
 
-			if (msg != InventoryResult.Ok)
-			{
-				Player.SendEquipError(msg, item);
+                return;
+            }
 
-				return;
-			}
+            _session.Player.RemoveItem(packet.Bag, packet.Slot, true);
+            _session.Player.BankItem(dest, item, true);
+        }
+    }
 
-			Player.RemoveItem(packet.Bag, packet.Slot, true);
-			Player.BankItem(dest, item, true);
-		}
-	}
+    [WorldPacketHandler(ClientOpcodes.AutostoreBankReagent)]
+    private void HandleAutoStoreBankReagent(AutoStoreBankReagent autoStoreBankReagent)
+    {
+        if (_session.PacketRouter.TryGetOpCodeHandler(out ItemHandler itemHandler) && !itemHandler.CanUseBank())
+        {
+            Log.Logger.Debug($"WORLD: HandleAutoBankReagentOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
+
+            return;
+        }
 
-	[WorldPacketHandler(ClientOpcodes.BuyBankSlot, Processing = PacketProcessing.Inplace)]
-	void HandleBuyBankSlot(BuyBankSlot packet)
-	{
-		if (!CanUseBank(packet.Guid))
-		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleBuyBankSlot - {0} not found or you can't interact with him.", packet.Guid.ToString());
+        if (!_session.Player.IsReagentBankUnlocked)
+        {
+            _session.Player.SendEquipError(InventoryResult.ReagentBankLocked);
 
-			return;
-		}
-
-		uint slot = Player.GetBankBagSlotCount();
-		// next slot
-		++slot;
-
-		var slotEntry = CliDB.BankBagSlotPricesStorage.LookupByKey(slot);
-
-		if (slotEntry == null)
-			return;
-
-		var price = slotEntry.Cost;
+            return;
+        }
 
-		if (!Player.HasEnoughMoney(price))
-			return;
+        var pItem = _session.Player.GetItemByPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot);
 
-		Player.SetBankBagSlotCount((byte)slot);
-		Player.ModifyMoney(-price);
-		Player.UpdateCriteria(CriteriaType.BankSlotsPurchased);
-	}
+        if (pItem == null)
+            return;
 
-	[WorldPacketHandler(ClientOpcodes.BuyReagentBank)]
-	void HandleBuyReagentBank(ReagentBank reagentBank)
-	{
-		if (!CanUseBank(reagentBank.Banker))
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleBuyReagentBankOpcode - {reagentBank.Banker} not found or you can't interact with him.");
+        if (_playerComputators.IsReagentBankPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot))
+        {
+            List<ItemPosCount> dest = new();
+            var msg = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, pItem);
 
-			return;
-		}
+            if (msg != InventoryResult.Ok)
+            {
+                _session.Player.SendEquipError(msg, pItem);
 
-		if (_player.IsReagentBankUnlocked)
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleBuyReagentBankOpcode - Player ({_player.GUID}, name: {_player.GetName()}) tried to unlock reagent bank a 2nd time.");
+                return;
+            }
 
-			return;
-		}
+            _session.Player.RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
+            _session.Player.StoreItem(dest, pItem, true);
+        }
+        else
+        {
+            List<ItemPosCount> dest = new();
+            var msg = _session.Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, pItem, false, true, true);
 
-		long price = 100 * MoneyConstants.Gold;
+            if (msg != InventoryResult.Ok)
+            {
+                _session.Player.SendEquipError(msg, pItem);
 
-		if (!_player.HasEnoughMoney(price))
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleBuyReagentBankOpcode - Player ({_player.GUID}, name: {_player.GetName()}) without enough gold.");
+                return;
+            }
 
-			return;
-		}
+            _session.Player.RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
+            _session.Player.BankItem(dest, pItem, true);
+        }
+    }
 
-		_player.ModifyMoney(-price);
-		_player.UnlockReagentBank();
-	}
+    [WorldPacketHandler(ClientOpcodes.BankerActivate, Processing = PacketProcessing.Inplace)]
+    private void HandleBankerActivate(Hello packet)
+    {
+        var unit = _session.Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Banker, NPCFlags2.None);
 
-	[WorldPacketHandler(ClientOpcodes.DepositReagentBank)]
-	void HandleReagentBankDeposit(ReagentBank reagentBank)
-	{
-		if (!CanUseBank(reagentBank.Banker))
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleReagentBankDepositOpcode - {reagentBank.Banker} not found or you can't interact with him.");
+        if (unit == null)
+        {
+            Log.Logger.Error("HandleBankerActivate: {0} not found or you can not interact with him.", packet.Unit.ToString());
 
-			return;
-		}
+            return;
+        }
 
-		if (!_player.IsReagentBankUnlocked)
-		{
-			_player.SendEquipError(InventoryResult.ReagentBankLocked);
+        if (_session.Player.HasUnitState(UnitState.Died))
+            _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
-			return;
-		}
+        SendShowBank(packet.Unit);
+    }
 
-		// query all reagents from player's inventory
-		var anyDeposited = false;
+    [WorldPacketHandler(ClientOpcodes.BuyBankSlot, Processing = PacketProcessing.Inplace)]
+    private void HandleBuyBankSlot(BuyBankSlot packet)
+    {
+        if (_session.PacketRouter.TryGetOpCodeHandler(out ItemHandler itemHandler) && !itemHandler.CanUseBank(packet.Guid))
+        {
+            Log.Logger.Debug("WORLD: HandleBuyBankSlot - {0} not found or you can't interact with him.", packet.Guid.ToString());
 
-		foreach (var item in _player.GetCraftingReagentItemsToDeposit())
-		{
-			List<ItemPosCount> dest = new();
-			var msg = _player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false, true, true);
+            return;
+        }
 
-			if (msg != InventoryResult.Ok)
-			{
-				if (msg != InventoryResult.ReagentBankFull || !anyDeposited)
-					_player.SendEquipError(msg, item);
+        uint slot = _session.Player.GetBankBagSlotCount();
+        // next slot
+        ++slot;
 
-				break;
-			}
+        var slotEntry = _bagSlotPricesRecords.LookupByKey(slot);
 
-			if (dest.Count == 1 && dest[0].Pos == item.Pos)
-			{
-				_player.SendEquipError(InventoryResult.CantSwap, item);
+        if (slotEntry == null)
+            return;
 
-				continue;
-			}
+        var price = slotEntry.Cost;
 
-			// store reagent
-			_player.RemoveItem(item.BagSlot, item.Slot, true);
-			_player.BankItem(dest, item, true);
-			anyDeposited = true;
-		}
-	}
+        if (!_session.Player.HasEnoughMoney(price))
+            return;
 
-	[WorldPacketHandler(ClientOpcodes.AutobankReagent)]
-	void HandleAutoBankReagent(AutoBankReagent autoBankReagent)
-	{
-		if (!CanUseBank())
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleAutoBankReagentOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+        _session.Player.SetBankBagSlotCount((byte)slot);
+        _session.Player.ModifyMoney(-price);
+        _session.Player.UpdateCriteria(CriteriaType.BankSlotsPurchased);
+    }
 
-			return;
-		}
+    [WorldPacketHandler(ClientOpcodes.BuyReagentBank)]
+    private void HandleBuyReagentBank(ReagentBank reagentBank)
+    {
+        if (_session.PacketRouter.TryGetOpCodeHandler(out ItemHandler itemHandler) && !itemHandler.CanUseBank(reagentBank.Banker))
+        {
+            Log.Logger.Debug($"WORLD: HandleBuyReagentBankOpcode - {reagentBank.Banker} not found or you can't interact with him.");
 
-		if (!_player.IsReagentBankUnlocked)
-		{
-			_player.SendEquipError(InventoryResult.ReagentBankLocked);
+            return;
+        }
 
-			return;
-		}
+        if (_session.Player.IsReagentBankUnlocked)
+        {
+            Log.Logger.Debug($"WORLD: HandleBuyReagentBankOpcode - _session.Player ({_session.Player.GUID}, name: {_session.Player.GetName()}) tried to unlock reagent bank a 2nd time.");
 
-		var item = _player.GetItemByPos(autoBankReagent.PackSlot, autoBankReagent.Slot);
+            return;
+        }
 
-		if (!item)
-			return;
+        long price = 100 * MoneyConstants.Gold;
 
-		List<ItemPosCount> dest = new();
-		var msg = _player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false, true, true);
+        if (!_session.Player.HasEnoughMoney(price))
+        {
+            Log.Logger.Debug($"WORLD: HandleBuyReagentBankOpcode - _session.Player ({_session.Player.GUID}, name: {_session.Player.GetName()}) without enough gold.");
 
-		if (msg != InventoryResult.Ok)
-		{
-			_player.SendEquipError(msg, item);
+            return;
+        }
 
-			return;
-		}
+        _session.Player.ModifyMoney(-price);
+        _session.Player.UnlockReagentBank();
+    }
 
-		if (dest.Count == 1 && dest[0].Pos == item.Pos)
-		{
-			_player.SendEquipError(InventoryResult.CantSwap, item);
+    [WorldPacketHandler(ClientOpcodes.DepositReagentBank)]
+    private void HandleReagentBankDeposit(ReagentBank reagentBank)
+    {
+        if (_session.PacketRouter.TryGetOpCodeHandler(out ItemHandler itemHandler) && !itemHandler.CanUseBank(reagentBank.Banker))
+        {
+            Log.Logger.Debug($"WORLD: HandleReagentBankDepositOpcode - {reagentBank.Banker} not found or you can't interact with him.");
 
-			return;
-		}
+            return;
+        }
 
-		_player.RemoveItem(autoBankReagent.PackSlot, autoBankReagent.Slot, true);
-		_player.BankItem(dest, item, true);
-	}
+        if (!_session.Player.IsReagentBankUnlocked)
+        {
+            _session.Player.SendEquipError(InventoryResult.ReagentBankLocked);
 
-	[WorldPacketHandler(ClientOpcodes.AutostoreBankReagent)]
-	void HandleAutoStoreBankReagent(AutoStoreBankReagent autoStoreBankReagent)
-	{
-		if (!CanUseBank())
-		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleAutoBankReagentOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+            return;
+        }
 
-			return;
-		}
+        // query all reagents from _session.Player's inventory
+        var anyDeposited = false;
 
-		if (!_player.IsReagentBankUnlocked)
-		{
-			_player.SendEquipError(InventoryResult.ReagentBankLocked);
+        foreach (var item in _session.Player.GetCraftingReagentItemsToDeposit())
+        {
+            List<ItemPosCount> dest = new();
+            var msg = _session.Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false, true, true);
 
-			return;
-		}
+            if (msg != InventoryResult.Ok)
+            {
+                if (msg != InventoryResult.ReagentBankFull || !anyDeposited)
+                    _session.Player.SendEquipError(msg, item);
 
-		var pItem = _player.GetItemByPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot);
+                break;
+            }
 
-		if (!pItem)
-			return;
+            if (dest.Count == 1 && dest[0].Pos == item.Pos)
+            {
+                _session.Player.SendEquipError(InventoryResult.CantSwap, item);
 
-		if (Player.IsReagentBankPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot))
-		{
-			List<ItemPosCount> dest = new();
-			var msg = _player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, pItem, false);
+                continue;
+            }
 
-			if (msg != InventoryResult.Ok)
-			{
-				_player.SendEquipError(msg, pItem);
-
-				return;
-			}
-
-			_player.RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
-			_player.StoreItem(dest, pItem, true);
-		}
-		else
-		{
-			List<ItemPosCount> dest = new();
-			var msg = _player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, pItem, false, true, true);
-
-			if (msg != InventoryResult.Ok)
-			{
-				_player.SendEquipError(msg, pItem);
-
-				return;
-			}
-
-			_player.RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
-			_player.BankItem(dest, pItem, true);
-		}
-	}
+            // store reagent
+            _session.Player.RemoveItem(item.BagSlot, item.Slot, true);
+            _session.Player.BankItem(dest, item, true);
+            anyDeposited = true;
+        }
+    }
 }

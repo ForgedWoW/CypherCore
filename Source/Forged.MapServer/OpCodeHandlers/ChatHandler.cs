@@ -67,7 +67,7 @@ public class ChatHandler : IWorldSessionHandler
 
 				break;
 			default:
-				Log.outError(LogFilter.Network, "HandleMessagechatOpcode : Unknown chat opcode ({0})", packet.GetOpcode());
+				Log.Logger.Error("HandleMessagechatOpcode : Unknown chat opcode ({0})", packet.GetOpcode());
 
 				return;
 		}
@@ -99,7 +99,7 @@ public class ChatHandler : IWorldSessionHandler
 
 		if (lang == Language.Universal && type != ChatMsg.Emote)
 		{
-			Log.outError(LogFilter.Network, "CMSG_MESSAGECHAT: Possible hacking-attempt: {0} tried to send a message in universal language", GetPlayerInfo());
+			Log.Logger.Error("CMSG_MESSAGECHAT: Possible hacking-attempt: {0} tried to send a message in universal language", GetPlayerInfo());
 			SendNotification(CypherStrings.UnknownLanguage);
 
 			return;
