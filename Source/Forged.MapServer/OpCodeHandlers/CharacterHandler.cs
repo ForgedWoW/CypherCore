@@ -58,10 +58,10 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (req.QuestID != 0)
 		{
-			if (!_session.Player)
+			if (!_session._session.Player)
 				return false;
 
-			if (!_session.Player.IsQuestRewarded((uint)req.QuestID))
+			if (!_session._session.Player.IsQuestRewarded((uint)req.QuestID))
 				return false;
 		}
 
@@ -143,7 +143,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 	public void HandleContinuePlayerLogin()
 	{
-		if (!PlayerLoading || Player)
+		if (!PlayerLoading || _session.Player)
 		{
 			KickPlayer("WorldSession::HandleContinuePlayerLogin incorrect player state when logging in");
 
@@ -162,12 +162,12 @@ public class CharacterHandler : IWorldSessionHandler
 	{
 		var playerGuid = holder.GetGuid();
 
-		Player pCurrChar = new(this);
+		_session.Player pCurrChar = new(this);
 
 		if (!pCurrChar.LoadFromDB(playerGuid, holder))
 		{
-			Player = null;
-			KickPlayer("WorldSession::HandlePlayerLogin Player::LoadFromDB failed");
+			_session.Player = null;
+			KickPlayer("WorldSession::HandlePlayerLogin _session.Player::LoadFromDB failed");
 			_playerLoading.Clear();
 
 			return;
@@ -289,7 +289,7 @@ public class CharacterHandler : IWorldSessionHandler
 			{
 				// remove wrong guild data
 				Log.outError(LogFilter.Server,
-							"Player {0} ({1}) marked as member of not existing guild (id: {2}), removing guild membership for player.",
+							"_session.Player {0} ({1}) marked as member of not existing guild (id: {2}), removing guild membership for player.",
 							pCurrChar.GetName(),
 							pCurrChar.GUID.ToString(),
 							pCurrChar.GuildId);
@@ -475,7 +475,7 @@ public class CharacterHandler : IWorldSessionHandler
 			SendNotification(CypherStrings.GmOn);
 
 		var IP_str = RemoteAddress;
-		Log.Logger.Debug($"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_session.Player.XP}/{_session.Player.XPForNextLevel} ({_session.Player.XPForNextLevel - _session.Player.XP} left)");
+		Log.Logger.Debug($"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_session._session.Player.XP}/{_session._session.Player.XPForNextLevel} ({_session._session.Player.XPForNextLevel - _session._session.Player.XP} left)");
 
 		if (!pCurrChar.IsStandState && !pCurrChar.HasUnitState(UnitState.Stunned))
 			pCurrChar.SetStandState(UnitStandStateType.Stand);
@@ -486,14 +486,14 @@ public class CharacterHandler : IWorldSessionHandler
 		_playerLoading.Clear();
 
 		// Handle Login-Achievements (should be handled after loading)
-		_session.Player.UpdateCriteria(CriteriaType.Login, 1);
+		_session._session.Player.UpdateCriteria(CriteriaType.Login, 1);
 
 		Global.ScriptMgr.ForEach<IPlayerOnLogin>(p => p.OnLogin(pCurrChar));
 	}
 
 	public void AbortLogin(LoginFailureReason reason)
 	{
-		if (!PlayerLoading || Player)
+		if (!PlayerLoading || _session.Player)
 		{
 			KickPlayer("WorldSession::AbortLogin incorrect player state when logging in");
 
@@ -605,7 +605,7 @@ public class CharacterHandler : IWorldSessionHandler
 				{
 					if (!ValidateAppearance((Race)charInfo.RaceId, charInfo.ClassId, (Gender)charInfo.SexId, charInfo.Customizations))
 					{
-						Log.outError(LogFilter.Player, "Player {0} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString());
+						Log.outError(LogFilter._session.Player, "_session.Player {0} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString());
 
 						charInfo.Customizations.Clear();
 
@@ -697,7 +697,7 @@ public class CharacterHandler : IWorldSessionHandler
 			{
 				var disabled = false;
 
-				var team = Player.TeamIdForRace(charCreate.CreateInfo.RaceId);
+				var team = _session.Player.TeamIdForRace(charCreate.CreateInfo.RaceId);
 
 				switch (team)
 				{
@@ -937,7 +937,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 											if (result1 != null && !result1.IsEmpty() && result.GetFieldCount() >= 3)
 											{
-												var team = Player.TeamForRace(createInfo.RaceId);
+												var team = _session.Player.TeamForRace(createInfo.RaceId);
 												var accRace = result1.Read<byte>(1);
 												var accClass = result1.Read<byte>(2);
 
@@ -970,7 +970,7 @@ public class CharacterHandler : IWorldSessionHandler
 													TeamFaction accTeam = 0;
 
 													if (accRace > 0)
-														accTeam = Player.TeamForRace((Race)accRace);
+														accTeam = _session.Player.TeamForRace((Race)accRace);
 
 													if (accTeam != team)
 													{
@@ -1049,12 +1049,12 @@ public class CharacterHandler : IWorldSessionHandler
 												return;
 											}
 
-											Player newChar = new(this);
+											_session.Player newChar = new(this);
 											newChar.MotionMaster.Initialize();
 
-											if (!newChar.Create(Global.ObjectMgr.GetGenerator(HighGuid.Player).Generate(), createInfo))
+											if (!newChar.Create(Global.ObjectMgr.GetGenerator(HighGuid._session.Player).Generate(), createInfo))
 											{
-												// Player not create (race/class/etc problem?)
+												// _session.Player not create (race/class/etc problem?)
 												newChar.CleanupsBeforeDelete();
 												newChar.Dispose();
 												SendCharCreate(ResponseCodes.CharCreateError);
@@ -1070,7 +1070,7 @@ public class CharacterHandler : IWorldSessionHandler
 											SQLTransaction characterTransaction = new();
 											SQLTransaction loginTransaction = new();
 
-											// Player created, save it now
+											// _session.Player created, save it now
 											newChar.SaveToDB(loginTransaction, characterTransaction, true);
 											createInfo.CharCount += 1;
 
@@ -1087,7 +1087,7 @@ public class CharacterHandler : IWorldSessionHandler
 												{
 													if (success)
 													{
-														Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Create Character: {2} {3}", AccountId, RemoteAddress, createInfo.Name, newChar.GUID.ToString());
+														Log.outInfo(LogFilter._session.Player, "Account: {0} (IP: {1}) Create Character: {2} {3}", AccountId, RemoteAddress, createInfo.Name, newChar.GUID.ToString());
 														Global.ScriptMgr.ForEach<IPlayerOnCreate>(newChar.Class, p => p.OnCreate(newChar));
 														Global.CharacterCacheStorage.AddCharacterCacheEntry(newChar.GUID, AccountId, newChar.GetName(), (byte)newChar.NativeGender, (byte)newChar.Race, (byte)newChar.Class, (byte)newChar.Level, false);
 
@@ -1171,15 +1171,15 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		var IP_str = RemoteAddress;
-		Log.outInfo(LogFilter.Player, "Account: {0}, IP: {1} deleted character: {2}, {3}, Level: {4}", accountId, IP_str, name, charDelete.Guid.ToString(), level);
+		Log.outInfo(LogFilter._session.Player, "Account: {0}, IP: {1} deleted character: {2}, {3}, Level: {4}", accountId, IP_str, name, charDelete.Guid.ToString(), level);
 
 		// To prevent hook failure, place hook before removing reference from DB
 		Global.ScriptMgr.ForEach<IPlayerOnDelete>(p => p.OnDelete(charDelete.Guid, initAccountId)); // To prevent race conditioning, but as it also makes sense, we hand the accountId over for successful delete.
 
 		// Shouldn't interfere with character deletion though
 
-		Global.CalendarMgr.RemoveAllPlayerEventsAndInvites(charDelete.Guid);
-		Player.DeleteFromDB(charDelete.Guid, accountId);
+		_calendarManager.RemoveAllPlayerEventsAndInvites(charDelete.Guid);
+		_session.Player.DeleteFromDB(charDelete.Guid, accountId);
 
 		SendCharDelete(ResponseCodes.CharDeleteSuccess);
 	}
@@ -1187,14 +1187,14 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.GenerateRandomCharacterName, Status = SessionStatus.Authed)]
 	void HandleRandomizeCharName(GenerateRandomCharacterName packet)
 	{
-		if (!Player.IsValidRace((Race)packet.Race))
+		if (!_session.Player.IsValidRace((Race)packet.Race))
 		{
 			Log.Logger.Error("Invalid race ({0}) sent by accountId: {1}", packet.Race, AccountId);
 
 			return;
 		}
 
-		if (!Player.IsValidGender((Gender)packet.Sex))
+		if (!_session.Player.IsValidGender((Gender)packet.Sex))
 		{
 			Log.Logger.Error("Invalid gender ({0}) sent by accountId: {1}", packet.Sex, AccountId);
 
@@ -1228,9 +1228,9 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.PlayerLogin, Status = SessionStatus.Authed)]
 	void HandlePlayerLogin(PlayerLogin playerLogin)
 	{
-		if (PlayerLoading || Player != null)
+		if (PlayerLoading || _session.Player != null)
 		{
-			Log.Logger.Error("Player tries to login again, AccountId = {0}", AccountId);
+			Log.Logger.Error("_session.Player tries to login again, AccountId = {0}", AccountId);
 			KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
 
 			return;
@@ -1259,13 +1259,13 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetFactionAtWar)]
 	void HandleSetFactionAtWar(SetFactionAtWar packet)
 	{
-		Player.ReputationMgr.SetAtWar(packet.FactionIndex, true);
+		_session.Player.ReputationMgr.SetAtWar(packet.FactionIndex, true);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetFactionNotAtWar)]
 	void HandleSetFactionNotAtWar(SetFactionNotAtWar packet)
 	{
-		Player.ReputationMgr.SetAtWar(packet.FactionIndex, false);
+		_session.Player.ReputationMgr.SetAtWar(packet.FactionIndex, false);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.Tutorial)]
@@ -1310,13 +1310,13 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetWatchedFaction)]
 	void HandleSetWatchedFaction(SetWatchedFaction packet)
 	{
-		Player.SetWatchedFactionIndex(packet.FactionIndex);
+		_session.Player.SetWatchedFactionIndex(packet.FactionIndex);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetFactionInactive)]
 	void HandleSetFactionInactive(SetFactionInactive packet)
 	{
-		Player.ReputationMgr.SetInactive(packet.Index, packet.State);
+		_session.Player.ReputationMgr.SetInactive(packet.Index, packet.State);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CheckCharacterNameAvailability)]
@@ -1358,7 +1358,7 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.RequestForcedReactions)]
 	void HandleRequestForcedReactions(RequestForcedReactions requestForcedReactions)
 	{
-		Player.ReputationMgr.SendForceReactions();
+		_session.Player.ReputationMgr.SendForceReactions();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CharacterRenameRequest, Status = SessionStatus.Authed)]
@@ -1447,7 +1447,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.outInfo(LogFilter.Player,
+		Log.outInfo(LogFilter._session.Player,
 					"Account: {0} (IP: {1}) Character:[{2}] ({3}) Changed name to: {4}",
 					AccountId,
 					RemoteAddress,
@@ -1464,16 +1464,16 @@ public class CharacterHandler : IWorldSessionHandler
 	void HandleSetPlayerDeclinedNames(SetPlayerDeclinedNames packet)
 	{
 		// not accept declined names for unsupported languages
-		if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(packet.Player, out var name))
+		if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(packet._session.Player, out var name))
 		{
-			SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
+			SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet._session.Player);
 
 			return;
 		}
 
 		if (!char.IsLetter(name[0])) // name already stored as only single alphabet using
 		{
-			SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
+			SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet._session.Player);
 
 			return;
 		}
@@ -1484,7 +1484,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 			if (!ObjectManager.NormalizePlayerName(ref declinedName))
 			{
-				SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
+				SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet._session.Player);
 
 				return;
 			}
@@ -1502,11 +1502,11 @@ public class CharacterHandler : IWorldSessionHandler
 		SQLTransaction trans = new();
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
-		stmt.AddValue(0, packet.Player.Counter);
+		stmt.AddValue(0, packet._session.Player.Counter);
 		trans.Append(stmt);
 
 		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_DECLINED_NAME);
-		stmt.AddValue(0, packet.Player.Counter);
+		stmt.AddValue(0, packet._session.Player.Counter);
 
 		for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
 			stmt.AddValue(i + 1, packet.DeclinedNames.Name[i]);
@@ -1515,16 +1515,16 @@ public class CharacterHandler : IWorldSessionHandler
 
 		DB.Characters.CommitTransaction(trans);
 
-		SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Success, packet.Player);
+		SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Success, packet._session.Player);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AlterAppearance)]
 	void HandleAlterAppearance(AlterApperance packet)
 	{
-		if (!ValidateAppearance(_session.Player.Race, _session.Player.Class, (Gender)packet.NewSex, packet.Customizations))
+		if (!ValidateAppearance(_session._session.Player.Race, _session._session.Player.Class, (Gender)packet.NewSex, packet.Customizations))
 			return;
 
-		var go = Player.FindNearestGameObjectOfType(GameObjectTypes.BarberChair, 5.0f);
+		var go = _session.Player.FindNearestGameObjectOfType(GameObjectTypes.BarberChair, 5.0f);
 
 		if (!go)
 		{
@@ -1533,16 +1533,16 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.Template.BarberChair.chairheight))
+		if (_session.Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.Template.BarberChair.chairheight))
 		{
 			_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
 
 			return;
 		}
 
-		var cost = Player.GetBarberShopCost(packet.Customizations);
+		var cost = _session.Player.GetBarberShopCost(packet.Customizations);
 
-		if (!Player.HasEnoughMoney(cost))
+		if (!_session.Player.HasEnoughMoney(cost))
 		{
 			_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NoMoney));
 
@@ -1551,23 +1551,23 @@ public class CharacterHandler : IWorldSessionHandler
 
 		_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.Success));
 
-		_session.Player.ModifyMoney(-cost);
-		_session.Player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
+		_session._session.Player.ModifyMoney(-cost);
+		_session._session.Player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
 
-		if (_session.Player.NativeGender != (Gender)packet.NewSex)
+		if (_session._session.Player.NativeGender != (Gender)packet.NewSex)
 		{
-			_session.Player.NativeGender = (Gender)packet.NewSex;
-			_session.Player.InitDisplayIds();
-			_session.Player.RestoreDisplayId(false);
+			_session._session.Player.NativeGender = (Gender)packet.NewSex;
+			_session._session.Player.InitDisplayIds();
+			_session._session.Player.RestoreDisplayId(false);
 		}
 
-		_session.Player.SetCustomizations(packet.Customizations);
+		_session._session.Player.SetCustomizations(packet.Customizations);
 
-		_session.Player.UpdateCriteria(CriteriaType.GotHaircut, 1);
+		_session._session.Player.UpdateCriteria(CriteriaType.GotHaircut, 1);
 
-		_session.Player.SetStandState(UnitStandStateType.Stand);
+		_session._session.Player.SetStandState(UnitStandStateType.Stand);
 
-		Global.CharacterCacheStorage.UpdateCharacterGender(_session.Player.GUID, packet.NewSex);
+		Global.CharacterCacheStorage.UpdateCharacterGender(_session._session.Player.GUID, packet.NewSex);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CharCustomize, Status = SessionStatus.Authed)]
@@ -1673,7 +1673,7 @@ public class CharacterHandler : IWorldSessionHandler
 		var lowGuid = customizeInfo.CharGUID.Counter;
 
 		// Customize
-		Player.SaveCustomizations(trans, lowGuid, customizeInfo.Customizations);
+		_session.Player.SaveCustomizations(trans, lowGuid, customizeInfo.Customizations);
 
 		// Name Change and update atLogin flags
 		{
@@ -1695,7 +1695,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		SendCharCustomize(ResponseCodes.Success, customizeInfo);
 
-		Log.outInfo(LogFilter.Player,
+		Log.outInfo(LogFilter._session.Player,
 					"Account: {0} (IP: {1}), Character[{2}] ({3}) Customized to: {4}",
 					AccountId,
 					RemoteAddress,
@@ -1724,7 +1724,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 					if (!itemGuid.IsEmpty)
 					{
-						var item = _session.Player.GetItemByPos(InventorySlots.Bag0, i);
+						var item = _session._session.Player.GetItemByPos(InventorySlots.Bag0, i);
 
 						// cheating check 1 (item equipped but sent empty guid)
 						if (!item)
@@ -1787,10 +1787,10 @@ public class CharacterHandler : IWorldSessionHandler
 				var condition = CliDB.PlayerConditionStorage.LookupByKey(illusion.TransmogUseConditionID);
 
 				if (condition != null)
-					if (!ConditionManager.IsPlayerMeetingCondition(_session.Player, condition))
+					if (!ConditionManager.IsPlayerMeetingCondition(_session._session.Player, condition))
 						return false;
 
-				if (illusion.ScalingClassRestricted > 0 && illusion.ScalingClassRestricted != (byte)_session.Player.Class)
+				if (illusion.ScalingClassRestricted > 0 && illusion.ScalingClassRestricted != (byte)_session._session.Player.Class)
 					return false;
 
 				return true;
@@ -1803,13 +1803,13 @@ public class CharacterHandler : IWorldSessionHandler
 				return;
 		}
 
-		Player.SetEquipmentSet(saveEquipmentSet.Set);
+		_session.Player.SetEquipmentSet(saveEquipmentSet.Set);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DeleteEquipmentSet)]
 	void HandleDeleteEquipmentSet(DeleteEquipmentSet packet)
 	{
-		Player.DeleteEquipmentSet(packet.ID);
+		_session.Player.DeleteEquipmentSet(packet.ID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UseEquipmentSet, Processing = PacketProcessing.Inplace)]
@@ -1819,41 +1819,41 @@ public class CharacterHandler : IWorldSessionHandler
 
 		for (byte i = 0; i < EquipmentSlot.End; ++i)
 		{
-			Log.outDebug(LogFilter.Player, "{0}: ContainerSlot: {1}, Slot: {2}", useEquipmentSet.Items[i].Item.ToString(), useEquipmentSet.Items[i].ContainerSlot, useEquipmentSet.Items[i].Slot);
+			Log.outDebug(LogFilter._session.Player, "{0}: ContainerSlot: {1}, Slot: {2}", useEquipmentSet.Items[i].Item.ToString(), useEquipmentSet.Items[i].ContainerSlot, useEquipmentSet.Items[i].Slot);
 
 			// check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
 			if (useEquipmentSet.Items[i].Item == ignoredItemGuid)
 				continue;
 
 			// Only equip weapons in combat
-			if (Player.IsInCombat && i != EquipmentSlot.MainHand && i != EquipmentSlot.OffHand)
+			if (_session.Player.IsInCombat && i != EquipmentSlot.MainHand && i != EquipmentSlot.OffHand)
 				continue;
 
-			var item = Player.GetItemByGuid(useEquipmentSet.Items[i].Item);
+			var item = _session.Player.GetItemByGuid(useEquipmentSet.Items[i].Item);
 
 			var dstPos = (ushort)(i | (InventorySlots.Bag0 << 8));
 
 			if (!item)
 			{
-				var uItem = Player.GetItemByPos(InventorySlots.Bag0, i);
+				var uItem = _session.Player.GetItemByPos(InventorySlots.Bag0, i);
 
 				if (!uItem)
 					continue;
 
 				List<ItemPosCount> itemPosCount = new();
-				var inventoryResult = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, itemPosCount, uItem, false);
+				var inventoryResult = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, itemPosCount, uItem, false);
 
 				if (inventoryResult == InventoryResult.Ok)
 				{
-					if (_session.Player.CanUnequipItem(dstPos, true) != InventoryResult.Ok)
+					if (_session._session.Player.CanUnequipItem(dstPos, true) != InventoryResult.Ok)
 						continue;
 
-					Player.RemoveItem(InventorySlots.Bag0, i, true);
-					Player.StoreItem(itemPosCount, uItem, true);
+					_session.Player.RemoveItem(InventorySlots.Bag0, i, true);
+					_session.Player.StoreItem(itemPosCount, uItem, true);
 				}
 				else
 				{
-					Player.SendEquipError(inventoryResult, uItem);
+					_session.Player.SendEquipError(inventoryResult, uItem);
 				}
 
 				continue;
@@ -1862,10 +1862,10 @@ public class CharacterHandler : IWorldSessionHandler
 			if (item.Pos == dstPos)
 				continue;
 
-			if (_session.Player.CanEquipItem(i, out dstPos, item, true) != InventoryResult.Ok)
+			if (_session._session.Player.CanEquipItem(i, out dstPos, item, true) != InventoryResult.Ok)
 				continue;
 
-			Player.SwapItem(item.Pos, dstPos);
+			_session.Player.SwapItem(item.Pos, dstPos);
 		}
 
 		UseEquipmentSetResult result = new();
@@ -1939,7 +1939,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		var newTeamId = Player.TeamIdForRace(factionChangeInfo.RaceID);
+		var newTeamId = _session.Player.TeamIdForRace(factionChangeInfo.RaceID);
 
 		if (newTeamId == TeamIds.Neutral)
 		{
@@ -1948,7 +1948,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (factionChangeInfo.FactionChange == (Player.TeamIdForRace(oldRace) == newTeamId))
+		if (factionChangeInfo.FactionChange == (_session.Player.TeamIdForRace(oldRace) == newTeamId))
 		{
 			SendCharFactionChange(factionChangeInfo.FactionChange ? ResponseCodes.CharCreateCharacterSwapFaction : ResponseCodes.CharCreateCharacterRaceOnly, factionChangeInfo);
 
@@ -2025,7 +2025,7 @@ public class CharacterHandler : IWorldSessionHandler
 		SQLTransaction trans = new();
 
 		// resurrect the character in case he's dead
-		Player.OfflineResurrect(factionChangeInfo.Guid, trans);
+		_session.Player.OfflineResurrect(factionChangeInfo.Guid, trans);
 
 		// Name Change and update atLogin flags
 		{
@@ -2043,7 +2043,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// Customize
-		Player.SaveCustomizations(trans, lowGuid, factionChangeInfo.Customizations);
+		_session.Player.SaveCustomizations(trans, lowGuid, factionChangeInfo.Customizations);
 
 		// Race Change
 		{
@@ -2133,7 +2133,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 						break;
 					default:
-						Log.outError(LogFilter.Player, $"Could not find language data for race ({factionChangeInfo.RaceID}).");
+						Log.outError(LogFilter._session.Player, $"Could not find language data for race ({factionChangeInfo.RaceID}).");
 						SendCharFactionChange(ResponseCodes.CharCreateError, factionChangeInfo);
 
 						return;
@@ -2181,7 +2181,7 @@ public class CharacterHandler : IWorldSessionHandler
 					if (guild != null)
 						guild.DeleteMember(trans, factionChangeInfo.Guid, false, false, true);
 
-					Player.LeaveAllArenaTeams(factionChangeInfo.Guid);
+					_session.Player.LeaveAllArenaTeams(factionChangeInfo.Guid);
 				}
 
 				if (!HasPermission(RBACPermissions.TwoSideAddFriend))
@@ -2225,7 +2225,7 @@ public class CharacterHandler : IWorldSessionHandler
 				stmt.AddValue(5, loc.Z);
 				trans.Append(stmt);
 
-				Player.SavePositionInDB(loc, zoneId, factionChangeInfo.Guid, trans);
+				_session.Player.SavePositionInDB(loc, zoneId, factionChangeInfo.Guid, trans);
 
 				// Achievement conversion
 				foreach (var it in Global.ObjectMgr.FactionChangeAchievements)
@@ -2446,7 +2446,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.outDebug(LogFilter.Player, "{0} (IP: {1}) changed race from {2} to {3}", GetPlayerInfo(), RemoteAddress, oldRace, factionChangeInfo.RaceID);
+		Log.outDebug(LogFilter._session.Player, "{0} (IP: {1}) changed race from {2} to {3}", GetPlayerInfo(), RemoteAddress, oldRace, factionChangeInfo.RaceID);
 
 		SendCharFactionChange(ResponseCodes.Success, factionChangeInfo);
 	}
@@ -2455,19 +2455,19 @@ public class CharacterHandler : IWorldSessionHandler
 	void HandleOpeningCinematic(OpeningCinematic packet)
 	{
 		// Only players that has not yet gained any experience can use this
-		if (Player.ActivePlayerData.XP != 0)
+		if (_session.Player.ActivePlayerData.XP != 0)
 			return;
 
-		var classEntry = CliDB.ChrClassesStorage.LookupByKey(Player.Class);
+		var classEntry = CliDB.ChrClassesStorage.LookupByKey(_session.Player.Class);
 
 		if (classEntry != null)
 		{
-			var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Player.Race);
+			var raceEntry = CliDB.ChrRacesStorage.LookupByKey(_session.Player.Race);
 
 			if (classEntry.CinematicSequenceID != 0)
-				Player.SendCinematicStart(classEntry.CinematicSequenceID);
+				_session.Player.SendCinematicStart(classEntry.CinematicSequenceID);
 			else if (raceEntry != null)
-				Player.SendCinematicStart(raceEntry.CinematicSequenceID);
+				_session.Player.SendCinematicStart(raceEntry.CinematicSequenceID);
 		}
 	}
 
@@ -2603,10 +2603,10 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.RepopRequest)]
 	void HandleRepopRequest(RepopRequest packet)
 	{
-		if (Player.IsAlive || Player.HasPlayerFlag(PlayerFlags.Ghost))
+		if (_session.Player.IsAlive || _session.Player.HasPlayerFlag(PlayerFlags.Ghost))
 			return;
 
-		if (Player.HasAuraType(AuraType.PreventResurrection))
+		if (_session.Player.HasAuraType(AuraType.PreventResurrection))
 			return; // silently return, client should display the error by itself
 
 		// the world update order is sessions, players, creatures
@@ -2614,36 +2614,36 @@ public class CharacterHandler : IWorldSessionHandler
 		// creatures can kill players
 		// so if the server is lagging enough the player can
 		// release spirit after he's killed but before he is updated
-		if (Player.DeathState == DeathState.JustDied)
+		if (_session.Player.DeathState == DeathState.JustDied)
 		{
 			Log.outDebug(LogFilter.Network,
 						"HandleRepopRequestOpcode: got request after player {0} ({1}) was killed and before he was updated",
-						Player.GetName(),
-						Player.GUID.ToString());
+						_session.Player.GetName(),
+						_session.Player.GUID.ToString());
 
-			Player.KillPlayer();
+			_session.Player.KillPlayer();
 		}
 
 		//this is spirit release confirm?
-		Player.RemovePet(null, PetSaveMode.NotInSlot, true);
-		Player.BuildPlayerRepop();
-		Player.RepopAtGraveyard();
+		_session.Player.RemovePet(null, PetSaveMode.NotInSlot, true);
+		_session.Player.BuildPlayerRepop();
+		_session.Player.RepopAtGraveyard();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ClientPortGraveyard)]
 	void HandlePortGraveyard(PortGraveyard packet)
 	{
-		if (Player.IsAlive || !Player.HasPlayerFlag(PlayerFlags.Ghost))
+		if (_session.Player.IsAlive || !_session.Player.HasPlayerFlag(PlayerFlags.Ghost))
 			return;
 
-		Player.RepopAtGraveyard();
+		_session.Player.RepopAtGraveyard();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestCemeteryList, Processing = PacketProcessing.Inplace)]
 	void HandleRequestCemeteryList(RequestCemeteryList requestCemeteryList)
 	{
-		var zoneId = Player.Zone;
-		var team = (uint)Player.Team;
+		var zoneId = _session.Player.Zone;
+		var team = (uint)_session.Player.Team;
 
 		List<uint> graveyardIds = new();
 		var range = Global.ObjectMgr.GraveYardStorage.LookupByKey(zoneId);
@@ -2679,53 +2679,53 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ReclaimCorpse)]
 	void HandleReclaimCorpse(ReclaimCorpse packet)
 	{
-		if (Player.IsAlive)
+		if (_session.Player.IsAlive)
 			return;
 
 		// do not allow corpse reclaim in arena
-		if (Player.InArena)
+		if (_session.Player.InArena)
 			return;
 
 		// body not released yet
-		if (!Player.HasPlayerFlag(PlayerFlags.Ghost))
+		if (!_session.Player.HasPlayerFlag(PlayerFlags.Ghost))
 			return;
 
-		var corpse = Player.GetCorpse();
+		var corpse = _session.Player.GetCorpse();
 
 		if (!corpse)
 			return;
 
 		// prevent resurrect before 30-sec delay after body release not finished
-		if ((corpse.GetGhostTime() + Player.GetCorpseReclaimDelay(corpse.GetCorpseType() == CorpseType.ResurrectablePVP)) > GameTime.GetGameTime())
+		if ((corpse.GetGhostTime() + _session.Player.GetCorpseReclaimDelay(corpse.GetCorpseType() == CorpseType.ResurrectablePVP)) > GameTime.GetGameTime())
 			return;
 
-		if (!corpse.IsWithinDistInMap(Player, 39, true))
+		if (!corpse.IsWithinDistInMap(_session.Player, 39, true))
 			return;
 
 		// resurrect
-		Player.ResurrectPlayer(Player.InBattleground ? 1.0f : 0.5f);
+		_session.Player.ResurrectPlayer(_session.Player.InBattleground ? 1.0f : 0.5f);
 
 		// spawn bones
-		Player.SpawnCorpseBones();
+		_session.Player.SpawnCorpseBones();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ResurrectResponse)]
 	void HandleResurrectResponse(ResurrectResponse packet)
 	{
-		if (Player.IsAlive)
+		if (_session.Player.IsAlive)
 			return;
 
 		if (packet.Response != 0) // Accept = 0 Decline = 1 Timeout = 2
 		{
-			Player.ClearResurrectRequestData(); // reject
+			_session.Player.ClearResurrectRequestData(); // reject
 
 			return;
 		}
 
-		if (!Player.IsRessurectRequestedBy(packet.Resurrecter))
+		if (!_session.Player.IsRessurectRequestedBy(packet.Resurrecter))
 			return;
 
-		var ressPlayer = Global.ObjAccessor.GetPlayer(Player, packet.Resurrecter);
+		var ressPlayer = Global.ObjAccessor.GetPlayer(_session.Player, packet.Resurrecter);
 
 		if (ressPlayer)
 		{
@@ -2741,7 +2741,7 @@ public class CharacterHandler : IWorldSessionHandler
 				}
 		}
 
-		Player.ResurrectUsingRequestData();
+		_session.Player.ResurrectUsingRequestData();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.StandStateChange)]
@@ -2758,19 +2758,19 @@ public class CharacterHandler : IWorldSessionHandler
 				return;
 		}
 
-		Player.SetStandState(packet.StandState);
+		_session.Player.SetStandState(packet.StandState);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuickJoinAutoAcceptRequests)]
 	void HandleQuickJoinAutoAcceptRequests(QuickJoinAutoAcceptRequest packet)
 	{
-		Player.AutoAcceptQuickJoin = packet.AutoAccept;
+		_session.Player.AutoAcceptQuickJoin = packet.AutoAccept;
 	}
 
 	[WorldPacketHandler(ClientOpcodes.OverrideScreenFlash)]
 	void HandleOverrideScreenFlash(OverrideScreenFlash packet)
 	{
-		Player.OverrideScreenFlash = packet.ScreenFlashEnabled;
+		_session.Player.OverrideScreenFlash = packet.ScreenFlashEnabled;
 	}
 
 	void SendCharCreate(ResponseCodes result, ObjectGuid guid = default)
@@ -2840,7 +2840,7 @@ public class CharacterHandler : IWorldSessionHandler
 	{
 		SetPlayerDeclinedNamesResult packet = new();
 		packet.ResultCode = result;
-		packet.Player = guid;
+		packet._session.Player = guid;
 
 		_session.SendPacket(packet);
 	}

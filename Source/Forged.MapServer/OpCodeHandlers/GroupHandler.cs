@@ -32,7 +32,7 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.PartyInvite)]
 	void HandlePartyInvite(PartyInviteClient packet)
 	{
-		var invitingPlayer = Player;
+		var invitingPlayer = _session.Player;
 		var invitedPlayer = Global.ObjAccessor.FindPlayerByName(packet.TargetName);
 
 		// no player
@@ -182,7 +182,7 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.PartyInviteResponse)]
 	void HandlePartyInviteResponse(PartyInviteResponse packet)
 	{
-		var group = Player.GroupInvite;
+		var group = _session.Player.GroupInvite;
 
 		if (!group)
 			return;
@@ -190,11 +190,11 @@ public class GroupHandler : IWorldSessionHandler
 		if (packet.Accept)
 		{
 			// Remove player from invitees in any case
-			group.RemoveInvite(Player);
+			group.RemoveInvite(_session.Player);
 
-			if (group.LeaderGUID == Player.GUID)
+			if (group.LeaderGUID == _session.Player.GUID)
 			{
-				Log.Logger.Error("HandleGroupAcceptOpcode: player {0} ({1}) tried to accept an invite to his own group", Player.GetName(), Player.GUID.ToString());
+				Log.Logger.Error("HandleGroupAcceptOpcode: player {0} ({1}) tried to accept an invite to his own group", _session.Player.GetName(), _session.Player.GUID.ToString());
 
 				return;
 			}
@@ -227,7 +227,7 @@ public class GroupHandler : IWorldSessionHandler
 			}
 
 			// Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
-			if (!group.AddMember(Player))
+			if (!group.AddMember(_session.Player))
 				return;
 
 			group.BroadcastGroupUpdate();
@@ -238,13 +238,13 @@ public class GroupHandler : IWorldSessionHandler
 			var leader = Global.ObjAccessor.FindPlayer(group.LeaderGUID);
 
 			// uninvite, group can be deleted
-			Player.UninviteFromGroup();
+			_session.Player.UninviteFromGroup();
 
 			if (!leader || leader.Session == null)
 				return;
 
 			// report
-			GroupDecline decline = new(Player.GetName());
+			GroupDecline decline = new(_session.Player.GetName());
 			leader._session.SendPacket(decline);
 		}
 	}
@@ -253,17 +253,17 @@ public class GroupHandler : IWorldSessionHandler
 	void HandlePartyUninvite(PartyUninvite packet)
 	{
 		//can't uninvite yourself
-		if (packet.TargetGUID == Player.GUID)
+		if (packet.TargetGUID == _session.Player.GUID)
 		{
 			Log.outError(LogFilter.Network,
 						"HandleGroupUninviteGuidOpcode: leader {0}({1}) tried to uninvite himself from the group.",
-						Player.GetName(),
-						Player.GUID.ToString());
+						_session.Player.GetName(),
+						_session.Player.GUID.ToString());
 
 			return;
 		}
 
-		var res = Player.CanUninviteFromGroup(packet.TargetGUID);
+		var res = _session.Player.CanUninviteFromGroup(packet.TargetGUID);
 
 		if (res != PartyResult.Ok)
 		{
@@ -272,12 +272,12 @@ public class GroupHandler : IWorldSessionHandler
 			return;
 		}
 
-		var grp = Player.Group;
+		var grp = _session.Player.Group;
 		// grp is checked already above in CanUninviteFromGroup()
 
 		if (grp.IsMember(packet.TargetGUID))
 		{
-			Player.RemoveFromGroup(grp, packet.TargetGUID, RemoveMethod.Kick, Player.GUID, packet.Reason);
+			_session.Player.RemoveFromGroup(grp, packet.TargetGUID, RemoveMethod.Kick, _session.Player.GUID, packet.Reason);
 
 			return;
 		}
@@ -298,12 +298,12 @@ public class GroupHandler : IWorldSessionHandler
 	void HandleSetPartyLeader(SetPartyLeader packet)
 	{
 		var player = Global.ObjAccessor.FindConnectedPlayer(packet.TargetGUID);
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group || !player)
 			return;
 
-		if (!group.IsLeader(Player.GUID) || player.Group != group)
+		if (!group.IsLeader(_session.Player.GUID) || player.Group != group)
 			return;
 
 		// Everything's fine, accepted.
@@ -316,14 +316,14 @@ public class GroupHandler : IWorldSessionHandler
 	{
 		RoleChangedInform roleChangedInform = new();
 
-		var group = Player.Group;
+		var group = _session.Player.Group;
 		var oldRole = (byte)(group ? group.GetLfgRoles(packet.TargetGUID) : 0);
 
 		if (oldRole == packet.Role)
 			return;
 
 		roleChangedInform.PartyIndex = packet.PartyIndex;
-		roleChangedInform.From = Player.GUID;
+		roleChangedInform.From = _session.Player.GUID;
 		roleChangedInform.ChangedUnit = packet.TargetGUID;
 		roleChangedInform.OldRole = oldRole;
 		roleChangedInform.NewRole = packet.Role;
@@ -342,13 +342,13 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.LeaveGroup)]
 	void HandleLeaveGroup(LeaveGroup packet)
 	{
-		var grp = Player.Group;
-		var grpInvite = Player.GroupInvite;
+		var grp = _session.Player.Group;
+		var grpInvite = _session.Player.GroupInvite;
 
 		if (grp == null && grpInvite == null)
 			return;
 
-		if (Player.InBattleground)
+		if (_session.Player.InBattleground)
 		{
 			SendPartyResult(PartyOperation.Invite, "", PartyResult.InviteRestricted);
 
@@ -361,13 +361,13 @@ public class GroupHandler : IWorldSessionHandler
 		// everything's fine, do it
 		if (grp != null)
 		{
-			SendPartyResult(PartyOperation.Leave, Player.GetName(), PartyResult.Ok);
-			Player.RemoveFromGroup(RemoveMethod.Leave);
+			SendPartyResult(PartyOperation.Leave, _session.Player.GetName(), PartyResult.Ok);
+			_session.Player.RemoveFromGroup(RemoveMethod.Leave);
 		}
-		else if (grpInvite != null && grpInvite.LeaderGUID == Player.GUID)
+		else if (grpInvite != null && grpInvite.LeaderGUID == _session.Player.GUID)
 		{
 			// pending group creation being cancelled
-			SendPartyResult(PartyOperation.Leave, Player.GetName(), PartyResult.Ok);
+			SendPartyResult(PartyOperation.Leave, _session.Player.GetName(), PartyResult.Ok);
 			grpInvite.Disband();
 		}
 	}
@@ -376,12 +376,12 @@ public class GroupHandler : IWorldSessionHandler
 	void HandleSetLootMethod(SetLootMethod packet)
 	{
 		// not allowed to change
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (group == null)
 			return;
 
-		if (!group.IsLeader(Player.GUID))
+		if (!group.IsLeader(_session.Player.GUID))
 			return;
 
 		if (group.IsLFGGroup)
@@ -414,14 +414,14 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.MinimapPing)]
 	void HandleMinimapPing(MinimapPingClient packet)
 	{
-		if (!Player.Group)
+		if (!_session.Player.Group)
 			return;
 
 		MinimapPing minimapPing = new();
-		minimapPing.Sender = Player.GUID;
+		minimapPing.Sender = _session.Player.GUID;
 		minimapPing.PositionX = packet.PositionX;
 		minimapPing.PositionY = packet.PositionY;
-		Player.Group.BroadcastPacket(minimapPing, true, -1, Player.GUID);
+		_session.Player.Group.BroadcastPacket(minimapPing, true, -1, _session.Player.GUID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RandomRoll)]
@@ -430,13 +430,13 @@ public class GroupHandler : IWorldSessionHandler
 		if (packet.Min > packet.Max || packet.Max > 1000000) // < 32768 for urand call
 			return;
 
-		Player.DoRandomRoll(packet.Min, packet.Max);
+		_session.Player.DoRandomRoll(packet.Min, packet.Max);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UpdateRaidTarget)]
 	void HandleUpdateRaidTarget(UpdateRaidTarget packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
@@ -447,34 +447,34 @@ public class GroupHandler : IWorldSessionHandler
 		}
 		else // target icon update
 		{
-			if (group.IsRaidGroup && !group.IsLeader(Player.GUID) && !group.IsAssistant(Player.GUID))
+			if (group.IsRaidGroup && !group.IsLeader(_session.Player.GUID) && !group.IsAssistant(_session.Player.GUID))
 				return;
 
 			if (packet.Target.IsPlayer)
 			{
 				var target = Global.ObjAccessor.FindConnectedPlayer(packet.Target);
 
-				if (!target || target.IsHostileTo(Player))
+				if (!target || target.IsHostileTo(_session.Player))
 					return;
 			}
 
-			group.SetTargetIcon((byte)packet.Symbol, packet.Target, Player.GUID, packet.PartyIndex);
+			group.SetTargetIcon((byte)packet.Symbol, packet.Target, _session.Player.GUID, packet.PartyIndex);
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ConvertRaid)]
 	void HandleConvertRaid(ConvertRaid packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
-		if (Player.InBattleground)
+		if (_session.Player.InBattleground)
 			return;
 
 		// error handling
-		if (!group.IsLeader(Player.GUID) || group.MembersCount < 2)
+		if (!group.IsLeader(_session.Player.GUID) || group.MembersCount < 2)
 			return;
 
 		// everything's fine, do it (is it 0 (PartyOperation.Invite) correct code)
@@ -490,7 +490,7 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.RequestPartyJoinUpdates)]
 	void HandleRequestPartyJoinUpdates(RequestPartyJoinUpdates packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
@@ -503,7 +503,7 @@ public class GroupHandler : IWorldSessionHandler
 	void HandleChangeSubGroup(ChangeSubGroup packet)
 	{
 		// we will get correct for group here, so we don't have to check if group is BG raid
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
@@ -511,7 +511,7 @@ public class GroupHandler : IWorldSessionHandler
 		if (packet.NewSubGroup >= MapConst.MaxRaidSubGroups)
 			return;
 
-		var senderGuid = Player.GUID;
+		var senderGuid = _session.Player.GUID;
 
 		if (!group.IsLeader(senderGuid) && !group.IsAssistant(senderGuid))
 			return;
@@ -525,12 +525,12 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SwapSubGroups, Processing = PacketProcessing.ThreadUnsafe)]
 	void HandleSwapSubGroups(SwapSubGroups packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
-		var senderGuid = Player.GUID;
+		var senderGuid = _session.Player.GUID;
 
 		if (!group.IsLeader(senderGuid) && !group.IsAssistant(senderGuid))
 			return;
@@ -541,12 +541,12 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetAssistantLeader)]
 	void HandleSetAssistantLeader(SetAssistantLeader packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
-		if (!group.IsLeader(Player.GUID))
+		if (!group.IsLeader(_session.Player.GUID))
 			return;
 
 		group.SetGroupMemberFlag(packet.Target, packet.Apply, GroupMemberFlags.Assistant);
@@ -555,12 +555,12 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetPartyAssignment)]
 	void HandleSetPartyAssignment(SetPartyAssignment packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
-		var senderGuid = Player.GUID;
+		var senderGuid = _session.Player.GUID;
 
 		if (!group.IsLeader(senderGuid) && !group.IsAssistant(senderGuid))
 			return;
@@ -585,29 +585,29 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.DoReadyCheck)]
 	void HandleDoReadyCheckOpcode(DoReadyCheck packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
 		/** error handling **/
-		if (!group.IsLeader(Player.GUID) && !group.IsAssistant(Player.GUID))
+		if (!group.IsLeader(_session.Player.GUID) && !group.IsAssistant(_session.Player.GUID))
 			return;
 
 		// everything's fine, do it
-		group.StartReadyCheck(Player.GUID, packet.PartyIndex, TimeSpan.FromMilliseconds(MapConst.ReadycheckDuration));
+		group.StartReadyCheck(_session.Player.GUID, packet.PartyIndex, TimeSpan.FromMilliseconds(MapConst.ReadycheckDuration));
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ReadyCheckResponse, Processing = PacketProcessing.Inplace)]
 	void HandleReadyCheckResponseOpcode(ReadyCheckResponseClient packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
 		// everything's fine, do it
-		group.SetMemberReadyCheck(Player.GUID, packet.IsReady);
+		group.SetMemberReadyCheck(_session.Player.GUID, packet.IsReady);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestPartyMemberStats)]
@@ -634,14 +634,14 @@ public class GroupHandler : IWorldSessionHandler
 	void HandleRequestRaidInfo(RequestRaidInfo packet)
 	{
 		// every time the player checks the character screen
-		Player.SendRaidInfo();
+		_session.Player.SendRaidInfo();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.OptOutOfLoot, Processing = PacketProcessing.Inplace)]
 	void HandleOptOutOfLoot(OptOutOfLoot packet)
 	{
 		// ignore if player not loaded
-		if (!Player) // needed because STATUS_AUTHED
+		if (!_session.Player) // needed because STATUS_AUTHED
 		{
 			if (packet.PassOnLoot)
 				Log.Logger.Error("CMSG_OPT_OUT_OF_LOOT value<>0 for not-loaded character!");
@@ -649,18 +649,18 @@ public class GroupHandler : IWorldSessionHandler
 			return;
 		}
 
-		Player.PassOnGroupLoot = packet.PassOnLoot;
+		_session.Player.PassOnGroupLoot = packet.PassOnLoot;
 	}
 
 	[WorldPacketHandler(ClientOpcodes.InitiateRolePoll)]
 	void HandleInitiateRolePoll(InitiateRolePoll packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
-		var guid = Player.GUID;
+		var guid = _session.Player.GUID;
 
 		if (!group.IsLeader(guid) && !group.IsAssistant(guid))
 			return;
@@ -674,12 +674,12 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetEveryoneIsAssistant)]
 	void HandleSetEveryoneIsAssistant(SetEveryoneIsAssistant packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
-		if (!group.IsLeader(Player.GUID))
+		if (!group.IsLeader(_session.Player.GUID))
 			return;
 
 		group.SetEveryoneIsAssistant(packet.EveryoneIsAssistant);
@@ -688,12 +688,12 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ClearRaidMarker)]
 	void HandleClearRaidMarker(ClearRaidMarker packet)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
 
-		if (group.IsRaidGroup && !group.IsLeader(Player.GUID) && !group.IsAssistant(Player.GUID))
+		if (group.IsRaidGroup && !group.IsLeader(_session.Player.GUID) && !group.IsAssistant(_session.Player.GUID))
 			return;
 
 		group.DeleteRaidMarker(packet.MarkerId);

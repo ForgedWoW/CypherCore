@@ -20,7 +20,7 @@ public class ChannelHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ChatJoinChannel)]
 	void HandleJoinChannel(JoinChannel packet)
 	{
-		var zone = CliDB.AreaTableStorage.LookupByKey(Player.Zone);
+		var zone = CliDB.AreaTableStorage.LookupByKey(_session.Player.Zone);
 
 		if (packet.ChatChannelId != 0)
 		{
@@ -29,11 +29,11 @@ public class ChannelHandler : IWorldSessionHandler
 			if (channel == null)
 				return;
 
-			if (zone == null || !Player.CanJoinConstantChannelInZone(channel, zone))
+			if (zone == null || !_session.Player.CanJoinConstantChannelInZone(channel, zone))
 				return;
 		}
 
-		var cMgr = ChannelManager.ForTeam(Player.Team);
+		var cMgr = ChannelManager.ForTeam(_session.Player.Team);
 
 		if (cMgr == null)
 			return;
@@ -44,7 +44,7 @@ public class ChannelHandler : IWorldSessionHandler
 			var channel = cMgr.GetSystemChannel((uint)packet.ChatChannelId, zone);
 
 			if (channel != null)
-				channel.JoinChannel(Player);
+				channel.JoinChannel(_session.Player);
 		}
 		else
 		{
@@ -61,7 +61,7 @@ public class ChannelHandler : IWorldSessionHandler
 
 			if (packet.Password.Length > 127)
 			{
-				Log.Logger.Error($"Player {Player.GUID} tried to create a channel with a password more than {127} characters long - blocked");
+				Log.Logger.Error($"_session.Player {_session.Player.GUID} tried to create a channel with a password more than {127} characters long - blocked");
 
 				return;
 			}
@@ -73,7 +73,7 @@ public class ChannelHandler : IWorldSessionHandler
 
 			if (channel != null)
 			{
-				channel.JoinChannel(Player, packet.Password);
+				channel.JoinChannel(_session.Player, packet.Password);
 			}
 			else
 			{
@@ -82,7 +82,7 @@ public class ChannelHandler : IWorldSessionHandler
 				if (channel != null)
 				{
 					channel.SetPassword(packet.Password);
-					channel.JoinChannel(Player, packet.Password);
+					channel.JoinChannel(_session.Player, packet.Password);
 				}
 			}
 		}
@@ -94,7 +94,7 @@ public class ChannelHandler : IWorldSessionHandler
 		if (string.IsNullOrEmpty(packet.ChannelName) && packet.ZoneChannelID == 0)
 			return;
 
-		var zone = CliDB.AreaTableStorage.LookupByKey(Player.Zone);
+		var zone = CliDB.AreaTableStorage.LookupByKey(_session.Player.Zone);
 
 		if (packet.ZoneChannelID != 0)
 		{
@@ -103,18 +103,18 @@ public class ChannelHandler : IWorldSessionHandler
 			if (channel == null)
 				return;
 
-			if (zone == null || !Player.CanJoinConstantChannelInZone(channel, zone))
+			if (zone == null || !_session.Player.CanJoinConstantChannelInZone(channel, zone))
 				return;
 		}
 
-		var cMgr = ChannelManager.ForTeam(Player.Team);
+		var cMgr = ChannelManager.ForTeam(_session.Player.Team);
 
 		if (cMgr != null)
 		{
-			var channel = cMgr.GetChannel((uint)packet.ZoneChannelID, packet.ChannelName, Player, true, zone);
+			var channel = cMgr.GetChannel((uint)packet.ZoneChannelID, packet.ChannelName, _session.Player, true, zone);
 
 			if (channel != null)
-				channel.LeaveChannel(Player, true);
+				channel.LeaveChannel(_session.Player, true);
 
 			if (packet.ZoneChannelID != 0)
 				cMgr.LeftChannel((uint)packet.ZoneChannelID, zone);
@@ -128,7 +128,7 @@ public class ChannelHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ChatChannelOwner)]
 	void HandleChannelCommand(ChannelCommand packet)
 	{
-		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, Player);
+		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
 
 		if (channel == null)
 			return;
@@ -136,20 +136,20 @@ public class ChannelHandler : IWorldSessionHandler
 		switch (packet.GetOpcode())
 		{
 			case ClientOpcodes.ChatChannelAnnouncements:
-				channel.Announce(Player);
+				channel.Announce(_session.Player);
 
 				break;
 			case ClientOpcodes.ChatChannelDeclineInvite:
-				channel.DeclineInvite(Player);
+				channel.DeclineInvite(_session.Player);
 
 				break;
 			case ClientOpcodes.ChatChannelDisplayList:
 			case ClientOpcodes.ChatChannelList:
-				channel.List(Player);
+				channel.List(_session.Player);
 
 				break;
 			case ClientOpcodes.ChatChannelOwner:
-				channel.SendWhoOwner(Player);
+				channel.SendWhoOwner(_session.Player);
 
 				break;
 		}
@@ -176,7 +176,7 @@ public class ChannelHandler : IWorldSessionHandler
 		if (!ObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
-		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, Player);
+		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
 
 		if (channel == null)
 			return;
@@ -184,39 +184,39 @@ public class ChannelHandler : IWorldSessionHandler
 		switch (packet.GetOpcode())
 		{
 			case ClientOpcodes.ChatChannelBan:
-				channel.Ban(Player, packet.Name);
+				channel.Ban(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelInvite:
-				channel.Invite(Player, packet.Name);
+				channel.Invite(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelKick:
-				channel.Kick(Player, packet.Name);
+				channel.Kick(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelModerator:
-				channel.SetModerator(Player, packet.Name);
+				channel.SetModerator(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelSetOwner:
-				channel.SetOwner(Player, packet.Name);
+				channel.SetOwner(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelSilenceAll:
-				channel.SilenceAll(Player, packet.Name);
+				channel.SilenceAll(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelUnban:
-				channel.UnBan(Player, packet.Name);
+				channel.UnBan(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelUnmoderator:
-				channel.UnsetModerator(Player, packet.Name);
+				channel.UnsetModerator(_session.Player, packet.Name);
 
 				break;
 			case ClientOpcodes.ChatChannelUnsilenceAll:
-				channel.UnsilenceAll(Player, packet.Name);
+				channel.UnsilenceAll(_session.Player, packet.Name);
 
 				break;
 		}
@@ -239,9 +239,9 @@ public class ChannelHandler : IWorldSessionHandler
 
 		Log.outDebug(LogFilter.ChatSystem, "{0} {1} ChannelName: {2}, Password: {3}", packet.GetOpcode(), GetPlayerInfo(), packet.ChannelName, packet.Password);
 
-		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, Player);
+		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
 
 		if (channel != null)
-			channel.Password(Player, packet.Password);
+			channel.Password(_session.Player, packet.Password);
 	}
 }

@@ -39,7 +39,7 @@ public class TicketHandler : IWorldSessionHandler
 			if (!Global.SupportMgr.GetSuggestionSystemStatus())
 				return;
 
-			SuggestionTicket ticket = new(Player);
+			SuggestionTicket ticket = new(_session.Player);
 			ticket.SetPosition(userFeedback.Header.MapID, userFeedback.Header.Position);
 			ticket.SetFacing(userFeedback.Header.Facing);
 			ticket.SetNote(userFeedback.Note);
@@ -51,7 +51,7 @@ public class TicketHandler : IWorldSessionHandler
 			if (!Global.SupportMgr.GetBugSystemStatus())
 				return;
 
-			BugTicket ticket = new(Player);
+			BugTicket ticket = new(_session.Player);
 			ticket.SetPosition(userFeedback.Header.MapID, userFeedback.Header.Position);
 			ticket.SetFacing(userFeedback.Header.Facing);
 			ticket.SetNote(userFeedback.Note);
@@ -66,7 +66,7 @@ public class TicketHandler : IWorldSessionHandler
 		if (!Global.SupportMgr.GetComplaintSystemStatus())
 			return;
 
-		ComplaintTicket comp = new(Player);
+		ComplaintTicket comp = new(_session.Player);
 		comp.SetPosition(packet.Header.MapID, packet.Header.Position);
 		comp.SetFacing(packet.Header.Facing);
 		comp.SetChatLog(packet.ChatLog);

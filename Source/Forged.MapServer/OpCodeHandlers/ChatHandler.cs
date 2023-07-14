@@ -95,7 +95,7 @@ public class ChatHandler : IWorldSessionHandler
 
 	void HandleChat(ChatMsg type, Language lang, string msg, string target = "", ObjectGuid channelGuid = default)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (lang == Language.Universal && type != ChatMsg.Emote)
 		{
@@ -259,7 +259,7 @@ public class ChatHandler : IWorldSessionHandler
 						return;
 					}
 
-					if (_player.EffectiveTeam != receiver.EffectiveTeam && !HasPermission(RBACPermissions.TwoSideInteractionChat) && !receiver.IsInWhisperWhiteList(sender.GUID))
+					if (_session.Player.EffectiveTeam != receiver.EffectiveTeam && !HasPermission(RBACPermissions.TwoSideInteractionChat) && !receiver.IsInWhisperWhiteList(sender.GUID))
 					{
 						SendChatPlayerNotfoundNotice(target);
 
@@ -267,9 +267,9 @@ public class ChatHandler : IWorldSessionHandler
 					}
 				}
 
-				if (_player.HasAura(1852) && !receiver.IsGameMaster)
+				if (_session.Player.HasAura(1852) && !receiver.IsGameMaster)
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.GmSilence), _player.GetName());
+					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.GmSilence), _session.Player.GetName());
 
 					return;
 				}
@@ -278,41 +278,41 @@ public class ChatHandler : IWorldSessionHandler
 					(HasPermission(RBACPermissions.CanFilterWhispers) && !sender.IsAcceptWhispers && !sender.IsInWhisperWhiteList(receiver.GUID)))
 					sender.AddWhisperWhiteList(receiver.GUID);
 
-				_player.Whisper(msg, lang, receiver);
+				_session.Player.Whisper(msg, lang, receiver);
 
 				break;
 			case ChatMsg.Party:
 			{
 				// if player is in Battleground, he cannot say to Battlegroundmembers by /p
-				var group = _player.OriginalGroup;
+				var group = _session.Player.OriginalGroup;
 
 				if (!group)
 				{
-					group = _player.Group;
+					group = _session.Player.Group;
 
 					if (!group || group.IsBGGroup)
 						return;
 				}
 
-				if (group.IsLeader(_player.GUID))
+				if (group.IsLeader(_session.Player.GUID))
 					type = ChatMsg.PartyLeader;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				Global.ScriptMgr.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt data = new();
 				data.Initialize(type, lang, sender, null, msg);
-				group.BroadcastPacket(data, false, group.GetMemberGroup(_player.GUID));
+				group.BroadcastPacket(data, false, group.GetMemberGroup(_session.Player.GUID));
 			}
 
 				break;
 			case ChatMsg.Guild:
-				if (_player.GuildId != 0)
+				if (_session.Player.GuildId != 0)
 				{
-					var guild = Global.GuildMgr.GetGuildById(_player.GuildId);
+					var guild = Global.GuildMgr.GetGuildById(_session.Player.GuildId);
 
 					if (guild)
 					{
-						Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, guild);
+						Global.ScriptMgr.OnPlayerChat(_session.Player, type, lang, msg, guild);
 
 						guild.BroadcastToGuild(this, false, msg, lang == Language.Addon ? Language.Addon : Language.Universal);
 					}
@@ -320,13 +320,13 @@ public class ChatHandler : IWorldSessionHandler
 
 				break;
 			case ChatMsg.Officer:
-				if (_player.GuildId != 0)
+				if (_session.Player.GuildId != 0)
 				{
-					var guild = Global.GuildMgr.GetGuildById(_player.GuildId);
+					var guild = Global.GuildMgr.GetGuildById(_session.Player.GuildId);
 
 					if (guild)
 					{
-						Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, guild);
+						Global.ScriptMgr.OnPlayerChat(_session.Player, type, lang, msg, guild);
 
 						guild.BroadcastToGuild(this, true, msg, lang == Language.Addon ? Language.Addon : Language.Universal);
 					}
@@ -335,15 +335,15 @@ public class ChatHandler : IWorldSessionHandler
 				break;
 			case ChatMsg.Raid:
 			{
-				var group = _player.Group;
+				var group = _session.Player.Group;
 
 				if (!group || !group.IsRaidGroup || group.IsBGGroup)
 					return;
 
-				if (group.IsLeader(_player.GUID))
+				if (group.IsLeader(_session.Player.GUID))
 					type = ChatMsg.RaidLeader;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				Global.ScriptMgr.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt data = new();
 				data.Initialize(type, lang, sender, null, msg);
@@ -353,12 +353,12 @@ public class ChatHandler : IWorldSessionHandler
 				break;
 			case ChatMsg.RaidWarning:
 			{
-				var group = _player.Group;
+				var group = _session.Player.Group;
 
-				if (!group || !(group.IsRaidGroup || WorldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_player.GUID) || group.IsAssistant(_player.GUID)) || group.IsBGGroup)
+				if (!group || !(group.IsRaidGroup || WorldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_session.Player.GUID) || group.IsAssistant(_session.Player.GUID)) || group.IsBGGroup)
 					return;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				Global.ScriptMgr.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt data = new();
 				//in Battleground, raid warning is sent only to players in Battleground - code is ok
@@ -369,7 +369,7 @@ public class ChatHandler : IWorldSessionHandler
 				break;
 			case ChatMsg.Channel:
 				if (!HasPermission(RBACPermissions.SkipCheckChatChannelReq))
-					if (_player.Level < WorldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq))
+					if (_session.Player.Level < WorldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq))
 					{
 						SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.ChannelReq), WorldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq));
 
@@ -380,22 +380,22 @@ public class ChatHandler : IWorldSessionHandler
 
 				if (chn != null)
 				{
-					Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, chn);
-					chn.Say(_player.GUID, msg, lang);
+					Global.ScriptMgr.OnPlayerChat(_session.Player, type, lang, msg, chn);
+					chn.Say(_session.Player.GUID, msg, lang);
 				}
 
 				break;
 			case ChatMsg.InstanceChat:
 			{
-				var group = _player.Group;
+				var group = _session.Player.Group;
 
 				if (!group)
 					return;
 
-				if (group.IsLeader(_player.GUID))
+				if (group.IsLeader(_session.Player.GUID))
 					type = ChatMsg.InstanceChatLeader;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				Global.ScriptMgr.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt packet = new();
 				packet.Initialize(type, lang, sender, null, msg);
@@ -424,7 +424,7 @@ public class ChatHandler : IWorldSessionHandler
 
 	void HandleChatAddon(ChatMsg type, string prefix, string text, bool isLogged, string target = "", ObjectGuid? channelGuid = null)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (string.IsNullOrEmpty(prefix) || prefix.Length > 16)
 			return;
@@ -510,7 +510,7 @@ public class ChatHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ChatMessageAfk)]
 	void HandleChatMessageAFK(ChatMessageAFK packet)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (sender.IsInCombat)
 			return;
@@ -550,7 +550,7 @@ public class ChatHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ChatMessageDnd)]
 	void HandleChatMessageDND(ChatMessageDND packet)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (sender.IsInCombat)
 			return;
@@ -590,17 +590,17 @@ public class ChatHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.Emote, Processing = PacketProcessing.Inplace)]
 	void HandleEmote(EmoteClient packet)
 	{
-		if (!_player.IsAlive || _player.HasUnitState(UnitState.Died))
+		if (!_session.Player.IsAlive || _session.Player.HasUnitState(UnitState.Died))
 			return;
 
-		Global.ScriptMgr.ForEach<IPlayerOnClearEmote>(p => p.OnClearEmote(_player));
-		_player.EmoteState = Emote.OneshotNone;
+		Global.ScriptMgr.ForEach<IPlayerOnClearEmote>(p => p.OnClearEmote(_session.Player));
+		_session.Player.EmoteState = Emote.OneshotNone;
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SendTextEmote, Processing = PacketProcessing.Inplace)]
 	void HandleTextEmote(CTextEmote packet)
 	{
-		if (!_player.IsAlive)
+		if (!_session.Player.IsAlive)
 			return;
 
 		if (!CanSpeak)
@@ -611,7 +611,7 @@ public class ChatHandler : IWorldSessionHandler
 			return;
 		}
 
-		Global.ScriptMgr.ForEach<IPlayerOnTextEmote>(p => p.OnTextEmote(_player, (uint)packet.SoundIndex, (uint)packet.EmoteID, packet.Target));
+		Global.ScriptMgr.ForEach<IPlayerOnTextEmote>(p => p.OnTextEmote(_session.Player, (uint)packet.SoundIndex, (uint)packet.EmoteID, packet.Target));
 		var em = CliDB.EmotesTextStorage.LookupByKey(packet.EmoteID);
 
 		if (em == null)
@@ -628,30 +628,30 @@ public class ChatHandler : IWorldSessionHandler
 				break;
 			case Emote.StateDance:
 			case Emote.StateRead:
-				_player.EmoteState = emote;
+				_session.Player.EmoteState = emote;
 
 				break;
 			default:
 				// Only allow text-emotes for "dead" entities (feign death included)
-				if (_player.HasUnitState(UnitState.Died))
+				if (_session.Player.HasUnitState(UnitState.Died))
 					break;
 
-				_player.HandleEmoteCommand(emote, null, packet.SpellVisualKitIDs, packet.SequenceVariation);
+				_session.Player.HandleEmoteCommand(emote, null, packet.SpellVisualKitIDs, packet.SequenceVariation);
 
 				break;
 		}
 
 		STextEmote textEmote = new();
-		textEmote.SourceGUID = _player.GUID;
+		textEmote.SourceGUID = _session.Player.GUID;
 		textEmote.SourceAccountGUID = AccountGUID;
 		textEmote.TargetGUID = packet.Target;
 		textEmote.EmoteID = packet.EmoteID;
 		textEmote.SoundIndex = packet.SoundIndex;
-		_player.SendMessageToSetInRange(textEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true);
+		_session.Player.SendMessageToSetInRange(textEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true);
 
-		var unit = Global.ObjAccessor.GetUnit(_player, packet.Target);
+		var unit = Global.ObjAccessor.GetUnit(_session.Player, packet.Target);
 
-		_player.UpdateCriteria(CriteriaType.DoEmote, (uint)packet.EmoteID, 0, 0, unit);
+		_session.Player.UpdateCriteria(CriteriaType.DoEmote, (uint)packet.EmoteID, 0, 0, unit);
 
 		// Send scripted event call
 		if (unit)
@@ -659,11 +659,11 @@ public class ChatHandler : IWorldSessionHandler
 			var creature = unit.AsCreature;
 
 			if (creature)
-				creature.AI.ReceiveEmote(_player, (TextEmotes)packet.EmoteID);
+				creature.AI.ReceiveEmote(_session.Player, (TextEmotes)packet.EmoteID);
 		}
 
 		if (emote != Emote.OneshotNone)
-			_player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Anim);
+			_session.Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Anim);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ChatReportIgnored)]
@@ -675,7 +675,7 @@ public class ChatHandler : IWorldSessionHandler
 			return;
 
 		ChatPkt data = new();
-		data.Initialize(ChatMsg.Ignored, Language.Universal, _player, _player, _player.GetName());
+		data.Initialize(ChatMsg.Ignored, Language.Universal, _session.Player, _session.Player, _session.Player.GetName());
 		player._session.SendPacket(data);
 	}
 

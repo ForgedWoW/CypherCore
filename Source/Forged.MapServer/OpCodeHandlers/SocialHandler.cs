@@ -51,7 +51,7 @@ public class SocialHandler : IWorldSessionHandler
 		if (whoRequest.Request.MaxLevel >= 100)
 			whoRequest.Request.MaxLevel = 255;
 
-		var team = Player.Team;
+		var team = _session.Player.Team;
 
 		var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
 
@@ -71,8 +71,8 @@ public class SocialHandler : IWorldSessionHandler
 				continue;
 
 			// check if target is globally visible for player
-			if (_player.GUID != target.Guid && !target.IsVisible)
-				if (Global.AccountMgr.IsPlayerAccount(_player.Session.Security) || target.Security > _player.Session.Security)
+			if (_session.Player.GUID != target.Guid && !target.IsVisible)
+				if (Global.AccountMgr.IsPlayerAccount(_session.Player.Session.Security) || target.Security > _session.Player.Session.Security)
 					continue;
 
 			// check if target's level is in level range
@@ -214,7 +214,7 @@ public class SocialHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SendContactList)]
 	void HandleContactList(SendContactList packet)
 	{
-		Player.Social.SendSocialList(Player, packet.Flags);
+		_session.Player.Social.SendSocialList(_session.Player, packet.Flags);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AddFriend)]
@@ -227,17 +227,17 @@ public class SocialHandler : IWorldSessionHandler
 
 		if (friendCharacterInfo == null)
 		{
-			Global.SocialMgr.SendFriendStatus(Player, FriendsResult.NotFound, ObjectGuid.Empty);
+			Global.SocialMgr.SendFriendStatus(_session.Player, FriendsResult.NotFound, ObjectGuid.Empty);
 
 			return;
 		}
 
 		void processFriendRequest()
 		{
-			var playerGuid = _player.GUID;
+			var playerGuid = _session.Player.GUID;
 			var friendGuid = friendCharacterInfo.Guid;
 			var friendAccountGuid = ObjectGuid.Create(HighGuid.WowAccount, friendCharacterInfo.AccountId);
-			var team = Player.TeamForRace(friendCharacterInfo.RaceId);
+			var team = _session.Player.TeamForRace(friendCharacterInfo.RaceId);
 			var friendNote = packet.Notes;
 
 			if (playerGuid.Counter != _guidLow)
@@ -245,15 +245,15 @@ public class SocialHandler : IWorldSessionHandler
 
 			var friendResult = FriendsResult.NotFound;
 
-			if (friendGuid == Player.GUID)
+			if (friendGuid == _session.Player.GUID)
 			{
 				friendResult = FriendsResult.Self;
 			}
-			else if (Player.Team != team && !HasPermission(RBACPermissions.TwoSideAddFriend))
+			else if (_session.Player.Team != team && !HasPermission(RBACPermissions.TwoSideAddFriend))
 			{
 				friendResult = FriendsResult.Enemy;
 			}
-			else if (Player.Social.HasFriend(friendGuid))
+			else if (_session.Player.Social.HasFriend(friendGuid))
 			{
 				friendResult = FriendsResult.Already;
 			}
@@ -261,18 +261,18 @@ public class SocialHandler : IWorldSessionHandler
 			{
 				var pFriend = Global.ObjAccessor.FindPlayer(friendGuid);
 
-				if (pFriend != null && pFriend.IsVisibleGloballyFor(Player))
+				if (pFriend != null && pFriend.IsVisibleGloballyFor(_session.Player))
 					friendResult = FriendsResult.Online;
 				else
 					friendResult = FriendsResult.AddedOnline;
 
-				if (Player.Social.AddToSocialList(friendGuid, friendAccountGuid, SocialFlag.Friend))
-					Player.Social.SetFriendNote(friendGuid, friendNote);
+				if (_session.Player.Social.AddToSocialList(friendGuid, friendAccountGuid, SocialFlag.Friend))
+					_session.Player.Social.SetFriendNote(friendGuid, friendNote);
 				else
 					friendResult = FriendsResult.ListFull;
 			}
 
-			Global.SocialMgr.SendFriendStatus(Player, friendResult, friendGuid);
+			Global.SocialMgr.SendFriendStatus(_session.Player, friendResult, friendGuid);
 		}
 
 		if (HasPermission(RBACPermissions.AllowGmFriend))
@@ -289,7 +289,7 @@ public class SocialHandler : IWorldSessionHandler
 		{
 			if (!Global.AccountMgr.IsPlayerAccount(friendPlayer.Session.Security))
 			{
-				Global.SocialMgr.SendFriendStatus(Player, FriendsResult.NotFound, ObjectGuid.Empty);
+				Global.SocialMgr.SendFriendStatus(_session.Player, FriendsResult.NotFound, ObjectGuid.Empty);
 
 				return;
 			}
@@ -306,7 +306,7 @@ public class SocialHandler : IWorldSessionHandler
 																	{
 																		if (!Global.AccountMgr.IsPlayerAccount((AccountTypes)friendSecurity))
 																		{
-																			Global.SocialMgr.SendFriendStatus(Player, FriendsResult.NotFound, ObjectGuid.Empty);
+																			Global.SocialMgr.SendFriendStatus(_session.Player, FriendsResult.NotFound, ObjectGuid.Empty);
 
 																			return;
 																		}
@@ -319,10 +319,10 @@ public class SocialHandler : IWorldSessionHandler
 	void HandleDelFriend(DelFriend packet)
 	{
 		// @todo: handle VirtualRealmAddress
-		Player. // @todo: handle VirtualRealmAddress
-			Social.RemoveFromSocialList(packet.Player.Guid, SocialFlag.Friend);
+		_session.Player. // @todo: handle VirtualRealmAddress
+			Social.RemoveFromSocialList(packet._session.Player.Guid, SocialFlag.Friend);
 
-		Global.SocialMgr.SendFriendStatus(Player, FriendsResult.Removed, packet.Player.Guid);
+		Global.SocialMgr.SendFriendStatus(_session.Player, FriendsResult.Removed, packet._session.Player.Guid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AddIgnore)]
@@ -341,11 +341,11 @@ public class SocialHandler : IWorldSessionHandler
 			ignoreGuid = characterInfo.Guid;
 			var ignoreAccountGuid = ObjectGuid.Create(HighGuid.WowAccount, characterInfo.AccountId);
 
-			if (ignoreGuid == Player.GUID) //not add yourself
+			if (ignoreGuid == _session.Player.GUID) //not add yourself
 			{
 				ignoreResult = FriendsResult.IgnoreSelf;
 			}
-			else if (Player.Social.HasIgnore(ignoreGuid, ignoreAccountGuid))
+			else if (_session.Player.Social.HasIgnore(ignoreGuid, ignoreAccountGuid))
 			{
 				ignoreResult = FriendsResult.IgnoreAlready;
 			}
@@ -354,31 +354,31 @@ public class SocialHandler : IWorldSessionHandler
 				ignoreResult = FriendsResult.IgnoreAdded;
 
 				// ignore list full
-				if (!Player.Social.AddToSocialList(ignoreGuid, ignoreAccountGuid, SocialFlag.Ignored))
+				if (!_session.Player.Social.AddToSocialList(ignoreGuid, ignoreAccountGuid, SocialFlag.Ignored))
 					ignoreResult = FriendsResult.IgnoreFull;
 			}
 		}
 
-		Global.SocialMgr.SendFriendStatus(Player, ignoreResult, ignoreGuid);
+		Global.SocialMgr.SendFriendStatus(_session.Player, ignoreResult, ignoreGuid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DelIgnore)]
 	void HandleDelIgnore(DelIgnore packet)
 	{
 		// @todo: handle VirtualRealmAddress
-		Log.Logger.Debug("WorldSession.HandleDelIgnoreOpcode: {0}", packet.Player.Guid.ToString());
+		Log.Logger.Debug("WorldSession.HandleDelIgnoreOpcode: {0}", packet._session.Player.Guid.ToString());
 
-		Player.Social.RemoveFromSocialList(packet.Player.Guid, SocialFlag.Ignored);
+		_session.Player.Social.RemoveFromSocialList(packet._session.Player.Guid, SocialFlag.Ignored);
 
-		Global.SocialMgr.SendFriendStatus(Player, FriendsResult.IgnoreRemoved, packet.Player.Guid);
+		Global.SocialMgr.SendFriendStatus(_session.Player, FriendsResult.IgnoreRemoved, packet._session.Player.Guid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetContactNotes)]
 	void HandleSetContactNotes(SetContactNotes packet)
 	{
 		// @todo: handle VirtualRealmAddress
-		Log.Logger.Debug("WorldSession.HandleSetContactNotesOpcode: Contact: {0}, Notes: {1}", packet.Player.Guid.ToString(), packet.Notes);
-		Player.Social.SetFriendNote(packet.Player.Guid, packet.Notes);
+		Log.Logger.Debug("WorldSession.HandleSetContactNotesOpcode: Contact: {0}, Notes: {1}", packet._session.Player.Guid.ToString(), packet.Notes);
+		_session.Player.Social.SetFriendNote(packet._session.Player.Guid, packet.Notes);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SocialContractRequest)]

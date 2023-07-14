@@ -19,14 +19,14 @@ public class LFGHandler : IWorldSessionHandler
 	public void SendLfgPlayerLockInfo()
 	{
 		// Get Random dungeons that can be done at a certain level and expansion
-		var level = Player.Level;
-		var contentTuningReplacementConditionMask = Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask;
+		var level = _session.Player.Level;
+		var contentTuningReplacementConditionMask = _session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask;
 		var randomDungeons = Global.LFGMgr.GetRandomAndSeasonalDungeons(level, (uint)Expansion, contentTuningReplacementConditionMask);
 
 		LfgPlayerInfo lfgPlayerInfo = new();
 
 		// Get player locked Dungeons
-		foreach (var locked in Global.LFGMgr.GetLockedDungeons(_player.GUID))
+		foreach (var locked in Global.LFGMgr.GetLockedDungeons(_session.Player.GUID))
 			lfgPlayerInfo.BlackList.Slot.Add(new LFGBlackListSlot(locked.Key, (uint)locked.Value.lockStatus, locked.Value.requiredItemLevel, (int)locked.Value.currentItemLevel, 0));
 
 		foreach (var slot in randomDungeons)
@@ -56,15 +56,15 @@ public class LFGHandler : IWorldSessionHandler
 
 				if (quest != null)
 				{
-					playerDungeonInfo.FirstReward = !Player.CanRewardQuest(quest, false);
+					playerDungeonInfo.FirstReward = !_session.Player.CanRewardQuest(quest, false);
 
 					if (!playerDungeonInfo.FirstReward)
 						quest = Global.ObjectMgr.GetQuestTemplate(reward.otherQuest);
 
 					if (quest != null)
 					{
-						playerDungeonInfo.Rewards.RewardMoney = _player.GetQuestMoneyReward(quest);
-						playerDungeonInfo.Rewards.RewardXP = _player.GetQuestXPReward(quest);
+						playerDungeonInfo.Rewards.RewardMoney = _session.Player.GetQuestMoneyReward(quest);
+						playerDungeonInfo.Rewards.RewardXP = _session.Player.GetQuestXPReward(quest);
 
 						for (byte i = 0; i < SharedConst.QuestRewardItemCount; ++i)
 						{
@@ -93,8 +93,8 @@ public class LFGHandler : IWorldSessionHandler
 
 	public void SendLfgPartyLockInfo()
 	{
-		var guid = Player.GUID;
-		var group = Player.Group;
+		var guid = _session.Player.GUID;
+		var group = _session.Player.Group;
 
 		if (!group)
 			return;
@@ -120,7 +120,7 @@ public class LFGHandler : IWorldSessionHandler
 			foreach (var locked in Global.LFGMgr.GetLockedDungeons(pguid))
 				lfgBlackList.Slot.Add(new LFGBlackListSlot(locked.Key, (uint)locked.Value.lockStatus, locked.Value.requiredItemLevel, (int)locked.Value.currentItemLevel, 0));
 
-			lfgPartyInfo.Player.Add(lfgBlackList);
+			lfgPartyInfo._session.Player.Add(lfgBlackList);
 		}
 
 		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_PARTY_INFO {0}", GetPlayerInfo());
@@ -158,7 +158,7 @@ public class LFGHandler : IWorldSessionHandler
 
 		LFGUpdateStatus lfgUpdateStatus = new();
 
-		var ticket = Global.LFGMgr.GetTicket(_player.GUID);
+		var ticket = Global.LFGMgr.GetTicket(_session.Player.GUID);
 
 		if (ticket != null)
 			lfgUpdateStatus.Ticket = ticket;
@@ -169,14 +169,14 @@ public class LFGHandler : IWorldSessionHandler
 		foreach (var dungeonId in updateData.dungeons)
 			lfgUpdateStatus.Slots.Add(Global.LFGMgr.GetLFGDungeonEntry(dungeonId));
 
-		lfgUpdateStatus.RequestedRoles = (uint)Global.LFGMgr.GetRoles(_player.GUID);
+		lfgUpdateStatus.RequestedRoles = (uint)Global.LFGMgr.GetRoles(_session.Player.GUID);
 		//lfgUpdateStatus.SuspendedPlayers;
 		lfgUpdateStatus.IsParty = party;
 		lfgUpdateStatus.NotifyUI = true;
 		lfgUpdateStatus.Joined = join;
 		lfgUpdateStatus.LfgJoined = updateData.updateType != LfgUpdateType.RemovedFromQueue;
 		lfgUpdateStatus.Queued = queued;
-		lfgUpdateStatus.QueueMapID = Global.LFGMgr.GetDungeonMapId(_player.GUID);
+		lfgUpdateStatus.QueueMapID = Global.LFGMgr.GetDungeonMapId(_session.Player.GUID);
 
 		_session.SendPacket(lfgUpdateStatus);
 	}
@@ -184,7 +184,7 @@ public class LFGHandler : IWorldSessionHandler
 	public void SendLfgRoleChosen(ObjectGuid guid, LfgRoles roles)
 	{
 		RoleChosen roleChosen = new();
-		roleChosen.Player = guid;
+		roleChosen._session.Player = guid;
 		roleChosen.RoleMask = roles;
 		roleChosen.Accepted = roles > 0;
 		_session.SendPacket(roleChosen);
@@ -234,7 +234,7 @@ public class LFGHandler : IWorldSessionHandler
 	{
 		LFGJoinResult lfgJoinResult = new();
 
-		var ticket = Global.LFGMgr.GetTicket(Player.GUID);
+		var ticket = Global.LFGMgr.GetTicket(_session.Player.GUID);
 
 		if (ticket != null)
 			lfgJoinResult.Ticket = ticket;
@@ -276,7 +276,7 @@ public class LFGHandler : IWorldSessionHandler
 					"SMSG_LFG_QUEUE_STATUS {0} state: {1} dungeon: {2}, waitTime: {3}, " +
 					"avgWaitTime: {4}, waitTimeTanks: {5}, waitTimeHealer: {6}, waitTimeDps: {7}, queuedTime: {8}, tanks: {9}, healers: {10}, dps: {11}",
 					GetPlayerInfo(),
-					Global.LFGMgr.GetState(Player.GUID),
+					Global.LFGMgr.GetState(_session.Player.GUID),
 					queueData.dungeonId,
 					queueData.waitTime,
 					queueData.waitTimeAvg,
@@ -290,7 +290,7 @@ public class LFGHandler : IWorldSessionHandler
 
 		LFGQueueStatus lfgQueueStatus = new();
 
-		var ticket = Global.LFGMgr.GetTicket(Player.GUID);
+		var ticket = Global.LFGMgr.GetTicket(_session.Player.GUID);
 
 		if (ticket != null)
 			lfgQueueStatus.Ticket = ticket;
@@ -324,8 +324,8 @@ public class LFGHandler : IWorldSessionHandler
 		LFGPlayerReward lfgPlayerReward = new();
 		lfgPlayerReward.QueuedSlot = rewardData.rdungeonEntry;
 		lfgPlayerReward.ActualSlot = rewardData.sdungeonEntry;
-		lfgPlayerReward.RewardMoney = Player.GetQuestMoneyReward(rewardData.quest);
-		lfgPlayerReward.AddedXP = Player.GetQuestXPReward(rewardData.quest);
+		lfgPlayerReward.RewardMoney = _session.Player.GetQuestMoneyReward(rewardData.quest);
+		lfgPlayerReward.AddedXP = _session.Player.GetQuestXPReward(rewardData.quest);
 
 		for (byte i = 0; i < SharedConst.QuestRewardItemCount; ++i)
 		{
@@ -348,7 +348,7 @@ public class LFGHandler : IWorldSessionHandler
 
 	public void SendLfgBootProposalUpdate(LfgPlayerBoot boot)
 	{
-		var playerVote = boot.votes.LookupByKey(Player.GUID);
+		var playerVote = boot.votes.LookupByKey(_session.Player.GUID);
 		byte votesNum = 0;
 		byte agreeNum = 0;
 		var secsleft = (uint)((boot.cancelTime - GameTime.GetGameTime()) / 1000);
@@ -391,7 +391,7 @@ public class LFGHandler : IWorldSessionHandler
 
 	public void SendLfgProposalUpdate(LfgProposal proposal)
 	{
-		var playerGuid = Player.GUID;
+		var playerGuid = _session.Player.GUID;
 		var guildGuid = proposal.players.LookupByKey(playerGuid).group;
 		var silent = !proposal.isNew && guildGuid == proposal.group;
 		var dungeonEntry = proposal.dungeonId;
@@ -409,7 +409,7 @@ public class LFGHandler : IWorldSessionHandler
 
 		LFGProposalUpdate lfgProposalUpdate = new();
 
-		var ticket = Global.LFGMgr.GetTicket(Player.GUID);
+		var ticket = Global.LFGMgr.GetTicket(_session.Player.GUID);
 
 		if (ticket != null)
 			lfgProposalUpdate.Ticket = ticket;
@@ -460,9 +460,9 @@ public class LFGHandler : IWorldSessionHandler
 	void HandleLfgJoin(DFJoin dfJoin)
 	{
 		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser) ||
-			(Player.Group &&
-			Player.Group.LeaderGUID != Player.GUID &&
-			(Player.Group.MembersCount == MapConst.MaxGroupSize || !Player.Group.IsLFGGroup)))
+			(_session.Player.Group &&
+			_session.Player.Group.LeaderGUID != _session.Player.GUID &&
+			(_session.Player.Group.MembersCount == MapConst.MaxGroupSize || !_session.Player.Group.IsLFGGroup)))
 			return;
 
 		if (dfJoin.Slots.Empty())
@@ -484,13 +484,13 @@ public class LFGHandler : IWorldSessionHandler
 
 		Log.outDebug(LogFilter.Lfg, "CMSG_DF_JOIN {0} roles: {1}, Dungeons: {2}", GetPlayerInfo(), dfJoin.Roles, newDungeons.Count);
 
-		Global.LFGMgr.JoinLfg(Player, dfJoin.Roles, newDungeons);
+		Global.LFGMgr.JoinLfg(_session.Player, dfJoin.Roles, newDungeons);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DfLeave)]
 	void HandleLfgLeave(DFLeave dfLeave)
 	{
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		Log.outDebug(LogFilter.Lfg, "CMSG_DF_LEAVE {0} in group: {1} sent guid {2}.", GetPlayerInfo(), group ? 1 : 0, dfLeave.Ticket.RequesterGuid.ToString());
 
@@ -503,14 +503,14 @@ public class LFGHandler : IWorldSessionHandler
 	void HandleLfgProposalResult(DFProposalResponse dfProposalResponse)
 	{
 		Log.outDebug(LogFilter.Lfg, "CMSG_LFG_PROPOSAL_RESULT {0} proposal: {1} accept: {2}", GetPlayerInfo(), dfProposalResponse.ProposalID, dfProposalResponse.Accepted ? 1 : 0);
-		Global.LFGMgr.UpdateProposal(dfProposalResponse.ProposalID, Player.GUID, dfProposalResponse.Accepted);
+		Global.LFGMgr.UpdateProposal(dfProposalResponse.ProposalID, _session.Player.GUID, dfProposalResponse.Accepted);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DfSetRoles)]
 	void HandleLfgSetRoles(DFSetRoles dfSetRoles)
 	{
-		var guid = Player.GUID;
-		var group = Player.Group;
+		var guid = _session.Player.GUID;
+		var group = _session.Player.Group;
 
 		if (!group)
 		{
@@ -522,14 +522,14 @@ public class LFGHandler : IWorldSessionHandler
 		}
 
 		var gguid = group.GUID;
-		Log.outDebug(LogFilter.Lfg, "CMSG_DF_SET_ROLES: Group {0}, Player {1}, Roles: {2}", gguid.ToString(), GetPlayerInfo(), dfSetRoles.RolesDesired);
+		Log.outDebug(LogFilter.Lfg, "CMSG_DF_SET_ROLES: Group {0}, _session.Player {1}, Roles: {2}", gguid.ToString(), GetPlayerInfo(), dfSetRoles.RolesDesired);
 		Global.LFGMgr.UpdateRoleCheck(gguid, guid, dfSetRoles.RolesDesired);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DfBootPlayerVote)]
 	void HandleLfgSetBootVote(DFBootPlayerVote dfBootPlayerVote)
 	{
-		var guid = Player.GUID;
+		var guid = _session.Player.GUID;
 		Log.outDebug(LogFilter.Lfg, "CMSG_LFG_SET_BOOT_VOTE {0} agree: {1}", GetPlayerInfo(), dfBootPlayerVote.Vote ? 1 : 0);
 		Global.LFGMgr.UpdateBoot(guid, dfBootPlayerVote.Vote);
 	}
@@ -538,15 +538,15 @@ public class LFGHandler : IWorldSessionHandler
 	void HandleLfgTeleport(DFTeleport dfTeleport)
 	{
 		Log.outDebug(LogFilter.Lfg, "CMSG_DF_TELEPORT {0} out: {1}", GetPlayerInfo(), dfTeleport.TeleportOut ? 1 : 0);
-		Global.LFGMgr.TeleportPlayer(Player, dfTeleport.TeleportOut, true);
+		Global.LFGMgr.TeleportPlayer(_session.Player, dfTeleport.TeleportOut, true);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DfGetSystemInfo, Processing = PacketProcessing.ThreadSafe)]
 	void HandleDfGetSystemInfo(DFGetSystemInfo dfGetSystemInfo)
 	{
-		Log.outDebug(LogFilter.Lfg, "CMSG_LFG_Lock_INFO_REQUEST {0} for {1}", GetPlayerInfo(), (dfGetSystemInfo.Player ? "player" : "party"));
+		Log.outDebug(LogFilter.Lfg, "CMSG_LFG_Lock_INFO_REQUEST {0} for {1}", GetPlayerInfo(), (dfGetSystemInfo._session.Player ? "player" : "party"));
 
-		if (dfGetSystemInfo.Player)
+		if (dfGetSystemInfo._session.Player)
 			SendLfgPlayerLockInfo();
 		else
 			SendLfgPartyLockInfo();
@@ -555,13 +555,13 @@ public class LFGHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.DfGetJoinStatus, Processing = PacketProcessing.ThreadSafe)]
 	void HandleDfGetJoinStatus(DFGetJoinStatus packet)
 	{
-		if (!Player.IsUsingLfg)
+		if (!_session.Player.IsUsingLfg)
 			return;
 
-		var guid = Player.GUID;
+		var guid = _session.Player.GUID;
 		var updateData = Global.LFGMgr.GetLfgStatus(guid);
 
-		if (Player.Group)
+		if (_session.Player.Group)
 		{
 			SendLfgUpdateStatus(updateData, true);
 			updateData.dungeons.Clear();

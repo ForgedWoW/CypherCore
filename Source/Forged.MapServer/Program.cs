@@ -583,4 +583,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<AzeriteHandler>();
     builder.RegisterType<BankHandler>();
     builder.RegisterType<BattlenetHandler>();
+    builder.RegisterType<CalendarHandler>();
 }

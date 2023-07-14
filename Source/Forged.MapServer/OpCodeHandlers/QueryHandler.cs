@@ -24,7 +24,7 @@ public class QueryHandler : IWorldSessionHandler
 
 		var player = Global.ObjAccessor.FindPlayer(guid);
 
-		lookupData.Player = guid;
+		lookupData._session.Player = guid;
 
 		lookupData.Data = new PlayerGuidLookupData();
 
@@ -213,12 +213,12 @@ public class QueryHandler : IWorldSessionHandler
 	void HandleQueryCorpseLocation(QueryCorpseLocationFromClient queryCorpseLocation)
 	{
 		CorpseLocation packet = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseLocation.Player);
+		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseLocation._session.Player);
 
-		if (!player || !player.HasCorpse || !_player.IsInSameRaidWith(player))
+		if (!player || !player.HasCorpse || !_session.Player.IsInSameRaidWith(player))
 		{
 			packet.Valid = false; // corpse not found
-			packet.Player = queryCorpseLocation.Player;
+			packet._session.Player = queryCorpseLocation._session.Player;
 			_session.SendPacket(packet);
 
 			return;
@@ -254,7 +254,7 @@ public class QueryHandler : IWorldSessionHandler
 		}
 
 		packet.Valid = true;
-		packet.Player = queryCorpseLocation.Player;
+		packet._session.Player = queryCorpseLocation._session.Player;
 		packet.MapID = (int)corpseMapID;
 		packet.ActualMapID = (int)mapID;
 		packet.Position = new Vector3(x, y, z);
@@ -266,15 +266,15 @@ public class QueryHandler : IWorldSessionHandler
 	void HandleQueryCorpseTransport(QueryCorpseTransport queryCorpseTransport)
 	{
 		CorpseTransportQuery response = new();
-		response.Player = queryCorpseTransport.Player;
+		response._session.Player = queryCorpseTransport._session.Player;
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseTransport.Player);
+		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseTransport._session.Player);
 
 		if (player)
 		{
 			var corpse = player.GetCorpse();
 
-			if (_player.IsInSameRaidWith(player) && corpse && !corpse.GetTransGUID().IsEmpty && corpse.GetTransGUID() == queryCorpseTransport.Transport)
+			if (_session.Player.IsInSameRaidWith(player) && corpse && !corpse.GetTransGUID().IsEmpty && corpse.GetTransGUID() == queryCorpseTransport.Transport)
 			{
 				response.Position = new Vector3(corpse.TransOffsetX, corpse.TransOffsetY, corpse.TransOffsetZ);
 				response.Facing = corpse.TransOffsetO;
@@ -295,7 +295,7 @@ public class QueryHandler : IWorldSessionHandler
 
 			if (Global.ObjectMgr.GetQuestTemplate(questID) == null)
 			{
-				Log.Logger.Debug("WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, Player.GUID);
+				Log.Logger.Debug("WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, _session.Player.GUID);
 
 				continue;
 			}
@@ -329,7 +329,7 @@ public class QueryHandler : IWorldSessionHandler
 		QuestPOIQueryResponse response = new();
 
 		foreach (var questId in questIds)
-			if (_player.FindQuestSlot(questId) != SharedConst.MaxQuestLogSize)
+			if (_session.Player.FindQuestSlot(questId) != SharedConst.MaxQuestLogSize)
 			{
 				var poiData = Global.ObjectMgr.GetQuestPOIData(questId);
 
@@ -346,7 +346,7 @@ public class QueryHandler : IWorldSessionHandler
 		QueryItemTextResponse queryItemTextResponse = new();
 		queryItemTextResponse.Id = packet.Id;
 
-		var item = Player.GetItemByGuid(packet.Id);
+		var item = _session.Player.GetItemByGuid(packet.Id);
 
 		if (item)
 		{
