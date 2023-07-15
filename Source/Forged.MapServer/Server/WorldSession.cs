@@ -91,7 +91,7 @@ public class WorldSession : IDisposable
     private string _loadingPlayerInfo;
     private long _logoutTime;
     private string _playerInfo;
-    private ObjectGuid _playerLoading;
+    public ObjectGuid PlayerLoadingGuid { get; set; }
 
     // code processed in LoginPlayer
     private bool _playerSave;
@@ -185,7 +185,7 @@ public class WorldSession : IDisposable
     public PacketRouter PacketRouter { get; }
     public Player Player { get; set; }
     public bool PlayerDisconnected => Socket is not { IsOpen: true };
-    public bool PlayerLoading => !_playerLoading.IsEmpty;
+    public bool PlayerLoading => !PlayerLoadingGuid.IsEmpty;
     public bool PlayerLogout { get; private set; }
 
     public bool PlayerLogoutWithSave => PlayerLogout && _playerSave;
@@ -413,7 +413,7 @@ public class WorldSession : IDisposable
 
     public string GetPlayerInfo()
     {
-        if (!_playerLoading.IsEmpty && !string.IsNullOrEmpty(_loadingPlayerInfo))
+        if (!PlayerLoadingGuid.IsEmpty && !string.IsNullOrEmpty(_loadingPlayerInfo))
             return _loadingPlayerInfo;
 
         if (Player != null && !string.IsNullOrEmpty(_playerInfo))
@@ -422,8 +422,8 @@ public class WorldSession : IDisposable
         StringBuilder ss = new();
         ss.Append("[Player: ");
 
-        if (!_playerLoading.IsEmpty)
-            ss.Append($"Logging in: {_playerLoading.ToString()}, ");
+        if (!PlayerLoadingGuid.IsEmpty)
+            ss.Append($"Logging in: {PlayerLoadingGuid.ToString()}, ");
         else if (Player != null)
             ss.Append($"{Player.GetName()} {Player.GUID.ToString()}, ");
 
@@ -431,7 +431,7 @@ public class WorldSession : IDisposable
 
         var infp = ss.ToString();
 
-        if (!_playerLoading.IsEmpty)
+        if (!PlayerLoadingGuid.IsEmpty)
             _loadingPlayerInfo = infp;
         else if (Player != null)
             _playerInfo = infp;
@@ -897,7 +897,7 @@ public class WorldSession : IDisposable
             _warden.Update(diff);
 
         // If necessary, log the player out
-        if (ShouldLogOut(currentTime) && _playerLoading.IsEmpty)
+        if (ShouldLogOut(currentTime) && PlayerLoadingGuid.IsEmpty)
             LogoutPlayer(true);
 
         //- Cleanup socket if need
@@ -1302,7 +1302,7 @@ public class WorldSession : IDisposable
         BattlePetMgr.LoadFromDB(holder.GetResult(AccountInfoQueryLoad.BattlePets), holder.GetResult(AccountInfoQueryLoad.BattlePetSlot));
     }
 
-    private void LoadAccountData(SQLResult result, AccountDataTypes mask)
+    public void LoadAccountData(SQLResult result, AccountDataTypes mask)
     {
         for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
             if (Convert.ToBoolean((int)mask & (1 << i)))

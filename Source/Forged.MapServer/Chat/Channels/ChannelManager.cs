@@ -81,7 +81,7 @@ public class ChannelManager
 
         SendNotOnChannelNotify(player, channelName);
 
-        return result;
+        return null;
     }
 
     public Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
@@ -114,10 +114,7 @@ public class ChannelManager
         if (_channels.TryGetValue(channelGuid, out var currentChannel))
             return currentChannel;
 
-        var newChannel = _classFactory.Resolve<Channel>(new PositionalParameter(0, channelGuid),
-                                                        new PositionalParameter(1, channelId),
-                                                        new PositionalParameter(2, _team),
-                                                        new PositionalParameter(3, zoneEntry));
+        var newChannel = _classFactory.ResolveWithPositionalParameters<Channel>(channelGuid, channelId, _team, zoneEntry);
 
         _channels[channelGuid] = newChannel;
 
