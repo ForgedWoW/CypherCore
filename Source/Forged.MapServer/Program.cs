@@ -585,4 +585,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<BattlenetHandler>();
     builder.RegisterType<CalendarHandler>();
     builder.RegisterType<ChannelHandler>();
+    builder.RegisterType<CharacterHandler>();
 }

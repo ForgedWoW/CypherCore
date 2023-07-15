@@ -127,7 +127,7 @@ public class WorldSession : IDisposable
         _socialManager = classFactory.Resolve<SocialManager>();
         _guildManager = classFactory.Resolve<GuildManager>();
         _gridDefines = classFactory.Resolve<GridDefines>();
-        var configuredExpansion = _configuration.GetDefaultValue("_session.Player:OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue("_session.Player:OverrideExpansion", -1);
+        var configuredExpansion = _configuration.GetDefaultValue("Player:OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue("Player:OverrideExpansion", -1);
         AccountExpansion = Expansion.LevelCurrent == configuredExpansion ? expansion : configuredExpansion;
         Expansion = (Expansion)Math.Min((byte)expansion, _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight));
         OS = os;
@@ -183,7 +183,7 @@ public class WorldSession : IDisposable
     public uint Latency { get; set; }
     public string OS { get; }
     public PacketRouter PacketRouter { get; }
-    public _session.Player _session.Player { get; set; }
+    public Player Player { get; set; }
     public bool PlayerDisconnected => Socket is not { IsOpen: true };
     public bool PlayerLoading => !_playerLoading.IsEmpty;
     public bool PlayerLogout { get; private set; }
@@ -191,7 +191,7 @@ public class WorldSession : IDisposable
     public bool PlayerLogoutWithSave => PlayerLogout && _playerSave;
 
     // Packets cooldown
-    public string PlayerName => _session.Player != null ? _session.Player.GetName() : "Unknown";
+    public string PlayerName => Player != null ? Player.GetName() : "Unknown";
 
     public bool PlayerRecentlyLoggedOut { get; private set; }
     public AsyncCallbackProcessor<QueryCallback> QueryProcessor { get; } = new();
@@ -233,7 +233,7 @@ public class WorldSession : IDisposable
         if (!str.Contains('|'))
             return true;
 
-        Log.Logger.Error($"_session.Player {_session.Player.GetName()} ({_session.Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
+        Log.Logger.Error($"Player {Player.GetName()} ({Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
 
         if (_configuration.GetDefaultValue("ChatStrictLinkChecking:Kick", 0) != 0)
             KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
@@ -246,7 +246,7 @@ public class WorldSession : IDisposable
         _cancellationToken.Cancel();
 
         // unload player if not unloaded
-        if (_session.Player != null)
+        if (Player != null)
             LogoutPlayer(true);
 
         // - If have unclosed socket, close it
@@ -265,12 +265,12 @@ public class WorldSession : IDisposable
     public void DoLootRelease(Loot loot)
     {
         var lguid = loot.OwnerGuid;
-        var player = _session.Player;
+        var player = Player;
 
         if (player.GetLootGUID() == lguid)
             player.SetLootGUID(ObjectGuid.Empty);
 
-        //_session.Player is not looking at loot list, he doesn't need to see updates on the loot list
+        //Player is not looking at loot list, he doesn't need to see updates on the loot list
         loot.RemoveLooter(player.GUID);
         player.SendLootRelease(lguid);
         player.GetAELootView().Remove(loot.Guid);
@@ -400,7 +400,7 @@ public class WorldSession : IDisposable
 
     public void DoLootReleaseAll()
     {
-        var lootView = _session.Player.GetAELootView();
+        var lootView = Player.GetAELootView();
 
         foreach (var (_, loot) in lootView)
             DoLootRelease(loot);
@@ -416,16 +416,16 @@ public class WorldSession : IDisposable
         if (!_playerLoading.IsEmpty && !string.IsNullOrEmpty(_loadingPlayerInfo))
             return _loadingPlayerInfo;
 
-        if (_session.Player != null && !string.IsNullOrEmpty(_playerInfo))
+        if (Player != null && !string.IsNullOrEmpty(_playerInfo))
             return _playerInfo;
 
         StringBuilder ss = new();
-        ss.Append("[_session.Player: ");
+        ss.Append("[Player: ");
 
         if (!_playerLoading.IsEmpty)
             ss.Append($"Logging in: {_playerLoading.ToString()}, ");
-        else if (_session.Player != null)
-            ss.Append($"{_session.Player.GetName()} {_session.Player.GUID.ToString()}, ");
+        else if (Player != null)
+            ss.Append($"{Player.GetName()} {Player.GUID.ToString()}, ");
 
         ss.Append($"Account: {AccountId}]");
 
@@ -433,7 +433,7 @@ public class WorldSession : IDisposable
 
         if (!_playerLoading.IsEmpty)
             _loadingPlayerInfo = infp;
-        else if (_session.Player != null)
+        else if (Player != null)
             _playerInfo = infp;
 
         return infp;
@@ -507,7 +507,7 @@ public class WorldSession : IDisposable
 
     public void KickPlayer(string reason)
     {
-        Log.Logger.Information($"Account: {AccountId} Character: '{(_session.Player != null ? _session.Player.GetName() : "<none>")}' {(_session.Player != null ? _session.Player.GUID : "")} kicked with reason: {reason}");
+        Log.Logger.Information($"Account: {AccountId} Character: '{(Player != null ? Player.GetName() : "<none>")}' {(Player != null ? Player.GUID : "")} kicked with reason: {reason}");
 
         if (Socket == null)
             return;
@@ -564,81 +564,81 @@ public class WorldSession : IDisposable
             return;
 
         // finish pending transfers before starting the logout
-        while (_session.Player is { IsBeingTeleportedFar: true })
+        while (Player is { IsBeingTeleportedFar: true })
             HandleMoveWorldportAck();
 
         PlayerLogout = true;
         _playerSave = save;
 
-        if (_session.Player != null)
+        if (Player != null)
         {
-            if (!_session.Player.GetLootGUID().IsEmpty)
+            if (!Player.GetLootGUID().IsEmpty)
                 DoLootReleaseAll();
 
             // If the player just died before logging out, make him appear as a ghost
             //FIXME: logout must be delayed in case lost connection with client in time of combat
-            if (_session.Player.DeathTimer != 0)
+            if (Player.DeathTimer != 0)
             {
-                _session.Player.CombatStop();
-                _session.Player.BuildPlayerRepop();
-                _session.Player.RepopAtGraveyard();
+                Player.CombatStop();
+                Player.BuildPlayerRepop();
+                Player.RepopAtGraveyard();
             }
-            else if (_session.Player.HasAuraType(AuraType.SpiritOfRedemption))
+            else if (Player.HasAuraType(AuraType.SpiritOfRedemption))
             {
                 // this will kill character by SPELL_AURA_SPIRIT_OF_REDEMPTION
-                _session.Player.RemoveAurasByType(AuraType.ModShapeshift);
-                _session.Player.KillPlayer();
-                _session.Player.BuildPlayerRepop();
-                _session.Player.RepopAtGraveyard();
+                Player.RemoveAurasByType(AuraType.ModShapeshift);
+                Player.KillPlayer();
+                Player.BuildPlayerRepop();
+                Player.RepopAtGraveyard();
             }
-            else if (_session.Player.HasPendingBind)
+            else if (Player.HasPendingBind)
             {
-                _session.Player.RepopAtGraveyard();
-                _session.Player.SetPendingBind(0, 0);
+                Player.RepopAtGraveyard();
+                Player.SetPendingBind(0, 0);
             }
 
             //drop a Id if player is carrying it
-            var bg = _session.Player.Battleground;
+            var bg = Player.Battleground;
 
-            bg?.EventPlayerLoggedOut(_session.Player);
+            bg?.EventPlayerLoggedOut(Player);
 
             // Teleport to home if the player is in an invalid instance
-            if (!_session.Player.InstanceValid && !_session.Player.IsGameMaster)
-                _session.Player.TeleportTo(_session.Player.Homebind);
+            if (!Player.InstanceValid && !Player.IsGameMaster)
+                Player.TeleportTo(Player.Homebind);
 
-            _outdoorPvPManager.HandlePlayerLeaveZone(_session.Player, _session.Player.Location.Zone);
+            _outdoorPvPManager.HandlePlayerLeaveZone(Player, Player.Location.Zone);
 
             for (uint i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
             {
-                var bgQueueTypeId = _session.Player.GetBattlegroundQueueTypeId(i);
+                var bgQueueTypeId = Player.GetBattlegroundQueueTypeId(i);
 
                 if (bgQueueTypeId == default)
                     continue;
 
-                _session.Player.RemoveBattlegroundQueueId(bgQueueTypeId);
+                Player.RemoveBattlegroundQueueId(bgQueueTypeId);
                 var queue = _battlegroundManager.GetBattlegroundQueue(bgQueueTypeId);
-                queue.RemovePlayer(_session.Player.GUID, true);
+                queue.RemovePlayer(Player.GUID, true);
             }
 
             // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
             // Teleport player immediately for correct player save
-            while (_session.Player.IsBeingTeleportedFar)
+            while (Player.IsBeingTeleportedFar)
                 HandleMoveWorldportAck();
 
             // If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-            var guild = _guildManager.GetGuildById(_session.Player.GuildId);
+            var guild = _guildManager.GetGuildById(Player.GuildId);
 
             guild?.HandleMemberLogout(this);
 
             // Remove pet
-            _session.Player.RemovePet(null, PetSaveMode.AsCurrent, true);
+            Player.RemovePet(null, PetSaveMode.AsCurrent, true);
 
             //- Release battle pet journal lock
             if (BattlePetMgr.HasJournalLock)
                 BattlePetMgr.ToggleJournalLock(false);
 
             // Clear whisper whitelist
-            _session.Player.ClearWhisperWhiteList();
+            Player.ClearWhisperWhiteList();
 
             // empty buyback items and save the player in the database
             // some save parts only correctly work in case player present in map/player_lists (pets, etc)
@@ -647,51 +647,51 @@ public class WorldSession : IDisposable
                 for (uint j = InventorySlots.BuyBackStart; j < InventorySlots.BuyBackEnd; ++j)
                 {
                     var eslot = j - InventorySlots.BuyBackStart;
-                    _session.Player.SetInvSlot(j, ObjectGuid.Empty);
-                    _session.Player.SetBuybackPrice(eslot, 0);
-                    _session.Player.SetBuybackTimestamp(eslot, 0);
+                    Player.SetInvSlot(j, ObjectGuid.Empty);
+                    Player.SetBuybackPrice(eslot, 0);
+                    Player.SetBuybackTimestamp(eslot, 0);
                 }
 
-                _session.Player.SaveToDB();
+                Player.SaveToDB();
             }
 
             // Leave all channels before player delete...
-            _session.Player.CleanupChannels();
+            Player.CleanupChannels();
 
             // If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
-            _session.Player.UninviteFromGroup();
+            Player.UninviteFromGroup();
 
             //! Send update to group and reset stored max enchanting level
-            var group = _session.Player.Group;
+            var group = Player.Group;
 
             if (group != null)
             {
                 group.SendUpdate();
 
-                if (group.LeaderGUID == _session.Player.GUID)
+                if (group.LeaderGUID == Player.GUID)
                     group.StartLeaderOfflineTimer();
             }
 
             //! Broadcast a logout message to the player's friends
-            _socialManager.SendFriendStatus(_session.Player, FriendsResult.Offline, _session.Player.GUID, true);
-            _session.Player.RemoveSocial();
+            _socialManager.SendFriendStatus(Player, FriendsResult.Offline, Player.GUID, true);
+            Player.RemoveSocial();
 
             //! Call script hook before deletion
-            _scriptManager.ForEach<IPlayerOnLogout>(p => p.OnLogout(_session.Player));
+            _scriptManager.ForEach<IPlayerOnLogout>(p => p.OnLogout(Player));
 
             //! Remove the player from the world
             // the player may not be in the world when logging out
             // e.g if he got disconnected during a transfer to another map
             // calls to GetMap in this case may cause crashes
-            _session.Player.SetDestroyedObject(true);
-            _session.Player.CleanupsBeforeDelete();
-            Log.Logger.Information($"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{_session.Player.GetName()}] ({_session.Player.GUID}) Level: {_session.Player.Level}, XP: {_session.Player.XP}/{_session.Player.XPForNextLevel} ({_session.Player.XPForNextLevel - _session.Player.XP} left)");
+            Player.SetDestroyedObject(true);
+            Player.CleanupsBeforeDelete();
+            Log.Logger.Information($"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{Player.GetName()}] ({Player.GUID}) Level: {Player.Level}, XP: {Player.XP}/{Player.XPForNextLevel} ({Player.XPForNextLevel - Player.XP} left)");
 
-            var map = _session.Player.Location.Map;
+            var map = Player.Location.Map;
 
-            map?.RemovePlayerFromMap(_session.Player, true);
+            map?.RemovePlayerFromMap(Player, true);
 
-            _session.Player = null;
+            Player = null;
 
             //! Send the 'logout complete' packet to the client
             //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
@@ -723,7 +723,7 @@ public class WorldSession : IDisposable
 
     public void ResetTimeOutTime(bool onlyActive)
     {
-        if (_session.Player != null)
+        if (Player != null)
             _timeOutTime = GameTime.CurrentTime + _configuration.GetDefaultValue("SocketTimeOutTimeActive", 60);
         else if (!onlyActive)
             _timeOutTime = GameTime.CurrentTime + _configuration.GetDefaultValue("SocketTimeOutTime", 900);
@@ -904,12 +904,12 @@ public class WorldSession : IDisposable
         if (Socket == null || Socket.IsOpen)
             return Socket != null;
 
-        if (_session.Player != null && _warden != null)
+        if (Player != null && _warden != null)
             _warden.Update(diff);
 
         _expireTime -= _expireTime > diff ? diff : _expireTime;
 
-        if (_expireTime >= diff && !_forceExit && _session.Player != null)
+        if (_expireTime >= diff && !_forceExit && Player != null)
             return Socket != null;
 
         if (Socket == null)
@@ -927,7 +927,7 @@ public class WorldSession : IDisposable
         if (Hyperlink.CheckAllLinks(str))
             return true;
 
-        Log.Logger.Error($"_session.Player {_session.Player.GetName()} {_session.Player.GUID} sent a message with an invalid link:\n{str}");
+        Log.Logger.Error($"Player {Player.GetName()} {Player.GUID} sent a message with an invalid link:\n{str}");
 
         if (_configuration.GetDefaultValue("ChatStrictLinkChecking:Kick", 0) != 0)
             KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
@@ -967,26 +967,26 @@ public class WorldSession : IDisposable
                 switch (packetProcessor.SessionStatus)
                 {
                     case SessionStatus.Loggedin:
-                        if (_session.Player == null)
+                        if (Player == null)
                         {
                             if (!PlayerRecentlyLoggedOut)
                             {
                                 firstDelayedPacket ??= packet;
 
                                 QueuePacket(packet);
-                                Log.Logger.Debug("Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. _session.Player is currently not in world yet.", (ClientOpcodes)packet.Opcode);
+                                Log.Logger.Debug("Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.Opcode);
                             }
 
                             break;
                         }
 
-                        if (_session.Player.Location.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
+                        if (Player.Location.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
                             packetProcessor.Invoke(packet);
 
                         break;
 
                     case SessionStatus.LoggedinOrRecentlyLogout:
-                        if (_session.Player == null && !PlayerRecentlyLoggedOut && !PlayerLogout)
+                        if (Player == null && !PlayerRecentlyLoggedOut && !PlayerLogout)
                             LogUnexpectedOpcode(packet, packetProcessor.SessionStatus, "the player has not logged in yet and not recently logout");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
                             packetProcessor.Invoke(packet);
@@ -994,9 +994,9 @@ public class WorldSession : IDisposable
                         break;
 
                     case SessionStatus.Transfer:
-                        if (_session.Player == null)
+                        if (Player == null)
                             LogUnexpectedOpcode(packet, packetProcessor.SessionStatus, "the player has not logged in yet");
-                        else if (_session.Player.Location.IsInWorld)
+                        else if (Player.Location.IsInWorld)
                             LogUnexpectedOpcode(packet, packetProcessor.SessionStatus, "the player is still in world");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
                             packetProcessor.Invoke(packet);
@@ -1049,7 +1049,7 @@ public class WorldSession : IDisposable
 
     private void HandleMoveWorldportAck()
     {
-        var player = _session.Player;
+        var player = Player;
 
         // ignore unexpected far teleports
         if (!player.IsBeingTeleportedFar)
@@ -1077,7 +1077,7 @@ public class WorldSession : IDisposable
             player.InstanceValid = true;
 
         var oldMap = player.Location.Map;
-        var newMap = _session.Player.TeleportDestInstanceId.HasValue ? _mapManager.FindMap(loc.MapId, _session.Player.TeleportDestInstanceId.Value) : _mapManager.CreateMap(loc.MapId, _session.Player);
+        var newMap = Player.TeleportDestInstanceId.HasValue ? _mapManager.FindMap(loc.MapId, Player.TeleportDestInstanceId.Value) : _mapManager.CreateMap(loc.MapId, Player);
 
         var transportInfo = player.MovementInfo.Transport;
         var transport = player.Transport;
@@ -1086,7 +1086,7 @@ public class WorldSession : IDisposable
 
         if (player.Location.IsInWorld)
         {
-            Log.Logger.Error($"_session.Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
+            Log.Logger.Error($"Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
             oldMap.RemovePlayerFromMap(player, false);
         }
 
@@ -1207,7 +1207,7 @@ public class WorldSession : IDisposable
                     DifficultyID = newMap.DifficultyID
                 };
 
-                var playerLock = _instanceLockManager.FindActiveInstanceLock(_session.Player.GUID, entries);
+                var playerLock = _instanceLockManager.FindActiveInstanceLock(Player.GUID, entries);
 
                 if (playerLock != null)
                 {

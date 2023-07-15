@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using Bgs.Protocol.Account.V1;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -36,10 +37,17 @@ namespace Forged.MapServer.OpCodeHandlers;
 public class CharacterHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly CollectionMgr _collectionMgr;
+    private readonly DB2Manager _db2Manager;
+    private readonly DB6Storage<ChrCustomizationReqRecord> _chrCustomizationReqRecords;
 
-    public CharacterHandler(WorldSession session)
+    public CharacterHandler(WorldSession session, CollectionMgr collectionMgr, DB2Manager db2Manager,
+            DB6Storage<ChrCustomizationReqRecord> chrCustomizationReqRecords)
     {
         _session = session;
+        _collectionMgr = collectionMgr;
+        _db2Manager = db2Manager;
+        _chrCustomizationReqRecords = chrCustomizationReqRecords;
     }
 
 	public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -53,46 +61,48 @@ public class CharacterHandler : IWorldSessionHandler
 		if (req.AchievementID != 0 /*&& !HasAchieved(req->AchievementID)*/)
 			return false;
 
-		if (req.ItemModifiedAppearanceID != 0 && !CollectionMgr.HasItemAppearance(req.ItemModifiedAppearanceID).PermAppearance)
+		if (req.ItemModifiedAppearanceID != 0 && !_collectionMgr.HasItemAppearance(req.ItemModifiedAppearanceID).PermAppearance)
 			return false;
 
 		if (req.QuestID != 0)
 		{
-			if (!_session._session.Player)
+			if (_session.Player == null)
 				return false;
 
-			if (!_session._session.Player.IsQuestRewarded((uint)req.QuestID))
+			if (!_session.Player.IsQuestRewarded((uint)req.QuestID))
 				return false;
 		}
 
-		if (checkRequiredDependentChoices)
-		{
-			var requiredChoices = Global.DB2Mgr.GetRequiredCustomizationChoices(req.Id);
+        if (!checkRequiredDependentChoices) 
+            return true;
 
-			if (requiredChoices != null)
-				foreach (var key in requiredChoices.Keys)
-				{
-					var hasRequiredChoiceForOption = false;
+        var requiredChoices = _db2Manager.GetRequiredCustomizationChoices(req.Id);
 
-					foreach (var requiredChoice in requiredChoices[key])
-						if (selectedChoices.Any(choice => choice.ChrCustomizationChoiceID == requiredChoice))
-						{
-							hasRequiredChoiceForOption = true;
+        if (requiredChoices == null) 
+            return true;
 
-							break;
-						}
+        foreach (var key in requiredChoices.Keys)
+        {
+            var hasRequiredChoiceForOption = false;
 
-					if (!hasRequiredChoiceForOption)
-						return false;
-				}
-		}
+            foreach (var requiredChoice in requiredChoices[key])
+                if (selectedChoices.Any(choice => choice.ChrCustomizationChoiceID == requiredChoice))
+                {
+                    hasRequiredChoiceForOption = true;
 
-		return true;
+                    break;
+                }
+
+            if (!hasRequiredChoiceForOption)
+                return false;
+        }
+
+        return true;
 	}
 
 	public bool ValidateAppearance(Race race, PlayerClass playerClass, Gender gender, List<ChrCustomizationChoice> customizations)
 	{
-		var options = Global.DB2Mgr.GetCustomiztionOptions(race, gender);
+		var options = _db2Manager.GetCustomiztionOptions(race, gender);
 
 		if (options.Empty())
 			return false;
@@ -108,34 +118,32 @@ public class CharacterHandler : IWorldSessionHandler
 			previousOption = playerChoice.ChrCustomizationOptionID;
 
 			// check if we can use this option
-			var customizationOptionData = options.Find(option => { return option.Id == playerChoice.ChrCustomizationOptionID; });
+			var customizationOptionData = options.Find(option => option.Id == playerChoice.ChrCustomizationOptionID);
 
 			// option not found for race/gender combination
 			if (customizationOptionData == null)
 				return false;
 
-			var req = CliDB.ChrCustomizationReqStorage.LookupByKey(customizationOptionData.ChrCustomizationReqID);
+			var req = _chrCustomizationReqRecords.LookupByKey(customizationOptionData.ChrCustomizationReqID);
 
-			if (req != null)
-				if (!MeetsChrCustomizationReq(req, playerClass, false, customizations))
-					return false;
+			if (req != null && !MeetsChrCustomizationReq(req, playerClass, false, customizations))
+				return false;
 
-			var choicesForOption = Global.DB2Mgr.GetCustomiztionChoices(playerChoice.ChrCustomizationOptionID);
+			var choicesForOption = _db2Manager.GetCustomiztionChoices(playerChoice.ChrCustomizationOptionID);
 
 			if (choicesForOption.Empty())
 				return false;
 
-			var customizationChoiceData = choicesForOption.Find(choice => { return choice.Id == playerChoice.ChrCustomizationChoiceID; });
+			var customizationChoiceData = choicesForOption.Find(choice => choice.Id == playerChoice.ChrCustomizationChoiceID);
 
 			// choice not found for option
 			if (customizationChoiceData == null)
 				return false;
 
-			var reqEntry = CliDB.ChrCustomizationReqStorage.LookupByKey(customizationChoiceData.ChrCustomizationReqID);
-
-			if (reqEntry != null)
-				if (!MeetsChrCustomizationReq(reqEntry, playerClass, true, customizations))
-					return false;
+			var reqEntry = _chrCustomizationReqRecords.LookupByKey(customizationChoiceData.ChrCustomizationReqID);
+			
+			if (reqEntry != null && !MeetsChrCustomizationReq(reqEntry, playerClass, true, customizations))
+				return false;
 		}
 
 		return true;
@@ -143,19 +151,19 @@ public class CharacterHandler : IWorldSessionHandler
 
 	public void HandleContinuePlayerLogin()
 	{
-		if (!PlayerLoading || _session.Player)
+		if (!_session.PlayerLoading || _session.Player == null)
 		{
-			KickPlayer("WorldSession::HandleContinuePlayerLogin incorrect player state when logging in");
+            _session.KickPlayer("WorldSession::HandleContinuePlayerLogin incorrect player state when logging in");
 
 			return;
 		}
 
-		LoginQueryHolder holder = new(AccountId, _playerLoading);
+		LoginQueryHolder holder = new(_session.AccountId, _session.Player.GUID);
 		holder.Initialize();
 
 		_session.SendPacket(new ResumeComms(ConnectionType.Instance));
 
-		AddQueryHolderCallback(DB.Characters.DelayQueryHolder(holder)).AfterComplete(holder => HandlePlayerLogin((LoginQueryHolder)holder));
+        _session.AddQueryHolderCallback(DB.Characters.DelayQueryHolder(holder)).AfterComplete(holder => HandlePlayerLogin((LoginQueryHolder)holder));
 	}
 
 	public void HandlePlayerLogin(LoginQueryHolder holder)
@@ -475,7 +483,7 @@ public class CharacterHandler : IWorldSessionHandler
 			SendNotification(CypherStrings.GmOn);
 
 		var IP_str = RemoteAddress;
-		Log.Logger.Debug($"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_session._session.Player.XP}/{_session._session.Player.XPForNextLevel} ({_session._session.Player.XPForNextLevel - _session._session.Player.XP} left)");
+		Log.Logger.Debug($"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_session.Player.XP}/{_session.Player.XPForNextLevel} ({_session.Player.XPForNextLevel - _session.Player.XP} left)");
 
 		if (!pCurrChar.IsStandState && !pCurrChar.HasUnitState(UnitState.Stunned))
 			pCurrChar.SetStandState(UnitStandStateType.Stand);
@@ -486,7 +494,7 @@ public class CharacterHandler : IWorldSessionHandler
 		_playerLoading.Clear();
 
 		// Handle Login-Achievements (should be handled after loading)
-		_session._session.Player.UpdateCriteria(CriteriaType.Login, 1);
+		_session.Player.UpdateCriteria(CriteriaType.Login, 1);
 
 		Global.ScriptMgr.ForEach<IPlayerOnLogin>(p => p.OnLogin(pCurrChar));
 	}
@@ -1203,7 +1211,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		GenerateRandomCharacterNameResult result = new();
 		result.Success = true;
-		result.Name = Global.DB2Mgr.GetNameGenEntry(packet.Race, packet.Sex);
+		result.Name = _db2Manager.GetNameGenEntry(packet.Race, packet.Sex);
 
 		_session.SendPacket(result);
 	}
@@ -1521,7 +1529,7 @@ public class CharacterHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.AlterAppearance)]
 	void HandleAlterAppearance(AlterApperance packet)
 	{
-		if (!ValidateAppearance(_session._session.Player.Race, _session._session.Player.Class, (Gender)packet.NewSex, packet.Customizations))
+		if (!ValidateAppearance(_session.Player.Race, _session.Player.Class, (Gender)packet.NewSex, packet.Customizations))
 			return;
 
 		var go = _session.Player.FindNearestGameObjectOfType(GameObjectTypes.BarberChair, 5.0f);
@@ -1551,23 +1559,23 @@ public class CharacterHandler : IWorldSessionHandler
 
 		_session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.Success));
 
-		_session._session.Player.ModifyMoney(-cost);
-		_session._session.Player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
+		_session.Player.ModifyMoney(-cost);
+		_session.Player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
 
-		if (_session._session.Player.NativeGender != (Gender)packet.NewSex)
+		if (_session.Player.NativeGender != (Gender)packet.NewSex)
 		{
-			_session._session.Player.NativeGender = (Gender)packet.NewSex;
-			_session._session.Player.InitDisplayIds();
-			_session._session.Player.RestoreDisplayId(false);
+			_session.Player.NativeGender = (Gender)packet.NewSex;
+			_session.Player.InitDisplayIds();
+			_session.Player.RestoreDisplayId(false);
 		}
 
-		_session._session.Player.SetCustomizations(packet.Customizations);
+		_session.Player.SetCustomizations(packet.Customizations);
 
-		_session._session.Player.UpdateCriteria(CriteriaType.GotHaircut, 1);
+		_session.Player.UpdateCriteria(CriteriaType.GotHaircut, 1);
 
-		_session._session.Player.SetStandState(UnitStandStateType.Stand);
+		_session.Player.SetStandState(UnitStandStateType.Stand);
 
-		Global.CharacterCacheStorage.UpdateCharacterGender(_session._session.Player.GUID, packet.NewSex);
+		Global.CharacterCacheStorage.UpdateCharacterGender(_session.Player.GUID, packet.NewSex);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CharCustomize, Status = SessionStatus.Authed)]
@@ -1724,7 +1732,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 					if (!itemGuid.IsEmpty)
 					{
-						var item = _session._session.Player.GetItemByPos(InventorySlots.Bag0, i);
+						var item = _session.Player.GetItemByPos(InventorySlots.Bag0, i);
 
 						// cheating check 1 (item equipped but sent empty guid)
 						if (!item)
@@ -1748,7 +1756,7 @@ public class CharacterHandler : IWorldSessionHandler
 						if (!CliDB.ItemModifiedAppearanceStorage.ContainsKey(saveEquipmentSet.Set.Appearances[i]))
 							return;
 
-						(var hasAppearance, _) = CollectionMgr.HasItemAppearance((uint)saveEquipmentSet.Set.Appearances[i]);
+						(var hasAppearance, _) = _collectionMgr.HasItemAppearance((uint)saveEquipmentSet.Set.Appearances[i]);
 
 						if (!hasAppearance)
 							return;
@@ -1787,10 +1795,10 @@ public class CharacterHandler : IWorldSessionHandler
 				var condition = CliDB.PlayerConditionStorage.LookupByKey(illusion.TransmogUseConditionID);
 
 				if (condition != null)
-					if (!ConditionManager.IsPlayerMeetingCondition(_session._session.Player, condition))
+					if (!ConditionManager.IsPlayerMeetingCondition(_session.Player, condition))
 						return false;
 
-				if (illusion.ScalingClassRestricted > 0 && illusion.ScalingClassRestricted != (byte)_session._session.Player.Class)
+				if (illusion.ScalingClassRestricted > 0 && illusion.ScalingClassRestricted != (byte)_session.Player.Class)
 					return false;
 
 				return true;
@@ -1845,7 +1853,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 				if (inventoryResult == InventoryResult.Ok)
 				{
-					if (_session._session.Player.CanUnequipItem(dstPos, true) != InventoryResult.Ok)
+					if (_session.Player.CanUnequipItem(dstPos, true) != InventoryResult.Ok)
 						continue;
 
 					_session.Player.RemoveItem(InventorySlots.Bag0, i, true);
@@ -1862,7 +1870,7 @@ public class CharacterHandler : IWorldSessionHandler
 			if (item.Pos == dstPos)
 				continue;
 
-			if (_session._session.Player.CanEquipItem(i, out dstPos, item, true) != InventoryResult.Ok)
+			if (_session.Player.CanEquipItem(i, out dstPos, item, true) != InventoryResult.Ok)
 				continue;
 
 			_session.Player.SwapItem(item.Pos, dstPos);
