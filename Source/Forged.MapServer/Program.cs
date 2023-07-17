@@ -595,4 +595,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<LFGHandler>();
     builder.RegisterType<GroupHandler>();
     builder.RegisterType<CollectionsHandler>();
+    builder.RegisterType<ChatHandler>();
 }
