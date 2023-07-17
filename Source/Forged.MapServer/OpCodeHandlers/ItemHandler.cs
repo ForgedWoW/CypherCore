@@ -1019,7 +1019,7 @@ public class ItemHandler : IWorldSessionHandler
             return;
         }
 
-        if (_playerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && _session.PacketRouter.TryGetOpCodeHandler(out ItemHandler bankHandler) && !bankHandler.CanUseBank())
+        if (_playerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && _session.PacketRouter.TryGetOpCodeHandler(out bankHandler) && !bankHandler.CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
 
@@ -1070,7 +1070,7 @@ public class ItemHandler : IWorldSessionHandler
             return;
         }
 
-        if (_playerComputators.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && _session.PacketRouter.TryGetOpCodeHandler(out ItemHandler bankHandler) && !bankHandler.CanUseBank())
+        if (_playerComputators.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && _session.PacketRouter.TryGetOpCodeHandler(out bankHandler) && !bankHandler.CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_session.Player.PlayerTalkClass.InteractionData.SourceGuid} not found or you can't interact with him.");
 

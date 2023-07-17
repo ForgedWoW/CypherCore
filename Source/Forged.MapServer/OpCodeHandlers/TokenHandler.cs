@@ -7,6 +7,8 @@ using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class TokenHandler : IWorldSessionHandler
@@ -18,29 +20,26 @@ public class TokenHandler : IWorldSessionHandler
         _session = session;
     }
 
-	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
-	void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
-	{
-		CommerceTokenGetLogResponse response = new();
+    [WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
+    private void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
+    {
+        _session.SendPacket(new CommerceTokenGetLogResponse()
+        {
+            // @todo: fix 6.x implementation
+            UnkInt = commerceTokenGetLog.UnkInt,
+            Result = TokenResult.Success
+        });
+    }
 
-		// @todo: fix 6.x implementation
-		response.UnkInt = commerceTokenGetLog.UnkInt;
-		response.Result = TokenResult.Success;
-
-		_session.SendPacket(response);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetMarketPrice)]
-	void HandleCommerceTokenGetMarketPrice(CommerceTokenGetMarketPrice commerceTokenGetMarketPrice)
-	{
-		CommerceTokenGetMarketPriceResponse response = new();
-
-		// @todo: 6.x fix implementation
-		response.CurrentMarketPrice = 300000000;
-		response.UnkInt = commerceTokenGetMarketPrice.UnkInt;
-		response.Result = TokenResult.Success;
-		//packet.ReadUInt32("UnkInt32");
-
-		_session.SendPacket(response);
-	}
+    [WorldPacketHandler(ClientOpcodes.CommerceTokenGetMarketPrice)]
+    private void HandleCommerceTokenGetMarketPrice(CommerceTokenGetMarketPrice commerceTokenGetMarketPrice)
+    {
+        _session.SendPacket(new CommerceTokenGetMarketPriceResponse()
+        {
+            // @todo: 6.x fix implementation
+            CurrentMarketPrice = 300000000,
+            UnkInt = commerceTokenGetMarketPrice.UnkInt,
+            Result = TokenResult.Success
+        });
+    }
 }
