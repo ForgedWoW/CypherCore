@@ -91,7 +91,6 @@ public class WorldSession : IDisposable
     private string _loadingPlayerInfo;
     private long _logoutTime;
     private string _playerInfo;
-    public ObjectGuid PlayerLoadingGuid { get; set; }
 
     // code processed in LoginPlayer
     private bool _playerSave;
@@ -186,6 +185,7 @@ public class WorldSession : IDisposable
     public Player Player { get; set; }
     public bool PlayerDisconnected => Socket is not { IsOpen: true };
     public bool PlayerLoading => !PlayerLoadingGuid.IsEmpty;
+    public ObjectGuid PlayerLoadingGuid { get; set; }
     public bool PlayerLogout { get; private set; }
 
     public bool PlayerLogoutWithSave => PlayerLogout && _playerSave;
@@ -297,6 +297,7 @@ public class WorldSession : IDisposable
                         go.SetLootState(LootState.JustDeactivated);
 
                         break;
+
                     case GameObjectTypes.FishingHole:
                     {
                         // The fishing hole used once more
@@ -439,6 +440,11 @@ public class WorldSession : IDisposable
         return infp;
     }
 
+    public uint GetTutorialInt(byte index)
+    {
+        return _tutorials[index];
+    }
+
     public bool HasPermission(RBACPermissions permission)
     {
         if (RBACData == null)
@@ -514,6 +520,44 @@ public class WorldSession : IDisposable
 
         Socket.CloseSocket();
         _forceExit = true;
+    }
+
+    public void LoadAccountData(SQLResult result, AccountDataTypes mask)
+    {
+        for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
+            if (Convert.ToBoolean((int)mask & (1 << i)))
+                _accountData[i] = new AccountData();
+
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            int type = result.Read<byte>(0);
+
+            if (type >= (int)AccountDataTypes.Max)
+            {
+                Log.Logger.Error("Table `{0}` have invalid account data type ({1}), ignore.",
+                                 mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
+                                 type);
+
+                continue;
+            }
+
+            if (((int)mask & (1 << type)) == 0)
+            {
+                Log.Logger.Error("Table `{0}` have non appropriate for table  account data type ({1}), ignore.",
+                                 mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
+                                 type);
+
+                continue;
+            }
+
+            _accountData[type].Time = result.Read<long>(1);
+            var bytes = result.Read<byte[]>(2);
+            var line = Encoding.Default.GetString(bytes);
+            _accountData[type].Data = line;
+        } while (result.NextRow());
     }
 
     public void LoadPermissions()
@@ -869,6 +913,15 @@ public class WorldSession : IDisposable
         _logoutTime = requestTime;
     }
 
+    public void SetTutorialInt(byte index, uint value)
+    {
+        if (_tutorials[index] == value)
+            return;
+
+        _tutorials[index] = value;
+        _tutorialsChanged |= TutorialsFlag.Changed;
+    }
+
     public bool UpdateMap(uint diff)
     {
         DrainQueue(_threadSafeQueue);
@@ -962,7 +1015,7 @@ public class WorldSession : IDisposable
                     Log.Logger.Error("Unknown opcode {0} from {1}", packet.Opcode, GetPlayerInfo());
 
                     continue;
-                }       
+                }
 
                 switch (packetProcessor.SessionStatus)
                 {
@@ -1300,44 +1353,6 @@ public class WorldSession : IDisposable
         SendPacket(bnetConnected);
 
         BattlePetMgr.LoadFromDB(holder.GetResult(AccountInfoQueryLoad.BattlePets), holder.GetResult(AccountInfoQueryLoad.BattlePetSlot));
-    }
-
-    public void LoadAccountData(SQLResult result, AccountDataTypes mask)
-    {
-        for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
-            if (Convert.ToBoolean((int)mask & (1 << i)))
-                _accountData[i] = new AccountData();
-
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            int type = result.Read<byte>(0);
-
-            if (type >= (int)AccountDataTypes.Max)
-            {
-                Log.Logger.Error("Table `{0}` have invalid account data type ({1}), ignore.",
-                                 mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
-                                 type);
-
-                continue;
-            }
-
-            if (((int)mask & (1 << type)) == 0)
-            {
-                Log.Logger.Error("Table `{0}` have non appropriate for table  account data type ({1}), ignore.",
-                                 mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
-                                 type);
-
-                continue;
-            }
-
-            _accountData[type].Time = result.Read<long>(1);
-            var bytes = result.Read<byte[]>(2);
-            var line = Encoding.Default.GetString(bytes);
-            _accountData[type].Data = line;
-        } while (result.NextRow());
     }
 
     private void LogUnexpectedOpcode(WorldPacket packet, SessionStatus status, string reason)
