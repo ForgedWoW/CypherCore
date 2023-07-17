@@ -289,7 +289,7 @@ public class CharacterHandler : IWorldSessionHandler
             {
                 RaceID = requirement.Key,
                 HasExpansion = !_configuration.GetDefaultValue("character:EnforceRaceAndClassExpansions", true) || (byte)_session.AccountExpansion >= requirement.Value.Expansion,
-                HasAchievement = (_worldConfig.GetBoolValue(WorldCfg.CharacterCreatingDisableAlliedRaceAchievementRequirement) ? true : requirement.Value.AchievementId != 0 ? false : true) // TODO: fix false here for actual check of criteria.
+                HasAchievement = (_configuration.GetDefaultValue("CharacterCreating:DisableAlliedRaceAchievementRequirement", true) || requirement.Value.AchievementId == 0)
             };
 
             charResult.RaceUnlockData.Add(raceUnlock);
@@ -301,6 +301,9 @@ public class CharacterHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.EnumCharactersDeletedByClient, Status = SessionStatus.Authed)]
     void HandleCharUndeleteEnum(EnumCharacters enumCharacters)
     {
+        if (enumCharacters == null)
+            return;
+
         // get all the data necessary for loading all undeleted characters (along with their pets) on the account
         EnumCharactersQueryHolder holder = new(_characterDatabase);
 
@@ -320,7 +323,7 @@ public class CharacterHandler : IWorldSessionHandler
         {
             Success = true,
             IsDeletedCharacters = true,
-            DisabledClassesMask = _worldConfig.GetUIntValue(WorldCfg.CharacterCreatingDisabledClassmask)
+            DisabledClassesMask = _configuration.GetDefaultValue("CharacterCreating:Disabled:ClassMask", 0u)
         };
 
         if (!result.IsEmpty())
@@ -344,13 +347,13 @@ public class CharacterHandler : IWorldSessionHandler
     {
         if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationTeammask))
         {
-            var mask = _worldConfig.GetIntValue(WorldCfg.CharacterCreatingDisabled);
+            var mask = _configuration.GetDefaultValue("CharacterCreating:Disabled:FactionMask", 0u);
 
             if (mask != 0)
             {
                 var disabled = false;
 
-                var team = Player.TeamIdForRace(charCreate.CreateInfo.RaceId);
+                var team = Player.TeamIdForRace(charCreate.CreateInfo.RaceId, _cliDb);
 
                 switch (team)
                 {
@@ -476,7 +479,7 @@ public class CharacterHandler : IWorldSessionHandler
                 return;
             }
 
-            var raceMaskDisabled = _worldConfig.GetUInt64Value(WorldCfg.CharacterCreatingDisabledRacemask);
+            var raceMaskDisabled = _configuration.GetDefaultValue("CharacterCreating:Disabled:RaceMask", 0u);
 
             if (Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(charCreate.CreateInfo.RaceId) & raceMaskDisabled))
             {
@@ -488,7 +491,7 @@ public class CharacterHandler : IWorldSessionHandler
 
         if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationClassmask))
         {
-            var classMaskDisabled = _worldConfig.GetIntValue(WorldCfg.CharacterCreatingDisabledClassmask);
+            var classMaskDisabled = _configuration.GetDefaultValue("CharacterCreating:Disabled:ClassMask", 0u);
 
             if (Convert.ToBoolean((1 << ((int)charCreate.CreateInfo.ClassId - 1)) & classMaskDisabled))
             {
@@ -499,7 +502,7 @@ public class CharacterHandler : IWorldSessionHandler
         }
 
         // prevent character creating with invalid name
-        if (!GameObjectManager.NormalizePlayerName(ref charCreate.CreateInfo.Name))
+        if (!_objectManager.NormalizePlayerName(ref charCreate.CreateInfo.Name))
         {
             Log.Logger.Error("Account:[{0}] but tried to Create character with empty [name] ", _session.AccountId);
             SendCharCreate(ResponseCodes.CharNameNoName);
@@ -508,7 +511,7 @@ public class CharacterHandler : IWorldSessionHandler
         }
 
         // check name limitations
-        var res = GameObjectManager.CheckPlayerName(charCreate.CreateInfo.Name, _session.SessionDbcLocale, true);
+        var res = _objectManager.CheckPlayerName(charCreate.CreateInfo.Name, _session.SessionDbcLocale, true);
 
         if (res != ResponseCodes.CharNameSuccess)
         {
@@ -549,7 +552,7 @@ public class CharacterHandler : IWorldSessionHandler
                                         if (!result.IsEmpty())
                                             acctCharCount = result.Read<ulong>(0);
 
-                                        if (acctCharCount >= _worldConfig.GetUIntValue(WorldCfg.CharactersPerAccount))
+                                        if (acctCharCount >= _configuration.GetDefaultValue("CharactersPerAccount", 60ul))
                                         {
                                             SendCharCreate(ResponseCodes.CharCreateAccountLimit);
 
@@ -566,7 +569,7 @@ public class CharacterHandler : IWorldSessionHandler
                                         {
                                             createInfo.CharCount = (byte)result.Read<ulong>(0); // SQL's COUNT() returns uint64 but it will always be less than uint8.Max
 
-                                            if (createInfo.CharCount >= _worldConfig.GetIntValue(WorldCfg.CharactersPerRealm))
+                                            if (createInfo.CharCount >= _configuration.GetDefaultValue("CharactersPerRealm", 0ul))
                                             {
                                                 SendCharCreate(ResponseCodes.CharCreateServerLimit);
 
@@ -574,23 +577,23 @@ public class CharacterHandler : IWorldSessionHandler
                                             }
                                         }
 
-                                        var demonHunterReqLevel = _worldConfig.GetIntValue(WorldCfg.CharacterCreatingMinLevelForDemonHunter);
+                                        var demonHunterReqLevel = _configuration.GetIntValue(WorldCfg.CharacterCreatingMinLevelForDemonHunter);
                                         var hasDemonHunterReqLevel = demonHunterReqLevel == 0;
-                                        var evokerReqLevel = _worldConfig.GetUIntValue(WorldCfg.CharacterCreatingMinLevelForEvoker);
+                                        var evokerReqLevel = _configuration.GetUIntValue(WorldCfg.CharacterCreatingMinLevelForEvoker);
                                         var hasEvokerReqLevel = (evokerReqLevel == 0);
                                         var allowTwoSideAccounts = !_worldManager.IsPvPRealm || _session.HasPermission(RBACPermissions.TwoSideCharacterCreation);
-                                        var skipCinematics = _worldConfig.GetIntValue(WorldCfg.SkipCinematics);
+                                        var skipCinematics = _configuration.GetIntValue(WorldCfg.SkipCinematics);
                                         var checkClassLevelReqs = (createInfo.ClassId == PlayerClass.DemonHunter || createInfo.ClassId == PlayerClass.Evoker) && !_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationDemonHunter);
-                                        var evokerLimit = _worldConfig.GetIntValue(WorldCfg.CharacterCreatingEvokersPerRealm);
+                                        var evokerLimit = _configuration.GetIntValue(WorldCfg.CharacterCreatingEvokersPerRealm);
                                         var hasEvokerLimit = evokerLimit != 0;
 
-                                        void finalizeCharacterCreation(SQLResult result1)
+                                        void FinalizeCharacterCreation(SQLResult result1)
                                         {
                                             var haveSameRace = false;
 
                                             if (result1 != null && !result1.IsEmpty() && result.GetFieldCount() >= 3)
                                             {
-                                                var team = Player.TeamForRace(createInfo.RaceId);
+                                                var team = Player.TeamForRace(createInfo.RaceId, _cliDb);
                                                 var accRace = result1.Read<byte>(1);
                                                 var accClass = result1.Read<byte>(2);
 
@@ -615,15 +618,13 @@ public class CharacterHandler : IWorldSessionHandler
 
                                                 if (accClass == (byte)PlayerClass.Evoker)
                                                     --evokerLimit;
-
-                                                // need to check team only for first character
-                                                // @todo what to if account already has characters of both races?
+                                                
                                                 if (!allowTwoSideAccounts)
                                                 {
                                                     TeamFaction accTeam = 0;
 
                                                     if (accRace > 0)
-                                                        accTeam = Player.TeamForRace((Race)accRace);
+                                                        accTeam = Player.TeamForRace((Race)accRace, _cliDb);
 
                                                     if (accTeam != team)
                                                     {
@@ -758,7 +759,7 @@ public class CharacterHandler : IWorldSessionHandler
 
                                         if (!allowTwoSideAccounts || skipCinematics == 1 || createInfo.ClassId == PlayerClass.DemonHunter)
                                         {
-                                            finalizeCharacterCreation(new SQLResult());
+                                            FinalizeCharacterCreation(new SQLResult());
 
                                             return;
                                         }
@@ -766,7 +767,7 @@ public class CharacterHandler : IWorldSessionHandler
                                         stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_CREATE_INFO);
                                         stmt.AddValue(0, _session.AccountId);
                                         stmt.AddValue(1, (skipCinematics == 1 || createInfo.ClassId == PlayerClass.DemonHunter || createInfo.ClassId == PlayerClass.Evoker) ? 1200 : 1); // 200 (max chars per realm) + 1000 (max deleted chars per realm)
-                                        queryCallback.WithCallback(finalizeCharacterCreation).SetNextQuery(_characterDatabase.AsyncQuery(stmt));
+                                        queryCallback.WithCallback(FinalizeCharacterCreation).SetNextQuery(_characterDatabase.AsyncQuery(stmt));
                                     }));
     }
 
@@ -1277,7 +1278,7 @@ public class CharacterHandler : IWorldSessionHandler
         }
 
         // prevent character rename
-        if (_worldConfig.GetBoolValue(WorldCfg.PreventRenameCustomization) && (customizeInfo.CharName != oldName))
+        if (_configuration.GetBoolValue(WorldCfg.PreventRenameCustomization) && (customizeInfo.CharName != oldName))
         {
             SendCharCustomize(ResponseCodes.CharNameFailure, customizeInfo);
 
@@ -1614,7 +1615,7 @@ public class CharacterHandler : IWorldSessionHandler
 
         if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationRacemask))
         {
-            var raceMaskDisabled = _worldConfig.GetUInt64Value(WorldCfg.CharacterCreatingDisabledRacemask);
+            var raceMaskDisabled = _configuration.GetUInt64Value(WorldCfg.CharacterCreatingDisabledRacemask);
 
             if (Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(factionChangeInfo.RaceID) & raceMaskDisabled))
             {
@@ -1625,7 +1626,7 @@ public class CharacterHandler : IWorldSessionHandler
         }
 
         // prevent character rename
-        if (_worldConfig.GetBoolValue(WorldCfg.PreventRenameCustomization) && (factionChangeInfo.Name != oldName))
+        if (_configuration.GetBoolValue(WorldCfg.PreventRenameCustomization) && (factionChangeInfo.Name != oldName))
         {
             SendCharFactionChange(ResponseCodes.CharNameFailure, factionChangeInfo);
 
@@ -1830,7 +1831,7 @@ public class CharacterHandler : IWorldSessionHandler
                     trans.Append(stmt);
                 }
 
-                if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild))
+                if (!_configuration.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild))
                 {
                     // Reset guild
                     var guild = _guildManager.GetGuildById(characterInfo.GuildId);
@@ -2137,7 +2138,7 @@ public class CharacterHandler : IWorldSessionHandler
     void HandleUndeleteCooldownStatusCallback(SQLResult result)
     {
         uint cooldown = 0;
-        var maxCooldown = _worldConfig.GetUIntValue(WorldCfg.FeatureSystemCharacterUndeleteCooldown);
+        var maxCooldown = _configuration.GetUIntValue(WorldCfg.FeatureSystemCharacterUndeleteCooldown);
 
         if (!result.IsEmpty())
         {
@@ -2154,7 +2155,7 @@ public class CharacterHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.UndeleteCharacter, Status = SessionStatus.Authed)]
     void HandleCharUndelete(UndeleteCharacter undeleteCharacter)
     {
-        if (!_worldConfig.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled))
+        if (!_configuration.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled))
         {
             SendUndeleteCharacterResponse(CharacterUndeleteResult.Disabled, undeleteCharacter.UndeleteInfo);
 
@@ -2172,7 +2173,7 @@ public class CharacterHandler : IWorldSessionHandler
                                         if (!result.IsEmpty())
                                         {
                                             var lastUndelete = result.Read<uint>(0);
-                                            var maxCooldown = _worldConfig.GetUIntValue(WorldCfg.FeatureSystemCharacterUndeleteCooldown);
+                                            var maxCooldown = _configuration.GetUIntValue(WorldCfg.FeatureSystemCharacterUndeleteCooldown);
 
                                             if (lastUndelete != 0 && (lastUndelete + maxCooldown > _gameTime.CurrentGameTime))
                                             {
@@ -2231,7 +2232,7 @@ public class CharacterHandler : IWorldSessionHandler
                                     .WithCallback(result =>
                                     {
                                         if (!result.IsEmpty())
-                                            if (result.Read<ulong>(0) >= _worldConfig.GetUIntValue(WorldCfg.CharactersPerRealm)) // SQL's COUNT() returns uint64 but it will always be less than uint8.Max
+                                            if (result.Read<ulong>(0) >= _configuration.GetUIntValue(WorldCfg.CharactersPerRealm)) // SQL's COUNT() returns uint64 but it will always be less than uint8.Max
                                             {
                                                 SendUndeleteCharacterResponse(CharacterUndeleteResult.CharCreate, undeleteInfo);
 
@@ -2503,7 +2504,7 @@ public class LoginQueryHolder : SQLQueryHolder<PlayerLoginQueryLoad>
 {
     readonly uint _accountId;
     readonly CharacterDatabase _characterDatabase;
-    readonly WorldConfig _worldConfig;
+    readonly WorldConfig _configuration;
     ObjectGuid _guid;
 
     public LoginQueryHolder(uint accountId, ObjectGuid guid, CharacterDatabase characterDatabase, WorldConfig worldConfig)
@@ -2511,7 +2512,7 @@ public class LoginQueryHolder : SQLQueryHolder<PlayerLoginQueryLoad>
         _accountId = accountId;
         _guid = guid;
         _characterDatabase = characterDatabase;
-        _worldConfig = worldConfig;
+        _configuration = worldConfig;
     }
 
     public void Initialize()
