@@ -587,4 +587,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<ChannelHandler>();
     builder.RegisterType<CharacterHandler>();
     builder.RegisterType<TokenHandler>();
+    builder.RegisterType<TicketHandler>();
 }

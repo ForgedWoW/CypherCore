@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Forged.MapServer.Entities.Players;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Ticket;
+using Forged.MapServer.Server;
 using Forged.MapServer.SupportSystem;
 using Framework.Constants;
 using Framework.Database;
@@ -13,7 +14,18 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class TicketHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.GmTicketGetCaseStatus, Processing = PacketProcessing.Inplace)]
+    private readonly WorldSession _session;
+    private readonly SupportManager _supportManager;
+    private readonly CharacterDatabase _characterDatabase;
+
+    public TicketHandler(WorldSession session, SupportManager supportManager, CharacterDatabase characterDatabase)
+    {
+        _session = session;
+		_supportManager = supportManager;
+		_characterDatabase = characterDatabase;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.GmTicketGetCaseStatus, Processing = PacketProcessing.Inplace)]
 	void HandleGMTicketGetCaseStatus(GMTicketGetCaseStatus packet)
 	{
 		//TODO: Implement GmCase and handle this packet correctly
@@ -27,7 +39,7 @@ public class TicketHandler : IWorldSessionHandler
 		// Note: This only disables the ticket UI at client side and is not fully reliable
 		// Note: This disables the whole customer support UI after trying to send a ticket in disabled state (MessageBox: "GM Help Tickets are currently unavaiable."). UI remains disabled until the character relogs.
 		GMTicketSystemStatusPkt response = new();
-		response.Status = Global.SupportMgr.GetSupportSystemStatus() ? 1 : 0;
+		response.Status = _supportManager.GetSupportSystemStatus() ? 1 : 0;
 		_session.SendPacket(response);
 	}
 
@@ -36,7 +48,7 @@ public class TicketHandler : IWorldSessionHandler
 	{
 		if (userFeedback.IsSuggestion)
 		{
-			if (!Global.SupportMgr.GetSuggestionSystemStatus())
+			if (!_supportManager.GetSuggestionSystemStatus())
 				return;
 
 			SuggestionTicket ticket = new(_session.Player);
@@ -44,11 +56,11 @@ public class TicketHandler : IWorldSessionHandler
 			ticket.SetFacing(userFeedback.Header.Facing);
 			ticket.SetNote(userFeedback.Note);
 
-			Global.SupportMgr.AddTicket(ticket);
+			_supportManager.AddTicket(ticket);
 		}
 		else
 		{
-			if (!Global.SupportMgr.GetBugSystemStatus())
+			if (!_supportManager.GetBugSystemStatus())
 				return;
 
 			BugTicket ticket = new(_session.Player);
@@ -56,14 +68,14 @@ public class TicketHandler : IWorldSessionHandler
 			ticket.SetFacing(userFeedback.Header.Facing);
 			ticket.SetNote(userFeedback.Note);
 
-			Global.SupportMgr.AddTicket(ticket);
+			_supportManager.AddTicket(ticket);
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SupportTicketSubmitComplaint)]
 	void HandleSupportTicketSubmitComplaint(SupportTicketSubmitComplaint packet)
 	{
-		if (!Global.SupportMgr.GetComplaintSystemStatus())
+		if (!_supportManager.GetComplaintSystemStatus())
 			return;
 
 		ComplaintTicket comp = new(_session.Player);
@@ -76,20 +88,20 @@ public class TicketHandler : IWorldSessionHandler
 		comp.SetMinorCategoryFlags((ReportMinorCategory)packet.MinorCategoryFlags);
 		comp.SetNote(packet.Note);
 
-		Global.SupportMgr.AddTicket(comp);
+		_supportManager.AddTicket(comp);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BugReport)]
 	void HandleBugReport(BugReport bugReport)
 	{
 		// Note: There is no way to trigger this with standard UI except /script ReportBug("text")
-		if (!Global.SupportMgr.GetBugSystemStatus())
+		if (!_supportManager.GetBugSystemStatus())
 			return;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_BUG_REPORT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_BUG_REPORT);
 		stmt.AddValue(0, bugReport.Text);
 		stmt.AddValue(1, bugReport.DiagInfo);
-		DB.Characters.Execute(stmt);
+        _characterDatabase.Execute(stmt);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.Complaint)]
