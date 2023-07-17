@@ -586,4 +586,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<CalendarHandler>();
     builder.RegisterType<ChannelHandler>();
     builder.RegisterType<CharacterHandler>();
+    builder.RegisterType<TokenHandler>();
 }

@@ -3,6 +3,7 @@
 
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Token;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 
@@ -10,6 +11,13 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class TokenHandler : IWorldSessionHandler
 {
+    private readonly WorldSession _session;
+
+    public TokenHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
 	void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
 	{
