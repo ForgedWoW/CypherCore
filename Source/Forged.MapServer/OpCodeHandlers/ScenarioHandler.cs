@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Scenario;
+using Forged.MapServer.Scenarios;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Game.Common.Handlers;
 
@@ -11,7 +13,16 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class ScenarioHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.QueryScenarioPoi, Processing = PacketProcessing.Inplace)]
+    private readonly WorldSession _session;
+	private readonly ScenarioManager _scenarioManager;
+
+    public ScenarioHandler(WorldSession session, ScenarioManager scenarioManager)
+    {
+		_session = session;
+		_scenarioManager = scenarioManager;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.QueryScenarioPoi, Processing = PacketProcessing.Inplace)]
 	void HandleQueryScenarioPOI(QueryScenarioPOI queryScenarioPOI)
 	{
 		ScenarioPOIs response = new();
@@ -24,7 +35,7 @@ public class ScenarioHandler : IWorldSessionHandler
 
 		foreach (var criteriaTreeId in criteriaTreeIds)
 		{
-			var poiVector = Global.ScenarioMgr.GetScenarioPOIs((uint)criteriaTreeId);
+			var poiVector = _scenarioManager.GetScenarioPoIs((uint)criteriaTreeId);
 
 			if (poiVector != null)
 			{
