@@ -14,7 +14,6 @@ using Forged.MapServer.Server;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
-using Framework.Util;
 using Game.Common.Handlers;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -36,11 +35,11 @@ public class SocialHandler : IWorldSessionHandler
 	private readonly LoginDatabase _loginDatabase;
     private readonly IConfiguration _config;
 
-    private AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
+    private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
 
     public SocialHandler(WorldSession session, WhoListStorageManager whoListStorageManager, AccountManager accountManager,
-        WorldManager worldManager, SocialManager socialManager, GameObjectManager objectManager, CharacterCache characterCache,
-        CliDB cliDb, ObjectAccessor objectAccessor, LoginDatabase loginDatabase, IConfiguration config, RealmManager realmManager)
+        SocialManager socialManager, GameObjectManager objectManager, CharacterCache characterCache,
+        CliDB cliDb, ObjectAccessor objectAccessor, LoginDatabase loginDatabase, IConfiguration config)
     {
 		_session = session;
 		_whoListStorageManager = whoListStorageManager;
@@ -88,7 +87,7 @@ public class SocialHandler : IWorldSessionHandler
 
 		var team = _session.Player.Team;
 
-        var gmLevelInWhoList = _config.GetDefaultValue("GM.InWhoList.Level", 3);
+        var gmLevelInWhoList = _config.GetValue("GM.InWhoList.Level", 3);
 
 		WhoResponsePkt response = new();
 		response.RequestID = whoRequest.RequestID;

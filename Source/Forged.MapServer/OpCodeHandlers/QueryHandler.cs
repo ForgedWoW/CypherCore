@@ -1,30 +1,52 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.Serialization;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Query;
+using Forged.MapServer.Server;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Realm;
 using Game.Common.Handlers;
+using Microsoft.Extensions.Configuration;
 using Serilog;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class QueryHandler : IWorldSessionHandler
 {
+    private readonly WorldSession _session;
+    private readonly ObjectAccessor _objectAccessor;
+	private readonly GameObjectManager _gameObjectManager;
+    private readonly IConfiguration _config;
+    private readonly TerrainManager _terrainManager;
+    private readonly CliDB _cliDb;
+
+    public QueryHandler(WorldSession session, ObjectAccessor objectAccessor, GameObjectManager gameObjectManager,
+        IConfiguration config, TerrainManager terrainManager, CliDB cliDb)
+    {
+		_session = session;
+		_objectAccessor = objectAccessor;
+		_gameObjectManager = gameObjectManager;
+		_config = config;
+		_terrainManager = terrainManager;
+		_cliDb = cliDb;
+    }
+
 	public void BuildNameQueryData(ObjectGuid guid, out NameCacheLookupResult lookupData)
 	{
 		lookupData = new NameCacheLookupResult();
 
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
-		lookupData._session.Player = guid;
+		lookupData.Player = guid;
 
 		lookupData.Data = new PlayerGuidLookupData();
 
@@ -57,33 +79,33 @@ public class QueryHandler : IWorldSessionHandler
 	void SendQueryTimeResponse()
 	{
 		QueryTimeResponse queryTimeResponse = new();
-		queryTimeResponse.CurrentTime = GameTime.GetGameTime();
+		queryTimeResponse.CurrentTime = GameTime.CurrentTime;
 		_session.SendPacket(queryTimeResponse);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryGameObject, Processing = PacketProcessing.Inplace)]
 	void HandleGameObjectQuery(QueryGameObject packet)
 	{
-		var info = Global.ObjectMgr.GetGameObjectTemplate(packet.GameObjectID);
+		var info = _gameObjectManager.GetGameObjectTemplate(packet.GameObjectID);
 
 		if (info != null)
 		{
-			if (!WorldConfig.GetBoolValue(WorldCfg.CacheDataQueries))
-				info.InitializeQueryData();
+			if (!_config.GetValue("CacheDataQueries", true))
+				info.InitializeQueryData(_gameObjectManager);
 
 			var queryGameObjectResponse = info.QueryData;
 
-			var loc = SessionDbLocaleIndex;
+			var loc = _session.SessionDbLocaleIndex;
 
 			if (loc != Locale.enUS)
 			{
-				var gameObjectLocale = Global.ObjectMgr.GetGameObjectLocale(queryGameObjectResponse.GameObjectID);
+				var gameObjectLocale = _gameObjectManager.GetGameObjectLocale(queryGameObjectResponse.GameObjectID);
 
 				if (gameObjectLocale != null)
 				{
-					ObjectManager.GetLocaleString(gameObjectLocale.Name, loc, ref queryGameObjectResponse.Stats.Name[0]);
-					ObjectManager.GetLocaleString(gameObjectLocale.CastBarCaption, loc, ref queryGameObjectResponse.Stats.CastBarCaption);
-					ObjectManager.GetLocaleString(gameObjectLocale.Unk1, loc, ref queryGameObjectResponse.Stats.UnkString);
+                    _gameObjectManager.GetLocaleString(gameObjectLocale.Name, loc, ref queryGameObjectResponse.Stats.Name[0]);
+                    _gameObjectManager.GetLocaleString(gameObjectLocale.CastBarCaption, loc, ref queryGameObjectResponse.Stats.CastBarCaption);
+                    _gameObjectManager.GetLocaleString(gameObjectLocale.Unk1, loc, ref queryGameObjectResponse.Stats.UnkString);
 				}
 			}
 
@@ -103,30 +125,30 @@ public class QueryHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.QueryCreature, Processing = PacketProcessing.Inplace)]
 	void HandleCreatureQuery(QueryCreature packet)
 	{
-		var ci = Global.ObjectMgr.GetCreatureTemplate(packet.CreatureID);
+		var ci = _gameObjectManager.GetCreatureTemplate(packet.CreatureID);
 
 		if (ci != null)
 		{
-			if (!WorldConfig.GetBoolValue(WorldCfg.CacheDataQueries))
+			if (!_config.GetValue("CacheDataQueries", true))
 				ci.InitializeQueryData();
 
 			var queryCreatureResponse = ci.QueryData;
 
-			var loc = SessionDbLocaleIndex;
+			var loc = _session.SessionDbLocaleIndex;
 
 			if (loc != Locale.enUS)
 			{
-				var creatureLocale = Global.ObjectMgr.GetCreatureLocale(ci.Entry);
+				var creatureLocale = _gameObjectManager.GetCreatureLocale(ci.Entry);
 
 				if (creatureLocale != null)
 				{
 					var name = queryCreatureResponse.Stats.Name[0];
 					var nameAlt = queryCreatureResponse.Stats.NameAlt[0];
 
-					ObjectManager.GetLocaleString(creatureLocale.Name, loc, ref name);
-					ObjectManager.GetLocaleString(creatureLocale.NameAlt, loc, ref nameAlt);
-					ObjectManager.GetLocaleString(creatureLocale.Title, loc, ref queryCreatureResponse.Stats.Title);
-					ObjectManager.GetLocaleString(creatureLocale.TitleAlt, loc, ref queryCreatureResponse.Stats.TitleAlt);
+					_gameObjectManager.GetLocaleString(creatureLocale.Name, loc, ref name);
+					_gameObjectManager.GetLocaleString(creatureLocale.NameAlt, loc, ref nameAlt);
+					_gameObjectManager.GetLocaleString(creatureLocale.Title, loc, ref queryCreatureResponse.Stats.Title);
+					_gameObjectManager.GetLocaleString(creatureLocale.TitleAlt, loc, ref queryCreatureResponse.Stats.TitleAlt);
 
 					queryCreatureResponse.Stats.Name[0] = name;
 					queryCreatureResponse.Stats.NameAlt[0] = nameAlt;
@@ -148,7 +170,7 @@ public class QueryHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.QueryNpcText, Processing = PacketProcessing.Inplace)]
 	void HandleNpcTextQuery(QueryNPCText packet)
 	{
-		var npcText = Global.ObjectMgr.GetNpcText(packet.TextID);
+		var npcText = _gameObjectManager.GetNpcText(packet.TextID);
 
 		QueryNPCTextResponse response = new();
 		response.TextID = packet.TextID;
@@ -164,7 +186,7 @@ public class QueryHandler : IWorldSessionHandler
 			}
 
 		if (!response.Allow)
-			Log.outError(LogFilter.Sql, "HandleNpcTextQuery: no BroadcastTextID found for text {0} in `npc_text table`", packet.TextID);
+			Log.Logger.Error("HandleNpcTextQuery: no BroadcastTextID found for text {0} in `npc_text table`", packet.TextID);
 
 		_session.SendPacket(response);
 	}
@@ -179,7 +201,7 @@ public class QueryHandler : IWorldSessionHandler
 
 		while (pageID != 0)
 		{
-			var pageText = Global.ObjectMgr.GetPageText(pageID);
+			var pageText = _gameObjectManager.GetPageText(pageID);
 
 			if (pageText == null)
 				break;
@@ -191,14 +213,14 @@ public class QueryHandler : IWorldSessionHandler
 			page.PlayerConditionID = pageText.PlayerConditionID;
 			page.Flags = pageText.Flags;
 
-			var locale = SessionDbLocaleIndex;
+			var locale = _session.SessionDbLocaleIndex;
 
 			if (locale != Locale.enUS)
 			{
-				var pageLocale = Global.ObjectMgr.GetPageTextLocale(pageID);
+				var pageLocale = _gameObjectManager.GetPageTextLocale(pageID);
 
 				if (pageLocale != null)
-					ObjectManager.GetLocaleString(pageLocale.Text, locale, ref page.Text);
+					_gameObjectManager.GetLocaleString(pageLocale.Text, locale, ref page.Text);
 			}
 
 			response.Pages.Add(page);
@@ -213,12 +235,12 @@ public class QueryHandler : IWorldSessionHandler
 	void HandleQueryCorpseLocation(QueryCorpseLocationFromClient queryCorpseLocation)
 	{
 		CorpseLocation packet = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseLocation._session.Player);
+		var player = _objectAccessor.FindConnectedPlayer(queryCorpseLocation.Player);
 
-		if (!player || !player.HasCorpse || !_session.Player.IsInSameRaidWith(player))
+		if (player == null || !player.HasCorpse || !_session.Player.IsInSameRaidWith(player))
 		{
 			packet.Valid = false; // corpse not found
-			packet._session.Player = queryCorpseLocation._session.Player;
+			packet.Player = queryCorpseLocation.Player;
 			_session.SendPacket(packet);
 
 			return;
@@ -235,26 +257,26 @@ public class QueryHandler : IWorldSessionHandler
 		if (mapID != player.Location.MapId)
 		{
 			// search entrance map for proper show entrance
-			var corpseMapEntry = CliDB.MapStorage.LookupByKey(mapID);
+			var corpseMapEntry = _cliDb.MapStorage.LookupByKey(mapID);
 
 			if (corpseMapEntry != null)
 				if (corpseMapEntry.IsDungeon() && corpseMapEntry.CorpseMapID >= 0)
 				{
 					// if corpse map have entrance
-					var entranceTerrain = Global.TerrainMgr.LoadTerrain((uint)corpseMapEntry.CorpseMapID);
+					var entranceTerrain = _terrainManager.LoadTerrain((uint)corpseMapEntry.CorpseMapID);
 
 					if (entranceTerrain != null)
 					{
 						mapID = (uint)corpseMapEntry.CorpseMapID;
 						x = corpseMapEntry.Corpse.X;
 						y = corpseMapEntry.Corpse.Y;
-						z = entranceTerrain.GetStaticHeight(player.PhaseShift, mapID, x, y, MapConst.MaxHeight);
+						z = entranceTerrain.GetStaticHeight(player.Location.PhaseShift, mapID, x, y, MapConst.MaxHeight);
 					}
 				}
 		}
 
 		packet.Valid = true;
-		packet._session.Player = queryCorpseLocation._session.Player;
+		packet.Player = queryCorpseLocation.Player;
 		packet.MapID = (int)corpseMapID;
 		packet.ActualMapID = (int)mapID;
 		packet.Position = new Vector3(x, y, z);
@@ -266,18 +288,18 @@ public class QueryHandler : IWorldSessionHandler
 	void HandleQueryCorpseTransport(QueryCorpseTransport queryCorpseTransport)
 	{
 		CorpseTransportQuery response = new();
-		response._session.Player = queryCorpseTransport._session.Player;
+		response.Player = queryCorpseTransport.Player;
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseTransport._session.Player);
+		var player = _objectAccessor.FindConnectedPlayer(queryCorpseTransport.Player);
 
-		if (player)
+		if (player != null)
 		{
-			var corpse = player.GetCorpse();
+			var corpse = player.Corpse;
 
-			if (_session.Player.IsInSameRaidWith(player) && corpse && !corpse.GetTransGUID().IsEmpty && corpse.GetTransGUID() == queryCorpseTransport.Transport)
-			{
-				response.Position = new Vector3(corpse.TransOffsetX, corpse.TransOffsetY, corpse.TransOffsetZ);
-				response.Facing = corpse.TransOffsetO;
+			if (_session.Player.IsInSameRaidWith(player) && corpse != null && !corpse.GetTransGUID().IsEmpty && corpse.GetTransGUID() == queryCorpseTransport.Transport)
+            {
+				response.Position = new Vector3(corpse.MovementInfo.Transport.Pos.X, corpse.MovementInfo.Transport.Pos.Y, corpse.MovementInfo.Transport.Pos.Z);
+				response.Facing = corpse.MovementInfo.Transport.Pos.Orientation;
 			}
 		}
 
@@ -293,7 +315,7 @@ public class QueryHandler : IWorldSessionHandler
 		{
 			QuestCompletionNPC questCompletionNPC = new();
 
-			if (Global.ObjectMgr.GetQuestTemplate(questID) == null)
+			if (_gameObjectManager.GetQuestTemplate(questID) == null)
 			{
 				Log.Logger.Debug("WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, _session.Player.GUID);
 
@@ -302,10 +324,10 @@ public class QueryHandler : IWorldSessionHandler
 
 			questCompletionNPC.QuestID = questID;
 
-			foreach (var id in Global.ObjectMgr.GetCreatureQuestInvolvedRelationReverseBounds(questID))
+			foreach (var id in _gameObjectManager.GetCreatureQuestInvolvedRelationReverseBounds(questID))
 				questCompletionNPC.NPCs.Add(id);
 
-			foreach (var id in Global.ObjectMgr.GetGOQuestInvolvedRelationReverseBounds(questID))
+			foreach (var id in _gameObjectManager.GetGOQuestInvolvedRelationReverseBounds(questID))
 				questCompletionNPC.NPCs.Add(id | 0x80000000); // GO mask
 
 			response.QuestCompletionNPCs.Add(questCompletionNPC);
@@ -331,7 +353,7 @@ public class QueryHandler : IWorldSessionHandler
 		foreach (var questId in questIds)
 			if (_session.Player.FindQuestSlot(questId) != SharedConst.MaxQuestLogSize)
 			{
-				var poiData = Global.ObjectMgr.GetQuestPOIData(questId);
+				var poiData = _gameObjectManager.GetQuestPOIData(questId);
 
 				if (poiData != null)
 					response.QuestPOIDataStats.Add(poiData);
@@ -348,7 +370,7 @@ public class QueryHandler : IWorldSessionHandler
 
 		var item = _session.Player.GetItemByGuid(packet.Id);
 
-		if (item)
+		if (item != null)
 		{
 			queryItemTextResponse.Valid = true;
 			queryItemTextResponse.Text = item.Text;
@@ -365,11 +387,11 @@ public class QueryHandler : IWorldSessionHandler
 
 		RealmId realmHandle = new(queryRealmName.VirtualRealmAddress);
 
-		if (Global.ObjectMgr.GetRealmName(realmHandle.Index, ref realmQueryResponse.NameInfo.RealmNameActual, ref realmQueryResponse.NameInfo.RealmNameNormalized))
+		if (_gameObjectManager.GetRealmName(realmHandle.Index, ref realmQueryResponse.NameInfo.RealmNameActual, ref realmQueryResponse.NameInfo.RealmNameNormalized))
 		{
 			realmQueryResponse.LookupState = (byte)ResponseCodes.Success;
 			realmQueryResponse.NameInfo.IsInternalRealm = false;
-			realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == Global.WorldMgr.Realm.Id.VirtualRealmAddress;
+			realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == WorldManager.Realm.Id.VirtualRealmAddress;
 		}
 		else
 		{
