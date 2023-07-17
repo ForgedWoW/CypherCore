@@ -90,6 +90,11 @@ public class PacketRouter
         return true;
     }
 
+    public T OpCodeHandler<T>() where T : IWorldSessionHandler
+    {
+        return (T)_opCodeHandler[typeof(T)];
+    }
+
     public bool TryGetProcessor(ClientOpcodes opcode, out PacketProcessor packetProcessor)
     {
         return _clientPacketTable.TryGetValue(opcode, out packetProcessor);

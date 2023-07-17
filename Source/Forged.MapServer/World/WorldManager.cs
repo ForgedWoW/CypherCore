@@ -23,6 +23,7 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IWorld;
@@ -1434,7 +1435,7 @@ public class WorldManager
         _queuedPlayer.Add(sess);
 
         // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
-        sess.SendAuthResponse(BattlenetRpcErrorCode.Ok, true, GetQueuePos(sess));
+        sess.PacketRouter.OpCodeHandler<AuthenticationHandler>().SendAuthResponse(BattlenetRpcErrorCode.Ok, true, GetQueuePos(sess));
     }
 
     private void AddSession_(WorldSession s)
@@ -1772,7 +1773,7 @@ public class WorldManager
         // update position from iter to end()
         // iter point to first not updated socket, position store new position
         foreach (var iter in _queuedPlayer)
-            iter.SendAuthWaitQueue(++position);
+            iter.PacketRouter.OpCodeHandler<AuthenticationHandler>().SendAuthWaitQueue(++position);
 
         return found;
     }
@@ -1780,13 +1781,13 @@ public class WorldManager
     private bool RemoveSession(uint id)
     {
         // Find the session, kick the user, but we can't delete session at this moment to prevent iterator invalidation
-        if (_sessions.TryGetValue(id, out var session))
-        {
-            if (session.PlayerLoading)
-                return false;
+        if (!_sessions.TryGetValue(id, out var session))
+            return true;
 
-            session.KickPlayer("World::RemoveSession");
-        }
+        if (session.PlayerLoading)
+            return false;
+
+        session.KickPlayer("World::RemoveSession");
 
         return true;
     }
@@ -1837,14 +1838,21 @@ public class WorldManager
 
         var abcenter = _configuration.GetDefaultValue("AutoBroadcast:Center", 0);
 
-        if (abcenter == 0)
-            SendWorldText(CypherStrings.AutoBroadcast, pair.Value.Message);
-        else if (abcenter == 1)
-            SendGlobalMessage(new PrintNotification(pair.Value.Message));
-        else if (abcenter == 2)
+        switch (abcenter)
         {
-            SendWorldText(CypherStrings.AutoBroadcast, pair.Value.Message);
-            SendGlobalMessage(new PrintNotification(pair.Value.Message));
+            case 0:
+                SendWorldText(CypherStrings.AutoBroadcast, pair.Value.Message);
+
+                break;
+            case 1:
+                SendGlobalMessage(new PrintNotification(pair.Value.Message));
+
+                break;
+            case 2:
+                SendWorldText(CypherStrings.AutoBroadcast, pair.Value.Message);
+                SendGlobalMessage(new PrintNotification(pair.Value.Message));
+
+                break;
         }
 
         Log.Logger.Debug("AutoBroadcast: '{0}'", pair.Value.Message);
@@ -1867,23 +1875,23 @@ public class WorldManager
         var elapsed = (uint)(GameTime.CurrentTime - lastGameTime);
 
         //- if there is a shutdown timer
-        if (!IsStopped && ShutDownTimeLeft > 0 && elapsed > 0)
-        {
-            //- ... and it is overdue, stop the world
-            if (ShutDownTimeLeft <= elapsed)
-            {
-                if (!_shutdownMask.HasAnyFlag(ShutdownMask.Idle) || ActiveAndQueuedSessionCount == 0)
-                    IsStopped = true; // exist code already set
-                else
-                    ShutDownTimeLeft = 1; // minimum timer value to wait idle state
-            }
-            //- ... else decrease it and if necessary display a shutdown countdown to the users
-            else
-            {
-                ShutDownTimeLeft -= elapsed;
+        if (IsStopped || ShutDownTimeLeft <= 0 || elapsed <= 0)
+            return;
 
-                ShutdownMsg();
-            }
+        //- ... and it is overdue, stop the world
+        if (ShutDownTimeLeft <= elapsed)
+        {
+            if (!_shutdownMask.HasAnyFlag(ShutdownMask.Idle) || ActiveAndQueuedSessionCount == 0)
+                IsStopped = true; // exist code already set
+            else
+                ShutDownTimeLeft = 1; // minimum timer value to wait idle state
+        }
+        //- ... else decrease it and if necessary display a shutdown countdown to the users
+        else
+        {
+            ShutDownTimeLeft -= elapsed;
+
+            ShutdownMsg();
         }
     }
 
