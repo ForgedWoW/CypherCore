@@ -7,6 +7,8 @@ using Forged.MapServer.Networking.Packets.Collection;
 using Framework.Constants;
 using Game.Common.Handlers;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.OpCodeHandlers;
 
 public class CollectionsHandler : IWorldSessionHandler
@@ -15,32 +17,32 @@ public class CollectionsHandler : IWorldSessionHandler
 
     public CollectionsHandler(CollectionMgr collectionMgr)
     {
-		_collectionMgr = collectionMgr;
+        _collectionMgr = collectionMgr;
     }
 
-	[WorldPacketHandler(ClientOpcodes.CollectionItemSetFavorite)]
-	void HandleCollectionItemSetFavorite(CollectionItemSetFavorite collectionItemSetFavorite)
-	{
-		switch (collectionItemSetFavorite.Type)
-		{
-			case CollectionType.Toybox:
+    [WorldPacketHandler(ClientOpcodes.CollectionItemSetFavorite)]
+    private void HandleCollectionItemSetFavorite(CollectionItemSetFavorite collectionItemSetFavorite)
+    {
+        switch (collectionItemSetFavorite.Type)
+        {
+            case CollectionType.Toybox:
                 _collectionMgr.ToySetFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
 
-				break;
-			case CollectionType.Appearance:
-			{
-				var pair = _collectionMgr.HasItemAppearance(collectionItemSetFavorite.Id);
+                break;
 
-				if (!pair.Item1 || pair.Item2)
-					return;
+            case CollectionType.Appearance:
+            {
+                var pair = _collectionMgr.HasItemAppearance(collectionItemSetFavorite.Id);
+
+                if (!pair.Item1 || pair.Item2)
+                    return;
 
                 _collectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
 
-				break;
-			}
-			case CollectionType.TransmogSet:
-				break;
-			
-		}
-	}
+                break;
+            }
+            case CollectionType.TransmogSet:
+                break;
+        }
+    }
 }
