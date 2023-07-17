@@ -592,4 +592,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<ScenarioHandler>();
     builder.RegisterType<QueryHandler>();
     builder.RegisterType<PetitionsHandler>();
+    builder.RegisterType<LFGHandler>();
 }
