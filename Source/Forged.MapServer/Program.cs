@@ -588,4 +588,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<CharacterHandler>();
     builder.RegisterType<TokenHandler>();
     builder.RegisterType<TicketHandler>();
+    builder.RegisterType<SocialHandler>();
 }
