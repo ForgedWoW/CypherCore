@@ -593,4 +593,5 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<QueryHandler>();
     builder.RegisterType<PetitionsHandler>();
     builder.RegisterType<LFGHandler>();
+    builder.RegisterType<GroupHandler>();
 }
