@@ -44,25 +44,25 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class CharacterHandler : IWorldSessionHandler
 {
-    private readonly WorldSession _session;
+    private readonly ArenaTeamManager _arenaTeamManager;
+    private readonly CalendarManager _calendarManager;
+    private readonly CharacterCache _characterCache;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDb;
     private readonly CollectionMgr _collectionMgr;
-    private readonly IConfiguration _configuration;
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly ScriptManager _scriptManager;
-    private readonly LoginDatabase _loginDatabase;
-    private readonly DB2Manager _dB2Manager;
-    private readonly WorldManager _worldManager;
-    private readonly GuildManager _guildManager;
-    private readonly GameObjectManager _objectManager;
-    private readonly ObjectAccessor _objectAccessor;
-    private readonly CharacterCache _characterCache;
-    private readonly ArenaTeamManager _arenaTeamManager;
-    private readonly ClassFactory _classFactory;
-    private readonly CalendarManager _calendarManager;
     private readonly ConditionManager _conditionManager;
-    private readonly PlayerComputators _playerComputators;
+    private readonly IConfiguration _configuration;
+    private readonly DB2Manager _dB2Manager;
+    private readonly GuildManager _guildManager;
     private readonly List<ObjectGuid> _legitCharacters = new();
+    private readonly LoginDatabase _loginDatabase;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GameObjectManager _objectManager;
+    private readonly PlayerComputators _playerComputators;
+    private readonly ScriptManager _scriptManager;
+    private readonly WorldSession _session;
+    private readonly WorldManager _worldManager;
 
     public CharacterHandler(WorldSession session, CliDB cliDb, CollectionMgr collectionMgr, IConfiguration configuration,
         CharacterDatabase characterDatabase, ScriptManager scriptManager, LoginDatabase loginDatabase, DB2Manager dB2Manager,
@@ -90,34 +90,34 @@ public class CharacterHandler : IWorldSessionHandler
     }
 
     public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
-	{
-		if (!req.GetFlags().HasFlag(ChrCustomizationReqFlag.HasRequirements))
-			return true;
+    {
+        if (!req.GetFlags().HasFlag(ChrCustomizationReqFlag.HasRequirements))
+            return true;
 
-		if (req.ClassMask != 0 && (req.ClassMask & (1 << ((int)playerClass - 1))) == 0)
-			return false;
+        if (req.ClassMask != 0 && (req.ClassMask & (1 << ((int)playerClass - 1))) == 0)
+            return false;
 
-		if (req.AchievementID != 0 /*&& !HasAchieved(req->AchievementID)*/)
-			return false;
+        if (req.AchievementID != 0 /*&& !HasAchieved(req->AchievementID)*/)
+            return false;
 
-		if (req.ItemModifiedAppearanceID != 0 && !_collectionMgr.HasItemAppearance(req.ItemModifiedAppearanceID).PermAppearance)
-			return false;
+        if (req.ItemModifiedAppearanceID != 0 && !_collectionMgr.HasItemAppearance(req.ItemModifiedAppearanceID).PermAppearance)
+            return false;
 
-		if (req.QuestID != 0)
-		{
-			if (_session.Player == null)
-				return false;
+        if (req.QuestID != 0)
+        {
+            if (_session.Player == null)
+                return false;
 
-			if (!_session.Player.IsQuestRewarded((uint)req.QuestID))
-				return false;
-		}
+            if (!_session.Player.IsQuestRewarded((uint)req.QuestID))
+                return false;
+        }
 
-        if (!checkRequiredDependentChoices) 
+        if (!checkRequiredDependentChoices)
             return true;
 
         var requiredChoices = _dB2Manager.GetRequiredCustomizationChoices(req.Id);
 
-        if (requiredChoices == null) 
+        if (requiredChoices == null)
             return true;
 
         foreach (var key in requiredChoices.Keys)
@@ -137,7 +137,7 @@ public class CharacterHandler : IWorldSessionHandler
         }
 
         return true;
-	}
+    }
 
     public bool ValidateAppearance(Race race, PlayerClass playerClass, Gender gender, List<ChrCustomizationChoice> customizations)
     {
@@ -189,159 +189,56 @@ public class CharacterHandler : IWorldSessionHandler
         return true;
     }
 
-    [WorldPacketHandler(ClientOpcodes.EnumCharacters, Status = SessionStatus.Authed)]
-    private void HandleCharEnum(EnumCharacters charEnum)
+    [WorldPacketHandler(ClientOpcodes.AlterAppearance)]
+    private void HandleAlterAppearance(AlterApperance packet)
     {
-        if (charEnum == null)
+        if (!ValidateAppearance(_session.Player.Race, _session.Player.Class, (Gender)packet.NewSex, packet.Customizations))
             return;
 
-        // remove expired bans
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_EXPIRED_BANS);
-        _characterDatabase.Execute(stmt);
+        var go = _session.Player.Location.FindNearestGameObjectOfType(GameObjectTypes.BarberChair, 5.0f);
 
-        // get all the data necessary for loading all characters (along with their pets) on the account
-        EnumCharactersQueryHolder holder = new(_characterDatabase);
-
-        if (!holder.Initialize(_session.AccountId, _configuration.GetDefaultValue("DeclinedNames", false), false))
+        if (go == null)
         {
-            HandleCharEnum(holder);
+            _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
 
             return;
         }
 
-        _session.AddQueryHolderCallback(_characterDatabase.DelayQueryHolder(holder)).AfterComplete(result => HandleCharEnum((EnumCharactersQueryHolder)result));
-    }
-
-    private void HandleCharEnum(EnumCharactersQueryHolder holder)
-    {
-        EnumCharactersResult charResult = new()
+        if (_session.Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.Template.BarberChair.chairheight))
         {
-            Success = true,
-            IsDeletedCharacters = holder.IsDeletedCharacters,
-            DisabledClassesMask = _configuration.GetDefaultValue("CharacterCreating:Disabled:ClassesMask", 0u),
-        };
-
-        if (!charResult.IsDeletedCharacters)
-            _legitCharacters.Clear();
-
-        MultiMap<ulong, ChrCustomizationChoice> customizations = new();
-        var customizationsResult = holder.GetResult(EnumCharacterQueryLoad.Customizations);
-
-        if (!customizationsResult.IsEmpty())
-            do
-            {
-                ChrCustomizationChoice choice = new()
-                {
-                    ChrCustomizationOptionID = customizationsResult.Read<uint>(1),
-                    ChrCustomizationChoiceID = customizationsResult.Read<uint>(2)
-                };
-                customizations.Add(customizationsResult.Read<ulong>(0), choice);
-            } while (customizationsResult.NextRow());
-
-        var result = holder.GetResult(EnumCharacterQueryLoad.Characters);
-
-        if (!result.IsEmpty())
-            do
-            {
-                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
-
-                var customizationsForChar = customizations.LookupByKey(charInfo.Guid.Counter);
-
-                if (!customizationsForChar.Empty())
-                    charInfo.Customizations = new Array<ChrCustomizationChoice>(customizationsForChar.ToArray());
-
-                Log.Logger.Debug("Loading Character {0} from account {1}.", charInfo.Guid.ToString(), _session.AccountId);
-
-                if (!charResult.IsDeletedCharacters)
-                {
-                    if (!ValidateAppearance((Race)charInfo.RaceId, charInfo.ClassId, (Gender)charInfo.SexId, charInfo.Customizations))
-                    {
-                        Log.Logger.Error("Player {0} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString());
-
-                        charInfo.Customizations.Clear();
-
-                        if (charInfo.Flags2 != CharacterCustomizeFlags.Customize)
-                        {
-                            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
-                            stmt.AddValue(0, (ushort)AtLoginFlags.Customize);
-                            stmt.AddValue(1, charInfo.Guid.Counter);
-                            _characterDatabase.Execute(stmt);
-                            charInfo.Flags2 = CharacterCustomizeFlags.Customize;
-                        }
-                    }
-
-                    // Do not allow locked characters to login
-                    if (!charInfo.Flags.HasAnyFlag(CharacterFlags.CharacterLockedForTransfer | CharacterFlags.LockedByBilling))
-                        _legitCharacters.Add(charInfo.Guid);
-                }
-
-                if (!_characterCache.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                    _characterCache.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, false);
-
-                charResult.MaxCharacterLevel = Math.Max(charResult.MaxCharacterLevel, charInfo.ExperienceLevel);
-
-                charResult.Characters.Add(charInfo);
-            } while (result.NextRow() && charResult.Characters.Count < 200);
-
-        charResult.IsAlliedRacesCreationAllowed = _session.CanAccessAlliedRaces();
-
-        foreach (var requirement in _objectManager.GetRaceUnlockRequirements())
-        {
-            EnumCharactersResult.RaceUnlock raceUnlock = new()
-            {
-                RaceID = requirement.Key,
-                HasExpansion = !_configuration.GetDefaultValue("character:EnforceRaceAndClassExpansions", true) || (byte)_session.AccountExpansion >= requirement.Value.Expansion,
-                HasAchievement = (_configuration.GetDefaultValue("CharacterCreating:DisableAlliedRaceAchievementRequirement", true) || requirement.Value.AchievementId == 0)
-            };
-
-            charResult.RaceUnlockData.Add(raceUnlock);
-        }
-
-        _session.SendPacket(charResult);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.EnumCharactersDeletedByClient, Status = SessionStatus.Authed)]
-    private void HandleCharUndeleteEnum(EnumCharacters enumCharacters)
-    {
-        if (enumCharacters == null)
-            return;
-
-        // get all the data necessary for loading all undeleted characters (along with their pets) on the account
-        EnumCharactersQueryHolder holder = new(_characterDatabase);
-
-        if (!holder.Initialize(_session.AccountId, _configuration.GetDefaultValue("DeclinedNames", false), true))
-        {
-            HandleCharEnum(holder);
+            _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
 
             return;
         }
 
-        _session.AddQueryHolderCallback(_characterDatabase.DelayQueryHolder(holder)).AfterComplete(result => HandleCharEnum((EnumCharactersQueryHolder)result));
-    }
+        var cost = _session.Player.GetBarberShopCost(packet.Customizations);
 
-    private void HandleCharUndeleteEnumCallback(SQLResult result)
-    {
-        EnumCharactersResult charEnum = new()
+        if (!_session.Player.HasEnoughMoney(cost))
         {
-            Success = true,
-            IsDeletedCharacters = true,
-            DisabledClassesMask = _configuration.GetDefaultValue("CharacterCreating:Disabled:ClassMask", 0u)
-        };
+            _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NoMoney));
 
-        if (!result.IsEmpty())
-            do
-            {
-                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
+            return;
+        }
 
-                Log.Logger.Information("Loading undeleted char guid {0} from account {1}.", charInfo.Guid.ToString(), _session.AccountId);
+        _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.Success));
 
-                if (!_characterCache.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                    _characterCache.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, true);
+        _session.Player.ModifyMoney(-cost);
+        _session.Player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
 
-                charEnum.Characters.Add(charInfo);
-            } while (result.NextRow());
+        if (_session.Player.NativeGender != (Gender)packet.NewSex)
+        {
+            _session.Player.NativeGender = (Gender)packet.NewSex;
+            _session.Player.InitDisplayIds();
+            _session.Player.RestoreDisplayId();
+        }
 
-        _session.SendPacket(charEnum);
+        _session.Player.SetCustomizations(packet.Customizations);
+
+        _session.Player.UpdateCriteria(CriteriaType.GotHaircut, 1);
+
+        _session.Player.SetStandState(UnitStandStateType.Stand);
+
+        _characterCache.UpdateCharacterGender(_session.Player.GUID, packet.NewSex);
     }
 
     [WorldPacketHandler(ClientOpcodes.CreateCharacter, Status = SessionStatus.Authed)]
@@ -363,10 +260,12 @@ public class CharacterHandler : IWorldSessionHandler
                         disabled = Convert.ToBoolean(mask & (1 << 0));
 
                         break;
+
                     case TeamIds.Horde:
                         disabled = Convert.ToBoolean(mask & (1 << 1));
 
                         break;
+
                     case TeamIds.Neutral:
                         disabled = Convert.ToBoolean(mask & (1 << 2));
 
@@ -578,7 +477,7 @@ public class CharacterHandler : IWorldSessionHandler
                                                 return;
                                             }
                                         }
-                                       
+
                                         var demonHunterReqLevel = _configuration.GetDefaultValue("CharacterCreating:MinLevelForDemonHunter", 0u);
                                         var hasDemonHunterReqLevel = demonHunterReqLevel == 0;
                                         var evokerReqLevel = _configuration.GetDefaultValue("CharacterCreating:MinLevelForEvoker", 0u);
@@ -620,7 +519,7 @@ public class CharacterHandler : IWorldSessionHandler
 
                                                 if (accClass == (byte)PlayerClass.Evoker)
                                                     --evokerLimit;
-                                                
+
                                                 if (!allowTwoSideAccounts)
                                                 {
                                                     TeamFaction accTeam = 0;
@@ -773,469 +672,6 @@ public class CharacterHandler : IWorldSessionHandler
                                     }));
     }
 
-    [WorldPacketHandler(ClientOpcodes.CharDelete, Status = SessionStatus.Authed)]
-    private void HandleCharDelete(CharDelete charDelete)
-    {
-        // Initiating
-        var initAccountId = _session.AccountId;
-
-        // can't delete loaded character
-        if (_objectAccessor.FindPlayer(charDelete.Guid) == null)
-        {
-            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
-
-            return;
-        }
-
-        // is guild leader
-        if (_guildManager.GetGuildByLeader(charDelete.Guid) != null)
-        {
-            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
-            SendCharDelete(ResponseCodes.CharDeleteFailedGuildLeader);
-
-            return;
-        }
-
-        // is arena team captain
-        if (_arenaTeamManager.GetArenaTeamByCaptain(charDelete.Guid) != null)
-        {
-            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
-            SendCharDelete(ResponseCodes.CharDeleteFailedArenaCaptain);
-
-            return;
-        }
-
-        var characterInfo = _characterCache.GetCharacterCacheByGuid(charDelete.Guid);
-
-        if (characterInfo == null)
-        {
-            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
-
-            return;
-        }
-
-        var accountId = characterInfo.AccountId;
-        var name = characterInfo.Name;
-        var level = characterInfo.Level;
-
-        // prevent deleting other players' characters using cheating tools
-        if (accountId != _session.AccountId)
-        {
-            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
-
-            return;
-        }
-
-        var ipStr = _session.RemoteAddress;
-        Log.Logger.Information("Account: {0}, IP: {1} deleted character: {2}, {3}, Level: {4}", accountId, ipStr, name, charDelete.Guid.ToString(), level);
-
-        // To prevent hook failure, place hook before removing reference from DB
-        _scriptManager.ForEach<IPlayerOnDelete>(p => p.OnDelete(charDelete.Guid, initAccountId)); // To prevent race conditioning, but as it also makes sense, we hand the accountId over for successful delete.
-
-        // Shouldn't interfere with character deletion though
-
-        _calendarManager.RemoveAllPlayerEventsAndInvites(charDelete.Guid);
-        _playerComputators.DeleteFromDB(charDelete.Guid, accountId);
-
-        SendCharDelete(ResponseCodes.CharDeleteSuccess);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.GenerateRandomCharacterName, Status = SessionStatus.Authed)]
-    private void HandleRandomizeCharName(GenerateRandomCharacterName packet)
-    {
-        if (!_playerComputators.IsValidRace((Race)packet.Race))
-        {
-            Log.Logger.Error("Invalid race ({0}) sent by accountId: {1}", packet.Race, _session.AccountId);
-
-            return;
-        }
-
-        if (!_playerComputators.IsValidGender((Gender)packet.Sex))
-        {
-            Log.Logger.Error("Invalid gender ({0}) sent by accountId: {1}", packet.Sex, _session.AccountId);
-
-            return;
-        }
-
-        GenerateRandomCharacterNameResult result = new()
-        {
-            Success = true,
-            Name = _dB2Manager.GetNameGenEntry(packet.Race, packet.Sex)
-        };
-
-        _session.SendPacket(result);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ReorderCharacters, Status = SessionStatus.Authed)]
-    private void HandleReorderCharacters(ReorderCharacters reorderChars)
-    {
-        SQLTransaction trans = new();
-
-        foreach (var reorderInfo in reorderChars.Entries)
-        {
-            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_LIST_SLOT);
-            stmt.AddValue(0, reorderInfo.NewPosition);
-            stmt.AddValue(1, reorderInfo.PlayerGUID.Counter);
-            stmt.AddValue(2, _session.AccountId);
-            trans.Append(stmt);
-        }
-
-        _characterDatabase.CommitTransaction(trans);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.PlayerLogin, Status = SessionStatus.Authed)]
-    private void HandlePlayerLogin(PlayerLogin playerLogin)
-    {
-        if (_session.PlayerLoadingGuid.IsEmpty || _session.Player != null)
-        {
-            Log.Logger.Error("Player tries to login again, _session.AccountId = {0}", _session.AccountId);
-            _session.KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
-
-            return;
-        }
-
-        _session.PlayerLoadingGuid = playerLogin.Guid;
-        Log.Logger.Debug("Character {0} logging in", playerLogin.Guid.ToString());
-
-        if (!_legitCharacters.Contains(playerLogin.Guid))
-        {
-            Log.Logger.Error("Account ({0}) can't login with that character ({1}).", _session.AccountId, playerLogin.Guid.ToString());
-            _session.KickPlayer("WorldSession::HandlePlayerLoginOpcode Trying to login with a character of another account");
-
-            return;
-        }
-
-        _session.SendConnectToInstance(ConnectToSerial.WorldAttempt1);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.LoadingScreenNotify, Status = SessionStatus.Authed)]
-    private void HandleLoadScreen(LoadingScreenNotify loadingScreenNotify)
-    {
-        if (loadingScreenNotify != null)
-        {
-
-            // TODO: Do something with this packet
-
-        }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetFactionAtWar)]
-    private void HandleSetFactionAtWar(SetFactionAtWar packet)
-    {
-        _session.Player.ReputationMgr.SetAtWar(packet.FactionIndex, true);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetFactionNotAtWar)]
-    private void HandleSetFactionNotAtWar(SetFactionNotAtWar packet)
-    {
-        _session.Player.ReputationMgr.SetAtWar(packet.FactionIndex, false);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.Tutorial)]
-    private void HandleTutorialFlag(TutorialSetFlag packet)
-    {
-        switch (packet.Action)
-        {
-            case TutorialAction.Update:
-            {
-                var index = (byte)(packet.TutorialBit >> 5);
-
-                if (index >= SharedConst.MaxAccountTutorialValues)
-                {
-                    Log.Logger.Error("CMSG_TUTORIAL_FLAG received bad TutorialBit {0}.", packet.TutorialBit);
-
-                    return;
-                }
-
-                var flag = _session.GetTutorialInt(index);
-                flag |= (uint)(1 << (int)(packet.TutorialBit & 0x1F));
-                _session.SetTutorialInt(index, flag);
-
-                break;
-            }
-            case TutorialAction.Clear:
-                for (byte i = 0; i < SharedConst.MaxAccountTutorialValues; ++i)
-                    _session.SetTutorialInt(i, 0xFFFFFFFF);
-
-                break;
-            case TutorialAction.Reset:
-                for (byte i = 0; i < SharedConst.MaxAccountTutorialValues; ++i)
-                    _session.SetTutorialInt(i, 0x00000000);
-
-                break;
-            default:
-                Log.Logger.Error("CMSG_TUTORIAL_FLAG received unknown TutorialAction {0}.", packet.Action);
-
-                return;
-        }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetWatchedFaction)]
-    private void HandleSetWatchedFaction(SetWatchedFaction packet)
-    {
-        _session.Player.SetWatchedFactionIndex(packet.FactionIndex);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetFactionInactive)]
-    private void HandleSetFactionInactive(SetFactionInactive packet)
-    {
-        _session.Player.ReputationMgr.SetInactive(packet.Index, packet.State);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.CheckCharacterNameAvailability)]
-    private void HandleCheckCharacterNameAvailability(CheckCharacterNameAvailability checkCharacterNameAvailability)
-    {
-        // prevent character rename to invalid name
-        if (!_objectManager.NormalizePlayerName(ref checkCharacterNameAvailability.Name))
-        {
-            _session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameNoName));
-
-            return;
-        }
-
-        var res = _objectManager.CheckPlayerName(checkCharacterNameAvailability.Name, _session.SessionDbcLocale, true);
-
-        if (res != ResponseCodes.CharNameSuccess)
-        {
-            _session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, res));
-
-            return;
-        }
-
-        // check name limitations
-        if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(checkCharacterNameAvailability.Name))
-        {
-            _session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameReserved));
-
-            return;
-        }
-
-        // Ensure that there is no character with the desired new name
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHECK_NAME);
-        stmt.AddValue(0, checkCharacterNameAvailability.Name);
-
-        var sequenceIndex = checkCharacterNameAvailability.SequenceIndex;
-        _session.QueryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt).WithCallback(result => { _session.SendPacket(new CheckCharacterNameAvailabilityResult(sequenceIndex, !result.IsEmpty() ? ResponseCodes.CharCreateNameInUse : ResponseCodes.Success)); }));
-    }
-
-    [WorldPacketHandler(ClientOpcodes.RequestForcedReactions)]
-    private void HandleRequestForcedReactions(RequestForcedReactions requestForcedReactions)
-    {
-        if (requestForcedReactions == null)
-            return;
-
-        _session.Player.ReputationMgr.SendForceReactions();
-    }
-
-    [WorldPacketHandler(ClientOpcodes.CharacterRenameRequest, Status = SessionStatus.Authed)]
-    private void HandleCharRename(CharacterRenameRequest request)
-    {
-        if (!_legitCharacters.Contains(request.RenameInfo.Guid))
-        {
-            Log.Logger.Error(
-                        "Account {0}, IP: {1} tried to rename character {2}, but it does not belong to their account!",
-                        _session.AccountId,
-                        _session.RemoteAddress,
-                        request.RenameInfo.Guid.ToString());
-
-            _session.KickPlayer("WorldSession::HandleCharRenameOpcode rename character from a different account");
-
-            return;
-        }
-
-        // prevent character rename to invalid name
-        if (!_objectManager.NormalizePlayerName(ref request.RenameInfo.NewName))
-        {
-            SendCharRename(ResponseCodes.CharNameNoName, request.RenameInfo);
-
-            return;
-        }
-
-        var res = _objectManager.CheckPlayerName(request.RenameInfo.NewName, _session.SessionDbcLocale, true);
-
-        if (res != ResponseCodes.CharNameSuccess)
-        {
-            SendCharRename(res, request.RenameInfo);
-
-            return;
-        }
-
-        if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(request.RenameInfo.NewName))
-        {
-            SendCharRename(ResponseCodes.CharNameReserved, request.RenameInfo);
-
-            return;
-        }
-
-        // Ensure that there is no character with the desired new name
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_FREE_NAME);
-        stmt.AddValue(0, request.RenameInfo.Guid.Counter);
-        stmt.AddValue(1, request.RenameInfo.NewName);
-
-        _session.QueryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt).WithCallback(HandleCharRenameCallBack, request.RenameInfo));
-    }
-
-    private void HandleCharRenameCallBack(CharacterRenameInfo renameInfo, SQLResult result)
-    {
-        if (result.IsEmpty())
-        {
-            SendCharRename(ResponseCodes.CharNameFailure, renameInfo);
-
-            return;
-        }
-
-        var oldName = result.Read<string>(0);
-        // check name limitations
-        var atLoginFlags = (AtLoginFlags)result.Read<uint>(1);
-
-        if (!atLoginFlags.HasAnyFlag(AtLoginFlags.Rename))
-        {
-            SendCharRename(ResponseCodes.CharCreateError, renameInfo);
-
-            return;
-        }
-
-        atLoginFlags &= ~AtLoginFlags.Rename;
-
-        SQLTransaction trans = new();
-        var lowGuid = renameInfo.Guid.Counter;
-
-        // Update name and at_login flag in the db
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_NAME_AT_LOGIN);
-        stmt.AddValue(0, renameInfo.NewName);
-        stmt.AddValue(1, (ushort)atLoginFlags);
-        stmt.AddValue(2, lowGuid);
-        trans.Append(stmt);
-
-        stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
-        stmt.AddValue(0, lowGuid);
-        trans.Append(stmt);
-
-        _characterDatabase.CommitTransaction(trans);
-
-        Log.Logger.Information(
-                    "Account: {0} (IP: {1}) Character:[{2}] ({3}) Changed name to: {4}",
-                    _session.AccountId,
-                    _session.RemoteAddress,
-                    oldName,
-                    renameInfo.Guid.ToString(),
-                    renameInfo.NewName);
-
-        SendCharRename(ResponseCodes.Success, renameInfo);
-
-        _characterCache.UpdateCharacterData(renameInfo.Guid, renameInfo.NewName);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetPlayerDeclinedNames, Status = SessionStatus.Authed)]
-    private void HandleSetPlayerDeclinedNames(SetPlayerDeclinedNames packet)
-    {
-        // not accept declined names for unsupported languages
-        if (!_characterCache.GetCharacterNameByGuid(packet.Player, out var name))
-        {
-            SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
-
-            return;
-        }
-
-        if (!char.IsLetter(name[0])) // name already stored as only single alphabet using
-        {
-            SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
-
-            return;
-        }
-
-        for (var i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-        {
-            var declinedName = packet.DeclinedNames.Name[i];
-
-            if (!_objectManager.NormalizePlayerName(ref declinedName))
-            {
-                SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
-
-                return;
-            }
-
-            packet.DeclinedNames.Name[i] = declinedName;
-        }
-
-        for (var i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-        {
-            var declinedName = packet.DeclinedNames.Name[i];
-            CharacterDatabase.EscapeString(ref declinedName);
-            packet.DeclinedNames.Name[i] = declinedName;
-        }
-
-        SQLTransaction trans = new();
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
-        stmt.AddValue(0, packet.Player.Counter);
-        trans.Append(stmt);
-
-        stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_DECLINED_NAME);
-        stmt.AddValue(0, packet.Player.Counter);
-
-        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-            stmt.AddValue(i + 1, packet.DeclinedNames.Name[i]);
-
-        trans.Append(stmt);
-
-        _characterDatabase.CommitTransaction(trans);
-
-        SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Success, packet.Player);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.AlterAppearance)]
-    private void HandleAlterAppearance(AlterApperance packet)
-    {
-        if (!ValidateAppearance(_session.Player.Race, _session.Player.Class, (Gender)packet.NewSex, packet.Customizations))
-            return;
-
-        var go = _session.Player.Location.FindNearestGameObjectOfType(GameObjectTypes.BarberChair, 5.0f);
-
-        if (go == null)
-        {
-            _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
-
-            return;
-        }
-
-        if (_session.Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.Template.BarberChair.chairheight))
-        {
-            _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
-
-            return;
-        }
-
-        var cost = _session.Player.GetBarberShopCost(packet.Customizations);
-
-        if (!_session.Player.HasEnoughMoney(cost))
-        {
-            _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NoMoney));
-
-            return;
-        }
-
-        _session.SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.Success));
-
-        _session.Player.ModifyMoney(-cost);
-        _session.Player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
-
-        if (_session.Player.NativeGender != (Gender)packet.NewSex)
-        {
-            _session.Player.NativeGender = (Gender)packet.NewSex;
-            _session.Player.InitDisplayIds();
-            _session.Player.RestoreDisplayId();
-        }
-
-        _session.Player.SetCustomizations(packet.Customizations);
-
-        _session.Player.UpdateCriteria(CriteriaType.GotHaircut, 1);
-
-        _session.Player.SetStandState(UnitStandStateType.Stand);
-
-        _characterCache.UpdateCharacterGender(_session.Player.GUID, packet.NewSex);
-    }
-
     [WorldPacketHandler(ClientOpcodes.CharCustomize, Status = SessionStatus.Authed)]
     private void HandleCharCustomize(CharCustomize packet)
     {
@@ -1369,172 +805,182 @@ public class CharacterHandler : IWorldSessionHandler
                     customizeInfo.CharName);
     }
 
-    [WorldPacketHandler(ClientOpcodes.SaveEquipmentSet)]
-    private void HandleEquipmentSetSave(SaveEquipmentSet saveEquipmentSet)
+    [WorldPacketHandler(ClientOpcodes.CharDelete, Status = SessionStatus.Authed)]
+    private void HandleCharDelete(CharDelete charDelete)
     {
-        if (saveEquipmentSet.Set.SetId >= ItemConst.MaxEquipmentSetIndex) // client set slots amount
-            return;
+        // Initiating
+        var initAccountId = _session.AccountId;
 
-        if (saveEquipmentSet.Set.Type > EquipmentSetInfo.EquipmentSetType.Transmog)
-            return;
-
-        for (byte i = 0; i < EquipmentSlot.End; ++i)
-            if (!Convert.ToBoolean(saveEquipmentSet.Set.IgnoreMask & (1 << i)))
-            {
-                if (saveEquipmentSet.Set.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
-                {
-                    saveEquipmentSet.Set.Appearances[i] = 0;
-
-                    var itemGuid = saveEquipmentSet.Set.Pieces[i];
-
-                    if (!itemGuid.IsEmpty)
-                    {
-                        var item = _session.Player.GetItemByPos(InventorySlots.Bag0, i);
-
-                        // cheating check 1 (item equipped but sent empty guid)
-                        if (item == null)
-                            return;
-
-                        // cheating check 2 (sent guid does not match equipped item)
-                        if (item.GUID != itemGuid)
-                            return;
-                    }
-                    else
-                    {
-                        saveEquipmentSet.Set.IgnoreMask |= 1u << i;
-                    }
-                }
-                else
-                {
-                    saveEquipmentSet.Set.Pieces[i].Clear();
-
-                    if (saveEquipmentSet.Set.Appearances[i] != 0)
-                    {
-                        if (!_cliDb.ItemModifiedAppearanceStorage.ContainsKey(saveEquipmentSet.Set.Appearances[i]))
-                            return;
-
-                        var (hasAppearance, _) = _collectionMgr.HasItemAppearance((uint)saveEquipmentSet.Set.Appearances[i]);
-
-                        if (!hasAppearance)
-                            return;
-                    }
-                    else
-                    {
-                        saveEquipmentSet.Set.IgnoreMask |= 1u << i;
-                    }
-                }
-            }
-            else
-            {
-                saveEquipmentSet.Set.Pieces[i].Clear();
-                saveEquipmentSet.Set.Appearances[i] = 0;
-            }
-
-        saveEquipmentSet.Set.IgnoreMask &= 0x7FFFF; // clear invalid bits (i > EQUIPMENT_SLOT_END)
-
-        if (saveEquipmentSet.Set.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+        // can't delete loaded character
+        if (_objectAccessor.FindPlayer(charDelete.Guid) == null)
         {
-            saveEquipmentSet.Set.Enchants[0] = 0;
-            saveEquipmentSet.Set.Enchants[1] = 0;
-        }
-        else
-        {
-            var validateIllusion = new Func<uint, bool>(enchantId =>
-            {
-                var illusion = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchantId);
+            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
 
-                if (illusion == null)
-                    return false;
-
-                if (illusion.ItemVisual == 0 || !illusion.GetFlags().HasFlag(SpellItemEnchantmentFlags.AllowTransmog))
-                    return false;
-
-                var condition = _cliDb.PlayerConditionStorage.LookupByKey(illusion.TransmogUseConditionID);
-
-                if (condition != null && !_conditionManager.IsPlayerMeetingCondition(_session.Player, condition))
-                    return false;
-
-                return illusion.ScalingClassRestricted <= 0 || illusion.ScalingClassRestricted == (byte)_session.Player.Class;
-            });
-
-            if (saveEquipmentSet.Set.Enchants[0] != 0 && !validateIllusion((uint)saveEquipmentSet.Set.Enchants[0]))
-                return;
-
-            if (saveEquipmentSet.Set.Enchants[1] != 0 && !validateIllusion((uint)saveEquipmentSet.Set.Enchants[1]))
-                return;
+            return;
         }
 
-        _session.Player.SetEquipmentSet(saveEquipmentSet.Set);
+        // is guild leader
+        if (_guildManager.GetGuildByLeader(charDelete.Guid) != null)
+        {
+            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
+            SendCharDelete(ResponseCodes.CharDeleteFailedGuildLeader);
+
+            return;
+        }
+
+        // is arena team captain
+        if (_arenaTeamManager.GetArenaTeamByCaptain(charDelete.Guid) != null)
+        {
+            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
+            SendCharDelete(ResponseCodes.CharDeleteFailedArenaCaptain);
+
+            return;
+        }
+
+        var characterInfo = _characterCache.GetCharacterCacheByGuid(charDelete.Guid);
+
+        if (characterInfo == null)
+        {
+            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
+
+            return;
+        }
+
+        var accountId = characterInfo.AccountId;
+        var name = characterInfo.Name;
+        var level = characterInfo.Level;
+
+        // prevent deleting other players' characters using cheating tools
+        if (accountId != _session.AccountId)
+        {
+            _scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
+
+            return;
+        }
+
+        var ipStr = _session.RemoteAddress;
+        Log.Logger.Information("Account: {0}, IP: {1} deleted character: {2}, {3}, Level: {4}", accountId, ipStr, name, charDelete.Guid.ToString(), level);
+
+        // To prevent hook failure, place hook before removing reference from DB
+        _scriptManager.ForEach<IPlayerOnDelete>(p => p.OnDelete(charDelete.Guid, initAccountId)); // To prevent race conditioning, but as it also makes sense, we hand the accountId over for successful delete.
+
+        // Shouldn't interfere with character deletion though
+
+        _calendarManager.RemoveAllPlayerEventsAndInvites(charDelete.Guid);
+        _playerComputators.DeleteFromDB(charDelete.Guid, accountId);
+
+        SendCharDelete(ResponseCodes.CharDeleteSuccess);
     }
 
-    [WorldPacketHandler(ClientOpcodes.DeleteEquipmentSet)]
-    private void HandleDeleteEquipmentSet(DeleteEquipmentSet packet)
+    [WorldPacketHandler(ClientOpcodes.EnumCharacters, Status = SessionStatus.Authed)]
+    private void HandleCharEnum(EnumCharacters charEnum)
     {
-        _session.Player.DeleteEquipmentSet(packet.ID);
-    }
+        if (charEnum == null)
+            return;
 
-    [WorldPacketHandler(ClientOpcodes.UseEquipmentSet, Processing = PacketProcessing.Inplace)]
-    private void HandleUseEquipmentSet(UseEquipmentSet useEquipmentSet)
-    {
-        ObjectGuid ignoredItemGuid = new(0x0C00040000000000, 0xFFFFFFFFFFFFFFFF);
+        // remove expired bans
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_EXPIRED_BANS);
+        _characterDatabase.Execute(stmt);
 
-        for (byte i = 0; i < EquipmentSlot.End; ++i)
+        // get all the data necessary for loading all characters (along with their pets) on the account
+        EnumCharactersQueryHolder holder = new(_characterDatabase);
+
+        if (!holder.Initialize(_session.AccountId, _configuration.GetDefaultValue("DeclinedNames", false), false))
         {
-            Log.Logger.Debug("{0}: ContainerSlot: {1}, Slot: {2}", useEquipmentSet.Items[i].Item.ToString(), useEquipmentSet.Items[i].ContainerSlot, useEquipmentSet.Items[i].Slot);
+            HandleCharEnum(holder);
 
-            // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-            if (useEquipmentSet.Items[i].Item == ignoredItemGuid)
-                continue;
-
-            // Only equip weapons in combat
-            if (_session.Player.IsInCombat && i != EquipmentSlot.MainHand && i != EquipmentSlot.OffHand)
-                continue;
-
-            var item = _session.Player.GetItemByGuid(useEquipmentSet.Items[i].Item);
-
-            var dstPos = (ushort)(i | (InventorySlots.Bag0 << 8));
-
-            if (item == null)
-            {
-                var uItem = _session.Player.GetItemByPos(InventorySlots.Bag0, i);
-
-                if (uItem == null)
-                    continue;
-
-                List<ItemPosCount> itemPosCount = new();
-                var inventoryResult = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, itemPosCount, uItem);
-
-                if (inventoryResult == InventoryResult.Ok)
-                {
-                    if (_session.Player.CanUnequipItem(dstPos, true) != InventoryResult.Ok)
-                        continue;
-
-                    _session.Player.RemoveItem(InventorySlots.Bag0, i, true);
-                    _session.Player.StoreItem(itemPosCount, uItem, true);
-                }
-                else
-                {
-                    _session.Player.SendEquipError(inventoryResult, uItem);
-                }
-
-                continue;
-            }
-
-            if (item.Pos == dstPos)
-                continue;
-
-            if (_session.Player.CanEquipItem(i, out dstPos, item, true) != InventoryResult.Ok)
-                continue;
-
-            _session.Player.SwapItem(item.Pos, dstPos);
+            return;
         }
 
-        UseEquipmentSetResult result = new()
+        _session.AddQueryHolderCallback(_characterDatabase.DelayQueryHolder(holder)).AfterComplete(result => HandleCharEnum((EnumCharactersQueryHolder)result));
+    }
+
+    private void HandleCharEnum(EnumCharactersQueryHolder holder)
+    {
+        EnumCharactersResult charResult = new()
         {
-            GUID = useEquipmentSet.GUID,
-            Reason = 0 // 4 - equipment swap failed - inventory is full
+            Success = true,
+            IsDeletedCharacters = holder.IsDeletedCharacters,
+            DisabledClassesMask = _configuration.GetDefaultValue("CharacterCreating:Disabled:ClassesMask", 0u),
         };
-        _session.SendPacket(result);
+
+        if (!charResult.IsDeletedCharacters)
+            _legitCharacters.Clear();
+
+        MultiMap<ulong, ChrCustomizationChoice> customizations = new();
+        var customizationsResult = holder.GetResult(EnumCharacterQueryLoad.Customizations);
+
+        if (!customizationsResult.IsEmpty())
+            do
+            {
+                ChrCustomizationChoice choice = new()
+                {
+                    ChrCustomizationOptionID = customizationsResult.Read<uint>(1),
+                    ChrCustomizationChoiceID = customizationsResult.Read<uint>(2)
+                };
+                customizations.Add(customizationsResult.Read<ulong>(0), choice);
+            } while (customizationsResult.NextRow());
+
+        var result = holder.GetResult(EnumCharacterQueryLoad.Characters);
+
+        if (!result.IsEmpty())
+            do
+            {
+                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
+
+                var customizationsForChar = customizations.LookupByKey(charInfo.Guid.Counter);
+
+                if (!customizationsForChar.Empty())
+                    charInfo.Customizations = new Array<ChrCustomizationChoice>(customizationsForChar.ToArray());
+
+                Log.Logger.Debug("Loading Character {0} from account {1}.", charInfo.Guid.ToString(), _session.AccountId);
+
+                if (!charResult.IsDeletedCharacters)
+                {
+                    if (!ValidateAppearance((Race)charInfo.RaceId, charInfo.ClassId, (Gender)charInfo.SexId, charInfo.Customizations))
+                    {
+                        Log.Logger.Error("Player {0} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString());
+
+                        charInfo.Customizations.Clear();
+
+                        if (charInfo.Flags2 != CharacterCustomizeFlags.Customize)
+                        {
+                            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+                            stmt.AddValue(0, (ushort)AtLoginFlags.Customize);
+                            stmt.AddValue(1, charInfo.Guid.Counter);
+                            _characterDatabase.Execute(stmt);
+                            charInfo.Flags2 = CharacterCustomizeFlags.Customize;
+                        }
+                    }
+
+                    // Do not allow locked characters to login
+                    if (!charInfo.Flags.HasAnyFlag(CharacterFlags.CharacterLockedForTransfer | CharacterFlags.LockedByBilling))
+                        _legitCharacters.Add(charInfo.Guid);
+                }
+
+                if (!_characterCache.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                    _characterCache.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, false);
+
+                charResult.MaxCharacterLevel = Math.Max(charResult.MaxCharacterLevel, charInfo.ExperienceLevel);
+
+                charResult.Characters.Add(charInfo);
+            } while (result.NextRow() && charResult.Characters.Count < 200);
+
+        charResult.IsAlliedRacesCreationAllowed = _session.CanAccessAlliedRaces();
+
+        foreach (var requirement in _objectManager.GetRaceUnlockRequirements())
+        {
+            EnumCharactersResult.RaceUnlock raceUnlock = new()
+            {
+                RaceID = requirement.Key,
+                HasExpansion = !_configuration.GetDefaultValue("character:EnforceRaceAndClassExpansions", true) || (byte)_session.AccountExpansion >= requirement.Value.Expansion,
+                HasAchievement = (_configuration.GetDefaultValue("CharacterCreating:DisableAlliedRaceAchievementRequirement", true) || requirement.Value.AchievementId == 0)
+            };
+
+            charResult.RaceUnlockData.Add(raceUnlock);
+        }
+
+        _session.SendPacket(charResult);
     }
 
     [WorldPacketHandler(ClientOpcodes.CharRaceOrFactionChange, Status = SessionStatus.Authed)]
@@ -1749,49 +1195,60 @@ public class CharacterHandler : IWorldSessionHandler
                         stmt.AddValue(1, 111);
 
                         break;
+
                     case Race.Draenei:
                     case Race.LightforgedDraenei:
                         stmt.AddValue(1, 759);
 
                         break;
+
                     case Race.Gnome:
                         stmt.AddValue(1, 313);
 
                         break;
+
                     case Race.NightElf:
                         stmt.AddValue(1, 113);
 
                         break;
+
                     case Race.Worgen:
                         stmt.AddValue(1, 791);
 
                         break;
+
                     case Race.Undead:
                         stmt.AddValue(1, 673);
 
                         break;
+
                     case Race.Tauren:
                     case Race.HighmountainTauren:
                         stmt.AddValue(1, 115);
 
                         break;
+
                     case Race.Troll:
                         stmt.AddValue(1, 315);
 
                         break;
+
                     case Race.BloodElf:
                     case Race.VoidElf:
                         stmt.AddValue(1, 137);
 
                         break;
+
                     case Race.Goblin:
                         stmt.AddValue(1, 792);
 
                         break;
+
                     case Race.Nightborne:
                         stmt.AddValue(1, 2464);
 
                         break;
+
                     default:
                         Log.Logger.Error($"Could not find language data for race ({factionChangeInfo.RaceID}).");
                         SendCharFactionChange(ResponseCodes.CharCreateError, factionChangeInfo);
@@ -1815,7 +1272,6 @@ public class CharacterHandler : IWorldSessionHandler
                     // Update Taxi path
                     // this doesn't seem to be 100% blizzlike... but it can't really be helped.
                     var taximaskstream = "";
-
 
                     var factionMask = newTeamId == TeamIds.Horde ? _cliDb.HordeTaxiNodesMask : _cliDb.AllianceTaxiNodesMask;
 
@@ -2090,56 +1546,103 @@ public class CharacterHandler : IWorldSessionHandler
         SendCharFactionChange(ResponseCodes.Success, factionChangeInfo);
     }
 
-    [WorldPacketHandler(ClientOpcodes.OpeningCinematic)]
-    private void HandleOpeningCinematic(OpeningCinematic packet)
+    [WorldPacketHandler(ClientOpcodes.CharacterRenameRequest, Status = SessionStatus.Authed)]
+    private void HandleCharRename(CharacterRenameRequest request)
     {
-        if (packet == null)
-            return;
-
-        // Only players that has not yet gained any experience can use this
-        if (_session.Player.ActivePlayerData.XP != 0)
-            return;
-
-        var classEntry = _cliDb.ChrClassesStorage.LookupByKey((uint)_session.Player.Class);
-
-        if (classEntry == null)
-            return;
-
-        var raceEntry = _cliDb.ChrRacesStorage.LookupByKey((uint)_session.Player.Race);
-
-        if (classEntry.CinematicSequenceID != 0)
-            _session.Player.SendCinematicStart(classEntry.CinematicSequenceID);
-        else if (raceEntry != null)
-            _session.Player.SendCinematicStart(raceEntry.CinematicSequenceID);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.GetUndeleteCharacterCooldownStatus, Status = SessionStatus.Authed)]
-    private void HandleGetUndeleteCooldownStatus(GetUndeleteCharacterCooldownStatus getCooldown)
-    {
-        if (getCooldown == null)
-            return;
-
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_LAST_CHAR_UNDELETE);
-        stmt.AddValue(0, _session.BattlenetAccountId);
-
-        _session.QueryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleUndeleteCooldownStatusCallback));
-    }
-
-    private void HandleUndeleteCooldownStatusCallback(SQLResult result)
-    {
-        uint cooldown = 0;
-        var maxCooldown = _configuration.GetDefaultValue("FeatureSystem:CharacterUndelete:Cooldown", 2592000u);
-
-        if (!result.IsEmpty())
+        if (!_legitCharacters.Contains(request.RenameInfo.Guid))
         {
-            var lastUndelete = result.Read<uint>(0);
-            var now = (uint)GameTime.CurrentTime;
+            Log.Logger.Error(
+                        "Account {0}, IP: {1} tried to rename character {2}, but it does not belong to their account!",
+                        _session.AccountId,
+                        _session.RemoteAddress,
+                        request.RenameInfo.Guid.ToString());
 
-            if (lastUndelete + maxCooldown > now)
-                cooldown = Math.Max(0, lastUndelete + maxCooldown - now);
+            _session.KickPlayer("WorldSession::HandleCharRenameOpcode rename character from a different account");
+
+            return;
         }
 
-        SendUndeleteCooldownStatusResponse(cooldown, maxCooldown);
+        // prevent character rename to invalid name
+        if (!_objectManager.NormalizePlayerName(ref request.RenameInfo.NewName))
+        {
+            SendCharRename(ResponseCodes.CharNameNoName, request.RenameInfo);
+
+            return;
+        }
+
+        var res = _objectManager.CheckPlayerName(request.RenameInfo.NewName, _session.SessionDbcLocale, true);
+
+        if (res != ResponseCodes.CharNameSuccess)
+        {
+            SendCharRename(res, request.RenameInfo);
+
+            return;
+        }
+
+        if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(request.RenameInfo.NewName))
+        {
+            SendCharRename(ResponseCodes.CharNameReserved, request.RenameInfo);
+
+            return;
+        }
+
+        // Ensure that there is no character with the desired new name
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_FREE_NAME);
+        stmt.AddValue(0, request.RenameInfo.Guid.Counter);
+        stmt.AddValue(1, request.RenameInfo.NewName);
+
+        _session.QueryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt).WithCallback(HandleCharRenameCallBack, request.RenameInfo));
+    }
+
+    private void HandleCharRenameCallBack(CharacterRenameInfo renameInfo, SQLResult result)
+    {
+        if (result.IsEmpty())
+        {
+            SendCharRename(ResponseCodes.CharNameFailure, renameInfo);
+
+            return;
+        }
+
+        var oldName = result.Read<string>(0);
+        // check name limitations
+        var atLoginFlags = (AtLoginFlags)result.Read<uint>(1);
+
+        if (!atLoginFlags.HasAnyFlag(AtLoginFlags.Rename))
+        {
+            SendCharRename(ResponseCodes.CharCreateError, renameInfo);
+
+            return;
+        }
+
+        atLoginFlags &= ~AtLoginFlags.Rename;
+
+        SQLTransaction trans = new();
+        var lowGuid = renameInfo.Guid.Counter;
+
+        // Update name and at_login flag in the db
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_NAME_AT_LOGIN);
+        stmt.AddValue(0, renameInfo.NewName);
+        stmt.AddValue(1, (ushort)atLoginFlags);
+        stmt.AddValue(2, lowGuid);
+        trans.Append(stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
+        stmt.AddValue(0, lowGuid);
+        trans.Append(stmt);
+
+        _characterDatabase.CommitTransaction(trans);
+
+        Log.Logger.Information(
+                    "Account: {0} (IP: {1}) Character:[{2}] ({3}) Changed name to: {4}",
+                    _session.AccountId,
+                    _session.RemoteAddress,
+                    oldName,
+                    renameInfo.Guid.ToString(),
+                    renameInfo.NewName);
+
+        SendCharRename(ResponseCodes.Success, renameInfo);
+
+        _characterCache.UpdateCharacterData(renameInfo.Guid, renameInfo.NewName);
     }
 
     [WorldPacketHandler(ClientOpcodes.UndeleteCharacter, Status = SessionStatus.Authed)]
@@ -2245,6 +1748,354 @@ public class CharacterHandler : IWorldSessionHandler
                                     }));
     }
 
+    [WorldPacketHandler(ClientOpcodes.EnumCharactersDeletedByClient, Status = SessionStatus.Authed)]
+    private void HandleCharUndeleteEnum(EnumCharacters enumCharacters)
+    {
+        if (enumCharacters == null)
+            return;
+
+        // get all the data necessary for loading all undeleted characters (along with their pets) on the account
+        EnumCharactersQueryHolder holder = new(_characterDatabase);
+
+        if (!holder.Initialize(_session.AccountId, _configuration.GetDefaultValue("DeclinedNames", false), true))
+        {
+            HandleCharEnum(holder);
+
+            return;
+        }
+
+        _session.AddQueryHolderCallback(_characterDatabase.DelayQueryHolder(holder)).AfterComplete(result => HandleCharEnum((EnumCharactersQueryHolder)result));
+    }
+
+    private void HandleCharUndeleteEnumCallback(SQLResult result)
+    {
+        EnumCharactersResult charEnum = new()
+        {
+            Success = true,
+            IsDeletedCharacters = true,
+            DisabledClassesMask = _configuration.GetDefaultValue("CharacterCreating:Disabled:ClassMask", 0u)
+        };
+
+        if (!result.IsEmpty())
+            do
+            {
+                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
+
+                Log.Logger.Information("Loading undeleted char guid {0} from account {1}.", charInfo.Guid.ToString(), _session.AccountId);
+
+                if (!_characterCache.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                    _characterCache.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, true);
+
+                charEnum.Characters.Add(charInfo);
+            } while (result.NextRow());
+
+        _session.SendPacket(charEnum);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.CheckCharacterNameAvailability)]
+    private void HandleCheckCharacterNameAvailability(CheckCharacterNameAvailability checkCharacterNameAvailability)
+    {
+        // prevent character rename to invalid name
+        if (!_objectManager.NormalizePlayerName(ref checkCharacterNameAvailability.Name))
+        {
+            _session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameNoName));
+
+            return;
+        }
+
+        var res = _objectManager.CheckPlayerName(checkCharacterNameAvailability.Name, _session.SessionDbcLocale, true);
+
+        if (res != ResponseCodes.CharNameSuccess)
+        {
+            _session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, res));
+
+            return;
+        }
+
+        // check name limitations
+        if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(checkCharacterNameAvailability.Name))
+        {
+            _session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameReserved));
+
+            return;
+        }
+
+        // Ensure that there is no character with the desired new name
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHECK_NAME);
+        stmt.AddValue(0, checkCharacterNameAvailability.Name);
+
+        var sequenceIndex = checkCharacterNameAvailability.SequenceIndex;
+        _session.QueryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt).WithCallback(result => { _session.SendPacket(new CheckCharacterNameAvailabilityResult(sequenceIndex, !result.IsEmpty() ? ResponseCodes.CharCreateNameInUse : ResponseCodes.Success)); }));
+    }
+
+    [WorldPacketHandler(ClientOpcodes.DeleteEquipmentSet)]
+    private void HandleDeleteEquipmentSet(DeleteEquipmentSet packet)
+    {
+        _session.Player.DeleteEquipmentSet(packet.ID);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SaveEquipmentSet)]
+    private void HandleEquipmentSetSave(SaveEquipmentSet saveEquipmentSet)
+    {
+        if (saveEquipmentSet.Set.SetId >= ItemConst.MaxEquipmentSetIndex) // client set slots amount
+            return;
+
+        if (saveEquipmentSet.Set.Type > EquipmentSetInfo.EquipmentSetType.Transmog)
+            return;
+
+        for (byte i = 0; i < EquipmentSlot.End; ++i)
+            if (!Convert.ToBoolean(saveEquipmentSet.Set.IgnoreMask & (1 << i)))
+            {
+                if (saveEquipmentSet.Set.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+                {
+                    saveEquipmentSet.Set.Appearances[i] = 0;
+
+                    var itemGuid = saveEquipmentSet.Set.Pieces[i];
+
+                    if (!itemGuid.IsEmpty)
+                    {
+                        var item = _session.Player.GetItemByPos(InventorySlots.Bag0, i);
+
+                        // cheating check 1 (item equipped but sent empty guid)
+                        if (item == null)
+                            return;
+
+                        // cheating check 2 (sent guid does not match equipped item)
+                        if (item.GUID != itemGuid)
+                            return;
+                    }
+                    else
+                    {
+                        saveEquipmentSet.Set.IgnoreMask |= 1u << i;
+                    }
+                }
+                else
+                {
+                    saveEquipmentSet.Set.Pieces[i].Clear();
+
+                    if (saveEquipmentSet.Set.Appearances[i] != 0)
+                    {
+                        if (!_cliDb.ItemModifiedAppearanceStorage.ContainsKey(saveEquipmentSet.Set.Appearances[i]))
+                            return;
+
+                        var (hasAppearance, _) = _collectionMgr.HasItemAppearance((uint)saveEquipmentSet.Set.Appearances[i]);
+
+                        if (!hasAppearance)
+                            return;
+                    }
+                    else
+                    {
+                        saveEquipmentSet.Set.IgnoreMask |= 1u << i;
+                    }
+                }
+            }
+            else
+            {
+                saveEquipmentSet.Set.Pieces[i].Clear();
+                saveEquipmentSet.Set.Appearances[i] = 0;
+            }
+
+        saveEquipmentSet.Set.IgnoreMask &= 0x7FFFF; // clear invalid bits (i > EQUIPMENT_SLOT_END)
+
+        if (saveEquipmentSet.Set.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+        {
+            saveEquipmentSet.Set.Enchants[0] = 0;
+            saveEquipmentSet.Set.Enchants[1] = 0;
+        }
+        else
+        {
+            var validateIllusion = new Func<uint, bool>(enchantId =>
+            {
+                var illusion = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchantId);
+
+                if (illusion == null)
+                    return false;
+
+                if (illusion.ItemVisual == 0 || !illusion.GetFlags().HasFlag(SpellItemEnchantmentFlags.AllowTransmog))
+                    return false;
+
+                var condition = _cliDb.PlayerConditionStorage.LookupByKey(illusion.TransmogUseConditionID);
+
+                if (condition != null && !_conditionManager.IsPlayerMeetingCondition(_session.Player, condition))
+                    return false;
+
+                return illusion.ScalingClassRestricted <= 0 || illusion.ScalingClassRestricted == (byte)_session.Player.Class;
+            });
+
+            if (saveEquipmentSet.Set.Enchants[0] != 0 && !validateIllusion((uint)saveEquipmentSet.Set.Enchants[0]))
+                return;
+
+            if (saveEquipmentSet.Set.Enchants[1] != 0 && !validateIllusion((uint)saveEquipmentSet.Set.Enchants[1]))
+                return;
+        }
+
+        _session.Player.SetEquipmentSet(saveEquipmentSet.Set);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.GetUndeleteCharacterCooldownStatus, Status = SessionStatus.Authed)]
+    private void HandleGetUndeleteCooldownStatus(GetUndeleteCharacterCooldownStatus getCooldown)
+    {
+        if (getCooldown == null)
+            return;
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_LAST_CHAR_UNDELETE);
+        stmt.AddValue(0, _session.BattlenetAccountId);
+
+        _session.QueryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleUndeleteCooldownStatusCallback));
+    }
+
+    [WorldPacketHandler(ClientOpcodes.LoadingScreenNotify, Status = SessionStatus.Authed)]
+    private void HandleLoadScreen(LoadingScreenNotify loadingScreenNotify)
+    {
+        if (loadingScreenNotify != null)
+        {
+            // TODO: Do something with this packet
+        }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.OpeningCinematic)]
+    private void HandleOpeningCinematic(OpeningCinematic packet)
+    {
+        if (packet == null)
+            return;
+
+        // Only players that has not yet gained any experience can use this
+        if (_session.Player.ActivePlayerData.XP != 0)
+            return;
+
+        var classEntry = _cliDb.ChrClassesStorage.LookupByKey((uint)_session.Player.Class);
+
+        if (classEntry == null)
+            return;
+
+        var raceEntry = _cliDb.ChrRacesStorage.LookupByKey((uint)_session.Player.Race);
+
+        if (classEntry.CinematicSequenceID != 0)
+            _session.Player.SendCinematicStart(classEntry.CinematicSequenceID);
+        else if (raceEntry != null)
+            _session.Player.SendCinematicStart(raceEntry.CinematicSequenceID);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.OverrideScreenFlash)]
+    private void HandleOverrideScreenFlash(OverrideScreenFlash packet)
+    {
+        _session.Player.OverrideScreenFlash = packet.ScreenFlashEnabled;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.PlayerLogin, Status = SessionStatus.Authed)]
+    private void HandlePlayerLogin(PlayerLogin playerLogin)
+    {
+        if (_session.PlayerLoadingGuid.IsEmpty || _session.Player != null)
+        {
+            Log.Logger.Error("Player tries to login again, _session.AccountId = {0}", _session.AccountId);
+            _session.KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
+
+            return;
+        }
+
+        _session.PlayerLoadingGuid = playerLogin.Guid;
+        Log.Logger.Debug("Character {0} logging in", playerLogin.Guid.ToString());
+
+        if (!_legitCharacters.Contains(playerLogin.Guid))
+        {
+            Log.Logger.Error("Account ({0}) can't login with that character ({1}).", _session.AccountId, playerLogin.Guid.ToString());
+            _session.KickPlayer("WorldSession::HandlePlayerLoginOpcode Trying to login with a character of another account");
+
+            return;
+        }
+
+        _session.SendConnectToInstance(ConnectToSerial.WorldAttempt1);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ClientPortGraveyard)]
+    private void HandlePortGraveyard(PortGraveyard packet)
+    {
+        if (packet == null || _session.Player.IsAlive || !_session.Player.HasPlayerFlag(PlayerFlags.Ghost))
+            return;
+
+        _session.Player.RepopAtGraveyard();
+    }
+
+    [WorldPacketHandler(ClientOpcodes.QuickJoinAutoAcceptRequests)]
+    private void HandleQuickJoinAutoAcceptRequests(QuickJoinAutoAcceptRequest packet)
+    {
+        _session.Player.AutoAcceptQuickJoin = packet.AutoAccept;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.GenerateRandomCharacterName, Status = SessionStatus.Authed)]
+    private void HandleRandomizeCharName(GenerateRandomCharacterName packet)
+    {
+        if (!_playerComputators.IsValidRace((Race)packet.Race))
+        {
+            Log.Logger.Error("Invalid race ({0}) sent by accountId: {1}", packet.Race, _session.AccountId);
+
+            return;
+        }
+
+        if (!_playerComputators.IsValidGender((Gender)packet.Sex))
+        {
+            Log.Logger.Error("Invalid gender ({0}) sent by accountId: {1}", packet.Sex, _session.AccountId);
+
+            return;
+        }
+
+        GenerateRandomCharacterNameResult result = new()
+        {
+            Success = true,
+            Name = _dB2Manager.GetNameGenEntry(packet.Race, packet.Sex)
+        };
+
+        _session.SendPacket(result);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ReclaimCorpse)]
+    private void HandleReclaimCorpse(ReclaimCorpse packet)
+    {
+        if (_session.Player.IsAlive || packet == null)
+            return;
+
+        // do not allow corpse reclaim in arena
+        if (_session.Player.InArena)
+            return;
+
+        // body not released yet
+        if (!_session.Player.HasPlayerFlag(PlayerFlags.Ghost))
+            return;
+
+        if (_session.Player.Corpse == null)
+            return;
+
+        // prevent resurrect before 30-sec delay after body release not finished
+        if ((_session.Player.Corpse.GhostTime + _session.Player.GetCorpseReclaimDelay(_session.Player.Corpse.CorpseType == CorpseType.ResurrectablePVP)) > GameTime.CurrentTime)
+            return;
+
+        if (!_session.Player.Corpse.Location.IsWithinDistInMap(_session.Player, 39))
+            return;
+
+        // resurrect
+        _session.Player.ResurrectPlayer(_session.Player.InBattleground ? 1.0f : 0.5f);
+
+        // spawn bones
+        _session.Player.SpawnCorpseBones();
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ReorderCharacters, Status = SessionStatus.Authed)]
+    private void HandleReorderCharacters(ReorderCharacters reorderChars)
+    {
+        SQLTransaction trans = new();
+
+        foreach (var reorderInfo in reorderChars.Entries)
+        {
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_LIST_SLOT);
+            stmt.AddValue(0, reorderInfo.NewPosition);
+            stmt.AddValue(1, reorderInfo.PlayerGUID.Counter);
+            stmt.AddValue(2, _session.AccountId);
+            trans.Append(stmt);
+        }
+
+        _characterDatabase.CommitTransaction(trans);
+    }
+
     [WorldPacketHandler(ClientOpcodes.RepopRequest)]
     private void HandleRepopRequest(RepopRequest packet)
     {
@@ -2272,15 +2123,6 @@ public class CharacterHandler : IWorldSessionHandler
         //this is spirit release confirm?
         _session.Player.RemovePet(null, PetSaveMode.NotInSlot, true);
         _session.Player.BuildPlayerRepop();
-        _session.Player.RepopAtGraveyard();
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ClientPortGraveyard)]
-    private void HandlePortGraveyard(PortGraveyard packet)
-    {
-        if (packet == null || _session.Player.IsAlive || !_session.Player.HasPlayerFlag(PlayerFlags.Ghost))
-            return;
-
         _session.Player.RepopAtGraveyard();
     }
 
@@ -2326,35 +2168,13 @@ public class CharacterHandler : IWorldSessionHandler
         _session.SendPacket(packet);
     }
 
-    [WorldPacketHandler(ClientOpcodes.ReclaimCorpse)]
-    private void HandleReclaimCorpse(ReclaimCorpse packet)
+    [WorldPacketHandler(ClientOpcodes.RequestForcedReactions)]
+    private void HandleRequestForcedReactions(RequestForcedReactions requestForcedReactions)
     {
-        if (_session.Player.IsAlive || packet == null)
+        if (requestForcedReactions == null)
             return;
 
-        // do not allow corpse reclaim in arena
-        if (_session.Player.InArena)
-            return;
-
-        // body not released yet
-        if (!_session.Player.HasPlayerFlag(PlayerFlags.Ghost))
-            return;
-        
-        if (_session.Player.Corpse == null)
-            return;
-
-        // prevent resurrect before 30-sec delay after body release not finished
-        if ((_session.Player.Corpse.GhostTime + _session.Player.GetCorpseReclaimDelay(_session.Player.Corpse.CorpseType == CorpseType.ResurrectablePVP)) > GameTime.CurrentTime)
-            return;
-
-        if (!_session.Player.Corpse.Location.IsWithinDistInMap(_session.Player, 39))
-            return;
-
-        // resurrect
-        _session.Player.ResurrectPlayer(_session.Player.InBattleground ? 1.0f : 0.5f);
-
-        // spawn bones
-        _session.Player.SpawnCorpseBones();
+        _session.Player.ReputationMgr.SendForceReactions();
     }
 
     [WorldPacketHandler(ClientOpcodes.ResurrectResponse)]
@@ -2389,6 +2209,88 @@ public class CharacterHandler : IWorldSessionHandler
         _session.Player.ResurrectUsingRequestData();
     }
 
+    [WorldPacketHandler(ClientOpcodes.SetFactionAtWar)]
+    private void HandleSetFactionAtWar(SetFactionAtWar packet)
+    {
+        _session.Player.ReputationMgr.SetAtWar(packet.FactionIndex, true);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetFactionInactive)]
+    private void HandleSetFactionInactive(SetFactionInactive packet)
+    {
+        _session.Player.ReputationMgr.SetInactive(packet.Index, packet.State);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetFactionNotAtWar)]
+    private void HandleSetFactionNotAtWar(SetFactionNotAtWar packet)
+    {
+        _session.Player.ReputationMgr.SetAtWar(packet.FactionIndex, false);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetPlayerDeclinedNames, Status = SessionStatus.Authed)]
+    private void HandleSetPlayerDeclinedNames(SetPlayerDeclinedNames packet)
+    {
+        // not accept declined names for unsupported languages
+        if (!_characterCache.GetCharacterNameByGuid(packet.Player, out var name))
+        {
+            SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
+
+            return;
+        }
+
+        if (!char.IsLetter(name[0])) // name already stored as only single alphabet using
+        {
+            SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
+
+            return;
+        }
+
+        for (var i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
+        {
+            var declinedName = packet.DeclinedNames.Name[i];
+
+            if (!_objectManager.NormalizePlayerName(ref declinedName))
+            {
+                SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
+
+                return;
+            }
+
+            packet.DeclinedNames.Name[i] = declinedName;
+        }
+
+        for (var i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
+        {
+            var declinedName = packet.DeclinedNames.Name[i];
+            CharacterDatabase.EscapeString(ref declinedName);
+            packet.DeclinedNames.Name[i] = declinedName;
+        }
+
+        SQLTransaction trans = new();
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
+        stmt.AddValue(0, packet.Player.Counter);
+        trans.Append(stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_DECLINED_NAME);
+        stmt.AddValue(0, packet.Player.Counter);
+
+        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
+            stmt.AddValue(i + 1, packet.DeclinedNames.Name[i]);
+
+        trans.Append(stmt);
+
+        _characterDatabase.CommitTransaction(trans);
+
+        SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Success, packet.Player);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetWatchedFaction)]
+    private void HandleSetWatchedFaction(SetWatchedFaction packet)
+    {
+        _session.Player.SetWatchedFactionIndex(packet.FactionIndex);
+    }
+
     [WorldPacketHandler(ClientOpcodes.StandStateChange)]
     private void HandleStandStateChange(StandStateChange packet)
     {
@@ -2399,6 +2301,7 @@ public class CharacterHandler : IWorldSessionHandler
             case UnitStandStateType.Sleep:
             case UnitStandStateType.Kneel:
                 break;
+
             default:
                 return;
         }
@@ -2406,16 +2309,126 @@ public class CharacterHandler : IWorldSessionHandler
         _session.Player.SetStandState(packet.StandState);
     }
 
-    [WorldPacketHandler(ClientOpcodes.QuickJoinAutoAcceptRequests)]
-    private void HandleQuickJoinAutoAcceptRequests(QuickJoinAutoAcceptRequest packet)
+    [WorldPacketHandler(ClientOpcodes.Tutorial)]
+    private void HandleTutorialFlag(TutorialSetFlag packet)
     {
-        _session.Player.AutoAcceptQuickJoin = packet.AutoAccept;
+        switch (packet.Action)
+        {
+            case TutorialAction.Update:
+            {
+                var index = (byte)(packet.TutorialBit >> 5);
+
+                if (index >= SharedConst.MaxAccountTutorialValues)
+                {
+                    Log.Logger.Error("CMSG_TUTORIAL_FLAG received bad TutorialBit {0}.", packet.TutorialBit);
+
+                    return;
+                }
+
+                var flag = _session.GetTutorialInt(index);
+                flag |= (uint)(1 << (int)(packet.TutorialBit & 0x1F));
+                _session.SetTutorialInt(index, flag);
+
+                break;
+            }
+            case TutorialAction.Clear:
+                for (byte i = 0; i < SharedConst.MaxAccountTutorialValues; ++i)
+                    _session.SetTutorialInt(i, 0xFFFFFFFF);
+
+                break;
+
+            case TutorialAction.Reset:
+                for (byte i = 0; i < SharedConst.MaxAccountTutorialValues; ++i)
+                    _session.SetTutorialInt(i, 0x00000000);
+
+                break;
+
+            default:
+                Log.Logger.Error("CMSG_TUTORIAL_FLAG received unknown TutorialAction {0}.", packet.Action);
+
+                return;
+        }
     }
 
-    [WorldPacketHandler(ClientOpcodes.OverrideScreenFlash)]
-    private void HandleOverrideScreenFlash(OverrideScreenFlash packet)
+    private void HandleUndeleteCooldownStatusCallback(SQLResult result)
     {
-        _session.Player.OverrideScreenFlash = packet.ScreenFlashEnabled;
+        uint cooldown = 0;
+        var maxCooldown = _configuration.GetDefaultValue("FeatureSystem:CharacterUndelete:Cooldown", 2592000u);
+
+        if (!result.IsEmpty())
+        {
+            var lastUndelete = result.Read<uint>(0);
+            var now = (uint)GameTime.CurrentTime;
+
+            if (lastUndelete + maxCooldown > now)
+                cooldown = Math.Max(0, lastUndelete + maxCooldown - now);
+        }
+
+        SendUndeleteCooldownStatusResponse(cooldown, maxCooldown);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.UseEquipmentSet, Processing = PacketProcessing.Inplace)]
+    private void HandleUseEquipmentSet(UseEquipmentSet useEquipmentSet)
+    {
+        ObjectGuid ignoredItemGuid = new(0x0C00040000000000, 0xFFFFFFFFFFFFFFFF);
+
+        for (byte i = 0; i < EquipmentSlot.End; ++i)
+        {
+            Log.Logger.Debug("{0}: ContainerSlot: {1}, Slot: {2}", useEquipmentSet.Items[i].Item.ToString(), useEquipmentSet.Items[i].ContainerSlot, useEquipmentSet.Items[i].Slot);
+
+            // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
+            if (useEquipmentSet.Items[i].Item == ignoredItemGuid)
+                continue;
+
+            // Only equip weapons in combat
+            if (_session.Player.IsInCombat && i != EquipmentSlot.MainHand && i != EquipmentSlot.OffHand)
+                continue;
+
+            var item = _session.Player.GetItemByGuid(useEquipmentSet.Items[i].Item);
+
+            var dstPos = (ushort)(i | (InventorySlots.Bag0 << 8));
+
+            if (item == null)
+            {
+                var uItem = _session.Player.GetItemByPos(InventorySlots.Bag0, i);
+
+                if (uItem == null)
+                    continue;
+
+                List<ItemPosCount> itemPosCount = new();
+                var inventoryResult = _session.Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, itemPosCount, uItem);
+
+                if (inventoryResult == InventoryResult.Ok)
+                {
+                    if (_session.Player.CanUnequipItem(dstPos, true) != InventoryResult.Ok)
+                        continue;
+
+                    _session.Player.RemoveItem(InventorySlots.Bag0, i, true);
+                    _session.Player.StoreItem(itemPosCount, uItem, true);
+                }
+                else
+                {
+                    _session.Player.SendEquipError(inventoryResult, uItem);
+                }
+
+                continue;
+            }
+
+            if (item.Pos == dstPos)
+                continue;
+
+            if (_session.Player.CanEquipItem(i, out dstPos, item, true) != InventoryResult.Ok)
+                continue;
+
+            _session.Player.SwapItem(item.Pos, dstPos);
+        }
+
+        UseEquipmentSetResult result = new()
+        {
+            GUID = useEquipmentSet.GUID,
+            Reason = 0 // 4 - equipment swap failed - inventory is full
+        };
+        _session.SendPacket(result);
     }
 
     private void SendCharCreate(ResponseCodes result, ObjectGuid guid = default)
@@ -2427,30 +2440,6 @@ public class CharacterHandler : IWorldSessionHandler
         };
 
         _session.SendPacket(response);
-    }
-
-    private void SendCharDelete(ResponseCodes result)
-    {
-        DeleteChar response = new()
-        {
-            Code = result
-        };
-
-        _session.SendPacket(response);
-    }
-
-    private void SendCharRename(ResponseCodes result, CharacterRenameInfo renameInfo)
-    {
-        CharacterRenameResult packet = new()
-        {
-            Result = result,
-            Name = renameInfo.NewName
-        };
-
-        if (result == ResponseCodes.Success)
-            packet.Guid = renameInfo.Guid;
-
-        _session.SendPacket(packet);
     }
 
     private void SendCharCustomize(ResponseCodes result, CharCustomizeInfo customizeInfo)
@@ -2469,6 +2458,16 @@ public class CharacterHandler : IWorldSessionHandler
             };
             _session.SendPacket(failed);
         }
+    }
+
+    private void SendCharDelete(ResponseCodes result)
+    {
+        DeleteChar response = new()
+        {
+            Code = result
+        };
+
+        _session.SendPacket(response);
     }
 
     private void SendCharFactionChange(ResponseCodes result, CharRaceOrFactionChangeInfo factionChangeInfo)
@@ -2493,6 +2492,20 @@ public class CharacterHandler : IWorldSessionHandler
         _session.SendPacket(packet);
     }
 
+    private void SendCharRename(ResponseCodes result, CharacterRenameInfo renameInfo)
+    {
+        CharacterRenameResult packet = new()
+        {
+            Result = result,
+            Name = renameInfo.NewName
+        };
+
+        if (result == ResponseCodes.Success)
+            packet.Guid = renameInfo.Guid;
+
+        _session.SendPacket(packet);
+    }
+
     private void SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid)
     {
         SetPlayerDeclinedNamesResult packet = new()
@@ -2504,6 +2517,17 @@ public class CharacterHandler : IWorldSessionHandler
         _session.SendPacket(packet);
     }
 
+    private void SendUndeleteCharacterResponse(CharacterUndeleteResult result, CharacterUndeleteInfo undeleteInfo)
+    {
+        UndeleteCharacterResponse response = new()
+        {
+            UndeleteInfo = undeleteInfo,
+            Result = result
+        };
+
+        _session.SendPacket(response);
+    }
+
     private void SendUndeleteCooldownStatusResponse(uint currentCooldown, uint maxCooldown)
     {
         UndeleteCooldownStatusResponse response = new()
@@ -2511,17 +2535,6 @@ public class CharacterHandler : IWorldSessionHandler
             OnCooldown = (currentCooldown > 0),
             MaxCooldown = maxCooldown,
             CurrentCooldown = currentCooldown
-        };
-
-        _session.SendPacket(response);
-    }
-
-    private void SendUndeleteCharacterResponse(CharacterUndeleteResult result, CharacterUndeleteInfo undeleteInfo)
-    {
-        UndeleteCharacterResponse response = new()
-        {
-            UndeleteInfo = undeleteInfo,
-            Result = result
         };
 
         _session.SendPacket(response);
@@ -2541,6 +2554,11 @@ public class LoginQueryHolder : SQLQueryHolder<PlayerLoginQueryLoad>
         _guid = guid;
         _characterDatabase = characterDatabase;
         _configuration = worldConfig;
+    }
+
+    public ObjectGuid GetGuid()
+    {
+        return _guid;
     }
 
     public void Initialize()
@@ -2803,11 +2821,6 @@ public class LoginQueryHolder : SQLQueryHolder<PlayerLoginQueryLoad>
         SetQuery(PlayerLoginQueryLoad.TraitConfigs, stmt);
     }
 
-    public ObjectGuid GetGuid()
-    {
-        return _guid;
-    }
-
     private uint GetAccountId()
     {
         return _accountId;
@@ -2824,32 +2837,32 @@ internal class EnumCharactersQueryHolder : SQLQueryHolder<EnumCharacterQueryLoad
         _characterDatabase = characterDatabase;
     }
 
-    public bool Initialize(uint accountId, bool withDeclinedNames, bool isDeletedCharacters)
-	{
-		_isDeletedCharacters = isDeletedCharacters;
-
-		CharStatements[][] statements =
-		{
-			new[]
-			{
-				CharStatements.SEL_ENUM, CharStatements.SEL_ENUM_DECLINED_NAME, CharStatements.SEL_ENUM_CUSTOMIZATIONS
-			},
-			new[]
-			{
-				CharStatements.SEL_UNDELETE_ENUM, CharStatements.SEL_UNDELETE_ENUM_DECLINED_NAME, CharStatements.SEL_UNDELETE_ENUM_CUSTOMIZATIONS
-			}
-		};
-		
-		var stmt = _characterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][withDeclinedNames ? 1 : 0]);
-		stmt.AddValue(0, accountId);
-		SetQuery(EnumCharacterQueryLoad.Characters, stmt);
-
-		stmt = _characterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][2]);
-		stmt.AddValue(0, accountId);
-		SetQuery(EnumCharacterQueryLoad.Customizations, stmt);
-
-		return true;
-	}
-
     public bool IsDeletedCharacters => _isDeletedCharacters;
+
+    public bool Initialize(uint accountId, bool withDeclinedNames, bool isDeletedCharacters)
+    {
+        _isDeletedCharacters = isDeletedCharacters;
+
+        CharStatements[][] statements =
+        {
+            new[]
+            {
+                CharStatements.SEL_ENUM, CharStatements.SEL_ENUM_DECLINED_NAME, CharStatements.SEL_ENUM_CUSTOMIZATIONS
+            },
+            new[]
+            {
+                CharStatements.SEL_UNDELETE_ENUM, CharStatements.SEL_UNDELETE_ENUM_DECLINED_NAME, CharStatements.SEL_UNDELETE_ENUM_CUSTOMIZATIONS
+            }
+        };
+
+        var stmt = _characterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][withDeclinedNames ? 1 : 0]);
+        stmt.AddValue(0, accountId);
+        SetQuery(EnumCharacterQueryLoad.Characters, stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][2]);
+        stmt.AddValue(0, accountId);
+        SetQuery(EnumCharacterQueryLoad.Customizations, stmt);
+
+        return true;
+    }
 }
