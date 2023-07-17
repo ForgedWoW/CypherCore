@@ -590,4 +590,6 @@ void RegisterOpCodeHandlers()
     builder.RegisterType<TicketHandler>();
     builder.RegisterType<SocialHandler>();
     builder.RegisterType<ScenarioHandler>();
+    builder.RegisterType<QueryHandler>();
+    builder.RegisterType<PetitionsHandler>();
 }
