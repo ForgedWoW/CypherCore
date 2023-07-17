@@ -11,23 +11,30 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class CollectionsHandler : IWorldSessionHandler
 {
+    private readonly CollectionMgr _collectionMgr;
+
+    public CollectionsHandler(CollectionMgr collectionMgr)
+    {
+		_collectionMgr = collectionMgr;
+    }
+
 	[WorldPacketHandler(ClientOpcodes.CollectionItemSetFavorite)]
 	void HandleCollectionItemSetFavorite(CollectionItemSetFavorite collectionItemSetFavorite)
 	{
 		switch (collectionItemSetFavorite.Type)
 		{
 			case CollectionType.Toybox:
-				CollectionMgr.ToySetFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
+                _collectionMgr.ToySetFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
 
 				break;
 			case CollectionType.Appearance:
 			{
-				var pair = CollectionMgr.HasItemAppearance(collectionItemSetFavorite.Id);
+				var pair = _collectionMgr.HasItemAppearance(collectionItemSetFavorite.Id);
 
 				if (!pair.Item1 || pair.Item2)
 					return;
 
-				CollectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
+                _collectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
 
 				break;
 			}
