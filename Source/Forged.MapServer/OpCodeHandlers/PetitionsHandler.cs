@@ -35,10 +35,16 @@ public class PetitionsHandler : IWorldSessionHandler
 	private readonly CharacterCache _characterCache;
 	private readonly ObjectAccessor _objectAccessor;
 	private readonly CharacterDatabase _characterDatabase;
+    private readonly CliDB _cliDb;
+    private readonly PlayerComputators _playerComputators;
+    private readonly ScriptManager _scriptManager;
+    private readonly CalendarManager _calendarManager;
+    private readonly CriteriaManager _criteriaManager;
 
     public PetitionsHandler(ClassFactory classFactory, WorldSession worldSession, PetitionManager petitionManager,
         IConfiguration config, GuildManager guildManager, GameObjectManager gameObjectManager, CharacterCache characterCache,
-        ObjectAccessor objectAccessor, CharacterDatabase characterDatabase)
+        ObjectAccessor objectAccessor, CharacterDatabase characterDatabase, CliDB cliDb, PlayerComputators playerComputators,
+        ScriptManager scriptManager, CalendarManager calendarManager, CriteriaManager criteriaManager)
     {
 		_classFactory = classFactory;
 		_session = worldSession;
@@ -49,6 +55,11 @@ public class PetitionsHandler : IWorldSessionHandler
 		_characterCache = characterCache;
 		_objectAccessor = objectAccessor;
 		_characterDatabase = characterDatabase;
+		_cliDb = cliDb;
+		_playerComputators = playerComputators;
+		_scriptManager = scriptManager;
+		_calendarManager = calendarManager;
+		_criteriaManager = criteriaManager;
     }
 
     public void SendPetitionQuery(ObjectGuid petitionGuid)
@@ -486,9 +497,18 @@ public class PetitionsHandler : IWorldSessionHandler
 		_session.Player.DestroyItem(item.BagSlot, item.Slot, true);
 
 		// Create guild
-		Guild guild = new(_characterDatabase, _objectAccessor, _characterCache, _config, _classFactory.Resolve<CliDB>(), _classFactory,
-            _classFactory.Resolve<PlayerComputators>(), _classFactory.Resolve<ScriptManager>(), _guildManager, _classFactory.Resolve<CalendarManager>(),
-            _classFactory.Resolve<CriteriaManager>(), _gameObjectManager);
+		Guild guild = new(_characterDatabase, 
+                            _objectAccessor, 
+                            _characterCache, 
+                            _config, 
+                            _cliDb, 
+                            _classFactory,
+                            _playerComputators, 
+                            _scriptManager, 
+                            _guildManager, 
+                            _calendarManager,
+                            _criteriaManager, 
+                            _gameObjectManager);
 
 		if (!guild.Create(_session.Player, name))
 			return;
