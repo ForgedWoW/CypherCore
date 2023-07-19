@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
@@ -17,8 +15,10 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.MapWeather;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
 using Forged.MapServer.World;
@@ -26,7 +26,8 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Framework.Util;
-using Forged.MapServer.MapWeather;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -48,7 +49,7 @@ internal class MiscCommands
             return false;
         }
 
-        if (target)
+        if (target != null)
         {
             // check online security
             if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
@@ -85,7 +86,7 @@ internal class MiscCommands
                 // we have to go to instance, and can go to player only if:
                 //   1) we are in his group (either as leader or as member)
                 //   2) we are not bound to any group and have GM mode on
-                if (player.Group)
+                if (player.Group != null)
                 {
                     // we are in group, we can go only if we are in the player group
                     if (player.Group != target.Group)
@@ -128,7 +129,7 @@ internal class MiscCommands
             target.Location.GetClosePoint(pos, player.CombatReach, 1.0f);
             pos.Orientation = player.Location.GetAbsoluteAngle(target.Location);
             player.TeleportTo(target.Location.MapId, pos, TeleportToOptions.GMMode, target.InstanceId);
-            PhasingHandler.InheritPhaseShift(player, target);
+            player.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(player, target);
             player.UpdateObjectVisibility();
         }
         else
@@ -161,7 +162,7 @@ internal class MiscCommands
     [CommandNonGroup("bank", RBACPermissions.CommandBank)]
     private static bool HandleBankCommand(CommandHandler handler)
     {
-        handler.Session.SendShowBank(handler.Session.Player.GUID);
+        handler.Session.PacketRouter.OpCodeHandler<BankHandler>().SendShowBank(handler.Session.Player.GUID);
 
         return true;
     }
@@ -171,7 +172,7 @@ internal class MiscCommands
     {
         var unit = handler.SelectedUnit;
 
-        if (!unit)
+        if (unit == null)
             return false;
 
         handler.Session.Player.SpellFactory.CastSpell(unit, 6277, true);
@@ -216,7 +217,7 @@ internal class MiscCommands
         {
             target = handler.ObjectAccessor.FindPlayerByName(args.NextString());
 
-            if (!target)
+            if (target == null)
             {
                 handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -224,7 +225,7 @@ internal class MiscCommands
             }
         }
 
-        if (!target)
+        if (target == null)
             if (!handler.ExtractPlayerTarget(args, out target))
                 return false;
 
@@ -242,7 +243,7 @@ internal class MiscCommands
     {
         var caster = handler.SelectedCreature;
 
-        if (!caster)
+        if (caster == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -297,7 +298,7 @@ internal class MiscCommands
 
             var go = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-            if (!go)
+            if (go == null)
             {
                 handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
 
@@ -319,7 +320,7 @@ internal class MiscCommands
 
         var target = handler.SelectedUnit;
 
-        if (!target || handler.Session.Player.Target.IsEmpty)
+        if (target == null || handler.Session.Player.Target.IsEmpty)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -328,7 +329,7 @@ internal class MiscCommands
 
         var player = target.AsPlayer;
 
-        if (player)
+        if (player != null)
             if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
                 return false;
 
@@ -405,7 +406,14 @@ internal class MiscCommands
             Damage = damage
         };
 
-        handler.ClassFactory.Resolve<UnitCombatHelpers>().DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+        double tmpDamage = damageInfo.Damage;
+        double tmpAbsorb = damageInfo.Absorb;
+
+        handler.ClassFactory.Resolve<UnitCombatHelpers>().DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref tmpDamage, ref tmpAbsorb);
+
+        damageInfo.Damage = tmpDamage;
+        damageInfo.Absorb = tmpAbsorb;
+
         target.DealSpellDamage(damageInfo, true);
         target.SendSpellNonMeleeDamageLog(damageInfo);
 
@@ -443,7 +451,7 @@ internal class MiscCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target && handler.Player.Target.IsEmpty)
+        if (target == null && handler.Player.Target.IsEmpty)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -452,7 +460,7 @@ internal class MiscCommands
 
         var player = target.AsPlayer;
 
-        if (player)
+        if (player != null)
             if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
                 return false;
 
@@ -523,7 +531,7 @@ internal class MiscCommands
                     // case 3 or 4: .freeze player duration | .freeze player
                     // find the player
                     var name = arg1;
-                    GameObjectManager.NormalizePlayerName(ref name);
+                    player.ClassFactory.Resolve<GameObjectManager>().NormalizePlayerName(ref name);
                     player = handler.ObjectAccessor.FindPlayerByName(name);
 
                     // Check if we have duration set
@@ -551,7 +559,7 @@ internal class MiscCommands
         if (!canApplyFreeze)
             return false;
 
-        if (!player) // can be null if some previous selection failed
+        if (player == null) // can be null if some previous selection failed
         {
             handler.SendSysMessage(CypherStrings.CommandFreezeWrong);
 
@@ -606,7 +614,7 @@ internal class MiscCommands
                 {
                     obj = handler.ObjectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
 
-                    if (!obj)
+                    if (obj == null)
                         handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
                     break;
@@ -615,7 +623,7 @@ internal class MiscCommands
                 {
                     obj = handler.GetCreatureFromPlayerMapByDbGuid(guidLow);
 
-                    if (!obj)
+                    if (obj == null)
                         handler.SendSysMessage(CypherStrings.CommandNocreaturefound);
 
                     break;
@@ -624,7 +632,7 @@ internal class MiscCommands
                 {
                     obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-                    if (!obj)
+                    if (obj == null)
                         handler.SendSysMessage(CypherStrings.CommandNogameobjectfound);
 
                     break;
@@ -633,14 +641,14 @@ internal class MiscCommands
                     return false;
             }
 
-            if (!obj)
+            if (obj == null)
                 return false;
         }
         else
         {
             obj = handler.SelectedUnit;
 
-            if (!obj)
+            if (obj == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -672,7 +680,7 @@ internal class MiscCommands
                 {
                     obj = handler.ObjectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
 
-                    if (!obj)
+                    if (obj == null)
                         handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
                     break;
@@ -681,7 +689,7 @@ internal class MiscCommands
                 {
                     obj = handler.GetCreatureFromPlayerMapByDbGuid(guidLow);
 
-                    if (!obj)
+                    if (obj == null)
                         handler.SendSysMessage(CypherStrings.CommandNocreaturefound);
 
                     break;
@@ -690,7 +698,7 @@ internal class MiscCommands
                 {
                     obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-                    if (!obj)
+                    if (obj == null)
                         handler.SendSysMessage(CypherStrings.CommandNogameobjectfound);
 
                     break;
@@ -699,23 +707,24 @@ internal class MiscCommands
                     return false;
             }
 
-            if (!obj)
+            if (obj == null)
                 return false;
         }
         else
         {
             obj = handler.SelectedUnit;
 
-            if (!obj)
+            if (obj == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
                 return false;
             }
         }
-
-        var cellCoord = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
-        Cell cell = new(cellCoord);
+        
+        GridDefines gridDefines = handler.Player.ClassFactory.Resolve<GridDefines>();
+        var cellCoord = gridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
+        Cell cell = new(cellCoord, gridDefines);
 
         var mapId = obj.Location.MapId;
 
@@ -732,7 +741,7 @@ internal class MiscCommands
         var groundZ = obj.Location.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
         var floorZ = obj.Location.GetMapHeight(obj.Location.X, obj.Location.Y, obj.Location.Z);
 
-        var gridCoord = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
+        var gridCoord = gridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
 
         // 63? WHY?
         var gridX = (int)(MapConst.MaxGrids - 1 - gridCoord.X);
@@ -798,7 +807,7 @@ internal class MiscCommands
         if (liquidStatus != null)
             handler.SendSysMessage(CypherStrings.LiquidStatus, liquidStatus.Level, liquidStatus.DepthLevel, liquidStatus.Entry, liquidStatus.TypeFlags, status);
 
-        PhasingHandler.PrintToChat(handler, obj);
+        handler.Player.ClassFactory.Resolve<PhasingHandler>().PrintToChat(handler, obj);
 
         return true;
     }
@@ -836,7 +845,7 @@ internal class MiscCommands
     {
         var playerTarget = handler.SelectedPlayer;
 
-        if (!playerTarget)
+        if (playerTarget == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -997,7 +1006,7 @@ internal class MiscCommands
             // before the frozen state expires
             var frozen = handler.ObjectAccessor.FindPlayerByName(player);
 
-            if (frozen)
+            if (frozen != null)
                 frozen.SaveToDB();
 
             // Notify the freeze duration
@@ -1016,7 +1025,7 @@ internal class MiscCommands
     {
         var player = handler.Session.Player;
 
-        handler.Session.SendShowMailBox(player.GUID);
+        handler.Session.PacketRouter.OpCodeHandler<MailHandler>().SendShowMailBox(player.GUID);
 
         return true;
     }
@@ -1026,7 +1035,7 @@ internal class MiscCommands
     {
         var unit = handler.SelectedUnit;
 
-        if (!unit)
+        if (unit == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -1157,7 +1166,7 @@ internal class MiscCommands
         var accountId = target != null ? target.Session.AccountId : handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(player.GetGUID());
 
         // find only player from same account if any
-        if (!target)
+        if (target == null)
         {
             var session = handler.WorldManager.FindSession(accountId);
 
@@ -1178,7 +1187,7 @@ internal class MiscCommands
         else
             muteBy = handler.GetCypherString(CypherStrings.Console);
 
-        if (target)
+        if (target != null)
         {
             // Target is online, mute will be in effect right away.
             var mutedUntil = GameTime.CurrentTime + muteTime * Time.MINUTE;
@@ -1205,7 +1214,7 @@ internal class MiscCommands
         if (handler.Configuration.GetDefaultValue("ShowMuteInWorld", false))
             handler.WorldManager.SendWorldText(CypherStrings.CommandMutemessageWorld, muteBy, nameLink, muteTime, muteReasonStr);
 
-        if (target)
+        if (target != null)
         {
             target.SendSysMessage(CypherStrings.YourChatDisabled, muteTime, muteBy, muteReasonStr);
             handler.SendSysMessage(CypherStrings.YouDisableChat, nameLink, muteTime, muteReasonStr);
@@ -1425,7 +1434,7 @@ internal class MiscCommands
 
         // Mail data print is only defined if you have a mail
 
-        if (target)
+        if (target != null)
         {
             // check online security
             if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
@@ -1490,7 +1499,7 @@ internal class MiscCommands
 
             // Only fetch these fields if commander has sufficient rights)
             if (handler.HasPermission(RBACPermissions.CommandsPinfoCheckPersonalData) && // RBAC Perm. 48, Role 39
-                (!handler.Session || handler.Session.Security >= (AccountTypes)security))
+                (handler.Session == null || handler.Session.Security >= (AccountTypes)security))
             {
                 eMail = result0.Read<string>(2);
                 regMail = result0.Read<string>(3);
@@ -1571,10 +1580,10 @@ internal class MiscCommands
 
         // Initiate output
         // Output I. LANG_PINFO_PLAYER
-        handler.SendSysMessage(CypherStrings.PinfoPlayer, target ? "" : handler.GetCypherString(CypherStrings.Offline), nameLink, targetGuid.ToString());
+        handler.SendSysMessage(CypherStrings.PinfoPlayer, target != null ? "" : handler.GetCypherString(CypherStrings.Offline), nameLink, targetGuid.ToString());
 
         // Output II. LANG_PINFO_GM_ACTIVE if character is gamemaster
-        if (target && target.IsGameMaster)
+        if (target != null && target.IsGameMaster)
             handler.SendSysMessage(CypherStrings.PinfoGmActive);
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
@@ -1616,8 +1625,8 @@ internal class MiscCommands
         handler.SendSysMessage(CypherStrings.PinfoChrAlive, alive);
 
         // Output XIII. phases
-        if (target)
-            PhasingHandler.PrintToChat(handler, target);
+        if (target != null)
+            handler.Player.ClassFactory.Resolve<PhasingHandler>().PrintToChat(handler, target);
 
         // Output XIV. LANG_PINFO_CHR_MONEY
         var gold = money / MoneyConstants.Gold;
@@ -1707,7 +1716,7 @@ internal class MiscCommands
     {
         var unit = handler.SelectedUnit;
 
-        if (!unit)
+        if (unit == null)
             return false;
 
         handler.Session.Player.SpellFactory.CastSpell(unit, 530, true);
@@ -1798,7 +1807,7 @@ internal class MiscCommands
         // accept only explicitly selected target (not implicitly self targeting case)
         var target = !player.Target.IsEmpty ? handler.SelectedCreature : null;
 
-        if (target)
+        if (target != null)
         {
             if (target.IsPet)
             {
@@ -1815,7 +1824,7 @@ internal class MiscCommands
 
         // First handle any creatures that still have a corpse around
         var worker = new WorldObjectWorker(player, new RespawnDo());
-        CellCalculator.VisitGrid(player, worker, player.GridActivationRange);
+        player.ClassFactory.Resolve<CellCalculator>().VisitGrid(player, worker, player.GridActivationRange);
 
         // Now handle any that had despawned, but had respawn time logged.
         List<RespawnInfo> data = new();
@@ -1823,7 +1832,7 @@ internal class MiscCommands
 
         if (!data.Empty())
         {
-            var gridId = GridDefines.ComputeGridCoord(player.Location.X, player.Location.Y).GetId();
+            var gridId = player.ClassFactory.Resolve<GridDefines>().ComputeGridCoord(player.Location.X, player.Location.Y).GetId();
 
             foreach (var info in data)
                 if (info.GridId == gridId)
@@ -1871,7 +1880,7 @@ internal class MiscCommands
         {
             var target = handler.SelectedPlayer;
 
-            if (target)
+            if (target != null)
                 target.SaveToDB();
             else
                 player.SaveToDB();
@@ -1895,7 +1904,7 @@ internal class MiscCommands
     {
         var playerTarget = handler.SelectedPlayer;
 
-        if (!playerTarget)
+        if (playerTarget == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -1949,7 +1958,7 @@ internal class MiscCommands
             return false;
         }
 
-        if (target)
+        if (target != null)
         {
             var nameLink = handler.PlayerLink(targetName);
 
@@ -2032,7 +2041,7 @@ internal class MiscCommands
             player.Location.GetClosePoint(pos, target.CombatReach);
             pos.Orientation = target.Location.Orientation;
             target.TeleportTo(player.Location.MapId, pos, 0, map.InstanceId);
-            PhasingHandler.InheritPhaseShift(target, player);
+            player.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(target, player);
             target.UpdateObjectVisibility();
         }
         else
@@ -2074,18 +2083,18 @@ internal class MiscCommands
         if (!targetNameArg.IsEmpty())
         {
             name = targetNameArg;
-            GameObjectManager.NormalizePlayerName(ref name);
+            handler.Player.ClassFactory.Resolve<GameObjectManager>().NormalizePlayerName(ref name);
             player = handler.ObjectAccessor.FindPlayerByName(name);
         }
         else // If no name was entered - use target
         {
             player = handler.SelectedPlayer;
 
-            if (player)
+            if (player != null)
                 name = player.GetName();
         }
 
-        if (player)
+        if (player != null)
         {
             handler.SendSysMessage(CypherStrings.CommandUnfreeze, name);
 
@@ -2133,10 +2142,10 @@ internal class MiscCommands
         if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
             return false;
 
-        var accountId = target ? target.Session.AccountId : handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(targetGuid);
+        var accountId = target != null ? target.Session.AccountId : handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(targetGuid);
 
         // find only player from same account if any
-        if (!target)
+        if (target == null)
         {
             var session = handler.WorldManager.FindSession(accountId);
 
@@ -2148,7 +2157,7 @@ internal class MiscCommands
         if (handler.HasLowerSecurity(target, targetGuid, true))
             return false;
 
-        if (target)
+        if (target != null)
         {
             if (target.Session.CanSpeak)
             {
@@ -2167,7 +2176,7 @@ internal class MiscCommands
         stmt.AddValue(3, accountId);
         handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
 
-        if (target)
+        if (target != null)
             target.SendSysMessage(CypherStrings.YourChatEnabled);
 
         var nameLink = handler.PlayerLink(targetName);
@@ -2182,7 +2191,7 @@ internal class MiscCommands
     {
         var unit = handler.SelectedUnit;
 
-        if (!unit)
+        if (unit == null)
             unit = handler.Session.Player;
 
         unit.RemoveCharmAuras();
@@ -2202,7 +2211,7 @@ internal class MiscCommands
             // 7355: "Stuck"
             var player1 = handler.Session.Player;
 
-            if (player1)
+            if (player1 != null)
                 player1.SpellFactory.CastSpell(player1, spellUnstuckID);
 
             return true;
@@ -2220,7 +2229,7 @@ internal class MiscCommands
         if (!handler.ExtractPlayerTarget(args, out var player, out var targetGUID))
             return false;
 
-        if (!player)
+        if (player == null)
         {
             var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
             stmt.AddValue(0, targetGUID.Counter);
@@ -2245,7 +2254,7 @@ internal class MiscCommands
 
             var caster = handler.Session.Player;
 
-            if (caster)
+            if (caster != null)
             {
                 var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, spellUnstuckID, player.Location.Map.GenerateLowGuid(HighGuid.Cast));
                 Spell.SendCastResult(caster, spellInfo, new SpellCastVisual(spellUnstuckVisual, 0), castId, SpellCastResult.CantDoThatRightNow);
