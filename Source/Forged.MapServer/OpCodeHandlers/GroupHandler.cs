@@ -28,20 +28,39 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class GroupHandler : IWorldSessionHandler
 {
-    private readonly ClassFactory _classFactory;
+    private readonly WorldSession _session;
     private readonly IConfiguration _config;
     private readonly GroupManager _groupManager;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly WorldSession _session;
+    private readonly ScriptManager _scriptManager;
+    private readonly PlayerComputators _playerComputators;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CliDB _cliDb;
+    private readonly DB2Manager _db2Manager;
+    private readonly BattlegroundManager _battlegroundManager;
+    private readonly CharacterCache _characterCache;
+    private readonly LFGManager _lfgManager;
+    private readonly GameObjectManager _gameObjectManager;
 
-    public GroupHandler(ClassFactory classFactory, WorldSession session, IConfiguration config, ObjectAccessor objectAccessor,
-        GroupManager groupManager)
+    public GroupHandler(WorldSession session, IConfiguration config, GroupManager groupManager,
+        ObjectAccessor objectAccessor, ScriptManager scriptManager, PlayerComputators playerComputators,
+        CharacterDatabase characterDatabase, CliDB cliDb, DB2Manager db2Manager,
+        BattlegroundManager battlegroundManager, CharacterCache characterCache, LFGManager lfgManager,
+        GameObjectManager gameObjectManager)
     {
-        _classFactory = classFactory;
         _session = session;
         _config = config;
-        _objectAccessor = objectAccessor;
         _groupManager = groupManager;
+        _objectAccessor = objectAccessor;
+        _scriptManager = scriptManager;
+        _playerComputators = playerComputators;
+        _characterDatabase = characterDatabase;
+        _cliDb = cliDb;
+        _db2Manager = db2Manager;
+        _battlegroundManager = battlegroundManager;
+        _characterCache = characterCache;
+        _lfgManager = lfgManager;
+        _gameObjectManager = gameObjectManager;
     }
 
     public void SendPartyResult(PartyOperation operation, string member, PartyResult res, uint val = 0)
@@ -347,10 +366,17 @@ public class GroupHandler : IWorldSessionHandler
         // at least one person joins
         if (group == null)
         {
-            group = new PlayerGroup(_classFactory.Resolve<ScriptManager>(), _classFactory.Resolve<PlayerComputators>(),
-                _classFactory.Resolve<CharacterDatabase>(), _objectAccessor, _classFactory.Resolve<CliDB>(), _classFactory.Resolve<DB2Manager>(),
-                _classFactory.Resolve<BattlegroundManager>(), _classFactory.Resolve<GroupManager>(), _classFactory.Resolve<CharacterCache>(),
-                _classFactory.Resolve<LFGManager>(), _classFactory.Resolve<GameObjectManager>());
+            group = new PlayerGroup(_scriptManager, 
+                                    _playerComputators,
+                                    _characterDatabase, 
+                                    _objectAccessor, 
+                                    _cliDb, 
+                                    _db2Manager,
+                                    _battlegroundManager, 
+                                    _groupManager, 
+                                    _characterCache,
+                                    _lfgManager, 
+                                    _gameObjectManager);
 
             // new group: if can't add then delete
             if (!group.AddLeaderInvite(invitingPlayer))
