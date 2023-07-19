@@ -54,7 +54,7 @@ public class SpellWarrBloodBath : AuraScript, IHasAuraEffects
         {
             var lPeriodicDamage = lPreviousBloodBath.Amount;
             var lDuration = lTarget.GetAura(ESpells.BLOOD_BATH_DAMAGE, lCaster.GUID).Duration;
-            var lAmplitude = lPreviousBloodBath.GetSpellEffectInfo().Amplitude;
+            var lAmplitude = lPreviousBloodBath.SpellEffectInfo.Amplitude;
 
             if (lAmplitude != 0)
                 lPreviousTotalDamage = lPeriodicDamage * ((lDuration / lAmplitude) + 1);

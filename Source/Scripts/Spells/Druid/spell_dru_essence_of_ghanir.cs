@@ -29,7 +29,7 @@ public class SpellDruEssenceOfGhanir : AuraScript, IHasAuraEffects
             mod.Op = SpellModOp.PeriodicHealingAndDamage;
             mod.Type = SpellModType.Flat;
             mod.SpellId = Id;
-            mod.Mask = aurEff.GetSpellEffectInfo().SpellClassMask;
+            mod.Mask = aurEff.SpellEffectInfo.SpellClassMask;
             spellMod = mod;
         }
 

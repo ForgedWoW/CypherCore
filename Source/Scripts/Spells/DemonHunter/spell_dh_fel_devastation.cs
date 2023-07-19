@@ -26,7 +26,7 @@ public class SpellDhFelDevastation : AuraScript, IHasAuraEffects
         if (caster == null)
             return;
 
-        if (aurEff.GetTickNumber() == 1)
+        if (aurEff.TickNumber == 1)
             return;
 
         caster.SpellFactory.CastSpell(caster, DemonHunterSpells.FEL_DEVASTATION_DAMAGE, true);

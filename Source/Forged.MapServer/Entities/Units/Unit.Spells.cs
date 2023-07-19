@@ -1302,7 +1302,7 @@ public partial class Unit
     public bool HasAuraTypeWithTriggerSpell(AuraType auratype, uint triggerSpell)
     {
         foreach (var aura in GetAuraEffectsByType(auratype))
-            if (aura.GetSpellEffectInfo().TriggerSpell == triggerSpell)
+            if (aura.SpellEffectInfo.TriggerSpell == triggerSpell)
                 return true;
 
         return false;
@@ -3058,7 +3058,7 @@ public partial class Unit
             foreach (var i in mHealingDoneOfStatPercent)
             {
                 // stat used dependent from misc value (stat index)
-                var usedStat = (Stats)i.GetSpellEffectInfo().MiscValue;
+                var usedStat = (Stats)i.SpellEffectInfo.MiscValue;
                 advertisedBenefit += MathFunctions.CalculatePct(GetStat(usedStat), i.Amount);
             }
         }

@@ -220,7 +220,7 @@ public class UnitCombatHelpers
                 var manaReduction = currentAbsorb;
 
                 // lower absorb amount by talents
-                var manaMultiplier = absorbAurEff.GetSpellEffectInfo().CalcValueMultiplier(absorbAurEff.Caster);
+                var manaMultiplier = absorbAurEff.SpellEffectInfo.CalcValueMultiplier(absorbAurEff.Caster);
 
                 if (manaMultiplier != 0)
                     manaReduction = (int)(manaReduction * manaMultiplier);
@@ -989,8 +989,32 @@ public class UnitCombatHelpers
 
     public void DealDamageMods(Unit attacker, Unit victim, ref double damage)
     {
-        if (victim == null || !victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsInEvadeMode))
+        if (victim is not { IsAlive: true } || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsInEvadeMode))
             damage = 0;
+    }
+
+    public void DealDamageMods(Unit attacker, Unit victim, SpellNonMeleeDamage damageInfo)
+    {
+        var damage = damageInfo.Damage;
+        var absorb = damageInfo.Absorb;
+
+        if (!CheckEvade(attacker, victim, ref damage, ref absorb))
+            ScaleDamage(attacker, victim, ref damage);
+
+        damageInfo.Damage = damage;
+        damageInfo.Absorb = absorb;
+    }
+
+    public void DealDamageMods(Unit attacker, Unit victim, DamageInfo damageInfo)
+    {
+        var damage = damageInfo.Damage;
+        var absorb = damageInfo.Absorb;
+
+        if (!CheckEvade(attacker, victim, ref damage, ref absorb))
+            ScaleDamage(attacker, victim, ref damage);
+
+        damageInfo.Damage = damage;
+        damageInfo.Absorb = absorb;
     }
 
     public void DealDamageMods(Unit attacker, Unit victim, ref double damage, ref double absorb)

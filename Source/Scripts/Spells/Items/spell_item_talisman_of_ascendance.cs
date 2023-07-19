@@ -22,6 +22,6 @@ internal class SpellItemTalismanOfAscendance : AuraScript, IHasAuraEffects
 
     private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
     {
-        Target.RemoveAura(effect.GetSpellEffectInfo().TriggerSpell);
+        Target.RemoveAura(effect.SpellEffectInfo.TriggerSpell);
     }
 }

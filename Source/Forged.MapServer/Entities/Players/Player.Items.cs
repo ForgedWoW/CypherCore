@@ -564,7 +564,7 @@ public partial class Player
                 {
                     foreach (var auraEffect in powerAura.Base.AuraEffects)
                         if (powerAura.HasEffect(auraEffect.Value.EffIndex))
-                            auraEffect.Value.ChangeAmount((int)(artifactPowerRank.AuraPointsOverride != 0 ? artifactPowerRank.AuraPointsOverride : auraEffect.Value.GetSpellEffectInfo().CalcValue()));
+                            auraEffect.Value.ChangeAmount((int)(artifactPowerRank.AuraPointsOverride != 0 ? artifactPowerRank.AuraPointsOverride : auraEffect.Value.SpellEffectInfo.CalcValue()));
                 }
                 else
                     RemoveAura(powerAura);

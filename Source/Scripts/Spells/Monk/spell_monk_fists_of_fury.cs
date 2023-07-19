@@ -26,7 +26,7 @@ public class SpellMonkFistsOfFury : AuraScript, IHasAuraEffects
         if (caster == null)
             return;
 
-        if (aurEff.GetTickNumber() % 6 == 0)
+        if (aurEff.TickNumber % 6 == 0)
             caster.SpellFactory.CastSpell(Target, MonkSpells.FISTS_OF_FURY_DAMAGE, true);
     }
 }

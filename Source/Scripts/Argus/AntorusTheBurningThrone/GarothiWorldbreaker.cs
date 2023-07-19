@@ -585,7 +585,7 @@ internal class SpellGarothiFelBombardmentPeriodic : AuraScript, IHasAuraEffects
         var caster = Caster;
 
         if (caster)
-            caster.SpellFactory.CastSpell(Target, (uint)aurEff.GetSpellEffectInfo().CalcValue(caster), true);
+            caster.SpellFactory.CastSpell(Target, (uint)aurEff.SpellEffectInfo.CalcValue(caster), true);
     }
 }
 

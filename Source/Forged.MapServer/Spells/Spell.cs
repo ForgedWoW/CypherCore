@@ -4851,7 +4851,7 @@ public partial class Spell : IDisposable
                     foundNotMechanic = true;
 
                     // fill up aura mechanic info to send client proper error message
-                    param1 = (int)aurEff.GetSpellEffectInfo().Mechanic;
+                    param1 = (int)aurEff.SpellEffectInfo.Mechanic;
 
                     if (param1 == 0)
                         param1 = (int)aurEff.SpellInfo.Mechanic;
@@ -5827,7 +5827,7 @@ public partial class Spell : IDisposable
             if (SpellInfo.SpellCancelsAuraEffect(aurEff))
                 continue;
 
-            param1 = (int)aurEff.GetSpellEffectInfo().Mechanic;
+            param1 = (int)aurEff.SpellEffectInfo.Mechanic;
 
             if (param1 == 0)
                 param1 = (int)aurEff.SpellInfo.Mechanic;
@@ -6426,7 +6426,7 @@ public partial class Spell : IDisposable
             if (!aurEff.IsAffectingSpell(SpellInfo))
                 continue;
 
-            var spellInfo = _spellManager.GetSpellInfo(aurEff.GetSpellEffectInfo().TriggerSpell, CastDifficulty);
+            var spellInfo = _spellManager.GetSpellInfo(aurEff.SpellEffectInfo.TriggerSpell, CastDifficulty);
 
             if (spellInfo != null)
             {
@@ -6434,7 +6434,7 @@ public partial class Spell : IDisposable
                 // this possibly needs fixing
                 var auraBaseAmount = aurEff.BaseAmount;
                 // proc chance is stored in effect amount
-                var chance = CalculateSpellDamage(null, aurEff.GetSpellEffectInfo(), auraBaseAmount);
+                var chance = CalculateSpellDamage(null, aurEff.SpellEffectInfo, auraBaseAmount);
                 chance *= aurEff.Base.StackAmount;
 
                 // build trigger and add to the list

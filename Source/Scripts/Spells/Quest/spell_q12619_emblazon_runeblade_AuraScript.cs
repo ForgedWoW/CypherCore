@@ -26,6 +26,6 @@ internal class SpellQ12619EmblazonRunebladeAuraScript : AuraScript, IHasAuraEffe
         var caster = Caster;
 
         if (caster)
-            caster.SpellFactory.CastSpell(caster, aurEff.GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(aurEff));
+            caster.SpellFactory.CastSpell(caster, aurEff.SpellEffectInfo.TriggerSpell, new CastSpellExtraArgs(aurEff));
     }
 }

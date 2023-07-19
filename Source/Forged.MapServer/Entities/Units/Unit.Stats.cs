@@ -1185,7 +1185,7 @@ public partial class Unit
             if (effect.MiscValue == (int)power)
             {
                 var effectAmount = effect.Amount;
-                var triggerSpell = effect.GetSpellEffectInfo().TriggerSpell;
+                var triggerSpell = effect.SpellEffectInfo.TriggerSpell;
 
                 float oldValueCheck = oldVal;
                 float newValueCheck = newVal;

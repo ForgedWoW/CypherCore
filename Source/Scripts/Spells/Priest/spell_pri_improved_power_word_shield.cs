@@ -28,7 +28,7 @@ public class SpellPriImprovedPowerWordShield : AuraScript, IHasAuraEffects
             spellMod.Op = (SpellModOp)aurEff.MiscValue;
             spellMod.Type = SpellModType.Pct;
             spellMod.SpellId = Id;
-            mod.Mask = aurEff.GetSpellEffectInfo().SpellClassMask;
+            mod.Mask = aurEff.SpellEffectInfo.SpellClassMask;
         }
 
         ((SpellModifierByClassMask)spellMod).Value = aurEff.Amount;

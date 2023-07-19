@@ -113,7 +113,7 @@ internal class SpellBaronGeddonInferno : AuraScript, IHasAuraEffects
 
         CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
         args.TriggeringAura = aurEff;
-        args.AddSpellMod(SpellValueMod.BasePoint0, damageForTick[aurEff.GetTickNumber() - 1]);
+        args.AddSpellMod(SpellValueMod.BasePoint0, damageForTick[aurEff.TickNumber - 1]);
         Target.SpellFactory.CastSpell((WorldObject)null, SpellIds.INFERNO_DMG, args);
     }
 }

@@ -28,7 +28,7 @@ internal class SpellDruWildGrowthAuraScript : AuraScript, IHasAuraEffects
             return;
 
         // calculate from base Damage, not from aurEff.GetAmount() (already modified)
-        var damage = caster.CalculateSpellDamage(OwnerAsUnit, aurEff.GetSpellEffectInfo());
+        var damage = caster.CalculateSpellDamage(OwnerAsUnit, aurEff.SpellEffectInfo);
 
         // Wild Growth = first tick gains a 6% bonus, reduced by 2% each tick
         double reduction = 2.0f;
@@ -37,7 +37,7 @@ internal class SpellDruWildGrowthAuraScript : AuraScript, IHasAuraEffects
         if (bonus != null)
             reduction -= MathFunctions.CalculatePct(reduction, bonus.Amount);
 
-        reduction *= (aurEff.GetTickNumber() - 1);
+        reduction *= (aurEff.TickNumber - 1);
 
         MathFunctions.AddPct(ref damage, 6.0f - reduction);
         aurEff.SetAmount(damage);

@@ -45,7 +45,7 @@ public class SpellDhBloodlet : AuraScript, IHasAuraEffects
         var dot = target.GetAuraEffect(DemonHunterSpells.BLOODLET_DOT, 0, caster.GUID);
 
         if (dot != null)
-            dmgPerTick += (dot.Amount * (dot.GetTotalTicks() - dot.GetTickNumber())) / 5;
+            dmgPerTick += (dot.Amount * (dot.GetTotalTicks() - dot.TickNumber)) / 5;
 
         var args = new CastSpellExtraArgs();
         args.AddSpellMod(SpellValueMod.BasePoint0, (int)dmgPerTick);

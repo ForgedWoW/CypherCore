@@ -28,7 +28,7 @@ public class SpellDhArtifactRageOfTheIllidari : AuraScript, IHasAuraEffects
         if (caster == null || eventInfo.DamageInfo != null)
             return;
 
-        var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.GetSpellEffectInfo().BasePoints);
+        var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.SpellEffectInfo.BasePoints);
 
         if (damage == 0)
             return;

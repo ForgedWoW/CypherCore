@@ -34,12 +34,12 @@ public class SpellMageSnowdrift : AuraScript, IHasAuraEffects
         target.ApplySpellImmune(0, SpellImmunity.State, AuraType.ModRoot, true);
 
         // Deal (20% of Spell power) Frost damage every 1 sec
-        var damage = caster.SpellDamageBonusDone(target, aurEff.SpellInfo, 0, DamageEffectType.DOT, aurEff.GetSpellEffectInfo(), StackAmount) * aurEff.Amount;
+        var damage = caster.SpellDamageBonusDone(target, aurEff.SpellInfo, 0, DamageEffectType.DOT, aurEff.SpellEffectInfo, StackAmount) * aurEff.Amount;
         damage = target.SpellDamageBonusTaken(caster, aurEff.SpellInfo, (uint)damage, DamageEffectType.DOT);
         Unit.DealDamage(target, target, (uint)damage, null, DamageEffectType.DOT, SpellSchoolMask.Frost, aurEff.SpellInfo, false);
 
         // Check if target has been caught in Snowdrift for 3 sec consecutively
-        if (aurEff.GetTickNumber() >= 3)
+        if (aurEff.TickNumber >= 3)
         {
             // Apply Frozen in Ice and stun for 4 sec
             target.SpellFactory.CastSpell(target, MageSpells.FROZEN_IN_ICE, true);

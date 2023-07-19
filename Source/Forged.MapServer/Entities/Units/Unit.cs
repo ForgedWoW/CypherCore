@@ -3139,7 +3139,7 @@ public partial class Unit : WorldObject
 
                 if (caster != null)
                 {
-                    damage = caster.SpellDamageBonusDone(this, spellInfo, damage, DamageEffectType.SpellDirect, dmgShield.GetSpellEffectInfo());
+                    damage = caster.SpellDamageBonusDone(this, spellInfo, damage, DamageEffectType.SpellDirect, dmgShield.SpellEffectInfo);
                     damage = SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
                 }
 
@@ -3235,7 +3235,7 @@ public partial class Unit : WorldObject
         foreach (var effect in GetAuraEffectsByType(AuraType.TriggerSpellOnHealthPct))
         {
             var triggerHealthPct = effect.Amount;
-            var triggerSpell = effect.GetSpellEffectInfo().TriggerSpell;
+            var triggerSpell = effect.SpellEffectInfo.TriggerSpell;
             var threshold = CountPctFromMaxHealth(triggerHealthPct);
 
             switch ((AuraTriggerOnHealthChangeDirection)effect.MiscValue)

@@ -24,7 +24,7 @@ internal class SpellGenRemoveOnFullHealth : AuraScript, IHasAuraEffects
         // if it has only periodic effect, allow 1 tick
         var onlyEffect = SpellInfo.Effects.Count == 1;
 
-        if (onlyEffect && aurEff.GetTickNumber() <= 1)
+        if (onlyEffect && aurEff.TickNumber <= 1)
             return;
 
         if (Target.IsFullHealth)

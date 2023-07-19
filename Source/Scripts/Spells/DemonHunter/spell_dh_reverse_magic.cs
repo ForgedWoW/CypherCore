@@ -85,7 +85,7 @@ public class SpellDhReverseMagic : SpellScript, ISpellOnCast
 
                             //targetAura->GetEffect(i)->VariableStorage.Set("DontRecalculatePerodics", true);
                             aurEff.Value.SetAmount(amount);
-                            aurEff.Value.SetPeriodicTimer(auraEffect.GetPeriodicTimer());
+                            aurEff.Value.SetPeriodicTimer(auraEffect.PeriodicTimer);
                         }
                     }
 

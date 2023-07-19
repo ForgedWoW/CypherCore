@@ -255,17 +255,17 @@ public partial class Unit
                 if (!meleeAttackOverrides.Empty())
                 {
                     meleeAttackAuraEffect = meleeAttackOverrides.First();
-                    meleeAttackSpellId = meleeAttackAuraEffect.GetSpellEffectInfo().TriggerSpell;
+                    meleeAttackSpellId = meleeAttackAuraEffect.SpellEffectInfo.TriggerSpell;
                 }
             }
             else
             {
-                var auraEffect = meleeAttackOverrides.Find(aurEff => aurEff.GetSpellEffectInfo().MiscValue != 0);
+                var auraEffect = meleeAttackOverrides.Find(aurEff => aurEff.SpellEffectInfo.MiscValue != 0);
 
                 if (auraEffect != null)
                 {
                     meleeAttackAuraEffect = auraEffect;
-                    meleeAttackSpellId = (uint)meleeAttackAuraEffect.GetSpellEffectInfo().MiscValue;
+                    meleeAttackSpellId = (uint)meleeAttackAuraEffect.SpellEffectInfo.MiscValue;
                 }
             }
 

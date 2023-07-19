@@ -151,7 +151,7 @@ public class AuraApplication
 
             auraData.Points.Add(effect.Value.Amount);
 
-            if (effect.Value.GetEstimatedAmount().HasValue)
+            if (effect.Value.EstimatedAmount.HasValue)
                 hasEstimatedAmounts = true;
         }
 
@@ -159,7 +159,7 @@ public class AuraApplication
             return;
 
         foreach (var effect in Base.AuraEffects.Where(effect => HasEffect(effect.Value.EffIndex)))
-            auraData.EstimatedPoints.Add(effect.Value.GetEstimatedAmount().GetValueOrDefault(effect.Value.Amount));
+            auraData.EstimatedPoints.Add(effect.Value.EstimatedAmount.GetValueOrDefault(effect.Value.Amount));
     }
 
     public void ClientUpdate(bool remove = false)

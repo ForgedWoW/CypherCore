@@ -27,6 +27,6 @@ internal class SpellGenAuraOfFear : AuraScript, IHasAuraEffects
         if (!RandomHelper.randChance(SpellInfo.ProcChance))
             return;
 
-        Target.SpellFactory.CastSpell(null, aurEff.GetSpellEffectInfo().TriggerSpell, true);
+        Target.SpellFactory.CastSpell(null, aurEff.SpellEffectInfo.TriggerSpell, true);
     }
 }

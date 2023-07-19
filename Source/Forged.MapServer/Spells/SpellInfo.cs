@@ -2986,7 +2986,7 @@ public class SpellInfo
 
                 case AuraType.MechanicImmunity:
                     if (miscValue != (uint)aurEff.SpellInfo.Mechanic)
-                        if (miscValue != (uint)aurEff.GetSpellEffectInfo().Mechanic)
+                        if (miscValue != (uint)aurEff.SpellEffectInfo.Mechanic)
                             continue;
 
                     break;

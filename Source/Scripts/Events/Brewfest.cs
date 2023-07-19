@@ -179,7 +179,7 @@ internal class SpellBrewfestRam : AuraScript, IHasAuraEffects
 
                 aura?.ModStackAmount(-2);
 
-                if (aurEff.GetTickNumber() == 4)
+                if (aurEff.TickNumber == 4)
                     target.SpellFactory.CastSpell(target, QuestIds.BREWFEST_SPEED_BUNNY_GREEN, true);
             }
 
@@ -190,7 +190,7 @@ internal class SpellBrewfestRam : AuraScript, IHasAuraEffects
                 args.AddSpellMod(SpellValueMod.AuraStack, 1);
                 target.SpellFactory.CastSpell(target, SpellIds.RAM_FATIGUE, args);
 
-                if (aurEff.GetTickNumber() == 8)
+                if (aurEff.TickNumber == 8)
                     target.SpellFactory.CastSpell(target, QuestIds.BREWFEST_SPEED_BUNNY_YELLOW, true);
 
                 break;
@@ -201,7 +201,7 @@ internal class SpellBrewfestRam : AuraScript, IHasAuraEffects
                 args.AddSpellMod(SpellValueMod.AuraStack, target.HasAura(SpellIds.RAM_FATIGUE) ? 4 : 5 /*Hack*/);
                 target.SpellFactory.CastSpell(target, SpellIds.RAM_FATIGUE, args);
 
-                if (aurEff.GetTickNumber() == 8)
+                if (aurEff.TickNumber == 8)
                     target.SpellFactory.CastSpell(target, QuestIds.BREWFEST_SPEED_BUNNY_RED, true);
 
                 break;

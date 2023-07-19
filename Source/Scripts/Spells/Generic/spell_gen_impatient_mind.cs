@@ -22,6 +22,6 @@ internal class SpellGenImpatientMind : AuraScript, IHasAuraEffects
 
     private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
     {
-        Target.RemoveAura(effect.GetSpellEffectInfo().TriggerSpell);
+        Target.RemoveAura(effect.SpellEffectInfo.TriggerSpell);
     }
 }

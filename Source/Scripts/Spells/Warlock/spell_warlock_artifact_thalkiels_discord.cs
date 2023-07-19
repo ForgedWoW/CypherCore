@@ -33,6 +33,6 @@ public class SpellWarlockArtifactThalkielsDiscord : AuraScript, IHasAuraEffects
         if (!caster.IsValidAttackTarget(target))
             return;
 
-        caster.SpellFactory.CastSpell(target, aurEff.GetSpellEffectInfo().TriggerSpell, true);
+        caster.SpellFactory.CastSpell(target, aurEff.SpellEffectInfo.TriggerSpell, true);
     }
 }

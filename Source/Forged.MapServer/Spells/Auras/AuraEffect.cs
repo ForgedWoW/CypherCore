@@ -9,17 +9,21 @@ using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.MapWeather;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IUnit;
 using Framework.Constants;
 using Framework.Dynamic;
 using Serilog;
-using Forged.MapServer.MapWeather;
+
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedParameter.Local
 
 namespace Forged.MapServer.Spells.Auras;
 
@@ -63,13 +67,13 @@ public class AuraEffect
     public int AmountAsInt => (int)Amount;
     public long AmountAsLong => (long)Amount;
     public uint AmountAsUInt => (uint)Amount;
-    public ulong AmountAsULong => (ulong)Amount;
     public AuraType AuraType => _effectInfo.ApplyAuraName;
     public Aura Base { get; }
     public Unit Caster => Base.Caster;
 
     public ObjectGuid CasterGuid => Base.CasterGuid;
     public int EffIndex => _effectInfo.EffectIndex;
+    public double? EstimatedAmount => _estimatedAmount;
     public uint Id => SpellInfo.Id;
     public bool IsAreaAuraEffect => _effectInfo.IsAreaAuraEffect;
     public bool IsEffect => _effectInfo.Effect != 0;
@@ -83,17 +87,21 @@ public class AuraEffect
         set => _period = value;
     }
 
+    public int PeriodicTimer => _periodicTimer;
+    public SpellEffectInfo SpellEffectInfo => _effectInfo;
     public SpellInfo SpellInfo { get; }
+
+    public uint TickNumber => _ticksDone;
 
     public double CalculateAmount(Unit caster)
     {
         // default amount calculation
         double amount = 0;
 
-        if (!SpellInfo.HasAttribute(SpellAttr8.MasteryAffectPoints) || MathFunctions.fuzzyEq(GetSpellEffectInfo().BonusCoefficient, 0.0f))
-            amount = GetSpellEffectInfo().CalcValue(caster, BaseAmount, Base.Owner.AsUnit, Base.CastItemId, Base.CastItemLevel);
+        if (!SpellInfo.HasAttribute(SpellAttr8.MasteryAffectPoints) || MathFunctions.fuzzyEq(SpellEffectInfo.BonusCoefficient, 0.0f))
+            amount = SpellEffectInfo.CalcValue(caster, BaseAmount, Base.Owner.AsUnit, Base.CastItemId, Base.CastItemLevel);
         else if (caster != null && caster.IsTypeId(TypeId.Player))
-            amount = caster.AsPlayer.ActivePlayerData.Mastery * GetSpellEffectInfo().BonusCoefficient;
+            amount = caster.AsPlayer.ActivePlayerData.Mastery * SpellEffectInfo.BonusCoefficient;
 
         // custom amount calculations go here
         switch (AuraType)
@@ -159,19 +167,19 @@ public class AuraEffect
 
         Base.CallScriptEffectCalcAmountHandlers(this, ref amount, ref _canBeRecalculated);
 
-        if (!GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack))
+        if (!SpellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack))
             amount *= Base.StackAmount;
 
         if (caster == null || Base.AuraObjType != AuraObjectType.Unit)
             return amount;
 
-        var stackAmountForBonuses = !GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
+        var stackAmountForBonuses = !SpellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
 
         _estimatedAmount = AuraType switch
         {
-            AuraType.PeriodicDamage => caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses),
-            AuraType.PeriodicLeech => caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses),
-            AuraType.PeriodicHeal => caster.SpellHealingBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses),
+            AuraType.PeriodicDamage => caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, SpellEffectInfo, stackAmountForBonuses),
+            AuraType.PeriodicLeech => caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, SpellEffectInfo, stackAmountForBonuses),
+            AuraType.PeriodicHeal => caster.SpellHealingBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, SpellEffectInfo, stackAmountForBonuses),
             _ => _estimatedAmount
         };
 
@@ -180,7 +188,7 @@ public class AuraEffect
 
     public void CalculatePeriodic(Unit caster, bool resetPeriodicTimer = true, bool load = false)
     {
-        _period = (int)GetSpellEffectInfo().ApplyAuraPeriod;
+        _period = (int)SpellEffectInfo.ApplyAuraPeriod;
 
         // prepare periodics
         _isPeriodic = AuraType switch
@@ -207,7 +215,7 @@ public class AuraEffect
         if (!_isPeriodic)
             return;
 
-        var modOwner = caster != null ? caster.SpellModOwner : null;
+        var modOwner = caster?.SpellModOwner;
 
         // Apply casting time mods
         if (_period != 0)
@@ -258,7 +266,7 @@ public class AuraEffect
                         Op = (SpellModOp)MiscValue,
                         Type = AuraType == AuraType.AddPctModifier ? SpellModType.Pct : SpellModType.Flat,
                         SpellId = Id,
-                        Mask = GetSpellEffectInfo().SpellClassMask
+                        Mask = SpellEffectInfo.SpellClassMask
                     };
 
                     _spellModifier = spellmod;
@@ -451,7 +459,7 @@ public class AuraEffect
             case AuraType.ProcTriggerSpellWithValue:
             {
                 // Don't proc extra attacks while already processing extra attack spell
-                var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
+                var triggerSpellId = SpellEffectInfo.TriggerSpell;
                 var triggeredSpellInfo = Caster.SpellManager.GetSpellInfo(triggerSpellId, Base.CastDifficulty);
 
                 if (triggeredSpellInfo != null)
@@ -474,22 +482,12 @@ public class AuraEffect
                 break;
         }
 
-        return result;
+        return true;
     }
 
     public double GetCritChanceFor(Unit caster, Unit target)
     {
         return target.SpellCritChanceTaken(caster, null, this, SpellInfo.SchoolMask, CalcPeriodicCritChance(caster), SpellInfo.GetAttackType());
-    }
-
-    public double? GetEstimatedAmount()
-    {
-        return _estimatedAmount;
-    }
-
-    public int GetPeriodicTimer()
-    {
-        return _periodicTimer;
     }
 
     public double GetRemainingAmount(int maxDurationIfPermanent = 0)
@@ -502,29 +500,16 @@ public class AuraEffect
         var ticks = GetTotalTicks();
 
         if (!Base.IsPermanent)
-            ticks -= GetTickNumber();
+            ticks -= TickNumber;
 
         var total = Amount * ticks;
 
-        if (total > maxDurationIfPermanent)
-            return maxDurationIfPermanent;
-
-        return total;
+        return total > maxDurationIfPermanent ? maxDurationIfPermanent : total;
     }
 
     public uint GetRemainingTicks()
     {
         return GetTotalTicks() - _ticksDone;
-    }
-
-    public SpellEffectInfo GetSpellEffectInfo()
-    {
-        return _effectInfo;
-    }
-
-    public uint GetTickNumber()
-    {
-        return _ticksDone;
     }
 
     public uint GetTotalTicks()
@@ -566,12 +551,8 @@ public class AuraEffect
             ApplySpellMod(aurApp.Target, apply, triggeredBy);
 
         // call scripts helping/replacing effect handlers
-        bool prevented;
 
-        if (apply)
-            prevented = Base.CallScriptEffectApplyHandlers(this, aurApp, mode);
-        else
-            prevented = Base.CallScriptEffectRemoveHandlers(this, aurApp, mode);
+        var prevented = apply ? Base.CallScriptEffectApplyHandlers(this, aurApp, mode) : Base.CallScriptEffectRemoveHandlers(this, aurApp, mode);
 
         // check if script events have removed the aura already
         if (apply && aurApp.HasRemoveMode)
@@ -581,15 +562,22 @@ public class AuraEffect
         if (!prevented)
             Caster.SpellManager.GetAuraEffectHandler(AuraType).Invoke(this, aurApp, mode, apply);
 
-        // check if the default handler reemoved the aura
-        if (apply && aurApp.HasRemoveMode)
-            return;
+        switch (apply)
+        {
+            // check if the default handler reemoved the aura
+            case true when aurApp.HasRemoveMode:
+                return;
+            // call scripts triggering additional events after apply/remove
+            case true:
+                Base.CallScriptAfterEffectApplyHandlers(this, aurApp, mode);
 
-        // call scripts triggering additional events after apply/remove
-        if (apply)
-            Base.CallScriptAfterEffectApplyHandlers(this, aurApp, mode);
-        else
-            Base.CallScriptAfterEffectRemoveHandlers(this, aurApp, mode);
+                break;
+
+            default:
+                Base.CallScriptAfterEffectRemoveHandlers(this, aurApp, mode);
+
+                break;
+        }
     }
 
     public void HandleEffect(Unit target, AuraEffectHandleModes mode, bool apply, AuraEffect triggeredBy = null)
@@ -609,7 +597,7 @@ public class AuraEffect
         if (player == null)
             return;
 
-        var triggeredSpellId = GetSpellEffectInfo().TriggerSpell;
+        var triggeredSpellId = SpellEffectInfo.TriggerSpell;
 
         if (apply)
             player.AddTemporarySpell(triggeredSpellId);
@@ -812,7 +800,7 @@ public class AuraEffect
     {
         return spell != null &&
                // Check family name and EffectClassMask
-               spell.IsAffected(SpellInfo.SpellFamilyName, GetSpellEffectInfo().SpellClassMask);
+               spell.IsAffected(SpellInfo.SpellFamilyName, SpellEffectInfo.SpellClassMask);
     }
 
     public bool IsEffectName(SpellEffectName effectName)
@@ -1397,13 +1385,7 @@ public class AuraEffect
                     }
                     case 37096: // Blood Elf Illusion
                     {
-                        if (caster != null)
-                        {
-                            if (caster.Gender == Gender.Female)
-                                caster.SpellFactory.CastSpell(target, 37095, new CastSpellExtraArgs(this)); // Blood Elf Disguise
-                            else
-                                caster.SpellFactory.CastSpell(target, 37093, new CastSpellExtraArgs(this));
-                        }
+                        caster?.SpellFactory.CastSpell(target, caster.Gender == Gender.Female ? 37095 : (uint)37093, new CastSpellExtraArgs(this)); // Blood Elf Disguise
 
                         break;
                     }
@@ -1421,10 +1403,7 @@ public class AuraEffect
                     case 46354: // Blood Elf Illusion
                         if (caster != null)
                         {
-                            if (caster.Gender == Gender.Female)
-                                caster.SpellFactory.CastSpell(target, 46356, new CastSpellExtraArgs(this));
-                            else
-                                caster.SpellFactory.CastSpell(target, 46355, new CastSpellExtraArgs(this));
+                            caster.SpellFactory.CastSpell(target, caster.Gender == Gender.Female ? 46356 : (uint)46355, new CastSpellExtraArgs(this));
                         }
 
                         break;
@@ -1447,11 +1426,7 @@ public class AuraEffect
                                 if (target.IsTypeId(TypeId.Player))
                                 {
                                     target.AsPlayer?.Battleground?.RemovePlayerFromResurrectQueue(target.GUID);
-
-                                    var bf = Caster.BattleFieldManager.GetBattlefieldToZoneId(target.Location.Map, target.Location.Zone);
-
-                                    if (bf != null)
-                                        bf.RemovePlayerFromResurrectQueue(target.GUID);
+                                    Caster.BattleFieldManager.GetBattlefieldToZoneId(target.Location.Map, target.Location.Zone)?.RemovePlayerFromResurrectQueue(target.GUID);
                                 }
 
                                 break;
@@ -1764,7 +1739,7 @@ public class AuraEffect
     {
         var target = aurApp.Target;
 
-        var triggeredSpellId = GetSpellEffectInfo().TriggerSpell;
+        var triggeredSpellId = SpellEffectInfo.TriggerSpell;
         var triggeredSpellInfo = Caster.SpellManager.GetSpellInfo(triggeredSpellId, Base.CastDifficulty);
 
         if (triggeredSpellInfo == null)
@@ -1979,7 +1954,7 @@ public class AuraEffect
         }
 
         // set/remove Id before weapon bonuses so it's properly reflected in CanUseAttackType
-        flagChangeFunc?.Invoke(target);
+        flagChangeFunc.Invoke(target);
 
         // Handle damage modification, shapeshifted druids are not affected
         if (target.IsTypeId(TypeId.Player) && !target.IsInFeralForm)
@@ -2015,7 +1990,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
+        SpellInfo.ApplyAllSpellImmunitiesTo(target, SpellEffectInfo, apply);
     }
 
     [AuraEffectHandler(AuraType.DamageImmunity)]
@@ -2025,7 +2000,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
+        SpellInfo.ApplyAllSpellImmunitiesTo(target, SpellEffectInfo, apply);
 
         if (apply)
         {
@@ -2063,7 +2038,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
+        SpellInfo.ApplyAllSpellImmunitiesTo(target, SpellEffectInfo, apply);
 
         // when removing Id aura, handle Id drop
         // TODO: this should be handled in aura script for Id spells using AfterEffectRemove hook
@@ -2706,7 +2681,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
+        SpellInfo.ApplyAllSpellImmunitiesTo(target, SpellEffectInfo, apply);
 
         if (SpellInfo.Mechanic == Mechanics.Banish)
         {
@@ -2847,7 +2822,7 @@ public class AuraEffect
             }
 
             // remove the shapeshift aura's boosts
-            HandleShapeshiftBoosts(target, apply);
+            HandleShapeshiftBoosts(target, false);
         }
 
         var playerTarget = target.AsPlayer;
@@ -3028,7 +3003,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
+        SpellInfo.ApplyAllSpellImmunitiesTo(target, SpellEffectInfo, apply);
     }
 
     [AuraEffectHandler(AuraType.ModStun)]
@@ -3217,7 +3192,7 @@ public class AuraEffect
             return;
 
         if (apply)
-            target.AsPlayer.Session.SendStablePet(target.GUID);
+            target.AsPlayer.Session.PacketRouter.OpCodeHandler<NPCHandler>().SendStablePet(target.GUID);
 
         // client auto close stable dialog at !apply aura
     }
@@ -3717,11 +3692,11 @@ public class AuraEffect
         if (Amount <= 0)
             return;
 
-        if (GetSpellEffectInfo().ItemType == 0)
+        if (SpellEffectInfo.ItemType == 0)
             return;
 
         // Soul Shard
-        if (GetSpellEffectInfo().ItemType == 6265)
+        if (SpellEffectInfo.ItemType == 6265)
             // Soul Shard only from units that grant XP or honor
             if (!plCaster.IsHonorOrXPTarget(target) ||
                 (target.IsTypeId(TypeId.Unit) && !target.AsCreature.IsTappedBy(plCaster)))
@@ -3731,18 +3706,18 @@ public class AuraEffect
         var count = (uint)Amount;
 
         List<ItemPosCount> dest = new();
-        var msg = plCaster.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, GetSpellEffectInfo().ItemType, count, out var noSpaceForCount);
+        var msg = plCaster.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, SpellEffectInfo.ItemType, count, out var noSpaceForCount);
 
         if (msg != InventoryResult.Ok)
         {
             count -= noSpaceForCount;
-            plCaster.SendEquipError(msg, null, null, GetSpellEffectInfo().ItemType);
+            plCaster.SendEquipError(msg, null, null, SpellEffectInfo.ItemType);
 
             if (count == 0)
                 return;
         }
 
-        var newitem = plCaster.StoreNewItem(dest, GetSpellEffectInfo().ItemType, true);
+        var newitem = plCaster.StoreNewItem(dest, SpellEffectInfo.ItemType, true);
 
         if (newitem == null)
         {
@@ -3898,7 +3873,7 @@ public class AuraEffect
             var uCheck = new AnyUnfriendlyUnitInObjectRangeCheck(target, target, target.Location.Map.VisibilityRange, u => u.HasUnitState(UnitState.Casting));
             var searcher = new UnitListSearcher(target, targets, uCheck, GridType.All);
 
-            CellCalculator.VisitGrid(target, searcher, target.Location.Map.VisibilityRange);
+            Caster.CellCalculator.VisitGrid(target, searcher, target.Location.Map.VisibilityRange);
 
             foreach (var unit in targets)
                 for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
@@ -4046,7 +4021,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        var triggerSpellInfo = Caster.SpellManager.GetSpellInfo(GetSpellEffectInfo().TriggerSpell, Base.CastDifficulty);
+        var triggerSpellInfo = Caster.SpellManager.GetSpellInfo(SpellEffectInfo.TriggerSpell, Base.CastDifficulty);
 
         if (triggerSpellInfo == null)
             return;
@@ -4532,7 +4507,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
+        SpellInfo.ApplyAllSpellImmunitiesTo(target, SpellEffectInfo, apply);
     }
 
     [AuraEffectHandler(AuraType.MechanicImmunityMask)]
@@ -4542,7 +4517,7 @@ public class AuraEffect
             return;
 
         var target = aurApp.Target;
-        SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
+        SpellInfo.ApplyAllSpellImmunitiesTo(target, SpellEffectInfo, apply);
     }
 
     [AuraEffectHandler(AuraType.ModMeleeRangedHaste)]
@@ -5184,7 +5159,7 @@ public class AuraEffect
 
         foreach (var eff in noReagent)
         {
-            var effect = eff.GetSpellEffectInfo();
+            var effect = eff.SpellEffectInfo;
 
             if (effect != null)
                 mask |= effect.SpellClassMask;
@@ -5296,13 +5271,13 @@ public class AuraEffect
 
         // Consecrate ticks can miss and will not show up in the combat log
         // dynobj auras must always have a caster
-        if (GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) &&
+        if (SpellEffectInfo.IsEffectName(SpellEffectName.PersistentAreaAura) &&
             caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
         CleanDamage cleanDamage = new(0, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
 
-        var stackAmountForBonuses = !GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
+        var stackAmountForBonuses = !SpellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
 
         // ignore non positive values (can be result apply spellmods to aura damage
         var damage = Math.Max(Amount, 0);
@@ -5315,7 +5290,7 @@ public class AuraEffect
             case AuraType.PeriodicDamage:
             {
                 if (caster != null)
-                    damage = caster.SpellDamageBonusDone(target, SpellInfo, damage, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
+                    damage = caster.SpellDamageBonusDone(target, SpellInfo, damage, DamageEffectType.DOT, SpellEffectInfo, stackAmountForBonuses);
 
                 damage = target.SpellDamageBonusTaken(caster, SpellInfo, damage, DamageEffectType.DOT);
 
@@ -5374,7 +5349,7 @@ public class AuraEffect
         }
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
-            if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+            if (SpellEffectInfo.IsTargetingArea || SpellEffectInfo.IsAreaAuraEffect || SpellEffectInfo.IsEffectName(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
                 damage = target.CalculateAoeAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
 
         var dmg = damage;
@@ -5462,7 +5437,7 @@ public class AuraEffect
         if (Base.IsPermanent && target.IsFullHealth)
             return;
 
-        var stackAmountForBonuses = !GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
+        var stackAmountForBonuses = !SpellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
 
         // ignore negative values (can be result apply spellmods to aura damage
         var damage = Math.Max(Amount, 0);
@@ -5470,7 +5445,7 @@ public class AuraEffect
         if (AuraType == AuraType.ObsModHealth)
             damage = target.CountPctFromMaxHealth(damage);
         else if (caster != null)
-            damage = caster.SpellHealingBonusDone(target, SpellInfo, damage, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
+            damage = caster.SpellHealingBonusDone(target, SpellInfo, damage, DamageEffectType.DOT, SpellEffectInfo, stackAmountForBonuses);
 
         damage = target.SpellHealingBonusTaken(caster, SpellInfo, damage, DamageEffectType.DOT);
 
@@ -5536,7 +5511,7 @@ public class AuraEffect
         caster.ModifyHealth(-damage);
         Log.Logger.Debug("PeriodicTick: donator {0} target {1} damage {2}.", caster.Entry, target.Entry, damage);
 
-        var gainMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
+        var gainMultiplier = SpellEffectInfo.CalcValueMultiplier(caster);
 
         damage *= gainMultiplier;
 
@@ -5558,19 +5533,19 @@ public class AuraEffect
         }
 
         // dynobj auras must always have a caster
-        if (GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) &&
+        if (SpellEffectInfo.IsEffectName(SpellEffectName.PersistentAreaAura) &&
             caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
         CleanDamage cleanDamage = new(0, 0, SpellInfo.GetAttackType(), MeleeHitOutcome.Normal);
 
-        var stackAmountForBonuses = !GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
+        var stackAmountForBonuses = !SpellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
 
         // ignore negative values (can be result apply spellmods to aura damage
         var damage = Math.Max(Amount, 0);
 
         if (caster != null)
-            damage = caster.SpellDamageBonusDone(target, SpellInfo, damage, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
+            damage = caster.SpellDamageBonusDone(target, SpellInfo, damage, DamageEffectType.DOT, SpellEffectInfo, stackAmountForBonuses);
 
         damage = target.SpellDamageBonusTaken(caster, SpellInfo, damage, DamageEffectType.DOT);
 
@@ -5588,7 +5563,7 @@ public class AuraEffect
         }
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
-            if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+            if (SpellEffectInfo.IsTargetingArea || SpellEffectInfo.IsAreaAuraEffect || SpellEffectInfo.IsEffectName(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
                 damage = target.CalculateAoeAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
 
         var dmg = damage;
@@ -5635,9 +5610,9 @@ public class AuraEffect
         if (caster is not { IsAlive: true })
             return;
 
-        var gainMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
+        var gainMultiplier = SpellEffectInfo.CalcValueMultiplier(caster);
 
-        var heal = caster.SpellHealingBonusDone(caster, SpellInfo, (newDamage * gainMultiplier), DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
+        var heal = caster.SpellHealingBonusDone(caster, SpellInfo, (newDamage * gainMultiplier), DamageEffectType.DOT, SpellEffectInfo, stackAmountForBonuses);
         heal = caster.SpellHealingBonusTaken(caster, SpellInfo, heal, DamageEffectType.DOT);
 
         HealInfo healInfo = new(caster, caster, heal, SpellInfo, SpellInfo.SchoolMask);
@@ -5663,7 +5638,7 @@ public class AuraEffect
             return;
         }
 
-        if (GetSpellEffectInfo().IsEffectName(SpellEffectName.PersistentAreaAura) &&
+        if (SpellEffectInfo.IsEffectName(SpellEffectName.PersistentAreaAura) &&
             caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
@@ -5671,7 +5646,7 @@ public class AuraEffect
         var drainAmount = Math.Max(Amount, 0);
 
         double drainedAmount = -target.ModifyPower(powerType, -drainAmount);
-        var gainMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
+        var gainMultiplier = SpellEffectInfo.CalcValueMultiplier(caster);
 
         SpellPeriodicAuraLogInfo pInfo = new(this, drainedAmount, drainAmount, 0, 0, 0, gainMultiplier, false);
 
@@ -5728,7 +5703,7 @@ public class AuraEffect
 
         double gain = -target.ModifyPower(powerType, -damage);
 
-        var dmgMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
+        var dmgMultiplier = SpellEffectInfo.CalcValueMultiplier(caster);
 
         // maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
         SpellNonMeleeDamage damageInfo = new(caster, target, SpellInfo, Base.SpellVisual, SpellInfo.SchoolMask, Base.CastId)
@@ -5739,7 +5714,7 @@ public class AuraEffect
         // no SpellDamageBonus for burn mana
         caster.CalculateSpellDamageTaken(damageInfo, gain * dmgMultiplier, SpellInfo);
 
-        Caster.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+        Caster.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, damageInfo);
 
         // Set trigger Id
         var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
@@ -5763,7 +5738,7 @@ public class AuraEffect
 
     private void HandlePeriodicTriggerSpellAuraTick(Unit target, Unit caster)
     {
-        var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
+        var triggerSpellId = SpellEffectInfo.TriggerSpell;
 
         if (triggerSpellId == 0)
         {
@@ -5790,7 +5765,7 @@ public class AuraEffect
 
     private void HandlePeriodicTriggerSpellWithValueAuraTick(Unit target, Unit caster)
     {
-        var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
+        var triggerSpellId = SpellEffectInfo.TriggerSpell;
 
         if (triggerSpellId == 0)
         {
@@ -5931,10 +5906,10 @@ public class AuraEffect
         }
 
         SpellNonMeleeDamage damageInfo = new(target, triggerTarget, SpellInfo, Base.SpellVisual, SpellInfo.SchoolMask, Base.CastId);
-        var damage = target.SpellDamageBonusDone(triggerTarget, SpellInfo, Amount, DamageEffectType.SpellDirect, GetSpellEffectInfo());
+        var damage = target.SpellDamageBonusDone(triggerTarget, SpellInfo, Amount, DamageEffectType.SpellDirect, SpellEffectInfo);
         damage = triggerTarget.SpellDamageBonusTaken(target, SpellInfo, damage, DamageEffectType.SpellDirect);
         target.CalculateSpellDamageTaken(damageInfo, damage, SpellInfo);
-        aurApp.Target.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+        aurApp.Target.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, damageInfo);
         target.DealSpellDamage(damageInfo, true);
         target.SendSpellNonMeleeDamageLog(damageInfo);
     }
@@ -5944,7 +5919,7 @@ public class AuraEffect
         var triggerCaster = aurApp.Target;
         var triggerTarget = eventInfo.ProcTarget;
 
-        var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
+        var triggerSpellId = SpellEffectInfo.TriggerSpell;
 
         if (triggerSpellId == 0)
         {
@@ -5969,7 +5944,7 @@ public class AuraEffect
         var triggerCaster = aurApp.Target;
         var triggerTarget = eventInfo.ProcTarget;
 
-        var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
+        var triggerSpellId = SpellEffectInfo.TriggerSpell;
 
         if (triggerSpellId == 0)
         {
@@ -5989,7 +5964,7 @@ public class AuraEffect
             Log.Logger.Debug("AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Triggering spell {0} with value {1} from aura {2} proc", triggeredSpellInfo.Id, Amount, Id);
         }
         else
-            Log.Logger.Error("AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Spell {GetId()} has non-existent spell {triggerSpellId} in EffectTriggered[{GetEffIndex()}] and is therefore not triggered.");
+            Log.Logger.Error($"AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Spell {Id} has non-existent spell {triggerSpellId} in EffectTriggered[{EffIndex}] and is therefore not triggered.");
     }
 
     [AuraEffectHandler(AuraType.SetFFAPvp)]
@@ -6114,7 +6089,7 @@ public class AuraEffect
         if (MiscValue > 0)
             caster = Caster;
 
-        caster.SpellFactory.CastSpell(aurApp.Target, GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(this));
+        caster.SpellFactory.CastSpell(aurApp.Target, SpellEffectInfo.TriggerSpell, new CastSpellExtraArgs(this));
     }
 
     [AuraEffectHandler(AuraType.TriggerSpellOnHealthPct)]
@@ -6125,7 +6100,7 @@ public class AuraEffect
 
         var target = aurApp.Target;
         var thresholdPct = Amount;
-        var triggerSpell = GetSpellEffectInfo().TriggerSpell;
+        var triggerSpell = SpellEffectInfo.TriggerSpell;
 
         switch ((AuraTriggerOnHealthChangeDirection)MiscValue)
         {
@@ -6154,7 +6129,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         var effectAmount = Amount;
-        var triggerSpell = GetSpellEffectInfo().TriggerSpell;
+        var triggerSpell = SpellEffectInfo.TriggerSpell;
         double powerAmount = target.GetPower((PowerType)MiscValue);
 
         switch ((AuraTriggerOnPowerChangeDirection)MiscValueB)
@@ -6184,7 +6159,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         var effectAmount = Amount;
-        var triggerSpell = GetSpellEffectInfo().TriggerSpell;
+        var triggerSpell = SpellEffectInfo.TriggerSpell;
         double powerAmountPct = MathFunctions.GetPctOf(target.GetPower((PowerType)MiscValue), target.GetMaxPower((PowerType)MiscValue));
 
         switch ((AuraTriggerOnPowerChangeDirection)MiscValueB)

@@ -68,7 +68,7 @@ internal class SpellGenArenaDrink : AuraScript, IHasAuraEffects
         // on 2 tick - 133% (handled in 6 second)
 
         // Apply bonus for 1 - 4 tick
-        switch (aurEff.GetTickNumber())
+        switch (aurEff.TickNumber)
         {
             case 1: // 0%
                 regen.ChangeAmount(0);

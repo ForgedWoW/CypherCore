@@ -113,69 +113,36 @@ public class DamageInfo
             HitMask |= ProcFlagsHit.Absorb;
     }
 
-    public double Absorb { get; private set; }
+    public double Absorb { get; set; }
     public Unit Attacker { get; }
 
     public WeaponAttackType AttackType { get; }
     public double Block { get; private set; }
-    public double Damage { get; private set; }
+    public double Damage { get; set; }
     public DamageEffectType DamageType { get; }
     public ProcFlagsHit HitMask { get; private set; }
 
-    public bool IsAbsorb
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Absorb); }
-    }
+    public bool IsAbsorb => HitMask.HasFlag(ProcFlagsHit.Absorb);
 
-    public bool IsBlock
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Block); }
-    }
+    public bool IsBlock => HitMask.HasFlag(ProcFlagsHit.Block);
 
-    public bool IsCritical
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Critical); }
-    }
+    public bool IsCritical => HitMask.HasFlag(ProcFlagsHit.Critical);
 
-    public bool IsDodge
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Dodge); }
-    }
+    public bool IsDodge => HitMask.HasFlag(ProcFlagsHit.Dodge);
 
-    public bool IsEvade
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Evade); }
-    }
+    public bool IsEvade => HitMask.HasFlag(ProcFlagsHit.Evade);
 
-    public bool IsFillResist
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.FullResist); }
-    }
+    public bool IsFillResist => HitMask.HasFlag(ProcFlagsHit.FullResist);
 
-    public bool IsFullBlock
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.FullBlock); }
-    }
+    public bool IsFullBlock => HitMask.HasFlag(ProcFlagsHit.FullBlock);
 
-    public bool IsImmune
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Immune); }
-    }
+    public bool IsImmune => HitMask.HasFlag(ProcFlagsHit.Immune);
 
-    public bool IsMiss
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Miss); }
-    }
+    public bool IsMiss => HitMask.HasFlag(ProcFlagsHit.Miss);
 
-    public bool IsNormal
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Normal); }
-    }
+    public bool IsNormal => HitMask.HasFlag(ProcFlagsHit.Normal);
 
-    public bool IsParry
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Parry); }
-    }
+    public bool IsParry => HitMask.HasFlag(ProcFlagsHit.Parry);
 
     public double OriginalDamage { get; }
     public double Resist { get; private set; }
@@ -203,11 +170,11 @@ public class DamageInfo
         Resist += amount;
         Damage -= amount;
 
-        if (Damage == 0)
-        {
-            HitMask |= ProcFlagsHit.FullResist;
-            HitMask &= ~(ProcFlagsHit.Normal | ProcFlagsHit.Critical);
-        }
+        if (Damage != 0)
+            return;
+
+        HitMask |= ProcFlagsHit.FullResist;
+        HitMask &= ~(ProcFlagsHit.Normal | ProcFlagsHit.Critical);
     }
 
     private void BlockDamage(double amount)
@@ -217,10 +184,10 @@ public class DamageInfo
         Damage -= amount;
         HitMask |= ProcFlagsHit.Block;
 
-        if (Damage == 0)
-        {
-            HitMask |= ProcFlagsHit.FullBlock;
-            HitMask &= ~(ProcFlagsHit.Normal | ProcFlagsHit.Critical);
-        }
+        if (Damage != 0)
+            return;
+
+        HitMask |= ProcFlagsHit.FullBlock;
+        HitMask &= ~(ProcFlagsHit.Normal | ProcFlagsHit.Critical);
     }
 }

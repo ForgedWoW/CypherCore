@@ -27,7 +27,7 @@ internal class SpellRogRuthlessness : AuraScript, IHasAuraEffects
         var cost = procInfo.ProcSpell?.GetPowerTypeCostAmount(PowerType.ComboPoints);
 
         if (cost.HasValue)
-            if (RandomHelper.randChance(aurEff.GetSpellEffectInfo().PointsPerResource * (cost.Value)))
+            if (RandomHelper.randChance(aurEff.SpellEffectInfo.PointsPerResource * (cost.Value)))
                 target.ModifyPower(PowerType.ComboPoints, 1);
     }
 }

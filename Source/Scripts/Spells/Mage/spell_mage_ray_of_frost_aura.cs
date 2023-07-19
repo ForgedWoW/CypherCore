@@ -26,7 +26,7 @@ internal class SpellMageRayOfFrostAura : AuraScript, IHasAuraEffects
         var caster = Caster;
 
         if (caster != null)
-            if (aurEff.GetTickNumber() > 1) // First tick should deal base Damage
+            if (aurEff.TickNumber > 1) // First tick should deal base Damage
                 caster.SpellFactory.CastSpell(caster, MageSpells.RAY_OF_FROST_BONUS, true);
     }
 

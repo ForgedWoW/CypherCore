@@ -384,7 +384,7 @@ internal class SpellRainOfBonesAuraScript : AuraScript, IHasAuraEffects
 
     private void OnTrigger(AuraEffect aurEff)
     {
-        if (aurEff.GetTickNumber() % 5 == 0)
+        if (aurEff.TickNumber % 5 == 0)
             Target.SpellFactory.CastSpell(Target, SpellIds.SUMMON_SKELETON, true);
     }
 }
