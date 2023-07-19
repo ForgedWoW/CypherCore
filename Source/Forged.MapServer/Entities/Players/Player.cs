@@ -57,6 +57,7 @@ using Forged.MapServer.Networking.Packets.Talent;
 using Forged.MapServer.Networking.Packets.Toy;
 using Forged.MapServer.Networking.Packets.Vehicle;
 using Forged.MapServer.Networking.Packets.WorldState;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
@@ -218,9 +219,11 @@ public partial class Player : Unit
 
     public bool ActivateTaxiPathTo(List<uint> nodes, Creature npc = null, uint spellid = 0, uint preferredMountDisplay = 0)
     {
+        var taxiHandler = Session.PacketRouter.OpCodeHandler<TaxiHandler>();
+
         if (nodes.Count < 2)
         {
-            Session.SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
+            taxiHandler.SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
 
             return false;
         }
@@ -228,7 +231,7 @@ public partial class Player : Unit
         // not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
         if (Session.IsLogingOut || IsInCombat || HasUnitState(UnitState.Stunned) || HasUnitState(UnitState.Root))
         {
-            Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
+            taxiHandler.SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
 
             return false;
         }
@@ -247,7 +250,7 @@ public partial class Player : Unit
 
             if (IsDisallowedMountForm(TransformSpell, ShapeShiftForm.None, DisplayId))
             {
-                Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerShapeshifted);
+                taxiHandler.SendActivateTaxiReply(ActivateTaxiReply.PlayerShapeshifted);
 
                 return false;
             }
@@ -255,7 +258,7 @@ public partial class Player : Unit
             // not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
             if (IsNonMeleeSpellCast(false))
             {
-                Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
+                taxiHandler.SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
 
                 return false;
             }
@@ -288,7 +291,7 @@ public partial class Player : Unit
         // starting node too far away (cheat?)
         if (!CliDB.TaxiNodesStorage.TryGetValue(sourcenode, out var node))
         {
-            Session.SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
+            taxiHandler.SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
 
             return false;
         }
@@ -359,7 +362,7 @@ public partial class Player : Unit
         // in spell case allow 0 model
         if ((mountDisplayID == 0 && spellid == 0) || sourcepath == 0)
         {
-            Session.SendActivateTaxiReply(ActivateTaxiReply.UnspecifiedServerError);
+            taxiHandler.SendActivateTaxiReply(ActivateTaxiReply.UnspecifiedServerError);
             Taxi.ClearTaxiDestinations();
 
             return false;
@@ -379,7 +382,7 @@ public partial class Player : Unit
 
         if (money < totalcost)
         {
-            Session.SendActivateTaxiReply(ActivateTaxiReply.NotEnoughMoney);
+            taxiHandler.SendActivateTaxiReply(ActivateTaxiReply.NotEnoughMoney);
             Taxi.ClearTaxiDestinations();
 
             return false;
@@ -401,8 +404,8 @@ public partial class Player : Unit
 
         ModifyMoney(-firstcost);
         UpdateCriteria(CriteriaType.MoneySpentOnTaxis, firstcost);
-        Session.SendActivateTaxiReply();
-        Session.SendDoFlight(mountDisplayID, sourcepath);
+        taxiHandler.SendActivateTaxiReply();
+        taxiHandler.SendDoFlight(mountDisplayID, sourcepath);
 
         return true;
     }
@@ -1078,7 +1081,7 @@ public partial class Player : Unit
             break;
         }
 
-        Session.SendDoFlight(mountDisplayId, path, startNode);
+        Session.PacketRouter.OpCodeHandler<TaxiHandler>().SendDoFlight(mountDisplayId, path, startNode);
     }
 
     //Core
@@ -2971,17 +2974,17 @@ public partial class Player : Unit
         switch (gossipOptionNpc)
         {
             case GossipOptionNpc.Vendor:
-                Session.SendListInventory(guid);
+                Session.PacketRouter.OpCodeHandler<NPCHandler>().SendListInventory(guid);
 
                 break;
 
             case GossipOptionNpc.Taxinode:
-                Session.SendTaxiMenu(source.AsCreature);
+                Session.PacketRouter.OpCodeHandler<TaxiHandler>().SendTaxiMenu(source.AsCreature);
 
                 break;
 
             case GossipOptionNpc.Trainer:
-                Session.SendTrainerList(source.AsCreature, GameObjectManager.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
+                Session.PacketRouter.OpCodeHandler<NPCHandler>().SendTrainerList(source.AsCreature, GameObjectManager.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
 
                 break;
 
@@ -2993,7 +2996,7 @@ public partial class Player : Unit
 
             case GossipOptionNpc.PetitionVendor:
                 PlayerTalkClass.SendCloseGossip();
-                Session.SendPetitionShowList(guid);
+                Session.PacketRouter.OpCodeHandler<PetitionsHandler>().SendPetitionShowList(guid);
 
                 break;
 
@@ -3013,7 +3016,7 @@ public partial class Player : Unit
                 break;
             }
             case GossipOptionNpc.Auctioneer:
-                Session.SendAuctionHello(guid, source.AsCreature);
+                Session.PacketRouter.OpCodeHandler<AuctionHandler>().SendAuctionHello (guid, source.AsCreature);
 
                 break;
 
@@ -3024,7 +3027,7 @@ public partial class Player : Unit
                 break;
 
             case GossipOptionNpc.Stablemaster:
-                Session.SendStablePet(guid);
+                Session.PacketRouter.OpCodeHandler<NPCHandler>().SendStablePet(guid);
 
                 break;
 
@@ -3217,7 +3220,7 @@ public partial class Player : Unit
                 switch (gossipMenuItem.OptionNpc)
                 {
                     case GossipOptionNpc.Taxinode:
-                        if (Session.SendLearnNewTaxiNode(creature))
+                        if (Session.PacketRouter.OpCodeHandler<TaxiHandler>().SendLearnNewTaxiNode(creature))
                             return;
 
                         break;
@@ -3933,7 +3936,7 @@ public partial class Player : Unit
         // update zone
         UpdateZone(Location.Zone, Location.Area); // also call SendInitWorldStates();
 
-        Session.SendLoadCUFProfiles();
+        Session.PacketRouter.OpCodeHandler<MiscHandler>().SendLoadCUFProfiles();
 
         SpellFactory.CastSpell(this, 836, true); // LOGINEFFECT
 
@@ -7599,7 +7602,7 @@ public partial class Player : Unit
             SetGroupUpdateFlag(GroupUpdateFlags.Position);
 
         if (Trader != null && !Location.IsWithinDistInMap(Trader, SharedConst.InteractionDistance))
-            Session.SendCancelTrade();
+            Session.PacketRouter.OpCodeHandler<TradeHandler>().SendCancelTrade();
 
         CheckAreaExploreAndOutdoor();
 
