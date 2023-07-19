@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.Entities.Items;
@@ -21,10 +20,8 @@ internal class CommandArgs
         if (offset < tuple.Length)
             return TryConsumeTo(tuple, offset, parameterInfos, handler, args);
 
-        if (!args.IsEmpty()) /* the entire string must be consumed */
-            return default;
-
-        return new ChatCommandResult(args);
+        /* the entire string must be consumed */
+        return !args.IsEmpty() ? default : new ChatCommandResult(args);
     }
 
     public static ChatCommandResult TryConsume(out dynamic val, Type type, CommandHandler handler, string args)
@@ -165,7 +162,7 @@ internal class CommandArgs
             }
             case TypeCode.Boolean:
             {
-                if (token.IsEmpty())
+                if (token == null || token.IsEmpty())
                     return default;
 
                 if (bool.TryParse(token, out var tempValue))
@@ -190,23 +187,27 @@ internal class CommandArgs
                         val = new Tail();
 
                         return val.TryConsume(handler, args);
+
                     case nameof(QuotedString):
                         val = new QuotedString();
 
                         return val.TryConsume(handler, args);
+
                     case nameof(PlayerIdentifier):
                         val = new PlayerIdentifier();
 
                         return val.TryConsume(handler, args);
+
                     case nameof(AccountIdentifier):
                         val = new AccountIdentifier();
 
                         return val.TryConsume(handler, args);
+
                     case nameof(AchievementRecord):
                     {
                         var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-                        if (!result.IsSuccessful || (val = CliDB.AchievementStorage.LookupByKey((uint)tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.CliDB.AchievementStorage.LookupByKey((uint)tempVal)) != null)
                             return result;
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserAchievementNoExist, tempVal));
@@ -215,7 +216,7 @@ internal class CommandArgs
                     {
                         var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-                        if (!result.IsSuccessful || (val = CliDB.CurrencyTypesStorage.LookupByKey((uint)tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.CliDB.CurrencyTypesStorage.LookupByKey((uint)tempVal)) != null)
                             return result;
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCurrencyNoExist, tempVal));
@@ -227,7 +228,7 @@ internal class CommandArgs
                         if (!result.IsSuccessful)
                             result = TryConsume(out tempVal, typeof(string), handler, args);
 
-                        if (!result.IsSuccessful || (val = Global.ObjectMgr.GetGameTele(tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.ObjectManager.GetGameTele(tempVal)) != null)
                             return result;
 
                         if (tempVal is uint)
@@ -239,7 +240,7 @@ internal class CommandArgs
                     {
                         var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-                        if (!result.IsSuccessful || (val = Global.ObjectMgr.GetItemTemplate(tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.ObjectManager.GetItemTemplate(tempVal)) != null)
                             return result;
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserItemNoExist, tempVal));
@@ -248,7 +249,7 @@ internal class CommandArgs
                     {
                         var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-                        if (!result.IsSuccessful || (val = Global.SpellMgr.GetSpellInfo(tempVal, Difficulty.None)) != null)
+                        if (!result.IsSuccessful || (val = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(tempVal, Difficulty.None)) != null)
                             return result;
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserSpellNoExist, tempVal));
@@ -257,7 +258,7 @@ internal class CommandArgs
                     {
                         var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-                        if (!result.IsSuccessful || (val = Global.ObjectMgr.GetQuestTemplate(tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.ObjectManager.GetQuestTemplate(tempVal)) != null)
                             return result;
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserQuestNoExist, tempVal));
@@ -334,8 +335,8 @@ internal class CommandArgs
             return result1.HasErrorMessage switch
             {
                 true when result2.HasErrorMessage => ChatCommandResult.FromErrorMessage($"{handler.GetCypherString(CypherStrings.CmdparserEither)} \"{result2.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} \"{result1.ErrorMessage}\""),
-                true                              => result1,
-                _                                 => result2
+                true => result1,
+                _ => result2
             };
         }
 

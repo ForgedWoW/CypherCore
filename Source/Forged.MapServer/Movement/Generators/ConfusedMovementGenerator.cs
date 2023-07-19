@@ -48,7 +48,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
                 owner.RemoveUnitFlag(UnitFlags.Confused);
                 owner.ClearUnitState(UnitState.ConfusedMove);
 
-                if (owner.Victim)
+                if (owner.Victim != null)
                     owner.SetTarget(owner.Victim.GUID);
             }
         }
@@ -59,7 +59,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
         RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
         AddFlag(MovementGeneratorFlags.Initialized);
 
-        if (!owner || !owner.IsAlive)
+        if (owner == null || !owner.IsAlive)
             return;
 
         // TODO: UNIT_FIELD_FLAGS should not be handled by generators
@@ -79,7 +79,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
 
     public override bool DoUpdate(T owner, uint diff)
     {
-        if (!owner || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return false;
 
         if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
@@ -96,47 +96,47 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
         // waiting for next move
         _timer.Update(diff);
 
-        if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)) || (_timer.Passed && owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
+        if ((!HasFlag(MovementGeneratorFlags.SpeedUpdatePending) || owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)) && (!_timer.Passed || !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
+            return true;
+
+        RemoveFlag(MovementGeneratorFlags.Transitory);
+
+        Position destination = new(_reference);
+        var distance = 4.0f * RandomHelper.FRand(0.0f, 1.0f) - 2.0f;
+        var angle = RandomHelper.FRand(0.0f, 1.0f) * MathF.PI * 2.0f;
+        owner.MovePositionToFirstCollision(destination, distance, angle);
+
+        // Check if the destination is in LOS
+        if (!owner.Location.IsWithinLOS(destination.X, destination.Y, destination.Z))
         {
-            RemoveFlag(MovementGeneratorFlags.Transitory);
+            // Retry later on
+            _timer.Reset(200);
 
-            Position destination = new(_reference);
-            var distance = 4.0f * RandomHelper.FRand(0.0f, 1.0f) - 2.0f;
-            var angle = RandomHelper.FRand(0.0f, 1.0f) * MathF.PI * 2.0f;
-            owner.MovePositionToFirstCollision(destination, distance, angle);
-
-            // Check if the destination is in LOS
-            if (!owner.Location.IsWithinLOS(destination.X, destination.Y, destination.Z))
-            {
-                // Retry later on
-                _timer.Reset(200);
-
-                return true;
-            }
-
-            if (_path == null)
-            {
-                _path = new PathGenerator(owner);
-                _path.SetPathLengthLimit(30.0f);
-            }
-
-            var result = _path.CalculatePath(destination);
-
-            if (!result || _path.PathType.HasFlag(PathType.NoPath) || _path.PathType.HasFlag(PathType.Shortcut) || _path.PathType.HasFlag(PathType.FarFromPoly))
-            {
-                _timer.Reset(100);
-
-                return true;
-            }
-
-            owner.AddUnitState(UnitState.ConfusedMove);
-
-            MoveSplineInit init = new(owner);
-            init.MovebyPath(_path.Path);
-            init.SetWalk(true);
-            var traveltime = (uint)init.Launch();
-            _timer.Reset(traveltime + RandomHelper.URand(800, 1500));
+            return true;
         }
+
+        if (_path == null)
+        {
+            _path = new PathGenerator(owner);
+            _path.SetPathLengthLimit(30.0f);
+        }
+
+        var result = _path.CalculatePath(destination);
+
+        if (!result || _path.PathType.HasFlag(PathType.NoPath) || _path.PathType.HasFlag(PathType.Shortcut) || _path.PathType.HasFlag(PathType.FarFromPoly))
+        {
+            _timer.Reset(100);
+
+            return true;
+        }
+
+        owner.AddUnitState(UnitState.ConfusedMove);
+
+        MoveSplineInit init = new(owner);
+        init.MovebyPath(_path.Path);
+        init.SetWalk(true);
+        var traveltime = (uint)init.Launch();
+        _timer.Reset(traveltime + RandomHelper.URand(800, 1500));
 
         return true;
     }

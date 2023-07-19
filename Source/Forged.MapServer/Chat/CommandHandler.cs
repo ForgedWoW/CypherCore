@@ -14,7 +14,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
-using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Server;
@@ -57,6 +56,7 @@ public class CommandHandler
     public CharacterCache CharacterCache { get; }
     public ClassFactory ClassFactory { get; private set; }
     public CliDB CliDB { get; }
+    public CommandManager CommandManager { get; }
     public IConfiguration Configuration { get; private set; }
     public bool HasSentErrorMessage { get; private set; }
 
@@ -66,7 +66,6 @@ public class CommandHandler
 
     public ObjectAccessor ObjectAccessor { get; }
     public GameObjectManager ObjectManager { get; }
-    public CommandManager CommandManager { get; }
     public Player Player => Session?.Player;
 
     public Creature SelectedCreature => Session == null ? null : ObjectAccessor.GetCreatureOrPetOrVehicle(Session.Player, Session.Player.Target);
@@ -96,10 +95,7 @@ public class CommandHandler
 
             var selected = Session.Player.Target;
 
-            if (selected.IsEmpty)
-                return Session.Player;
-
-            return ObjectAccessor.FindConnectedPlayer(selected);
+            return selected.IsEmpty ? Session.Player : ObjectAccessor.FindConnectedPlayer(selected);
         }
     }
 
@@ -116,11 +112,8 @@ public class CommandHandler
                 return Session.Player;
 
             // first try with selected target
-            var targetPlayer = ObjectAccessor.FindConnectedPlayer(selected);
-
             // if the target is not a player, then return self
-            if (!targetPlayer)
-                targetPlayer = Session.Player;
+            var targetPlayer = ObjectAccessor.FindConnectedPlayer(selected) ?? Session.Player;
 
             return targetPlayer;
         }
@@ -135,10 +128,7 @@ public class CommandHandler
 
             var selected = Session.Player.SelectedUnit;
 
-            if (selected)
-                return selected;
-
-            return Session.Player;
+            return selected ?? Session.Player;
         }
     }
 
@@ -157,7 +147,7 @@ public class CommandHandler
             var pl = Session.Player;
             NearestGameObjectCheck check = new(pl);
             GameObjectLastSearcher searcher = new(pl, check, GridType.Grid);
-            CellCalculator.VisitGrid(pl, searcher, MapConst.SizeofGrids);
+            Session.Player.CellCalculator.VisitGrid(pl, searcher, MapConst.SizeofGrids);
 
             return searcher.GetTarget();
         }
@@ -183,14 +173,14 @@ public class CommandHandler
         return ExtractKeyFromLink(args, linkType, out _);
     }
 
-    public string ExtractKeyFromLink(StringArguments args, string[] linkType, out int found_idx)
+    public string ExtractKeyFromLink(StringArguments args, string[] linkType, out int foundIdx)
     {
-        return ExtractKeyFromLink(args, linkType, out found_idx, out _);
+        return ExtractKeyFromLink(args, linkType, out foundIdx, out _);
     }
 
-    public string ExtractKeyFromLink(StringArguments args, string[] linkType, out int found_idx, out string something1)
+    public string ExtractKeyFromLink(StringArguments args, string[] linkType, out int foundIdx, out string something1)
     {
-        found_idx = 0;
+        foundIdx = 0;
         something1 = null;
 
         // skip empty
@@ -225,7 +215,7 @@ public class CommandHandler
 
                 args.NextString("]"); // restart scan tail and skip name with possible spaces
                 args.NextString();    // skip link tail (to allow continue strtok(NULL, s) use after return from function
-                found_idx = i;
+                foundIdx = i;
 
                 return cKey;
             }
@@ -257,38 +247,29 @@ public class CommandHandler
             {
                 guidHigh = HighGuid.Player;
 
-                if (!GameObjectManager.NormalizePlayerName(ref idS))
+                if (!Session.Player.GameObjectManager.NormalizePlayerName(ref idS))
                     return 0;
 
                 var player = ObjectAccessor.FindPlayerByName(idS);
 
-                if (player)
+                if (player != null)
                     return player.GUID.Counter;
 
                 var guid = CharacterCache.GetCharacterGuidByName(idS);
 
-                if (guid.IsEmpty)
-                    return 0;
-
-                return guid.Counter;
+                return guid.IsEmpty ? 0 : guid.Counter;
             }
             case 1:
             {
                 guidHigh = HighGuid.Creature;
 
-                if (!ulong.TryParse(idS, out var lowguid))
-                    return 0;
-
-                return lowguid;
+                return !ulong.TryParse(idS, out var lowguid) ? 0 : lowguid;
             }
             case 2:
             {
                 guidHigh = HighGuid.GameObject;
 
-                if (!ulong.TryParse(idS, out var lowguid))
-                    return 0;
-
-                return lowguid;
+                return !ulong.TryParse(idS, out var lowguid) ? 0 : lowguid;
             }
         }
 
@@ -378,26 +359,22 @@ public class CommandHandler
         {
             case 0:
                 return id;
+
             case 1:
             {
                 // talent
-                if (!CliDB.TalentStorage.TryGetValue(id, out var talentEntry))
-                    return 0;
-
-                return talentEntry.SpellID;
+                return !CliDB.TalentStorage.TryGetValue(id, out var talentEntry) ? 0 : talentEntry.SpellID;
             }
             case 2:
             case 3:
                 return id;
+
             case 4:
             {
-                if (!uint.TryParse(param1Str, out var glyph_prop_id))
-                    glyph_prop_id = 0;
+                if (!uint.TryParse(param1Str, out var glyphPropID))
+                    glyphPropID = 0;
 
-                if (!CliDB.GlyphPropertiesStorage.TryGetValue(glyph_prop_id, out var glyphPropEntry))
-                    return 0;
-
-                return glyphPropEntry.SpellID;
+                return !CliDB.GlyphPropertiesStorage.TryGetValue(glyphPropID, out var glyphPropEntry) ? 0 : glyphPropEntry.SpellID;
             }
         }
 
@@ -407,7 +384,7 @@ public class CommandHandler
 
     public Creature GetCreatureFromPlayerMapByDbGuid(ulong lowguid)
     {
-        if (!Session)
+        if (Session == null)
             return null;
 
         // Select the first alive creature or a dead one if not found
@@ -458,7 +435,7 @@ public class CommandHandler
 
         if (!name.IsEmpty())
         {
-            if (!GameObjectManager.NormalizePlayerName(ref name))
+            if (!Session.Player.GameObjectManager.NormalizePlayerName(ref name))
             {
                 SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -471,7 +448,7 @@ public class CommandHandler
                 guid = CharacterCache.GetCharacterGuidByName(name);
         }
 
-        if (player)
+        if (player != null)
         {
             group = player.Group;
 
@@ -480,10 +457,7 @@ public class CommandHandler
         }
         else
         {
-            if (SelectedPlayer)
-                player = SelectedPlayer;
-            else
-                player = Session.Player;
+            player = SelectedPlayer ?? Session.Player;
 
             if (guid.IsEmpty || !offline)
                 guid = player.GUID;
@@ -496,28 +470,26 @@ public class CommandHandler
 
     public bool HasLowerSecurity(Player target, ObjectGuid guid, bool strong = false)
     {
-        WorldSession target_session = null;
-        uint target_account = 0;
+        WorldSession targetSession = null;
+        uint targetAccount = 0;
 
         if (target != null)
-            target_session = target.Session;
+            targetSession = target.Session;
         else if (!guid.IsEmpty)
-            target_account = CharacterCache.GetCharacterAccountIdByGuid(guid);
+            targetAccount = CharacterCache.GetCharacterAccountIdByGuid(guid);
 
-        if (target_session == null && target_account == 0)
-        {
-            SendSysMessage(CypherStrings.PlayerNotFound);
-            HasSentErrorMessage = true;
+        if (targetSession != null || targetAccount != 0)
+            return HasLowerSecurityAccount(targetSession, targetAccount, strong);
 
-            return true;
-        }
+        SendSysMessage(CypherStrings.PlayerNotFound);
+        HasSentErrorMessage = true;
 
-        return HasLowerSecurityAccount(target_session, target_account, strong);
+        return true;
     }
 
-    public bool HasLowerSecurityAccount(WorldSession target, uint target_account, bool strong = false)
+    public bool HasLowerSecurityAccount(WorldSession target, uint targetAccount, bool strong = false)
     {
-        AccountTypes target_ac_sec;
+        AccountTypes targetAcSec;
 
         // allow everything from console and RA console
         if (Session == null)
@@ -528,21 +500,19 @@ public class CommandHandler
             return false;
 
         if (target != null)
-            target_ac_sec = target.Security;
-        else if (target_account != 0)
-            target_ac_sec = AccountManager.GetSecurity(target_account, (int)WorldManager.Realm.Id.Index);
+            targetAcSec = target.Security;
+        else if (targetAccount != 0)
+            targetAcSec = AccountManager.GetSecurity(targetAccount, (int)WorldManager.Realm.Id.Index);
         else
             return true; // caller must report error for (target == NULL && target_account == 0)
 
-        if (Session.Security < target_ac_sec || (strong && Session.Security <= target_ac_sec))
-        {
-            SendSysMessage(CypherStrings.YoursSecurityIsLow);
-            HasSentErrorMessage = true;
+        if (Session.Security >= targetAcSec && (!strong || Session.Security > targetAcSec))
+            return false;
 
-            return true;
-        }
+        SendSysMessage(CypherStrings.YoursSecurityIsLow);
+        HasSentErrorMessage = true;
 
-        return false;
+        return true;
     }
 
     public virtual bool HasPermission(RBACPermissions permission)
@@ -576,7 +546,7 @@ public class CommandHandler
         if (text[0] != '!' && text[0] != '.')
             return false;
 
-        /// ignore single . and ! in line
+        // ignore single . and ! in line
         if (text.Length < 2)
             return false;
 
@@ -584,10 +554,7 @@ public class CommandHandler
         if (text[1] == text[0])
             return false;
 
-        if (text[1] == ' ')
-            return false;
-
-        return _ParseCommands(text[1..]);
+        return text[1] != ' ' && _ParseCommands(text[1..]);
     }
 
     public string PlayerLink(string name)
@@ -631,7 +598,7 @@ public class CommandHandler
         HasSentErrorMessage = true;
 
         if (escapeCharacters)
-            str.Replace("|", "||");
+            str = str.Replace("|", "||");
 
         ChatPkt messageChat = new();
 
@@ -657,39 +624,6 @@ public class CommandHandler
         if (name.IsEmpty())
             return "";
 
-        if (!GameObjectManager.NormalizePlayerName(ref name))
-            return "";
-
-        return name;
-    }
-
-    private bool HasStringAbbr(string name, string part)
-    {
-        // non "" command
-        if (!name.IsEmpty())
-        {
-            // "" part from non-"" command
-            if (part.IsEmpty())
-                return false;
-
-            var partIndex = 0;
-
-            while (true)
-            {
-                if (partIndex >= part.Length || part[partIndex] == ' ')
-                    return true;
-
-                if (partIndex >= name.Length)
-                    return false;
-
-                if (char.ToLower(name[partIndex]) != char.ToLower(part[partIndex]))
-                    return false;
-
-                ++partIndex;
-            }
-        }
-        // allow with any for ""
-
-        return true;
+        return !Session.Player.GameObjectManager.NormalizePlayerName(ref name) ? "" : name;
     }
 }

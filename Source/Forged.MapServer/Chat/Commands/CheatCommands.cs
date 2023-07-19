@@ -4,6 +4,8 @@
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("cheat")]
@@ -77,7 +79,7 @@ internal class CheatCommands
     {
         var chr = handler.SelectedPlayer;
 
-        if (!chr)
+        if (chr == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -163,7 +165,7 @@ internal class CheatCommands
     {
         var chr = handler.SelectedPlayer;
 
-        if (!chr)
+        if (chr == null)
             chr = handler.Session.Player;
         else if (handler.HasLowerSecurity(chr, ObjectGuid.Empty)) // check online security
             return false;

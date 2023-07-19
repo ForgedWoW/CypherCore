@@ -3,13 +3,20 @@
 
 using System;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Server;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Chat;
 
 public class ConsoleHandler : CommandHandler
 {
+    public ConsoleHandler(ClassFactory classFactory, WorldSession session = null) : base(classFactory, session)
+    {
+
+    }
+
     public override string NameLink => GetCypherString(CypherStrings.ConsoleCommand);
 
     public override Locale SessionDbcLocale => Global.WorldMgr.DefaultDbcLocale;
@@ -48,4 +55,5 @@ public class ConsoleHandler : CommandHandler
         SetSentErrorMessage(true);
         Log.Logger.Information(str);
     }
+
 }
