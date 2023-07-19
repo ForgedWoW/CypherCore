@@ -17,6 +17,9 @@ using Framework.Database;
 using Framework.IO;
 using Serilog;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedType.Local
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("gobject")]
@@ -27,7 +30,7 @@ internal class GameObjectCommands
     {
         var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-        if (!obj)
+        if (obj == null)
         {
             handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
 
@@ -59,7 +62,7 @@ internal class GameObjectCommands
             {
                 var owner = handler.ObjectAccessor.GetUnit(player, ownerGuid);
 
-                if (!owner || !ownerGuid.IsPlayer)
+                if (owner == null || !ownerGuid.IsPlayer)
                 {
                     handler.SendSysMessage(CypherStrings.CommandDelobjrefercreature, ownerGuid.ToString(), obj.GUID.ToString());
 
@@ -77,7 +80,8 @@ internal class GameObjectCommands
             return true;
         }
 
-        handler.SendSysMessage(CypherStrings.CommandObjnotfound, obj.GUID.ToString());
+        if (obj != null) 
+            handler.SendSysMessage(CypherStrings.CommandObjnotfound, obj.GUID.ToString());
 
         return false;
     }
@@ -208,7 +212,7 @@ internal class GameObjectCommands
     {
         var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-        if (!obj)
+        if (obj == null)
         {
             handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
 
@@ -221,7 +225,7 @@ internal class GameObjectCommands
         {
             pos = new Position(xyz[0], xyz[1], xyz[2]);
 
-            if (!GridDefines.IsValidMapCoord(obj.Location.MapId, pos))
+            if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(obj.Location.MapId, pos))
             {
                 handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, obj.Location.MapId);
 
@@ -249,7 +253,7 @@ internal class GameObjectCommands
 
         obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObjectFromDb(guidLow, map);
 
-        if (!obj)
+        if (obj == null)
             return false;
 
         handler.SendSysMessage(CypherStrings.CommandMoveobjmessage, obj.SpawnId, obj.Template.name, obj.GUID.ToString());
@@ -468,7 +472,7 @@ internal class GameObjectCommands
 
         handler.SendSysMessage(CypherStrings.GameobjectDetail, guidLow, objectInfo.name, guidLow, id, x, y, z, mapId, o, phaseId, phaseGroup);
 
-        if (!target)
+        if (target == null)
             return true;
 
         var curRespawnDelay = (int)(target.RespawnTimeEx - GameTime.CurrentTime);
@@ -492,7 +496,7 @@ internal class GameObjectCommands
     {
         var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-        if (!obj)
+        if (obj == null)
         {
             handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
 
@@ -515,7 +519,7 @@ internal class GameObjectCommands
 
         obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObjectFromDb(guidLow, map);
 
-        if (!obj)
+        if (obj == null)
             return false;
 
         handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.SpawnId, obj.Template.name, obj.GUID.ToString(), obj.Location.Orientation);
@@ -555,10 +559,10 @@ internal class GameObjectCommands
 
             var obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
 
-            if (!obj)
+            if (obj == null)
                 return false;
 
-            PhasingHandler.InheritPhaseShift(obj, player);
+            handler.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(obj, player);
 
             if (spawnTimeSecs.HasValue)
                 obj.SetRespawnTime(spawnTimeSecs.Value);
@@ -575,7 +579,7 @@ internal class GameObjectCommands
             // this will generate a new guid if the object is in an instance
             obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObjectFromDb(spawnId, map);
 
-            if (!obj)
+            if (obj == null)
                 return false;
 
             // TODO: is it really necessary to add both the real and DB table guid here ?
@@ -617,7 +621,7 @@ internal class GameObjectCommands
 
             var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-            if (!obj)
+            if (obj == null)
             {
                 handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
 
@@ -631,7 +635,7 @@ internal class GameObjectCommands
                 return false;
             }
 
-            PhasingHandler.AddPhase(obj, phaseId, true);
+            handler.ClassFactory.Resolve<PhasingHandler>().AddPhase(obj, phaseId, true);
             obj.SaveToDB();
 
             return true;
@@ -645,7 +649,7 @@ internal class GameObjectCommands
 
             var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
-            if (!obj)
+            if (obj == null)
             {
                 handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
 
