@@ -14,6 +14,7 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Calendar;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Calendar;
@@ -26,17 +27,19 @@ public class CalendarManager
     private readonly List<ulong> _freeEventIds = new();
     private readonly List<ulong> _freeInviteIds = new();
     private readonly GuildManager _guildManager;
+    private readonly ClassFactory _classFactory;
     private readonly MultiMap<ulong, CalendarInvite> _invites;
     private readonly ObjectAccessor _objectAccessor;
     private ulong _maxEventId;
     private ulong _maxInviteId;
 
-    public CalendarManager(CharacterDatabase characterDatabase, CharacterCache characterCache, ObjectAccessor objectAccessor, GuildManager guildManager)
+    public CalendarManager(CharacterDatabase characterDatabase, CharacterCache characterCache, ObjectAccessor objectAccessor, GuildManager guildManager, ClassFactory classFactory)
     {
         _characterDatabase = characterDatabase;
         _characterCache = characterCache;
         _objectAccessor = objectAccessor;
         _guildManager = guildManager;
+        _classFactory = classFactory;
         _events = new List<CalendarEvent>();
         _invites = new MultiMap<ulong, CalendarInvite>();
     }
@@ -332,17 +335,14 @@ public class CalendarManager
 
     public void SendCalendarClearPendingAction(ObjectGuid guid)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player)
-            player.SendPacket(new CalendarClearPendingAction());
+        _objectAccessor.FindPlayer(guid)?.SendPacket(new CalendarClearPendingAction());
     }
 
     public void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, string param = null)
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (!player)
+        if (player == null)
             return;
 
         CalendarCommandResult packet = new()
@@ -366,7 +366,7 @@ public class CalendarManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (!player)
+        if (player == null)
             return;
 
         var eventInviteeList = _invites[calendarEvent.EventId];
@@ -386,15 +386,15 @@ public class CalendarManager
         };
 
         var guild = _guildManager.GetGuildById(calendarEvent.GuildId);
-        packet.EventGuildID = guild ? guild.GetGUID() : ObjectGuid.Empty;
+        packet.EventGuildID = guild?.GetGUID() ?? ObjectGuid.Empty;
 
         foreach (var calendarInvite in eventInviteeList)
         {
             var inviteeGuid = calendarInvite.InviteeGuid;
             var invitee = _objectAccessor.FindPlayer(inviteeGuid);
 
-            var inviteeLevel = invitee ? invitee.Level : _characterCache.GetCharacterLevelByGuid(inviteeGuid);
-            var inviteeGuildId = invitee ? invitee.GuildId : _characterCache.GetCharacterGuildIdByGuid(inviteeGuid);
+            var inviteeLevel = invitee?.Level ?? _characterCache.GetCharacterLevelByGuid(inviteeGuid);
+            var inviteeGuildId = invitee?.GuildId ?? _characterCache.GetCharacterGuildIdByGuid(inviteeGuid);
 
             CalendarEventInviteInfo inviteInfo = new()
             {
@@ -421,7 +421,7 @@ public class CalendarManager
         var invitee = invite.InviteeGuid;
         var player = _objectAccessor.FindPlayer(invitee);
 
-        var level = player ? player.Level : _characterCache.GetCharacterLevelByGuid(invitee);
+        var level = player?.Level ?? _characterCache.GetCharacterLevelByGuid(invitee);
 
         CalendarInviteAdded packet = new()
         {
@@ -437,10 +437,7 @@ public class CalendarManager
 
         if (calendarEvent == null) // Pre-invite
         {
-            player = _objectAccessor.FindPlayer(invite.SenderGuid);
-
-            if (player)
-                player.SendPacket(packet);
+            _objectAccessor.FindPlayer(invite.SenderGuid)?.SendPacket(packet);
         }
         else
         {
@@ -541,7 +538,7 @@ public class CalendarManager
 
         SQLTransaction trans = new();
         PreparedStatement stmt;
-        MailDraft mail = new(calendarEvent.BuildCalendarMailSubject(remover), calendarEvent.BuildCalendarMailBody());
+        var mail = _classFactory.ResolveWithPositionalParameters<MailDraft>(calendarEvent.BuildCalendarMailSubject(remover), calendarEvent.BuildCalendarMailBody());
 
         var eventInvites = _invites[calendarEvent.EventId];
 
@@ -584,24 +581,13 @@ public class CalendarManager
             Status = invite.Status,
             TextureID = calendarEvent.TextureId
         };
-
-        var guild = _guildManager.GetGuildById(calendarEvent.GuildId);
-        packet.EventGuildID = guild ? guild.GetGUID() : ObjectGuid.Empty;
+        
+        packet.EventGuildID = _guildManager.GetGuildById(calendarEvent.GuildId)?.GetGUID() ?? ObjectGuid.Empty;
 
         if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
-        {
-            guild = _guildManager.GetGuildById(calendarEvent.GuildId);
-
-            if (guild)
-                guild.BroadcastPacket(packet);
-        }
+            _guildManager.GetGuildById(calendarEvent.GuildId)?.BroadcastPacket(packet);
         else
-        {
-            var player = _objectAccessor.FindPlayer(invite.InviteeGuid);
-
-            if (player)
-                player.SendPacket(packet);
-        }
+            _objectAccessor.FindPlayer(invite.InviteeGuid)?.SendPacket(packet);
     }
 
     private void SendCalendarEventInviteRemove(CalendarEvent calendarEvent, CalendarInvite invite, uint flags)
@@ -621,7 +607,7 @@ public class CalendarManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (!player)
+        if (player == null)
             return;
 
         CalendarInviteRemovedAlert packet = new()
@@ -652,10 +638,7 @@ public class CalendarManager
         // Send packet to all guild members
         if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
         {
-            var guild = _guildManager.GetGuildById(calendarEvent.GuildId);
-
-            if (guild)
-                guild.BroadcastPacket(packet);
+            _guildManager.GetGuildById(calendarEvent.GuildId)?.BroadcastPacket(packet);
         }
 
         // Send packet to all invitees if event is non-guild, in other case only to non-guild invitees (packet was broadcasted for them)
@@ -665,7 +648,7 @@ public class CalendarManager
         {
             var player = _objectAccessor.FindPlayer(playerCalendarEvent.InviteeGuid);
 
-            if (!player)
+            if (player == null)
                 continue;
 
             if (!calendarEvent.IsGuildEvent || player.GuildId != calendarEvent.GuildId)

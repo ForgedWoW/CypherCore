@@ -212,11 +212,11 @@ public class Pet : Guardian
         // so we'll reset flags and let the AI handle things
         if (GetCharmInfo() != null && GetCharmInfo().HasCommandState(CommandStates.Follow))
         {
-            GetCharmInfo().SetIsCommandAttack(false);
-            GetCharmInfo().SetIsCommandFollow(false);
-            GetCharmInfo().SetIsAtStay(false);
-            GetCharmInfo().SetIsFollowing(false);
-            GetCharmInfo().SetIsReturning(false);
+            GetCharmInfo().IsCommandAttack = false;
+            GetCharmInfo().IsCommandFollow = false;
+            GetCharmInfo().IsAtStay = false;
+            GetCharmInfo().IsFollowing = false;
+            GetCharmInfo().IsReturning = false;
         }
     }
 
@@ -313,7 +313,7 @@ public class Pet : Guardian
 
     public void FillPetInfo(PetStable.PetInfo petInfo)
     {
-        petInfo.PetNumber = GetCharmInfo().GetPetNumber();
+        petInfo.PetNumber = GetCharmInfo().PetNumber;
         petInfo.CreatureId = Entry;
         petInfo.DisplayId = NativeDisplayId;
         petInfo.Level = (byte)Level;
@@ -332,7 +332,7 @@ public class Pet : Guardian
 
     public override string GetDebugInfo()
     {
-        return $"{base.GetDebugInfo()}\nPetType: {PetType} PetNumber: {GetCharmInfo().GetPetNumber()}";
+        return $"{base.GetDebugInfo()}\nPetType: {PetType} PetNumber: {GetCharmInfo().PetNumber}";
     }
 
     public DeclinedName GetDeclinedNames()
@@ -835,7 +835,7 @@ public class Pet : Guardian
         // not save pet as current if another pet temporary unsummoned
         if (mode == PetSaveMode.AsCurrent &&
             owner.TemporaryUnsummonedPetNumber != 0 &&
-            owner.TemporaryUnsummonedPetNumber != GetCharmInfo().GetPetNumber())
+            owner.TemporaryUnsummonedPetNumber != GetCharmInfo().PetNumber)
         {
             // pet will lost anyway at restore temporary unsummoned
             if (PetType == PetType.Hunter)
@@ -876,7 +876,7 @@ public class Pet : Guardian
 
             // remove current data
             var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_ID);
-            stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+            stmt.AddValue(0, GetCharmInfo().PetNumber);
             trans.Append(stmt);
 
             // save pet
@@ -885,7 +885,7 @@ public class Pet : Guardian
             FillPetInfo(owner.PetStable.GetCurrentPet());
             var currentIndex = owner.PetStable.CurrentActivePetIndex;
             stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET);
-            stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+            stmt.AddValue(0, GetCharmInfo().PetNumber);
             stmt.AddValue(1, Entry);
             stmt.AddValue(2, ownerLowGUID);
             stmt.AddValue(3, NativeDisplayId);
@@ -912,7 +912,7 @@ public class Pet : Guardian
         else
         {
             RemoveAllAuras();
-            DeleteFromDB(GetCharmInfo().GetPetNumber(), CharacterDatabase);
+            DeleteFromDB(GetCharmInfo().PetNumber, CharacterDatabase);
         }
     }
 
@@ -1257,11 +1257,11 @@ public class Pet : Guardian
     private void _SaveAuras(SQLTransaction trans)
     {
         var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
-        stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+        stmt.AddValue(0, GetCharmInfo().PetNumber);
         trans.Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_AURAS);
-        stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+        stmt.AddValue(0, GetCharmInfo().PetNumber);
         trans.Append(stmt);
 
         byte index;
@@ -1276,7 +1276,7 @@ public class Pet : Guardian
 
             index = 0;
             stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_AURA);
-            stmt.AddValue(index++, GetCharmInfo().GetPetNumber());
+            stmt.AddValue(index++, GetCharmInfo().PetNumber);
             stmt.AddValue(index++, key.Caster.GetRawValue());
             stmt.AddValue(index++, key.SpellId);
             stmt.AddValue(index++, key.EffectMask);
@@ -1292,7 +1292,7 @@ public class Pet : Guardian
             {
                 index = 0;
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_AURA_EFFECT);
-                stmt.AddValue(index++, GetCharmInfo().GetPetNumber());
+                stmt.AddValue(index++, GetCharmInfo().PetNumber);
                 stmt.AddValue(index++, key.Caster.GetRawValue());
                 stmt.AddValue(index++, key.SpellId);
                 stmt.AddValue(index++, key.EffectMask);
@@ -1318,7 +1318,7 @@ public class Pet : Guardian
             {
                 case PetSpellState.Removed:
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(0, GetCharmInfo().PetNumber);
                     stmt.AddValue(1, pair.Key);
                     trans.Append(stmt);
 
@@ -1327,12 +1327,12 @@ public class Pet : Guardian
                     continue;
                 case PetSpellState.Changed:
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(0, GetCharmInfo().PetNumber);
                     stmt.AddValue(1, pair.Key);
                     trans.Append(stmt);
 
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(0, GetCharmInfo().PetNumber);
                     stmt.AddValue(1, pair.Key);
                     stmt.AddValue(2, (byte)pair.Value.Active);
                     trans.Append(stmt);
@@ -1341,7 +1341,7 @@ public class Pet : Guardian
 
                 case PetSpellState.New:
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(0, GetCharmInfo().PetNumber);
                     stmt.AddValue(1, pair.Key);
                     stmt.AddValue(2, (byte)pair.Value.Active);
                     trans.Append(stmt);

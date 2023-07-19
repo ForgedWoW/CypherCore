@@ -456,7 +456,7 @@ public class CalendarHandler : IWorldSessionHandler
                 if (characterInfo != null)
                 {
                     inviteeGuid = guid;
-                    inviteeTeam = _session.Player.TeamForRace(characterInfo.RaceId);
+                    inviteeTeam = Player.TeamForRace(characterInfo.RaceId, _cliDB);
                     inviteeGuildId = characterInfo.GuildId;
                 }
             }

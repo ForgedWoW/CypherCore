@@ -3,7 +3,9 @@
 
 using System;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
 
@@ -11,6 +13,8 @@ namespace Forged.MapServer.Entities.Items;
 
 public class BonusData
 {
+    private readonly DB2Manager _db2Manager;
+    private readonly DB6Storage<ItemEffectRecord> _itemEffectRecords;
     public uint AppearanceModID { get; set; }
     public uint AzeriteTierUnlockSetId { get; set; }
     public ItemBondingType Bonding { get; set; }
@@ -39,8 +43,11 @@ public class BonusData
     public uint Suffix { get; set; }
     private State _state;
 
-    public BonusData(ItemTemplate proto)
+    public BonusData(ItemTemplate proto, DB2Manager db2Manager, DB6Storage<ItemEffectRecord> itemEffectRecords)
     {
+        _db2Manager = db2Manager;
+        _itemEffectRecords = itemEffectRecords;
+
         if (proto == null)
             return;
 
@@ -76,7 +83,7 @@ public class BonusData
         RequiredLevelOverride = 0;
         AzeriteTierUnlockSetId = 0;
 
-        var azeriteEmpoweredItem = Global.DB2Mgr.GetAzeriteEmpoweredItem(proto.Id);
+        var azeriteEmpoweredItem = db2Manager.GetAzeriteEmpoweredItem(proto.Id);
 
         if (azeriteEmpoweredItem != null)
             AzeriteTierUnlockSetId = azeriteEmpoweredItem.AzeriteTierUnlockSetID;
@@ -100,11 +107,13 @@ public class BonusData
         _state.HasQualityBonus = false;
     }
 
-    public BonusData(ItemInstance itemInstance) : this(Global.ObjectMgr.GetItemTemplate(itemInstance.ItemID))
+    public BonusData(ItemInstance itemInstance, DB2Manager db2Manager, DB6Storage<ItemEffectRecord> itemEffectRecords, GameObjectManager objectManager) : this(objectManager.GetItemTemplate(itemInstance.ItemID), db2Manager, itemEffectRecords)
     {
-        if (itemInstance.ItemBonus != null)
-            foreach (var bonusListID in itemInstance.ItemBonus.BonusListIDs)
-                AddBonusList(bonusListID);
+        if (itemInstance.ItemBonus == null)
+            return;
+
+        foreach (var bonusListID in itemInstance.ItemBonus.BonusListIDs)
+            AddBonusList(bonusListID);
     }
 
     public void AddBonus(ItemBonusType type, int[] values)
@@ -231,7 +240,7 @@ public class BonusData
                 break;
 
             case ItemBonusType.ItemEffectId:
-                if (CliDB.ItemEffectStorage.TryGetValue(values[0], out var itemEffect))
+                if (_itemEffectRecords.TryGetValue((uint)values[0], out var itemEffect))
                     Effects[EffectCount++] = itemEffect;
 
                 break;
@@ -252,11 +261,13 @@ public class BonusData
 
     public void AddBonusList(uint bonusListId)
     {
-        var bonuses = Global.DB2Mgr.GetItemBonusList(bonusListId);
+        var bonuses = _db2Manager.GetItemBonusList(bonusListId);
 
-        if (bonuses != null)
-            foreach (var bonus in bonuses)
-                AddBonus(bonus.BonusType, bonus.Value);
+        if (bonuses == null)
+            return;
+
+        foreach (var bonus in bonuses)
+            AddBonus(bonus.BonusType, bonus.Value);
     }
 
     private struct State

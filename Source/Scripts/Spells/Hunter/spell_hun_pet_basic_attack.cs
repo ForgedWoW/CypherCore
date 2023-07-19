@@ -55,10 +55,10 @@ public class SpellHunPetBasicAttack : SpellScript, IHasSpellEffects, ISpellCheck
                         caster.AsPet.AttackStop();
 
                     caster.MotionMaster.Clear();
-                    caster.AsPet.GetCharmInfo().SetIsCommandAttack(true);
-                    caster.AsPet.GetCharmInfo().SetIsAtStay(false);
-                    caster.AsPet.GetCharmInfo().SetIsReturning(false);
-                    caster.AsPet.GetCharmInfo().SetIsFollowing(false);
+                    caster.AsPet.GetCharmInfo().IsCommandAttack = true;
+                    caster.AsPet.GetCharmInfo().IsAtStay = false;
+                    caster.AsPet.GetCharmInfo().IsReturning = false;
+                    caster.AsPet.GetCharmInfo().IsFollowing = false;
 
                     caster.AsCreature.AI.AttackStart(target);
                 }

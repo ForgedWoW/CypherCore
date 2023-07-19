@@ -213,7 +213,7 @@ public partial class Spell
                 bonusesNew.Add(bonus);
         }
 
-        item.BonusData = new BonusData(item.Template);
+        item.BonusData = new BonusData(item.Template, item.DB2Manager, item.ItemEffectRecords);
 
         bonusesNew.AddRange((from newBonus in newBonusTre where treeMod == newBonus.ItemContext select newBonus.ChildItemBonusListID).Select(dummy => (uint)dummy));
 
@@ -3878,12 +3878,12 @@ public partial class Spell
         {
             // In case the pet was at stay, we don't want it running back
             ci.SaveStayPosition();
-            ci.SetIsAtStay(ci.HasCommandState(CommandStates.Stay));
+            ci.IsAtStay = ci.HasCommandState(CommandStates.Stay);
 
-            ci.SetIsFollowing(false);
-            ci.SetIsCommandAttack(false);
-            ci.SetIsCommandFollow(false);
-            ci.SetIsReturning(false);
+            ci.IsFollowing = false;
+            ci.IsCommandAttack = false;
+            ci.IsCommandFollow = false;
+            ci.IsReturning = false;
         }
 
         pet.SavePetToDB(PetSaveMode.AsCurrent);

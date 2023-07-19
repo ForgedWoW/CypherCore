@@ -33,7 +33,7 @@ public class PetAI : CreatureAI
             return;
 
         // Only chase if not commanded to stay or if stay but commanded to attack
-        DoAttack(target, !Me.GetCharmInfo().HasCommandState(CommandStates.Stay) || Me.GetCharmInfo().IsCommandAttack());
+        DoAttack(target, !Me.GetCharmInfo().HasCommandState(CommandStates.Stay) || Me.GetCharmInfo().IsCommandAttack);
     }
 
     public override void AttackStart(Unit target)
@@ -73,19 +73,19 @@ public class PetAI : CreatureAI
 
         // Passive - passive pets can attack if told to
         if (Me.HasReactState(ReactStates.Passive))
-            return Me.GetCharmInfo().IsCommandAttack();
+            return Me.GetCharmInfo().IsCommandAttack;
 
         // CC - mobs under crowd control can be attacked if owner commanded
         if (victim.HasBreakableByDamageCrowdControlAura())
-            return Me.GetCharmInfo().IsCommandAttack();
+            return Me.GetCharmInfo().IsCommandAttack;
 
         // Returning - pets ignore attacks only if owner clicked follow
-        if (Me.GetCharmInfo().IsReturning())
-            return !Me.GetCharmInfo().IsCommandFollow();
+        if (Me.GetCharmInfo().IsReturning)
+            return !Me.GetCharmInfo().IsCommandFollow;
 
         // Stay - can attack if target is within range or commanded to
         if (Me.GetCharmInfo().HasCommandState(CommandStates.Stay))
-            return Me.IsWithinMeleeRange(victim) || Me.GetCharmInfo().IsCommandAttack();
+            return Me.IsWithinMeleeRange(victim) || Me.GetCharmInfo().IsCommandAttack;
 
         //  Pets attacking something (or chasing) should only switch targets if owner tells them to
         if (Me.Victim && Me.Victim != victim)
@@ -99,13 +99,13 @@ public class PetAI : CreatureAI
             else
                 ownerTarget = Me.CharmerOrOwner.Victim;
 
-            if (ownerTarget && Me.GetCharmInfo().IsCommandAttack())
+            if (ownerTarget && Me.GetCharmInfo().IsCommandAttack)
                 return victim.GUID == ownerTarget.GUID;
         }
 
         // Follow
         if (Me.GetCharmInfo().HasCommandState(CommandStates.Follow))
-            return !Me.GetCharmInfo().IsReturning();
+            return !Me.GetCharmInfo().IsReturning;
 
         // default, though we shouldn't ever get here
         return false;
@@ -168,10 +168,10 @@ public class PetAI : CreatureAI
             {
                 // Pet is returning to where stay was clicked. data should be
                 // pet's GUIDLow since we set that as the waypoint ID
-                if (id == Me.GUID.Counter && Me.GetCharmInfo().IsReturning())
+                if (id == Me.GUID.Counter && Me.GetCharmInfo().IsReturning)
                 {
                     ClearCharmInfoFlags();
-                    Me.GetCharmInfo().SetIsAtStay(true);
+                    Me.GetCharmInfo().IsAtStay = true;
                     Me.MotionMaster.MoveIdle();
                 }
 
@@ -181,10 +181,10 @@ public class PetAI : CreatureAI
             {
                 // If data is owner's GUIDLow then we've reached follow point,
                 // otherwise we're probably chasing a creature
-                if (Me.CharmerOrOwner && Me.GetCharmInfo() != null && id == Me.CharmerOrOwner.GUID.Counter && Me.GetCharmInfo().IsReturning())
+                if (Me.CharmerOrOwner && Me.GetCharmInfo() != null && id == Me.CharmerOrOwner.GUID.Counter && Me.GetCharmInfo().IsReturning)
                 {
                     ClearCharmInfoFlags();
-                    Me.GetCharmInfo().SetIsFollowing(true);
+                    Me.GetCharmInfo().IsFollowing = true;
                 }
 
                 break;
@@ -328,7 +328,7 @@ public class PetAI : CreatureAI
             // Check before attacking to prevent pets from leaving stay position
             if (Me.GetCharmInfo().HasCommandState(CommandStates.Stay))
             {
-                if (Me.GetCharmInfo().IsCommandAttack() || (Me.GetCharmInfo().IsAtStay() && Me.IsWithinMeleeRange(Me.Victim)))
+                if (Me.GetCharmInfo().IsCommandAttack || (Me.GetCharmInfo().IsAtStay && Me.IsWithinMeleeRange(Me.Victim)))
                     DoMeleeAttackIfReady();
             }
             else
@@ -336,7 +336,7 @@ public class PetAI : CreatureAI
         }
         else
         {
-            if (Me.HasReactState(ReactStates.Aggressive) || Me.GetCharmInfo().IsAtStay())
+            if (Me.HasReactState(ReactStates.Aggressive) || Me.GetCharmInfo().IsAtStay)
             {
                 // Every update we need to check targets only in certain cases
                 // Aggressive - Allow auto select if owner or pet don't have a target
@@ -382,7 +382,7 @@ public class PetAI : CreatureAI
                 {
                     if (spellInfo.CanBeUsedInCombat)
                         // Check if we're in combat or commanded to attack
-                        if (!Me.IsInCombat && !Me.GetCharmInfo().IsCommandAttack())
+                        if (!Me.IsInCombat && !Me.GetCharmInfo().IsCommandAttack)
                             continue;
 
                     var spell = Me.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
@@ -482,11 +482,11 @@ public class PetAI : CreatureAI
 
         if (ci != null)
         {
-            ci.SetIsAtStay(false);
-            ci.SetIsCommandAttack(false);
-            ci.SetIsCommandFollow(false);
-            ci.SetIsFollowing(false);
-            ci.SetIsReturning(false);
+            ci.IsAtStay = false;
+            ci.IsCommandAttack = false;
+            ci.IsCommandFollow = false;
+            ci.IsFollowing = false;
+            ci.IsReturning = false;
         }
     }
 
@@ -500,14 +500,14 @@ public class PetAI : CreatureAI
             Me.SetUnitFlag(UnitFlags.PetInCombat); // on player pets, this Id indicates we're actively going after a target - that's what we're doing, so set it
 
             // Play sound to let the player know the pet is attacking something it picked on its own
-            if (Me.HasReactState(ReactStates.Aggressive) && !Me.GetCharmInfo().IsCommandAttack())
+            if (Me.HasReactState(ReactStates.Aggressive) && !Me.GetCharmInfo().IsCommandAttack)
                 Me.SendPetAIReaction(Me.GUID);
 
             if (chase)
             {
-                var oldCmdAttack = Me.GetCharmInfo().IsCommandAttack(); // This needs to be reset after other flags are cleared
+                var oldCmdAttack = Me.GetCharmInfo().IsCommandAttack; // This needs to be reset after other flags are cleared
                 ClearCharmInfoFlags();
-                Me.GetCharmInfo().SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
+                Me.GetCharmInfo().IsCommandAttack = oldCmdAttack; // For passive pets commanded to attack so they will use spells
 
                 if (Me.HasUnitState(UnitState.Follow))
                     Me.MotionMaster.Remove(MovementGeneratorType.Follow);
@@ -521,7 +521,7 @@ public class PetAI : CreatureAI
             else
             {
                 ClearCharmInfoFlags();
-                Me.GetCharmInfo().SetIsAtStay(true);
+                Me.GetCharmInfo().IsAtStay = true;
 
                 if (Me.HasUnitState(UnitState.Follow))
                     Me.MotionMaster.Remove(MovementGeneratorType.Follow);
@@ -549,13 +549,13 @@ public class PetAI : CreatureAI
 
         if (Me.GetCharmInfo().HasCommandState(CommandStates.Stay))
         {
-            if (!Me.GetCharmInfo().IsAtStay() && !Me.GetCharmInfo().IsReturning())
+            if (!Me.GetCharmInfo().IsAtStay && !Me.GetCharmInfo().IsReturning)
             {
                 // Return to previous position where stay was clicked
 
                 Me.GetCharmInfo().GetStayPosition(out var x, out var y, out var z);
                 ClearCharmInfoFlags();
-                Me.GetCharmInfo().SetIsReturning(true);
+                Me.GetCharmInfo().IsReturning = true;
 
                 if (Me.HasUnitState(UnitState.Chase))
                     Me.MotionMaster.Remove(MovementGeneratorType.Chase);
@@ -565,10 +565,10 @@ public class PetAI : CreatureAI
         }
         else // COMMAND_FOLLOW
         {
-            if (!Me.GetCharmInfo().IsFollowing() && !Me.GetCharmInfo().IsReturning())
+            if (!Me.GetCharmInfo().IsFollowing && !Me.GetCharmInfo().IsReturning)
             {
                 ClearCharmInfoFlags();
-                Me.GetCharmInfo().SetIsReturning(true);
+                Me.GetCharmInfo().IsReturning = true;
 
                 if (Me.HasUnitState(UnitState.Chase))
                     Me.MotionMaster.Remove(MovementGeneratorType.Chase);
@@ -637,7 +637,7 @@ public class PetAI : CreatureAI
         // To prevent aggressive pets from chain selecting targets and running off, we
         //  only select a random target if certain conditions are met.
         if (Me.HasReactState(ReactStates.Aggressive) && allowAutoSelect)
-            if (!Me.GetCharmInfo().IsReturning() || Me.GetCharmInfo().IsFollowing() || Me.GetCharmInfo().IsAtStay())
+            if (!Me.GetCharmInfo().IsReturning || Me.GetCharmInfo().IsFollowing || Me.GetCharmInfo().IsAtStay)
             {
                 var nearTarget = Me.SelectNearestHostileUnitInAggroRange(true, true);
 
@@ -662,7 +662,7 @@ public class PetAI : CreatureAI
 
         Me.AttackStop();
         Me.InterruptNonMeleeSpells(false);
-        Me.GetCharmInfo().SetIsCommandAttack(false);
+        Me.GetCharmInfo().IsCommandAttack = false;
         ClearCharmInfoFlags();
         HandleReturnMovement();
     }

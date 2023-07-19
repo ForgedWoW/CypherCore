@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Scripting.Interfaces;
 
 namespace Forged.MapServer.Scripting.BaseScripts;
 
-public class GenericAuraScriptLoader<A> : AuraScriptLoader where A : AuraScript
+public class GenericAuraScriptLoader<A> : AuraScriptLoader, IScriptAutoAdd where A : AuraScript
 {
     private readonly object[] _args;
 

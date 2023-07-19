@@ -1775,7 +1775,7 @@ public partial class Player
             Specialization = pet.Specialization,
             TimeLimit = (uint)pet.Duration,
             ReactState = pet.ReactState,
-            CommandState = charmInfo.GetCommandState()
+            CommandState = charmInfo.CommandState
         };
 
         // action bar loop

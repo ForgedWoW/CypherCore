@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Forged.MapServer.DataStorage;
+using Forged.MapServer.Chat.Commands;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.IO;
@@ -39,7 +39,7 @@ public class ChatCommandNode
     public static void SendCommandHelpFor(CommandHandler handler, string cmdStr)
     {
         ChatCommandNode cmd = null;
-        var map = CommandManager.Commands;
+        var map = handler.CommandManager.Commands;
 
         foreach (var token in cmdStr.Split(' ', StringSplitOptions.RemoveEmptyEntries))
         {
@@ -102,7 +102,7 @@ public class ChatCommandNode
     public static bool TryExecuteCommand(CommandHandler handler, string cmdStr)
     {
         ChatCommandNode cmd = null;
-        var map = CommandManager.Commands;
+        var map = handler.CommandManager.Commands;
 
         cmdStr = cmdStr.Trim(' ');
 
@@ -191,20 +191,20 @@ public class ChatCommandNode
                                             new object[]
                                             {
                                                 handler, new StringArguments(args)
-                                            });
+                                            })!;
 
         var parseArgs = new dynamic[_parameters.Length];
         parseArgs[0] = handler;
         var result = CommandArgs.ConsumeFromOffset(parseArgs, 1, _parameters, handler, args);
 
         if (result.IsSuccessful)
-            return (bool)_methodInfo.Invoke(null, parseArgs);
+            return (bool)_methodInfo.Invoke(null, parseArgs)!;
 
-        if (result.HasErrorMessage)
-        {
-            handler.SendSysMessage(result.ErrorMessage);
-            handler.SetSentErrorMessage(true);
-        }
+        if (!result.HasErrorMessage)
+            return false;
+
+        handler.SendSysMessage(result.ErrorMessage);
+        handler.SetSentErrorMessage(true);
 
         return false;
     }
@@ -261,10 +261,10 @@ public class ChatCommandNode
 
     private static void LogCommandUsage(WorldSession session, uint permission, string cmdStr)
     {
-        if (Global.AccountMgr.IsPlayerAccount(session.Security))
+        if (session.Player.AccountManager.IsPlayerAccount(session.Security))
             return;
 
-        if (Global.AccountMgr.GetRBACPermission((uint)RBACPermissions.RolePlayer).LinkedPermissions.Contains(permission))
+        if (session.Player.AccountManager.GetRBACPermission((uint)RBACPermissions.RolePlayer).LinkedPermissions.Contains(permission))
             return;
 
         var player = session.Player;
@@ -273,19 +273,18 @@ public class ChatCommandNode
         var areaName = "Unknown";
         var zoneName = "Unknown";
 
-        if (CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
+        if (session.Player.CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
         {
             var locale = session.SessionDbcLocale;
             areaName = area.AreaName[locale];
 
-            if (CliDB.AreaTableStorage.TryGetValue(area.ParentAreaID, out var zone))
+            if (session.Player.CliDB.AreaTableStorage.TryGetValue(area.ParentAreaID, out var zone))
                 zoneName = zone.AreaName[locale];
         }
 
-        Log.outCommand(session.AccountId,
-                       $"Command: {cmdStr} [Player: {player.GetName()} ({player.GUID}) (Account: {session.AccountId}) " +
-                       $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.Location.Map ? player.Location.Map.MapName : "Unknown")}) " +
-                       $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.SelectedUnit ? player.SelectedUnit.GetName() : "")} ({targetGuid})]");
+        Log.Logger.ForContext<GMCommands>().Information($"Command: {cmdStr} [Player: {player.GetName()} ({player.GUID}) (Account: {session.AccountId}) " +
+                       $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.Location.Map != null ? player.Location.Map.MapName : "Unknown")}) " +
+                       $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.SelectedUnit != null ? player.SelectedUnit.GetName() : "")} ({targetGuid})]");
     }
 
     private bool HasVisibleSubCommands(CommandHandler who)

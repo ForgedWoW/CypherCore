@@ -49,6 +49,7 @@ public class CommandHandler
         CliDB = classFactory.Resolve<CliDB>();
         CharacterCache = classFactory.Resolve<CharacterCache>();
         ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
+        CommandManager = classFactory.Resolve<CommandManager>();
         Session = session;
     }
 
@@ -65,6 +66,7 @@ public class CommandHandler
 
     public ObjectAccessor ObjectAccessor { get; }
     public GameObjectManager ObjectManager { get; }
+    public CommandManager CommandManager { get; }
     public Player Player => Session?.Player;
 
     public Creature SelectedCreature => Session == null ? null : ObjectAccessor.GetCreatureOrPetOrVehicle(Session.Player, Session.Player.Target);

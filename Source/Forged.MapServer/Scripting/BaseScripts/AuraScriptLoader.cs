@@ -9,7 +9,7 @@ public class AuraScriptLoader : ScriptObject, IAuraScriptLoaderGetAuraScript
 {
     public AuraScriptLoader(string name) : base(name)
     {
-        ScriptManager.AddScript(this);
+        
     }
 
     // Should return a fully valid AuraScript.

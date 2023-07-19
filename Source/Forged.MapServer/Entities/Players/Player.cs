@@ -934,7 +934,7 @@ public partial class Player : Unit
         if (charm.IsTypeId(TypeId.Unit))
         {
             petSpells.ReactState = charm.AsCreature.ReactState;
-            petSpells.CommandState = charmInfo.GetCommandState();
+            petSpells.CommandState = charmInfo.CommandState;
         }
 
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
@@ -5739,7 +5739,7 @@ public partial class Player : Unit
 
         if (TemporaryUnsummonedPetNumber == 0 && pet.IsControlled && !pet.IsTemporarySummoned)
         {
-            TemporaryUnsummonedPetNumber = pet.GetCharmInfo().GetPetNumber();
+            TemporaryUnsummonedPetNumber = pet.GetCharmInfo().PetNumber;
             _oldpetspell = pet.UnitData.CreatedBySpell;
         }
 

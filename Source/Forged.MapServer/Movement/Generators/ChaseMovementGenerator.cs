@@ -90,7 +90,7 @@ internal class ChaseMovementGenerator : MovementGenerator
     public override bool Update(Unit owner, uint diff)
     {
         // owner might be dead or gone (can we even get nullptr here?)
-        if (!owner || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return false;
 
         // our target might have gone away

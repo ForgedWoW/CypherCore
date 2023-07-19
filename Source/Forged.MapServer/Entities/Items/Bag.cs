@@ -2,6 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -19,8 +21,8 @@ public class Bag : Item
     private readonly ContainerData _mContainerData;
     private Item[] _mBagslot = new Item[36];
 
-    public Bag(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager)
-        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager)
+    public Bag(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager, DB6Storage<ItemEffectRecord> itemEffectRecords)
+        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager, itemEffectRecords)
     {
         ObjectTypeMask |= TypeMask.Container;
         ObjectTypeId = TypeId.Container;
@@ -95,7 +97,7 @@ public class Bag : Item
 
         Create(ObjectGuid.Create(HighGuid.Item, guidlow));
 
-        BonusData = new BonusData(itemProto);
+        BonusData = new BonusData(itemProto, DB2Manager, ItemEffectRecords);
 
         Entry = itemid;
         ObjectScale = 1.0f;

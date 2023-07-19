@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
@@ -15,6 +16,7 @@ using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Artifact;
 using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Scripting.Interfaces.IItem;
 using Forged.MapServer.Spells;
 using Framework.Collections;
@@ -76,7 +78,7 @@ public class Item : WorldObject
     private long _lastPlayedTimeUpdate;
 
     public Item(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage,
-                ItemEnchantmentManager itemEnchantmentManager) : base(false, classFactory)
+                ItemEnchantmentManager itemEnchantmentManager, DB6Storage<ItemEffectRecord> itemEffectRecords) : base(false, classFactory)
     {
         DB2Manager = db2Manager;
         PlayerComputators = playerComputators;
@@ -92,6 +94,7 @@ public class Item : WorldObject
         CharacterDatabase = characterDatabase;
         LootItemStorage = lootItemStorage;
         ItemEnchantmentManager = itemEnchantmentManager;
+        ItemEffectRecords = itemEffectRecords;
     }
 
     public uint AppearanceModId => ItemData.ItemAppearanceModID;
@@ -148,6 +151,7 @@ public class Item : WorldObject
     public bool IsWrapped => HasItemFlag(ItemFieldFlags.Wrapped);
     public ItemData ItemData { get; set; }
     public ItemEnchantmentManager ItemEnchantmentManager { get; }
+    public DB6Storage<ItemEffectRecord> ItemEffectRecords { get; }
     public ItemFactory ItemFactory { get; }
     public uint ItemRandomBonusListId { get; private set; }
     public Loot Loot { get; set; }
@@ -404,7 +408,7 @@ public class Item : WorldObject
         };
 
         SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
-        BonusData = new BonusData(Template);
+        BonusData = new BonusData(Template, DB2Manager, ItemEffectRecords);
         SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemAppearanceModID), (byte)BonusData.AppearanceModID);
     }
 
@@ -486,7 +490,7 @@ public class Item : WorldObject
         if (itemProto == null)
             return false;
 
-        BonusData = new BonusData(itemProto);
+        BonusData = new BonusData(itemProto, DB2Manager, ItemEffectRecords);
         SetCount(1);
         SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.MaxDurability), itemProto.MaxDurability);
         SetDurability(itemProto.MaxDurability);
@@ -1140,7 +1144,7 @@ public class Item : WorldObject
         if (proto == null)
             return false;
 
-        BonusData = new BonusData(proto);
+        BonusData = new BonusData(proto, DB2Manager, ItemEffectRecords);
 
         // set owner (not if item is only loaded for gbank/auction/mail
         if (!ownerGuid.IsEmpty)
@@ -1712,12 +1716,12 @@ public class Item : WorldObject
             var oldEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(slot));
 
             if (oldEnchant != null && !oldEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.DoNotLog))
-                owner.Session.SendEnchantmentLog(OwnerGUID, ObjectGuid.Empty, GUID, Entry, oldEnchant.Id, (uint)slot);
+                owner.Session.PacketRouter.OpCodeHandler<ItemHandler>().SendEnchantmentLog(OwnerGUID, ObjectGuid.Empty, GUID, Entry, oldEnchant.Id, (uint)slot);
 
             var newEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(id);
 
             if (newEnchant != null && !newEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.DoNotLog))
-                owner.Session.SendEnchantmentLog(OwnerGUID, caster, GUID, Entry, id, (uint)slot);
+                owner.Session.PacketRouter.OpCodeHandler<ItemHandler>().SendEnchantmentLog(OwnerGUID, caster, GUID, Entry, id, (uint)slot);
         }
 
         ApplyArtifactPowerEnchantmentBonuses(slot, GetEnchantmentId(slot), false, owner);
@@ -1778,7 +1782,7 @@ public class Item : WorldObject
             if (CliDB.GemPropertiesStorage.TryGetValue(gemTemplate.GemProperties, out var gemProperties))
                 if (CliDB.SpellItemEnchantmentStorage.TryGetValue(gemProperties.EnchantId, out var gemEnchant))
                 {
-                    BonusData gemBonus = new(gemTemplate);
+                    BonusData gemBonus = new(gemTemplate, DB2Manager, ItemEffectRecords);
 
                     foreach (var bonusListId in gem.BonusListIDs)
                         gemBonus.AddBonusList(bonusListId);

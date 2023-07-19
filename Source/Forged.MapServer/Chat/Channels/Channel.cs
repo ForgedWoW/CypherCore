@@ -161,7 +161,7 @@ public class Channel
         SendToAllWithAddon(new ChannelWhisperBuilder(this, isLogged ? Language.AddonLogged : Language.Addon, what, prefix, guid, _worldManager, _objectAccessor),
                            prefix,
                            !playerInfo.IsModerator ? guid : ObjectGuid.Empty,
-                           !playerInfo.IsModerator && player ? player.Session.AccountGUID : ObjectGuid.Empty);
+                           !playerInfo.IsModerator && player != null ? player.Session.AccountGUID : ObjectGuid.Empty);
     }
 
     public void Announce(Player player)
@@ -243,7 +243,7 @@ public class Channel
 
         var newp = _objectAccessor.FindPlayerByName(newname);
 
-        if (!newp || !newp.IsGMVisible)
+        if (newp is not { IsGMVisible: true })
         {
             ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname), _worldManager);
             SendToOne(builder, guid);
@@ -294,11 +294,11 @@ public class Channel
         if (IsOn(guid))
         {
             // Do not send error message for built-in channels
-            if (!IsConstant)
-            {
-                var builder = new ChannelNameBuilder(this, new PlayerAlreadyMemberAppend(guid), _worldManager);
-                SendToOne(builder, guid);
-            }
+            if (IsConstant)
+                return;
+
+            var builder = new ChannelNameBuilder(this, new PlayerAlreadyMemberAppend(guid), _worldManager);
+            SendToOne(builder, guid);
 
             return;
         }
@@ -322,7 +322,7 @@ public class Channel
         if (HasFlag(ChannelFlags.Lfg) &&
             _configuration.GetDefaultValue("Channel:RestrictedLfg", true) &&
             _accountManager.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
-            player.Group)
+            player.Group != null)
         {
             var builder = new ChannelNameBuilder(this, new NotInLFGAppend(), _worldManager);
             SendToOne(builder, guid);
@@ -470,7 +470,7 @@ public class Channel
 
             // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
             // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-            if (member &&
+            if (member != null &&
                 (player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) ||
                  member.Session.Security <= (AccountTypes)gmLevelInWhoList) &&
                 member.IsVisibleGloballyFor(player))
@@ -538,7 +538,7 @@ public class Channel
         }
 
         var player = _objectAccessor.FindConnectedPlayer(guid);
-        SendToAll(new ChannelSayBuilder(this, lang, what, guid, GUID, _worldManager, _objectAccessor), !playerInfo.IsModerator ? guid : ObjectGuid.Empty, !playerInfo.IsModerator && player ? player.Session.AccountGUID : ObjectGuid.Empty);
+        SendToAll(new ChannelSayBuilder(this, lang, what, guid, GUID, _worldManager, _objectAccessor), !playerInfo.IsModerator ? guid : ObjectGuid.Empty, !playerInfo.IsModerator && player != null ? player.Session.AccountGUID : ObjectGuid.Empty);
     }
 
     public void SendWhoOwner(Player player)
@@ -611,7 +611,7 @@ public class Channel
         }
 
         var newp = _objectAccessor.FindPlayerByName(newname);
-        var victim = newp ? newp.GUID : ObjectGuid.Empty;
+        var victim = newp?.GUID ?? ObjectGuid.Empty;
 
         if (newp == null ||
             victim.IsEmpty ||
@@ -695,7 +695,7 @@ public class Channel
         }
 
         var bad = _objectAccessor.FindPlayerByName(badname);
-        var victim = bad ? bad.GUID : ObjectGuid.Empty;
+        var victim = bad?.GUID ?? ObjectGuid.Empty;
 
         if (victim.IsEmpty || !IsBanned(victim))
         {
@@ -807,7 +807,7 @@ public class Channel
         }
 
         var bad = _objectAccessor.FindPlayerByName(badname);
-        var victim = bad ? bad.GUID : ObjectGuid.Empty;
+        var victim = bad?.GUID ?? ObjectGuid.Empty;
 
         if (bad == null || victim.IsEmpty || !IsOn(victim))
         {
@@ -874,7 +874,7 @@ public class Channel
         {
             var player = _objectAccessor.FindConnectedPlayer(pair.Key);
 
-            if (!player)
+            if (player == null)
                 continue;
 
             if (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid))
@@ -891,7 +891,7 @@ public class Channel
             {
                 var player = _objectAccessor.FindConnectedPlayer(pair.Key);
 
-                if (player)
+                if (player != null)
                     localizer.Invoke(player);
             }
     }
@@ -904,7 +904,7 @@ public class Channel
         {
             var player = _objectAccessor.FindConnectedPlayer(pair.Key);
 
-            if (!player)
+            if (player == null)
                 continue;
 
             if (player.Session.IsAddonRegistered(addonPrefix) && (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid)))
@@ -918,7 +918,7 @@ public class Channel
 
         var player = _objectAccessor.FindConnectedPlayer(who);
 
-        if (player)
+        if (player != null)
             localizer.Invoke(player);
     }
 
@@ -948,7 +948,7 @@ public class Channel
             return;
 
         var newp = _objectAccessor.FindPlayerByName(p2N);
-        var victim = newp ? newp.GUID : ObjectGuid.Empty;
+        var victim = newp?.GUID ?? ObjectGuid.Empty;
 
         if (newp == null ||
             victim.IsEmpty ||

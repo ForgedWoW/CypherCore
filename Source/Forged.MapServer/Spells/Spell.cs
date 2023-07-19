@@ -8148,7 +8148,7 @@ public partial class Spell : IDisposable
         var charmInfo = pet?.GetCharmInfo();
 
         if (charmInfo != null)
-            resurrectRequest.PetNumber = charmInfo.GetPetNumber();
+            resurrectRequest.PetNumber = charmInfo.PetNumber;
 
         resurrectRequest.SpellID = SpellInfo.Id;
 

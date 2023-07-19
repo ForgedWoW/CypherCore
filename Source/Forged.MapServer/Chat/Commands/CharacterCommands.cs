@@ -14,6 +14,8 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
 using Serilog;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedType.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -173,9 +175,11 @@ internal class CharacterCommands
     [Command("erase", RBACPermissions.CommandCharacterErase, true)]
     private static bool HandleCharacterEraseCommand(CommandHandler handler, PlayerIdentifier player)
     {
+        if (player == null) return false;
+
         uint accountId;
 
-        var target = player?.GetConnectedPlayer();
+        var target = player.GetConnectedPlayer();
 
         if (target != null)
         {
@@ -241,7 +245,7 @@ internal class CharacterCommands
             charDB.Execute(stmt);
         }
 
-        if (!handler.Session || handler.Session.Player != player.GetConnectedPlayer()) // including chr == NULL
+        if (handler.Session == null || handler.Session.Player != player.GetConnectedPlayer()) // including chr == NULL
             handler.SendSysMessage(CypherStrings.YouChangeLvl, handler.PlayerLink(player.GetName()), newlevel);
 
         return true;
@@ -270,14 +274,14 @@ internal class CharacterCommands
 
         if (!newName.IsEmpty())
         {
-            if (!GameObjectManager.NormalizePlayerName(ref newName))
+            if (!handler.ObjectManager.NormalizePlayerName(ref newName))
             {
                 handler.SendSysMessage(CypherStrings.BadValue);
 
                 return false;
             }
 
-            if (GameObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : handler.WorldManager.DefaultDbcLocale, true) != ResponseCodes.CharNameSuccess)
+            if (handler.ObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : handler.WorldManager.DefaultDbcLocale, true) != ResponseCodes.CharNameSuccess)
             {
                 handler.SendSysMessage(CypherStrings.BadValue);
 
@@ -336,7 +340,7 @@ internal class CharacterCommands
             {
                 var sessionPlayer = session.Player;
 
-                if (sessionPlayer)
+                if (sessionPlayer != null)
                     Log.Logger.ForContext<GMCommands>().Information("GM {0} (Account: {1}) forced rename {2} to player {3} (Account: {4})", sessionPlayer.GetName(), session.AccountId, newName, sessionPlayer.GetName(), handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(sessionPlayer.GUID));
             }
             else
@@ -544,7 +548,7 @@ internal class CharacterCommands
     [CommandGroup("deleted")]
     private class DeletedCommands
     {
-        private static bool GetDeletedCharacterInfoList(List<DeletedInfo> foundList, string searchString, CharacterDatabase charDB, AccountManager accountManager)
+        private static bool GetDeletedCharacterInfoList(List<DeletedInfo> foundList, string searchString, CharacterDatabase charDB, AccountManager accountManager, GameObjectManager gameObjectManager)
         {
             SQLResult result;
             PreparedStatement stmt;
@@ -564,7 +568,7 @@ internal class CharacterCommands
                 // search by name
                 else
                 {
-                    if (!GameObjectManager.NormalizePlayerName(ref searchString))
+                    if (!gameObjectManager.NormalizePlayerName(ref searchString))
                         return false;
 
                     stmt = charDB.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO_BY_NAME);
@@ -603,7 +607,7 @@ internal class CharacterCommands
         {
             List<DeletedInfo> foundList = new();
 
-            if (!GetDeletedCharacterInfoList(foundList, needle, handler.ClassFactory.Resolve<CharacterDatabase>(), handler.AccountManager))
+            if (!GetDeletedCharacterInfoList(foundList, needle, handler.ClassFactory.Resolve<CharacterDatabase>(), handler.AccountManager, handler.ObjectManager))
                 return false;
 
             if (foundList.Empty())
@@ -628,7 +632,7 @@ internal class CharacterCommands
         {
             List<DeletedInfo> foundList = new();
 
-            if (!GetDeletedCharacterInfoList(foundList, needle, handler.ClassFactory.Resolve<CharacterDatabase>(), handler.AccountManager))
+            if (!GetDeletedCharacterInfoList(foundList, needle, handler.ClassFactory.Resolve<CharacterDatabase>(), handler.AccountManager, handler.ObjectManager))
                 return false;
 
             // if no characters have been found, output a warning
@@ -657,23 +661,15 @@ internal class CharacterCommands
             {
                 var dateStr = Time.UnixTimeToDateTime(info.DeleteDate).ToShortDateString();
 
-                if (!handler.Session)
-                    handler.SendSysMessage(CypherStrings.CharacterDeletedListLineConsole,
-                                           info.GUID.ToString(),
-                                           info.Name,
-                                           info.AccountName.IsEmpty() ? "<Not existed>" : info.AccountName,
-                                           info.AccountId,
-                                           dateStr);
-                else
-                    handler.SendSysMessage(CypherStrings.CharacterDeletedListLineChat,
-                                           info.GUID.ToString(),
-                                           info.Name,
-                                           info.AccountName.IsEmpty() ? "<Not existed>" : info.AccountName,
-                                           info.AccountId,
-                                           dateStr);
+                handler.SendSysMessage(handler.Session == null ? CypherStrings.CharacterDeletedListLineConsole : CypherStrings.CharacterDeletedListLineChat,
+                                       info.GUID.ToString(),
+                                       info.Name,
+                                       info.AccountName.IsEmpty() ? "<Not existed>" : info.AccountName,
+                                       info.AccountId,
+                                       dateStr);
             }
 
-            if (!handler.Session)
+            if (handler.Session == null)
                 handler.SendSysMessage(CypherStrings.CharacterDeletedListBar);
         }
 
@@ -697,7 +693,7 @@ internal class CharacterCommands
         {
             List<DeletedInfo> foundList = new();
 
-            if (!GetDeletedCharacterInfoList(foundList, needle, handler.ClassFactory.Resolve<CharacterDatabase>(), handler.AccountManager))
+            if (!GetDeletedCharacterInfoList(foundList, needle, handler.ClassFactory.Resolve<CharacterDatabase>(), handler.AccountManager, handler.ObjectManager))
                 return false;
 
             if (foundList.Empty())

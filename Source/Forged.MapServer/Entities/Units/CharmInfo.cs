@@ -16,13 +16,6 @@ public class CharmInfo
     private readonly ReactStates _oldReactState;
     private readonly UnitActionBarEntry[] _petActionBar = new UnitActionBarEntry[SharedConst.ActionBarIndexMax];
     private readonly Unit _unit;
-    private CommandStates _commandState;
-    private bool _isAtStay;
-    private bool _isCommandAttack;
-    private bool _isCommandFollow;
-    private bool _isFollowing;
-    private bool _isReturning;
-    private uint _petnumber;
     private float _stayX;
     private float _stayY;
     private float _stayZ;
@@ -30,8 +23,8 @@ public class CharmInfo
     public CharmInfo(Unit unit)
     {
         _unit = unit;
-        _commandState = CommandStates.Follow;
-        _petnumber = 0;
+        CommandState = CommandStates.Follow;
+        PetNumber = 0;
         _oldReactState = ReactStates.Passive;
 
         for (byte i = 0; i < SharedConst.MaxSpellCharm; ++i)
@@ -45,12 +38,26 @@ public class CharmInfo
 
         var creature = _unit.AsCreature;
 
-        if (creature != null)
-        {
-            _oldReactState = creature.ReactState;
-            creature.ReactState = ReactStates.Passive;
-        }
+        if (creature == null)
+            return;
+
+        _oldReactState = creature.ReactState;
+        creature.ReactState = ReactStates.Passive;
     }
+
+    public CommandStates CommandState { get; set; }
+
+    public bool IsAtStay { get; set; }
+
+    public bool IsCommandAttack { get; set; }
+
+    public bool IsCommandFollow { get; set; }
+
+    public bool IsFollowing { get; set; }
+
+    public bool IsReturning { get; set; }
+
+    public uint PetNumber { get; private set; }
 
     public bool AddSpellToActionBar(SpellInfo spellInfo, ActiveStates newstate = ActiveStates.Decide, int preferredSlot = 0)
     {
@@ -62,13 +69,15 @@ public class CharmInfo
         {
             var action = _petActionBar[i].Action;
 
-            if (action != 0)
-                if (_petActionBar[i].IsActionBarForSpell && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
-                {
-                    _petActionBar[i].SetAction(spellID);
+            if (action == 0)
+                continue;
 
-                    return true;
-                }
+            if (!_petActionBar[i].IsActionBarForSpell || _unit.SpellManager.GetFirstSpellInChain(action) != firstID)
+                continue;
+
+            _petActionBar[i].SetAction(spellID);
+
+            return true;
         }
 
         // or use empty slot in other case
@@ -76,12 +85,12 @@ public class CharmInfo
         {
             var j = (byte)((preferredSlot + i) % SharedConst.ActionBarIndexMax);
 
-            if (_petActionBar[j].Action == 0 && _petActionBar[j].IsActionBarForSpell)
-            {
-                SetActionBar(j, spellID, newstate == ActiveStates.Decide ? spellInfo.IsAutocastable ? ActiveStates.Disabled : ActiveStates.Passive : newstate);
+            if (_petActionBar[j].Action != 0 || !_petActionBar[j].IsActionBarForSpell)
+                continue;
 
-                return true;
-            }
+            SetActionBar(j, spellID, newstate == ActiveStates.Decide ? spellInfo.IsAutocastable ? ActiveStates.Disabled : ActiveStates.Passive : newstate);
+
+            return true;
         }
 
         return false;
@@ -103,16 +112,6 @@ public class CharmInfo
         return _charmspells[index];
     }
 
-    public CommandStates GetCommandState()
-    {
-        return _commandState;
-    }
-
-    public uint GetPetNumber()
-    {
-        return _petnumber;
-    }
-
     public void GetStayPosition(out float x, out float y, out float z)
     {
         x = _stayX;
@@ -122,7 +121,7 @@ public class CharmInfo
 
     public bool HasCommandState(CommandStates state)
     {
-        return _commandState == state;
+        return CommandState == state;
     }
 
     public void InitCharmCreateSpells()
@@ -139,7 +138,7 @@ public class CharmInfo
         for (uint x = 0; x < SharedConst.MaxSpellCharm; ++x)
         {
             var spellId = _unit.AsCreature.Spells[x];
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Location.Map.DifficultyID);
+            var spellInfo = _unit.SpellManager.GetSpellInfo(spellId, _unit.Location.Map.DifficultyID);
 
             if (spellInfo == null)
             {
@@ -153,7 +152,7 @@ public class CharmInfo
 
             if (spellInfo.IsPassive)
             {
-                _unit.CastSpell(_unit, spellInfo.Id, new CastSpellExtraArgs(true));
+                _unit.SpellFactory.CastSpell(_unit, spellInfo.Id, new CastSpellExtraArgs(true));
                 _charmspells[x].SetActionAndType(spellId, ActiveStates.Passive);
             }
             else
@@ -220,6 +219,7 @@ public class CharmInfo
                 case 40281: // Crashin' Thrashin' Racer
                 case 28511: // Eye of Acherus
                     break;
+
                 default:
                     InitEmptyActionBar();
 
@@ -229,47 +229,22 @@ public class CharmInfo
             for (byte i = 0; i < SharedConst.MaxCreatureSpells; ++i)
             {
                 var spellId = _unit.AsCreature.Spells[i];
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Location.Map.DifficultyID);
+                var spellInfo = _unit.SpellManager.GetSpellInfo(spellId, _unit.Location.Map.DifficultyID);
 
-                if (spellInfo != null)
-                {
-                    if (spellInfo.HasAttribute(SpellAttr5.NotAvailableWhileCharmed))
-                        continue;
+                if (spellInfo == null)
+                    continue;
 
-                    if (spellInfo.IsPassive)
-                        _unit.CastSpell(_unit, spellInfo.Id, new CastSpellExtraArgs(true));
-                    else
-                        AddSpellToActionBar(spellInfo, ActiveStates.Passive, i % SharedConst.ActionBarIndexMax);
-                }
+                if (spellInfo.HasAttribute(SpellAttr5.NotAvailableWhileCharmed))
+                    continue;
+
+                if (spellInfo.IsPassive)
+                    _unit.SpellFactory.CastSpell(_unit, spellInfo.Id, new CastSpellExtraArgs(true));
+                else
+                    AddSpellToActionBar(spellInfo, ActiveStates.Passive, i % SharedConst.ActionBarIndexMax);
             }
         }
         else
             InitEmptyActionBar();
-    }
-
-    public bool IsAtStay()
-    {
-        return _isAtStay;
-    }
-
-    public bool IsCommandAttack()
-    {
-        return _isCommandAttack;
-    }
-
-    public bool IsCommandFollow()
-    {
-        return _isCommandFollow;
-    }
-
-    public bool IsFollowing()
-    {
-        return _isFollowing;
-    }
-
-    public bool IsReturning()
-    {
-        return _isReturning;
     }
 
     public void LoadPetActionBar(string data)
@@ -291,33 +266,35 @@ public class CharmInfo
             _petActionBar[index].SetActionAndType(action, type);
 
             // check correctness
-            if (_petActionBar[index].IsActionBarForSpell)
-            {
-                var spelInfo = Global.SpellMgr.GetSpellInfo(_petActionBar[index].Action, _unit.Location.Map.DifficultyID);
+            if (!_petActionBar[index].IsActionBarForSpell)
+                continue;
 
-                if (spelInfo == null)
-                    SetActionBar(index, 0, ActiveStates.Passive);
-                else if (!spelInfo.IsAutocastable)
-                    SetActionBar(index, _petActionBar[index].Action, ActiveStates.Passive);
-            }
+            var spelInfo = _unit.SpellManager.GetSpellInfo(_petActionBar[index].Action, _unit.Location.Map.DifficultyID);
+
+            if (spelInfo == null)
+                SetActionBar(index, 0, ActiveStates.Passive);
+            else if (!spelInfo.IsAutocastable)
+                SetActionBar(index, _petActionBar[index].Action, ActiveStates.Passive);
         }
     }
 
     public bool RemoveSpellFromActionBar(uint spellID)
     {
-        var firstID = Global.SpellMgr.GetFirstSpellInChain(spellID);
+        var firstID = _unit.SpellManager.GetFirstSpellInChain(spellID);
 
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
         {
             var action = _petActionBar[i].Action;
 
-            if (action != 0)
-                if (_petActionBar[i].IsActionBarForSpell && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
-                {
-                    SetActionBar(i, 0, ActiveStates.Passive);
+            if (action == 0)
+                continue;
 
-                    return true;
-                }
+            if (!_petActionBar[i].IsActionBarForSpell || _unit.SpellManager.GetFirstSpellInChain(action) != firstID)
+                continue;
+
+            SetActionBar(i, 0, ActiveStates.Passive);
+
+            return true;
         }
 
         return false;
@@ -325,13 +302,13 @@ public class CharmInfo
 
     public void RestoreState()
     {
-        if (_unit.IsTypeId(TypeId.Unit))
-        {
-            var creature = _unit.AsCreature;
+        if (!_unit.IsTypeId(TypeId.Unit))
+            return;
 
-            if (creature)
-                creature.ReactState = _oldReactState;
-        }
+        var creature = _unit.AsCreature;
+
+        if (creature != null)
+            creature.ReactState = _oldReactState;
     }
 
     public void SaveStayPosition()
@@ -356,44 +333,11 @@ public class CharmInfo
         _petActionBar[index].SetActionAndType(spellOrAction, type);
     }
 
-    public void SetCommandState(CommandStates st)
-    {
-        _commandState = st;
-    }
-
-    public void SetIsAtStay(bool val)
-    {
-        _isAtStay = val;
-    }
-
-    public void SetIsCommandAttack(bool val)
-    {
-        _isCommandAttack = val;
-    }
-
-    public void SetIsCommandFollow(bool val)
-    {
-        _isCommandFollow = val;
-    }
-
-    public void SetIsFollowing(bool val)
-    {
-        _isFollowing = val;
-    }
-
-    public void SetIsReturning(bool val)
-    {
-        _isReturning = val;
-    }
-
     public void SetPetNumber(uint petnumber, bool statwindow)
     {
-        _petnumber = petnumber;
+        PetNumber = petnumber;
 
-        if (statwindow)
-            _unit.SetPetNumberForClient(_petnumber);
-        else
-            _unit.SetPetNumberForClient(0);
+        _unit.SetPetNumberForClient(statwindow ? PetNumber : 0);
     }
 
     public void SetSpellAutocast(SpellInfo spellInfo, bool state)

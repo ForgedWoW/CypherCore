@@ -39,7 +39,7 @@ internal class ChannelSayBuilder : MessageBuilder
         PacketSenderOwning<ChatPkt> packet = new();
         var player = _objectAccessor.FindConnectedPlayer(_guid);
 
-        if (player)
+        if (player != null)
             packet.Data.Initialize(ChatMsg.Channel, _lang, player, player, _what, 0, _source.GetName(localeIdx));
         else
         {

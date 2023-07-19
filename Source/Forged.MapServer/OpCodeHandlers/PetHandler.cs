@@ -184,13 +184,13 @@ public class PetHandler : IWorldSessionHandler
                     case CommandStates.Stay: // flat = 1792  //STAY
                         pet.MotionMaster.Clear(MovementGeneratorPriority.Normal);
                         pet.MotionMaster.MoveIdle();
-                        charmInfo.SetCommandState(CommandStates.Stay);
+                        charmInfo.CommandState = CommandStates.Stay;
 
-                        charmInfo.SetIsCommandAttack(false);
-                        charmInfo.SetIsAtStay(true);
-                        charmInfo.SetIsCommandFollow(false);
-                        charmInfo.SetIsFollowing(false);
-                        charmInfo.SetIsReturning(false);
+                        charmInfo.IsCommandAttack = false;
+                        charmInfo.IsAtStay = true;
+                        charmInfo.IsCommandFollow = false;
+                        charmInfo.IsFollowing = false;
+                        charmInfo.IsReturning = false;
                         charmInfo.SaveStayPosition();
 
                         break;
@@ -199,13 +199,13 @@ public class PetHandler : IWorldSessionHandler
                         pet.AttackStop();
                         pet.InterruptNonMeleeSpells(false);
                         pet.MotionMaster.MoveFollow(_session.Player, SharedConst.PetFollowDist, pet.FollowAngle);
-                        charmInfo.SetCommandState(CommandStates.Follow);
+                        charmInfo.CommandState = CommandStates.Follow;
 
-                        charmInfo.SetIsCommandAttack(false);
-                        charmInfo.SetIsAtStay(false);
-                        charmInfo.SetIsReturning(true);
-                        charmInfo.SetIsCommandFollow(true);
-                        charmInfo.SetIsFollowing(false);
+                        charmInfo.IsCommandAttack = false;
+                        charmInfo.IsAtStay = false;
+                        charmInfo.IsReturning = true;
+                        charmInfo.IsCommandFollow = true;
+                        charmInfo.IsFollowing = false;
 
                         break;
 
@@ -229,18 +229,18 @@ public class PetHandler : IWorldSessionHandler
                                 return;
 
                         // This is true if pet has no target or has target but targets differs.
-                        if (pet.Victim != targetUnit || !pet.GetCharmInfo().IsCommandAttack())
+                        if (pet.Victim != targetUnit || !pet.GetCharmInfo().IsCommandAttack)
                         {
                             if (pet.Victim != null)
                                 pet.AttackStop();
 
                             if (!pet.IsTypeId(TypeId.Player) && pet.AsCreature.IsAIEnabled)
                             {
-                                charmInfo.SetIsCommandAttack(true);
-                                charmInfo.SetIsAtStay(false);
-                                charmInfo.SetIsFollowing(false);
-                                charmInfo.SetIsCommandFollow(false);
-                                charmInfo.SetIsReturning(false);
+                                charmInfo.IsCommandAttack = true;
+                                charmInfo.IsAtStay = false;
+                                charmInfo.IsFollowing = false;
+                                charmInfo.IsCommandFollow = false;
+                                charmInfo.IsReturning = false;
 
                                 var creatureAI = pet.AsCreature.AI;
 
@@ -258,11 +258,11 @@ public class PetHandler : IWorldSessionHandler
                             }
                             else // charmed player
                             {
-                                charmInfo.SetIsCommandAttack(true);
-                                charmInfo.SetIsAtStay(false);
-                                charmInfo.SetIsFollowing(false);
-                                charmInfo.SetIsCommandFollow(false);
-                                charmInfo.SetIsReturning(false);
+                                charmInfo.IsCommandAttack = true;
+                                charmInfo.IsAtStay = false;
+                                charmInfo.IsFollowing = false;
+                                charmInfo.IsCommandFollow = false;
+                                charmInfo.IsReturning = false;
 
                                 pet.Attack(targetUnit, true);
                                 pet.SendPetAIReaction(guid1);
@@ -290,12 +290,12 @@ public class PetHandler : IWorldSessionHandler
                         pet.StopMoving();
                         pet.MotionMaster.Clear();
                         pet.MotionMaster.MovePoint(0, x, y, z);
-                        charmInfo.SetCommandState(CommandStates.MoveTo);
+                        charmInfo.CommandState = CommandStates.MoveTo;
 
-                        charmInfo.SetIsCommandAttack(false);
-                        charmInfo.SetIsAtStay(true);
-                        charmInfo.SetIsFollowing(false);
-                        charmInfo.SetIsReturning(false);
+                        charmInfo.IsCommandAttack = false;
+                        charmInfo.IsAtStay = true;
+                        charmInfo.IsFollowing = false;
+                        charmInfo.IsReturning = false;
                         charmInfo.SaveStayPosition();
 
                         break;
@@ -355,10 +355,10 @@ public class PetHandler : IWorldSessionHandler
                 //  after AttackStart, even if spell failed
                 if (pet.GetCharmInfo() != null)
                 {
-                    pet.GetCharmInfo().SetIsAtStay(false);
-                    pet.GetCharmInfo().SetIsCommandAttack(true);
-                    pet.GetCharmInfo().SetIsReturning(false);
-                    pet.GetCharmInfo().SetIsFollowing(false);
+                    pet.GetCharmInfo().IsAtStay = false;
+                    pet.GetCharmInfo().IsCommandAttack = true;
+                    pet.GetCharmInfo().IsReturning = false;
+                    pet.GetCharmInfo().IsFollowing = false;
                 }
 
                 var spell = pet.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
@@ -447,7 +447,7 @@ public class PetHandler : IWorldSessionHandler
 
                     // reset specific flags in case of spell fail. AI will reset other flags
                     if (pet.GetCharmInfo() != null)
-                        pet.GetCharmInfo().SetIsCommandAttack(false);
+                        pet.GetCharmInfo().IsCommandAttack = false;
                 }
 
                 break;
@@ -577,7 +577,7 @@ public class PetHandler : IWorldSessionHandler
             pet.OwnerGUID != _session.Player.GUID ||
             pet.GetCharmInfo() == null ||
             petStable?.GetCurrentPet() == null ||
-            petStable.GetCurrentPet().PetNumber != pet.GetCharmInfo().GetPetNumber())
+            petStable.GetCurrentPet().PetNumber != pet.GetCharmInfo().PetNumber)
             return;
 
         var res = _objectManager.CheckPetName(name);
@@ -609,11 +609,11 @@ public class PetHandler : IWorldSessionHandler
         if (isdeclined)
         {
             stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
-            stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
+            stmt.AddValue(0, pet.GetCharmInfo().PetNumber);
             trans.Append(stmt);
 
             stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_PET_DECLINEDNAME);
-            stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
+            stmt.AddValue(0, pet.GetCharmInfo().PetNumber);
             stmt.AddValue(1, _session.Player.GUID.ToString());
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
@@ -625,7 +625,7 @@ public class PetHandler : IWorldSessionHandler
         stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_PET_NAME);
         stmt.AddValue(0, name);
         stmt.AddValue(1, _session.Player.GUID.ToString());
-        stmt.AddValue(2, pet.GetCharmInfo().GetPetNumber());
+        stmt.AddValue(2, pet.GetCharmInfo().PetNumber);
         trans.Append(stmt);
 
         _characterDatabase.CommitTransaction(trans);

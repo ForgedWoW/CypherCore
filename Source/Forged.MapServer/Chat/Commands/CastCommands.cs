@@ -5,6 +5,7 @@ using System;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -48,7 +49,7 @@ internal class CastCommands
     {
         var caster = handler.SelectedCreature;
 
-        if (!caster)
+        if (caster == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -73,7 +74,7 @@ internal class CastCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -98,7 +99,7 @@ internal class CastCommands
     {
         var caster = handler.SelectedUnit;
 
-        if (!caster)
+        if (caster == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -142,7 +143,7 @@ internal class CastCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -167,14 +168,14 @@ internal class CastCommands
     {
         var caster = handler.SelectedCreature;
 
-        if (!caster)
+        if (caster == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
             return false;
         }
 
-        if (!caster.Victim)
+        if (caster.Victim == null)
         {
             handler.SendSysMessage(CypherStrings.SelectedTargetNotHaveVictim);
 

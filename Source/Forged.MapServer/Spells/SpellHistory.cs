@@ -637,11 +637,11 @@ public class SpellHistory
         if (typeof(T) == typeof(Pet))
         {
             stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_COOLDOWNS);
-            stmt.AddValue(0, _owner.GetCharmInfo().GetPetNumber());
+            stmt.AddValue(0, _owner.GetCharmInfo().PetNumber);
             trans.Append(stmt);
 
             stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_CHARGES);
-            stmt.AddValue(0, _owner.GetCharmInfo().GetPetNumber());
+            stmt.AddValue(0, _owner.GetCharmInfo().PetNumber);
             trans.Append(stmt);
 
             byte index;
@@ -651,7 +651,7 @@ public class SpellHistory
                 {
                     index = 0;
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL_COOLDOWN);
-                    stmt.AddValue(index++, _owner.GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(index++, _owner.GetCharmInfo().PetNumber);
                     stmt.AddValue(index++, pair.Key);
                     stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.CooldownEnd));
                     stmt.AddValue(index++, pair.Value.CategoryId);
@@ -663,7 +663,7 @@ public class SpellHistory
             {
                 index = 0;
                 stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL_CHARGES);
-                stmt.AddValue(index++, _owner.GetCharmInfo().GetPetNumber());
+                stmt.AddValue(index++, _owner.GetCharmInfo().PetNumber);
                 stmt.AddValue(index++, pair.Key);
                 stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.RechargeStart));
                 stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.RechargeEnd));
