@@ -926,7 +926,7 @@ public class CharacterHandler : IWorldSessionHandler
         if (!result.IsEmpty())
             do
             {
-                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
+                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields(), _configuration, _objectManager, _dB2Manager);
 
                 var customizationsForChar = customizations.LookupByKey(charInfo.Guid.Counter);
 
@@ -1779,7 +1779,7 @@ public class CharacterHandler : IWorldSessionHandler
         if (!result.IsEmpty())
             do
             {
-                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
+                EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields(), _configuration, _objectManager, _dB2Manager);
 
                 Log.Logger.Information("Loading undeleted char guid {0} from account {1}.", charInfo.Guid.ToString(), _session.AccountId);
 

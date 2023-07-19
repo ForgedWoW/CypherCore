@@ -275,23 +275,25 @@ public class CreatureAI : UnitAI
     // Called when creature appears in the world (spawn, respawn, grid load etc...)
     public virtual void JustAppeared()
     {
-        if (!IsEngaged)
-        {
-            var summon = Me.ToTempSummon();
+        if (IsEngaged)
+            return;
 
-            if (summon != null)
-                // Only apply this to specific types of summons
-                if (!summon.Vehicle && ShouldFollowOnSpawn(summon.SummonPropertiesRecord) && summon.CanFollowOwner)
-                {
-                    var owner = summon.CharmerOrOwner;
+        var summon = Me.ToTempSummon();
 
-                    if (owner != null)
-                    {
-                        summon.MotionMaster.Clear();
-                        summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
-                    }
-                }
-        }
+        if (summon == null)
+            return;
+
+        // Only apply this to specific types of summons
+        if (summon.Vehicle != null || !ShouldFollowOnSpawn(summon.SummonPropertiesRecord) || !summon.CanFollowOwner)
+            return;
+
+        var owner = summon.CharmerOrOwner;
+
+        if (owner == null)
+            return;
+
+        summon.MotionMaster.Clear();
+        summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
     }
 
     // Called when the creature is killed
@@ -459,7 +461,7 @@ public class CreatureAI : UnitAI
     public void TriggerAlert(Unit who)
     {
         // If there's no target, or target isn't a player do nothing
-        if (!who || !who.IsTypeId(TypeId.Player))
+        if (who == null || !who.IsTypeId(TypeId.Player))
             return;
 
         // If this unit isn't an NPC, is already distracted, is fighting, is confused, stunned or fleeing, do nothing
@@ -586,23 +588,23 @@ public class CreatureAI : UnitAI
                     hasOutOfBoundsNeighbor = true;
             }
 
-            if (fill || hasOutOfBoundsNeighbor)
+            if (!fill && !hasOutOfBoundsNeighbor)
+                continue;
+
+            var pos = new Position(startPosition.X + front.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.Y + front.Value * SharedConst.BoundaryVisualizeStepSize, spawnZ);
+            var point = owner.SummonCreature(SharedConst.BoundaryVisualizeCreature, pos, TempSummonType.TimedDespawn, duration);
+
+            if (point != null)
             {
-                var pos = new Position(startPosition.X + front.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.Y + front.Value * SharedConst.BoundaryVisualizeStepSize, spawnZ);
-                var point = owner.SummonCreature(SharedConst.BoundaryVisualizeCreature, pos, TempSummonType.TimedDespawn, duration);
+                point.ObjectScale = SharedConst.BoundaryVisualizeCreatureScale;
+                point.SetUnitFlag(UnitFlags.Stunned);
+                point.SetImmuneToAll(true);
 
-                if (point)
-                {
-                    point.ObjectScale = SharedConst.BoundaryVisualizeCreatureScale;
-                    point.SetUnitFlag(UnitFlags.Stunned);
-                    point.SetImmuneToAll(true);
-
-                    if (!hasOutOfBoundsNeighbor)
-                        point.SetUnitFlag(UnitFlags.Uninteractible);
-                }
-
-                q.Remove(front);
+                if (!hasOutOfBoundsNeighbor)
+                    point.SetUnitFlag(UnitFlags.Uninteractible);
             }
+
+            q.Remove(front);
         }
 
         return boundsWarning ? CypherStrings.CreatureMovementMaybeUnbounded : 0;

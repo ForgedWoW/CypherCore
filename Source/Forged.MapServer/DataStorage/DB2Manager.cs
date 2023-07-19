@@ -162,7 +162,7 @@ public class DB2Manager
 
     public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, PlayerClass unitClass)
     {
-        if (!_expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion)) ?? _expectedStatsByLevel.TryGetValue(Tuple.Create(level, -2), out var expectedStatRecord))
+        if (!_expectedStatsByLevel.TryGetValue(Tuple.Create(level, expansion), out var expectedStatRecord) && !_expectedStatsByLevel.TryGetValue(Tuple.Create(level, -2), out expectedStatRecord))
             return 1.0f;
 
         var classMod = unitClass switch

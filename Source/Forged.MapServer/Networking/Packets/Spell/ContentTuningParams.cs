@@ -53,29 +53,31 @@ internal class ContentTuningParams
         var playerAttacker = attacker.AsPlayer;
         var creatureAttacker = attacker.AsCreature;
 
-        if (playerAttacker)
+        if (playerAttacker != null)
         {
             var playerTarget = target.AsPlayer;
             var creatureTarget = target.AsCreature;
 
-            if (playerTarget)
-                return GenerateDataPlayerToPlayer(playerAttacker, playerTarget);
+            if (playerTarget != null)
+                return false;
 
-            if (creatureTarget)
-                if (creatureTarget.HasScalableLevels)
-                    return GenerateDataPlayerToCreature(playerAttacker, creatureTarget);
+            if (creatureTarget == null)
+                return false;
+
+            if (creatureTarget.HasScalableLevels)
+                return GenerateDataPlayerToCreature(playerAttacker, creatureTarget);
         }
-        else if (creatureAttacker)
+        else if (creatureAttacker != null)
         {
             var playerTarget = target.AsPlayer;
             var creatureTarget = target.AsCreature;
 
-            if (playerTarget)
+            if (playerTarget != null)
             {
                 if (creatureAttacker.HasScalableLevels)
                     return GenerateDataCreatureToPlayer(creatureAttacker, playerTarget);
             }
-            else if (creatureTarget)
+            else if (creatureTarget != null)
                 if (creatureAttacker.HasScalableLevels || creatureTarget.HasScalableLevels)
                     return GenerateDataCreatureToCreature(creatureAttacker, creatureTarget);
         }
@@ -149,10 +151,5 @@ internal class ContentTuningParams
         TargetContentTuningID = creatureScaling.ContentTuningId;
 
         return true;
-    }
-
-    private bool GenerateDataPlayerToPlayer(Player attacker, Player target)
-    {
-        return false;
     }
 }

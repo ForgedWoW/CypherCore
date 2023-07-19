@@ -3,6 +3,9 @@
 
 using Framework.Constants;
 
+// ReSharper disable UnusedType.Local
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("deserter")]
@@ -12,7 +15,7 @@ internal class DeserterCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (!player)
+        if (player == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -37,7 +40,7 @@ internal class DeserterCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (!player)
+        if (player == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 

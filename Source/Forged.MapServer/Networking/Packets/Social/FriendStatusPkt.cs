@@ -4,6 +4,7 @@
 using System;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Social;

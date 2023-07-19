@@ -31,6 +31,11 @@ using Framework.Constants;
 using Framework.Util;
 using Serilog;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable SuspiciousTypeConversion.Global
+// ReSharper disable UnusedType.Local
+// ReSharper disable MemberHidesStaticFromOuterClass
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("debug")]
@@ -39,11 +44,7 @@ internal class DebugCommands
     [Command("anim", RBACPermissions.CommandDebug)]
     private static bool HandleDebugAnimCommand(CommandHandler handler, Emote emote)
     {
-        var unit = handler.SelectedUnit;
-
-        if (unit)
-            unit.HandleEmoteCommand(emote);
-
+        handler.SelectedUnit?.HandleEmoteCommand(emote);
         handler.SendSysMessage($"Playing emote {emote}");
 
         return true;
@@ -89,12 +90,12 @@ internal class DebugCommands
     {
         var player = handler.Player;
 
-        if (!player)
+        if (player == null)
             return false;
 
         var target = handler.SelectedCreature;
 
-        if (!target || !target.IsAIEnabled)
+        if (target is not { IsAIEnabled: true })
             return false;
 
         var duration = durationArg != 0 ? TimeSpan.FromSeconds(durationArg) : TimeSpan.Zero;
@@ -113,10 +114,7 @@ internal class DebugCommands
     [Command("combat", RBACPermissions.CommandDebug)]
     private static bool HandleDebugCombatListCommand(CommandHandler handler)
     {
-        var target = handler.SelectedUnit;
-
-        if (!target)
-            target = handler.Player;
+        var target = handler.SelectedUnit ?? handler.Player;
 
         handler.SendSysMessage($"Combat refs: (Combat state: {target.IsInCombat} | Manager state: {target.CombatManager.HasCombat})");
 
@@ -146,7 +144,6 @@ internal class DebugCommands
         handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
         return false;
-
     }
 
     [Command("dummy", RBACPermissions.CommandDebug)]
@@ -162,7 +159,7 @@ internal class DebugCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target || !target.IsVehicle)
+        if (target is not { IsVehicle: true })
             return false;
 
         if (entry == 0)
@@ -171,10 +168,10 @@ internal class DebugCommands
         {
             var check = new AllCreaturesOfEntryInRange(handler.Player, entry, 20.0f);
             var searcher = new CreatureSearcher(handler.Player, check, GridType.All);
-            CellCalculator.VisitGrid(handler.Player, searcher, 30.0f);
+            handler.Player.CellCalculator.VisitGrid(handler.Player, searcher, 30.0f);
             var passenger = searcher.GetTarget();
 
-            if (!passenger || passenger == target)
+            if (passenger == null || passenger == target)
                 return false;
 
             passenger.EnterVehicle(target, seatId);
@@ -192,25 +189,43 @@ internal class DebugCommands
         var listQueue = false;
         var checkAll = false;
 
-        if (itemState == "unchanged")
-            state = ItemUpdateState.Unchanged;
-        else if (itemState == "changed")
-            state = ItemUpdateState.Changed;
-        else if (itemState == "new")
-            state = ItemUpdateState.New;
-        else if (itemState == "removed")
-            state = ItemUpdateState.Removed;
-        else if (itemState == "queue")
-            listQueue = true;
-        else if (itemState == "check_all")
-            checkAll = true;
-        else
-            return false;
+        switch (itemState)
+        {
+            case "unchanged":
+                state = ItemUpdateState.Unchanged;
 
-        var player = handler.SelectedPlayer;
+                break;
 
-        if (!player)
-            player = handler.Player;
+            case "changed":
+                state = ItemUpdateState.Changed;
+
+                break;
+
+            case "new":
+                state = ItemUpdateState.New;
+
+                break;
+
+            case "removed":
+                state = ItemUpdateState.Removed;
+
+                break;
+
+            case "queue":
+                listQueue = true;
+
+                break;
+
+            case "check_all":
+                checkAll = true;
+
+                break;
+
+            default:
+                return false;
+        }
+
+        var player = handler.SelectedPlayer ?? handler.Player;
 
         if (!listQueue && !checkAll)
         {
@@ -224,22 +239,21 @@ internal class DebugCommands
 
                 var item = player.GetItemByPos(InventorySlots.Bag0, i);
 
-                if (item)
-                {
-                    var bag = item.AsBag;
+                if (item == null)
+                    continue;
 
-                    if (bag)
-                        for (byte j = 0; j < bag.GetBagSize(); ++j)
-                        {
-                            var item2 = bag.GetItemByPos(j);
+                var bag = item.AsBag;
 
-                            if (item2)
-                                if (item2.State == state)
-                                    handler.SendSysMessage("bag: 255 slot: {0} guid: {1} owner: {2}", item2.Slot, item2.GUID.ToString(), item2.OwnerGUID.ToString());
-                        }
-                    else if (item.State == state)
-                        handler.SendSysMessage("bag: 255 slot: {0} guid: {1} owner: {2}", item.Slot, item.GUID.ToString(), item.OwnerGUID.ToString());
-                }
+                if (bag != null)
+                    for (byte j = 0; j < bag.GetBagSize(); ++j)
+                    {
+                        var item2 = bag.GetItemByPos(j);
+
+                        if (item2 != null && item2.State == state)
+                            handler.SendSysMessage("bag: 255 slot: {0} guid: {1} owner: {2}", item2.Slot, item2.GUID.ToString(), item2.OwnerGUID.ToString());
+                    }
+                else if (item.State == state)
+                    handler.SendSysMessage("bag: 255 slot: {0} guid: {1} owner: {2}", item.Slot, item.GUID.ToString(), item.OwnerGUID.ToString());
             }
         }
 
@@ -247,23 +261,21 @@ internal class DebugCommands
         {
             var updateQueue = player.ItemUpdateQueue;
 
-            for (var i = 0; i < updateQueue.Count; ++i)
+            foreach (var item in updateQueue)
             {
-                var item = updateQueue[i];
-
-                if (!item)
+                if (item == null)
                     continue;
 
                 var container = item.Container;
-                var bagSlot = container ? container.Slot : InventorySlots.Bag0;
+                var bagSlot = container?.Slot ?? InventorySlots.Bag0;
 
                 var st = item.State switch
                 {
                     ItemUpdateState.Unchanged => "unchanged",
-                    ItemUpdateState.Changed   => "changed",
-                    ItemUpdateState.New       => "new",
-                    ItemUpdateState.Removed   => "removed",
-                    _                         => ""
+                    ItemUpdateState.Changed => "changed",
+                    ItemUpdateState.New => "new",
+                    ItemUpdateState.Removed => "removed",
+                    _ => ""
                 };
 
                 handler.SendSysMessage("bag: {0} slot: {1} guid: {2} - state: {3}", bagSlot, item.Slot, item.GUID.ToString(), st);
@@ -273,7 +285,9 @@ internal class DebugCommands
                 handler.SendSysMessage("The player's updatequeue is empty");
         }
 
-        if (checkAll)
+        if (!checkAll)
+            return true;
+
         {
             var error = false;
             var updateQueue = player.ItemUpdateQueue;
@@ -285,7 +299,7 @@ internal class DebugCommands
 
                 var item = player.GetItemByPos(InventorySlots.Bag0, i);
 
-                if (!item)
+                if (item == null)
                     continue;
 
                 if (item.Slot != i)
@@ -306,7 +320,7 @@ internal class DebugCommands
 
                 var container = item.Container;
 
-                if (container)
+                if (container != null)
                 {
                     handler.SendSysMessage("The item with slot {0} and guid {1} has a container (slot: {2}, guid: {3}) but shouldn't!", item.Slot, item.GUID.ToString(), container.Slot, container.GUID.ToString());
                     error = true;
@@ -352,12 +366,15 @@ internal class DebugCommands
 
                 var bag = item.AsBag;
 
-                if (bag)
+                if (bag == null)
+                    continue;
+
+                {
                     for (byte j = 0; j < bag.GetBagSize(); ++j)
                     {
                         var item2 = bag.GetItemByPos(j);
 
-                        if (!item2)
+                        if (item2 == null)
                             continue;
 
                         if (item2.Slot != j)
@@ -378,7 +395,7 @@ internal class DebugCommands
 
                         var container1 = item2.Container;
 
-                        if (!container1)
+                        if (container1 == null)
                         {
                             handler.SendSysMessage("The item in bag {0} at slot {1} with guid {2} has no container!", bag.Slot, item2.Slot, item2.GUID.ToString());
                             error = true;
@@ -426,13 +443,14 @@ internal class DebugCommands
                             error = true;
                         }
                     }
+                }
             }
 
             for (var i = 0; i < updateQueue.Count; ++i)
             {
                 var item = updateQueue[i];
 
-                if (!item)
+                if (item == null)
                     continue;
 
                 if (item.OwnerGUID != player.GUID)
@@ -464,11 +482,11 @@ internal class DebugCommands
                     continue;
                 }
 
-                if (test != item)
-                {
-                    handler.SendSysMessage("queue({0}): The bag({1}) and slot({2}) values for the item with guid {3} are incorrect, an item which guid is {4} is there instead!", i, item.BagSlot, item.Slot, item.GUID.ToString(), test.GUID.ToString());
-                    error = true;
-                }
+                if (test == item)
+                    continue;
+
+                handler.SendSysMessage("queue({0}): The bag({1}) and slot({2}) values for the item with guid {3} are incorrect, an item which guid is {4} is there instead!", i, item.BagSlot, item.Slot, item.GUID.ToString(), test.GUID.ToString());
+                error = true;
             }
 
             if (!error)
@@ -483,7 +501,7 @@ internal class DebugCommands
     {
         var target = handler.SelectedCreature;
 
-        if (!target)
+        if (target == null)
             return false;
 
         handler.SendSysMessage($"Loot recipients for creature {target.GetName()} ({target.GUID}, SpawnID {target.SpawnId}) are:");
@@ -600,22 +618,17 @@ internal class DebugCommands
                 handler.SendSysMessage(" |-- '{}' ({})", groupData.Name, key);
                 bool isBlocked = false, isSpawned = false;
 
-                foreach (var tuple in store[key])
+                foreach (var (isSpawn, bossStateId, item3) in store[key])
                 {
-                    var isSpawn = tuple.Item1;
-                    var bossStateId = tuple.Item2;
                     var actualState = instance.GetBossState(bossStateId);
 
-                    if ((tuple.Item3 & (1 << (int)actualState)) != 0)
+                    if ((item3 & (1 << (int)actualState)) != 0)
                     {
                         if (isSpawn)
                         {
                             isSpawned = true;
 
-                            if (isBlocked)
-                                handler.SendSysMessage($" | |-- '{groupData.Name}' would be allowed to spawn by boss state {bossStateId} being {actualState}, but this is overruled");
-                            else
-                                handler.SendSysMessage($" | |-- '{groupData.Name}' is allowed to spawn because boss state {bossStateId} is {(EncounterState)bossStateId}.");
+                            handler.SendSysMessage(isBlocked ? $" | |-- '{groupData.Name}' would be allowed to spawn by boss state {bossStateId} being {actualState}, but this is overruled" : $" | |-- '{groupData.Name}' is allowed to spawn because boss state {bossStateId} is {(EncounterState)bossStateId}.");
                         }
                         else
                         {
@@ -624,7 +637,7 @@ internal class DebugCommands
                         }
                     }
                     else
-                        handler.SendSysMessage($" | |-- '{groupData.Name}' could've been {(isSpawn ? "allowed to spawn" : "blocked from spawning")} if boss state {bossStateId} matched mask 0x{tuple.Item3:X2}; but it is {actualState} . 0x{1 << (int)actualState:X2}, which does not match.");
+                        handler.SendSysMessage($" | |-- '{groupData.Name}' could've been {(isSpawn ? "allowed to spawn" : "blocked from spawning")} if boss state {bossStateId} matched mask 0x{item3:X2}; but it is {actualState} . 0x{1 << (int)actualState:X2}, which does not match.");
                 }
 
                 if (isBlocked)
@@ -646,7 +659,7 @@ internal class DebugCommands
     {
         var item = handler.Player.GetItemByGuid(ObjectGuid.Create(HighGuid.Item, guid));
 
-        if (!item)
+        if (item == null)
             return false;
 
         handler.Player.DestroyItem(item.BagSlot, item.Slot, true);
@@ -675,7 +688,7 @@ internal class DebugCommands
 
     private static bool HandleDebugLoadCellsCommandHelper(CommandHandler handler, Map map, uint? tileX, uint? tileY)
     {
-        if (!map)
+        if (map == null)
             return false;
 
         // Load 1 single tile if specified, otherwise load the whole map
@@ -707,7 +720,7 @@ internal class DebugCommands
     {
         var unit = handler.SelectedUnit;
 
-        if (!unit)
+        if (unit == null)
             return false;
 
         var player = handler.Player;
@@ -764,7 +777,7 @@ internal class DebugCommands
         {
             var bg = player.Battleground;
 
-            if (bg)
+            if (bg != null)
                 nearestLoc = bg.GetClosestGraveYard(player);
             else
             {
@@ -820,7 +833,7 @@ internal class DebugCommands
                     creatureIds[p.Value.Entry] = creatureIds.ContainsKey(p.Value.Entry) switch
                     {
                         false => 0,
-                        _     => creatureIds[p.Value.Entry]
+                        _ => creatureIds[p.Value.Entry]
                     };
 
                     creatureIds[p.Value.Entry]++;
@@ -847,7 +860,7 @@ internal class DebugCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -860,13 +873,14 @@ internal class DebugCommands
                 handler.SendSysMessage($"Target creature's PhaseId in DB: {target.Location.DBPhase}");
 
                 break;
+
             case < 0:
                 handler.SendSysMessage($"Target creature's PhaseGroup in DB: {Math.Abs(target.Location.DBPhase)}");
 
                 break;
         }
 
-        PhasingHandler.PrintToChat(handler, target);
+        handler.ClassFactory.Resolve<PhasingHandler>().PrintToChat(handler, target);
 
         return true;
     }
@@ -945,7 +959,7 @@ internal class DebugCommands
     {
         var unit = handler.SelectedUnit;
 
-        if (!unit)
+        if (unit == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -977,7 +991,7 @@ internal class DebugCommands
         handler.Player.Location.GetClosePoint(pos, handler.Player.CombatReach);
 
         if (id == 0)
-            return handler.Player.SummonCreature(entry, pos);
+            return handler.Player.SummonCreature(entry, pos) != null;
 
         var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(entry);
 
@@ -991,7 +1005,7 @@ internal class DebugCommands
 
         var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(entry, map, pos, id);
 
-        if (!creature)
+        if (creature == null)
             return false;
 
         map.AddToMap(creature);
@@ -1091,7 +1105,7 @@ internal class DebugCommands
         target = target switch
         {
             null => handler.Player,
-            _    => target
+            _ => target
         };
 
         var mgr = target.GetThreatManager();
@@ -1125,10 +1139,7 @@ internal class DebugCommands
         {
             if (!mgr.IsThreatListEmpty(true))
             {
-                if (target.IsEngaged)
-                    handler.SendSysMessage($"Threat list of {target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}):");
-                else
-                    handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not engaged, but still has a threat list? Well, here it is:");
+                handler.SendSysMessage(target.IsEngaged ? $"Threat list of {target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}):" : $"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not engaged, but still has a threat list? Well, here it is:");
 
                 count = 0;
                 var fixateVictim = mgr.GetFixateTarget();
@@ -1159,25 +1170,32 @@ internal class DebugCommands
     {
         var transport = handler.Player.GetTransport<Transport>();
 
-        if (!transport)
+        if (transport == null)
             return false;
 
         var start = false;
 
-        if (operation == "stop")
-            transport.EnableMovement(false);
-        else if (operation == "start")
+        switch (operation)
         {
-            transport.EnableMovement(true);
-            start = true;
-        }
-        else
-        {
-            Position pos = transport.Location;
-            handler.SendSysMessage("Transport {0} is {1}", transport.GetName(), transport.GoState == GameObjectState.Ready ? "stopped" : "moving");
-            handler.SendSysMessage("Transport position: {0}", pos.ToString());
+            case "stop":
+                transport.EnableMovement(false);
 
-            return true;
+                break;
+
+            case "start":
+                transport.EnableMovement(true);
+                start = true;
+
+                break;
+
+            default:
+            {
+                Position pos = transport.Location;
+                handler.SendSysMessage("Transport {0} is {1}", transport.GetName(), transport.GoState == GameObjectState.Ready ? "stopped" : "moving");
+                handler.SendSysMessage("Transport position: {0}", pos.ToString());
+
+                return true;
+            }
         }
 
         handler.SendSysMessage("Transport {0} {1}", transport.GetName(), start ? "started" : "stopped");
@@ -1196,6 +1214,10 @@ internal class DebugCommands
     [Command("warden force", RBACPermissions.CommandDebug, true)]
     private static bool HandleDebugWardenForce(CommandHandler handler, ushort[] checkIds)
     {
+        if (handler == null)
+            return false;
+
+        return checkIds != null;
         /*if (checkIds.Empty())
             return false;
 
@@ -1208,7 +1230,6 @@ internal class DebugCommands
 
         size_t const nQueued = warden->DEBUG_ForceSpecificChecks(checkIds);
         handler->PSendSysMessage("%zu/%zu checks queued for your Warden, they should be sent over the next few minutes (depending on settings)", nQueued, checkIds.size());*/
-        return true;
     }
 
     [Command("pvp warmode", RBACPermissions.CommandDebug, true)]
@@ -1288,13 +1309,13 @@ internal class DebugCommands
         [Command("memoryleak", RBACPermissions.CommandDebug, true)]
         private static bool HandleDebugMemoryLeak(CommandHandler handler)
         {
-            return true;
+            return handler != null;
         }
 
         [Command("outofbounds", RBACPermissions.CommandDebug, true)]
         private static bool HandleDebugOutOfBounds(CommandHandler handler)
         {
-            return true;
+            return handler != null;
         }
     }
 
@@ -1381,7 +1402,7 @@ internal class DebugCommands
 
             var unit = handler.SelectedUnit;
 
-            if (!unit)
+            if (unit == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -1553,7 +1574,7 @@ internal class DebugCommands
             if (uiMapPhaseId != 0)
                 phaseShift.AddUiMapPhaseId(uiMapPhaseId);
 
-            PhasingHandler.SendToPlayer(handler.Player, phaseShift);
+            handler.Player.PhasingHandler.SendToPlayer(handler.Player, phaseShift);
 
             return true;
         }
@@ -1582,6 +1603,9 @@ internal class DebugCommands
         [Command("force", RBACPermissions.CommandDebug, true)]
         private static bool HandleDebugWardenForce(CommandHandler handler, ushort[] checkIds)
         {
+            if (handler == null)
+                return false;
+
             /*if (checkIds.Empty())
                 return false;
 
@@ -1594,7 +1618,7 @@ internal class DebugCommands
 
             size_t const nQueued = warden->DEBUG_ForceSpecificChecks(checkIds);
             handler->PSendSysMessage("%zu/%zu checks queued for your Warden, they should be sent over the next few minutes (depending on settings)", nQueued, checkIds.size());*/
-            return true;
+            return checkIds != null;
         }
     }
 }

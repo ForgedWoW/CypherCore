@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Game.Common.Extendability;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -17,10 +18,12 @@ namespace Forged.MapServer.Chat;
 public class CommandManager
 {
     private readonly IConfiguration _configuration;
+    private readonly ClassFactory _classFactory;
 
-    public CommandManager(WorldDatabase worldDatabase, IConfiguration configuration)
+    public CommandManager(WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory)
     {
         _configuration = configuration;
+        _classFactory = classFactory;
 
         foreach (var ass in IOHelpers.GetAllAssembliesInDir(configuration.GetDefaultValue("ScriptsDirectory", Path.Combine(AppContext.BaseDirectory, "Scripts"))))
             foreach (var type in ass.GetTypes())
@@ -100,7 +103,7 @@ public class CommandManager
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write("Forged>> ");
 
-        var handler = new ConsoleHandler();
+        var handler = new ConsoleHandler(_classFactory);
         Running = true;
 
         while (Running)

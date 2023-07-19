@@ -1450,12 +1450,10 @@ public class GameEventManager
                                                   var go = _gameObjectFactory.CreateGameObjectFromDb(guid, map, false);
 
                                                   // @todo find out when it is add to map
-                                                  if (!go)
+                                                  if (go is not { IsSpawnedByDefault: true })
                                                       return;
 
                                                   // @todo find out when it is add to map
-                                                  if (!go.IsSpawnedByDefault)
-                                                      return;
 
                                                   if (!map.AddToMap(go))
                                                       go.Dispose();

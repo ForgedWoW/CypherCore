@@ -4,11 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
@@ -80,12 +84,6 @@ public class EnumCharactersResult : ServerPacket
         public int BlockReason;
 
         public int RaceID;
-
-        private enum blah
-        {
-            Server,
-            Level
-        }
 
         public void Write(WorldPacket data)
         {
@@ -175,14 +173,14 @@ public class EnumCharactersResult : ServerPacket
         public short SpecID;
         public int Unknown703;
 
-        public byte unkWod61x;
+        public byte UnkWod61X;
 
         // @todo
         public VisualItemInfo[] VisualItems = new VisualItemInfo[InventorySlots.ReagentBagEnd];
 
         public uint ZoneId;
 
-        public CharacterInfo(SQLFields fields)
+        public CharacterInfo(SQLFields fields, IConfiguration configuration, GameObjectManager gameObjectManager, DB2Manager db2Manager)
         {
             Guid = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(0));
             Name = fields.Read<string>(1);
@@ -214,7 +212,7 @@ public class EnumCharactersResult : ServerPacket
             if (fields.Read<uint>(18) != 0)
                 Flags |= CharacterFlags.LockedByBilling;
 
-            if (GetDefaultValue("DeclinedNames", false) && !string.IsNullOrEmpty(fields.Read<string>(23)))
+            if (configuration.GetDefaultValue("DeclinedNames", false) && !string.IsNullOrEmpty(fields.Read<string>(23)))
                 Flags |= CharacterFlags.Declined;
 
             if (atLoginFlags.HasAnyFlag(AtLoginFlags.Customize))
@@ -231,7 +229,7 @@ public class EnumCharactersResult : ServerPacket
             // show pet at selection character in character list only for non-ghost character
             if (!playerFlags.HasAnyFlag(PlayerFlags.Ghost) && ClassId is PlayerClass.Warlock or PlayerClass.Hunter or PlayerClass.Deathknight)
             {
-                var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(fields.Read<uint>(14));
+                var creatureInfo = gameObjectManager.GetCreatureTemplate(fields.Read<uint>(14));
 
                 if (creatureInfo != null)
                 {
@@ -249,7 +247,7 @@ public class EnumCharactersResult : ServerPacket
             ListPosition = fields.Read<byte>(19);
             LastPlayedTime = fields.Read<long>(20);
 
-            var spec = Global.DB2Mgr.GetChrSpecializationByIndex(ClassId, fields.Read<byte>(21));
+            var spec = db2Manager.GetChrSpecializationByIndex(ClassId, fields.Read<byte>(21));
 
             if (spec != null)
                 SpecID = (short)spec.Id;
@@ -315,7 +313,7 @@ public class EnumCharactersResult : ServerPacket
             data.WriteBits(Name.GetByteCount(), 6);
             data.WriteBit(FirstLogin);
             data.WriteBit(BoostInProgress);
-            data.WriteBits(unkWod61x, 5);
+            data.WriteBits(UnkWod61X, 5);
 
             foreach (var str in MailSenders)
                 data.WriteBits(str.GetByteCount() + 1, 6);
