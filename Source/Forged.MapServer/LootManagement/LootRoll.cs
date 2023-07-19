@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -13,6 +12,8 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Loot;
 using Framework.Constants;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.MapServer.LootManagement;
 
@@ -22,6 +23,9 @@ public class LootRoll
     private readonly LootFactory _lootFactory;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
+    private readonly DB2Manager _db2Manager;
+    private readonly CliDB _cliDb;
+    private readonly ItemFactory _itemFactory;
     private readonly Dictionary<ObjectGuid, PlayerRollVote> _rollVoteMap = new();
 
     private DateTime _endTime = DateTime.MinValue;
@@ -31,11 +35,15 @@ public class LootRoll
     private Map _map;
     private RollMask _voteMask;
 
-    public LootRoll(GameObjectManager objectManager, ObjectAccessor objectAccessor, LootFactory lootFactory)
+    public LootRoll(GameObjectManager objectManager, ObjectAccessor objectAccessor, LootFactory lootFactory,
+        DB2Manager db2Manager, CliDB cliDb, ItemFactory itemFactory)
     {
         _objectManager = objectManager;
         _objectAccessor = objectAccessor;
         _lootFactory = lootFactory;
+        _db2Manager = db2Manager;
+        _cliDb = cliDb;
+        _itemFactory = itemFactory;
     }
 
     public bool IsLootItem(ObjectGuid lootObject, uint lootListId)
@@ -275,17 +283,15 @@ public class LootRoll
 
     private ItemDisenchantLootRecord GetItemDisenchantLoot()
     {
-        ItemInstance itemInstance = new(_lootItem);
-
-        BonusData bonusData = new(itemInstance);
+        var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
+        BonusData bonusData = new(itemTemplate, _db2Manager, _cliDb.ItemEffectStorage);
 
         if (!bonusData.CanDisenchant)
             return null;
 
-        var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
-        var itemLevel = ItemFactory.GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false, 0);
+        var itemLevel = _itemFactory.GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false, 0);
 
-        return ItemFactory.GetDisenchantLoot(itemTemplate, (uint)bonusData.Quality, itemLevel);
+        return _itemFactory.GetDisenchantLoot(itemTemplate, (uint)bonusData.Quality, itemLevel);
     }
 
     // Send all passed message
