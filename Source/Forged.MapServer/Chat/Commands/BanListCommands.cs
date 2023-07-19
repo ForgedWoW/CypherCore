@@ -5,6 +5,8 @@ using System;
 using Framework.Constants;
 using Framework.Database;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("banlist")]
@@ -31,14 +33,12 @@ internal class BanListCommands
             result = loginDb.Query(stmt);
         }
 
-        if (result.IsEmpty())
-        {
-            handler.SendSysMessage(CypherStrings.BanlistNoaccount);
+        if (!result.IsEmpty())
+            return HandleBanListHelper(result, handler);
 
-            return true;
-        }
+        handler.SendSysMessage(CypherStrings.BanlistNoaccount);
 
-        return HandleBanListHelper(result, handler);
+        return true;
     }
 
     [Command("character", RBACPermissions.CommandBanlistCharacter, true)]
@@ -62,7 +62,7 @@ internal class BanListCommands
         handler.SendSysMessage(CypherStrings.BanlistMatchingcharacter);
 
         // Chat short output
-        if (handler.Session)
+        if (handler.Session != null)
             do
             {
                 var stmt2 = charDB.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
@@ -143,7 +143,7 @@ internal class BanListCommands
         handler.SendSysMessage(CypherStrings.BanlistMatchingaccount);
 
         // Chat short output
-        if (handler.Session)
+        if (handler.Session != null)
             do
             {
                 var accountid = result.Read<uint>(0);
@@ -184,8 +184,7 @@ internal class BanListCommands
                 do
                 {
                     long timeBan = banInfo.Read<uint>(0);
-                    DateTime tmBan;
-                    tmBan = Time.UnixTimeToDateTime(timeBan);
+                    var tmBan = Time.UnixTimeToDateTime(timeBan);
                     var bannedby = banInfo.Read<string>(2)[..15];
                     var banreason = banInfo.Read<string>(3)[..15];
 
@@ -202,8 +201,7 @@ internal class BanListCommands
                     else
                     {
                         long timeUnban = banInfo.Read<uint>(1);
-                        DateTime tmUnban;
-                        tmUnban = Time.UnixTimeToDateTime(timeUnban);
+                        var tmUnban = Time.UnixTimeToDateTime(timeUnban);
 
                         handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
                                                accountName[..15],
@@ -260,7 +258,7 @@ internal class BanListCommands
         handler.SendSysMessage(CypherStrings.BanlistMatchingip);
 
         // Chat short output
-        if (handler.Session)
+        if (handler.Session != null)
             do
             {
                 handler.SendSysMessage("{0}", result.Read<string>(0));
@@ -294,8 +292,7 @@ internal class BanListCommands
                 else
                 {
                     long timeUnban = result.Read<uint>(2);
-                    DateTime tmUnban;
-                    tmUnban = Time.UnixTimeToDateTime(timeUnban);
+                    var tmUnban = Time.UnixTimeToDateTime(timeUnban);
 
                     handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
                                            result.Read<string>(0),

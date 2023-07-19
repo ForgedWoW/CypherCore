@@ -138,7 +138,7 @@ public class BattlePetMgr
 
         var item = Owner.Player.StoreNewItem(dest, SharedConst.BattlePetCageItemId, true);
 
-        if (!item)
+        if (item == null)
             return;
 
         item.SetModifier(ItemModifier.BattlePetSpeciesId, pet.PacketInfo.Species);

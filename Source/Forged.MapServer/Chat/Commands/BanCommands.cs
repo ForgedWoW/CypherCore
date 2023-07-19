@@ -3,11 +3,12 @@
 
 using System;
 using System.Net;
-using Forged.MapServer.Globals;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -38,7 +39,7 @@ internal class BanCommands
         if (reason.IsEmpty())
             return false;
 
-        if (!GameObjectManager.NormalizePlayerName(ref playerName))
+        if (!handler.ObjectManager.NormalizePlayerName(ref playerName))
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -53,20 +54,10 @@ internal class BanCommands
         {
             case BanReturn.Success:
             {
-                if (duration > 0)
-                {
-                    if (cfg.GetDefaultValue("ShowBanInWorld", false))
-                        worldManager.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
-                    else
-                        handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
-                }
+                if (cfg.GetDefaultValue("ShowBanInWorld", false))
+                    worldManager.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
                 else
-                {
-                    if (cfg.GetDefaultValue("ShowBanInWorld", false))
-                        worldManager.SendWorldText(CypherStrings.BanCharacterYoupermbannedmessageWorld, author, playerName, reason);
-                    else
-                        handler.SendSysMessage(CypherStrings.BanYoupermbanned, playerName, reason);
-                }
+                    handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
 
                 break;
             }
@@ -92,7 +83,7 @@ internal class BanCommands
         switch (mode)
         {
             case BanMode.Character:
-                if (!GameObjectManager.NormalizePlayerName(ref nameOrIP))
+                if (!handler.ObjectManager.NormalizePlayerName(ref nameOrIP))
                 {
                     handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -100,6 +91,7 @@ internal class BanCommands
                 }
 
                 break;
+
             case BanMode.IP:
                 if (!IPAddress.TryParse(nameOrIP, out _))
                     return false;
@@ -130,8 +122,10 @@ internal class BanCommands
                 }
 
                 break;
+
             case BanReturn.SyntaxError:
                 return false;
+
             case BanReturn.Notfound:
                 switch (mode)
                 {
@@ -139,10 +133,12 @@ internal class BanCommands
                         handler.SendSysMessage(CypherStrings.BanNotfound, "account", nameOrIP);
 
                         break;
+
                     case BanMode.Character:
                         handler.SendSysMessage(CypherStrings.BanNotfound, "character", nameOrIP);
 
                         break;
+
                     case BanMode.IP:
                         handler.SendSysMessage(CypherStrings.BanNotfound, "ip", nameOrIP);
 
@@ -150,6 +146,7 @@ internal class BanCommands
                 }
 
                 return false;
+
             case BanReturn.Exists:
                 handler.SendSysMessage(CypherStrings.BanExists);
 

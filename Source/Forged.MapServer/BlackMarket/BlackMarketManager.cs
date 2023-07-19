@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Chat.Commands;
@@ -27,6 +28,7 @@ public class BlackMarketManager
 {
     private readonly AccountManager _accountManager;
     private readonly ClassFactory _classFactory;
+    private readonly ItemFactory _itemFactory;
     private readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
@@ -39,7 +41,7 @@ public class BlackMarketManager
 
     public BlackMarketManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase,
                               ObjectAccessor objectAccessor, Realm realm, GameObjectManager objectManager,
-                              CharacterCache characterCache, AccountManager accountManager, ClassFactory classFactory)
+                              CharacterCache characterCache, AccountManager accountManager, ClassFactory classFactory, ItemFactory itemFactory)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -50,6 +52,7 @@ public class BlackMarketManager
         _characterCache = characterCache;
         _accountManager = accountManager;
         _classFactory = classFactory;
+        _itemFactory = itemFactory;
     }
 
     public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket:Enabled", true);
@@ -193,11 +196,8 @@ public class BlackMarketManager
         SQLTransaction trans = new();
 
         // Delete completed auctions
-        foreach (var pair in _auctions)
+        foreach (var pair in _auctions.Where(pair => pair.Value.IsCompleted()))
         {
-            if (!pair.Value.IsCompleted())
-                continue;
-
             pair.Value.DeleteFromDB(trans);
             _auctions.Remove(pair.Key);
         }
@@ -289,7 +289,7 @@ public class BlackMarketManager
 
         // Create item
         var templ = entry.GetTemplate();
-        var item = ItemFactory.CreateItem(templ.Item.ItemID, templ.Quantity, ItemContext.BlackMarket);
+        var item = _itemFactory.CreateItem(templ.Item.ItemID, templ.Quantity, ItemContext.BlackMarket);
 
         if (item == null)
             return;

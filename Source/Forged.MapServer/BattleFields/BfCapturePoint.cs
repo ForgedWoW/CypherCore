@@ -15,6 +15,8 @@ using Forged.MapServer.Maps.GridNotifiers;
 using Framework.Constants;
 using Serilog;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.BattleFields;
 
 public class BfCapturePoint
@@ -27,6 +29,7 @@ public class BfCapturePoint
     // active Players in the area of the objective, 0 - alliance, 1 - horde
     private readonly HashSet<ObjectGuid>[] _activePlayers = new HashSet<ObjectGuid>[SharedConst.PvpTeamsCount];
 
+    private readonly CellCalculator _cellCalculator;
     private readonly ObjectAccessor _objectAccessor;
 
     // Capture point entry
@@ -54,10 +57,11 @@ public class BfCapturePoint
     // The status of the objective
     private float _value;
 
-    public BfCapturePoint(BattleField battlefield, ObjectAccessor objectAccessor)
+    public BfCapturePoint(BattleField battlefield, ObjectAccessor objectAccessor, CellCalculator cellCalculator)
     {
         Bf = battlefield;
         _objectAccessor = objectAccessor;
+        _cellCalculator = cellCalculator;
         _capturePointGUID = ObjectGuid.Empty;
         Team = TeamIds.Neutral;
         _value = 0;
@@ -73,7 +77,8 @@ public class BfCapturePoint
         _activePlayers[1] = new HashSet<ObjectGuid>();
     }
 
-    public virtual void ChangeTeam(uint oldTeam) { }
+    public virtual void ChangeTeam(uint oldTeam)
+    { }
 
     public uint GetCapturePointEntry()
     {
@@ -87,7 +92,7 @@ public class BfCapturePoint
 
         var capturePoint = Bf.GetGameObject(_capturePointGUID);
 
-        if (!capturePoint)
+        if (capturePoint == null)
             return _activePlayers[player.TeamId].Add(player.GUID);
 
         player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 1);
@@ -103,7 +108,7 @@ public class BfCapturePoint
         {
             var capturePoint = Bf.GetGameObject(_capturePointGUID);
 
-            if (capturePoint)
+            if (capturePoint != null)
                 player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 0);
         }
 
@@ -117,15 +122,15 @@ public class BfCapturePoint
 
         var capturePoint = Bf.GetGameObject(_capturePointGUID);
 
-        if (capturePoint)
-        {
-            // send this too, sometimes the slider disappears, dunno why :(
-            SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 1);
-            // send these updates to only the ones in this objective
-            SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((_value + _maxValue) / (2 * _maxValue) * 100.0f));
-            // send this too, sometimes it resets :S
-            SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate3, _neutralValuePct);
-        }
+        if (capturePoint == null)
+            return;
+
+        // send this too, sometimes the slider disappears, dunno why :(
+        SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 1);
+        // send these updates to only the ones in this objective
+        SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((_value + _maxValue) / (2 * _maxValue) * 100.0f));
+        // send this too, sometimes it resets :S
+        SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate3, _neutralValuePct);
     }
 
     public bool SetCapturePointData(GameObject capturePoint)
@@ -172,7 +177,7 @@ public class BfCapturePoint
 
         var capturePoint = Bf.GetGameObject(_capturePointGUID);
 
-        if (capturePoint)
+        if (capturePoint != null)
         {
             float radius = capturePoint.Template.ControlZone.radius;
 
@@ -181,7 +186,7 @@ public class BfCapturePoint
                 {
                     var player = _objectAccessor.FindPlayer(guid);
 
-                    if (!player)
+                    if (player == null)
                         continue;
 
                     if (!capturePoint.Location.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
@@ -191,7 +196,7 @@ public class BfCapturePoint
             List<Unit> players = new();
             var checker = new AnyPlayerInObjectRangeCheck(capturePoint, radius);
             var searcher = new PlayerListSearcher(capturePoint, players, checker);
-            CellCalculator.VisitGrid(capturePoint, searcher, radius);
+            _cellCalculator.VisitGrid(capturePoint, searcher, radius);
 
             foreach (var player in from Player player in players
                                    where
@@ -269,9 +274,9 @@ public class BfCapturePoint
             _state = challenger switch
             {
                 // old phase and current are on the same side, so one team challenges the other
-                TeamFaction.Alliance when _oldState is BattleFieldObjectiveStates.Horde or BattleFieldObjectiveStates.NeutralHordeChallenge    => BattleFieldObjectiveStates.HordeAllianceChallenge,
+                TeamFaction.Alliance when _oldState is BattleFieldObjectiveStates.Horde or BattleFieldObjectiveStates.NeutralHordeChallenge => BattleFieldObjectiveStates.HordeAllianceChallenge,
                 TeamFaction.Horde when _oldState is BattleFieldObjectiveStates.Alliance or BattleFieldObjectiveStates.NeutralAllianceChallenge => BattleFieldObjectiveStates.AllianceHordeChallenge,
-                _                                                                                                                              => _state
+                _ => _state
             };
 
             Team = TeamIds.Neutral;
@@ -293,19 +298,19 @@ public class BfCapturePoint
 
     private bool DelCapturePoint()
     {
-        if (!_capturePointGUID.IsEmpty)
+        if (_capturePointGUID.IsEmpty)
+            return true;
+
+        var capturePoint = Bf.GetGameObject(_capturePointGUID);
+
+        if (capturePoint != null)
         {
-            var capturePoint = Bf.GetGameObject(_capturePointGUID);
-
-            if (capturePoint)
-            {
-                capturePoint.SetRespawnTime(0); // not save respawn time
-                capturePoint.Delete();
-                capturePoint.Dispose();
-            }
-
-            _capturePointGUID.Clear();
+            capturePoint.SetRespawnTime(0); // not save respawn time
+            capturePoint.Delete();
+            capturePoint.Dispose();
         }
+
+        _capturePointGUID.Clear();
 
         return true;
     }
@@ -346,14 +351,14 @@ public class BfCapturePoint
         }
 
         // send to all players present in the area
-        foreach (var player in _activePlayers[team].Select(guid => _objectAccessor.FindPlayer(guid)).Where(player => player))
+        foreach (var player in _activePlayers[team].Select(guid => _objectAccessor.FindPlayer(guid)).Where(player => player != null))
             player.KilledMonsterCredit(id, oGuid);
     }
 
     private void SendUpdateWorldState(uint field, uint value)
     {
         for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
-            foreach (var player in _activePlayers[team].Select(guid => _objectAccessor.FindPlayer(guid)).Where(player => player))
+            foreach (var player in _activePlayers[team].Select(guid => _objectAccessor.FindPlayer(guid)).Where(player => player != null))
                 player.SendUpdateWorldState(field, value);
     }
 }

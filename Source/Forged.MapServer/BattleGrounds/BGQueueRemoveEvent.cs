@@ -33,13 +33,14 @@ internal class BGQueueRemoveEvent : BasicEvent
         _bgQueueTypeId = bgQueueTypeId;
     }
 
-    public override void Abort(ulong eTime) { }
+    public override void Abort(ulong eTime)
+    { }
 
     public override bool Execute(ulong etime, uint pTime)
     {
         var player = _objectAccessor.FindPlayer(_playerGuid);
 
-        if (!player)
+        if (player == null)
             // player logged off (we should do nothing, he is correctly removed from queue in another procedure)
             return true;
 
@@ -64,7 +65,7 @@ internal class BGQueueRemoveEvent : BasicEvent
         bgQueue.RemovePlayer(_playerGuid, true);
 
         //update queues if Battleground isn't ended
-        if (bg && bg.IsBattleground && bg.Status != BattlegroundStatus.WaitLeave)
+        if (bg is { IsBattleground: true } && bg.Status != BattlegroundStatus.WaitLeave)
             _battlegroundManager.ScheduleQueueUpdate(0, _bgQueueTypeId, bg.BracketId);
 
         _battlegroundManager.BuildBattlegroundStatusNone(out var battlefieldStatus, player, queueSlot, player.GetBattlegroundQueueJoinTime(_bgQueueTypeId));

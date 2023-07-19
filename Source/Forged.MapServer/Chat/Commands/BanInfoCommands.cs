@@ -9,6 +9,8 @@ using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Database;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("baninfo")]
@@ -35,7 +37,7 @@ internal class BanInfoCommands
     [Command("character", RBACPermissions.CommandBaninfoCharacter, true)]
     private static bool HandleBanInfoCharacterCommand(CommandHandler handler, string name)
     {
-        if (!GameObjectManager.NormalizePlayerName(ref name))
+        if (!handler.ObjectManager.NormalizePlayerName(ref name))
         {
             handler.SendSysMessage(CypherStrings.BaninfoNocharacter);
 
@@ -45,7 +47,7 @@ internal class BanInfoCommands
         var target = handler.ClassFactory.Resolve<ObjectAccessor>().FindPlayerByName(name);
         ObjectGuid targetGuid;
 
-        if (!target)
+        if (target == null)
         {
             targetGuid = handler.ClassFactory.Resolve<CharacterCache>().GetCharacterGuidByName(name);
 

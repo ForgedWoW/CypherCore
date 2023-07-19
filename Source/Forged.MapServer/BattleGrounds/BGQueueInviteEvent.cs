@@ -40,7 +40,7 @@ internal class BGQueueInviteEvent : BasicEvent
         var player = _objectAccessor.FindPlayer(_playerGuid);
 
         // player logged off (we should do nothing, he is correctly removed from queue in another procedure)
-        if (!player)
+        if (player == null)
             return true;
 
         var bg = _battlegroundManager.GetBattleground(_bgInstanceGUID, _bgTypeId);
