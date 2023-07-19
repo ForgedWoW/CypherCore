@@ -34,10 +34,11 @@ public class AuctionHandler : IWorldSessionHandler
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
     private readonly ObjectAccessor _objectAccessor;
+    private readonly AuctionBucketKeyFactory _auctionBucketKeyFactory;
     private readonly WorldSession _session;
 
     public AuctionHandler(WorldSession session, IConfiguration configuration, GameObjectManager gameObjectManager, AuctionManager auctionManager,
-                          CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
+                          CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, AuctionBucketKeyFactory auctionBucketKeyFactory)
     {
         _session = session;
         _configuration = configuration;
@@ -45,6 +46,7 @@ public class AuctionHandler : IWorldSessionHandler
         _auctionManager = auctionManager;
         _characterDatabase = characterDatabase;
         _objectAccessor = objectAccessor;
+        _auctionBucketKeyFactory = auctionBucketKeyFactory;
     }
 
     public void SendAuctionClosedNotification(AuctionPosting auction, float mailDelay, bool sold)
@@ -824,7 +826,7 @@ public class AuctionHandler : IWorldSessionHandler
             }
 
             // verify that all items belong to the same bucket
-            if (!items2.Empty() && AuctionsBucketKey.ForItem(item) != AuctionsBucketKey.ForItem(items2.FirstOrDefault().Value.Item1))
+            if (!items2.Empty() && _auctionBucketKeyFactory.ForItem(item) != _auctionBucketKeyFactory.ForItem(items2.FirstOrDefault().Value.Item1))
             {
                 SendAuctionCommandResult(0, AuctionCommand.SellItem, AuctionResult.ItemNotFound, throttle.DelayUntilNext);
 
@@ -879,7 +881,7 @@ public class AuctionHandler : IWorldSessionHandler
         }
 
         var auctionId = _gameObjectManager.GenerateAuctionID();
-        AuctionPosting auction = new()
+        AuctionPosting auction = new(_auctionBucketKeyFactory)
         {
             Id = auctionId,
             Owner = _session.Player.GUID,
@@ -1104,7 +1106,7 @@ public class AuctionHandler : IWorldSessionHandler
 
         var auctionId = _gameObjectManager.GenerateAuctionID();
 
-        AuctionPosting auction = new()
+        AuctionPosting auction = new(_auctionBucketKeyFactory)
         {
             Id = auctionId,
             Owner = _session.Player.GUID,

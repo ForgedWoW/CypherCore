@@ -8,69 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.AuctionHouse;
 
-public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
+public record AuctionsBucketKey(uint ItemId, ushort ItemLevel, ushort BattlePetSpeciesId, ushort SuffixItemNameDescriptionId)
 {
-    public AuctionsBucketKey(uint itemId, ushort itemLevel, ushort battlePetSpeciesId, ushort suffixItemNameDescriptionId)
-    {
-        ItemId = itemId;
-        ItemLevel = itemLevel;
-        BattlePetSpeciesId = battlePetSpeciesId;
-        SuffixItemNameDescriptionId = suffixItemNameDescriptionId;
-    }
-
-    public AuctionsBucketKey(AuctionBucketKey key)
-    {
-        ItemId = key.ItemID;
-        ItemLevel = key.ItemLevel;
-        BattlePetSpeciesId = key.BattlePetSpeciesID ?? 0;
-        SuffixItemNameDescriptionId = key.SuffixItemNameDescriptionID ?? 0;
-    }
-
-    public ushort BattlePetSpeciesId { get; }
-    public uint ItemId { get; }
-    public ushort ItemLevel { get; }
-    public ushort SuffixItemNameDescriptionId { get; }
-
-    public int CompareTo(AuctionsBucketKey other)
-    {
-        return ItemId.CompareTo(other.ItemId);
-    }
-
-    public static AuctionsBucketKey ForCommodity(ItemTemplate itemTemplate)
-    {
-        return new AuctionsBucketKey(itemTemplate.Id, (ushort)itemTemplate.BaseItemLevel, 0, 0);
-    }
-
-    public static AuctionsBucketKey ForItem(Item item)
-    {
-        var itemTemplate = item.Template;
-
-        if (itemTemplate.MaxStackSize == 1)
-            return new AuctionsBucketKey(item.Entry,
-                                         (ushort)ItemFactory.GetItemLevel(itemTemplate, item.BonusData, 0, (uint)item.GetRequiredLevel(), 0, 0, 0, false, 0),
-                                         (ushort)item.GetModifier(ItemModifier.BattlePetSpeciesId),
-                                         (ushort)item.BonusData.Suffix);
-
-        return ForCommodity(itemTemplate);
-    }
-
-    public static bool operator !=(AuctionsBucketKey right, AuctionsBucketKey left)
-    {
-        return !(right == left);
-    }
-
-    public static bool operator ==(AuctionsBucketKey right, AuctionsBucketKey left)
-    {
-        return left != null && right != null && right.ItemId == left.ItemId && right.ItemLevel == left.ItemLevel && right.BattlePetSpeciesId == left.BattlePetSpeciesId && right.SuffixItemNameDescriptionId == left.SuffixItemNameDescriptionId;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return base.Equals(obj);
-    }
-
-    public override int GetHashCode()
-    {
-        return ItemId.GetHashCode() ^ ItemLevel.GetHashCode() ^ BattlePetSpeciesId.GetHashCode() ^ SuffixItemNameDescriptionId.GetHashCode();
-    }
+    public AuctionsBucketKey(AuctionBucketKey key) : this(key.ItemID, key.ItemLevel, key.BattlePetSpeciesID ?? 0, key.SuffixItemNameDescriptionID ?? 0) { }
 }

@@ -15,6 +15,13 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionPosting
 {
+    private readonly AuctionBucketKeyFactory _auctionBucketKeyFactory;
+
+    public AuctionPosting(AuctionBucketKeyFactory auctionBucketKeyFactory)
+    {
+        _auctionBucketKeyFactory = auctionBucketKeyFactory;
+    }
+
     public ObjectGuid Bidder;
     public ObjectGuid Owner;
     public ObjectGuid OwnerAccount;
@@ -128,7 +135,7 @@ public class AuctionPosting
 
         // SMSG_AUCTION_LIST_BIDDER_ITEMS_RESULT, SMSG_AUCTION_LIST_OWNER_ITEMS_RESULT, SMSG_AUCTION_REPLICATE_RESPONSE (if commodity)
         if (sendKey)
-            auctionItem.AuctionBucketKey = new AuctionBucketKey(AuctionsBucketKey.ForItem(Items[0]));
+            auctionItem.AuctionBucketKey = new AuctionBucketKey(_auctionBucketKeyFactory.ForItem(Items[0]));
 
         // all
         if (!Items[0].ItemData.Creator.Value.IsEmpty)

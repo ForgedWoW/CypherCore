@@ -50,6 +50,7 @@ public class AuctionHouseObject
     private readonly SortedList<uint, AuctionPosting> _itemsByAuctionId = new();
     private readonly ObjectAccessor _objectAccessor;
     private readonly ClassFactory _classFactory;
+    private readonly AuctionBucketKeyFactory _auctionBucketKeyFactory;
     private readonly GameObjectManager _objectManager;
 
     // ordered for replicate
@@ -66,7 +67,7 @@ public class AuctionHouseObject
 
     public AuctionHouseObject(uint auctionHouseId, CliDB cliDB, CharacterDatabase characterDatabase, AuctionManager auctionManager, IConfiguration configuration,
                               ScriptManager scriptManager, DB2Manager db2Manager, GameObjectManager objectManager, BattlePetData battlePet, CharacterCache characterCache,
-                              WorldManager worldManager, ObjectAccessor objectAccessor, ClassFactory classFactory)
+                              WorldManager worldManager, ObjectAccessor objectAccessor, ClassFactory classFactory, AuctionBucketKeyFactory auctionBucketKeyFactory)
     {
         _cliDB = cliDB;
         _characterDatabase = characterDatabase;
@@ -80,12 +81,13 @@ public class AuctionHouseObject
         _worldManager = worldManager;
         _objectAccessor = objectAccessor;
         _classFactory = classFactory;
+        _auctionBucketKeyFactory = auctionBucketKeyFactory;
         _auctionHouse = _cliDB.AuctionHouseStorage.LookupByKey(auctionHouseId);
     }
 
     public void AddAuction(SQLTransaction trans, AuctionPosting auction)
     {
-        var key = AuctionsBucketKey.ForItem(auction.Items[0]);
+        var key = _auctionBucketKeyFactory.ForItem(auction.Items[0]);
 
         if (!_buckets.TryGetValue(key, out var bucket))
         {
@@ -544,7 +546,7 @@ public class AuctionHouseObject
         if (itemTemplate == null)
             return false;
 
-        if (!_buckets.TryGetValue(AuctionsBucketKey.ForCommodity(itemTemplate), out var bucketItr))
+        if (!_buckets.TryGetValue(_auctionBucketKeyFactory.ForCommodity(itemTemplate), out var bucketItr))
         {
             if (player.Session.PacketRouter.TryGetOpCodeHandler<AuctionHandler>(out var auctionManager))
                 auctionManager.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
@@ -765,7 +767,7 @@ public class AuctionHouseObject
         if (itemTemplate == null)
             return null;
 
-        if (!_buckets.TryGetValue(AuctionsBucketKey.ForCommodity(itemTemplate), out var bucketData))
+        if (!_buckets.TryGetValue(_auctionBucketKeyFactory.ForCommodity(itemTemplate), out var bucketData))
             return null;
 
         ulong totalPrice = 0;
