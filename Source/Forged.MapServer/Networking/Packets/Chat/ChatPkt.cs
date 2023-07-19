@@ -3,14 +3,15 @@
 
 using System;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class ChatPkt : ServerPacket
 {
-    public ChatFlags _ChatFlags;
-    public Language _Language = Language.Universal;
+    public ChatFlags ChatFlags;
+    public Language Language = Language.Universal;
     public uint AchievementID;
     public string Channel = "";
     public ObjectGuid? ChannelGUID;
@@ -29,7 +30,7 @@ public class ChatPkt : ServerPacket
     public ObjectGuid TargetGUID;
     public string TargetName = "";
     public uint TargetVirtualAddress;
-    public uint? Unused_801;
+    public uint? Unused801;
     public ChatPkt() : base(ServerOpcodes.Chat) { }
 
     public void Initialize(ChatMsg chatType, Language language, WorldObject sender, WorldObject receiver, string message, uint achievementId = 0, string channelName = "", Locale locale = Locale.enUS, string addonPrefix = "")
@@ -44,15 +45,15 @@ public class ChatPkt : ServerPacket
         TargetGUID.Clear();
         SenderName = "";
         TargetName = "";
-        _ChatFlags = ChatFlags.None;
+        ChatFlags = ChatFlags.None;
 
         SlashCmd = chatType;
-        _Language = language;
+        Language = language;
 
-        if (sender)
+        if (sender != null)
             SetSender(sender, locale);
 
-        if (receiver)
+        if (receiver != null)
             SetReceiver(receiver, locale);
 
         SenderVirtualAddress = WorldManager.Realm.Id.VirtualRealmAddress;
@@ -69,14 +70,14 @@ public class ChatPkt : ServerPacket
 
         var creatureReceiver = receiver.AsCreature;
 
-        if (creatureReceiver)
+        if (creatureReceiver != null)
             TargetName = creatureReceiver.GetName(locale);
     }
 
     public override void Write()
     {
         WorldPacket.WriteUInt8((byte)SlashCmd);
-        WorldPacket.WriteUInt32((uint)_Language);
+        WorldPacket.WriteUInt32((uint)Language);
         WorldPacket.WritePackedGuid(SenderGUID);
         WorldPacket.WritePackedGuid(SenderGuildGUID);
         WorldPacket.WritePackedGuid(SenderAccountGUID);
@@ -91,10 +92,10 @@ public class ChatPkt : ServerPacket
         WorldPacket.WriteBits(Prefix.GetByteCount(), 5);
         WorldPacket.WriteBits(Channel.GetByteCount(), 7);
         WorldPacket.WriteBits(ChatText.GetByteCount(), 12);
-        WorldPacket.WriteBits((byte)_ChatFlags, 14);
+        WorldPacket.WriteBits((byte)ChatFlags, 14);
         WorldPacket.WriteBit(HideChatLog);
         WorldPacket.WriteBit(FakeSenderName);
-        WorldPacket.WriteBit(Unused_801.HasValue);
+        WorldPacket.WriteBit(Unused801.HasValue);
         WorldPacket.WriteBit(ChannelGUID.HasValue);
         WorldPacket.FlushBits();
 
@@ -104,8 +105,8 @@ public class ChatPkt : ServerPacket
         WorldPacket.WriteString(Channel);
         WorldPacket.WriteString(ChatText);
 
-        if (Unused_801.HasValue)
-            WorldPacket.WriteUInt32(Unused_801.Value);
+        if (Unused801.HasValue)
+            WorldPacket.WriteUInt32(Unused801.Value);
 
         if (ChannelGUID.HasValue)
             WorldPacket.WritePackedGuid(ChannelGUID.Value);
@@ -117,22 +118,22 @@ public class ChatPkt : ServerPacket
 
         var creatureSender = sender.AsCreature;
 
-        if (creatureSender)
+        if (creatureSender != null)
             SenderName = creatureSender.GetName(locale);
 
         var playerSender = sender.AsPlayer;
 
-        if (playerSender)
-        {
-            SenderAccountGUID = playerSender.Session.AccountGUID;
-            _ChatFlags = playerSender.ChatFlags;
+        if (playerSender == null)
+            return;
 
-            SenderGuildGUID = ObjectGuid.Create(HighGuid.Guild, playerSender.GuildId);
+        SenderAccountGUID = playerSender.Session.AccountGUID;
+        ChatFlags = playerSender.ChatFlags;
 
-            var group = playerSender.Group;
+        SenderGuildGUID = ObjectGuid.Create(HighGuid.Guild, playerSender.GuildId);
 
-            if (group)
-                PartyGUID = group.GUID;
-        }
+        var group = playerSender.Group;
+
+        if (group != null)
+            PartyGUID = group.GUID;
     }
 }

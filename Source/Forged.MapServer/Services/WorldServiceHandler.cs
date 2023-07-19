@@ -40,14 +40,14 @@ public class WorldServiceHandler
 
     public void Invoke(WorldSession session, MethodCall methodCall, CodedInputStream stream)
     {
-        var request = (IMessage)Activator.CreateInstance(_requestType);
+        var request = Activator.CreateInstance(_requestType) as IMessage;
         request?.MergeFrom(stream);
 
         BattlenetRpcErrorCode status;
 
         if (_responseType != null)
         {
-            var response = (IMessage)Activator.CreateInstance(_responseType);
+            var response = Activator.CreateInstance(_responseType) as IMessage;
             status = (BattlenetRpcErrorCode)_methodCaller.DynamicInvoke(session, request, response);
             Log.Logger.Debug("{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.RemoteAddress, request, response, status);
 
