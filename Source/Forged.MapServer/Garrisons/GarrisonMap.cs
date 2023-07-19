@@ -36,22 +36,19 @@ internal class GarrisonMap : Map
 
     public Garrison GetGarrison()
     {
-        if (_loadingPlayer)
+        if (_loadingPlayer != null)
             return _loadingPlayer.Garrison;
 
-        var owner = Global.ObjAccessor.FindConnectedPlayer(_owner);
+        var owner = ObjectAccessor.FindConnectedPlayer(_owner);
 
-        if (owner)
-            return owner.Garrison;
-
-        return null;
+        return owner?.Garrison;
     }
 
-    public override void InitVisibilityDistance()
+    public sealed override void InitVisibilityDistance()
     {
         //init visibility distance for instances
-        VisibleDistance = Global.WorldMgr.MaxVisibleDistanceInInstances;
-        VisibilityNotifyPeriod = Global.WorldMgr.VisibilityNotifyPeriodInInstances;
+        VisibleDistance = WorldManager.MaxVisibleDistanceInInstances;
+        VisibilityNotifyPeriod = WorldManager.VisibilityNotifyPeriodInInstances;
     }
 
     public override void LoadGridObjects(Grid grid, Cell cell)

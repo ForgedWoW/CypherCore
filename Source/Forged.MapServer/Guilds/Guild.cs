@@ -1488,7 +1488,7 @@ public class Guild
                     return false;
                 }
 
-                pLog.LoadEvent(new BankEventLogEntry(_id,                   // guild id
+                pLog.LoadEvent(new GuildBankEventLogEntry(_id,              // guild id
                                                      guid,                  // guid
                                                      field.Read<long>(8),   // timestamp
                                                      dbTabId,               // tab id
@@ -1496,8 +1496,8 @@ public class Guild
                                                      field.Read<ulong>(4),  // player guid
                                                      field.Read<ulong>(5),  // item or money
                                                      field.Read<ushort>(6), // itam stack count
-                                                     field.Read<byte>(7)),
-                               _characterDatabase); // dest tab id
+                                                     field.Read<byte>(7),   // dest tab id
+                                                     _characterDatabase)); 
             }
         }
 
@@ -1549,8 +1549,8 @@ public class Guild
                                                    (GuildEventLogTypes)field.Read<byte>(2), // event type
                                                    field.Read<ulong>(3),                    // player guid 1
                                                    field.Read<ulong>(4),                    // player guid 2
-                                                   field.Read<byte>(5)),
-                            _characterDatabase); // rank
+                                                   field.Read<byte>(5),                     // rank
+                                                    _characterDatabase)); 
 
         return true;
     }

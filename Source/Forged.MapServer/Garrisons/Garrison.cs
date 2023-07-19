@@ -21,11 +21,13 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Common;
 using Serilog;
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.Garrisons;
 
 public class Garrison
 {
+    // ReSharper disable once CollectionNeverQueried.Local
     private readonly List<uint> _followerIds = new();
     private readonly Dictionary<ulong, Follower> _followers = new();
     private readonly GarrisonType _garrisonType;
@@ -35,17 +37,20 @@ public class Garrison
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
     private readonly MapManager _mapManager;
+    private readonly PhasingHandler _phasingHandler;
     private readonly Dictionary<uint, Plot> _plots = new();
     private uint _followerActivationsRemainingToday;
     private GarrSiteLevelRecord _siteLevel;
 
-    public Garrison(Player owner, GarrisonManager garrisonManager, CharacterDatabase characterDatabase, CliDB cliDB, MapManager mapManager)
+    public Garrison(Player owner, GarrisonManager garrisonManager, CharacterDatabase characterDatabase, CliDB cliDB, MapManager mapManager,
+                    PhasingHandler phasingHandler)
     {
         _owner = owner;
         _garrisonManager = garrisonManager;
         _characterDatabase = characterDatabase;
         _cliDB = cliDB;
         _mapManager = mapManager;
+        _phasingHandler = phasingHandler;
         _followerActivationsRemainingToday = 1;
     }
 
@@ -81,12 +86,12 @@ public class Garrison
         plot.BuildingInfo.PacketInfo.Active = true;
         var map = FindMap();
 
-        if (map)
+        if (map != null)
         {
             plot.DeleteGameObject(map);
             var go = plot.CreateGameObject(map, GetFaction());
 
-            if (go)
+            if (go != null)
                 map.AddToMap(go);
         }
 
@@ -161,7 +166,7 @@ public class Garrison
 
             var map = FindMap();
 
-            if (map)
+            if (map != null)
                 plot.DeleteGameObject(map);
 
             plot.ClearBuildingInfo(GetGarrisonType(), _owner);
@@ -194,13 +199,13 @@ public class Garrison
                 _owner.SendPacket(placeBuildingResult);
             }
 
-            if (map)
-            {
-                var go = plot.CreateGameObject(map, GetFaction());
+            if (map == null)
+                return;
 
-                if (go)
-                    map.AddToMap(go);
-            }
+            var go = plot.CreateGameObject(map, GetFaction());
+
+            if (go != null)
+                map.AddToMap(go);
         }
         else
             _owner.SendPacket(buildingRemoved);
@@ -234,7 +239,7 @@ public class Garrison
         };
 
         _owner.SendPacket(garrisonCreateResult);
-        PhasingHandler.OnConditionChange(_owner);
+        _phasingHandler.OnConditionChange(_owner);
         SendRemoteInfo();
 
         return true;
@@ -391,7 +396,10 @@ public class Garrison
                 _followers[followerId] = follower;
             } while (followers.NextRow());
 
-            if (!abilities.IsEmpty())
+            if (abilities.IsEmpty())
+                return true;
+
+            {
                 do
                 {
                     var dbId = abilities.Read<ulong>(0);
@@ -403,6 +411,7 @@ public class Garrison
 
                     garrisonFollower?.PacketInfo.AbilityID.Add(ability);
                 } while (abilities.NextRow());
+            }
         }
 
         return true;
@@ -427,7 +436,7 @@ public class Garrison
             var map = FindMap();
             var building = _cliDB.GarrBuildingStorage.LookupByKey(garrBuildingId);
 
-            if (map)
+            if (map != null)
                 plot.DeleteGameObject(map);
 
             if (plot.BuildingInfo.PacketInfo != null)
@@ -440,11 +449,11 @@ public class Garrison
 
             plot.SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
 
-            if (map)
+            if (map != null)
             {
                 var go = plot.CreateGameObject(map, GetFaction());
 
-                if (go)
+                if (go != null)
                     map.AddToMap(go);
             }
 
@@ -611,9 +620,8 @@ public class Garrison
             GarrSiteLevelID = _siteLevel.Id
         };
 
-        foreach (var p in _plots)
-            if (p.Value.BuildingInfo.PacketInfo != null)
-                remoteSiteInfo.Buildings.Add(new GarrisonRemoteBuildingInfo(p.Key, p.Value.BuildingInfo.PacketInfo.GarrBuildingID));
+        foreach (var p in _plots.Where(p => p.Value.BuildingInfo.PacketInfo != null))
+            remoteSiteInfo.Buildings.Add(new GarrisonRemoteBuildingInfo(p.Key, p.Value.BuildingInfo.PacketInfo.GarrBuildingID));
 
         remoteInfo.Sites.Add(remoteSiteInfo);
         _owner.SendPacket(remoteInfo);
@@ -646,16 +654,17 @@ public class Garrison
             return GarrisonError.InvalidBuildingId;
 
         // Check all plots to find if we already have this building
-        GarrBuildingRecord existingBuilding;
 
         foreach (var p in _plots)
             if (p.Value.BuildingInfo.PacketInfo != null)
             {
-                existingBuilding = _cliDB.GarrBuildingStorage.LookupByKey(p.Value.BuildingInfo.PacketInfo.GarrBuildingID);
+                var existingBuilding = _cliDB.GarrBuildingStorage.LookupByKey(p.Value.BuildingInfo.PacketInfo.GarrBuildingID);
 
-                if (existingBuilding.BuildingType == building.BuildingType)
-                    if (p.Key != garrPlotInstanceId || existingBuilding.UpgradeLevel + 1 != building.UpgradeLevel) // check if its an upgrade in same plot
-                        return GarrisonError.BuildingExists;
+                if (existingBuilding.BuildingType != building.BuildingType)
+                    continue;
+
+                if (p.Key != garrPlotInstanceId || existingBuilding.UpgradeLevel + 1 != building.UpgradeLevel) // check if its an upgrade in same plot
+                    return GarrisonError.BuildingExists;
             }
 
         if (!_owner.HasCurrency(building.CurrencyTypeID, (uint)building.CurrencyQty))
@@ -665,10 +674,7 @@ public class Garrison
             return GarrisonError.NotEnoughGold;
 
         // New building cannot replace another building currently under construction
-        if (plot.BuildingInfo.PacketInfo is { Active: false })
-            return GarrisonError.NoBuilding;
-
-        return GarrisonError.Success;
+        return plot.BuildingInfo.PacketInfo is { Active: false } ? GarrisonError.NoBuilding : GarrisonError.Success;
     }
 
     private GarrisonError CheckBuildingRemoval(uint garrPlotInstanceId)
@@ -681,10 +687,7 @@ public class Garrison
         if (plot.BuildingInfo.PacketInfo == null)
             return GarrisonError.NoBuilding;
 
-        if (plot.BuildingInfo.CanActivate())
-            return GarrisonError.BuildingExists;
-
-        return GarrisonError.Success;
+        return plot.BuildingInfo.CanActivate() ? GarrisonError.BuildingExists : GarrisonError.Success;
     }
 
     private void Enter()
@@ -853,7 +856,7 @@ public class Garrison
 
             var go = _gameObjectFactory.CreateGameObject(entry, map, PacketInfo.PlotPos, Rotation, 255, GameObjectState.Ready);
 
-            if (!go)
+            if (go == null)
                 return null;
 
             if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo is { Active: false })
@@ -865,7 +868,7 @@ public class Garrison
                     var pos2 = finalizeInfo.FactionInfo[faction].Pos;
                     var finalizer = _gameObjectFactory.CreateGameObject(finalizeInfo.FactionInfo[faction].GameObjectId, map, pos2, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos2.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
 
-                    if (finalizer)
+                    if (finalizer != null)
                     {
                         // set some spell id to make the object delete itself after use
                         finalizer. // set some spell id to make the object delete itself after use
@@ -890,7 +893,7 @@ public class Garrison
                     {
                         var spawn = BuildingSpawnHelper(_classFactory.Resolve<Creature>(), go, spawnId, map);
 
-                        if (spawn)
+                        if (spawn != null)
                             BuildingInfo.Spawns.Add(spawn.GUID);
                     }
 
@@ -898,7 +901,7 @@ public class Garrison
                     {
                         var spawn = BuildingSpawnHelper(_classFactory.Resolve<GameObject>(), go, spawnId, map);
 
-                        if (spawn)
+                        if (spawn != null)
                             BuildingInfo.Spawns.Add(spawn.GUID);
                     }
                 }
@@ -931,16 +934,14 @@ public class Garrison
                         continue;
                 }
 
-                if (obj)
-                    obj.Location.AddObjectToRemoveList();
+                obj?.Location.AddObjectToRemoveList();
             }
 
             BuildingInfo.Spawns.Clear();
 
             var oldBuilding = map.GetGameObject(BuildingInfo.Guid);
 
-            if (oldBuilding)
-                oldBuilding.Delete();
+            oldBuilding?.Delete();
 
             BuildingInfo.Guid.Clear();
         }

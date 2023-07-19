@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Groups;
@@ -12,14 +13,16 @@ namespace Forged.MapServer.Groups;
 public class GroupManager
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly Dictionary<uint, PlayerGroup> _groupDbStore = new();
     private readonly Dictionary<ulong, PlayerGroup> _groupStore = new();
     private uint _nextGroupDbStoreId;
     private ulong _nextGroupId;
 
-    public GroupManager(CharacterDatabase characterDatabase)
+    public GroupManager(CharacterDatabase characterDatabase, ClassFactory classFactory)
     {
         _characterDatabase = characterDatabase;
+        _classFactory = classFactory;
         _nextGroupDbStoreId = 1;
         _nextGroupId = 1;
     }
@@ -99,7 +102,7 @@ public class GroupManager
 
             do
             {
-                PlayerGroup group = new();
+                var group = _classFactory.Resolve<PlayerGroup>();
                 group.LoadGroupFromDB(result.GetFields());
                 AddGroup(group);
 

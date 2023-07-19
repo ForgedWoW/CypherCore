@@ -44,15 +44,15 @@ internal class GarrisonGridLoader : IGridNotifierGameObject
         {
             var spawn = plot.PacketInfo.PlotPos;
 
-            if (cellCoord != GridDefines.ComputeCellCoord(spawn.X, spawn.Y))
+            if (cellCoord != _map.GridDefines.ComputeCellCoord(spawn.X, spawn.Y))
                 continue;
 
             var go = plot.CreateGameObject(_map, _garrison.GetFaction());
 
-            if (!go)
+            if (go == null)
                 continue;
 
-            var cell = new Cell(cellCoord);
+            var cell = new Cell(cellCoord, _map.GridDefines);
             _map.AddToGrid(go, cell);
             go.AddToWorld();
             ++_gameObjects;

@@ -11,6 +11,8 @@ using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedType.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -23,7 +25,7 @@ internal class GroupCommands
         if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out _))
             return false;
 
-        if (!group)
+        if (group == null)
         {
             handler.SendSysMessage(CypherStrings.GroupNotInGroup, player.GetName());
 
@@ -41,7 +43,7 @@ internal class GroupCommands
         if (!handler.GetPlayerGroupAndGUIDByName(playerNameGroup, out var playerSource, out var groupSource, out _, true))
             return false;
 
-        if (!groupSource)
+        if (groupSource == null)
         {
             handler.SendSysMessage(CypherStrings.GroupNotInGroup, playerSource.GetName());
 
@@ -51,7 +53,7 @@ internal class GroupCommands
         if (!handler.GetPlayerGroupAndGUIDByName(playerName, out var playerTarget, out var groupTarget, out _, true))
             return false;
 
-        if (groupTarget || playerTarget.Group == groupSource)
+        if (groupTarget != null || playerTarget.Group == groupSource)
         {
             handler.SendSysMessage(CypherStrings.GroupAlreadyInGroup, playerTarget.GetName());
 
@@ -78,18 +80,18 @@ internal class GroupCommands
         if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out var guid))
             return false;
 
-        if (!group)
+        if (group == null)
         {
             handler.SendSysMessage(CypherStrings.GroupNotInGroup, player.GetName());
 
             return false;
         }
 
-        if (group.LeaderGUID != guid)
-        {
-            group.ChangeLeader(guid);
-            group.SendUpdate();
-        }
+        if (group.LeaderGUID == guid)
+            return true;
+
+        group.ChangeLeader(guid);
+        group.SendUpdate();
 
         return true;
     }
@@ -117,24 +119,22 @@ internal class GroupCommands
         {
             target = it.Source;
 
-            if (target != null)
+            if (target == null)
+                continue;
+
+            var oldlevel = target.Level;
+
+            if (level != oldlevel)
             {
-                var oldlevel = target.Level;
+                target.SetLevel((uint)level);
+                target.InitTalentForLevel();
+                target.XP = 0;
+            }
 
-                if (level != oldlevel)
-                {
-                    target.SetLevel((uint)level);
-                    target.InitTalentForLevel();
-                    target.XP = 0;
-                }
-
-                if (handler.NeedReportToTarget(target))
-                {
-                    if (oldlevel < level)
-                        target.SendSysMessage(CypherStrings.YoursLevelUp, handler.NameLink, level);
-                    else // if (oldlevel > newlevel)
-                        target.SendSysMessage(CypherStrings.YoursLevelDown, handler.NameLink, level);
-                }
+            if (handler.NeedReportToTarget(target))
+            {
+                // if (oldlevel > newlevel)
+                target.SendSysMessage(oldlevel < level ? CypherStrings.YoursLevelUp : CypherStrings.YoursLevelDown, handler.NameLink, level);
             }
         }
 
@@ -148,7 +148,6 @@ internal class GroupCommands
         Player playerTarget;
         ObjectGuid guidTarget;
         var zoneName = "";
-        string onlineState;
 
         // Parse the guid to uint32...
         var parseGUID = ObjectGuid.Create(HighGuid.Player, args.NextUInt64());
@@ -167,11 +166,11 @@ internal class GroupCommands
         PlayerGroup groupTarget = null;
 
         // We try to extract a group from an online player.
-        if (playerTarget)
+        if (playerTarget != null)
             groupTarget = playerTarget.Group;
 
         // If not, we extract it from the SQL.
-        if (!groupTarget)
+        if (groupTarget == null)
         {
             var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
             stmt.AddValue(0, guidTarget.Counter);
@@ -182,7 +181,7 @@ internal class GroupCommands
         }
 
         // If both fails, players simply has no party. Return false.
-        if (!groupTarget)
+        if (groupTarget == null)
         {
             handler.SendSysMessage(CypherStrings.GroupNotInGroup, nameTarget);
 
@@ -228,11 +227,13 @@ internal class GroupCommands
             var p = handler.ObjectAccessor.FindPlayer(slot.Guid);
             var phases = "";
 
-            if (p && p.Location.IsInWorld)
+            string onlineState;
+
+            if (p != null && p.Location.IsInWorld)
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
-                phases = PhasingHandler.FormatPhases(p.Location.PhaseShift);
+                phases = handler.ClassFactory.Resolve<PhasingHandler>().FormatPhases(p.Location.PhaseShift);
 
                 if (handler.CliDB.AreaTableStorage.TryGetValue(p.Location.Area, out var area))
                     if (handler.CliDB.AreaTableStorage.TryGetValue(area.ParentAreaID, out var zone))
@@ -266,7 +267,7 @@ internal class GroupCommands
         if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out var guid))
             return false;
 
-        if (!group)
+        if (group == null)
         {
             handler.SendSysMessage(CypherStrings.GroupNotInGroup, player.GetName());
 
@@ -326,12 +327,12 @@ internal class GroupCommands
         {
             var target = it.Source;
 
-            if (target)
-            {
-                target.ResurrectPlayer(target.Session.HasPermission(RBACPermissions.ResurrectWithFullHps) ? 1.0f : 0.5f);
-                target.SpawnCorpseBones();
-                target.SaveToDB();
-            }
+            if (target == null)
+                continue;
+
+            target.ResurrectPlayer(target.Session.HasPermission(RBACPermissions.ResurrectWithFullHps) ? 1.0f : 0.5f);
+            target.SpawnCorpseBones();
+            target.SaveToDB();
         }
 
         return true;
@@ -359,7 +360,7 @@ internal class GroupCommands
 
         var nameLink = handler.GetNameLink(target);
 
-        if (!group)
+        if (group == null)
         {
             handler.SendSysMessage(CypherStrings.NotInGroup, nameLink);
 
@@ -378,7 +379,7 @@ internal class GroupCommands
         {
             var groupLeader = handler.ObjectAccessor.GetPlayer(gmMap, group.LeaderGUID);
 
-            if (!groupLeader || groupLeader.Location.MapId != gmMap.Id || groupLeader.InstanceId != gmMap.InstanceId)
+            if (groupLeader == null || groupLeader.Location.MapId != gmMap.Id || groupLeader.InstanceId != gmMap.InstanceId)
             {
                 handler.SendSysMessage(CypherStrings.PartialGroupSummon);
                 onlyLocalSummon = true;
@@ -389,7 +390,7 @@ internal class GroupCommands
         {
             var player = refe.Source;
 
-            if (!player || player == gmPlayer || player.Session == null)
+            if (player == null || player == gmPlayer || player.Session == null)
                 continue;
 
             // check online security
@@ -448,7 +449,7 @@ internal class GroupCommands
             if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out var guid))
                 return false;
 
-            if (!group)
+            if (group == null)
             {
                 handler.SendSysMessage(CypherStrings.NotInGroup, player.GetName());
 

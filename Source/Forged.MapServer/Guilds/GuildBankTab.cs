@@ -15,17 +15,19 @@ namespace Forged.MapServer.Guilds;
 public class GuildBankTab
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ItemFactory _itemFactory;
     private readonly ulong _guildId;
     private readonly Item[] _items = new Item[GuildConst.MaxBankSlots];
     private readonly GameObjectManager _objectManager;
     private readonly byte _tabId;
 
-    public GuildBankTab(ulong guildId, byte tabId, GameObjectManager objectManager, CharacterDatabase characterDatabase)
+    public GuildBankTab(ulong guildId, byte tabId, GameObjectManager objectManager, CharacterDatabase characterDatabase, ItemFactory itemFactory)
     {
         _guildId = guildId;
         _tabId = tabId;
         _objectManager = objectManager;
         _characterDatabase = characterDatabase;
+        _itemFactory = itemFactory;
     }
 
     public string Icon { get; private set; }
@@ -84,7 +86,7 @@ public class GuildBankTab
             return false;
         }
 
-        var pItem = ItemFactory.NewItemOrBag(proto);
+        var pItem = _itemFactory.NewItemOrBag(proto);
 
         if (!pItem.LoadFromDB(itemGuid, ObjectGuid.Empty, field, itemEntry))
         {

@@ -6,6 +6,8 @@ using System.Net;
 using Forged.MapServer.Globals;
 using Framework.Constants;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("unban")]
@@ -26,7 +28,7 @@ internal class UnBanCommands
     [Command("character", RBACPermissions.CommandUnbanCharacter, true)]
     private static bool HandleUnBanCharacterCommand(CommandHandler handler, string name)
     {
-        if (!GameObjectManager.NormalizePlayerName(ref name))
+        if (!handler.ClassFactory.Resolve<GameObjectManager>().NormalizePlayerName(ref name))
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -53,7 +55,7 @@ internal class UnBanCommands
         switch (mode)
         {
             case BanMode.Character:
-                if (!GameObjectManager.NormalizePlayerName(ref nameOrIp))
+                if (!handler.ClassFactory.Resolve<GameObjectManager>().NormalizePlayerName(ref nameOrIp))
                 {
                     handler.SendSysMessage(CypherStrings.PlayerNotFound);
 

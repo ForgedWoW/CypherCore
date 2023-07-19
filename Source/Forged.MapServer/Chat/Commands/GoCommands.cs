@@ -13,6 +13,8 @@ using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.SupportSystem;
 using Framework.Constants;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedType.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -29,7 +31,7 @@ internal class GoCommands
             _          => mapId
         };
 
-        if (!GridDefines.IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
@@ -50,14 +52,13 @@ internal class GoCommands
     [Command("areatrigger", RBACPermissions.CommandGo)]
     private static bool HandleGoAreaTriggerCommand(CommandHandler handler, uint areaTriggerId)
     {
-        if (!handler.CliDB.AreaTriggerStorage.TryGetValue(areaTriggerId, out var at))
-        {
-            handler.SendSysMessage(CypherStrings.CommandGoareatrnotfound, areaTriggerId);
+        if (handler.CliDB.AreaTriggerStorage.TryGetValue(areaTriggerId, out var at))
+            return DoTeleport(handler, new Position(at.Pos.X, at.Pos.Y, at.Pos.Z), at.ContinentID);
 
-            return false;
-        }
+        handler.SendSysMessage(CypherStrings.CommandGoareatrnotfound, areaTriggerId);
 
-        return DoTeleport(handler, new Position(at.Pos.X, at.Pos.Y, at.Pos.Z), at.ContinentID);
+        return false;
+
     }
 
     [Command("boss", RBACPermissions.CommandGo)]
@@ -195,7 +196,7 @@ internal class GoCommands
             return false;
         }
 
-        if (!GridDefines.IsValidMapCoord(gy.Location))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(gy.Location))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, gy.Location.X, gy.Location.Y, gy.Location.MapId);
 
@@ -225,7 +226,7 @@ internal class GoCommands
         var x = (gridX - MapConst.CenterGridId + 0.5f) * MapConst.SizeofGrids;
         var y = (gridY - MapConst.CenterGridId + 0.5f) * MapConst.SizeofGrids;
 
-        if (!GridDefines.IsValidMapCoord(mapId, x, y))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, x, y))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, mapId);
 
@@ -239,7 +240,7 @@ internal class GoCommands
             player.SaveRecallPosition(); // save only in non-flight case
 
         var terrain = handler.ClassFactory.Resolve<TerrainManager>().LoadTerrain(mapId);
-        var z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, mapId, x, y));
+        var z = Math.Max(terrain.GetStaticHeight(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, mapId, x, y));
 
         player.TeleportTo(mapId, x, y, z, player.Location.Orientation);
 
@@ -385,7 +386,7 @@ internal class GoCommands
             return false;
         }
 
-        if (!GridDefines.IsValidMapCoord(mapId, x, y) || handler.ObjectManager.IsTransportMap(mapId))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, x, y) || handler.ObjectManager.IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, mapId);
 
@@ -399,7 +400,7 @@ internal class GoCommands
             player.SaveRecallPosition(); // save only in non-flight case
 
         var terrain = handler.ClassFactory.Resolve<TerrainManager>().LoadTerrain(mapId);
-        z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, mapId, x, y));
+        z = Math.Max(terrain.GetStaticHeight(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, mapId, x, y));
 
         player.TeleportTo(mapId, x, y, z, 0.0f);
 
@@ -458,7 +459,7 @@ internal class GoCommands
 
         if (z.HasValue)
         {
-            if (!GridDefines.IsValidMapCoord(mapId, x, y, z.Value))
+            if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, x, y, z.Value))
             {
                 handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, mapId);
 
@@ -467,7 +468,7 @@ internal class GoCommands
         }
         else
         {
-            if (!GridDefines.IsValidMapCoord(mapId, x, y))
+            if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, x, y))
             {
                 handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, mapId);
 
@@ -475,10 +476,10 @@ internal class GoCommands
             }
 
             var terrain = handler.ClassFactory.Resolve<TerrainManager>().LoadTerrain(mapId);
-            z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, mapId, x, y));
+            z = Math.Max(terrain.GetStaticHeight(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, mapId, x, y));
         }
 
-        return DoTeleport(handler, new Position(x, y, z.Value, o.Value), mapId);
+        return DoTeleport(handler, new Position(x, y, z.Value, o ?? 0), mapId);
     }
 
     //teleport at coordinates
@@ -511,7 +512,7 @@ internal class GoCommands
             return false;
         }
 
-        if (!GridDefines.IsValidMapCoord(zoneEntry.ContinentID, x, y))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(zoneEntry.ContinentID, x, y))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, zoneEntry.ContinentID);
 
@@ -524,7 +525,7 @@ internal class GoCommands
         else
             player.SaveRecallPosition(); // save only in non-flight case
 
-        var z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, zoneEntry.ContinentID, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, zoneEntry.ContinentID, x, y));
+        var z = Math.Max(terrain.GetStaticHeight(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, zoneEntry.ContinentID, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, zoneEntry.ContinentID, x, y));
 
         player.TeleportTo(zoneEntry.ContinentID, x, y, z, player.Location.Orientation);
 
@@ -569,14 +570,13 @@ internal class GoCommands
         {
             var spawnpoint = handler.ObjectManager.GetCreatureData(spawnId);
 
-            if (spawnpoint == null)
-            {
-                handler.SendSysMessage(CypherStrings.CommandGocreatnotfound);
+            if (spawnpoint != null)
+                return DoTeleport(handler, spawnpoint.SpawnPoint, spawnpoint.MapId);
 
-                return false;
-            }
+            handler.SendSysMessage(CypherStrings.CommandGocreatnotfound);
 
-            return DoTeleport(handler, spawnpoint.SpawnPoint, spawnpoint.MapId);
+            return false;
+
         }
     }
 
