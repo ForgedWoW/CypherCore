@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.Cache;
@@ -22,6 +19,9 @@ using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Collections;
 using Framework.Constants;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.MapServer.Entities.Units;
 

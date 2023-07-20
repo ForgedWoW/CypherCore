@@ -8,12 +8,17 @@ using System.Numerics;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Movement;
+using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.Pools;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Maps;
@@ -28,13 +33,34 @@ public class TransportManager
     private readonly Dictionary<ulong, TransportSpawn> _transportSpawns = new();
     private readonly Dictionary<uint, TransportTemplate> _transportTemplates = new();
     private readonly WorldDatabase _worldDatabase;
+    private readonly PhasingHandler _phasingHandler;
 
-    public TransportManager(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, DB2Manager db2Manager)
+    // for creating a Transport
+    private readonly ClassFactory _classFactory;
+    private readonly LootFactory _lootFactory;
+    private readonly LootStoreBox _lootStoreBox;
+    private readonly PoolManager _poolManager;
+    private readonly LootManager _lootManager;
+    private readonly OutdoorPvPManager _outdoorPvPManager;
+    private readonly CreatureFactory _creatureFactory;
+
+    public TransportManager(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB,
+        DB2Manager db2Manager, PhasingHandler phasingHandler, ClassFactory classFactory,
+        LootFactory lootFactory, LootStoreBox lootStoreBox, PoolManager poolManager,
+        LootManager lootManager, OutdoorPvPManager outdoorPvPManager, CreatureFactory creatureFactory)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _cliDB = cliDB;
         _db2Manager = db2Manager;
+        _phasingHandler = phasingHandler;
+        _classFactory = classFactory;
+        _lootFactory = lootFactory;
+        _lootStoreBox = lootStoreBox;
+        _poolManager = poolManager;
+        _lootManager = lootManager;
+        _outdoorPvPManager = outdoorPvPManager;
+        _creatureFactory = creatureFactory;
     }
 
     public void AddPathNodeToTransport(uint transportEntry, uint timeSeg, TransportAnimationRecord node)
@@ -101,7 +127,16 @@ public class TransportManager
         }
 
         // create transport...
-        Transport trans = new();
+        Transport trans = new(_lootFactory, 
+                                _classFactory, 
+                                _lootStoreBox, 
+                                _poolManager,
+                                _db2Manager, 
+                                _worldDatabase, 
+                                _lootManager, 
+                                _outdoorPvPManager, 
+                                this,
+                                _creatureFactory);
 
         // ...at first waypoint
         var x = startingPosition.X;
@@ -115,7 +150,7 @@ public class TransportManager
         if (!trans.Create(guidLow, entry, x, y, z, o))
             return null;
 
-        PhasingHandler.InitDbPhaseShift(trans.Location.PhaseShift, phaseUseFlags, phaseId, phaseGroupId);
+        _phasingHandler.InitDbPhaseShift(trans.Location.PhaseShift, phaseUseFlags, phaseId, phaseGroupId);
 
         // use preset map for instances (need to know which instance)
         trans.Location.Map = map;

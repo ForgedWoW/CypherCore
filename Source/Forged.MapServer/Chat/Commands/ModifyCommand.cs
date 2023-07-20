@@ -39,7 +39,7 @@ internal class ModifyCommand
             return false;
         }
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -68,7 +68,7 @@ internal class ModifyCommand
             return false;
         }
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -77,7 +77,7 @@ internal class ModifyCommand
 
         var player = target.AsPlayer;
 
-        if (player)
+        if (player != null)
         {
             // check online security
             if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
@@ -99,7 +99,7 @@ internal class ModifyCommand
     {
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
             target = handler.Session.Player;
 
         // check online security
@@ -119,7 +119,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -157,7 +157,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (target)
+        if (target != null)
             target.SetDrunkValue(drunklevel);
 
         return true;
@@ -189,7 +189,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedCreature;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -242,7 +242,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -346,7 +346,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -407,7 +407,7 @@ internal class ModifyCommand
     {
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -487,7 +487,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
             target = handler.Session.Player;
 
         // check online security
@@ -517,7 +517,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -569,17 +569,17 @@ internal class ModifyCommand
             }
 
             if (!target.Location.PhaseShift.HasVisibleMapId(visibleMapId))
-                PhasingHandler.AddVisibleMapId(target, visibleMapId);
+                handler.ClassFactory.Resolve<PhasingHandler>().AddVisibleMapId(target, visibleMapId);
             else
-                PhasingHandler.RemoveVisibleMapId(target, visibleMapId);
+                handler.ClassFactory.Resolve<PhasingHandler>().RemoveVisibleMapId(target, visibleMapId);
         }
 
         if (phaseId != 0)
         {
             if (!target.Location.PhaseShift.HasPhase(phaseId))
-                PhasingHandler.AddPhase(target, phaseId, true);
+                handler.ClassFactory.Resolve<PhasingHandler>().AddPhase(target, phaseId, true);
             else
-                PhasingHandler.RemovePhase(target, phaseId, true);
+                handler.ClassFactory.Resolve<PhasingHandler>().RemovePhase(target, phaseId, true);
         }
 
         return true;
@@ -593,7 +593,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -668,7 +668,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -792,7 +792,7 @@ internal class ModifyCommand
             NotifyModification(handler, target, CypherStrings.YouChangeSize, CypherStrings.YoursSizeChanged, scale);
             var creatureTarget = target.AsCreature;
 
-            if (creatureTarget)
+            if (creatureTarget != null)
                 creatureTarget.SetDisplayId(creatureTarget.DisplayId, scale);
             else
                 target.ObjectScale = scale;
@@ -829,7 +829,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -897,7 +897,7 @@ internal class ModifyCommand
 
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -917,7 +917,7 @@ internal class ModifyCommand
     {
         var player = target.AsPlayer;
 
-        if (player)
+        if (player != null)
         {
             handler.SendSysMessage(resourceMessage,
                                    new object[]

@@ -128,7 +128,7 @@ internal class ResetCommands
         // reset level for pet
         var pet = target.CurrentPet;
 
-        if (pet)
+        if (pet != null)
             pet.SynchronizeLevelWithOwner();
 
         handler.ClassFactory.Resolve<ScriptManager>().ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
@@ -164,7 +164,7 @@ internal class ResetCommands
 
     private static bool HandleResetStatsOrLevelHelper(Player player)
     {
-        if (!player.CliDB.ChrClassesStorage.TryGetValue(player.Class, out var classEntry))
+        if (!player.CliDB.ChrClassesStorage.TryGetValue((uint)player.Class, out var classEntry))
         {
             Log.Logger.Error("Class {0} not found in DBC (Wrong DBC files?)", player.Class);
 

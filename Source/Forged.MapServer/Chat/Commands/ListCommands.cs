@@ -82,7 +82,7 @@ internal class ListCommands
                     thisMap = handler.Session.Player.Location.Map;
 
                 // If map found, try to find active version of this creature
-                if (thisMap)
+                if (thisMap != null)
                 {
                     var creBounds = thisMap.CreatureBySpawnIdStore.LookupByKey(guid);
 
@@ -94,7 +94,7 @@ internal class ListCommands
 
                 if (!liveFound)
                 {
-                    if (handler.Session)
+                    if (handler.Session != null)
                         handler.SendSysMessage(CypherStrings.CreatureListChat, guid, guid, cInfo.Name, x, y, z, mapId, "", "");
                     else
                         handler.SendSysMessage(CypherStrings.CreatureListConsole, guid, cInfo.Name, x, y, z, mapId, "", "");
@@ -427,7 +427,7 @@ internal class ListCommands
                     thisMap = handler.Session.Player.Location.Map;
 
                 // If map found, try to find active version of this object
-                if (thisMap)
+                if (thisMap != null)
                 {
                     var goBounds = thisMap.GameObjectBySpawnIdStore.LookupByKey(guid);
 
@@ -439,7 +439,7 @@ internal class ListCommands
 
                 if (!liveFound)
                 {
-                    if (handler.Session)
+                    if (handler.Session != null)
                         handler.SendSysMessage(CypherStrings.GoListChat, guid, entry, guid, gInfo.name, x, y, z, mapId, "", "");
                     else
                         handler.SendSysMessage(CypherStrings.GoListConsole, guid, gInfo.name, x, y, z, mapId, "", "");
@@ -486,7 +486,7 @@ internal class ListCommands
 
                 if (edata != null)
                 {
-                    respawnZoneId = map.GetZoneId(PhasingHandler.EmptyPhaseShift, edata.SpawnPoint);
+                    respawnZoneId = map.GetZoneId(handler.ClassFactory.Resolve<PhasingHandler>().EmptyPhaseShift, edata.SpawnPoint);
 
                     if (range.HasValue)
                     {
@@ -516,10 +516,10 @@ internal class ListCommands
     {
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
             target = handler.Session.Player;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -605,7 +605,7 @@ internal class ListCommands
         {
             var unit = handler.SelectedUnit;
 
-            if (!unit)
+            if (unit == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 

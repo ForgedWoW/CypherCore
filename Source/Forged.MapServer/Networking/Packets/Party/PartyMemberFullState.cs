@@ -47,7 +47,7 @@ internal class PartyMemberFullState : ServerPacket
         if (player.IsDnd)
             MemberStats.Status |= GroupMemberOnlineStatus.DND;
 
-        if (player.Vehicle)
+        if (player.Vehicle != null)
             MemberStats.Status |= GroupMemberOnlineStatus.Vehicle;
 
         // Level
@@ -102,10 +102,10 @@ internal class PartyMemberFullState : ServerPacket
         }
 
         // Phases
-        PhasingHandler.FillPartyMemberPhase(MemberStats.Phases, player.Location.PhaseShift);
+        player.ClassFactory.Resolve<PhasingHandler>().FillPartyMemberPhase(MemberStats.Phases, player.Location.PhaseShift);
 
         // Pet
-        if (player.CurrentPet)
+        if (player.CurrentPet != null)
         {
             var pet = player.CurrentPet;
 

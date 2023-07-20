@@ -59,7 +59,7 @@ public class MailListEntry
         {
             var item = player.GetMItem(mail.Items[i].ItemGUID);
 
-            if (item)
+            if (item != null)
                 Attachments.Add(new MailAttachedItem(item, i));
         }
     }

@@ -19,6 +19,7 @@ using Forged.MapServer.Networking.Packets.Equipment;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Loot;
 using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Scripting.Interfaces.IItem;
 using Forged.MapServer.Spells;
 using Framework.Constants;
@@ -537,7 +538,7 @@ public partial class Player
 
         if (slot >= SharedConst.VoidStorageMaxSlot)
         {
-            Session.SendVoidStorageTransferResult(VoidTransferError.Full);
+            Session.PacketRouter.OpCodeHandler<VoidStorageHandler>().SendVoidStorageTransferResult(VoidTransferError.Full);
 
             return 255;
         }
@@ -2163,7 +2164,7 @@ public partial class Player
     {
         if (slot >= SharedConst.VoidStorageMaxSlot)
         {
-            Session.SendVoidStorageTransferResult(VoidTransferError.InternalError1);
+            Session.PacketRouter.OpCodeHandler<VoidStorageHandler>().SendVoidStorageTransferResult(VoidTransferError.InternalError1);
 
             return;
         }
@@ -2184,7 +2185,7 @@ public partial class Player
         {
             var pItem = GetItemByPos(InventorySlots.Bag0, i);
 
-            if (pItem)
+            if (pItem != null)
                 if (pItem.IsConjuredConsumable)
                     DestroyItem(InventorySlots.Bag0, i, update);
         }
@@ -3785,7 +3786,7 @@ public partial class Player
         if (slot < SharedConst.VoidStorageMaxSlot)
             return _voidStorageItems[slot];
 
-        Session.SendVoidStorageTransferResult(VoidTransferError.InternalError1);
+        Session.PacketRouter.OpCodeHandler<VoidStorageHandler>().SendVoidStorageTransferResult(VoidTransferError.InternalError1);
 
         return null;
     }
@@ -5542,9 +5543,9 @@ public partial class Player
 
         // send yellow "Trade canceled" message to both traders
         if (sendback)
-            Session.SendCancelTrade();
+            Session.PacketRouter.OpCodeHandler<TradeHandler>().SendCancelTrade();
 
-        trader.Session.SendCancelTrade();
+        trader.Session.PacketRouter.OpCodeHandler<TradeHandler>().SendCancelTrade();
 
         // cleanup
         TradeData = null;
@@ -7391,7 +7392,7 @@ public partial class Player
     private void SendEnchantmentDurations()
     {
         foreach (var enchantDuration in _enchantDurations)
-            Session.SendItemEnchantTimeUpdate(GUID, enchantDuration.Item.GUID, (uint)enchantDuration.Slot, enchantDuration.Leftduration / 1000);
+            Session.PacketRouter.OpCodeHandler<ItemHandler>().SendItemEnchantTimeUpdate(GUID, enchantDuration.Item.GUID, (uint)enchantDuration.Slot, enchantDuration.Leftduration / 1000);
     }
 
     private void SendEquipmentSetList()

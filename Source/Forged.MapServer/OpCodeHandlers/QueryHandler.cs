@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Accounts;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
@@ -16,6 +18,7 @@ using Game.Common.Handlers;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.Collections.Generic;
+using System.Data;
 using System.Numerics;
 
 namespace Forged.MapServer.OpCodeHandlers;
@@ -28,9 +31,12 @@ public class QueryHandler : IWorldSessionHandler
     private readonly IConfiguration _config;
     private readonly TerrainManager _terrainManager;
     private readonly CliDB _cliDb;
+	private readonly CharacterCache _characterCache;
+	private readonly BNetAccountManager _bNetAccountManager;
 
     public QueryHandler(WorldSession session, ObjectAccessor objectAccessor, GameObjectManager gameObjectManager,
-        IConfiguration config, TerrainManager terrainManager, CliDB cliDb)
+        IConfiguration config, TerrainManager terrainManager, CliDB cliDb, CharacterCache characterCache,
+        BNetAccountManager bNetAccountManager)
     {
 		_session = session;
 		_objectAccessor = objectAccessor;
@@ -38,6 +44,8 @@ public class QueryHandler : IWorldSessionHandler
 		_config = config;
 		_terrainManager = terrainManager;
 		_cliDb = cliDb;
+		_characterCache = characterCache;
+		_bNetAccountManager = bNetAccountManager;
     }
 
 	public void BuildNameQueryData(ObjectGuid guid, out NameCacheLookupResult lookupData)
@@ -50,7 +58,7 @@ public class QueryHandler : IWorldSessionHandler
 
 		lookupData.Data = new PlayerGuidLookupData();
 
-		if (lookupData.Data.Initialize(guid, player))
+		if (lookupData.Data.Initialize(guid, _characterCache, _bNetAccountManager, player))
 			lookupData.Result = (byte)ResponseCodes.Success;
 		else
 			lookupData.Result = (byte)ResponseCodes.Failure; // name unknown

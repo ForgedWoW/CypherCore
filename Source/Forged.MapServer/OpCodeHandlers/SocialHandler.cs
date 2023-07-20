@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Cache;
 using Forged.MapServer.DataStorage;
@@ -19,6 +17,8 @@ using Framework.Database;
 using Game.Common.Handlers;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using System;
+using System.Collections.Generic;
 
 // ReSharper disable UnusedMember.Local
 
@@ -37,10 +37,12 @@ public class SocialHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly SocialManager _socialManager;
     private readonly WhoListStorageManager _whoListStorageManager;
+    private readonly BNetAccountManager _bNetAccountManager;
 
     public SocialHandler(WorldSession session, WhoListStorageManager whoListStorageManager, AccountManager accountManager,
         SocialManager socialManager, GameObjectManager objectManager, CharacterCache characterCache,
-        CliDB cliDb, ObjectAccessor objectAccessor, LoginDatabase loginDatabase, IConfiguration config)
+        CliDB cliDb, ObjectAccessor objectAccessor, LoginDatabase loginDatabase, IConfiguration config,
+        BNetAccountManager bNetAccountManager)
     {
         _session = session;
         _whoListStorageManager = whoListStorageManager;
@@ -52,6 +54,7 @@ public class SocialHandler : IWorldSessionHandler
         _objectAccessor = objectAccessor;
         _loginDatabase = loginDatabase;
         _config = config;
+        _bNetAccountManager = bNetAccountManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.AddFriend)]
@@ -347,7 +350,7 @@ public class SocialHandler : IWorldSessionHandler
 
             WhoEntry whoEntry = new();
 
-            if (!whoEntry.PlayerData.Initialize(target.Guid))
+            if (!whoEntry.PlayerData.Initialize(target.Guid, _characterCache, _bNetAccountManager))
                 continue;
 
             if (!target.GuildGuid.IsEmpty)

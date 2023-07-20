@@ -37,7 +37,7 @@ public class PathGenerator
         _navMeshQuery = null;
         Log.Logger.Debug("PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
 
-        var mapId = PhasingHandler.GetTerrainMapId(_source.Location.PhaseShift, _source.Location.MapId, _source.Location.Map.Terrain, _source.Location.X, _source.Location.Y);
+        var mapId = owner.ClassFactory.Resolve<PhasingHandler>().GetTerrainMapId(_source.Location.PhaseShift, _source.Location.MapId, _source.Location.Map.Terrain, _source.Location.X, _source.Location.Y);
 
         if (owner.DisableManager.IsPathfindingEnabled(_source.Location.MapId))
         {

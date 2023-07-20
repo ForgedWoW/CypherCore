@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Authentication;
+using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
@@ -48,8 +49,8 @@ internal class PartyInvite : ServerPacket
 
         ProposedRoles = proposedRoles;
 
-        var realm = Global.WorldMgr.Realm;
-        InviterRealm = new VirtualRealmInfo(Realm.Id.VirtualRealmAddress, true, false, realm.Name, realm.NormalizedName);
+        var realm = WorldManager.Realm;
+        InviterRealm = new VirtualRealmInfo(realm.Id.VirtualRealmAddress, true, false, realm.Name, realm.NormalizedName);
     }
 
     public override void Write()

@@ -100,7 +100,7 @@ internal class MiscAddItemCommands
         var player = handler.Session.Player;
         var playerTarget = handler.SelectedPlayer;
 
-        if (!playerTarget)
+        if (playerTarget == null)
             playerTarget = player;
 
         var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
@@ -160,11 +160,11 @@ internal class MiscAddItemCommands
             {
                 var item1 = player.GetItemByPos(posCount.Pos);
 
-                if (item1)
+                if (item1 != null)
                     item1.SetBinding(false);
             }
 
-        if (count > 0 && item)
+        if (count > 0 && item != null)
         {
             player.SendNewItem(item, (uint)count, false, true);
             handler.SendSysMessage(CypherStrings.Additem, itemId, count, handler.GetNameLink(playerTarget));
@@ -210,7 +210,7 @@ internal class MiscAddItemCommands
         var player = handler.Session.Player;
         var playerTarget = handler.SelectedPlayer;
 
-        if (!playerTarget)
+        if (playerTarget == null)
             playerTarget = player;
 
         Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.Additemset), itemSetId);
@@ -419,7 +419,7 @@ internal class MiscAddItemCommands
                 item1?.SetBinding(false);
             }
 
-        if (count > 0 && item)
+        if (count > 0 && item != null)
         {
             player.SendNewItem(item, (uint)count, false, true);
 

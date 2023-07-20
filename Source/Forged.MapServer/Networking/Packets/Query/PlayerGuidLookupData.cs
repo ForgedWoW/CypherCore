@@ -1,11 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
+using Forged.MapServer.Accounts;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.World;
 using Framework.Constants;
+using System;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
@@ -29,14 +32,15 @@ public class PlayerGuidLookupData
     // same as bgs.protocol.club.v1.MemberId.unique_id
     public uint VirtualRealmAddress;
 
-    public bool Initialize(ObjectGuid guid, Player player = null)
+    public bool Initialize(ObjectGuid guid, CharacterCache characterCache, BNetAccountManager bNetAccountManager,
+        Player player = null)
     {
-        var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(guid);
+        var characterInfo = characterCache.GetCharacterCacheByGuid(guid);
 
         if (characterInfo == null)
             return false;
 
-        if (player)
+        if (player != null)
         {
             AccountID = player.Session.AccountGUID;
             BnetAccountID = player.Session.BattlenetAccountGUID;
@@ -53,8 +57,8 @@ public class PlayerGuidLookupData
         }
         else
         {
-            var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
-            var bnetAccountId = Global.BNetAccountMgr.GetIdByGameAccount(accountId);
+            var accountId = characterCache.GetCharacterAccountIdByGuid(guid);
+            var bnetAccountId = bNetAccountManager.GetIdByGameAccount(accountId);
 
             AccountID = ObjectGuid.Create(HighGuid.WowAccount, accountId);
             BnetAccountID = ObjectGuid.Create(HighGuid.BNetAccount, bnetAccountId);

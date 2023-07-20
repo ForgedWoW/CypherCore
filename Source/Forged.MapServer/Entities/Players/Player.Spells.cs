@@ -14,6 +14,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Pet;
 using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Scripting.Interfaces.IItem;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
@@ -2832,7 +2833,7 @@ public partial class Player
         if (duration <= 0)
             return;
 
-        Session.SendItemEnchantTimeUpdate(GUID, item.GUID, (uint)slot, duration / 1000);
+        Session.PacketRouter.OpCodeHandler<ItemHandler>().SendItemEnchantTimeUpdate(GUID, item.GUID, (uint)slot, duration / 1000);
         _enchantDurations.Add(new EnchantDuration(item, slot, duration));
     }
 

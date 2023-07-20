@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using System.Linq;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -12,6 +10,8 @@ using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IQuest;
 using Framework.Constants;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -58,7 +58,7 @@ internal class QuestCommands
                 var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
 
                 if (curRep < obj.Amount)
-                    if (player.CliDB.FactionStorage.TryGetValue(obj.ObjectID, out var factionEntry))
+                    if (player.CliDB.FactionStorage.TryGetValue((uint)obj.ObjectID, out var factionEntry))
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
 
                 break;
@@ -68,7 +68,7 @@ internal class QuestCommands
                 var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
 
                 if (curRep > obj.Amount)
-                    if (player.CliDB.FactionStorage.TryGetValue(obj.ObjectID, out var factionEntry))
+                    if (player.CliDB.FactionStorage.TryGetValue((uint)obj.ObjectID, out var factionEntry))
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
 
                 break;
@@ -94,7 +94,7 @@ internal class QuestCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (!player)
+        if (player == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -134,7 +134,7 @@ internal class QuestCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (!player)
+        if (player == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -162,7 +162,7 @@ internal class QuestCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (!player)
+        if (player == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -214,7 +214,7 @@ internal class QuestCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (!player)
+        if (player == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -242,7 +242,7 @@ internal class QuestCommands
         {
             var player = handler.SelectedPlayerOrSelf;
 
-            if (!player)
+            if (player == null)
             {
                 handler.SendSysMessage(CypherStrings.NoCharSelected);
 

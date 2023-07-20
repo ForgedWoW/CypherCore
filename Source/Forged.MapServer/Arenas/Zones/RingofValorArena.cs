@@ -1,18 +1,38 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
 using Framework.Dynamic;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
+using System;
 
 namespace Forged.MapServer.Arenas.Zones;
 
 internal class RingofValorArena : Arena
 {
-    public RingofValorArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    public RingofValorArena(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager,
+        BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager gameObjectManager,
+        CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory,
+        IConfiguration configuration, CharacterDatabase characterDatabase, GuildManager guildManager,
+        Formulas formulas, PlayerComputators playerComputators, CliDB cliDb, CreatureTextManager creatureTextManager,
+        WorldStateManager worldStateManager, ArenaTeamManager arenaTeamManager) 
+        : base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, gameObjectManager,
+            creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase, guildManager,
+            formulas, playerComputators, cliDb.FactionStorage, cliDb.BroadcastTextStorage, creatureTextManager,
+            worldStateManager, arenaTeamManager)
     {
         Events = new EventMap();
     }
@@ -176,7 +196,7 @@ internal class RingofValorArena : Arena
         {
             var go = GetBGObject(i);
 
-            if (go)
+            if (go != null)
             {
                 if (i >= RingofValorObjectTypes.PILAR_COLLISION1)
                 {
@@ -186,9 +206,9 @@ internal class RingofValorArena : Arena
 
                 foreach (var guid in Players.Keys)
                 {
-                    var player = Global.ObjAccessor.FindPlayer(guid);
+                    var player = go.ObjectAccessor.FindPlayer(guid);
 
-                    if (player)
+                    if (player != null)
                         go.SendUpdateToPlayer(player);
                 }
             }

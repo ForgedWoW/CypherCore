@@ -14,7 +14,7 @@ internal class PetCommands
     {
         var target = handler.SelectedUnit;
 
-        if (target)
+        if (target != null)
         {
             if (target.IsTypeId(TypeId.Player))
                 return target.AsPlayer.CurrentPet;
@@ -28,7 +28,7 @@ internal class PetCommands
 
         var player = handler.Session.Player;
 
-        return player ? player.CurrentPet : null;
+        return player != null ? player.CurrentPet : null;
     }
 
     [Command("create", RBACPermissions.CommandPetCreate)]
@@ -37,7 +37,7 @@ internal class PetCommands
         var player = handler.Session.Player;
         var creatureTarget = handler.SelectedCreature;
 
-        if (!creatureTarget || creatureTarget.IsPet || creatureTarget.IsTypeId(TypeId.Player))
+        if (creatureTarget == null || creatureTarget.IsPet || creatureTarget.IsTypeId(TypeId.Player))
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -92,7 +92,7 @@ internal class PetCommands
     {
         var pet = GetSelectedPlayerPetOrOwn(handler);
 
-        if (!pet)
+        if (pet == null)
         {
             handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
 
@@ -131,9 +131,9 @@ internal class PetCommands
     private static bool HandlePetLevelCommand(CommandHandler handler, int level)
     {
         var pet = GetSelectedPlayerPetOrOwn(handler);
-        var owner = pet ? pet.OwningPlayer : null;
+        var owner = pet != null ? pet.OwningPlayer : null;
 
-        if (!pet || !owner)
+        if (pet == null || owner == null)
         {
             handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
 
@@ -170,7 +170,7 @@ internal class PetCommands
     {
         var pet = GetSelectedPlayerPetOrOwn(handler);
 
-        if (!pet)
+        if (pet == null)
         {
             handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
 
