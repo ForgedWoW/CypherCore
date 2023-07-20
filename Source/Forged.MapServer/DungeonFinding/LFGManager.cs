@@ -591,7 +591,7 @@ public class LFGManager
         var queueId = GetQueueId(guid);
 
         if (!_queuesStore.ContainsKey(queueId))
-            _queuesStore[queueId] = new LFGQueue();
+            _queuesStore[queueId] = _classFactory.Resolve<LFGQueue>();
 
         return _queuesStore[queueId];
     }

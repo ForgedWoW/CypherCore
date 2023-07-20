@@ -42,6 +42,10 @@ public class PlayerComputators
     private readonly ObjectAccessor _objectAccessor;
     private readonly PetitionManager _petitionManager;
     private readonly PhasingHandler _phasingHandler;
+    private readonly DB2Manager _db2Manager;
+    private readonly ItemFactory _itemFactory;
+    private readonly AzeriteItemFactory _azeriteItemFactory;
+    private readonly AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
     private readonly SocialManager _socialManager;
     private readonly TerrainManager _terrainManager;
     private readonly WorldManager _worldManager;
@@ -49,7 +53,8 @@ public class PlayerComputators
     public PlayerComputators(CliDB cliDB, IConfiguration configuration, CharacterCache characterCache, GuildManager guildManager,
                              CharacterDatabase characterDatabase, GroupManager groupManager, ObjectAccessor objectAccessor, SocialManager socialManager,
                              LoginDatabase loginDatabase, WorldManager worldManager, TerrainManager terrainManager, PetitionManager petitionManager,
-                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager, ClassFactory classFactory, PhasingHandler phasingHandler)
+                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager, ClassFactory classFactory, PhasingHandler phasingHandler,
+                             DB2Manager db2Manager, ItemFactory itemFactory, AzeriteItemFactory azeriteItemFactory, AzeriteEmpoweredItemFactory azeriteEmpoweredItemFactory)
     {
         _cliDB = cliDB;
         _configuration = configuration;
@@ -67,6 +72,10 @@ public class PlayerComputators
         _arenaTeamManager = arenaTeamManager;
         _classFactory = classFactory;
         _phasingHandler = phasingHandler;
+        _db2Manager = db2Manager;
+        _itemFactory = itemFactory;
+        _azeriteItemFactory = azeriteItemFactory;
+        _azeriteEmpoweredItemFactory = azeriteEmpoweredItemFactory;
     }
 
     public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
@@ -206,7 +215,7 @@ public class PlayerComputators
                         var azeriteEmpoweredItemResult = _characterDatabase.Query(stmt);
 
                         Dictionary<ulong, ItemAdditionalLoadInfo> additionalData = new();
-                        ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult, CliDB, DB2Manager);
+                        ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult, _cliDB, _db2Manager);
 
                         do
                         {
@@ -859,16 +868,16 @@ public class PlayerComputators
             stmt.AddValue(0, itemGuid);
             trans.Append(stmt);
 
-            ItemFactory.DeleteFromDB(trans, itemGuid);
-            AzeriteItemFactory.DeleteFromDB(trans, itemGuid);
-            AzeriteEmpoweredItemFactory.DeleteFromDB(trans, itemGuid);
+            _itemFactory.DeleteFromDB(trans, itemGuid);
+            _azeriteItemFactory.DeleteFromDB(trans, itemGuid);
+            _azeriteEmpoweredItemFactory.DeleteFromDB(trans, itemGuid);
 
             _characterDatabase.CommitTransaction(trans);
 
             return null;
         }
 
-        var item = ItemFactory.NewItemOrBag(proto);
+        var item = _itemFactory.NewItemOrBag(proto);
         var ownerGuid = fields.Read<ulong>(51) != 0 ? ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(51)) : ObjectGuid.Empty;
 
         if (!item.LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
