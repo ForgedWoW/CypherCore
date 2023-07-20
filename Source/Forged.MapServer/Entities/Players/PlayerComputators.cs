@@ -206,7 +206,7 @@ public class PlayerComputators
                         var azeriteEmpoweredItemResult = _characterDatabase.Query(stmt);
 
                         Dictionary<ulong, ItemAdditionalLoadInfo> additionalData = new();
-                        ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
+                        ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult, CliDB, DB2Manager);
 
                         do
                         {

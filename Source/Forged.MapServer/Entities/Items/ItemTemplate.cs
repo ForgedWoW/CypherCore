@@ -9,11 +9,16 @@ using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Players;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Entities.Items;
 
 public class ItemTemplate
 {
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+
     private static readonly SkillType[] ItemArmorSkills =
     {
         0, SkillType.Cloth, SkillType.Leather, SkillType.Mail, SkillType.PlateMail, 0, SkillType.Shield, 0, 0, 0, 0, 0
@@ -34,8 +39,10 @@ public class ItemTemplate
         SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking, SkillType.ClassicBlacksmithing, SkillType.ClassicLeatherworking, SkillType.ClassicAlchemy, SkillType.ClassicHerbalism, SkillType.ClassicCooking, SkillType.Mining, SkillType.Tailoring, SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing, SkillType.ClassicMining, SkillType.ClassicTailoring, SkillType.ClassicEngineering, SkillType.ClassicEnchanting, SkillType.ClassicFishing, SkillType.Skinning, SkillType.Jewelcrafting, SkillType.Inscription, SkillType.Archaeology, SkillType.ClassicSkinning, SkillType.ClassicJewelcrafting, SkillType.ClassicInscription
     };
 
-    public ItemTemplate(ItemRecord item, ItemSparseRecord sparse)
+    public ItemTemplate(ItemRecord item, ItemSparseRecord sparse, CliDB cliDB, IConfiguration configuration)
     {
+        _cliDB = cliDB;
+        _configuration = configuration;
         BasicData = item;
         ExtendedData = sparse;
 
@@ -178,9 +185,9 @@ public class ItemTemplate
         // all items but shields
         if (Class != ItemClass.Armor || SubClass != (uint)ItemSubClassArmor.Shield)
         {
-            var armorQuality = CliDB.ItemArmorQualityStorage.LookupByKey(itemLevel);
+            var armorQuality = _cliDB.ItemArmorQualityStorage.LookupByKey(itemLevel);
 
-            if (!CliDB.ItemArmorTotalStorage.TryGetValue(itemLevel, out var armorTotal))
+            if (!_cliDB.ItemArmorTotalStorage.TryGetValue(itemLevel, out var armorTotal))
                 return 0;
 
             var inventoryType = InventoryType;
@@ -188,7 +195,7 @@ public class ItemTemplate
             if (inventoryType == InventoryType.Robe)
                 inventoryType = InventoryType.Chest;
 
-            if (!CliDB.ArmorLocationStorage.TryGetValue(inventoryType, out var location))
+            if (!_cliDB.ArmorLocationStorage.TryGetValue((uint)inventoryType, out var location))
                 return 0;
 
             if (SubClass is < (uint)ItemSubClassArmor.Cloth or > (uint)ItemSubClassArmor.Plate)
@@ -225,7 +232,7 @@ public class ItemTemplate
         }
 
         // shields
-        if (!CliDB.ItemArmorShieldStorage.TryGetValue(itemLevel, out var shield))
+        if (!_cliDB.ItemArmorShieldStorage.TryGetValue(itemLevel, out var shield))
             return 0;
 
         return (uint)(shield.Quality[(int)quality] + 0.5f);
@@ -236,12 +243,12 @@ public class ItemTemplate
         minDamage = maxDamage = 0.0f;
         var dps = GetDps(itemLevel);
 
-        if (dps > 0.0f)
-        {
-            var avgDamage = dps * Delay * 0.001f;
-            minDamage = (DmgVariance * -0.5f + 1.0f) * avgDamage;
-            maxDamage = (float)Math.Floor(avgDamage * (DmgVariance * 0.5f + 1.0f) + 0.5f);
-        }
+        if (!(dps > 0.0f))
+            return;
+
+        var avgDamage = dps * Delay * 0.001f;
+        minDamage = (DmgVariance * -0.5f + 1.0f) * avgDamage;
+        maxDamage = (float)Math.Floor(avgDamage * (DmgVariance * 0.5f + 1.0f) + 0.5f);
     }
 
     public float GetDps(uint itemLevel)
@@ -256,14 +263,11 @@ public class ItemTemplate
         switch (InventoryType)
         {
             case InventoryType.Ammo:
-                dps = CliDB.ItemDamageAmmoStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                dps = _cliDB.ItemDamageAmmoStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
                 break;
             case InventoryType.Weapon2Hand:
-                if (HasFlag(ItemFlags2.CasterWeapon))
-                    dps = CliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
-                else
-                    dps = CliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                dps = HasFlag(ItemFlags2.CasterWeapon) ? _cliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality] : _cliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
                 break;
             case InventoryType.Ranged:
@@ -272,16 +276,13 @@ public class ItemTemplate
                 switch ((ItemSubClassWeapon)SubClass)
                 {
                     case ItemSubClassWeapon.Wand:
-                        dps = CliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                        dps = _cliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
                         break;
                     case ItemSubClassWeapon.Bow:
                     case ItemSubClassWeapon.Gun:
                     case ItemSubClassWeapon.Crossbow:
-                        if (HasFlag(ItemFlags2.CasterWeapon))
-                            dps = CliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
-                        else
-                            dps = CliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                        dps = HasFlag(ItemFlags2.CasterWeapon) ? _cliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality] : _cliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
                         break;
                 }
@@ -291,9 +292,9 @@ public class ItemTemplate
             case InventoryType.WeaponMainhand:
             case InventoryType.WeaponOffhand:
                 if (HasFlag(ItemFlags2.CasterWeapon))
-                    dps = CliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                    dps = _cliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
                 else
-                    dps = CliDB.ItemDamageOneHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                    dps = _cliDB.ItemDamageOneHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
                 break;
         }
@@ -311,28 +312,17 @@ public class ItemTemplate
         switch (Class)
         {
             case ItemClass.Weapon:
-                if (SubClass >= (int)ItemSubClassWeapon.Max)
-                    return 0;
+                return SubClass >= (int)ItemSubClassWeapon.Max ? 0 : ItemWeaponSkills[SubClass];
 
-                return ItemWeaponSkills[SubClass];
             case ItemClass.Armor:
-                if (SubClass >= (int)ItemSubClassArmor.Max)
-                    return 0;
-
-                return ItemArmorSkills[SubClass];
+                return SubClass >= (int)ItemSubClassArmor.Max ? 0 : ItemArmorSkills[SubClass];
 
             case ItemClass.Profession:
 
-                if (ConfigMgr.GetDefaultValue("Professions:AllowClassicProfessionSlots", false))
-                    if (SubClass >= (int)ItemSubclassProfession.Max)
-                        return 0;
-                    else
-                        return _itemProfessionSkills[SubClass];
+                if (_configuration.GetDefaultValue("Professions:AllowClassicProfessionSlots", false))
+                    return SubClass >= (int)ItemSubclassProfession.Max ? 0 : _itemProfessionSkills[SubClass];
 
-                if (SubClass >= (int)ItemSubclassProfession.Max)
-                    return 0;
-
-                return ItemProfessionSkills[SubClass];
+                return SubClass >= (int)ItemSubclassProfession.Max ? 0 : ItemProfessionSkills[SubClass];
 
             default:
                 return 0;
@@ -397,7 +387,7 @@ public class ItemTemplate
         if (spec == 0)
             spec = player.GetDefaultSpecId();
 
-        if (!CliDB.ChrSpecializationStorage.TryGetValue(spec, out var chrSpecialization))
+        if (!_cliDB.ChrSpecializationStorage.TryGetValue(spec, out var chrSpecialization))
             return false;
 
         var levelIndex = player.Level switch

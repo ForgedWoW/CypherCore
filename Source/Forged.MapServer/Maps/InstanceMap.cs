@@ -8,6 +8,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Instance;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IMap;
@@ -60,8 +61,8 @@ public class InstanceMap : Map
         if (InstanceLock == null)
             return;
 
-        InstanceLock.SetInUse(true);
-        _instanceExpireEvent = InstanceLock.GetExpiryTime(); // ignore extension state for reset event (will ask players to accept extended save on expiration)
+        InstanceLock.IsInUse = true;
+        _instanceExpireEvent = InstanceLock.ExpiryTime; // ignore extension state for reset event (will ask players to accept extended save on expiration)
     }
 
     public InstanceLock InstanceLock { get; }
@@ -105,20 +106,20 @@ public class InstanceMap : Map
 
         MapDb2Entries entries = new(Entry, MapDifficulty);
 
-        if (entries.MapDifficulty.HasResetSchedule() && InstanceLock != null && InstanceLock.GetData().CompletedEncountersMask != 0)
+        if (entries.MapDifficulty.HasResetSchedule() && InstanceLock != null && InstanceLock.Data.CompletedEncountersMask != 0)
             if (!entries.MapDifficulty.IsUsingEncounterLocks())
             {
                 var playerLock = _instanceLockManager.FindActiveInstanceLock(player.GUID, entries);
 
                 if (playerLock == null ||
-                    (playerLock.IsExpired() && playerLock.IsExtended()) ||
-                    playerLock.GetData().CompletedEncountersMask != InstanceLock.GetData().CompletedEncountersMask)
+                    (playerLock.IsExpired && playerLock.IsExtended) ||
+                    playerLock.Data.CompletedEncountersMask != InstanceLock.Data.CompletedEncountersMask)
                 {
                     PendingRaidLock pendingRaidLock = new()
                     {
                         TimeUntilLock = 60000,
-                        CompletedMask = InstanceLock.GetData().CompletedEncountersMask,
-                        Extending = playerLock != null && playerLock.IsExtended(),
+                        CompletedMask = InstanceLock.Data.CompletedEncountersMask,
+                        Extending = playerLock != null && playerLock.IsExtended,
                         WarningOnly = entries.Map.IsFlexLocking() // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
                     };
 
@@ -199,7 +200,7 @@ public class InstanceMap : Map
         if (InstanceScript == null)
             return;
 
-        if (InstanceLock == null || InstanceLock.GetInstanceId() == 0)
+        if (InstanceLock == null || InstanceLock.InstanceId == 0)
         {
             InstanceScript.Create();
 
@@ -215,7 +216,7 @@ public class InstanceMap : Map
             return;
         }
 
-        var lockData = InstanceLock.GetInstanceInitializationData();
+        var lockData = InstanceLock.InstanceInitializationData;
         InstanceScript.SetCompletedEncountersMask(lockData.CompletedEncountersMask);
         InstanceScript.SetEntranceLocation(lockData.EntranceWorldSafeLocId);
 
@@ -233,11 +234,11 @@ public class InstanceMap : Map
         MapDb2Entries entries = new(Entry, MapDifficulty);
         var playerLock = _instanceLockManager.FindActiveInstanceLock(player.GUID, entries);
 
-        var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
+        var isNewLock = playerLock == null || playerLock.Data.CompletedEncountersMask == 0 || playerLock.IsExpired;
 
         SQLTransaction trans = new();
 
-        var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), InstanceLock.GetData().CompletedEncountersMask, null, null));
+        var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), InstanceLock.Data.CompletedEncountersMask, null, null));
 
         _characterDatabase.CommitTransaction(trans);
 
@@ -251,7 +252,7 @@ public class InstanceMap : Map
 
         player.SendPacket(data);
 
-        player.Session.SendCalendarRaidLockoutAdded(newLock);
+        player.Session.PacketRouter.OpCodeHandler<CalendarHandler>().SendCalendarRaidLockoutAdded(newLock);
     }
 
     public override string GetDebugInfo()
@@ -269,7 +270,7 @@ public class InstanceMap : Map
         return _gameObjectManager.GetScriptName(ScriptId);
     }
 
-    public override void InitVisibilityDistance()
+    public sealed override void InitVisibilityDistance()
     {
         //init visibility distance for instances
         VisibleDistance = _worldManager.MaxVisibleDistanceInInstances;
@@ -284,7 +285,7 @@ public class InstanceMap : Map
 
         // if last player set unload timer
         if (UnloadTimer == 0 && Players.Count == 1)
-            UnloadTimer = InstanceLock != null && InstanceLock.IsExpired() ? 1 : Math.Max(_configuration.GetDefaultValue("Instance:UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+            UnloadTimer = InstanceLock != null && InstanceLock.IsExpired ? 1 : Math.Max(_configuration.GetDefaultValue("Instance:UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
         InstanceScenario?.OnPlayerExit(player);
 
@@ -294,7 +295,7 @@ public class InstanceMap : Map
     public InstanceResetResult Reset(InstanceResetMethod method)
     {
         // raids can be reset if no boss was killed
-        if (method != InstanceResetMethod.Expire && InstanceLock != null && InstanceLock.GetData().CompletedEncountersMask != 0)
+        if (method != InstanceResetMethod.Expire && InstanceLock != null && InstanceLock.Data.CompletedEncountersMask != 0)
             return InstanceResetResult.CannotReset;
 
         if (HavePlayers)
@@ -324,7 +325,7 @@ public class InstanceMap : Map
                     PendingRaidLock pendingRaidLock = new()
                     {
                         TimeUntilLock = 60000,
-                        CompletedMask = InstanceLock.GetData().CompletedEncountersMask,
+                        CompletedMask = InstanceLock?.Data?.CompletedEncountersMask ?? 0,
                         Extending = true,
                         WarningOnly = Entry.IsFlexLocking()
                     };
@@ -388,7 +389,7 @@ public class InstanceMap : Map
         if (InstanceLock == null)
             return;
 
-        var instanceCompletedEncounters = InstanceLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
+        var instanceCompletedEncounters = InstanceLock.Data.CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
 
         MapDb2Entries entries = new(Entry, MapDifficulty);
 
@@ -414,11 +415,11 @@ public class InstanceMap : Map
 
             if (playerLock != null)
             {
-                oldData = playerLock.GetData().Data;
-                playerCompletedEncounters = playerLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
+                oldData = playerLock.Data.Data;
+                playerCompletedEncounters = playerLock.Data.CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
             }
 
-            var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
+            var isNewLock = playerLock == null || playerLock.Data.CompletedEncountersMask == 0 || playerLock.IsExpired;
 
             var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans,
                                                                            player.GUID,
@@ -439,7 +440,7 @@ public class InstanceMap : Map
 
             player.SendPacket(data);
 
-            player.Session.SendCalendarRaidLockoutAdded(newLock);
+            player.Session.PacketRouter.OpCodeHandler<CalendarHandler>().SendCalendarRaidLockoutAdded(newLock);
         }
 
         _characterDatabase.CommitTransaction(trans);
@@ -449,7 +450,7 @@ public class InstanceMap : Map
     {
         if (InstanceLock != null)
         {
-            var instanceCompletedEncounters = InstanceLock.GetData().CompletedEncountersMask;
+            var instanceCompletedEncounters = InstanceLock.Data.CompletedEncountersMask;
 
             MapDb2Entries entries = new(Entry, MapDifficulty);
 
@@ -468,9 +469,9 @@ public class InstanceMap : Map
                 var oldData = "";
 
                 if (playerLock != null)
-                    oldData = playerLock.GetData().Data;
+                    oldData = playerLock.Data.Data;
 
-                var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
+                var isNewLock = playerLock == null || playerLock.Data.CompletedEncountersMask == 0 || playerLock.IsExpired;
 
                 var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans,
                                                                                player.GUID,
@@ -491,7 +492,7 @@ public class InstanceMap : Map
 
                 player.SendPacket(data);
 
-                player.Session.SendCalendarRaidLockoutAdded(newLock);
+                player.Session.PacketRouter.OpCodeHandler<CalendarHandler>().SendCalendarRaidLockoutAdded(newLock);
             }
 
             _characterDatabase.CommitTransaction(trans);
@@ -500,6 +501,6 @@ public class InstanceMap : Map
 
     ~InstanceMap()
     {
-        InstanceLock?.SetInUse(false);
+        InstanceLock.IsInUse = false;
     }
 }

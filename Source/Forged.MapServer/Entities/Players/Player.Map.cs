@@ -127,7 +127,7 @@ public partial class Player
         if (instanceLock == null)
             return false;
 
-        return (instanceLock.GetData().CompletedEncountersMask & (1u << dungeonEncounter.Bit)) != 0;
+        return (instanceLock.Data.CompletedEncountersMask & (1u << dungeonEncounter.Bit)) != 0;
     }
 
     public override void ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, LiquidData newLiquidData)
@@ -340,13 +340,13 @@ public partial class Player
         {
             InstanceLockPkt lockInfos = new()
             {
-                InstanceID = instanceLock.GetInstanceId(),
-                MapID = instanceLock.GetMapId(),
-                DifficultyID = (uint)instanceLock.GetDifficultyId(),
+                InstanceID = instanceLock.InstanceId,
+                MapID = instanceLock.MapId,
+                DifficultyID = (uint)instanceLock.DifficultyId,
                 TimeRemaining = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds, 0),
-                CompletedMask = instanceLock.GetData().CompletedEncountersMask,
-                Locked = !instanceLock.IsExpired(),
-                Extended = instanceLock.IsExtended()
+                CompletedMask = instanceLock.Data.CompletedEncountersMask,
+                Locked = !instanceLock.IsExpired,
+                Extended = instanceLock.IsExtended
             };
 
             instanceInfo.LockList.Add(lockInfos);

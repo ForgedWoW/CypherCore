@@ -3,6 +3,7 @@
 
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Query;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
@@ -79,7 +80,7 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
 
             foreach (var memberSlot in player.Group.MemberSlots)
             {
-                player.Session.BuildNameQueryData(memberSlot.Guid, out var nameCacheLookupResult);
+                player.Session.PacketRouter.OpCodeHandler<QueryHandler>().BuildNameQueryData(memberSlot.Guid, out var nameCacheLookupResult);
                 response.Players.Add(nameCacheLookupResult);
             }
 

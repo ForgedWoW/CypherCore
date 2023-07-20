@@ -61,10 +61,10 @@ public class CalendarHandler : IWorldSessionHandler
     {
         _session.SendPacket(new CalendarRaidLockoutAdded()
         {
-            InstanceID = instanceLock.GetInstanceId(),
+            InstanceID = instanceLock.InstanceId,
             ServerTime = (uint)GameTime.CurrentTime,
-            MapID = (int)instanceLock.GetMapId(),
-            DifficultyID = instanceLock.GetDifficultyId(),
+            MapID = (int)instanceLock.MapId,
+            DifficultyID = instanceLock.DifficultyId,
             TimeRemaining = (int)(instanceLock.GetEffectiveExpiryTime() - GameTime.SystemTime).TotalSeconds
         });
     }
@@ -390,10 +390,10 @@ public class CalendarHandler : IWorldSessionHandler
         {
             packet.RaidLockouts.Add(new CalendarSendCalendarRaidLockoutInfo()
             {
-                MapID = (int)instanceLock.GetMapId(),
-                DifficultyID = (uint)instanceLock.GetDifficultyId(),
+                MapID = (int)instanceLock.MapId,
+                DifficultyID = (uint)instanceLock.DifficultyId,
                 ExpireTime = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - GameTime.SystemTime).TotalSeconds, 0),
-                InstanceID = instanceLock.GetInstanceId()
+                InstanceID = instanceLock.InstanceId
             });
         }
 
@@ -688,9 +688,9 @@ public class CalendarHandler : IWorldSessionHandler
     {
         CalendarRaidLockoutRemoved calendarRaidLockoutRemoved = new()
         {
-            InstanceID = instanceLock.GetInstanceId(),
-            MapID = (int)instanceLock.GetMapId(),
-            DifficultyID = instanceLock.GetDifficultyId()
+            InstanceID = instanceLock.InstanceId,
+            MapID = (int)instanceLock.MapId,
+            DifficultyID = instanceLock.DifficultyId
         };
 
         _session.SendPacket(calendarRaidLockoutRemoved);

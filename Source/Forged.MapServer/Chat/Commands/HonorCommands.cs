@@ -3,6 +3,8 @@
 
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
+// ReSharper disable UnusedType.Local
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -14,7 +16,7 @@ internal class HonorCommands
     {
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -38,7 +40,7 @@ internal class HonorCommands
         {
             var target = handler.SelectedPlayer;
 
-            if (!target)
+            if (target == null)
             {
                 handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -59,7 +61,7 @@ internal class HonorCommands
         {
             var target = handler.SelectedUnit;
 
-            if (!target)
+            if (target == null)
             {
                 handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -69,9 +71,8 @@ internal class HonorCommands
             // check online security
             var player = target.AsPlayer;
 
-            if (player)
-                if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
-                    return false;
+            if (player != null && handler.HasLowerSecurity(player, ObjectGuid.Empty))
+                return false;
 
             handler.Player.RewardHonor(target, 1);
 

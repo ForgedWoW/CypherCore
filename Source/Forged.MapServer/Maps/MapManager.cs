@@ -116,11 +116,11 @@ public class MapManager
 
                 if (instanceLock != null)
                 {
-                    newInstanceId = instanceLock.GetInstanceId();
+                    newInstanceId = instanceLock.InstanceId;
 
                     // Reset difficulty to the one used in instance lock
                     if (!entries.Map.IsFlexLocking())
-                        difficulty = instanceLock.GetDifficultyId();
+                        difficulty = instanceLock.DifficultyId;
                 }
                 else
                 {
@@ -142,7 +142,7 @@ public class MapManager
                 if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
                 {
                     newInstanceId = GenerateInstanceId();
-                    instanceLock.SetInstanceId(newInstanceId);
+                    instanceLock.InstanceId = new InClassName(newInstanceId);
                     map = null;
                 }
 
@@ -233,7 +233,7 @@ public class MapManager
             uint newInstanceId = 0;
 
             if (instanceLock != null)
-                newInstanceId = instanceLock.GetInstanceId();
+                newInstanceId = instanceLock.InstanceId;
             else if (!entries.MapDifficulty.HasResetSchedule()) // Try finding instance id for normal dungeon
                 newInstanceId = group?.GetRecentInstanceId(mapId) ?? player.GetRecentInstanceId(mapId);
 
@@ -494,7 +494,7 @@ public class MapManager
         // some instances only have one difficulty
         _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty);
 
-        Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
+        Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.InstanceId != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
         var map = _classFactory.ResolveWithPositionalParameters<InstanceMap>(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
 

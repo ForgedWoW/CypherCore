@@ -8,6 +8,9 @@ using Forged.MapServer.Groups;
 using Framework.Constants;
 using Framework.Database;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMember.Local
+
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("lfg")]
@@ -49,7 +52,7 @@ internal class LFGCommands
                 groupTarget = handler.ClassFactory.Resolve<GroupManager>().GetGroupByDbStoreId(resultGroup.Read<uint>(0));
         }
 
-        if (!groupTarget)
+        if (groupTarget == null)
         {
             handler.SendSysMessage(CypherStrings.LfgNotInGroup, player.GetName());
 
@@ -63,7 +66,7 @@ internal class LFGCommands
         {
             var p = handler.ObjectAccessor.FindPlayer(slot.Guid);
 
-            if (p)
+            if (p != null)
                 PrintPlayerInfo(handler, p);
             else
                 handler.SendSysMessage("{0} is offline.", slot.Name);
@@ -117,7 +120,7 @@ internal class LFGCommands
 
     private static void PrintPlayerInfo(CommandHandler handler, Player player)
     {
-        if (!player)
+        if (player == null)
             return;
 
         var guid = player.GUID;

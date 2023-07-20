@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Cache;
-using Forged.MapServer.Globals;
 using Forged.MapServer.Guilds;
 using Framework.Constants;
 using Framework.IO;
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -33,21 +34,21 @@ internal class GuildCommands
             return false;
         }
 
-        if (handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(guildName))
+        if (handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(guildName) != null)
         {
             handler.SendSysMessage(CypherStrings.GuildRenameAlreadyExists);
 
             return false;
         }
 
-        if (handler.ObjectManager.IsReservedName(guildName) || !GameObjectManager.IsValidCharterName(guildName))
+        if (handler.ObjectManager.IsReservedName(guildName) || !handler.ObjectManager.IsValidCharterName(guildName))
         {
             handler.SendSysMessage(CypherStrings.BadValue);
 
             return false;
         }
 
-        Guild guild = new();
+        var guild = handler.ClassFactory.Resolve<Guild>();
 
         if (!guild.Create(target, guildName))
         {
@@ -85,15 +86,12 @@ internal class GuildCommands
 
         if (!args.Empty() && args[0] != '\0')
         {
-            if (char.IsDigit(args[0]))
-                guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildById(args.NextUInt64());
-            else
-                guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(args.NextString());
+            guild = char.IsDigit(args[0]) ? handler.ClassFactory.Resolve<GuildManager>().GetGuildById(args.NextUInt64()) : handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(args.NextString());
         }
-        else if (target)
+        else if (target != null)
             guild = target.Guild;
 
-        if (!guild)
+        if (guild == null)
             return false;
 
         // Display Guild Information
@@ -121,7 +119,7 @@ internal class GuildCommands
         targetIdentifier = targetIdentifier switch
         {
             null => PlayerIdentifier.FromTargetOrSelf(handler),
-            _    => targetIdentifier
+            _ => targetIdentifier
         };
 
         if (targetIdentifier == null)
@@ -146,7 +144,7 @@ internal class GuildCommands
         player = player switch
         {
             null => PlayerIdentifier.FromTargetOrSelf(handler),
-            _    => player
+            _ => player
         };
 
         if (player == null)
@@ -159,10 +157,7 @@ internal class GuildCommands
 
         var targetGuild = handler.ClassFactory.Resolve<GuildManager>().GetGuildById(guildId);
 
-        if (!targetGuild)
-            return false;
-
-        return targetGuild.ChangeMemberRank(null, player.GetGUID(), (GuildRankId)rank);
+        return targetGuild != null && targetGuild.ChangeMemberRank(null, player.GetGUID(), (GuildRankId)rank);
     }
 
     [Command("rename", RBACPermissions.CommandGuildRename, true)]
@@ -184,14 +179,14 @@ internal class GuildCommands
 
         var guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(oldGuildName);
 
-        if (!guild)
+        if (guild == null)
         {
             handler.SendSysMessage(CypherStrings.CommandCouldnotfind, oldGuildName);
 
             return false;
         }
 
-        if (handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(newGuildName))
+        if (handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(newGuildName) != null)
         {
             handler.SendSysMessage(CypherStrings.GuildRenameAlreadyExists, newGuildName);
 
@@ -211,12 +206,13 @@ internal class GuildCommands
     }
 
     [Command("uninvite", RBACPermissions.CommandGuildUninvite, true)]
+    // ReSharper disable once UnusedParameter.Local
     private static bool HandleGuildUninviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
     {
         targetIdentifier = targetIdentifier switch
         {
             null => PlayerIdentifier.FromTargetOrSelf(handler),
-            _    => targetIdentifier
+            _ => targetIdentifier
         };
 
         if (targetIdentifier == null)

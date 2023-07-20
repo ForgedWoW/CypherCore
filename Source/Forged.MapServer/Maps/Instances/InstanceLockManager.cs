@@ -55,9 +55,9 @@ public class InstanceLockManager
 
         if (entries.Map.IsFlexLocking())
             // compare completed encounters - if instance has any encounters unkilled in players lock then cannot enter
-            return (playerInstanceLock.GetData().CompletedEncountersMask & ~instanceLock.GetData().CompletedEncountersMask) != 0 ? TransferAbortReason.AlreadyCompletedEncounter : TransferAbortReason.None;
+            return (playerInstanceLock.Data.CompletedEncountersMask & ~instanceLock.Data.CompletedEncountersMask) != 0 ? TransferAbortReason.AlreadyCompletedEncounter : TransferAbortReason.None;
 
-        if (!entries.MapDifficulty.IsUsingEncounterLocks() && playerInstanceLock.GetInstanceId() != 0 && playerInstanceLock.GetInstanceId() != instanceLock.GetInstanceId())
+        if (!entries.MapDifficulty.IsUsingEncounterLocks() && playerInstanceLock.InstanceId != 0 && playerInstanceLock.InstanceId != instanceLock.InstanceId)
             return TransferAbortReason.LockedToDifferentInstance;
 
         return TransferAbortReason.None;
@@ -111,7 +111,7 @@ public class InstanceLockManager
         var instanceLock = FindInstanceLock(_instanceLocksByPlayer, playerGuid, entries);
 
         // Ignore expired and not extended locks
-        if (instanceLock != null && (!instanceLock.IsExpired() || instanceLock.IsExtended() || !ignoreExpired))
+        if (instanceLock != null && (!instanceLock.IsExpired || instanceLock.IsExtended || !ignoreExpired))
             return instanceLock;
 
         return ignoreTemporary ? null : FindInstanceLock(_temporaryInstanceLocksByPlayer, playerGuid, entries);
@@ -241,9 +241,9 @@ public class InstanceLockManager
                 else
                     instanceLock = new InstanceLock(mapId, difficulty, expiryTime, instanceId, this);
 
-                instanceLock.GetData().Data = lockResult.Read<string>(5);
-                instanceLock.GetData().CompletedEncountersMask = lockResult.Read<uint>(6);
-                instanceLock.SetExtended(lockResult.Read<bool>(8));
+                instanceLock.Data.Data = lockResult.Read<string>(5);
+                instanceLock.Data.CompletedEncountersMask = lockResult.Read<uint>(6);
+                instanceLock.Extended = lockResult.Read<bool>(8);
 
                 _instanceLocksByPlayer[playerGuid][Tuple.Create(mapId, lockId)] = instanceLock;
             } while (result.NextRow());
@@ -277,17 +277,17 @@ public class InstanceLockManager
 
         foreach (var playerLockPair in playerLocks)
         {
-            if (playerLockPair.Value.IsInUse())
+            if (playerLockPair.Value.IsInUse)
             {
                 locksFailedToReset.Add(playerLockPair.Value);
 
                 continue;
             }
 
-            if (mapId.HasValue && mapId.Value != playerLockPair.Value.GetMapId())
+            if (mapId.HasValue && mapId.Value != playerLockPair.Value.MapId)
                 continue;
 
-            if (difficulty.HasValue && difficulty.Value != playerLockPair.Value.GetDifficultyId())
+            if (difficulty.HasValue && difficulty.Value != playerLockPair.Value.DifficultyId)
                 continue;
 
             locksReset.Add(playerLockPair.Value);
@@ -300,11 +300,11 @@ public class InstanceLockManager
 
         foreach (var instanceLock in locksReset)
         {
-            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId(), _cliDB, _db2Manager);
+            MapDb2Entries entries = new(instanceLock.MapId, instanceLock.DifficultyId, _cliDB, _db2Manager);
             var newExpiryTime = GetNextResetTime(entries) - TimeSpan.FromSeconds(entries.MapDifficulty.GetRaidDuration());
             // set reset time to last reset time
-            instanceLock.SetExpiryTime(newExpiryTime);
-            instanceLock.SetExtended(false);
+            instanceLock.ExpiryTime = newExpiryTime;
+            instanceLock.Extended = false;
 
             var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE);
             stmt.AddValue(0, (ulong)Time.DateTimeToUnixTime(newExpiryTime));
@@ -332,7 +332,7 @@ public class InstanceLockManager
             return Tuple.Create(DateTime.MinValue, DateTime.MinValue);
 
         var oldExpiryTime = instanceLock.GetEffectiveExpiryTime();
-        instanceLock.SetExtended(extended);
+        instanceLock.Extended = extended;
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_EXTENSION);
         stmt.AddValue(0, extended ? 1 : 0);
         stmt.AddValue(1, playerGuid.Counter);
@@ -400,13 +400,13 @@ public class InstanceLockManager
                              $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Created new instance lock for {playerGuid} in instance {updateEvent.InstanceId}");
         }
         else
-            instanceLock.SetInstanceId(updateEvent.InstanceId);
+            instanceLock.InstanceId = new InClassName(updateEvent.InstanceId);
 
-        instanceLock.GetData().Data = updateEvent.NewData;
+        instanceLock.Data.Data = updateEvent.NewData;
 
         if (updateEvent.CompletedEncounter != null)
         {
-            instanceLock.GetData().CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter.Bit;
+            instanceLock.Data.CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter.Bit;
 
             Log.Logger.Debug($"[{entries.Map.Id}-{entries.Map.MapName[_worldManager.DefaultDbcLocale]} | " +
                              $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] " +
@@ -415,15 +415,15 @@ public class InstanceLockManager
 
         // Synchronize map completed encounters into players completed encounters for UI
         if (!entries.MapDifficulty.IsUsingEncounterLocks())
-            instanceLock.GetData().CompletedEncountersMask |= updateEvent.InstanceCompletedEncountersMask;
+            instanceLock.Data.CompletedEncountersMask |= updateEvent.InstanceCompletedEncountersMask;
 
         if (updateEvent.EntranceWorldSafeLocId.HasValue)
-            instanceLock.GetData().EntranceWorldSafeLocId = updateEvent.EntranceWorldSafeLocId.Value;
+            instanceLock.Data.EntranceWorldSafeLocId = updateEvent.EntranceWorldSafeLocId.Value;
 
-        if (instanceLock.IsExpired())
+        if (instanceLock.IsExpired)
         {
-            instanceLock.SetExpiryTime(GetNextResetTime(entries));
-            instanceLock.SetExtended(false);
+            instanceLock.ExpiryTime = GetNextResetTime(entries);
+            instanceLock.Extended = false;
 
             Log.Logger.Debug($"[{entries.Map.Id}-{entries.Map.MapName[_worldManager.DefaultDbcLocale]} | " +
                              $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Expired instance lock for {playerGuid} in instance {updateEvent.InstanceId} is now active");
@@ -439,13 +439,13 @@ public class InstanceLockManager
         stmt.AddValue(0, playerGuid.Counter);
         stmt.AddValue(1, entries.MapDifficulty.MapID);
         stmt.AddValue(2, entries.MapDifficulty.LockID);
-        stmt.AddValue(3, instanceLock.GetInstanceId());
+        stmt.AddValue(3, instanceLock.InstanceId);
         stmt.AddValue(4, entries.MapDifficulty.DifficultyID);
-        stmt.AddValue(5, instanceLock.GetData().Data);
-        stmt.AddValue(6, instanceLock.GetData().CompletedEncountersMask);
-        stmt.AddValue(7, instanceLock.GetData().EntranceWorldSafeLocId);
-        stmt.AddValue(8, (ulong)Time.DateTimeToUnixTime(instanceLock.GetExpiryTime()));
-        stmt.AddValue(9, instanceLock.IsExtended() ? 1 : 0);
+        stmt.AddValue(5, instanceLock.Data.Data);
+        stmt.AddValue(6, instanceLock.Data.CompletedEncountersMask);
+        stmt.AddValue(7, instanceLock.Data.EntranceWorldSafeLocId);
+        stmt.AddValue(8, (ulong)Time.DateTimeToUnixTime(instanceLock.ExpiryTime));
+        stmt.AddValue(9, instanceLock.IsExtended ? 1 : 0);
         trans.Append(stmt);
 
         return instanceLock;

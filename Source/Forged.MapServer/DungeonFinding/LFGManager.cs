@@ -2032,7 +2032,7 @@ public class LFGManager
 
                         if (playerBind != null)
                         {
-                            var dungeonInstanceId = playerBind.GetInstanceId();
+                            var dungeonInstanceId = playerBind.InstanceId;
 
                             if (!lockedDungeons.TryGetValue(dungeonId, out var lockedDungeon) || lockedDungeon == dungeonInstanceId)
                                 eraseDungeon = false;

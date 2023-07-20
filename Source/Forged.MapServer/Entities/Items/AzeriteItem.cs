@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.LootManagement;
@@ -22,8 +24,8 @@ public class AzeriteItem : Item
     private readonly AzeriteItemFactory _azeriteItemFactory;
 
     public AzeriteItem(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase,
-                       LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager, AzeriteItemFactory azeriteItemFactory)
-        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager)
+                       LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager, AzeriteItemFactory azeriteItemFactory, DB6Storage<ItemEffectRecord> itemEffectRecords)
+        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager, itemEffectRecords)
     {
         _azeriteItemFactory = azeriteItemFactory;
         AzeriteItemData = new AzeriteItemData();

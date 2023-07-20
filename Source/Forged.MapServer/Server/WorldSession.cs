@@ -1264,8 +1264,8 @@ public class WorldSession : IDisposable
 
                 if (playerLock != null)
                 {
-                    raidInstanceMessage.Locked = !playerLock.IsExpired();
-                    raidInstanceMessage.Extended = playerLock.IsExtended();
+                    raidInstanceMessage.Locked = !playerLock.IsExpired;
+                    raidInstanceMessage.Extended = playerLock.IsExtended;
                 }
                 else
                 {

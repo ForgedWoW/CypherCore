@@ -74,7 +74,7 @@ public partial class Player
         if (!mailItemsResult.IsEmpty())
         {
             Dictionary<ulong, ItemAdditionalLoadInfo> additionalData = new();
-            ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteItemResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
+            ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteItemResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult, CliDB, DB2Manager);
 
             do
             {
@@ -1906,7 +1906,7 @@ public partial class Player
     private void _LoadInventory(SQLResult result, SQLResult artifactsResult, SQLResult azeriteResult, SQLResult azeriteItemMilestonePowersResult, SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult, uint timeDiff)
     {
         Dictionary<ulong, ItemAdditionalLoadInfo> additionalData = new();
-        ItemAdditionalLoadInfo.Init(additionalData, artifactsResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
+        ItemAdditionalLoadInfo.Init(additionalData, artifactsResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult, CliDB, DB2Manager);
 
         if (!result.IsEmpty())
         {

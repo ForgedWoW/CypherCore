@@ -6,6 +6,8 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedType.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -17,7 +19,7 @@ internal class LearnCommands
     {
         var targetPlayer = handler.SelectedPlayerOrSelf;
 
-        if (!targetPlayer)
+        if (targetPlayer == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -57,7 +59,7 @@ internal class LearnCommands
     {
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -166,7 +168,7 @@ internal class LearnCommands
         [Command("pettalents", CypherStrings.CommandLearnAllPettalentHelp, RBACPermissions.CommandLearnMyPetTalents)]
         private static bool HandleLearnAllPetTalentsCommand(CommandHandler handler)
         {
-            return true;
+            return handler != null;
         }
 
         [Command("recipes", CypherStrings.CommandLearnAllRecipesHelp, RBACPermissions.CommandLearnAllRecipes)]
@@ -177,7 +179,7 @@ internal class LearnCommands
 
             var target = handler.SelectedPlayer;
 
-            if (!target)
+            if (target == null)
             {
                 handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -336,7 +338,7 @@ internal class LearnCommands
         [Command("trainer", CypherStrings.CommandLearnMyTrainerHelp, RBACPermissions.CommandLearnAllMySpells)]
         private static bool HandleLearnMySpellsCommand(CommandHandler handler)
         {
-            if (!handler.CliDB.ChrClassesStorage.TryGetValue(handler.Player.Class, out var classEntry))
+            if (!handler.CliDB.ChrClassesStorage.TryGetValue((uint)handler.Player.Class, out var classEntry))
                 return true;
 
             uint family = classEntry.SpellClassSet;

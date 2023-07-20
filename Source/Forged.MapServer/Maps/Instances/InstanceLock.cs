@@ -3,108 +3,59 @@
 
 using System;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
 
 namespace Forged.MapServer.Maps.Instances;
 
 public class InstanceLock
 {
-    private readonly InstanceLockData _data = new();
-    private readonly Difficulty _difficultyId;
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
     private readonly InstanceLockManager _instanceLockManager;
-    private readonly uint _mapId;
-    private DateTime _expiryTime;
-    private bool _extended;
-    private uint _instanceId;
-    private bool _isInUse;
 
-    public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, InstanceLockManager instanceLockManager)
+    public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, InstanceLockManager instanceLockManager, CliDB cliDB, DB2Manager db2Manager)
     {
-        _mapId = mapId;
-        _difficultyId = difficultyId;
-        _instanceId = instanceId;
         _instanceLockManager = instanceLockManager;
-        _expiryTime = expiryTime;
-        _extended = false;
+        _cliDB = cliDB;
+        _db2Manager = db2Manager;
+        MapId = mapId;
+        DifficultyId = difficultyId;
+        InstanceId = instanceId;
+        ExpiryTime = expiryTime;
+        IsExtended = false;
     }
 
-    public InstanceLockData GetData()
-    {
-        return _data;
-    }
+    public InstanceLockData Data { get; } = new();
 
-    public Difficulty GetDifficultyId()
-    {
-        return _difficultyId;
-    }
+    public Difficulty DifficultyId { get; }
+
+    public DateTime ExpiryTime { get; set; }
+
+    public uint InstanceId { get; set; }
+
+    public virtual InstanceLockData InstanceInitializationData => Data;
+
+    public bool IsExpired => ExpiryTime < GameTime.SystemTime;
+
+    public bool IsExtended { get; set; }
+
+    public bool IsInUse { get; set; }
+
+    public uint MapId { get; }
 
     public DateTime GetEffectiveExpiryTime()
     {
-        if (!IsExtended())
-            return GetExpiryTime();
+        if (!IsExtended)
+            return ExpiryTime;
 
-        MapDb2Entries entries = new(_mapId, _difficultyId);
+        MapDb2Entries entries = new(MapId, DifficultyId, _cliDB, _db2Manager);
 
         // return next reset time
-        if (IsExpired())
+        if (IsExpired)
             return _instanceLockManager.GetNextResetTime(entries);
 
         // if not expired, return expiration time + 1 reset period
-        return GetExpiryTime() + TimeSpan.FromSeconds(entries.MapDifficulty.GetRaidDuration());
-    }
-
-    public DateTime GetExpiryTime()
-    {
-        return _expiryTime;
-    }
-
-    public uint GetInstanceId()
-    {
-        return _instanceId;
-    }
-
-    public virtual InstanceLockData GetInstanceInitializationData()
-    {
-        return _data;
-    }
-
-    public uint GetMapId()
-    {
-        return _mapId;
-    }
-
-    public bool IsExpired()
-    {
-        return _expiryTime < GameTime.SystemTime;
-    }
-
-    public bool IsExtended()
-    {
-        return _extended;
-    }
-
-    public bool IsInUse()
-    {
-        return _isInUse;
-    }
-
-    public void SetExpiryTime(DateTime expiryTime)
-    {
-        _expiryTime = expiryTime;
-    }
-
-    public void SetExtended(bool extended)
-    {
-        _extended = extended;
-    }
-
-    public void SetInstanceId(uint instanceId)
-    {
-        _instanceId = instanceId;
-    }
-
-    public void SetInUse(bool inUse)
-    {
-        _isInUse = inUse;
+        return ExpiryTime + TimeSpan.FromSeconds(entries.MapDifficulty.GetRaidDuration());
     }
 }

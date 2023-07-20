@@ -14,7 +14,7 @@ internal class ItemSpecStats
     public ItemSpecStat[] ItemSpecStatTypes = new ItemSpecStat[ItemConst.MaxStats];
     public uint ItemType;
 
-    public ItemSpecStats(ItemRecord item, ItemSparseRecord sparse)
+    public ItemSpecStats(ItemRecord item, ItemSparseRecord sparse, CliDB cliDB)
     {
         if (item.ClassID == ItemClass.Weapon)
         {
@@ -135,7 +135,7 @@ internal class ItemSpecStats
         {
             ItemType = 7;
 
-            if (CliDB.GemPropertiesStorage.TryGetValue(sparse.GemProperties, out var gem))
+            if (cliDB.GemPropertiesStorage.TryGetValue(sparse.GemProperties, out var gem))
             {
                 if (gem.Type.HasAnyFlag(SocketColor.RelicIron))
                     AddStat(ItemSpecStat.RelicIron);

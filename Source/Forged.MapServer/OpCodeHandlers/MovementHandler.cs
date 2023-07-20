@@ -857,8 +857,8 @@ public class MovementHandler : IWorldSessionHandler
 
                 if (playerLock != null)
                 {
-                    raidInstanceMessage.Locked = !playerLock.IsExpired();
-                    raidInstanceMessage.Extended = playerLock.IsExtended();
+                    raidInstanceMessage.Locked = !playerLock.IsExpired;
+                    raidInstanceMessage.Extended = playerLock.IsExtended;
                 }
                 else
                 {

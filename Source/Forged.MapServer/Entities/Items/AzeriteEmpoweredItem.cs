@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.LootManagement;
@@ -23,8 +25,8 @@ public class AzeriteEmpoweredItem : Item
     private int _maxTier;
 
     public AzeriteEmpoweredItem(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager,
-                                AzeriteEmpoweredItemFactory azeriteEmpoweredItemFactory)
-        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager)
+                                AzeriteEmpoweredItemFactory azeriteEmpoweredItemFactory, DB6Storage<ItemEffectRecord> itemEffectRecords)
+        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager, itemEffectRecords)
     {
         _azeriteEmpoweredItemFactory = azeriteEmpoweredItemFactory;
         ObjectTypeMask |= TypeMask.AzeriteEmpoweredItem;

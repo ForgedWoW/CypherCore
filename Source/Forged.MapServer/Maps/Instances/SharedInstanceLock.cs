@@ -20,10 +20,7 @@ internal class SharedInstanceLock : InstanceLock
         _sharedData = sharedData;
     }
 
-    public override InstanceLockData GetInstanceInitializationData()
-    {
-        return _sharedData;
-    }
+    public override InstanceLockData InstanceInitializationData => _sharedData;
 
     public SharedInstanceLockData GetSharedData()
     {

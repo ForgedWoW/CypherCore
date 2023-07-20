@@ -20,6 +20,7 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+// ReSharper disable PossibleLossOfFraction
 
 namespace Forged.MapServer.AuctionHouse;
 
@@ -34,6 +35,7 @@ public class AuctionManager
     private readonly AuctionHouseObject _goblinAuctions;
     private readonly AuctionHouseObject _hordeAuctions;
     private readonly ItemFactory _itemFactory;
+    private readonly AuctionBucketKeyFactory _auctionBucketKeyFactory;
     private readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
     private readonly AuctionHouseObject _neutralAuctions;
     private readonly ObjectAccessor _objectAccessor;
@@ -45,7 +47,7 @@ public class AuctionManager
     private uint _replicateIdGenerator;
 
     public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache, IConfiguration configuration,
-                          ObjectAccessor objectAccessor, ClassFactory classFactory, ItemFactory itemFactory)
+                          ObjectAccessor objectAccessor, ClassFactory classFactory, ItemFactory itemFactory, AuctionBucketKeyFactory auctionBucketKeyFactory)
     {
         _characterDatabase = characterDatabase;
         _cliDB = cliDB;
@@ -54,6 +56,7 @@ public class AuctionManager
         _configuration = configuration;
         _objectAccessor = objectAccessor;
         _itemFactory = itemFactory;
+        _auctionBucketKeyFactory = auctionBucketKeyFactory;
         _hordeAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 6));
         _allianceAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 2));
         _neutralAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 1));
@@ -216,10 +219,7 @@ public class AuctionManager
         if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Alliance))
             return _allianceAuctions;
 
-        if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Horde))
-            return _hordeAuctions;
-
-        return _neutralAuctions;
+        return uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Horde) ? _hordeAuctions : _neutralAuctions;
     }
 
     public ulong GetCommodityAuctionDeposit(ItemTemplate item, TimeSpan time, uint quantity)
@@ -312,7 +312,7 @@ public class AuctionManager
 
             do
             {
-                AuctionPosting auction = new()
+                AuctionPosting auction = new(_auctionBucketKeyFactory)
                 {
                     Id = result.Read<uint>(0)
                 };

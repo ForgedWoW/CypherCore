@@ -54,6 +54,7 @@ public class Guild
     private readonly GuildLogHolder<GuildNewsLogEntry> _newsLog;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
+    private readonly ItemFactory _itemFactory;
     private readonly PlayerComputators _playerComputators;
     private readonly List<GuildRankInfo> _ranks = new();
     private readonly ScriptManager _scriptManager;
@@ -76,7 +77,8 @@ public class Guild
     private string _name;
 
     public Guild(CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, CharacterCache characterCache, IConfiguration configuration, CliDB cliDB, ClassFactory classFactory,
-                 PlayerComputators playerComputators, ScriptManager scriptManager, GuildManager guildManager, CalendarManager calendar, CriteriaManager criteriaManager, GameObjectManager objectManager)
+                 PlayerComputators playerComputators, ScriptManager scriptManager, GuildManager guildManager, CalendarManager calendar, CriteriaManager criteriaManager, 
+                 GameObjectManager objectManager, ItemFactory itemFactory)
     {
         _characterDatabase = characterDatabase;
         _objectAccessor = objectAccessor;
@@ -89,6 +91,7 @@ public class Guild
         _calendar = calendar;
         _criteriaManager = criteriaManager;
         _objectManager = objectManager;
+        _itemFactory = itemFactory;
         _eventLog = new GuildLogHolder<GuildEventLogEntry>(configuration);
         _newsLog = new GuildLogHolder<GuildNewsLogEntry>(configuration);
         _emblemInfo = new GuildEmblemInfo(characterDatabase, cliDB);
@@ -1585,7 +1588,7 @@ public class Guild
         _bankTabs.Clear();
 
         for (byte i = 0; i < purchasedTabs; ++i)
-            _bankTabs.Add(new GuildBankTab(_id, i, _objectManager, _characterDatabase));
+            _bankTabs.Add(new GuildBankTab(_id, i, _objectManager, _characterDatabase, _itemFactory));
 
         return true;
     }
@@ -1835,23 +1838,23 @@ public class Guild
     public void SendBankLog(WorldSession session, byte tabId)
     {
         // GuildConst.MaxBankTabs send by client for money log
-        if (tabId < GetPurchasedTabsSize() || tabId == GuildConst.MaxBankTabs)
+        if (tabId >= GetPurchasedTabsSize() && tabId != GuildConst.MaxBankTabs)
+            return;
+
+        var bankEventLog = _bankEventLogs[tabId].GetGuildLog();
+
+        GuildBankLogQueryResults packet = new()
         {
-            var bankEventLog = _bankEventLogs[tabId].GetGuildLog();
+            Tab = tabId
+        };
 
-            GuildBankLogQueryResults packet = new()
-            {
-                Tab = tabId
-            };
+        //if (tabId == GUILD_BANK_MAX_TABS && hasCashFlow)
+        //    packet.WeeklyBonusMoney.Set(uint64(weeklyBonusMoney));
 
-            //if (tabId == GUILD_BANK_MAX_TABS && hasCashFlow)
-            //    packet.WeeklyBonusMoney.Set(uint64(weeklyBonusMoney));
+        foreach (var entry in bankEventLog)
+            entry.WritePacket(packet);
 
-            foreach (var entry in bankEventLog)
-                entry.WritePacket(packet);
-
-            session.SendPacket(packet);
-        }
+        session.SendPacket(packet);
     }
 
     public void SendBankTabText(WorldSession session, byte tabId)
@@ -2248,7 +2251,7 @@ public class Guild
     private void CreateNewBankTab()
     {
         var tabId = GetPurchasedTabsSize(); // Next free id
-        _bankTabs.Add(new GuildBankTab(_id, tabId, _objectManager, _characterDatabase));
+        _bankTabs.Add(new GuildBankTab(_id, tabId, _objectManager, _characterDatabase, _itemFactory));
 
         SQLTransaction trans = new();
 

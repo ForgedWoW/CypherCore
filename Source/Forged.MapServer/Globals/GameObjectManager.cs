@@ -5776,7 +5776,7 @@ public sealed class GameObjectManager
             if (!_cliDB.ItemStorage.TryGetValue(sparse.Id, out var db2Data))
                 continue;
 
-            var itemTemplate = new ItemTemplate(db2Data, sparse)
+            var itemTemplate = new ItemTemplate(db2Data, sparse, _cliDB, _configuration)
             {
                 MaxDurability = FillMaxDurability(db2Data.ClassID, db2Data.SubclassID, sparse.inventoryType, (ItemQuality)sparse.OverallQualityID, sparse.ItemLevel)
             };
@@ -5797,7 +5797,7 @@ public sealed class GameObjectManager
             }
             else
             {
-                ItemSpecStats itemSpecStats = new(db2Data, sparse);
+                ItemSpecStats itemSpecStats = new(db2Data, sparse, _cliDB);
 
                 foreach (var itemSpec in _cliDB.ItemSpecStorage.Values)
                 {

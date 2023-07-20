@@ -82,17 +82,17 @@ internal class InstanceCommands
 
         foreach (var instanceLock in instanceLocks)
         {
-            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId(), handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
-            var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+            MapDb2Entries entries = new(instanceLock.MapId, instanceLock.DifficultyId, handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
+            var timeleft = !instanceLock.IsExpired ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandListBindInfo,
                                    entries.Map.Id,
                                    entries.Map.MapName[handler.WorldManager.DefaultDbcLocale],
                                    entries.MapDifficulty.DifficultyID,
                                    handler.CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
-                                   instanceLock.GetInstanceId(),
-                                   handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
-                                   handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
+                                   instanceLock.InstanceId,
+                                   handler.GetCypherString(instanceLock.IsExpired ? CypherStrings.Yes : CypherStrings.No),
+                                   handler.GetCypherString(instanceLock.IsExtended ? CypherStrings.Yes : CypherStrings.No),
                                    timeleft);
         }
 
@@ -201,17 +201,17 @@ internal class InstanceCommands
 
         foreach (var instanceLock in locksReset)
         {
-            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId(), handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
-            var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+            MapDb2Entries entries = new(instanceLock.MapId, instanceLock.DifficultyId, handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
+            var timeleft = !instanceLock.IsExpired ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
                                    entries.Map.Id,
                                    entries.Map.MapName[handler.WorldManager.DefaultDbcLocale],
                                    entries.MapDifficulty.DifficultyID,
                                    handler.CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
-                                   instanceLock.GetInstanceId(),
-                                   handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
-                                   handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
+                                   instanceLock.InstanceId,
+                                   handler.GetCypherString(instanceLock.IsExpired ? CypherStrings.Yes : CypherStrings.No),
+                                   handler.GetCypherString(instanceLock.IsExtended ? CypherStrings.Yes : CypherStrings.No),
                                    timeleft);
         }
 
@@ -219,17 +219,17 @@ internal class InstanceCommands
 
         foreach (var instanceLock in locksNotReset)
         {
-            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId(), handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
-            var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+            MapDb2Entries entries = new(instanceLock.MapId, instanceLock.DifficultyId, handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
+            var timeleft = !instanceLock.IsExpired ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
                                    entries.Map.Id,
                                    entries.Map.MapName[handler.WorldManager.DefaultDbcLocale],
                                    entries.MapDifficulty.DifficultyID,
                                    handler.CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
-                                   instanceLock.GetInstanceId(),
-                                   handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
-                                   handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
+                                   instanceLock.InstanceId,
+                                   handler.GetCypherString(instanceLock.IsExpired ? CypherStrings.Yes : CypherStrings.No),
+                                   handler.GetCypherString(instanceLock.IsExtended ? CypherStrings.Yes : CypherStrings.No),
                                    timeleft);
         }
 

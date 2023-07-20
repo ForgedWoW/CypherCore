@@ -341,7 +341,7 @@ public class MiscHandler : IWorldSessionHandler
                     var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, new MapDb2Entries(mapEntry, _db2Manager.GetDownscaledMapDifficultyData(at.TargetMapId, ref difficulty)));
 
                     if (instanceLock != null)
-                        entranceLocation = _objectManager.GetWorldSafeLoc(instanceLock.GetData().EntranceWorldSafeLocId);
+                        entranceLocation = _objectManager.GetWorldSafeLoc(instanceLock.Data.EntranceWorldSafeLocId);
                 }
             }
 
