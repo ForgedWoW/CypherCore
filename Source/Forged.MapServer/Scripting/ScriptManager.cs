@@ -378,8 +378,8 @@ public class ScriptManager
                             if (attribute.Args.Empty())
                                 activatedObj = numArgsMin switch
                                 {
-                                    0 or 99                                                 => _classFactory.Container.Resolve(type) as IScriptObject,
-                                    1 when paramType != null && paramType == typeof(string) => _classFactory.Container.Resolve(type, new PositionalParameter(0, name)) as IScriptObject,
+                                    0 or 99                                                 => Activator.CreateInstance(type) as IScriptObject,
+                                    1 when paramType != null && paramType == typeof(string) => Activator.CreateInstance(type, name) as IScriptObject,
                                     _                                                       => activatedObj
                                 };
                             else
@@ -387,16 +387,13 @@ public class ScriptManager
                                 if (numArgsMin == 1 &&
                                     paramType != null &&
                                     paramType != typeof(string))
-                                    activatedObj = _classFactory.Container.Resolve(type, attribute.Args.Select((t, pos) => new PositionalParameter(pos++, t))) as IScriptObject;
+                                    activatedObj = Activator.CreateInstance(type, attribute.Args) as IScriptObject;
                                 else
-                                {
-                                    var args = new List<PositionalParameter>()
-                                    {
-                                        new(0, name)
-                                    };
-                                    args.AddRange(attribute.Args.Select((t, pos) => new PositionalParameter(pos + 1, t)));
-                                    activatedObj = _classFactory.Container.Resolve(type, args) as IScriptObject;
-                                }
+                                    activatedObj = Activator.CreateInstance(type,
+                                                                            new object[]
+                                                                            {
+                                                                                name
+                                                                            }.Combine(attribute.Args)) as IScriptObject;
                             }
 
                         if (activatedObj != null)
@@ -438,19 +435,32 @@ public class ScriptManager
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
             return;
 
-        if (_classFactory.Container.Resolve(type) is not IScriptActivator asa)
+        IScriptActivator asa = null;
+
+        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
+            asa = Activator.CreateInstance(type, _classFactory) as IScriptActivator;
+        else
+            asa = Activator.CreateInstance(type) as IScriptActivator;
+
+        if (asa == null)
             return;
 
         foreach (var t in asa.ScriptBaseTypes)
             activators[t] = asa;
     }
-
     private void RegisterRegistors(Dictionary<Type, IScriptRegister> registers, Type type)
     {
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
             return;
 
-        if (_classFactory.Container.Resolve(type) is IScriptRegister newReg)
+        IScriptRegister newReg = null;
+
+        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
+            newReg = Activator.CreateInstance(type, _classFactory) as IScriptRegister;
+        else
+            newReg = Activator.CreateInstance(type) as IScriptRegister;
+
+        if (newReg != null)
             registers[newReg.AttributeType] = newReg;
     }
 

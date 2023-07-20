@@ -42,11 +42,15 @@ namespace Forged.MapServer.DataStorage;
 public class CliDB
 {
     private readonly HotfixDatabase _hotfixDatabase;
-    private readonly DB2Manager _db2Manager;
+    private DB2Manager _db2Manager;
 
-    public CliDB(HotfixDatabase hotfixDatabase, DB2Manager db2Manager)
+    public CliDB(HotfixDatabase hotfixDatabase)
     {
         _hotfixDatabase = hotfixDatabase;
+    }
+
+    public void Init(DB2Manager db2Manager)
+    {
         _db2Manager = db2Manager;
     }
 

@@ -21,7 +21,7 @@ public class ObjectAccessor
     private readonly PlayerNameMapHolder _playerNameMapHolder;
     private readonly Dictionary<ObjectGuid, Player> _players = new();
 
-    private ObjectAccessor(PlayerNameMapHolder playerNameMapHolder)
+    public ObjectAccessor(PlayerNameMapHolder playerNameMapHolder)
     {
         _playerNameMapHolder = playerNameMapHolder;
     }

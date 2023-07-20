@@ -47,6 +47,7 @@ using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.MapWeather;
 using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Networking;
@@ -73,11 +74,6 @@ using Framework.Constants;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
-using Forged.MapServer.MapWeather;
-using Forged.MapServer.Scripting.Interfaces;
-using Game.Common.Extendability;
-using Forged.MapServer.Scripting.Activators;
-using Forged.MapServer.Scripting.Registers;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -143,29 +139,10 @@ void InitializeServer()
 
 void RegisterServerTypes()
 {
-    RegisterScripts();
     RegisterManagers();
     RegisterFactories();
     RegisterInstanced();
     RegisterOpCodeHandlers();
-}
-
-void RegisterScripts()
-{
-    var assemblies = IOHelpers.GetAllAssembliesInDir(configuration.GetDefaultValue("ScriptsDirectory", Path.Combine(AppContext.BaseDirectory, "Scripts")));
-
-    foreach (var asm in assemblies)
-        foreach (var type in asm.GetTypes())
-        {
-            if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptObject)))
-                builder.RegisterType(type).As<IScriptObject>().AsSelf();
-
-            if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
-                builder.RegisterType(type).As<IScriptActivator>().AsSelf();
-
-            if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
-                builder.RegisterType(type).As<IScriptRegister>().AsSelf();
-        }
 }
 
 void RegisterManagers()
@@ -174,8 +151,10 @@ void RegisterManagers()
     builder.RegisterType<Realm>().SingleInstance();
     builder.RegisterType<CliDB>().SingleInstance().OnActivated(c =>
     {
+        c.Instance.Init(container.Resolve<DB2Manager>());
         localeMask = c.Instance.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
         c.Instance.LoadGameTables(dataPath, builder);
+        container = builder.Build();
     });
     builder.RegisterType<M2Storage>().SingleInstance().OnActivated(a => a.Instance.LoadM2Cameras(dataPath));
     builder.RegisterType<TaxiPathGraph>().SingleInstance().OnActivated(a => a.Instance.Initialize());
@@ -528,7 +507,6 @@ void RegisterInstanced()
     builder.RegisterType<AccountInfoQueryHolder>();
     builder.RegisterType<AccountInfoQueryHolderPerRealm>();
     builder.RegisterType<DosProtection>();
-    builder.RegisterType<Warden>();
     builder.RegisterType<WardenWin>();
     builder.RegisterType<SpellInfo>();
     builder.RegisterType<SpellEffectInfo>();

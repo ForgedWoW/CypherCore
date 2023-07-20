@@ -80,7 +80,7 @@ public static class IOHelpers
         assemblies.AddRange(dlls.Select(dll => Assembly.LoadFile(dll.FullName)));
 
         if (loadGameAssembly)
-            assemblies.Add(Assembly.GetExecutingAssembly());
+            assemblies.Add(Assembly.GetEntryAssembly());
 
         if (loadScriptsDll && File.Exists(AppContext.BaseDirectory + "Scripts.dll"))
             assemblies.Add(Assembly.LoadFile(AppContext.BaseDirectory + "Scripts.dll"));

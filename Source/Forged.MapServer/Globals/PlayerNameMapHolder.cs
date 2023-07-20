@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Players;
 
 namespace Forged.MapServer.Globals;
 
-internal class PlayerNameMapHolder
+public class PlayerNameMapHolder
 {
     private readonly GameObjectManager _gameObjectManager;
     private readonly Dictionary<string, Player> _playerNameMap = new();

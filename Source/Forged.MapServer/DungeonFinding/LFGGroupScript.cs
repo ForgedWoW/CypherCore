@@ -18,10 +18,10 @@ internal class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOn
     private readonly LFGManager _lfgManager;
     private readonly ObjectAccessor _objectAccessor;
 
-    public LFGGroupScript(LFGManager lfgManager, ObjectAccessor objectAccessor) : base("LFGGroupScript")
+    public LFGGroupScript(ClassFactory classFactory) : base("LFGGroupScript")
     {
-        _lfgManager = lfgManager;
-        _objectAccessor = objectAccessor;
+        _lfgManager = classFactory.Resolve<LFGManager>();
+        _objectAccessor = classFactory.Resolve<ObjectAccessor>();
     }
 
     // Group Hooks
