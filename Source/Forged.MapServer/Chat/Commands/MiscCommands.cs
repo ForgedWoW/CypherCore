@@ -28,6 +28,7 @@ using Framework.IO;
 using Framework.Util;
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Collision.Management;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -747,8 +748,8 @@ internal class MiscCommands
         var gridX = (int)(MapConst.MaxGrids - 1 - gridCoord.X);
         var gridY = (int)(MapConst.MaxGrids - 1 - gridCoord.Y);
 
-        var haveMap = TerrainInfo.ExistMap(mapId, gridX, gridY);
-        var haveVMap = TerrainInfo.ExistVMap(mapId, gridX, gridY);
+        var haveMap = TerrainInfo.ExistMap(handler.WorldManager, mapId, gridX, gridY);
+        var haveVMap = TerrainInfo.ExistVMap(handler.WorldManager, handler.ClassFactory.Resolve<VMapManager>(), mapId, gridX, gridY);
         var haveMMap = handler.ClassFactory.Resolve<DisableManager>().IsPathfindingEnabled(mapId) && handler.ClassFactory.Resolve<MMapManager>().GetNavMesh(handler.Session.Player.Location.MapId) != null;
 
         if (haveVMap)

@@ -50,7 +50,7 @@ public class TotemAI : NullCreatureAI
             var extraSearchRadius = maxRange > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
             var uCheck = new NearestAttackableUnitInObjectRangeCheck(Me, Me.CharmerOrOwnerOrSelf, maxRange);
             var checker = new UnitLastSearcher(Me, uCheck, GridType.All);
-            CellCalculator.VisitGrid(Me, checker, maxRange + extraSearchRadius);
+            Me.ClassFactory.Resolve<CellCalculator>().VisitGrid(Me, checker, maxRange + extraSearchRadius);
             victim = checker.GetTarget();
         }
 

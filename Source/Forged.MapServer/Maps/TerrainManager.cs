@@ -2,10 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Collision.Management;
+using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Threading;
@@ -21,18 +24,32 @@ public class TerrainManager
     private readonly HashSet<uint> _keepLoaded = new();
     private readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
     private readonly LimitedThreadTaskManager _threadTaskManager;
+    private readonly VMapManager _vMapManager;
+    private readonly WorldManager _worldManager;
+    private readonly MMapManager _mMapManager;
+    private readonly DB2Manager _db2Manager;
+    private readonly PhasingHandler _phasingHandler;
+    private readonly DisableManager _disableManager;
 
     private readonly WorldDatabase _worldDatabase;
 
     // parent map links
     private MultiMap<uint, uint> _parentMapData = new();
 
-    public TerrainManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GridDefines gridDefines)
+    public TerrainManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GridDefines gridDefines,
+        VMapManager vMapManager, WorldManager worldManager, MMapManager mMapManager, DB2Manager db2Manager,
+        PhasingHandler phasingHandler, DisableManager disableManager)
     {
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;
         _gridDefines = gridDefines;
         _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
+        _vMapManager = vMapManager;
+        _worldManager = worldManager;
+        _mMapManager = mMapManager;
+        _db2Manager = db2Manager;
+        _phasingHandler = phasingHandler;
+        _disableManager = disableManager;
     }
 
     public bool ExistMapAndVMap(uint mapid, float x, float y)
@@ -42,7 +59,7 @@ public class TerrainManager
         var gx = (int)(MapConst.MaxGrids - 1 - p.X);
         var gy = (int)(MapConst.MaxGrids - 1 - p.Y);
 
-        return TerrainInfo.ExistMap(mapid, gx, gy) && TerrainInfo.ExistVMap(mapid, gx, gy);
+        return TerrainInfo.ExistMap(_worldManager, mapid, gx, gy) && TerrainInfo.ExistVMap(_worldManager, _vMapManager, mapid, gx, gy);
     }
 
     public uint GetAreaId(PhaseShift phaseShift, uint mapid, Position pos)
@@ -163,7 +180,8 @@ public class TerrainManager
 
     private TerrainInfo LoadTerrainImpl(uint mapId)
     {
-        var rootTerrain = new TerrainInfo(mapId, _keepLoaded.Contains(mapId));
+        var rootTerrain = new TerrainInfo(mapId, _keepLoaded.Contains(mapId), _worldManager, _vMapManager,
+            _mMapManager, _db2Manager, _cliDB, _phasingHandler, _disableManager, _gridDefines);
 
         rootTerrain.DiscoverGridMapFiles();
 
