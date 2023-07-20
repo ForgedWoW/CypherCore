@@ -356,7 +356,7 @@ public class QueryHandler : IWorldSessionHandler
 		for (var i = 0; i < packet.MissingQuestCount; ++i)
 			questIds.Add(packet.MissingQuestPOIs[i]); // QuestID
 
-		QuestPOIQueryResponse response = new();
+		QuestPOIQueryResponse response = new(_config);
 
 		foreach (var questId in questIds)
 			if (_session.Player.FindQuestSlot(questId) != SharedConst.MaxQuestLogSize)

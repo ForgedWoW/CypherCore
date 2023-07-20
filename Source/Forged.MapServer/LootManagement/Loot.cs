@@ -39,6 +39,8 @@ public class Loot
     // Loot GUID
 
     private readonly ItemEnchantmentManager _itemEnchantmentManager;
+    private readonly CliDB _cliDB;
+    private readonly ItemFactory _itemFactory;
     private readonly LootFactory _lootFactory;
     private readonly LootStoreBox _lootStorage;
     private readonly ObjectAccessor _objectAccessor;
@@ -50,7 +52,8 @@ public class Loot
     private bool _wasOpened; // true if at least one player received the loot content
 
     public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, ConditionManager conditionManager, GameObjectManager objectManager,
-                DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, IConfiguration configuration, LootFactory lootFactory, ItemEnchantmentManager itemEnchantmentManager)
+                DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, IConfiguration configuration, LootFactory lootFactory, 
+                ItemEnchantmentManager itemEnchantmentManager, CliDB cliDB, ItemFactory itemFactory)
     {
         LootType = type;
         _conditionManager = conditionManager;
@@ -61,6 +64,8 @@ public class Loot
         _configuration = configuration;
         _lootFactory = lootFactory;
         _itemEnchantmentManager = itemEnchantmentManager;
+        _cliDB = cliDB;
+        _itemFactory = itemFactory;
         Guid = map != null ? ObjectGuid.Create(HighGuid.LootObject, map.Id, 0, map.GenerateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
         OwnerGuid = owner;
         ItemContext = ItemContext.None;
@@ -476,7 +481,7 @@ public class Loot
                     if (!item.IsBlocked)
                         continue;
 
-                    LootRoll lootRoll = new(_objectManager, _objectAccessor, _lootFactory);
+                    LootRoll lootRoll = new(_objectManager, _objectAccessor, _lootFactory, _db2Manager, _cliDB, _itemFactory);
 
                     _rolls.TryAdd(lootListId, lootRoll);
 

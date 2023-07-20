@@ -71,7 +71,7 @@ public struct ScriptInfo
 
     public readonly string GetDebugInfo()
     {
-        return $"{command} ('{Global.ObjectMgr.GetScriptsTableNameByType(type)}' script id: {id})";
+        return $"{command} (script id: {id})";
     }
 
     #region Structs

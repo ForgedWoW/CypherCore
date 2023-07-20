@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Game.Common;
 using Game.Common.Handlers;
 
 namespace Forged.MapServer.Networking;
@@ -15,8 +16,9 @@ public class PacketProcessor
     private readonly WorldSession _session;
     private readonly MethodInfo _info;
     private readonly Type _packetType;
+    private readonly ClassFactory _classFactory;
 
-    public PacketProcessor(IWorldSessionHandler handler, WorldSession session, MethodInfo info, SessionStatus status, PacketProcessing processingplace, Type type)
+    public PacketProcessor(IWorldSessionHandler handler, WorldSession session, MethodInfo info, SessionStatus status, PacketProcessing processingplace, Type type, ClassFactory classFactory)
     {
         SessionStatus = status;
         ProcessingPlace = processingplace;
@@ -24,6 +26,7 @@ public class PacketProcessor
         _session = session;
         _info = info;
         _packetType = type;
+        _classFactory = classFactory;
     }
 
     public PacketProcessing ProcessingPlace { get; }
@@ -39,6 +42,7 @@ public class PacketProcessor
         if (clientPacket == null)
             return;
 
+        clientPacket.ClassFactory = _classFactory;
         clientPacket.Read();
         clientPacket.LogPacket(_session);
         _info.Invoke(_handler, new object[] { clientPacket });

@@ -142,7 +142,7 @@ public class MapManager
                 if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
                 {
                     newInstanceId = GenerateInstanceId();
-                    instanceLock.InstanceId = new InClassName(newInstanceId);
+                    instanceLock.InstanceId = newInstanceId;
                     map = null;
                 }
 

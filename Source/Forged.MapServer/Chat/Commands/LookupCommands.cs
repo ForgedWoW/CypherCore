@@ -10,6 +10,10 @@ using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+// ReSharper disable UnusedType.Local
+// ReSharper disable MemberHidesStaticFromOuterClass
+
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -76,7 +80,7 @@ internal class LookupCommands
                 found = found switch
                 {
                     false => true,
-                    _     => found
+                    _     => true
                 };
             }
         }
@@ -125,7 +129,7 @@ internal class LookupCommands
                         found = found switch
                         {
                             false => true,
-                            _     => found
+                            _     => true
                         };
 
                         continue;
@@ -137,26 +141,26 @@ internal class LookupCommands
             if (string.IsNullOrEmpty(name))
                 continue;
 
-            if (name.Like(namePart))
+            if (!name.Like(namePart))
+                continue;
+
+            if (MaxResults != 0 && count++ == MaxResults)
             {
-                if (MaxResults != 0 && count++ == MaxResults)
-                {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
+                handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
-                    return true;
-                }
-
-                if (handler.Session != null)
-                    handler.SendSysMessage(CypherStrings.CreatureEntryListChat, id, id, name);
-                else
-                    handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, name);
-
-                found = found switch
-                {
-                    false => true,
-                    _     => found
-                };
+                return true;
             }
+
+            if (handler.Session != null)
+                handler.SendSysMessage(CypherStrings.CreatureEntryListChat, id, id, name);
+            else
+                handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, name);
+
+            found = found switch
+            {
+                false => true,
+                _     => true
+            };
         }
 
         if (!found)
@@ -185,28 +189,28 @@ internal class LookupCommands
             if (string.IsNullOrEmpty(descr))
                 continue;
 
-            if (descr.Like(namePart))
+            if (!descr.Like(namePart))
+                continue;
+
+            if (MaxResults != 0 && count++ == MaxResults)
             {
-                if (MaxResults != 0 && count++ == MaxResults)
-                {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
+                handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
-                    return true;
-                }
-
-                var active = activeEvents.Contains(id) ? handler.GetCypherString(CypherStrings.Active) : "";
-
-                if (handler.Session != null)
-                    handler.SendSysMessage(CypherStrings.EventEntryListChat, id, id, eventData.Description, active);
-                else
-                    handler.SendSysMessage(CypherStrings.EventEntryListConsole, id, eventData.Description, active);
-
-                found = found switch
-                {
-                    false => true,
-                    _     => found
-                };
+                return true;
             }
+
+            var active = activeEvents.Contains(id) ? handler.GetCypherString(CypherStrings.Active) : "";
+
+            if (handler.Session != null)
+                handler.SendSysMessage(CypherStrings.EventEntryListChat, id, id, eventData.Description, active);
+            else
+                handler.SendSysMessage(CypherStrings.EventEntryListConsole, id, eventData.Description, active);
+
+            found = found switch
+            {
+                false => true,
+                _     => true
+            };
         }
 
         if (!found)
@@ -229,7 +233,7 @@ internal class LookupCommands
 
         foreach (var factionEntry in handler.CliDB.FactionStorage.Values)
         {
-            var factionState = target ? target.ReputationMgr.GetState(factionEntry) : null;
+            var factionState = target?.ReputationMgr.GetState(factionEntry);
 
             var locale = handler.SessionDbcLocale;
             var name = factionEntry.Name[locale];
@@ -307,7 +311,7 @@ internal class LookupCommands
                 found = found switch
                 {
                     false => true,
-                    _     => found
+                    _     => true
                 };
             }
         }
@@ -372,7 +376,7 @@ internal class LookupCommands
                 found = found switch
                 {
                     false => true,
-                    _     => found
+                    _     => true
                 };
             }
         }
@@ -419,7 +423,7 @@ internal class LookupCommands
                         found = found switch
                         {
                             false => true,
-                            _     => found
+                            _     => true
                         };
 
                         continue;
@@ -448,7 +452,7 @@ internal class LookupCommands
                 found = found switch
                 {
                     false => true,
-                    _     => found
+                    _     => true
                 };
             }
         }
@@ -496,42 +500,42 @@ internal class LookupCommands
                 }
             }
 
-            if (locale < Locale.Total)
+            if (locale >= Locale.Total)
+                continue;
+
+            if (MaxResults != 0 && count++ == MaxResults)
             {
-                if (MaxResults != 0 && count++ == MaxResults)
-                {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
+                handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
-                    return true;
-                }
-
-                var valStr = "";
-                var knownStr = "";
-
-                if (target && target.HasSkill((SkillType)skillInfo.Id))
-                {
-                    knownStr = handler.GetCypherString(CypherStrings.Known);
-                    uint curValue = target.GetPureSkillValue((SkillType)skillInfo.Id);
-                    uint maxValue = target.GetPureMaxSkillValue((SkillType)skillInfo.Id);
-                    uint permValue = target.GetSkillPermBonusValue(skillInfo.Id);
-                    uint tempValue = target.GetSkillTempBonusValue(skillInfo.Id);
-
-                    var valFormat = handler.GetCypherString(CypherStrings.SkillValues);
-                    valStr = string.Format(valFormat, curValue, maxValue, permValue, tempValue);
-                }
-
-                // send skill in "id - [namedlink locale]" format
-                if (handler.Session != null)
-                    handler.SendSysMessage(CypherStrings.SkillListChat, skillInfo.Id, skillInfo.Id, name, "", knownStr, valStr);
-                else
-                    handler.SendSysMessage(CypherStrings.SkillListConsole, skillInfo.Id, name, "", knownStr, valStr);
-
-                found = found switch
-                {
-                    false => true,
-                    _     => found
-                };
+                return true;
             }
+
+            var valStr = "";
+            var knownStr = "";
+
+            if (target != null && target.HasSkill((SkillType)skillInfo.Id))
+            {
+                knownStr = handler.GetCypherString(CypherStrings.Known);
+                uint curValue = target.GetPureSkillValue((SkillType)skillInfo.Id);
+                uint maxValue = target.GetPureMaxSkillValue((SkillType)skillInfo.Id);
+                uint permValue = target.GetSkillPermBonusValue(skillInfo.Id);
+                uint tempValue = target.GetSkillTempBonusValue(skillInfo.Id);
+
+                var valFormat = handler.GetCypherString(CypherStrings.SkillValues);
+                valStr = string.Format(valFormat, curValue, maxValue, permValue, tempValue);
+            }
+
+            // send skill in "id - [namedlink locale]" format
+            if (handler.Session != null)
+                handler.SendSysMessage(CypherStrings.SkillListChat, skillInfo.Id, skillInfo.Id, name, "", knownStr, valStr);
+            else
+                handler.SendSysMessage(CypherStrings.SkillListConsole, skillInfo.Id, name, "", knownStr, valStr);
+
+            found = found switch
+            {
+                false => true,
+                _     => true   
+            };
         }
 
         if (!found)
@@ -589,7 +593,7 @@ internal class LookupCommands
             found = found switch
             {
                 false => true,
-                _     => found
+                _     => true
             };
         }
 
@@ -620,10 +624,7 @@ internal class LookupCommands
                 break;
             }
 
-            if (handler.Player != null)
-                reply.AppendFormat("  |cffffffff|Htele:{0}|h[{1}]|h|r\n", tele.Key, tele.Value.Name);
-            else
-                reply.AppendFormat("  {0} : {1}\n", tele.Key, tele.Value.Name);
+            reply.AppendFormat(handler.Player != null ? "  |cffffffff|Htele:{0}|h[{1}]|h|r\n" : "  {0} : {1}\n", tele.Key, tele.Value.Name);
         }
 
         if (reply.Capacity == 0)
@@ -644,7 +645,7 @@ internal class LookupCommands
         var target = handler.SelectedPlayer;
 
         // title name have single string arg for player name
-        var targetName = target ? target.GetName() : "NAME";
+        var targetName = target != null ? target.GetName() : "NAME";
 
         uint counter = 0; // Counter for figure out that we found smth.
 
@@ -652,7 +653,7 @@ internal class LookupCommands
         foreach (var titleInfo in handler.CliDB.CharTitlesStorage.Values)
             for (var gender = Gender.Male; gender <= Gender.Female; ++gender)
             {
-                if (target && target.Gender != gender)
+                if (target != null && target.Gender != gender)
                     continue;
 
                 var locale = handler.SessionDbcLocale;
@@ -689,9 +690,9 @@ internal class LookupCommands
                         return true;
                     }
 
-                    var knownStr = target && target.HasTitle(titleInfo) ? handler.GetCypherString(CypherStrings.Known) : "";
+                    var knownStr = target != null && target.HasTitle(titleInfo) ? handler.GetCypherString(CypherStrings.Known) : "";
 
-                    var activeStr = target && target.PlayerData.PlayerTitle == titleInfo.MaskID
+                    var activeStr = target != null && target.PlayerData.PlayerTitle == titleInfo.MaskID
                                         ? handler.GetCypherString(CypherStrings.Active)
                                         : "";
 
@@ -732,26 +733,26 @@ internal class LookupCommands
                 if (string.IsNullOrEmpty(name))
                     continue;
 
-                if (name.Like(namePart))
+                if (!name.Like(namePart))
+                    continue;
+
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    if (MaxResults != 0 && count++ == MaxResults)
-                    {
-                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
-                        return true;
-                    }
-
-                    if (handler.Session != null)
-                        handler.SendSysMessage(CypherStrings.ItemListChat, template.Id, template.Id, name);
-                    else
-                        handler.SendSysMessage(CypherStrings.ItemListConsole, template.Id, name);
-
-                    found = found switch
-                    {
-                        false => true,
-                        _     => found
-                    };
+                    return true;
                 }
+
+                if (handler.Session != null)
+                    handler.SendSysMessage(CypherStrings.ItemListChat, template.Id, template.Id, name);
+                else
+                    handler.SendSysMessage(CypherStrings.ItemListConsole, template.Id, name);
+
+                found = found switch
+                {
+                    false => true,
+                    _     => true
+                };
             }
 
             if (!found)
@@ -776,7 +777,7 @@ internal class LookupCommands
                     return true;
                 }
 
-                if (handler.Session)
+                if (handler.Session != null)
                     handler.SendSysMessage(CypherStrings.ItemListChat, id, id, name);
                 else
                     handler.SendSysMessage(CypherStrings.ItemListConsole, id, name);
@@ -825,27 +826,27 @@ internal class LookupCommands
                     }
                 }
 
-                if (locale < Locale.Total)
+                if (locale >= Locale.Total)
+                    continue;
+
+                if (maxResults != 0 && count++ == maxResults)
                 {
-                    if (maxResults != 0 && count++ == maxResults)
-                    {
-                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
 
-                        return true;
-                    }
-
-                    // send item set in "id - [namedlink locale]" format
-                    if (handler.Session)
-                        handler.SendSysMessage(CypherStrings.ItemsetListChat, id, id, name, "");
-                    else
-                        handler.SendSysMessage(CypherStrings.ItemsetListConsole, id, name, "");
-
-                    found = found switch
-                    {
-                        false => true,
-                        _     => found
-                    };
+                    return true;
                 }
+
+                // send item set in "id - [namedlink locale]" format
+                if (handler.Session != null)
+                    handler.SendSysMessage(CypherStrings.ItemsetListChat, id, id, name, "");
+                else
+                    handler.SendSysMessage(CypherStrings.ItemsetListConsole, id, name, "");
+
+                found = found switch
+                {
+                    false => true,
+                    _     => true
+                };
             }
 
             if (!found)
@@ -875,7 +876,7 @@ internal class LookupCommands
                 if (string.IsNullOrEmpty(name))
                     continue;
 
-                if (!name.Like(namePart) && handler.Session)
+                if (!name.Like(namePart) && handler.Session != null)
                 {
                     locale = 0;
 
@@ -946,7 +947,7 @@ internal class LookupCommands
         {
             if (handler.CliDB.MapStorage.TryGetValue(id, out var mapInfo))
             {
-                var locale = handler.Session ? handler.Session.SessionDbcLocale : handler.WorldManager.DefaultDbcLocale;
+                var locale = handler.Session?.SessionDbcLocale ?? handler.WorldManager.DefaultDbcLocale;
                 var name = mapInfo.MapName[locale];
 
                 if (name.IsEmpty())
@@ -1024,7 +1025,7 @@ internal class LookupCommands
             if (ip.IsEmpty())
             {
                 // NULL only if used from console
-                if (!target || target == handler.Session.Player)
+                if (target == null || target == handler.Session.Player)
                     return false;
 
                 ip = target.Session.RemoteAddress;
@@ -1128,7 +1129,7 @@ internal class LookupCommands
 
                             var statusStr = "";
 
-                            if (target)
+                            if (target != null)
                                 statusStr = target.GetQuestStatus(qInfo.Id) switch
                                 {
                                     QuestStatus.Complete   => handler.GetCypherString(CypherStrings.CommandQuestComplete),
@@ -1166,7 +1167,7 @@ internal class LookupCommands
                             found = found switch
                             {
                                 false => true,
-                                _     => found
+                                _     => true
                             };
 
                             continue;
@@ -1178,7 +1179,9 @@ internal class LookupCommands
                 if (string.IsNullOrEmpty(title))
                     continue;
 
-                if (title.Like(namePart))
+                if (!title.Like(namePart))
+                    continue;
+
                 {
                     if (MaxResults != 0 && count++ == MaxResults)
                     {
@@ -1189,7 +1192,7 @@ internal class LookupCommands
 
                     var statusStr = "";
 
-                    if (target)
+                    if (target != null)
                     {
                         var status = target.GetQuestStatus(qInfo.Id);
 
@@ -1231,7 +1234,7 @@ internal class LookupCommands
                     found = found switch
                     {
                         false => true,
-                        _     => found
+                        _     => true
                     };
                 }
             }
@@ -1263,7 +1266,7 @@ internal class LookupCommands
 
                 var statusStr = "";
 
-                if (target)
+                if (target != null)
                     statusStr = target.GetQuestStatus(id) switch
                     {
                         QuestStatus.Complete   => handler.GetCypherString(CypherStrings.CommandQuestComplete),
@@ -1272,7 +1275,7 @@ internal class LookupCommands
                         _                      => statusStr
                     };
 
-                if (handler.Session)
+                if (handler.Session != null)
                 {
                     var maxLevel = 0;
                     var questLevels = handler.ClassFactory.Resolve<DB2Manager>().GetContentTuningData(quest.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
@@ -1358,18 +1361,18 @@ internal class LookupCommands
                             return true;
                         }
 
-                        var known = target && target.HasSpell(spellInfo.Id);
+                        var known = target != null && target.HasSpell(spellInfo.Id);
                         var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffectName(SpellEffectName.LearnSpell));
 
                         var learnSpellInfo = spellEffectInfo != null ? handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo.Difficulty) : null;
 
                         var talent = spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
                         var passive = spellInfo.IsPassive;
-                        var active = target && target.HasAura(spellInfo.Id);
+                        var active = target != null && target.HasAura(spellInfo.Id);
 
                         // unit32 used to prevent interpreting public byte as char at output
                         // find rank of learned spell for learning spell, or talent rank
-                        uint rank = learnSpellInfo != null ? learnSpellInfo.Rank : spellInfo.Rank;
+                        uint rank = learnSpellInfo?.Rank ?? spellInfo.Rank;
 
                         // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                         StringBuilder ss = new();
@@ -1438,18 +1441,18 @@ internal class LookupCommands
                     return true;
                 }
 
-                var known = target && target.HasSpell(id);
+                var known = target != null && target.HasSpell(id);
                 var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffectName(SpellEffectName.LearnSpell));
 
                 var learnSpellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell);
 
                 var talent = spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
                 var passive = spellInfo.IsPassive;
-                var active = target && target.HasAura(id);
+                var active = target != null && target.HasAura(id);
 
                 // unit32 used to prevent interpreting public byte as char at output
                 // find rank of learned spell for learning spell, or talent rank
-                uint rank = learnSpellInfo != null ? learnSpellInfo.Rank : spellInfo.Rank;
+                uint rank = learnSpellInfo?.Rank ?? spellInfo.Rank;
 
                 // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                 StringBuilder ss = new();

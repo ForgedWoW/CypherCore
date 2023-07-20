@@ -497,18 +497,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		_session.Player.DestroyItem(item.BagSlot, item.Slot, true);
 
 		// Create guild
-		Guild guild = new(_characterDatabase, 
-                            _objectAccessor, 
-                            _characterCache, 
-                            _config, 
-                            _cliDb, 
-                            _classFactory,
-                            _playerComputators, 
-                            _scriptManager, 
-                            _guildManager, 
-                            _calendarManager,
-                            _criteriaManager, 
-                            _gameObjectManager);
+		var guild = _classFactory.Resolve<Guild>();
 
 		if (!guild.Create(_session.Player, name))
 			return;

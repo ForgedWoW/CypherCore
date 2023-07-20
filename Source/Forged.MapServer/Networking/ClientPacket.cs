@@ -4,6 +4,7 @@
 using System;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Networking;
@@ -11,6 +12,7 @@ namespace Forged.MapServer.Networking;
 public abstract class ClientPacket : IDisposable
 {
     protected WorldPacket WorldPacket;
+    public ClassFactory ClassFactory { get; set; }
 
     protected ClientPacket(WorldPacket worldPacket)
     {

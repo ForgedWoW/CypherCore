@@ -80,7 +80,9 @@ public class InstanceLockManager
                                                   GetNextResetTime(entries),
                                                   0,
                                                   sharedData,
-                                                  this);
+                                                  this,
+                                                  _cliDB,
+                                                  _db2Manager);
         }
         else
             instanceLock = new InstanceLock(entries.MapDifficulty.MapID,
@@ -237,7 +239,9 @@ public class InstanceLockManager
                         continue;
                     }
 
-                    instanceLock = new SharedInstanceLock(mapId, difficulty, expiryTime, instanceId, sharedData, this);
+                    instanceLock = new SharedInstanceLock(mapId, difficulty, expiryTime, instanceId, sharedData, this,
+                                                          _cliDB,
+                                                          _db2Manager);
                     _instanceLockDataById[instanceId] = sharedData;
                 }
                 else
@@ -392,7 +396,9 @@ public class InstanceLockManager
                                                       GetNextResetTime(entries),
                                                       updateEvent.InstanceId,
                                                       sharedDataItr,
-                                                      this);
+                                                      this,
+                                                      _cliDB,
+                                                      _db2Manager);
             }
             else
                 instanceLock = new InstanceLock(entries.MapDifficulty.MapID,

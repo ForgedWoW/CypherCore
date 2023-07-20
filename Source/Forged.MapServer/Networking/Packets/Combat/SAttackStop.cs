@@ -17,11 +17,11 @@ public class SAttackStop : ServerPacket
     {
         Attacker = attacker.GUID;
 
-        if (victim)
-        {
-            Victim = victim.GUID;
-            NowDead = !victim.IsAlive; // using isAlive instead of isDead to catch JUST_DIED death states as well
-        }
+        if (victim == null)
+            return;
+
+        Victim = victim.GUID;
+        NowDead = !victim.IsAlive; // using isAlive instead of isDead to catch JUST_DIED death states as well
     }
 
     public override void Write()

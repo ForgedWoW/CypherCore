@@ -2,6 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Entities.Objects;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
@@ -14,7 +16,7 @@ public class ReorderCharacters : ClientPacket
     {
         var count = WorldPacket.ReadBits<uint>(9);
 
-        for (var i = 0; i < count && i < GetDefaultValue("CharactersPerRealm", 60); ++i)
+        for (var i = 0; i < count && i < ClassFactory.Resolve<IConfiguration>().GetDefaultValue("CharactersPerRealm", 60); ++i)
         {
             ReorderInfo reorderInfo;
             reorderInfo.PlayerGUID = WorldPacket.ReadPackedGuid();

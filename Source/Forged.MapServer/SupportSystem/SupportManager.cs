@@ -284,7 +284,7 @@ public class SupportManager
 
         do
         {
-            SuggestionTicket suggestion = new();
+            SuggestionTicket suggestion = new(_characterDatabase);
             suggestion.LoadFromDB(result.GetFields());
 
             if (!suggestion.IsClosed)

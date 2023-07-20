@@ -54,14 +54,7 @@ public class PetAI : CreatureAI
         // IMPORTANT: The order in which things are checked is important, be careful if you add or remove checks
 
         // Hmmm...
-        if (!victim)
-            return false;
-
-        if (!victim.IsAlive)
-            // if target is invalid, pet should evade automaticly
-            // Clear target to prevent getting stuck on dead targets
-            //me.AttackStop();
-            //me.InterruptNonMeleeSpells(false);
+        if (victim is not { IsAlive: true })
             return false;
 
         if (Me.GetCharmInfo() == null)
@@ -88,18 +81,14 @@ public class PetAI : CreatureAI
             return Me.IsWithinMeleeRange(victim) || Me.GetCharmInfo().IsCommandAttack;
 
         //  Pets attacking something (or chasing) should only switch targets if owner tells them to
-        if (Me.Victim && Me.Victim != victim)
+        if (Me.Victim != null && Me.Victim != victim)
         {
             // Check if our owner selected this target and clicked "attack"
-            Unit ownerTarget;
             var owner = Me.CharmerOrOwner.AsPlayer;
 
-            if (owner)
-                ownerTarget = owner.SelectedUnit;
-            else
-                ownerTarget = Me.CharmerOrOwner.Victim;
+            var ownerTarget = owner != null ? owner.SelectedUnit : Me.CharmerOrOwner.Victim;
 
-            if (ownerTarget && Me.GetCharmInfo().IsCommandAttack)
+            if (ownerTarget != null && Me.GetCharmInfo().IsCommandAttack)
                 return victim.GUID == ownerTarget.GUID;
         }
 
@@ -134,7 +123,7 @@ public class PetAI : CreatureAI
     {
         // Called from Unit.Kill() in case where pet or owner kills something
         // if owner killed this victim, pet may still be attacking something else
-        if (Me.Victim && Me.Victim != victim)
+        if (Me.Victim != null && Me.Victim != victim)
             return;
 
         // Clear target just in case. May help problem where health / focus / mana
@@ -147,7 +136,7 @@ public class PetAI : CreatureAI
         // Before returning to owner, see if there are more things to attack
         var nextTarget = SelectNextTarget(false);
 
-        if (nextTarget)
+        if (nextTarget != null)
             AttackStart(nextTarget);
         else
             HandleReturnMovement(); // Return
@@ -181,7 +170,7 @@ public class PetAI : CreatureAI
             {
                 // If data is owner's GUIDLow then we've reached follow point,
                 // otherwise we're probably chasing a creature
-                if (Me.CharmerOrOwner && Me.GetCharmInfo() != null && id == Me.CharmerOrOwner.GUID.Counter && Me.GetCharmInfo().IsReturning)
+                if (Me.CharmerOrOwner != null && Me.GetCharmInfo() != null && id == Me.CharmerOrOwner.GUID.Counter && Me.GetCharmInfo().IsReturning)
                 {
                     ClearCharmInfoFlags();
                     Me.GetCharmInfo().IsFollowing = true;
@@ -214,7 +203,7 @@ public class PetAI : CreatureAI
             return;
 
         // Prevent pet from disengaging from current target
-        if (Me.Victim && Me.Victim.IsAlive)
+        if (Me.Victim is { IsAlive: true })
             return;
 
         // Continue to evaluate and attack if necessary
@@ -234,7 +223,7 @@ public class PetAI : CreatureAI
             return;
 
         // Prevent pet from disengaging from current target
-        if (Me.Victim && Me.Victim.IsAlive)
+        if (Me.Victim is { IsAlive: true })
             return;
 
         // Continue to evaluate and attack if necessary
@@ -281,16 +270,13 @@ public class PetAI : CreatureAI
 
         var summon = Me.ToTempSummon();
 
-        if (summon != null)
-        {
-            var attack = owner.SelectedUnit;
+        if (summon == null)
+            return;
 
-            if (attack == null)
-                attack = owner.Attackers.FirstOrDefault();
+        var attack = owner.SelectedUnit ?? owner.Attackers.FirstOrDefault();
 
-            if (attack != null)
-                summon.Attack(attack, true);
-        }
+        if (attack != null)
+            summon.Attack(attack, true);
     }
 
     public override void UpdateAI(uint diff)
@@ -306,11 +292,11 @@ public class PetAI : CreatureAI
         else
             _updateAlliesTimer -= diff;
 
-        if (Me.Victim && Me.Victim.IsAlive)
+        if (Me.Victim is { IsAlive: true })
         {
             // is only necessary to stop casting, the pet must not exit combat
-            if (!Me.GetCurrentSpell(CurrentSpellTypes.Channeled) && // ignore channeled spells (Pin, Seduction)
-                (Me.Victim && Me.Victim.HasBreakableByDamageCrowdControlAura(Me)))
+            if (Me.GetCurrentSpell(CurrentSpellTypes.Channeled) == null && // ignore channeled spells (Pin, Seduction)
+                (Me.Victim != null && Me.Victim.HasBreakableByDamageCrowdControlAura(Me)))
             {
                 Me.InterruptNonMeleeSpells(false);
 
@@ -345,7 +331,7 @@ public class PetAI : CreatureAI
                 // All other cases (ie: defensive) - Targets are assigned by DamageTaken(), OwnerAttackedBy(), OwnerAttacked(), etc.
                 var nextTarget = SelectNextTarget(Me.HasReactState(ReactStates.Aggressive));
 
-                if (nextTarget)
+                if (nextTarget != null)
                     AttackStart(nextTarget);
                 else
                     HandleReturnMovement();
@@ -392,10 +378,10 @@ public class PetAI : CreatureAI
                     // Check for enemy first (pet then owner)
                     var target = Me.GetAttackerForHelper();
 
-                    if (!target && owner)
+                    if (target == null && owner != null)
                         target = owner.GetAttackerForHelper();
 
-                    if (target)
+                    if (target != null)
                         if (CanAttack(target) && spell.CanAutoCast(target))
                         {
                             targetSpellStore.Add(Tuple.Create(target, spell));
@@ -417,23 +403,23 @@ public class PetAI : CreatureAI
                             var ally = Me.ObjectAccessor.GetUnit(Me, tar);
 
                             //only buff targets that are in combat, unless the spell can only be cast while out of combat
-                            if (!ally)
+                            if (ally == null)
                                 continue;
 
-                            if (spell.CanAutoCast(ally))
-                            {
-                                targetSpellStore.Add(Tuple.Create(ally, spell));
-                                spellUsed = true;
+                            if (!spell.CanAutoCast(ally))
+                                continue;
 
-                                break;
-                            }
+                            targetSpellStore.Add(Tuple.Create(ally, spell));
+                            spellUsed = true;
+
+                            break;
                         }
 
                     // No valid targets at all
                     if (!spellUsed)
                         spell.Dispose();
                 }
-                else if (Me.Victim && CanAttack(Me.Victim) && spellInfo.CanBeUsedInCombat)
+                else if (Me.Victim != null && CanAttack(Me.Victim) && spellInfo.CanBeUsedInCombat)
                 {
                     var spell = Me.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
 
@@ -480,14 +466,14 @@ public class PetAI : CreatureAI
     {
         var ci = Me.GetCharmInfo();
 
-        if (ci != null)
-        {
-            ci.IsAtStay = false;
-            ci.IsCommandAttack = false;
-            ci.IsCommandFollow = false;
-            ci.IsFollowing = false;
-            ci.IsReturning = false;
-        }
+        if (ci == null)
+            return;
+
+        ci.IsAtStay = false;
+        ci.IsCommandAttack = false;
+        ci.IsCommandFollow = false;
+        ci.IsFollowing = false;
+        ci.IsReturning = false;
     }
 
     private void DoAttack(Unit target, bool chase)
@@ -589,7 +575,7 @@ public class PetAI : CreatureAI
         // dont allow pets to follow targets far away from owner
         var owner = Me.CharmerOrOwner;
 
-        if (owner)
+        if (owner != null)
             if (owner.Location.GetExactDist(Me.Location) >= owner.Visibility.VisibilityRange - 10.0f)
                 return true;
 
@@ -611,18 +597,18 @@ public class PetAI : CreatureAI
         // Check pet attackers first so we don't drag a bunch of targets to the owner
         var myAttacker = Me.GetAttackerForHelper();
 
-        if (myAttacker)
+        if (myAttacker != null)
             if (!myAttacker.HasBreakableByDamageCrowdControlAura())
                 return myAttacker;
 
         // Not sure why we wouldn't have an owner but just in case...
-        if (!Me.CharmerOrOwner)
+        if (Me.CharmerOrOwner == null)
             return null;
 
         // Check owner attackers
         var ownerAttacker = Me.CharmerOrOwner.GetAttackerForHelper();
 
-        if (ownerAttacker)
+        if (ownerAttacker != null)
             if (!ownerAttacker.HasBreakableByDamageCrowdControlAura())
                 return ownerAttacker;
 
@@ -630,23 +616,21 @@ public class PetAI : CreatureAI
         // 3.0.2 - Pets now start attacking their owners victim in defensive mode as soon as the hunter does
         var ownerVictim = Me.CharmerOrOwner.Victim;
 
-        if (ownerVictim)
+        if (ownerVictim != null)
             return ownerVictim;
 
         // Neither pet or owner had a target and aggressive pets can pick any target
         // To prevent aggressive pets from chain selecting targets and running off, we
         //  only select a random target if certain conditions are met.
-        if (Me.HasReactState(ReactStates.Aggressive) && allowAutoSelect)
-            if (!Me.GetCharmInfo().IsReturning || Me.GetCharmInfo().IsFollowing || Me.GetCharmInfo().IsAtStay)
-            {
-                var nearTarget = Me.SelectNearestHostileUnitInAggroRange(true, true);
+        if (!Me.HasReactState(ReactStates.Aggressive) || !allowAutoSelect)
+            return null;
 
-                if (nearTarget)
-                    return nearTarget;
-            }
+        if (Me.GetCharmInfo().IsReturning && !Me.GetCharmInfo().IsFollowing && !Me.GetCharmInfo().IsAtStay)
+            return null;
 
-        // Default - no valid targets
-        return null;
+        var nearTarget = Me.SelectNearestHostileUnitInAggroRange(true, true);
+
+        return nearTarget;
     }
 
     private void StopAttack()
@@ -673,17 +657,17 @@ public class PetAI : CreatureAI
 
         var owner = Me.CharmerOrOwner;
 
-        if (!owner)
+        if (owner == null)
             return;
 
         PlayerGroup group = null;
         var player = owner.AsPlayer;
 
-        if (player)
+        if (player != null)
             group = player.Group;
 
         // only pet and owner/not in group.ok
-        if (_allySet.Count == 2 && !group)
+        if (_allySet.Count == 2 && group == null)
             return;
 
         // owner is in group; group members filled in already (no raid . subgroupcount = whole count)
@@ -698,7 +682,7 @@ public class PetAI : CreatureAI
             {
                 var target = refe.Source;
 
-                if (!target || !target.Location.IsInMap(owner) || !group.SameSubGroup(owner.AsPlayer, target))
+                if (target == null || !target.Location.IsInMap(owner) || !group.SameSubGroup(owner.AsPlayer, target))
                     continue;
 
                 if (target.GUID == owner.GUID)

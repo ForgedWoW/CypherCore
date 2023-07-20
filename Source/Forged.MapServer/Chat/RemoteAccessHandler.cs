@@ -5,6 +5,7 @@ using System;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.World;
 using Framework.Constants;
+using Game.Common;
 
 namespace Forged.MapServer.Chat;
 
@@ -13,7 +14,7 @@ public class RemoteAccessHandler : CommandHandler
     private readonly Action<string> _reportToRA;
     private readonly WorldManager _worldManager;
 
-    public RemoteAccessHandler(Action<string> reportToRA, WorldManager worldManager) : base()
+    public RemoteAccessHandler(Action<string> reportToRA, WorldManager worldManager, ClassFactory classFactory) : base(classFactory)
     {
         _reportToRA = reportToRA;
         _worldManager = worldManager;

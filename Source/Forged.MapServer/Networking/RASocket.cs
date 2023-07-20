@@ -13,6 +13,7 @@ using Framework.Cryptography;
 using Framework.Database;
 using Framework.Networking;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -21,18 +22,20 @@ namespace Forged.MapServer.Networking;
 public class RASocket : ISocket
 {
     private readonly IConfiguration _configuration;
+    private readonly ClassFactory _classFactory;
     private readonly LoginDatabase _loginDatabase;
     private readonly byte[] _receiveBuffer;
     private readonly IPAddress _remoteAddress;
     private readonly Socket _socket;
     private readonly WorldManager _worldManager;
 
-    public RASocket(Socket socket, WorldManager worldManager, LoginDatabase loginDatabase, IConfiguration configuration)
+    public RASocket(Socket socket, WorldManager worldManager, LoginDatabase loginDatabase, IConfiguration configuration, ClassFactory classFactory)
     {
         _socket = socket;
         _worldManager = worldManager;
         _loginDatabase = loginDatabase;
         _configuration = configuration;
+        _classFactory = classFactory;
         _remoteAddress = (_socket.RemoteEndPoint as IPEndPoint)?.Address;
         _receiveBuffer = new byte[1024];
     }
@@ -216,7 +219,7 @@ public class RASocket : ISocket
             return false;
         }
 
-        RemoteAccessHandler cmd = new(CommandPrint, _worldManager);
+        RemoteAccessHandler cmd = new(CommandPrint, _worldManager, _classFactory);
         cmd.ParseCommands(command);
 
         return true;

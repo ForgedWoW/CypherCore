@@ -15,7 +15,7 @@ internal class TitleCommands
     {
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -48,7 +48,7 @@ internal class TitleCommands
     {
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -82,7 +82,7 @@ internal class TitleCommands
     {
         var target = handler.SelectedPlayer;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -125,7 +125,7 @@ internal class TitleCommands
         {
             var target = handler.SelectedPlayer;
 
-            if (!target)
+            if (target == null)
             {
                 handler.SendSysMessage(CypherStrings.NoCharSelected);
 

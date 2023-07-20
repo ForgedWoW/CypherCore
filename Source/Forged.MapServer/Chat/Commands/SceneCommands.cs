@@ -13,7 +13,7 @@ internal class SceneCommands
     {
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -33,7 +33,7 @@ internal class SceneCommands
     {
         var player = handler.Session.Player;
 
-        if (player)
+        if (player != null)
         {
             player.SceneMgr.ToggleDebugSceneMode();
             handler.SendSysMessage(player.SceneMgr.IsInDebugSceneMode ? CypherStrings.CommandSceneDebugOn : CypherStrings.CommandSceneDebugOff);
@@ -47,7 +47,7 @@ internal class SceneCommands
     {
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -67,7 +67,7 @@ internal class SceneCommands
     {
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 

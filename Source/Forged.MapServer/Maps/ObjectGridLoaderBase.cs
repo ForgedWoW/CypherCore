@@ -17,33 +17,13 @@ internal class ObjectGridLoaderBase
         Map = map;
     }
 
-    internal uint AreaTriggers { get; set; }
-    internal Cell Cell { get; set; }
-    internal uint Corpses { get; set; }
-    internal uint Creatures { get; set; }
-    internal uint GameObjects { get; set; }
-    internal Grid Grid { get; set; }
-    internal Map Map { get; set; }
-
-    public uint GetLoadedAreaTriggers()
-    {
-        return AreaTriggers;
-    }
-
-    public uint GetLoadedCorpses()
-    {
-        return Corpses;
-    }
-
-    public uint GetLoadedCreatures()
-    {
-        return Creatures;
-    }
-
-    public uint GetLoadedGameObjects()
-    {
-        return GameObjects;
-    }
+    public uint AreaTriggers { get; set; }
+    public Cell Cell { get; set; }
+    public uint Corpses { get; set; }
+    public uint Creatures { get; set; }
+    public uint GameObjects { get; set; }
+    public Grid Grid { get; set; }
+    public Map Map { get; set; }
 
     internal uint LoadHelper<T>(SortedSet<ulong> guidSet, CellCoord cell, Map map, uint phaseId = 0, ObjectGuid? phaseOwner = null) where T : WorldObject
     {
@@ -66,7 +46,7 @@ internal class ObjectGridLoaderBase
 
             if (phaseOwner.HasValue)
             {
-                PhasingHandler.InitDbPersonalOwnership(obj.Location.PhaseShift, phaseOwner.Value);
+                Map.PhasingHandler.InitDbPersonalOwnership(obj.Location.PhaseShift, phaseOwner.Value);
                 map.MultiPersonalPhaseTracker.RegisterTrackedObject(phaseId, phaseOwner.Value, obj);
             }
 

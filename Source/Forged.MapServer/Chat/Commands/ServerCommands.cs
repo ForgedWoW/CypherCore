@@ -140,11 +140,11 @@ internal class ServerCommands
     private static bool IsOnlyUser(WorldSession mySession, CommandHandler handler)
     {
         // check if there is any session connected from a different address
-        var myAddr = mySession ? mySession.RemoteAddress : "";
+        var myAddr = mySession != null ? mySession.RemoteAddress : "";
         var sessions = handler.WorldManager.AllSessions;
 
         foreach (var session in sessions)
-            if (session && myAddr != session.RemoteAddress)
+            if (session != null && myAddr != session.RemoteAddress)
                 return false;
 
         return true;

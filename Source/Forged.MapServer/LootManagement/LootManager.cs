@@ -24,6 +24,7 @@ public class LootManager : LootStoreBox
     private readonly DB2Manager _db2Manager;
     private readonly ItemEnchantmentManager _itemEnchantmentManager;
     private readonly LootFactory _lootFactory;
+    private readonly ItemFactory _itemFactory;
     private readonly LootStoreBox _lootStorage;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
@@ -31,7 +32,7 @@ public class LootManager : LootStoreBox
     private readonly WorldDatabase _worldDatabase;
 
     public LootManager(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, ConditionManager conditionManager, IConfiguration configuration, WorldDatabase worldDatabase,
-                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, ItemEnchantmentManager itemEnchantmentManager, LootFactory lootFactory)
+                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, ItemEnchantmentManager itemEnchantmentManager, LootFactory lootFactory, ItemFactory itemFactory)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -44,6 +45,7 @@ public class LootManager : LootStoreBox
         _lootStorage = lootStorage;
         _itemEnchantmentManager = itemEnchantmentManager;
         _lootFactory = lootFactory;
+        _itemFactory = itemFactory;
     }
 
     public Dictionary<ObjectGuid, Loot> GenerateDungeonEncounterPersonalLoot(uint dungeonEncounterId, uint lootId, LootStore store,
@@ -56,7 +58,7 @@ public class LootManager : LootStoreBox
             if (tapper.IsLockedToDungeonEncounter(dungeonEncounterId))
                 continue;
 
-            Loot loot = new(lootOwner.Location.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, _lootFactory, _itemEnchantmentManager)
+            Loot loot = new(lootOwner.Location.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, _lootFactory, _itemEnchantmentManager, _cliDB, _itemFactory)
             {
                 ItemContext = context,
                 DungeonEncounterId = dungeonEncounterId

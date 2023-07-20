@@ -7,6 +7,7 @@ using System.Reflection;
 using Autofac;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Game.Common;
 using Game.Common.Handlers;
 using Serilog;
 
@@ -15,10 +16,10 @@ namespace Forged.MapServer.Networking;
 public class PacketRouter
 {
     private readonly Dictionary<ClientOpcodes, PacketProcessor> _clientPacketTable = new();
-    private readonly IContainer _container;
+    private readonly ClassFactory _container;
     private readonly Dictionary<Type, IWorldSessionHandler> _opCodeHandler = new();
 
-    public PacketRouter(IContainer container)
+    public PacketRouter(ClassFactory container)
     {
         _container = container;
     }
@@ -70,7 +71,7 @@ public class PacketRouter
                         continue;
                     }
 
-                    _clientPacketTable[msgAttr.Opcode] = new PacketProcessor(worldSocketHandler, session, methodInfo, msgAttr.Status, msgAttr.Processing, parameters[0].ParameterType);
+                    _clientPacketTable[msgAttr.Opcode] = new PacketProcessor(worldSocketHandler, session, methodInfo, msgAttr.Status, msgAttr.Processing, parameters[0].ParameterType, _container);
                 }
             }
         }

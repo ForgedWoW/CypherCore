@@ -51,7 +51,7 @@ public class Ticket
     public bool IsAssigned => !AssignedTo.IsEmpty;
     public bool IsClosed => !ClosedBy.IsEmpty;
     public Player Player { get; }
-    public ObjectGuid PlayerGuid { get; protected set; }
+    public ObjectGuid PlayerGuid { get; set; }
 
     public string PlayerName
     {

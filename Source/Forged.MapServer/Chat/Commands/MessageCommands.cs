@@ -40,7 +40,7 @@ internal class MessageCommands
         var name = "Console";
         var session = handler.Session;
 
-        if (session)
+        if (session != null)
             name = session.Player.GetName();
 
         handler.WorldManager.SendGMText(CypherStrings.AnnounceColor, name, message);
@@ -71,7 +71,7 @@ internal class MessageCommands
         var name = "Console";
         var session = handler.Session;
 
-        if (session)
+        if (session != null)
             name = session.Player.GetName();
 
         handler.WorldManager.SendWorldText(CypherStrings.AnnounceColor, name, message);

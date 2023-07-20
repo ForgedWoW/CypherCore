@@ -4,20 +4,26 @@
 using System.Collections.Generic;
 using Forged.MapServer.Globals;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QuestPOIQueryResponse : ServerPacket
 {
+    private readonly IConfiguration _configuration;
     public List<QuestPOIData> QuestPOIDataStats = new();
-    public QuestPOIQueryResponse() : base(ServerOpcodes.QuestPoiQueryResponse) { }
+    public QuestPOIQueryResponse(IConfiguration configuration) : base(ServerOpcodes.QuestPoiQueryResponse)
+    {
+        _configuration = configuration;
+    }
 
     public override void Write()
     {
         WorldPacket.WriteInt32(QuestPOIDataStats.Count);
         WorldPacket.WriteInt32(QuestPOIDataStats.Count);
 
-        var useCache = GetDefaultValue("CacheDataQueries", true);
+        var useCache = _configuration.GetDefaultValue("CacheDataQueries", true);
 
         foreach (var questPOIData in QuestPOIDataStats)
             if (useCache)

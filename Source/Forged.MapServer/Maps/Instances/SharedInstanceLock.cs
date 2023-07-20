@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
 
 namespace Forged.MapServer.Maps.Instances;
@@ -15,7 +16,7 @@ internal class SharedInstanceLock : InstanceLock
     /// </summary>
     private readonly SharedInstanceLockData _sharedData;
 
-    public SharedInstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, SharedInstanceLockData sharedData, InstanceLockManager instanceLockManager) : base(mapId, difficultyId, expiryTime, instanceId, instanceLockManager)
+    public SharedInstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, SharedInstanceLockData sharedData, InstanceLockManager instanceLockManager, CliDB cliDB, DB2Manager db2Manager) : base(mapId, difficultyId, expiryTime, instanceId, instanceLockManager, cliDB, db2Manager)
     {
         _sharedData = sharedData;
     }

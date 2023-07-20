@@ -41,7 +41,7 @@ public class MultiPersonalPhaseTracker
             playerTracker.SetGridLoadedForPhase(grid.GridId, phaseRef.Key);
         }
 
-        if (loader.GetLoadedGameObjects() != 0)
+        if (loader.GameObjects != 0)
             map.Balance();
     }
 

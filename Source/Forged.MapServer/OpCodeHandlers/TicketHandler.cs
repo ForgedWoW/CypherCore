@@ -86,7 +86,7 @@ public class TicketHandler : IWorldSessionHandler
             if (!_supportManager.GetSuggestionSystemStatus())
                 return;
 
-            SuggestionTicket ticket = new(_session.Player);
+            SuggestionTicket ticket = new(_session.Player, _supportManager, _characterDatabase);
             ticket.SetPosition(userFeedback.Header.MapID, userFeedback.Header.Position);
             ticket.SetFacing(userFeedback.Header.Facing);
             ticket.SetNote(userFeedback.Note);

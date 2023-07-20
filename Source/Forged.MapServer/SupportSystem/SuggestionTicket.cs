@@ -14,25 +14,28 @@ namespace Forged.MapServer.SupportSystem;
 
 public class SuggestionTicket : Ticket
 {
+    private readonly CharacterDatabase _characterDatabase;
     private float _facing;
     private string _note;
 
-    public SuggestionTicket()
+    public SuggestionTicket(CharacterDatabase characterDatabase)
     {
+        _characterDatabase = characterDatabase;
         _note = "";
     }
 
-    public SuggestionTicket(Player player) : base(player)
+    public SuggestionTicket(Player player, SupportManager supportManager, CharacterDatabase characterDatabase) : base(player)
     {
+        _characterDatabase = characterDatabase;
         _note = "";
-        IdProtected = Global.SupportMgr.GenerateSuggestionId();
+        Id = supportManager.GenerateSuggestionId();
     }
 
     public override void DeleteFromDB()
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_SUGGESTION);
-        stmt.AddValue(0, IdProtected);
-        DB.Characters.Execute(stmt);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GM_SUGGESTION);
+        stmt.AddValue(0, Id);
+        _characterDatabase.Execute(stmt);
     }
 
     public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
@@ -40,20 +43,20 @@ public class SuggestionTicket : Ticket
         var curTime = (ulong)GameTime.CurrentTime;
 
         StringBuilder ss = new();
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, Id));
         ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
         ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTime, TimeFormat.ShortText)));
 
         if (!AssignedTo.IsEmpty)
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
 
-        if (detailed)
-        {
-            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
+        if (!detailed)
+            return ss.ToString();
 
-            if (!string.IsNullOrEmpty(Comment))
-                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, Comment));
-        }
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
+
+        if (!string.IsNullOrEmpty(Comment))
+            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, Comment));
 
         return ss.ToString();
     }
@@ -61,29 +64,37 @@ public class SuggestionTicket : Ticket
     public override void LoadFromDB(SQLFields fields)
     {
         byte idx = 0;
-        IdProtected = fields.Read<uint>(idx);
-        PlayerGuidProtected = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(++idx));
+        Id = fields.Read<uint>(idx);
+        PlayerGuid = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(++idx));
         _note = fields.Read<string>(++idx);
         CreateTime = fields.Read<ulong>(++idx);
-        MapIdProtected = fields.Read<ushort>(++idx);
+        MapId = fields.Read<ushort>(++idx);
         Pos = new Vector3(fields.Read<float>(++idx), fields.Read<float>(++idx), fields.Read<float>(++idx));
         _facing = fields.Read<float>(++idx);
 
         var closedBy = fields.Read<long>(++idx);
 
-        if (closedBy == 0)
-            ClosedBy = ObjectGuid.Empty;
-        else if (closedBy < 0)
-            ClosedBy.SetRawValue(0, (ulong)closedBy);
-        else
-            ClosedBy = ObjectGuid.Create(HighGuid.Player, (ulong)closedBy);
+        switch (closedBy)
+        {
+            case 0:
+                ClosedBy = ObjectGuid.Empty;
+
+                break;
+
+            case < 0:
+                ClosedBy.SetRawValue(0, (ulong)closedBy);
+
+                break;
+
+            default:
+                ClosedBy = ObjectGuid.Create(HighGuid.Player, (ulong)closedBy);
+
+                break;
+        }
 
         var assignedTo = fields.Read<ulong>(++idx);
 
-        if (assignedTo == 0)
-            AssignedTo = ObjectGuid.Empty;
-        else
-            AssignedTo = ObjectGuid.Create(HighGuid.Player, assignedTo);
+        AssignedTo = assignedTo == 0 ? ObjectGuid.Empty : ObjectGuid.Create(HighGuid.Player, assignedTo);
 
         Comment = fields.Read<string>(++idx);
     }
@@ -91,12 +102,12 @@ public class SuggestionTicket : Ticket
     public override void SaveToDB()
     {
         byte idx = 0;
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_GM_SUGGESTION);
-        stmt.AddValue(idx, IdProtected);
-        stmt.AddValue(++idx, PlayerGuidProtected.Counter);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_GM_SUGGESTION);
+        stmt.AddValue(idx, Id);
+        stmt.AddValue(++idx, PlayerGuid.Counter);
         stmt.AddValue(++idx, _note);
         stmt.AddValue(++idx, CreateTime);
-        stmt.AddValue(++idx, MapIdProtected);
+        stmt.AddValue(++idx, MapId);
         stmt.AddValue(++idx, Pos.X);
         stmt.AddValue(++idx, Pos.Y);
         stmt.AddValue(++idx, Pos.Z);
@@ -105,7 +116,7 @@ public class SuggestionTicket : Ticket
         stmt.AddValue(++idx, AssignedTo.Counter);
         stmt.AddValue(++idx, Comment);
 
-        DB.Characters.Execute(stmt);
+        _characterDatabase.Execute(stmt);
     }
 
     public void SetFacing(float facing)
@@ -116,10 +127,5 @@ public class SuggestionTicket : Ticket
     public void SetNote(string note)
     {
         _note = note;
-    }
-
-    private string GetNote()
-    {
-        return _note;
     }
 }
