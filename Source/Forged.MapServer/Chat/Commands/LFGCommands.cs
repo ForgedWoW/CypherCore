@@ -80,11 +80,11 @@ internal class LFGCommands
     {
         if (optionsArg.HasValue)
         {
-            handler.ClassFactory.Resolve<LFGManager>().SetOptions((LfgOptions)optionsArg.Value);
+            handler.ClassFactory.Resolve<LFGManager>().Options = (LfgOptions)optionsArg.Value;
             handler.SendSysMessage(CypherStrings.LfgOptionsChanged);
         }
 
-        handler.SendSysMessage(CypherStrings.LfgOptions, handler.ClassFactory.Resolve<LFGManager>().GetOptions());
+        handler.SendSysMessage(CypherStrings.LfgOptions, handler.ClassFactory.Resolve<LFGManager>().Options);
 
         return true;
     }

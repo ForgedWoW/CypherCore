@@ -30,7 +30,7 @@ public class LFGHandler : IWorldSessionHandler
     private readonly WorldSession _session;
 
     public LFGHandler(WorldSession session, LFGManager lfgManager, GameObjectManager gameObjectManager,
-        CharacterCache characterCache, CliDB cliDb)
+                      CharacterCache characterCache, CliDB cliDb)
     {
         _session = session;
         _lfgManager = lfgManager;
@@ -46,14 +46,13 @@ public class LFGHandler : IWorldSessionHandler
         byte agreeNum = 0;
         var secsleft = (uint)((boot.CancelTime - GameTime.CurrentTime) / 1000);
 
-        foreach (var it in boot.Votes)
-            if (it.Value != LfgAnswer.Pending)
-            {
-                ++votesNum;
+        foreach (var it in boot.Votes.Where(it => it.Value != LfgAnswer.Pending))
+        {
+            ++votesNum;
 
-                if (it.Value == LfgAnswer.Agree)
-                    ++agreeNum;
-            }
+            if (it.Value == LfgAnswer.Agree)
+                ++agreeNum;
+        }
 
         Log.Logger.Debug("SMSG_LFG_BOOT_PROPOSAL_UPDATE {0} inProgress: {1} - didVote: {2} - agree: {3} - victim: {4} votes: {5} - agrees: {6} - left: {7} - needed: {8} - reason {9}",
                     _session.GetPlayerInfo(),

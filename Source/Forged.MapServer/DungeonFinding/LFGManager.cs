@@ -16,6 +16,7 @@ using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.LFG;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
@@ -23,6 +24,8 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Forged.MapServer.DungeonFinding;
 
@@ -99,7 +102,13 @@ public class LFGManager
         _options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder:OptionsMask", 1);
 
         _ = new LFGPlayerScript();
-        _ = new LFGGroupScript();
+        _ = classFactory.Resolve<LFGGroupScript>();
+    }
+
+    public LfgOptions Options
+    {
+        get => _options;
+        set => _options = value;
     }
 
     public void _LoadFromDB(SQLFields field, ObjectGuid guid)
@@ -155,13 +164,13 @@ public class LFGManager
         {
             var state = GetState(guid);
 
-            if (state != LfgState.Queued)
-            {
-                if (state != LfgState.Proposal)
-                    Log.Logger.Debug("Unexpected state found while trying to form new group. Guid: {0}, State: {1}", guid.ToString(), state);
+            if (state == LfgState.Queued)
+                continue;
 
-                return false;
-            }
+            if (state != LfgState.Proposal)
+                Log.Logger.Debug("Unexpected state found while trying to form new group. Guid: {0}, State: {1}", guid.ToString(), state);
+
+            return false;
         }
 
         return true;
@@ -178,9 +187,9 @@ public class LFGManager
 
         List<ObjectGuid> keys = new(groles.Keys);
 
-        for (var i = 0; i < keys.Count; i++)
+        foreach (var key in keys)
         {
-            var role = groles[keys[i]] & ~LfgRoles.Leader;
+            var role = groles[key] & ~LfgRoles.Leader;
 
             if (role == LfgRoles.None)
                 return false;
@@ -189,12 +198,12 @@ public class LFGManager
             {
                 if (role != LfgRoles.Damage)
                 {
-                    groles[keys[i]] -= LfgRoles.Damage;
+                    groles[key] -= LfgRoles.Damage;
 
                     if (CheckGroupRoles(groles))
                         return true;
 
-                    groles[keys[i]] += (byte)LfgRoles.Damage;
+                    groles[key] += (byte)LfgRoles.Damage;
                 }
                 else if (damage == SharedConst.LFGDPSNeeded)
                     return false;
@@ -206,12 +215,12 @@ public class LFGManager
             {
                 if (role != LfgRoles.Healer)
                 {
-                    groles[keys[i]] -= LfgRoles.Healer;
+                    groles[key] -= LfgRoles.Healer;
 
                     if (CheckGroupRoles(groles))
                         return true;
 
-                    groles[keys[i]] += (byte)LfgRoles.Healer;
+                    groles[key] += (byte)LfgRoles.Healer;
                 }
                 else if (healer == SharedConst.LFGHealersNeeded)
                     return false;
@@ -219,22 +228,22 @@ public class LFGManager
                     healer++;
             }
 
-            if (role.HasAnyFlag(LfgRoles.Tank))
+            if (!role.HasAnyFlag(LfgRoles.Tank))
+                continue;
+
+            if (role != LfgRoles.Tank)
             {
-                if (role != LfgRoles.Tank)
-                {
-                    groles[keys[i]] -= LfgRoles.Tank;
+                groles[key] -= LfgRoles.Tank;
 
-                    if (CheckGroupRoles(groles))
-                        return true;
+                if (CheckGroupRoles(groles))
+                    return true;
 
-                    groles[keys[i]] += (byte)LfgRoles.Tank;
-                }
-                else if (tank == SharedConst.LFGTanksNeeded)
-                    return false;
-                else
-                    tank++;
+                groles[key] += (byte)LfgRoles.Tank;
             }
+            else if (tank == SharedConst.LFGTanksNeeded)
+                return false;
+            else
+                tank++;
         }
 
         return tank + healer + damage == (byte)groles.Count;
@@ -250,12 +259,11 @@ public class LFGManager
     {
         StringBuilder dungeonstr = new();
 
-        if (!dungeons.Empty())
-            foreach (var id in dungeons)
-                if (dungeonstr.Capacity != 0)
-                    dungeonstr.Append($", {id}");
-                else
-                    dungeonstr.Append($"{id}");
+        if (dungeons.Empty())
+            return dungeonstr.ToString();
+
+        foreach (var id in dungeons)
+            dungeonstr.Append(dungeonstr.Capacity != 0 ? $", {id}" : $"{id}");
 
         return dungeonstr.ToString();
     }
@@ -397,7 +405,7 @@ public class LFGManager
             var doneString = done ? "" : "not";
             Log.Logger.Debug($"Group: {gguid}, Player: {guid} done dungeon {GetDungeon(gguid)}, {doneString} previously done.");
             LfgPlayerRewardData data = new(dungeon.Entry(), GetDungeon(gguid, false), done, quest);
-            player.Session.SendLfgPlayerReward(data);
+            player.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgPlayerReward(data);
         }
     }
 
@@ -435,12 +443,7 @@ public class LFGManager
 
     public LfgType GetDungeonType(uint dungeonId)
     {
-        var dungeon = GetLFGDungeon(dungeonId);
-
-        if (dungeon == null)
-            return LfgType.None;
-
-        return dungeon.Type;
+        return GetLFGDungeon(dungeonId)?.Type ?? LfgType.None;
     }
 
     public ObjectGuid GetGroup(ObjectGuid guid)
@@ -465,15 +468,10 @@ public class LFGManager
 
     public uint GetLFGDungeonEntry(uint id)
     {
-        if (id != 0)
-        {
-            var dungeon = GetLFGDungeon(id);
+        if (id == 0)
+            return 0;
 
-            if (dungeon != null)
-                return dungeon.Entry();
-        }
-
-        return 0;
+        return GetLFGDungeon(id)?.Entry() ?? 0;
     }
 
     public LfgUpdateData GetLfgStatus(ObjectGuid guid)
@@ -583,11 +581,6 @@ public class LFGManager
         return state;
     }
 
-    public LfgOptions GetOptions()
-    {
-        return _options;
-    }
-
     public byte GetPlayerCount(ObjectGuid guid)
     {
         return _groupsStore[guid].PlayerCount;
@@ -605,26 +598,21 @@ public class LFGManager
 
     public byte GetQueueId(ObjectGuid guid)
     {
-        if (guid.IsParty)
-        {
-            var players = GetPlayers(guid);
-            var pguid = players.Empty() ? ObjectGuid.Empty : players.First();
+        if (!guid.IsParty)
+            return (byte)GetTeam(guid);
 
-            if (!pguid.IsEmpty)
-                return (byte)GetTeam(pguid);
-        }
+        var players = GetPlayers(guid);
+        var pguid = players.Empty() ? ObjectGuid.Empty : players.First();
+
+        if (!pguid.IsEmpty)
+            return (byte)GetTeam(pguid);
 
         return (byte)GetTeam(guid);
     }
 
     public long GetQueueJoinTime(ObjectGuid guid)
     {
-        var queueId = GetQueueId(guid);
-
-        if (_queuesStore.TryGetValue(queueId, out var lfgQueue))
-            return lfgQueue.GetJoinTime(guid);
-
-        return 0;
+        return _queuesStore.TryGetValue(GetQueueId(guid), out var lfgQueue) ? lfgQueue.GetJoinTime(guid) : 0;
     }
 
     public List<uint> GetRandomAndSeasonalDungeons(uint level, uint expansion, uint contentTuningReplacementConditionMask)
@@ -685,20 +673,17 @@ public class LFGManager
 
     public uint GetSelectedRandomDungeon(ObjectGuid guid)
     {
-        if (GetState(guid) != LfgState.None)
-        {
-            var dungeons = GetSelectedDungeons(guid);
+        if (GetState(guid) == LfgState.None)
+            return 0;
 
-            if (!dungeons.Empty())
-            {
-                var dungeon = GetLFGDungeon(dungeons.First());
+        var dungeons = GetSelectedDungeons(guid);
 
-                if (dungeon is { Type: LfgType.Raid })
-                    return dungeons.First();
-            }
-        }
+        if (dungeons.Empty())
+            return 0;
 
-        return 0;
+        var dungeon = GetLFGDungeon(dungeons.First());
+
+        return dungeon is { Type: LfgType.Raid } ? dungeons.First() : 0;
     }
 
     public LfgState GetState(ObjectGuid guid)
@@ -742,11 +727,15 @@ public class LFGManager
     {
         SetVoteKick(gguid, true);
 
-        var boot = _bootsStore[gguid];
-        boot.InProgress = true;
-        boot.CancelTime = GameTime.CurrentTime + SharedConst.LFGTimeBoot;
-        boot.Reason = reason;
-        boot.Victim = victim;
+        var boot = new LfgPlayerBoot
+        {
+            InProgress = true,
+            CancelTime = GameTime.CurrentTime + SharedConst.LFGTimeBoot,
+            Reason = reason,
+            Victim = victim
+        };
+
+        _bootsStore[gguid] = boot;
 
         var players = GetPlayers(gguid);
 
@@ -769,16 +758,11 @@ public class LFGManager
 
         var dungeonId = GetDungeon(guid);
 
-        if (dungeonId != 0)
-        {
-            var dungeon = GetLFGDungeon(dungeonId);
+        if (dungeonId == 0)
+            return false;
 
-            if (dungeon != null)
-                if (dungeon.Map == map && dungeon.Difficulty == difficulty)
-                    return true;
-        }
-
-        return false;
+        var dungeon = GetLFGDungeon(dungeonId);
+        return dungeon != null && dungeon.Map == map && dungeon.Difficulty == difficulty;
     }
 
     public bool IsLfgGroup(ObjectGuid guid)
@@ -956,12 +940,12 @@ public class LFGManager
         // Can't join. Send result
         if (joinData.Result != LfgJoinResult.Ok)
         {
-            Log.Logger.Debug("Join: [{0}] joining with {1} members. result: {2}", guid, grp ? grp.MembersCount : 1, joinData.Result);
+            Log.Logger.Debug("Join: [{0}] joining with {1} members. result: {2}", guid, grp?.MembersCount ?? 1, joinData.Result);
 
             if (!dungeons.Empty()) // Only should show lockmap when have no dungeons available
                 joinData.Lockmap.Clear();
 
-            player.Session.SendLfgJoinResult(joinData);
+            player.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgJoinResult(joinData);
 
             return;
         }
@@ -983,7 +967,7 @@ public class LFGManager
 
         var debugNames = "";
 
-        if (grp) // Begin rolecheck
+        if (grp != null) // Begin rolecheck
         {
             // Create new rolecheck
             LfgRoleCheck roleCheck = new()
@@ -1015,7 +999,7 @@ public class LFGManager
                     continue;
 
                 var pguid = plrg.GUID;
-                plrg.Session.SendLfgUpdateStatus(updateData, true);
+                plrg.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgUpdateStatus(updateData, true);
                 SetState(pguid, LfgState.Rolecheck);
                 SetTicket(pguid, ticket);
 
@@ -1043,6 +1027,7 @@ public class LFGManager
             var queue = GetQueue(guid);
             queue.AddQueueData(guid, GameTime.CurrentTime, dungeons, rolesMap);
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (!isContinue)
             {
                 if (rDungeonId != 0)
@@ -1057,10 +1042,10 @@ public class LFGManager
             // Send update to player
             SetTicket(guid, ticket);
             SetRoles(guid, roles);
-            player.Session.SendLfgUpdateStatus(new LfgUpdateData(LfgUpdateType.JoinQueueInitial, dungeons), false);
+            player.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgUpdateStatus(new LfgUpdateData(LfgUpdateType.JoinQueueInitial, dungeons), false);
             SetState(gguid, LfgState.Queued);
-            player.Session.SendLfgUpdateStatus(new LfgUpdateData(LfgUpdateType.AddedToQueue, dungeons), false);
-            player.Session.SendLfgJoinResult(joinData);
+            player.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgUpdateStatus(new LfgUpdateData(LfgUpdateType.AddedToQueue, dungeons), false);
+            player.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgJoinResult(joinData);
             debugNames += player.GetName();
         }
 
@@ -1164,20 +1149,15 @@ public class LFGManager
         _lfgDungeonStore.Clear();
 
         // Initialize Dungeon map with data from dbcs
-        foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
-        {
-            if (_db2Manager.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) == null)
-                continue;
-
+        foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values.Where(dungeon => _db2Manager.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) != null))
             _lfgDungeonStore[dungeon.Id] = dungeon.TypeID switch
             {
                 LfgType.Dungeon => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                LfgType.Raid    => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                LfgType.Random  => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                LfgType.Zone    => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                _               => _lfgDungeonStore[dungeon.Id]
+                LfgType.Raid => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                LfgType.Random => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                LfgType.Zone => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                _ => _lfgDungeonStore[dungeon.Id]
             };
-        }
 
         // Fill teleport locations from DB
         var result = _worldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation, requiredItemLevel FROM lfg_dungeon_template");
@@ -1353,58 +1333,37 @@ public class LFGManager
 
     public void SendLfgBootProposalUpdate(ObjectGuid guid, LfgPlayerBoot boot)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player != null)
-            player.Session.SendLfgBootProposalUpdate(boot);
+        _objectAccessor.FindPlayer(guid)?.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgBootProposalUpdate(boot);
     }
 
     public void SendLfgJoinResult(ObjectGuid guid, LfgJoinResultData data)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player != null)
-            player.Session.SendLfgJoinResult(data);
+        _objectAccessor.FindPlayer(guid)?.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgJoinResult(data);
     }
 
     public void SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData data)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player != null)
-            player.Session.SendLfgQueueStatus(data);
+        _objectAccessor.FindPlayer(guid)?.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgQueueStatus(data);
     }
 
     public void SendLfgRoleCheckUpdate(ObjectGuid guid, LfgRoleCheck roleCheck)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player != null)
-            player.Session.SendLfgRoleCheckUpdate(roleCheck);
+        _objectAccessor.FindPlayer(guid)?.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgRoleCheckUpdate(roleCheck);
     }
 
     public void SendLfgRoleChosen(ObjectGuid guid, ObjectGuid pguid, LfgRoles roles)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player != null)
-            player.Session.SendLfgRoleChosen(pguid, roles);
+        _objectAccessor.FindPlayer(guid)?.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgRoleChosen(pguid, roles);
     }
 
     public void SendLfgUpdateProposal(ObjectGuid guid, LfgProposal proposal)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player != null)
-            player.Session.SendLfgProposalUpdate(proposal);
+        _objectAccessor.FindPlayer(guid)?.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgProposalUpdate(proposal);
     }
 
     public void SendLfgUpdateStatus(ObjectGuid guid, LfgUpdateData data, bool party)
     {
-        var player = _objectAccessor.FindPlayer(guid);
-
-        if (player != null)
-            player.Session.SendLfgUpdateStatus(data, party);
+        _objectAccessor.FindPlayer(guid)?.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgUpdateStatus(data, party);
     }
 
     public void SetGroup(ObjectGuid guid, ObjectGuid group)
@@ -1419,11 +1378,6 @@ public class LFGManager
             _groupsStore[gguid] = new LFGGroupData();
 
         _groupsStore[gguid].Leader = leader;
-    }
-
-    public void SetOptions(LfgOptions options)
-    {
-        _options = options;
     }
 
     public void SetSelectedDungeons(ObjectGuid guid, List<uint> dungeons)
@@ -1482,7 +1436,7 @@ public class LFGManager
         if (dungeon == null)
         {
             Log.Logger.Debug("TeleportPlayer: Player {0} not in group/lfggroup or dungeon not found!", player.GetName());
-            player.Session.SendLfgTeleportError(LfgTeleportResult.NoReturnLocation);
+            player.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgTeleportError(LfgTeleportResult.NoReturnLocation);
 
             return;
         }
@@ -1549,7 +1503,7 @@ public class LFGManager
             error = LfgTeleportResult.NoReturnLocation;
 
         if (error != LfgTeleportResult.None)
-            player.Session.SendLfgTeleportError(error);
+            player.Session.PacketRouter.OpCodeHandler<LFGHandler>().SendLfgTeleportError(error);
 
         Log.Logger.Debug("TeleportPlayer: Player {0} is being teleported in to map {1} (x: {2}, y: {3}, z: {4}) Result: {5}", player.GetName(), dungeon.Map, dungeon.X, dungeon.Y, dungeon.Z, error);
     }
@@ -1618,8 +1572,8 @@ public class LFGManager
                 Log.Logger.Debug("Update: Found {0} new groups in queue {1}", newProposals, it.Key);
         }
 
+        // FIXME lastProposalId ? lastProposalId +1 ?
         if (lastProposalId != _lfgProposalId)
-            // FIXME lastProposalId ? lastProposalId +1 ?
             foreach (var itProposal in _proposalsStore.SkipWhile(p => p.Key == _lfgProposalId))
             {
                 var proposalId = itProposal.Key;
@@ -1848,8 +1802,6 @@ public class LFGManager
         if (gguid.IsEmpty)
             return;
 
-        Dictionary<ObjectGuid, LfgRoles> checkRoles;
-
         if (!_roleChecksStore.TryGetValue(gguid, out var roleCheck))
             return;
 
@@ -1890,7 +1842,7 @@ public class LFGManager
             if (done)
             {
                 // use temporal var to check roles, CheckGroupRoles modifies the roles
-                checkRoles = roleCheck.Roles;
+                var checkRoles = roleCheck.Roles;
                 roleCheck.State = CheckGroupRoles(checkRoles) ? LfgRoleCheckState.Finished : LfgRoleCheckState.WrongRoles;
             }
         }

@@ -3,13 +3,23 @@
 
 using System;
 using System.Collections.Generic;
+using Autofac;
+using System.Linq;
 using Forged.MapServer.Scripting.BaseScripts;
 using Forged.MapServer.Scripting.Interfaces;
+using Game.Common;
 
 namespace Forged.MapServer.Scripting.Activators;
 
 public class AuraScriptActivator : IScriptActivator
 {
+    private readonly ClassFactory _classFactory;
+
+    public AuraScriptActivator(ClassFactory classFactory)
+    {
+        _classFactory = classFactory;
+    }
+
     public List<string> ScriptBaseTypes => new()
     {
         nameof(AuraScript)
@@ -19,6 +29,13 @@ public class AuraScriptActivator : IScriptActivator
     {
         name = name.Replace("_AuraScript", "");
 
-        return (IScriptObject)Activator.CreateInstance(typeof(GenericAuraScriptLoader<>).MakeGenericType(type), name, attribute.Args);
+        var parameters = new List<PositionalParameter>
+        {
+            new(0, name)
+        };
+
+        parameters.AddRange(attribute.Args.Select((t, i) => new PositionalParameter(i + 1, t)));
+
+        return (IScriptObject)_classFactory.Container.Resolve(typeof(GenericAuraScriptLoader<>).MakeGenericType(type), parameters);
     }
 }

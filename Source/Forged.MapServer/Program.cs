@@ -439,6 +439,7 @@ void RegisterManagers()
     builder.RegisterType<Formulas>().SingleInstance();
     builder.RegisterType<PhasingHandler>().SingleInstance();
     builder.RegisterType<CriteriaDataValidator>().SingleInstance();
+    builder.RegisterType<LFGGroupScript>().SingleInstance();
 }
 
 void RegisterFactories()
@@ -541,6 +542,7 @@ void RegisterInstanced()
     builder.RegisterType<CriteriaDataSet>();
     builder.RegisterType<Weather>();
     builder.RegisterType<PacketRouter>();
+    builder.RegisterType<LFGQueue>();
 }
 
 void RegisterOpCodeHandlers()

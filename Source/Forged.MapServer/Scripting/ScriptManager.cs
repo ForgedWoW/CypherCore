@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using Autofac;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.DataStorage.Structs.A;
@@ -372,13 +373,13 @@ public class ScriptManager
                                     if (activatedObj != null)
                                         break;
                                 }
-
+                        
                         if (activatedObj == null)
                             if (attribute.Args.Empty())
                                 activatedObj = numArgsMin switch
                                 {
-                                    0 or 99                                                 => Activator.CreateInstance(type) as IScriptObject,
-                                    1 when paramType != null && paramType == typeof(string) => Activator.CreateInstance(type, name) as IScriptObject,
+                                    0 or 99                                                 => _classFactory.Container.Resolve(type) as IScriptObject,
+                                    1 when paramType != null && paramType == typeof(string) => _classFactory.Container.Resolve(type, new PositionalParameter(0, name)) as IScriptObject,
                                     _                                                       => activatedObj
                                 };
                             else
@@ -386,13 +387,16 @@ public class ScriptManager
                                 if (numArgsMin == 1 &&
                                     paramType != null &&
                                     paramType != typeof(string))
-                                    activatedObj = Activator.CreateInstance(type, attribute.Args) as IScriptObject;
+                                    activatedObj = _classFactory.Container.Resolve(type, attribute.Args.Select((t, pos) => new PositionalParameter(pos++, t))) as IScriptObject;
                                 else
-                                    activatedObj = Activator.CreateInstance(type,
-                                                                            new object[]
-                                                                            {
-                                                                                name
-                                                                            }.Combine(attribute.Args)) as IScriptObject;
+                                {
+                                    var args = new List<PositionalParameter>()
+                                    {
+                                        new(0, name)
+                                    };
+                                    args.AddRange(attribute.Args.Select((t, pos) => new PositionalParameter(pos + 1, t)));
+                                    activatedObj = _classFactory.Container.Resolve(type, args) as IScriptObject;
+                                }
                             }
 
                         if (activatedObj != null)
