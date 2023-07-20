@@ -438,14 +438,7 @@ public class ScriptManager
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
             return;
 
-        IScriptActivator asa = null;
-
-        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
-            asa = Activator.CreateInstance(type, _classFactory) as IScriptActivator;
-        else
-            asa = Activator.CreateInstance(type) as IScriptActivator;
-
-        if (asa == null)
+        if (_classFactory.Container.Resolve(type) is not IScriptActivator asa)
             return;
 
         foreach (var t in asa.ScriptBaseTypes)
@@ -457,14 +450,7 @@ public class ScriptManager
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
             return;
 
-        IScriptRegister newReg = null;
-
-        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
-            newReg = Activator.CreateInstance(type, _classFactory) as IScriptRegister;
-        else
-            newReg = Activator.CreateInstance(type) as IScriptRegister;
-
-        if (newReg != null)
+        if (_classFactory.Container.Resolve(type) is IScriptRegister newReg)
             registers[newReg.AttributeType] = newReg;
     }
 

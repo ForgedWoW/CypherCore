@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Autofac;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
@@ -74,6 +75,10 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Forged.MapServer.MapWeather;
+using Forged.MapServer.Scripting.Interfaces;
+using Game.Common.Extendability;
+using Forged.MapServer.Scripting.Activators;
+using Forged.MapServer.Scripting.Registers;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -139,10 +144,29 @@ void InitializeServer()
 
 void RegisterServerTypes()
 {
+    RegisterScripts();
     RegisterManagers();
     RegisterFactories();
     RegisterInstanced();
     RegisterOpCodeHandlers();
+}
+
+void RegisterScripts()
+{
+    var assemblies = IOHelpers.GetAllAssembliesInDir(configuration.GetDefaultValue("ScriptsDirectory", Path.Combine(AppContext.BaseDirectory, "Scripts")));
+
+    foreach (var asm in assemblies)
+        foreach (var type in asm.GetTypes())
+        {
+            if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptObject)))
+                builder.RegisterType(type).As<IScriptObject>().AsSelf();
+
+            if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
+                builder.RegisterType(type).As<IScriptActivator>().AsSelf();
+
+            if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
+                builder.RegisterType(type).As<IScriptRegister>().AsSelf();
+        }
 }
 
 void RegisterManagers()
