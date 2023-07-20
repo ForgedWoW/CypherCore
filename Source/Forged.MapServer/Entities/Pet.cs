@@ -265,7 +265,7 @@ public class Pet : Guardian
 
         Location.Relocate(creature.Location);
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error("Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
                              GUID.ToString(),
@@ -533,7 +533,7 @@ public class Pet : Guardian
             pos.Orientation = owner.Location.Orientation;
             Location.Relocate(pos);
 
-            if (!Location.IsPositionValid)
+            if (!GridDefines.IsValidMapCoord(Location))
             {
                 Log.Logger.Error("Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
                                  GUID.ToString(),
@@ -596,7 +596,7 @@ public class Pet : Guardian
         owner.Location.GetClosePoint(pos, CombatReach, SharedConst.PetFollowDist, FollowAngle);
         Location.Relocate(pos);
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error("Pet ({0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})", GUID.ToString(), Entry, Location.X, Location.Y);
 

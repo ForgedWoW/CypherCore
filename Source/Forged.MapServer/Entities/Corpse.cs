@@ -129,7 +129,7 @@ public class Corpse : WorldObject
     {
         Location.Relocate(owner.Location.X, owner.Location.Y, owner.Location.Z, owner.Location.Orientation);
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error("Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
                              guidlow,
@@ -221,7 +221,7 @@ public class Corpse : WorldObject
         Location = new WorldLocation(mapId, posX, posY, posZ, o);
         Location.SetLocationInstanceId(instanceId);
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error("Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
                              GUID.ToString(),

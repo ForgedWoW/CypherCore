@@ -119,7 +119,7 @@ public class Transport : GameObject, ITransport
     {
         Location.Relocate(x, y, z, ang);
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error($"Transport (GUID: {guidlow}) not created. Suggested coordinates isn't valid (X: {x} Y: {y})");
 
@@ -214,7 +214,7 @@ public class Transport : GameObject, ITransport
         //         because the current GameObjectModel cannot be moved without recreating
         creature.AddUnitState(UnitState.IgnorePathfinding);
 
-        if (!creature.Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(creature.Location))
         {
             Log.Logger.Error("Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GUID.ToString(), creature.Entry, creature.Location.X, creature.Location.Y);
 
@@ -573,7 +573,7 @@ public class Transport : GameObject, ITransport
         go.Location.Relocate(spawn);
         go.RelocateStationaryPosition(spawn);
 
-        if (!go.Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(go.Location))
         {
             Log.Logger.Error("GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GUID.ToString(), go.Entry, go.Location.X, go.Location.Y);
 

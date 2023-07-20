@@ -120,6 +120,8 @@ public partial class Player : Unit
         Formulas = classFactory.Resolve<Formulas>();
         Taxi = classFactory.Resolve<PlayerTaxi>();
         ItemFactory = classFactory.Resolve<ItemFactory>();
+        AzeriteItemFactory = classFactory.Resolve<AzeriteItemFactory>();
+        AzeriteEmpoweredItemFactory = classFactory.Resolve<AzeriteEmpoweredItemFactory>();
         Session = session;
 
         // players always accept
@@ -5349,7 +5351,7 @@ public partial class Player : Unit
         // only SUMMON_PET are handled here
         Location.UpdateAllowedPositionZ(pos);
 
-        if (!pet.Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(pet.Location))
         {
             Log.Logger.Error("Pet (guidlow {0}, entry {1}) not summoned. Suggested coordinates isn't valid (X: {2} Y: {3})",
                              pet.GUID.ToString(),

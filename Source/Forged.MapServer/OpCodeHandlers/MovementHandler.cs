@@ -347,7 +347,7 @@ public class MovementHandler : IWorldSessionHandler
             return;
         }
 
-        if (!movementInfo.Pos.IsPositionValid)
+        if (!_gridDefines.IsValidMapCoord(movementInfo.Pos))
             return;
 
         if (!mover.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))

@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.Creatures;
@@ -17,6 +14,9 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Framework.Util;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.MapServer.Chat.Commands;
 

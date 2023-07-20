@@ -26,6 +26,7 @@ using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Game.Common;
 using Serilog;
+using static Forged.MapServer.Globals.ScriptInfo;
 
 namespace Forged.MapServer.Entities.AreaTriggers;
 
@@ -531,8 +532,8 @@ public class AreaTrigger : WorldObject
 
         Location.WorldRelocate(caster.Location.Map, pos);
         CheckAddToMap();
-
-        if (!Location.IsPositionValid)
+        
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error($"AreaTrigger (areaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
 
@@ -678,7 +679,7 @@ public class AreaTrigger : WorldObject
         Location.WorldRelocate(map, position.SpawnPoint);
         CheckAddToMap();
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error($"AreaTriggerServer (id {areaTriggerTemplate.Id}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
 

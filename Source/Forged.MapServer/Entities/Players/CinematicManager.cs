@@ -7,6 +7,7 @@ using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
 using Framework.Constants;
 
 namespace Forged.MapServer.Entities.Players;
@@ -14,17 +15,19 @@ namespace Forged.MapServer.Entities.Players;
 public class CinematicManager : IDisposable
 {
     private readonly M2Storage _m2Storage;
+    private readonly GridDefines _gridDefines;
 
     // Remote location information
     private readonly Player _player;
     
     private TempSummon _cinematicObject;
 
-    public CinematicManager(Player playerref, M2Storage m2Storage)
+    public CinematicManager(Player playerref, M2Storage m2Storage, GridDefines gridDefines)
     {
         _player = playerref;
         _m2Storage = m2Storage;
         ActiveCinematicCameraIndex = -1;
+        _gridDefines = gridDefines;
     }
 
     public CinematicSequencesRecord ActiveCinematic { get; set; }
@@ -98,7 +101,7 @@ public class CinematicManager : IDisposable
 
         Position pos = new(firstCamera.Locations.X, firstCamera.Locations.Y, firstCamera.Locations.Z, firstCamera.Locations.W);
 
-        if (!pos.IsPositionValid)
+        if (!_gridDefines.IsValidMapCoord(pos))
             return;
 
         _player.Location.Map.LoadGridForActiveObject(pos.X, pos.Y, _player);
@@ -197,7 +200,7 @@ public class CinematicManager : IDisposable
 
         // Advance (at speed) to this position. The remote sight object is used
         // to send update information to player in cinematic
-        if (_cinematicObject != null && interPosition.IsPositionValid)
+        if (_cinematicObject != null && _gridDefines.IsValidMapCoord(interPosition))
             _cinematicObject.MonsterMoveWithSpeed(interPosition.X, interPosition.Y, interPosition.Z, 500.0f, false, true);
 
         // If we never received an end packet 10 seconds after the final timestamp then force an end

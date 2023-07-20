@@ -99,7 +99,7 @@ public class DynamicObject : WorldObject
         Location.WorldRelocate(caster.Location.Map, pos);
         CheckAddToMap();
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error("DynamicObject (spell {0}) not created. Suggested coordinates isn't valid (X: {1} Y: {2})", spell.Id, Location.X, Location.Y);
 

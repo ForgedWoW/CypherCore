@@ -3512,7 +3512,7 @@ public class GameObject : WorldObject
         CheckAddToMap();
         StationaryPosition.Relocate(pos);
 
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error("Gameobject (Spawn id: {0} Entry: {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})", SpawnId, entry, pos.X, pos.Y);
 

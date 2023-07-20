@@ -461,6 +461,8 @@ public partial class Player
     public PlayerComputators PlayerComputators { get; }
     public PlayerData PlayerData { get; set; }
     public ItemFactory ItemFactory { get; set; }
+    public AzeriteItemFactory AzeriteItemFactory { get; set; }
+    public AzeriteEmpoweredItemFactory AzeriteEmpoweredItemFactory { get; set; }
 
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }

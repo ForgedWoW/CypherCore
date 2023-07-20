@@ -15,6 +15,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Networking.Packets.Garrison;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
@@ -808,14 +809,17 @@ public class Garrison
         private readonly GameObjectManager _gameObjectManager;
         private readonly GameObjectFactory _gameObjectFactory;
         private readonly ClassFactory _classFactory;
+        private readonly GridDefines _gridDefines;
 
-        public Plot(CliDB cliDB, GarrisonManager garrisonManager, GameObjectManager gameObjectManager, GameObjectFactory gameObjectFactory, ClassFactory classFactory)
+        public Plot(CliDB cliDB, GarrisonManager garrisonManager, GameObjectManager gameObjectManager, 
+            GameObjectFactory gameObjectFactory, ClassFactory classFactory, GridDefines gridDefines)
         {
             _cliDB = cliDB;
             _garrisonManager = garrisonManager;
             _gameObjectManager = gameObjectManager;
             _gameObjectFactory = gameObjectFactory;
             _classFactory = classFactory;
+            _gridDefines = gridDefines;
         }
 
         public void ClearBuildingInfo(GarrisonType garrisonType, Player owner)
@@ -983,7 +987,7 @@ public class Garrison
                     break;
             }
 
-            if (!spawn.Location.IsPositionValid)
+            if (!_gridDefines.IsValidMapCoord(spawn.Location))
                 return null;
 
             return !map.AddToMap(spawn) ? null : spawn;

@@ -4835,7 +4835,7 @@ Weather.SendFineWeatherUpdateToPlayer(player);
     private void VisitNearbyCellsOf(WorldObject obj, IGridNotifier gridVisitor)
     {
         // Check for valid position
-        if (!obj.Location.IsPositionValid)
+        if (!obj.GridDefines.IsValidMapCoord(obj.Location))
             return;
 
         // Update mobs/objects in ALL visible cells around object!

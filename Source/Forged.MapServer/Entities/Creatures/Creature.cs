@@ -523,7 +523,7 @@ public partial class Creature : Unit
 
         // Check if the position is valid before calling CreateFromProto(), otherwise we might add Auras to Creatures at
         // invalid position, triggering a crash about Auras not removed in the destructor
-        if (!Location.IsPositionValid)
+        if (!GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error($"Creature.Create: given coordinates for creature (guidlow {guidlow}, entry {entry}) are not valid ({pos})");
 

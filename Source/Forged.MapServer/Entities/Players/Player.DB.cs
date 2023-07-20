@@ -19,6 +19,7 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Trait;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Spells;
@@ -359,7 +360,7 @@ public partial class Player
 
         LoginFlags = (AtLoginFlags)atLogin;
 
-        if (!Session.ValidateAppearance(Race, Class, gender, customizations))
+        if (!Session.PacketRouter.OpCodeHandler<CharacterHandler>().ValidateAppearance(Race, Class, gender, customizations))
         {
             Log.Logger.Error("Player {0} has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.ToString());
 
@@ -414,7 +415,7 @@ public partial class Player
         var playerAtBG = false;
         var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
 
-        if (mapEntry == null || !Location.IsPositionValid)
+        if (mapEntry == null || !GridDefines.IsValidMapCoord(Location))
         {
             Log.Logger.Error("Player (guidlow {0}) have invalid coordinates (MapId: {1} {2}). Teleport to default race/class locations.", guid.ToString(), mapId, Location);
             relocateToHomebind();
@@ -2973,7 +2974,7 @@ public partial class Player
 
             _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomBonusListId, fixedScalingLevel, artifactKnowledgeLevel, context, bonusListIDs);
 
-            BonusData bonus = new(new ItemInstance(_voidStorageItems[slot]));
+            BonusData bonus = new(new ItemInstance(_voidStorageItems[slot]), DB2Manager, CliDB.ItemEffectStorage, GameObjectManager);
             Session.CollectionMgr.AddItemAppearance(itemEntry, bonus.AppearanceModID);
         } while (result.NextRow());
     }
