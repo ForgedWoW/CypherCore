@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.MapServer.Spells;
 
@@ -192,10 +192,16 @@ public class TargetInfo : TargetInfoBase
 
                     var p = caster.AsPlayer;
 
-                    if (p != null)
-                        caster.ScriptManager.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
+                    double tmpDamage = damageInfo.Damage;
+                    double tmpAbsorb = damageInfo.Absorb;
 
-                    caster.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+                    if (p != null)
+                        caster.ScriptManager.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref tmpDamage, spell.SpellInfo));
+
+                    caster.UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref tmpDamage, ref tmpAbsorb);
+
+                    damageInfo.Damage = tmpDamage;
+                    damageInfo.Absorb = tmpAbsorb;
 
                     hitMask |= caster.UnitCombatHelpers.CreateProcHitMask(damageInfo, MissCondition);
                     procVictim.Or(ProcFlags.TakeAnyDamage);

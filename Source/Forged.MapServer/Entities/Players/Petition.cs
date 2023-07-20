@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.OpCodeHandlers;
 using Framework.Database;
 
 namespace Forged.MapServer.Entities.Players;
@@ -56,7 +57,7 @@ public class Petition
                 var owner = _objectAccessor.FindConnectedPlayer(OwnerGuid);
 
                 if (owner != null)
-                    owner.Session.SendPetitionQuery(PetitionGuid);
+                    owner.Session.PacketRouter.OpCodeHandler<PetitionsHandler>().SendPetitionQuery(PetitionGuid);
 
                 break;
             }

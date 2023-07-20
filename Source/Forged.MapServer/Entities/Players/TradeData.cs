@@ -4,6 +4,7 @@
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Networking.Packets.Trade;
+using Forged.MapServer.OpCodeHandlers;
 using Framework.Constants;
 
 namespace Forged.MapServer.Entities.Players;
@@ -73,9 +74,9 @@ public class TradeData
             };
 
             if (crosssend)
-                Trader.Session.SendTradeStatus(info);
+                Trader.Session.PacketRouter.OpCodeHandler<TradeHandler>().SendTradeStatus(info);
             else
-                _player.Session.SendTradeStatus(info);
+                _player.Session.PacketRouter.OpCodeHandler<TradeHandler>().SendTradeStatus(info);
         }
     }
 
@@ -121,7 +122,7 @@ public class TradeData
                 BagResult = InventoryResult.NotEnoughMoney
             };
 
-            _player.Session.SendTradeStatus(info);
+            _player.Session.PacketRouter.OpCodeHandler<TradeHandler>().SendTradeStatus(info);
 
             return;
         }
@@ -138,7 +139,7 @@ public class TradeData
 
     public void SetSpell(uint spellID, Item castItem = null)
     {
-        var itemGuid = castItem ? castItem.GUID : ObjectGuid.Empty;
+        var itemGuid = castItem != null ? castItem.GUID : ObjectGuid.Empty;
 
         if (Spell == spellID && _spellCastItem == itemGuid)
             return;
@@ -168,8 +169,8 @@ public class TradeData
     private void Update(bool forTarget = true)
     {
         if (forTarget)
-            Trader.Session.SendUpdateTrade(true); // player state for trader
+            Trader.Session.PacketRouter.OpCodeHandler<TradeHandler>().SendUpdateTrade(true); // player state for trader
         else
-            _player.Session.SendUpdateTrade(false); // player state for player
+            _player.Session.PacketRouter.OpCodeHandler<TradeHandler>().SendUpdateTrade(false); // player state for player
     }
 }

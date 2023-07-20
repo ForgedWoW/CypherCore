@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
@@ -12,6 +10,8 @@ using Framework.Database;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.MapServer.Maps.Instances;
 
@@ -87,7 +87,9 @@ public class InstanceLockManager
                                             (Difficulty)entries.MapDifficulty.DifficultyID,
                                             GetNextResetTime(entries),
                                             0,
-                                            this);
+                                            this,
+                                            _cliDB,
+                                            _db2Manager);
 
         if (!_temporaryInstanceLocksByPlayer.ContainsKey(playerGuid))
             _temporaryInstanceLocksByPlayer[playerGuid] = new Dictionary<InstanceLockKey, InstanceLock>();
@@ -239,11 +241,17 @@ public class InstanceLockManager
                     _instanceLockDataById[instanceId] = sharedData;
                 }
                 else
-                    instanceLock = new InstanceLock(mapId, difficulty, expiryTime, instanceId, this);
+                    instanceLock = new InstanceLock(mapId, 
+                                                    difficulty, 
+                                                    expiryTime, 
+                                                    instanceId, 
+                                                    this,
+                                                    _cliDB,
+                                                    _db2Manager);
 
                 instanceLock.Data.Data = lockResult.Read<string>(5);
                 instanceLock.Data.CompletedEncountersMask = lockResult.Read<uint>(6);
-                instanceLock.Extended = lockResult.Read<bool>(8);
+                instanceLock.IsExtended = lockResult.Read<bool>(8);
 
                 _instanceLocksByPlayer[playerGuid][Tuple.Create(mapId, lockId)] = instanceLock;
             } while (result.NextRow());
@@ -304,7 +312,7 @@ public class InstanceLockManager
             var newExpiryTime = GetNextResetTime(entries) - TimeSpan.FromSeconds(entries.MapDifficulty.GetRaidDuration());
             // set reset time to last reset time
             instanceLock.ExpiryTime = newExpiryTime;
-            instanceLock.Extended = false;
+            instanceLock.IsExtended = false;
 
             var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE);
             stmt.AddValue(0, (ulong)Time.DateTimeToUnixTime(newExpiryTime));
@@ -332,7 +340,7 @@ public class InstanceLockManager
             return Tuple.Create(DateTime.MinValue, DateTime.MinValue);
 
         var oldExpiryTime = instanceLock.GetEffectiveExpiryTime();
-        instanceLock.Extended = extended;
+        instanceLock.IsExtended = extended;
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_EXTENSION);
         stmt.AddValue(0, extended ? 1 : 0);
         stmt.AddValue(1, playerGuid.Counter);
@@ -391,7 +399,9 @@ public class InstanceLockManager
                                                 (Difficulty)entries.MapDifficulty.DifficultyID,
                                                 GetNextResetTime(entries),
                                                 updateEvent.InstanceId,
-                                                this);
+                                                this,
+                                                _cliDB,
+                                                _db2Manager);
 
             lock (_lockObject)
                 _instanceLocksByPlayer[playerGuid][entries.GetKey()] = instanceLock;
@@ -400,7 +410,7 @@ public class InstanceLockManager
                              $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Created new instance lock for {playerGuid} in instance {updateEvent.InstanceId}");
         }
         else
-            instanceLock.InstanceId = new InClassName(updateEvent.InstanceId);
+            instanceLock.InstanceId = updateEvent.InstanceId;
 
         instanceLock.Data.Data = updateEvent.NewData;
 
@@ -423,7 +433,7 @@ public class InstanceLockManager
         if (instanceLock.IsExpired)
         {
             instanceLock.ExpiryTime = GetNextResetTime(entries);
-            instanceLock.Extended = false;
+            instanceLock.IsExtended = false;
 
             Log.Logger.Debug($"[{entries.Map.Id}-{entries.Map.MapName[_worldManager.DefaultDbcLocale]} | " +
                              $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Expired instance lock for {playerGuid} in instance {updateEvent.InstanceId} is now active");

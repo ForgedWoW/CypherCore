@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
@@ -13,6 +11,8 @@ using Forged.MapServer.Movement.Generators;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.IO;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -23,9 +23,10 @@ internal class MMapsCommands
     private static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
     {
         var player = handler.Session.Player;
-        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
-        var navmesh = handler.ClassFactory.Resolve<MMapManager>().GetNavMesh(terrainMapId);
-        var navmeshquery = handler.ClassFactory.Resolve<MMapManager>().GetNavMeshQuery(terrainMapId, handler.Player.InstanceId);
+        var terrainMapId = handler.ClassFactory.Resolve<PhasingHandler>().GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
+        var mmapManager = handler.ClassFactory.Resolve<MMapManager>();
+        var navmesh = mmapManager.GetNavMesh(terrainMapId);
+        var navmeshquery = mmapManager.GetNavMeshQuery(terrainMapId, handler.Player.InstanceId);
 
         if (navmesh == null || navmeshquery == null)
         {
@@ -65,7 +66,7 @@ internal class MMapsCommands
         handler.SendSysMessage("tileloc [{0}, {1}]", gx, gy);
 
         // calculate navmesh tile location
-        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
+        var terrainMapId = handler.ClassFactory.Resolve<PhasingHandler>().GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
         var navmesh = handler.ClassFactory.Resolve<MMapManager>().GetNavMesh(terrainMapId);
         var navmeshquery = handler.ClassFactory.Resolve<MMapManager>().GetNavMeshQuery(terrainMapId, player.InstanceId);
 
@@ -196,7 +197,7 @@ internal class MMapsCommands
     private static bool HandleMmapStatsCommand(CommandHandler handler)
     {
         var player = handler.Session.Player;
-        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
+        var terrainMapId = handler.ClassFactory.Resolve<PhasingHandler>().GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
         handler.SendSysMessage("mmap stats:");
         handler.SendSysMessage("  global mmap pathfinding is {0}abled", handler.ClassFactory.Resolve<DisableManager>().IsPathfindingEnabled(player.Location.MapId) ? "En" : "Dis");
         handler.SendSysMessage(" {0} maps loaded with {1} tiles overall", handler.ClassFactory.Resolve<MMapManager>().GetLoadedMapsCount(), handler.ClassFactory.Resolve<MMapManager>().GetLoadedTilesCount());
@@ -253,7 +254,7 @@ internal class MMapsCommands
         var goCheck = new AnyUnitInObjectRangeCheck(obj, radius);
         var goSearch = new UnitListSearcher(obj, creatureList, goCheck, GridType.Grid);
 
-        CellCalculator.VisitGrid(obj, goSearch, radius);
+        handler.ClassFactory.Resolve<CellCalculator>().VisitGrid(obj, goSearch, radius);
 
         if (!creatureList.Empty())
         {

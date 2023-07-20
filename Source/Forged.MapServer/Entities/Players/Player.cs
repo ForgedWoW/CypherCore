@@ -1,11 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text.RegularExpressions;
 using Autofac;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
@@ -74,6 +69,11 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text.RegularExpressions;
 using PlayerChoiceResponse = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponse;
 using PlayerChoiceResponseMawPower = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseMawPower;
 using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
@@ -1114,7 +1114,7 @@ public partial class Player : Unit
             return false;
         }
 
-        if (!Session.ValidateAppearance(createInfo.RaceId, createInfo.ClassId, createInfo.Sex, createInfo.Customizations))
+        if (!Session.PacketRouter.OpCodeHandler<CharacterHandler>().ValidateAppearance(createInfo.RaceId, createInfo.ClassId, createInfo.Sex, createInfo.Customizations))
         {
             Log.Logger.Error("Player.Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with invalid appearance attributes - refusing to do so",
                              Session.AccountId,
