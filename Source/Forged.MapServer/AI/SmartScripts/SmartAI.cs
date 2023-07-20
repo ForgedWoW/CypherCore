@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
@@ -14,6 +11,9 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.MapServer.AI.SmartScripts;
 
@@ -58,6 +58,8 @@ public class SmartAI : CreatureAI
     private uint _waypointPauseTimer;
     private bool _waypointReached;
 
+    private readonly GridDefines _gridDefines;
+
     public SmartAI(Creature creature) : base(creature)
     {
         _escortInvokerCheckTimer = 1000;
@@ -65,6 +67,7 @@ public class SmartAI : CreatureAI
         _canCombatMove = true;
         _script = creature.ClassFactory.Resolve<SmartScript>();
         _hasConditions = creature.ConditionManager.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.Entry);
+        _gridDefines = creature.ClassFactory.Resolve<GridDefines>();
     }
 
     public void AddEscortState(SmartEscortState escortState)
@@ -1000,7 +1003,7 @@ public class SmartAI : CreatureAI
 
                 var group = player.Group;
 
-                if (group)
+                if (group != null)
                     for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                     {
                         var groupGuy = groupRef.Source;
@@ -1042,8 +1045,8 @@ public class SmartAI : CreatureAI
 
         foreach (var waypoint in _path.Nodes)
         {
-            waypoint.X = GridDefines.NormalizeMapCoord(waypoint.X);
-            waypoint.Y = GridDefines.NormalizeMapCoord(waypoint.Y);
+            waypoint.X = _gridDefines.NormalizeMapCoord(waypoint.X);
+            waypoint.Y = _gridDefines.NormalizeMapCoord(waypoint.Y);
             waypoint.MoveType = _run ? WaypointMoveType.Run : WaypointMoveType.Walk;
         }
 
@@ -1087,7 +1090,7 @@ public class SmartAI : CreatureAI
         {
             if (_followArrivedTimer < diff)
             {
-                if (Me.Location.FindNearestCreature(_followArrivedEntry, SharedConst.InteractionDistance))
+                if (Me.Location.FindNearestCreature(_followArrivedEntry, SharedConst.InteractionDistance) != null)
                 {
                     StopFollow(true);
 

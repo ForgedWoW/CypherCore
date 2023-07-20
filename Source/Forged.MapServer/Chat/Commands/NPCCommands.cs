@@ -33,7 +33,7 @@ internal class NPCCommands
             var list = map[key];
 
             var player = handler.ObjectAccessor.FindConnectedPlayer(key);
-            handler.SendSysMessage(CypherStrings.CommandNpcShowlootSublabel, player ? player.GetName() : $"Offline player (GUID {key})", list.Count);
+            handler.SendSysMessage(CypherStrings.CommandNpcShowlootSublabel, player != null ? player.GetName() : $"Offline player (GUID {key})", list.Count);
 
             foreach (var it in list)
             {
@@ -95,7 +95,7 @@ internal class NPCCommands
     {
         var creatureTarget = handler.SelectedCreature;
 
-        if (!creatureTarget || creatureTarget.IsPet)
+        if (creatureTarget == null || creatureTarget.IsPet)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -122,7 +122,7 @@ internal class NPCCommands
     {
         var target = handler.SelectedCreature;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -191,7 +191,7 @@ internal class NPCCommands
         if (data != null)
             handler.SendSysMessage(CypherStrings.NpcinfoPhases, data.PhaseId, data.PhaseGroup);
 
-        PhasingHandler.PrintToChat(handler, target);
+        handler.ClassFactory.Resolve<PhasingHandler>().PrintToChat(handler, target);
 
         handler.SendSysMessage(CypherStrings.NpcinfoArmor, target.GetArmor());
         handler.SendSysMessage(CypherStrings.NpcinfoPosition, target.Location.X, target.Location.Y, target.Location.Z);
@@ -326,7 +326,7 @@ internal class NPCCommands
     {
         var target = handler.SelectedCreature;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -346,7 +346,7 @@ internal class NPCCommands
 
         var creature = handler.SelectedCreature;
 
-        if (!creature)
+        if (creature == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -478,7 +478,7 @@ internal class NPCCommands
     {
         var creatureTarget = handler.SelectedCreature;
 
-        if (!creatureTarget || creatureTarget.IsPet)
+        if (creatureTarget == null || creatureTarget.IsPet)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -506,7 +506,7 @@ internal class NPCCommands
         // Everything looks OK, create new pet
         var pet = player.CreateTamedPetFrom(creatureTarget);
 
-        if (!pet)
+        if (pet == null)
         {
             handler.SendSysMessage(CypherStrings.CreatureNonTameable, cInfo.Entry);
 
@@ -552,7 +552,7 @@ internal class NPCCommands
     {
         var creature = handler.SelectedCreature;
 
-        if (!creature)
+        if (creature == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -576,7 +576,7 @@ internal class NPCCommands
 
         var creature = handler.SelectedCreature;
 
-        if (!creature)
+        if (creature == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -602,7 +602,7 @@ internal class NPCCommands
 
         var creature = handler.SelectedCreature;
 
-        if (!creature)
+        if (creature == null )
         {
             handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -631,7 +631,7 @@ internal class NPCCommands
 
             var trans = chr.GetTransport<Transport>();
 
-            if (trans)
+            if (trans != null)
             {
                 var guid = handler.Session.Player.GameObjectManager.GenerateCreatureSpawnId();
                 var data = handler.Session.Player.GameObjectManager.NewOrExistCreatureData(guid);
@@ -659,10 +659,10 @@ internal class NPCCommands
 
             var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(id, map, chr.Location);
 
-            if (!creature)
+            if (creature == null)
                 return false;
 
-            PhasingHandler.InheritPhaseShift(creature, chr);
+            handler.ClassFactory.Resolve<PhasingHandler>().InheritPhaseShift(creature, chr);
 
             creature.SaveToDB(map.Id,
                               new List<Difficulty>
@@ -677,7 +677,7 @@ internal class NPCCommands
             creature.CleanupsBeforeDelete();
             creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGUID, map, true, true);
 
-            if (!creature)
+            if (creature == null)
                 return false;
 
             handler.Session.Player.GameObjectManager.AddCreatureToGrid(handler.Session.Player.GameObjectManager.GetCreatureData(dbGUID));
@@ -690,7 +690,7 @@ internal class NPCCommands
         {
             var creature = handler.SelectedCreature;
 
-            if (!creature || creature.SpawnId == 0)
+            if (creature == null || creature.SpawnId == 0)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -790,7 +790,7 @@ internal class NPCCommands
 
             var vendor = handler.SelectedCreature;
 
-            if (!vendor)
+            if (vendor == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -848,7 +848,7 @@ internal class NPCCommands
             {
                 var creature = handler.SelectedCreature;
 
-                if (!creature || creature.IsPet || creature.IsTotem)
+                if (creature == null || creature.IsPet || creature.IsTotem)
                 {
                     handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -885,7 +885,7 @@ internal class NPCCommands
         {
             var vendor = handler.SelectedCreature;
 
-            if (!vendor || !vendor.IsVendor)
+            if (vendor == null || !vendor.IsVendor)
             {
                 handler.SendSysMessage(CypherStrings.CommandVendorselection);
 
@@ -918,7 +918,7 @@ internal class NPCCommands
             var player = handler.Session.Player;
             var creature = handler.SelectedCreature;
 
-            if (!creature)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -941,7 +941,7 @@ internal class NPCCommands
             var player = handler.Player;
             var creature = handler.SelectedCreature;
 
-            if (!creature)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1000,7 +1000,7 @@ internal class NPCCommands
         {
             var creature = handler.SelectedCreature;
 
-            if (!creature)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1022,7 +1022,7 @@ internal class NPCCommands
 
             var unit = handler.SelectedUnit;
 
-            if (!unit || !unit.IsTypeId(TypeId.Unit))
+            if (unit == null || !unit.IsTypeId(TypeId.Unit))
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1051,7 +1051,7 @@ internal class NPCCommands
 
             var creature = handler.SelectedCreature;
 
-            if (!creature)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1085,7 +1085,7 @@ internal class NPCCommands
         {
             var creature = handler.SelectedCreature;
 
-            if (!creature)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1117,7 +1117,7 @@ internal class NPCCommands
 
             var creature = handler.SelectedCreature;
 
-            if (!creature || creature.IsPet)
+            if (creature == null || creature.IsPet)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1137,7 +1137,7 @@ internal class NPCCommands
         {
             var creature = handler.SelectedCreature;
 
-            if (!creature)
+            if (creature != null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1168,7 +1168,7 @@ internal class NPCCommands
         {
             var creature = handler.SelectedCreature;
 
-            if (!creature || creature.IsPet)
+            if (creature == null || creature.IsPet)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
@@ -1209,7 +1209,7 @@ internal class NPCCommands
             {
                 creature = handler.SelectedCreature;
 
-                if (!creature || creature.IsPet)
+                if (creature == null || creature.IsPet)
                     return false;
 
                 lowguid = creature.SpawnId;
@@ -1263,7 +1263,7 @@ internal class NPCCommands
                     return false;
             }
 
-            if (creature)
+            if (creature != null)
             {
                 // update movement type
                 if (!doNotDelete)
@@ -1301,15 +1301,16 @@ internal class NPCCommands
 
             var creature = handler.SelectedCreature;
 
-            if (!creature || creature.IsPet)
+            if (creature == null || creature.IsPet)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
                 return false;
             }
 
-            PhasingHandler.ResetPhaseShift(creature);
-            PhasingHandler.AddPhase(creature, phaseId, true);
+            PhasingHandler phasingHandler = handler.ClassFactory.Resolve<PhasingHandler>();
+            phasingHandler.ResetPhaseShift(creature);
+            phasingHandler.AddPhase(creature, phaseId, true);
             creature.Location.DBPhase = (int)phaseId;
 
             creature.SaveToDB();
@@ -1327,15 +1328,16 @@ internal class NPCCommands
 
             var creature = handler.SelectedCreature;
 
-            if (!creature || creature.IsPet)
+            if (creature == null || creature.IsPet)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
                 return false;
             }
 
-            PhasingHandler.ResetPhaseShift(creature);
-            PhasingHandler.AddPhaseGroup(creature, (uint)phaseGroupId, true);
+            PhasingHandler phasingHandler = handler.ClassFactory.Resolve<PhasingHandler>();
+            phasingHandler.ResetPhaseShift(creature);
+            phasingHandler.AddPhaseGroup(creature, (uint)phaseGroupId, true);
             creature.Location.DBPhase = -phaseGroupId;
 
             creature.SaveToDB();
@@ -1348,7 +1350,7 @@ internal class NPCCommands
         {
             var creature = handler.SelectedCreature;
 
-            if (!creature)
+            if (creature == null)
                 return false;
 
             var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
@@ -1381,7 +1383,7 @@ internal class NPCCommands
             var creature = handler.SelectedCreature;
             ulong guidLow;
 
-            if (creature)
+            if (creature != null)
                 guidLow = creature.SpawnId;
             else
                 return false;

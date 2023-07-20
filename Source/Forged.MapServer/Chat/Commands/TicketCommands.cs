@@ -30,7 +30,7 @@ internal class TicketCommands
         // Console can override though
         var player = handler.Session?.Player;
 
-        if (player && ticket.IsAssignedNotTo(player.GUID))
+        if (player != null && ticket.IsAssignedNotTo(player.GUID))
         {
             handler.SendSysMessage(CypherStrings.CommandTicketcannotclose, ticket.Id);
 
@@ -39,14 +39,14 @@ internal class TicketCommands
 
         var closedByGuid = ObjectGuid.Empty;
 
-        if (player)
+        if (player != null)
             closedByGuid = player.GUID;
         else
             closedByGuid.SetRawValue(0, ulong.MaxValue);
 
         handler.ClassFactory.Resolve<SupportManager>().CloseTicket<T>(ticket.Id, closedByGuid);
 
-        var msg = ticket.FormatViewMessageString(handler, player ? player.GetName() : "Console", null, null, null);
+        var msg = ticket.FormatViewMessageString(handler, player != null ? player.GetName() : "Console", null, null, null);
         handler.SendGlobalGMSysMessage(msg);
 
         return true;
@@ -77,7 +77,7 @@ internal class TicketCommands
         //! Console excluded
         var player = handler.Session?.Player;
 
-        if (player && ticket.IsAssignedNotTo(player.GUID))
+        if (player != null && ticket.IsAssignedNotTo(player.GUID))
         {
             handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.Id);
 
@@ -89,7 +89,7 @@ internal class TicketCommands
         handler.ClassFactory.Resolve<SupportManager>().UpdateLastChange();
 
         var msg = ticket.FormatViewMessageString(handler, null, ticket.AssignedToName, null, null);
-        msg += string.Format(handler.GetCypherString(CypherStrings.CommandTicketlistaddcomment), player ? player.GetName() : "Console", comment);
+        msg += string.Format(handler.GetCypherString(CypherStrings.CommandTicketlistaddcomment), player != null ? player.GetName() : "Console", comment);
         handler.SendGlobalGMSysMessage(msg);
 
         return true;
@@ -164,7 +164,7 @@ internal class TicketCommands
         if (targetName.IsEmpty())
             return false;
 
-        if (!GameObjectManager.NormalizePlayerName(ref targetName))
+        if (!handler.ClassFactory.Resolve<GameObjectManager>().NormalizePlayerName(ref targetName))
             return false;
 
         var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
@@ -199,7 +199,7 @@ internal class TicketCommands
         //! Console can override though
         var player = handler.Session?.Player;
 
-        if (player && ticket.IsAssignedNotTo(player.GUID))
+        if (player != null && ticket.IsAssignedNotTo(player.GUID))
         {
             handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.Id);
 
@@ -256,7 +256,7 @@ internal class TicketCommands
         AccountTypes security;
         var assignedPlayer = ticket.AssignedPlayer;
 
-        if (assignedPlayer && assignedPlayer.Location.IsInWorld)
+        if (assignedPlayer != null && assignedPlayer.Location.IsInWorld)
             security = assignedPlayer.Session.Security;
         else
         {

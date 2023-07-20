@@ -20,17 +20,19 @@ public class SocialManager
     public const int IGNORE_LIMIT = 50;
     private readonly IConfiguration _configuration;
     private readonly ObjectAccessor _objectAccessor;
+    private readonly CharacterDatabase _characterDatabase;
     private readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
 
-    public SocialManager(ObjectAccessor objectAccessor, IConfiguration configuration)
+    public SocialManager(ObjectAccessor objectAccessor, IConfiguration configuration, CharacterDatabase characterDatabase)
     {
         _objectAccessor = objectAccessor;
         _configuration = configuration;
+        _characterDatabase = characterDatabase;
     }
 
     public void GetFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo)
     {
-        if (!player)
+        if (player == null)
             return;
 
         friendInfo.Status = FriendStatus.Offline;
@@ -40,7 +42,7 @@ public class SocialManager
 
         var target = _objectAccessor.FindPlayer(friendGuid);
 
-        if (!target)
+        if (target == null)
             return;
 
         if (player.Social.PlayerSocialMap.TryGetValue(friendGuid, out var playerFriendInfo))
@@ -79,7 +81,7 @@ public class SocialManager
 
     public PlayerSocial LoadFromDB(SQLResult result, ObjectGuid guid)
     {
-        PlayerSocial social = new();
+        PlayerSocial social = new(_characterDatabase, this);
         social.SetPlayerGUID(guid);
 
         if (!result.IsEmpty())
@@ -121,7 +123,7 @@ public class SocialManager
 
     private void BroadcastToFriendListers(Player player, ServerPacket packet)
     {
-        if (!player)
+        if (player == null)
             return;
 
         var gmSecLevel = (AccountTypes)_configuration.GetDefaultValue("GM:InWhoList:Level", (int)AccountTypes.Administrator);
@@ -134,7 +136,7 @@ public class SocialManager
             {
                 var target = _objectAccessor.FindPlayer(pair.Key);
 
-                if (!target || !target.Location.IsInWorld)
+                if (target == null || !target.Location.IsInWorld)
                     continue;
 
                 var session = target.Session;

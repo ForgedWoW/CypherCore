@@ -14,7 +14,16 @@ public class PlayerSocial
 {
     public List<ObjectGuid> IgnoredAccounts = new();
     public Dictionary<ObjectGuid, FriendInfo> PlayerSocialMap = new();
+
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly SocialManager _socialManager;
     private ObjectGuid _mPlayerGUID;
+
+    public PlayerSocial(CharacterDatabase characterDatabase, SocialManager socialManager)
+    {
+        _characterDatabase = characterDatabase;
+        _socialManager = socialManager;
+    }
 
     public bool AddToSocialList(ObjectGuid friendGuid, ObjectGuid accountGuid, SocialFlag flag)
     {
@@ -27,11 +36,11 @@ public class PlayerSocial
             friendInfo.Flags |= flag;
             friendInfo.WowAccountGuid = accountGuid;
 
-            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
             stmt.AddValue(0, (byte)friendInfo.Flags);
             stmt.AddValue(1, GetPlayerGUID().Counter);
             stmt.AddValue(2, friendGuid.Counter);
-            CharacterDatabase.Execute(stmt);
+            _characterDatabase.Execute(stmt);
         }
         else
         {
@@ -40,11 +49,11 @@ public class PlayerSocial
             fi.WowAccountGuid = accountGuid;
             PlayerSocialMap[friendGuid] = fi;
 
-            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_SOCIAL);
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_SOCIAL);
             stmt.AddValue(0, GetPlayerGUID().Counter);
             stmt.AddValue(1, friendGuid.Counter);
             stmt.AddValue(2, (byte)flag);
-            CharacterDatabase.Execute(stmt);
+            _characterDatabase.Execute(stmt);
         }
 
         if (flag.HasFlag(SocialFlag.Ignored))
@@ -72,10 +81,10 @@ public class PlayerSocial
 
         if (friendInfo.Flags == 0)
         {
-            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_SOCIAL);
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_SOCIAL);
             stmt.AddValue(0, GetPlayerGUID().Counter);
             stmt.AddValue(1, friendGuid.Counter);
-            CharacterDatabase.Execute(stmt);
+            _characterDatabase.Execute(stmt);
 
             var accountGuid = friendInfo.WowAccountGuid;
 
@@ -91,17 +100,17 @@ public class PlayerSocial
         }
         else
         {
-            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
             stmt.AddValue(0, (byte)friendInfo.Flags);
             stmt.AddValue(1, GetPlayerGUID().Counter);
             stmt.AddValue(2, friendGuid.Counter);
-            CharacterDatabase.Execute(stmt);
+            _characterDatabase.Execute(stmt);
         }
     }
 
     public void SendSocialList(Player player, SocialFlag flags)
     {
-        if (!player)
+        if (player == null)
             return;
 
         uint friendsCount = 0;
@@ -129,7 +138,7 @@ public class PlayerSocial
                 if (++ignoredCount > SocialManager.IGNORE_LIMIT)
                     continue;
 
-            SocialManager.GetFriendInfo(player, v.Key, v.Value);
+            _socialManager.GetFriendInfo(player, v.Key, v.Value);
 
             contactList.Contacts.Add(new ContactInfo(v.Key, v.Value));
         }
@@ -142,11 +151,11 @@ public class PlayerSocial
         if (!PlayerSocialMap.ContainsKey(friendGuid)) // not exist
             return;
 
-        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_NOTE);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_NOTE);
         stmt.AddValue(0, note);
         stmt.AddValue(1, GetPlayerGUID().Counter);
         stmt.AddValue(2, friendGuid.Counter);
-        CharacterDatabase.Execute(stmt);
+        _characterDatabase.Execute(stmt);
 
         PlayerSocialMap[friendGuid].Note = note;
     }

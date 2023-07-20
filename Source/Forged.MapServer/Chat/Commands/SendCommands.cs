@@ -88,7 +88,7 @@ internal class SendCommands
 
         foreach (var pair in items)
         {
-            var item = ItemFactory.CreateItem(pair.Key, pair.Value, ItemContext.None, handler.Session?.Player);
+            var item = handler.ClassFactory.Resolve<ItemFactory>().CreateItem(pair.Key, pair.Value, ItemContext.None, handler.Session?.Player);
 
             if (item == null)
                 continue;

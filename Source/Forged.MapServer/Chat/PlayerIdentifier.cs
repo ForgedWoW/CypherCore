@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Cache;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
@@ -89,9 +90,9 @@ internal class PlayerIdentifier
         {
             _guid = ObjectGuid.Create(HighGuid.Player, tempVal);
 
-            if ((_player = Global.ObjAccessor.FindPlayerByLowGUID(_guid.Counter)) != null)
+            if ((_player = _player.ClassFactory.Resolve<ObjectAccessor>().FindPlayerByLowGUID(_guid.Counter)) != null)
                 _name = _player.GetName();
-            else if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(_guid, out _name))
+            else if (!_player.ClassFactory.Resolve<CharacterCache>().GetCharacterNameByGuid(_guid, out _name))
                 return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharGuidNoExist, _guid.ToString()));
 
             return next;
@@ -99,12 +100,12 @@ internal class PlayerIdentifier
 
         _name = tempVal;
 
-        if (!GameObjectManager.NormalizePlayerName(ref _name))
+        if (!_player.ClassFactory.Resolve<GameObjectManager>().NormalizePlayerName(ref _name))
             return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameInvalid, _name));
 
-        if ((_player = Global.ObjAccessor.FindPlayerByName(_name)) != null)
+        if ((_player = _player.ClassFactory.Resolve<ObjectAccessor>().FindPlayerByName(_name)) != null)
             _guid = _player.GUID;
-        else if ((_guid = Global.CharacterCacheStorage.GetCharacterGuidByName(_name)).IsEmpty)
+        else if ((_guid = _player.ClassFactory.Resolve<CharacterCache>().GetCharacterGuidByName(_name)).IsEmpty)
             return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameNoExist, _name));
 
         return next;

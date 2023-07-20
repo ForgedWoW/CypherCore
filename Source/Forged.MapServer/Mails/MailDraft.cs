@@ -25,10 +25,11 @@ public class MailDraft
     private readonly CharacterDatabase _characterDatabase;
     private readonly CharacterCache _characterCache;
     private readonly LootFactory _lootFactory;
+    private readonly ItemFactory _itemFactory;
     private bool _mailTemplateItemsNeed;
 
     public MailDraft(uint mailTemplateId, bool needItems, ObjectAccessor objectAccessor, GameObjectManager objectManager, IConfiguration configuration, CharacterDatabase characterDatabase,
-                     CharacterCache characterCache, LootFactory lootFactory)
+                     CharacterCache characterCache, LootFactory lootFactory, ItemFactory itemFactory)
     {
         MailTemplateId = mailTemplateId;
         _mailTemplateItemsNeed = needItems;
@@ -38,10 +39,11 @@ public class MailDraft
         _characterDatabase = characterDatabase;
         _characterCache = characterCache;
         _lootFactory = lootFactory;
+        _itemFactory = itemFactory;
     }
 
     public MailDraft(string subject, string body, ObjectAccessor objectAccessor, GameObjectManager objectManager, IConfiguration configuration, CharacterDatabase characterDatabase
-                     , CharacterCache characterCache, LootFactory lootFactory)
+                     , CharacterCache characterCache, LootFactory lootFactory, ItemFactory itemFactory)
     {
         _mailTemplateItemsNeed = false;
         Subject = subject;
@@ -52,6 +54,7 @@ public class MailDraft
         _characterDatabase = characterDatabase;
         _characterCache = characterCache;
         _lootFactory = lootFactory;
+        _itemFactory = itemFactory;
     }
 
     public string Body { get; }
@@ -257,7 +260,7 @@ public class MailDraft
             if (lootitem == null)
                 continue;
 
-            var item = ItemFactory.CreateItem(lootitem.Itemid, lootitem.Count, lootitem.Context, receiver);
+            var item = _itemFactory.CreateItem(lootitem.Itemid, lootitem.Count, lootitem.Context, receiver);
 
             if (item == null)
                 continue;
