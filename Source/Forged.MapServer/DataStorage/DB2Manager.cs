@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.B;
 using Forged.MapServer.DataStorage.Structs.C;
@@ -57,6 +56,7 @@ public class DB2Manager
     private readonly Dictionary<uint, MultiMap<uint, uint>> _chrCustomizationRequiredChoices = new();
     private readonly Dictionary<Tuple<byte, byte>, ChrModelRecord> _chrModelsByRaceAndGender = new();
     private readonly ChrSpecializationRecord[][] _chrSpecializationsByIndex = new ChrSpecializationRecord[(int)PlayerClass.Max + 1][];
+    private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly MultiMap<uint, CurrencyContainerRecord> _currencyContainers = new();
     private readonly MultiMap<uint, CurvePointRecord> _curvePoints = new();
@@ -126,13 +126,13 @@ public class DB2Manager
     private readonly List<int> _uiMapPhases = new();
     private readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
     private List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
-    private CliDB _cliDB;
 
-    public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager, IConfiguration configuration)
+    public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager, IConfiguration configuration, CliDB cliDB)
     {
         _hotfixDatabase = hotfixDatabase;
         _gameObjectManager = gameObjectManager;
         _configuration = configuration;
+        _cliDB = cliDB;
 
         for (uint i = 0; i < (int)PlayerClass.Max; ++i)
         {
@@ -150,15 +150,12 @@ public class DB2Manager
             _hotfixBlob[i] = new Dictionary<(uint tableHas, int recordId), byte[]>();
             _hotfixOptionalData[i] = new MultiMap<(uint tableHas, int recordId), HotfixOptionalData>();
         }
+
+        LoadStores();
+        InitializeTaxiNodes();
     }
 
-    internal Dictionary<uint, IDB2Storage> Storage { get; } = new();
-
-    public void AddDB2<T>(uint tableHash, DB6Storage<T> store) where T : new()
-    {
-        lock (Storage)
-            Storage[tableHash] = store;
-    }
+    private delegate bool AllowedHotfixOptionalData(byte[] data);
 
     public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, PlayerClass unitClass)
     {
@@ -169,9 +166,9 @@ public class DB2Manager
         {
             PlayerClass.Warrior => _cliDB.ExpectedStatModStorage.LookupByKey(4u),
             PlayerClass.Paladin => _cliDB.ExpectedStatModStorage.LookupByKey(2u),
-            PlayerClass.Rogue   => _cliDB.ExpectedStatModStorage.LookupByKey(3u),
-            PlayerClass.Mage    => _cliDB.ExpectedStatModStorage.LookupByKey(1u),
-            _                   => null
+            PlayerClass.Rogue => _cliDB.ExpectedStatModStorage.LookupByKey(3u),
+            PlayerClass.Mage => _cliDB.ExpectedStatModStorage.LookupByKey(1u),
+            _ => null
         };
 
         var contentTuningMods = _expectedStatModsByContentTuning.LookupByKey(contentTuningId);
@@ -189,6 +186,7 @@ public class DB2Manager
                     value *= classMod.CreatureHealthMod;
 
                 break;
+
             case ExpectedStatType.PlayerHealth:
                 value = expectedStatRecord.PlayerHealth;
 
@@ -199,6 +197,7 @@ public class DB2Manager
                     value *= classMod.PlayerHealthMod;
 
                 break;
+
             case ExpectedStatType.CreatureAutoAttackDps:
                 value = expectedStatRecord.CreatureAutoAttackDps;
 
@@ -209,6 +208,7 @@ public class DB2Manager
                     value *= classMod.CreatureAutoAttackDPSMod;
 
                 break;
+
             case ExpectedStatType.CreatureArmor:
                 value = expectedStatRecord.CreatureArmor;
 
@@ -219,6 +219,7 @@ public class DB2Manager
                     value *= classMod.CreatureArmorMod;
 
                 break;
+
             case ExpectedStatType.PlayerMana:
                 value = expectedStatRecord.PlayerMana;
 
@@ -229,6 +230,7 @@ public class DB2Manager
                     value *= classMod.PlayerManaMod;
 
                 break;
+
             case ExpectedStatType.PlayerPrimaryStat:
                 value = expectedStatRecord.PlayerPrimaryStat;
 
@@ -239,6 +241,7 @@ public class DB2Manager
                     value *= classMod.PlayerPrimaryStatMod;
 
                 break;
+
             case ExpectedStatType.PlayerSecondaryStat:
                 value = expectedStatRecord.PlayerSecondaryStat;
 
@@ -249,6 +252,7 @@ public class DB2Manager
                     value *= classMod.PlayerSecondaryStatMod;
 
                 break;
+
             case ExpectedStatType.ArmorConstant:
                 value = expectedStatRecord.ArmorConstant;
 
@@ -259,8 +263,10 @@ public class DB2Manager
                     value *= classMod.ArmorConstantMod;
 
                 break;
+
             case ExpectedStatType.None:
                 break;
+
             case ExpectedStatType.CreatureSpellDamage:
                 value = expectedStatRecord.CreatureSpellDamage;
 
@@ -424,9 +430,9 @@ public class DB2Manager
 
         int GetLevelAdjustment(ContentTuningCalcType type) => type switch
         {
-            ContentTuningCalcType.PlusOne                  => 1,
+            ContentTuningCalcType.PlusOne => 1,
             ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)),
-            _                                              => 0
+            _ => 0
         };
 
         ContentTuningLevels levels = new()
@@ -705,10 +711,12 @@ public class DB2Manager
                         bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListHead);
 
                         break;
+
                     case InventoryType.Shoulders:
                         bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListShoulders);
 
                         break;
+
                     case InventoryType.Chest:
                     case InventoryType.Robe:
                         bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListChest);
@@ -1004,7 +1012,7 @@ public class DB2Manager
             {
                 PlayerClass.Deathknight => numTalentsAtLevel.NumTalentsDeathKnight,
                 PlayerClass.DemonHunter => numTalentsAtLevel.NumTalentsDemonHunter,
-                _                       => numTalentsAtLevel.NumTalents,
+                _ => numTalentsAtLevel.NumTalents,
             };
 
         return 0;
@@ -1124,7 +1132,7 @@ public class DB2Manager
             {
                 PlayerClass.Deathknight => _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired,
                 PlayerClass.DemonHunter => _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired,
-                _                       => _pvpTalentSlotUnlock[slot].LevelRequired
+                _ => _pvpTalentSlotUnlock[slot].LevelRequired
             };
 
         return 0;
@@ -1198,11 +1206,6 @@ public class DB2Manager
         return _spellVisualMissilesBySet.LookupByKey(spellVisualMissileSetId);
     }
 
-    public IDB2Storage GetStorage(uint type)
-    {
-        return Storage.LookupByKey(type);
-    }
-
     public List<TalentRecord> GetTalentsByPosition(PlayerClass playerClass, uint tier, uint column)
     {
         return _talentsByPosition[(int)playerClass][tier][column];
@@ -1213,10 +1216,7 @@ public class DB2Manager
         if (_emoteTextSounds.TryGetValue(Tuple.Create(emote, (byte)race, (byte)gender, (byte)playerClass), out var emoteTextSound))
             return emoteTextSound;
 
-        if (_emoteTextSounds.TryGetValue(Tuple.Create(emote, (byte)race, (byte)gender, (byte)0), out emoteTextSound))
-            return emoteTextSound;
-
-        return null;
+        return _emoteTextSounds.TryGetValue(Tuple.Create(emote, (byte)race, (byte)gender, (byte)0), out emoteTextSound) ? emoteTextSound : null;
     }
 
     public TransmogIllusionRecord GetTransmogIllusionForEnchantment(uint spellItemEnchantmentId)
@@ -1373,7 +1373,7 @@ public class DB2Manager
             var recordId = result.Read<int>(1);
             var localeName = result.Read<string>(2);
 
-            if (Storage.TryGetValue(tableHash, out var storeItr))
+            if (_cliDB.Storage.TryGetValue(tableHash, out var storeItr))
             {
                 Log.Logger.Warning($"Table hash 0x{tableHash:X}({tableHash}) points to a loaded DB2 store {storeItr.GetName()} {recordId}:{localeName}, fill related table instead of hotfix_blob");
 
@@ -1424,7 +1424,7 @@ public class DB2Manager
             var recordId = result.Read<int>(3);
             var status = (HotfixRecord.Status)result.Read<byte>(4);
 
-            if (status == HotfixRecord.Status.Valid && !Storage.ContainsKey(tableHash))
+            if (status == HotfixRecord.Status.Valid && !_cliDB.Storage.ContainsKey(tableHash))
                 if (!_hotfixBlob.Any(p => p.ContainsKey((tableHash, recordId))))
                 {
                     Log.Logger.Error($"Table `hotfix_data` references unknown DB2 store by hash 0x{tableHash:X} and has no reference to `hotfix_blob` in hotfix id {id} with RecordID: {recordId}");
@@ -1451,7 +1451,7 @@ public class DB2Manager
         foreach (var itr in deletedRecords)
             if (itr.Value)
             {
-                var store = Storage.LookupByKey(itr.Key.tableHash);
+                var store = _cliDB.Storage.LookupByKey(itr.Key.tableHash);
 
                 store?.EraseRecord((uint)itr.Key.recordId);
             }
@@ -1490,7 +1490,7 @@ public class DB2Manager
 
             var recordId = result.Read<uint>(1);
 
-            if (!Storage.ContainsKey(tableHash))
+            if (!_cliDB.Storage.ContainsKey(tableHash))
             {
                 Log.Logger.Error($"Table `hotfix_optional_data` references unknown DB2 store by hash 0x{tableHash:X} with RecordID: {recordId}");
 
@@ -1540,10 +1540,8 @@ public class DB2Manager
         Log.Logger.Information($"Loaded {hotfixOptionalDataCount} hotfix optional data records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
-    public void LoadStores(CliDB cliDB)
+    public void LoadStores()
     {
-        _cliDB = cliDB;
-
         foreach (var areaGroupMember in _cliDB.AreaGroupMemberStorage.Values)
             _areaGroupMembers.Add(areaGroupMember.AreaGroupID, areaGroupMember.AreaID);
 
@@ -1625,7 +1623,6 @@ public class DB2Manager
 
         foreach (var broadcastTextDuration in _cliDB.BroadcastTextDurationStorage.Values)
             _broadcastTextDurations[(broadcastTextDuration.BroadcastTextID, (CascLocaleBit)broadcastTextDuration.Locale)] = broadcastTextDuration.Duration;
-
 
         foreach (var uiDisplay in _cliDB.ChrClassUIDisplayStorage.Values)
             _uiDisplayByClass[uiDisplay.ChrClassesID] = uiDisplay;
@@ -1916,7 +1913,6 @@ public class DB2Manager
             for (byte i = 0; i < PlayerConst.MaxPvpTalentSlots; ++i)
                 if (Convert.ToBoolean(talentUnlock.Slot & (1 << i)))
                     _pvpTalentSlotUnlock[i] = talentUnlock;
-
 
         foreach (var poiBlob in _cliDB.QuestPOIBlobStorage)
             QuestPOIBlobEntriesByMapId.Add(poiBlob.Value.UiMapID, poiBlob.Value);
@@ -2361,16 +2357,16 @@ public class DB2Manager
 
         return stat switch
         {
-            ExpectedStatType.CreatureHealth        => mod * expectedStatMod.CreatureHealthMod,
-            ExpectedStatType.PlayerHealth          => mod * expectedStatMod.PlayerHealthMod,
+            ExpectedStatType.CreatureHealth => mod * expectedStatMod.CreatureHealthMod,
+            ExpectedStatType.PlayerHealth => mod * expectedStatMod.PlayerHealthMod,
             ExpectedStatType.CreatureAutoAttackDps => mod * expectedStatMod.CreatureAutoAttackDPSMod,
-            ExpectedStatType.CreatureArmor         => mod * expectedStatMod.CreatureArmorMod,
-            ExpectedStatType.PlayerMana            => mod * expectedStatMod.PlayerManaMod,
-            ExpectedStatType.PlayerPrimaryStat     => mod * expectedStatMod.PlayerPrimaryStatMod,
-            ExpectedStatType.PlayerSecondaryStat   => mod * expectedStatMod.PlayerSecondaryStatMod,
-            ExpectedStatType.ArmorConstant         => mod * expectedStatMod.ArmorConstantMod,
-            ExpectedStatType.CreatureSpellDamage   => mod * expectedStatMod.CreatureSpellDamageMod,
-            _                                      => mod
+            ExpectedStatType.CreatureArmor => mod * expectedStatMod.CreatureArmorMod,
+            ExpectedStatType.PlayerMana => mod * expectedStatMod.PlayerManaMod,
+            ExpectedStatType.PlayerPrimaryStat => mod * expectedStatMod.PlayerPrimaryStatMod,
+            ExpectedStatType.PlayerSecondaryStat => mod * expectedStatMod.PlayerSecondaryStatMod,
+            ExpectedStatType.ArmorConstant => mod * expectedStatMod.ArmorConstantMod,
+            ExpectedStatType.CreatureSpellDamage => mod * expectedStatMod.CreatureSpellDamageMod,
+            _ => mod
         };
 
         // int32 MythicPlusSubSeason = 0;
@@ -2412,6 +2408,33 @@ public class DB2Manager
             }
 
         return nearestMapAssignment.UiMapAssignment;
+    }
+
+    private void InitializeTaxiNodes()
+    {
+        foreach (var node in _cliDB.TaxiNodesStorage.Values)
+        {
+            if (!node.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde))
+                continue;
+
+            // valid taxi network node
+            var field = (node.Id - 1) / 8;
+            var submask = (byte)(1 << (int)((node.Id - 1) % 8));
+
+            _cliDB.TaxiNodesMask[field] |= submask;
+
+            if (node.Flags.HasAnyFlag(TaxiNodeFlags.Horde))
+                _cliDB.HordeTaxiNodesMask[field] |= submask;
+
+            if (node.Flags.HasAnyFlag(TaxiNodeFlags.Alliance))
+                _cliDB.AllianceTaxiNodesMask[field] |= submask;
+
+            if (!GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Adventure, false, out int uiMapId))
+                GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId);
+
+            if (uiMapId is 985 or 986)
+                _cliDB.OldContinentsNodesMask[field] |= submask;
+        }
     }
 
     private void LoadAzeriteEmpoweredItemUnlockMappings(MultiMap<uint, AzeriteUnlockMappingRecord> azeriteUnlockMappingsBySet, uint itemId)
@@ -2462,6 +2485,4 @@ public class DB2Manager
                 VisitItemBonusTree(bonusTreeNode.ChildItemBonusTreeID, true, visitor);
         }
     }
-
-    private delegate bool AllowedHotfixOptionalData(byte[] data);
 }

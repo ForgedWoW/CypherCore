@@ -17,18 +17,20 @@ namespace Forged.MapServer.OpCodeHandlers;
 public class HotfixHandler : IWorldSessionHandler
 {
     private readonly DB2Manager _db2Manager;
+    private readonly CliDB _cliDB;
     private readonly WorldSession _session;
 
-    public HotfixHandler(WorldSession session, DB2Manager db2Manager)
+    public HotfixHandler(WorldSession session, DB2Manager db2Manager, CliDB cliDB)
     {
         _session = session;
         _db2Manager = db2Manager;
+        _cliDB = cliDB;
     }
 
     [WorldPacketHandler(ClientOpcodes.DbQueryBulk, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
     private void HandleDBQueryBulk(DBQueryBulk dbQuery)
     {
-        var store = _db2Manager.GetStorage(dbQuery.TableHash);
+        _cliDB.Storage.TryGetValue(dbQuery.TableHash, out var store);
 
         foreach (var record in dbQuery.Queries)
         {
@@ -80,9 +82,7 @@ public class HotfixHandler : IWorldSessionHandler
 
                     if (hotfixRecord.HotfixStatus == HotfixRecord.Status.Valid)
                     {
-                        var storage = _db2Manager.GetStorage(hotfixRecord.TableHash);
-
-                        if (storage != null && storage.HasRecord((uint)hotfixRecord.RecordID))
+                        if (_cliDB.Storage.TryGetValue(hotfixRecord.TableHash, out var storage) && storage.HasRecord((uint)hotfixRecord.RecordID))
                         {
                             var pos = hotfixQueryResponse.HotfixContent.GetSize();
                             storage.WriteRecord((uint)hotfixRecord.RecordID, _session.SessionDbcLocale, hotfixQueryResponse.HotfixContent);

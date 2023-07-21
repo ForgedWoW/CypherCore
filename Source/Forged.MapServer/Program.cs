@@ -71,6 +71,7 @@ using Forged.MapServer.Warden;
 using Forged.MapServer.World;
 using Framework;
 using Framework.Constants;
+using Framework.Database;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
@@ -79,7 +80,7 @@ var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", false, true);
 
-var configuration = configBuilder.Build();
+var configuration = configBuilder.Build() as IConfiguration;
 var dataPath = configuration.GetDefaultValue("DataDir", "./");
 
 IContainer container = null;
@@ -87,6 +88,17 @@ BitSet localeMask = null;
 var builder = new ContainerBuilder();
 builder.RegisterInstance(configuration).As<IConfiguration>().SingleInstance();
 
+var hotfixDatabase = new HotfixDatabase(configuration);
+var cliDB = new CliDB(hotfixDatabase); 
+localeMask = cliDB.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
+cliDB.LoadGameTables(dataPath, builder);
+
+builder.RegisterInstance(cliDB).As<CliDB>().SingleInstance();
+builder.RegisterInstance(hotfixDatabase).As<HotfixDatabase>().SingleInstance();
+
+builder.RegisterType<WorldDatabase>();
+builder.RegisterType<CharacterDatabase>();
+builder.RegisterType<HotfixDatabase>();
 builder.AddFramework();
 builder.AddCommon();
 RegisterServerTypes();
@@ -99,7 +111,6 @@ void InitializeServer()
 {
     // we initialize the server by resolving these.
     container.Resolve<ClassFactory>();
-    var cliDB = container.Resolve<CliDB>();
     var sm = container.Resolve<ScriptManager>();
     var gom = container.Resolve<GameObjectManager>();
     var worldManager = container.Resolve<WorldManager>();
@@ -149,13 +160,6 @@ void RegisterManagers()
 {
     // Managers
     builder.RegisterType<Realm>().SingleInstance();
-    builder.RegisterType<CliDB>().SingleInstance().OnActivated(c =>
-    {
-        c.Instance.Init(container.Resolve<DB2Manager>());
-        localeMask = c.Instance.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
-        c.Instance.LoadGameTables(dataPath, builder);
-        container = builder.Build();
-    });
     builder.RegisterType<M2Storage>().SingleInstance().OnActivated(a => a.Instance.LoadM2Cameras(dataPath));
     builder.RegisterType<TaxiPathGraph>().SingleInstance().OnActivated(a => a.Instance.Initialize());
     builder.RegisterType<AccountManager>().SingleInstance().OnActivated(d => d.Instance.LoadRBAC());

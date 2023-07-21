@@ -17,7 +17,7 @@ internal class DBReader
     public FieldMetaData[] FieldMeta;
     public WDCHeader Header;
     public Value32[][] PalletData;
-    public Dictionary<int, WDC3Row> Records = new();
+    public Dictionary<int, WDC4Row> Records = new();
     private const uint Wdc3FmtSig = 0x33434457; // WDC3
 
     public bool Load(Stream stream)
@@ -189,7 +189,7 @@ internal class DBReader
                 var recordIndex = i + previousRecordCount;
                 var recordOffset = recordIndex * Header.RecordSize - Header.RecordCount * Header.RecordSize;
 
-                var rec = new WDC3Row(this, bitReader, (int)recordOffset, Header.HasIndexTable() ? isIndexEmpty ? i : indexData[i] : -1, hasRef ? refId : -1, stringsTable);
+                var rec = new WDC4Row(this, bitReader, (int)recordOffset, Header.HasIndexTable() ? isIndexEmpty ? i : indexData[i] : -1, hasRef ? refId : -1, stringsTable);
                 Records.Add(rec.Id, rec);
             }
 

@@ -42,16 +42,18 @@ namespace Forged.MapServer.DataStorage;
 public class CliDB
 {
     private readonly HotfixDatabase _hotfixDatabase;
-    private DB2Manager _db2Manager;
 
     public CliDB(HotfixDatabase hotfixDatabase)
     {
         _hotfixDatabase = hotfixDatabase;
     }
 
-    public void Init(DB2Manager db2Manager)
+    public Dictionary<uint, IDB2Storage> Storage { get; } = new();
+
+    public void AddDB2<T>(uint tableHash, DB6Storage<T> store) where T : new()
     {
-        _db2Manager = db2Manager;
+        lock (Storage)
+            Storage[tableHash] = store;
     }
 
     public BitSet LoadStores(string dataPath, Locale defaultLocale, ContainerBuilder builder)
@@ -87,7 +89,7 @@ public class CliDB
             storage.LoadData($"{db2Path}/{defaultLocale}/{fileName}", fileName);
             storage.LoadHotfixData(availableDb2Locales, preparedStatement, preparedStatementLocale);
 
-            _db2Manager.AddDB2(storage.GetTableHash(), storage);
+            AddDB2(storage.GetTableHash(), storage);
             loadedFileCount++;
 
             return storage;
@@ -426,12 +428,11 @@ public class CliDB
 
         taskManager.Complete();
         taskManager.Completion.Wait();
-
-        _db2Manager.LoadStores(this);
+        
 #if DEBUG
         Log.Logger.Information("DB2  TableHash");
 
-        foreach (var kvp in _db2Manager.Storage)
+        foreach (var kvp in Storage)
             if (kvp.Value != null)
                 Log.Logger.Information($"{kvp.Value.GetName()}    {kvp.Key}");
 #endif
@@ -460,30 +461,6 @@ public class CliDB
         OldContinentsNodesMask = new byte[taxiMaskSize];
         HordeTaxiNodesMask = new byte[taxiMaskSize];
         AllianceTaxiNodesMask = new byte[taxiMaskSize];
-
-        foreach (var node in TaxiNodesStorage.Values)
-        {
-            if (!node.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde))
-                continue;
-
-            // valid taxi network node
-            var field = (node.Id - 1) / 8;
-            var submask = (byte)(1 << (int)((node.Id - 1) % 8));
-
-            TaxiNodesMask[field] |= submask;
-
-            if (node.Flags.HasAnyFlag(TaxiNodeFlags.Horde))
-                HordeTaxiNodesMask[field] |= submask;
-
-            if (node.Flags.HasAnyFlag(TaxiNodeFlags.Alliance))
-                AllianceTaxiNodesMask[field] |= submask;
-
-            if (!_db2Manager.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Adventure, false, out int uiMapId))
-                _db2Manager.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId);
-
-            if (uiMapId is 985 or 986)
-                OldContinentsNodesMask[field] |= submask;
-        }
 
         // Check loaded DB2 files proper version
         if (!AreaTableStorage.ContainsKey(14618) ||       // last area added in 10.0.5 (47660)
