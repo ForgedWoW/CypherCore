@@ -18,7 +18,7 @@ public sealed record UiMapRecord
     public uint Id;
     public LocalizedString Name;
     public int ParentUiMapID;
-    public uint System;
+    public byte System;
     public UiMapType Type;
     public int VisibilityPlayerConditionID;
 

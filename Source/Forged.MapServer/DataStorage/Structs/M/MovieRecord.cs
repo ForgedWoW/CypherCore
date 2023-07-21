@@ -10,4 +10,5 @@ public sealed record MovieRecord
     public byte KeyID;
     public uint SubtitleFileDataID;
     public byte Volume;
+    public int SubtitleFileFormat;
 }

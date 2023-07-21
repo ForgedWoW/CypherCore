@@ -14,7 +14,7 @@ public sealed record VehicleRecord
     public float FacingLimitLeft;
     public float FacingLimitRight;
     public VehicleFlags Flags;
-    public byte FlagsB;
+    public int FlagsB;
     public uint Id;
     public int MissileTargetingID;
     public float MouseLookOffsetPitch;

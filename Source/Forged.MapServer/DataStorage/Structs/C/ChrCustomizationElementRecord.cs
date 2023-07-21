@@ -16,4 +16,5 @@ public sealed record ChrCustomizationElementRecord
     public int ChrCustomizationVoiceID;
     public uint Id;
     public int RelatedChrCustomizationChoiceID;
+    public int AnimKitID;
 }

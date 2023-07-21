@@ -456,7 +456,7 @@ public class CliDB
         foreach (var entry in TaxiPathNodeStorage.Values)
             TaxiPathNodesByPath[entry.PathID][entry.NodeIndex] = entry;
 
-        var taxiMaskSize = (TaxiNodesStorage.GetNumRows() - 1) / 8 + 1;
+        var taxiMaskSize = ((TaxiNodesStorage.GetNumRows() - 1) / (8 * 64) + 1) * 8;
         TaxiNodesMask = new byte[taxiMaskSize];
         OldContinentsNodesMask = new byte[taxiMaskSize];
         HordeTaxiNodesMask = new byte[taxiMaskSize];

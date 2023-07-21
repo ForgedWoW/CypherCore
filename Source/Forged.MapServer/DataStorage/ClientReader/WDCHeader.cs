@@ -31,11 +31,11 @@ public class WDCHeader
 
     public bool HasIndexTable()
     {
-        return Convert.ToBoolean(Flags & HeaderFlags.IndexMap);
+        return Convert.ToBoolean(Flags & HeaderFlags.Index);
     }
 
     public bool HasOffsetTable()
     {
-        return Convert.ToBoolean(Flags & HeaderFlags.OffsetMap);
+        return Convert.ToBoolean(Flags & HeaderFlags.Index);
     }
 }

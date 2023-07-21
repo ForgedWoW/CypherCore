@@ -13,4 +13,6 @@ public sealed record ItemBonusTreeNodeRecord
     public uint Id;
     public byte ItemContext;
     public uint ParentItemBonusTreeID;
+    public int Unknown1010_1;
+    public int Unknown1010_2;
 }

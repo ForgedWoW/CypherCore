@@ -16,5 +16,6 @@ public sealed record ChrCustomizationChoiceRecord
     public LocalizedString Name;
     public ushort SortOrder;
     public int[] SwatchColor = new int[2];
+    public int SoundKitID;
     public ushort UiOrderIndex;
 }
