@@ -2236,4 +2236,23 @@ public class Item : WorldObject
     {
         SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Expiration), expiration);
     }
+
+    public uint GetVisibleModifiedAppearanceId(Player owner) 
+    {
+        uint itemModifiedAppearanceId = GetModifier(ItemConst.AppearanceModifierSlotBySpec[owner.GetActiveTalentGroup()]);
+
+        if (itemModifiedAppearanceId == 0)
+            itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
+
+        if (itemModifiedAppearanceId == 0)
+        {
+            ItemModifiedAppearanceRecord itemModifiedAppearance = GetItemModifiedAppearance();
+
+            if (itemModifiedAppearance != null)
+                itemModifiedAppearanceId = itemModifiedAppearance.Id;
+        }
+
+
+        return itemModifiedAppearanceId;
+    }
 }
