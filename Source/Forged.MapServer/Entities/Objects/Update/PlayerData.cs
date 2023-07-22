@@ -13,17 +13,18 @@ public class PlayerData : BaseUpdateData<Player>
     public DynamicUpdateField<ArenaCooldown> ArenaCooldowns = new(0, 5);
     public UpdateField<byte> ArenaFaction = new(0, 19);
     public UpdateFieldArray<float> AvgItemLevel = new(6, 183, 184);
-    public UpdateField<int> CovenantID = new(32, 34);
-    public UpdateField<CTROptions> CtrOptions = new(32, 33);
+    public UpdateField<int> CovenantID = new(32, 35);
+    public UpdateField<CTROptions> CtrOptions = new(32, 34);
     public UpdateField<byte> CurrentBattlePetBreedQuality = new(0, 27);
     public UpdateField<uint> CurrentSpecID = new(0, 25);
     public DynamicUpdateField<ChrCustomizationChoice> Customizations = new(0, 3);
     public UpdateField<ObjectGuid> DuelArbiter = new(0, 7);
     public UpdateField<uint> DuelTeam = new(0, 20);
-    public UpdateField<DungeonScoreSummary> DungeonScore = new(32, 36);
+    public UpdateField<DungeonScoreSummary> DungeonScore = new(32, 37);
     public UpdateField<int> FakeInebriation = new(0, 23);
     public UpdateField<int> FieldB0 = new(0, 30);
     public UpdateField<int> FieldB4 = new(0, 31);
+    public UpdateField<int> CurrentBattlePetSpeciesID = new(32, 33);
     public UpdateField<uint> GuildDeleteDate = new(0, 13);
     public UpdateField<uint> GuildLevel = new(0, 14);
     public UpdateField<uint> GuildRankID = new(0, 12);
@@ -42,7 +43,7 @@ public class PlayerData : BaseUpdateData<Player>
     public UpdateField<byte> PvpTitle = new(0, 18);
     public UpdateFieldArray<QuestLog> QuestLog = new(125, 37, 38);
     public DynamicUpdateField<QuestLog> QuestSessionQuestLog = new(0, 4);
-    public UpdateField<int> SoulbindID = new(32, 35);
+    public UpdateField<int> SoulbindID = new(32, 36);
     public UpdateField<int> TaxiMountAnimKitID = new(0, 26);
     public UpdateField<uint> VirtualPlayerRealm = new(0, 24);
     public UpdateFieldArray<VisibleItem> VisibleItems = new(19, 163, 164);
@@ -94,6 +95,7 @@ public class PlayerData : BaseUpdateData<Player>
         ClearChangesMask(LogoutTime);
         ClearChangesMask(FieldB0);
         ClearChangesMask(FieldB4);
+        ClearChangesMask(CurrentBattlePetSpeciesID);
         ClearChangesMask(CtrOptions);
         ClearChangesMask(CovenantID);
         ClearChangesMask(SoulbindID);
@@ -161,6 +163,7 @@ public class PlayerData : BaseUpdateData<Player>
         data.WriteInt32(ArenaCooldowns.Size());
         data.WriteInt32(FieldB0);
         data.WriteInt32(FieldB4);
+        data.WriteInt32(CurrentBattlePetSpeciesID);
         ((CTROptions)CtrOptions).WriteCreate(data, owner, receiver);
         data.WriteInt32(CovenantID);
         data.WriteInt32(SoulbindID);
@@ -358,21 +361,24 @@ public class PlayerData : BaseUpdateData<Player>
         if (changesMask[32])
         {
             if (changesMask[33])
-                CtrOptions.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                data.WriteInt32(CurrentBattlePetSpeciesID);
 
             if (changesMask[34])
-                data.WriteInt32(CovenantID);
+                CtrOptions.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
 
             if (changesMask[35])
-                data.WriteInt32(SoulbindID);
+                data.WriteInt32(CovenantID);
 
             if (changesMask[36])
+                data.WriteInt32(SoulbindID);
+
+            if (changesMask[37])
                 DungeonScore.Value.Write(data);
         }
 
-        if (changesMask[37])
+        if (changesMask[38])
             for (var i = 0; i < 125; ++i)
-                if (changesMask[38 + i])
+                if (changesMask[39 + i])
                 {
                     if (noQuestLogChangesMask)
                         QuestLog[i].WriteCreate(data, owner, receiver);

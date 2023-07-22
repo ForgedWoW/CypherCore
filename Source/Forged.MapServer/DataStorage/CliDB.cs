@@ -161,6 +161,7 @@ public class CliDB
         taskManager.Post(() => builder.RegisterInstance(ChrSpecializationStorage = ReadDB2<ChrSpecializationRecord>("ChrSpecialization.db2", HotfixStatements.SEL_CHR_SPECIALIZATION, HotfixStatements.SEL_CHR_SPECIALIZATION_LOCALE)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(CinematicCameraStorage = ReadDB2<CinematicCameraRecord>("CinematicCamera.db2", HotfixStatements.SEL_CINEMATIC_CAMERA)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(CinematicSequencesStorage = ReadDB2<CinematicSequencesRecord>("CinematicSequences.db2", HotfixStatements.SEL_CINEMATIC_SEQUENCES)).SingleInstance());
+        taskManager.Post(() => builder.RegisterInstance(ConditionalChrModelStorage = ReadDB2<ConditionalChrModelRecord>("ConditionalChrModel.db2", HotfixStatements.SEL_CONDITIONAL_CHR_MODEL)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ContentTuningStorage = ReadDB2<ContentTuningRecord>("ContentTuning.db2", HotfixStatements.SEL_CONTENT_TUNING)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ContentTuningXExpectedStorage = ReadDB2<ContentTuningXExpectedRecord>("ContentTuningXExpected.db2", HotfixStatements.SEL_CONTENT_TUNING_X_EXPECTED)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ConversationLineStorage = ReadDB2<ConversationLineRecord>("ConversationLine.db2", HotfixStatements.SEL_CONVERSATION_LINE)).SingleInstance());
@@ -578,6 +579,7 @@ public class CliDB
     public DB6Storage<ChrSpecializationRecord> ChrSpecializationStorage { get; private set; }
     public DB6Storage<CinematicCameraRecord> CinematicCameraStorage { get; private set; }
     public DB6Storage<CinematicSequencesRecord> CinematicSequencesStorage { get; private set; }
+    public DB6Storage<ConditionalChrModelRecord> ConditionalChrModelStorage { get; private set; }
     public DB6Storage<ContentTuningRecord> ContentTuningStorage { get; private set; }
     public DB6Storage<ContentTuningXExpectedRecord> ContentTuningXExpectedStorage { get; private set; }
     public DB6Storage<ConversationLineRecord> ConversationLineStorage { get; private set; }

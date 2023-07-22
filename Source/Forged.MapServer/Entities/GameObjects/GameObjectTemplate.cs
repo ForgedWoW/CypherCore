@@ -861,7 +861,8 @@ public class GameObjectTemplate
 
     public struct duelflag
     {
-        public uint InteractRadiusOverride; // 0 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+        public uint InteractRadiusOverride;             // 0 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+        public uint Willthisduelgountilaplayerdies;     // 1 Will this duel go until a player dies?, enum { false, true, }; Default: false
     }
 
     public struct fishingnode

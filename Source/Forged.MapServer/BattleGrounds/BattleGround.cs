@@ -386,11 +386,11 @@ public class Battleground : ZoneScript, IDisposable
 
         pvpMatchInitialize.State = Status switch
         {
-            BattlegroundStatus.None => PVPMatchInitialize.MatchState.Inactive,
-            BattlegroundStatus.WaitQueue => PVPMatchInitialize.MatchState.Inactive,
-            BattlegroundStatus.WaitJoin => PVPMatchInitialize.MatchState.InProgress,
-            BattlegroundStatus.InProgress => PVPMatchInitialize.MatchState.InProgress,
-            BattlegroundStatus.WaitLeave => PVPMatchInitialize.MatchState.Complete,
+            BattlegroundStatus.None => PvpMatchState.Inactive,
+            BattlegroundStatus.WaitQueue => PvpMatchState.Inactive,
+            BattlegroundStatus.WaitJoin => PvpMatchState.Engaged,
+            BattlegroundStatus.InProgress => PvpMatchState.Engaged,
+            BattlegroundStatus.WaitLeave => PvpMatchState.Complete,
             _ => pvpMatchInitialize.State
         };
 
@@ -2033,6 +2033,8 @@ public class Battleground : ZoneScript, IDisposable
 
             SetStatus(BattlegroundStatus.InProgress);
             SetStartDelayTime(StartDelayTimes[BattlegroundConst.EVENT_ID_FOURTH]);
+            
+            SendPacketToAll(new PVPMatchSetState(PvpMatchState.Engaged));
 
             // Remove preparation
             if (IsArena)

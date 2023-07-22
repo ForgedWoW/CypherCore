@@ -12,7 +12,7 @@ public sealed record CriteriaTreeRecord
     public string Description;
     public CriteriaTreeFlags Flags;
     public uint Id;
-    public sbyte Operator;
+    public int Operator;
     public int OrderIndex;
     public uint Parent;
 }

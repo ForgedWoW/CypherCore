@@ -21,6 +21,7 @@ public sealed record UiMapRecord
     public byte System;
     public UiMapType Type;
     public int VisibilityPlayerConditionID;
+    public int VisibilityPlayerConditionID2;
 
     public UiMapFlag GetFlags()
     {

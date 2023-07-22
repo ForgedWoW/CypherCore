@@ -821,6 +821,10 @@ public class AreaTrigger : WorldObject
 
             ForEachAreaTriggerScript<IAreaTriggerOnUnitExit>(a => a.OnUnitExit(leavingUnit));
         }
+
+        SetUpdateFieldValue(Values.ModifyValue(_areaTriggerData).ModifyValue(_areaTriggerData.NumUnitsInside), (uint)InsideUnits.Count);
+        SetUpdateFieldValue(Values.ModifyValue(_areaTriggerData).ModifyValue(_areaTriggerData.NumPlayersInside), 
+            (uint)InsideUnits.Where(a => a.IsPlayer).Count());
     }
 
     private void InitOrbit(AreaTriggerOrbitInfo orbit, uint timeToTarget)
@@ -831,7 +835,7 @@ public class AreaTrigger : WorldObject
             SetUpdateFieldValue(Values.ModifyValue(_areaTriggerData).ModifyValue(_areaTriggerData.TimeToTarget), timeToTarget);
             _areaTriggerData.ClearChanged(_areaTriggerData.TimeToTarget);
         });
-
+        SetUpdateFieldValue(Values.ModifyValue(_areaTriggerData).ModifyValue(_areaTriggerData.OrbitPathTarget), orbit.PathTarget.GetValueOrDefault(ObjectGuid.Empty));
         CircularMovementInfo = orbit;
 
         CircularMovementInfo.TimeToTarget = timeToTarget;

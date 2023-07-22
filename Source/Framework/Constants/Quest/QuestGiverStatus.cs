@@ -6,7 +6,7 @@ using System;
 namespace Framework.Constants;
 
 [Flags]
-public enum QuestGiverStatus : uint
+public enum QuestGiverStatus : ulong
 {
     None = 0x00,
     Future = 0x02,

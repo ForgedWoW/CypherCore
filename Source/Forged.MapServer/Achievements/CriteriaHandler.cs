@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Arenas;
+using Forged.MapServer.BattlePets;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.DataStorage.Structs.M;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
@@ -25,6 +27,7 @@ using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Forged.MapServer.MapWeather;
+using Forged.MapServer.Scenarios;
 
 namespace Forged.MapServer.Achievements;
 
@@ -3892,6 +3895,18 @@ public class CriteriaHandler
 
                 break;
             }
+            case ModifierTreeType.PlayerSummonedBattlePetSpecies: // 352
+            {
+                if (referencePlayer.PlayerData.CurrentBattlePetBreedQuality != (int)reqValue)
+                    return false;
+                break;
+            }
+            case ModifierTreeType.PlayerSummonedBattlePetIsMaxLevel: // 353
+            {
+                if (referencePlayer.UnitData.WildBattlePetLevel != referencePlayer.ClassFactory.Resolve<BattlePetMgr>().GetMaxPetLevel())
+                    return false;
+                break;
+            }
             case ModifierTreeType.PlayerHasAtLeastProfPathRanks: // 355
             {
                 uint ranks = 0;
@@ -3914,6 +3929,62 @@ public class CriteriaHandler
 
                 break;
             }
+            case ModifierTreeType.PlayerHasItemTransmogrifiedToItemModifiedAppearance: // 358
+            {
+                ItemModifiedAppearanceRecord itemModifiedAppearance = referencePlayer.CliDB.ItemModifiedAppearanceStorage.LookupByKey(reqValue);
+
+                bool bagScanReachedEnd = referencePlayer.ForEachItem(ItemSearchLocation.Inventory, item =>
+                {
+                    if (item.GetVisibleAppearanceModId(referencePlayer) == itemModifiedAppearance.Id)
+                        return false;
+
+                    if ((int)item.Entry == itemModifiedAppearance.ItemID)
+                        return false;
+
+                    return true;
+                });
+
+                if (bagScanReachedEnd)
+                    return false;
+
+                break;
+            }
+            case ModifierTreeType.PlayerHasCompletedDungeonEncounterInDifficulty: // 366
+            {
+                if (!referencePlayer.IsLockedToDungeonEncounter(reqValue))
+                    return false;
+
+                break;
+            }
+            case ModifierTreeType.PlayerIsBetweenQuests: // 369
+            {
+                QuestStatus status = referencePlayer.GetQuestStatus(reqValue);
+
+                if (status == QuestStatus.None || status == QuestStatus.Failed)
+                    return false;
+
+                if (referencePlayer.IsQuestRewarded((uint)secondaryAsset))
+                    return false;
+                break;
+
+            }
+            case ModifierTreeType.PlayerScenarioStepID: // 371
+                {
+                    Scenario scenario = referencePlayer.Scenario;
+
+                    if (scenario == null)
+                        return false;
+
+                    if (scenario.GetStep().Id != reqValue)
+                        return false;
+
+                    break;
+                }
+            case ModifierTreeType.PlayerZPositionBelow: // 374
+                if (referencePlayer.Location.Z >= reqValue)
+                    return false;
+
+                break;
             default:
                 return false;
         }

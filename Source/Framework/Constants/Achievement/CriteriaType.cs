@@ -247,6 +247,7 @@ public enum CriteriaType : byte
     FulfillCraftingOrderType = 246, /*NYI*/                  // {CraftingOrderType}
 
     PerksProgramMonthComplete = 249, /*NYI*/
+    CompleteTrackingQuest = 250, /*NYI*/
 
     Count
 }

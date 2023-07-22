@@ -7,13 +7,6 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPMatchInitialize : ServerPacket
 {
-    public enum MatchState
-    {
-        InProgress = 1,
-        Complete = 3,
-        Inactive = 4
-    }
-
     public bool AffectsRating;
 
     public byte ArenaFaction;
@@ -30,7 +23,7 @@ internal class PVPMatchInitialize : ServerPacket
 
     public long StartTime;
 
-    public MatchState State = MatchState.Inactive;
+    public PvpMatchState State = PvpMatchState.Inactive;
 
     public PVPMatchInitialize() : base(ServerOpcodes.PvpMatchInitialize, ConnectionType.Instance) { }
 

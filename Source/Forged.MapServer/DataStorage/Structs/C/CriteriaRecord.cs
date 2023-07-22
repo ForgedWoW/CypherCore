@@ -11,12 +11,12 @@ public sealed record CriteriaRecord
     public ushort EligibilityWorldStateID;
     public byte EligibilityWorldStateValue;
     public uint FailAsset;
-    public byte FailEvent;
-    public byte Flags;
+    public int FailEvent;
+    public int Flags;
     public uint Id;
     public uint ModifierTreeId;
     public uint StartAsset;
-    public byte StartEvent;
+    public int StartEvent;
     public ushort StartTimer;
     public CriteriaType Type;
     public CriteriaFlags GetFlags() => (CriteriaFlags)Flags;

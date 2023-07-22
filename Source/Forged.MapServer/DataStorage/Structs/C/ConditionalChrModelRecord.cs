@@ -5,19 +5,15 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed record ChrCustomizationReqRecord
+public sealed record ConditionalChrModelRecord
 {
-    public int AchievementID;
-    public long RaceMask;
-    public int ClassMask;
-    public int Flags;
     public uint Id;
-    public uint ItemModifiedAppearanceID;
-    public int OverrideArchive;
-    public int QuestID;
-
-    public string ReqSource;
-
+    public uint ChrModelID;
+    public int ChrCustomizationReqID;
+    public int PlayerConditionID;
+    public int Flags;
+    public int ChrCustomizationCategoryID;
+    
     // -1: allow any, otherwise must match OverrideArchive cvar
     public ChrCustomizationReqFlag GetFlags()
     {

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Numerics;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Players;
@@ -19,9 +20,9 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
     public UpdateField<ScaleCurve> ExtraScaleCurve = new(0, 4);
     public UpdateField<bool> Field260 = new(0, 1);
     public UpdateField<bool> Field261 = new(0, 2);
-    public UpdateField<uint> Field80 = new(0, 20);
-    public UpdateField<uint> Field84 = new(0, 21);
-    public UpdateField<ObjectGuid> Field88 = new(0, 22);
+    public UpdateField<uint> NumUnitsInside = new(0, 20);
+    public UpdateField<uint> NumPlayersInside = new(0, 21);
+    public UpdateField<ObjectGuid> OrbitPathTarget = new(0, 22);
     public UpdateField<uint> FieldB0 = new(0, 13);
     public UpdateField<ScaleCurve> FieldC38 = new(0, 5);
     public UpdateField<ScaleCurve> FieldC54 = new(0, 6);
@@ -61,9 +62,9 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
         ClearChangesMask(BoundsRadius2D);
         ClearChangesMask(DecalPropertiesID);
         ClearChangesMask(CreatingEffectGUID);
-        ClearChangesMask(Field80);
-        ClearChangesMask(Field84);
-        ClearChangesMask(Field88);
+        ClearChangesMask(NumUnitsInside);
+        ClearChangesMask(NumPlayersInside);
+        ClearChangesMask(OrbitPathTarget);
         ClearChangesMask(FieldF8);
         ClearChangesMask(VisualAnim);
         ChangesMask.ResetAll();
@@ -86,9 +87,9 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
         data.WriteFloat(BoundsRadius2D);
         data.WriteUInt32(DecalPropertiesID);
         data.WritePackedGuid(CreatingEffectGUID);
-        data.WriteUInt32(Field80);
-        data.WriteUInt32(Field84);
-        data.WritePackedGuid(Field88);
+        data.WriteUInt32(NumUnitsInside);
+        data.WriteUInt32(NumPlayersInside);
+        data.WritePackedGuid(OrbitPathTarget);
         data.WriteVector3(FieldF8);
         ExtraScaleCurve.Value.WriteCreate(data, owner, receiver);
         data.WriteBit(Field260);
@@ -177,15 +178,15 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
             }
             if (changesMask[20])
             {
-                data.WriteUInt32(Field80);
+                data.WriteUInt32(NumUnitsInside);
             }
             if (changesMask[21])
             {
-                data.WriteUInt32(Field84);
+                data.WriteUInt32(NumPlayersInside);
             }
             if (changesMask[22])
             {
-                data.WritePackedGuid(Field88);
+                data.WritePackedGuid(OrbitPathTarget);
             }
             if (changesMask[23])
             {

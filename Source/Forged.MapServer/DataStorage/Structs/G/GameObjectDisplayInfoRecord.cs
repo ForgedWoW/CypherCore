@@ -13,6 +13,9 @@ public sealed record GameObjectDisplayInfoRecord
     public short ObjectEffectPackageID;
     public float OverrideLootEffectScale;
     public float OverrideNameScale;
+    public int AlternateDisplayType;
+    public int ClientCreatureDisplayInfoID;
+    public int ClientItemID;
 
     public Vector3 GeoBoxMax
     {

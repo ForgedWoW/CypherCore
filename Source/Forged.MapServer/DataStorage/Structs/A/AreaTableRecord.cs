@@ -20,7 +20,7 @@ public sealed record AreaTableRecord
     public uint Id;
     public ushort IntroSound;
     public ushort[] LiquidTypeID = new ushort[4];
-    public byte MountFlags;
+    public uint MountFlags;
     public ushort ParentAreaID;
     public short PvpCombatWorldStateID;
     public byte SoundProviderPref;

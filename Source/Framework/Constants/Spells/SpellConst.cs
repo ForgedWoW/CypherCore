@@ -12,7 +12,7 @@ public struct SpellConst
     public const uint MAX_EFFECT_MASK = 0xFFFFFFFF;
 
     public const int MaxAuras = 255;
-    public const int MaxPowersPerSpell = 4;
+    public const int MaxPowersPerSpell = 5;
     public const int MaxReagents = 8;
     public const int MaxShapeshift = 8;
     public const int MaxTotems = 2;
