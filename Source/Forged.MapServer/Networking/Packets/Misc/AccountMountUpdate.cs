@@ -17,10 +17,10 @@ internal class AccountMountUpdate : ServerPacket
         WorldPacket.WriteBit(IsFullUpdate);
         WorldPacket.WriteInt32(Mounts.Count);
 
-        foreach (var spell in Mounts)
+        foreach (var (spellId, flags) in Mounts)
         {
-            WorldPacket.WriteUInt32(spell.Key);
-            WorldPacket.WriteBits(spell.Value, 2);
+            WorldPacket.WriteUInt32(spellId);
+            WorldPacket.WriteBits(flags, 4);
         }
 
         WorldPacket.FlushBits();

@@ -14,7 +14,7 @@ public class CharacterCreateInfo
 
     public PlayerClass ClassId = PlayerClass.None;
 
-    public Array<ChrCustomizationChoice> Customizations = new(72);
+    public Array<ChrCustomizationChoice> Customizations = new(125);
 
     public bool IsTrialBoost;
 

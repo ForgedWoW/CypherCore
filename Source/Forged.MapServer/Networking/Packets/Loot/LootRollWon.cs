@@ -14,6 +14,8 @@ internal class LootRollWon : ServerPacket
     public int Roll;
     public RollVote RollType;
     public ObjectGuid Winner;
+    public uint DungeonEncounterID;
+
     public LootRollWon() : base(ServerOpcodes.LootRollWon) { }
 
     public override void Write()
@@ -22,6 +24,7 @@ internal class LootRollWon : ServerPacket
         WorldPacket.WritePackedGuid(Winner);
         WorldPacket.WriteInt32(Roll);
         WorldPacket.WriteUInt8((byte)RollType);
+        WorldPacket.WriteUInt32(DungeonEncounterID);
         Item.Write(WorldPacket);
         WorldPacket.WriteBit(MainSpec);
         WorldPacket.FlushBits();

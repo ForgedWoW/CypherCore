@@ -5684,7 +5684,7 @@ public partial class Spell : IDisposable
             switch (cost.Power)
             {
                 // health as power used - need check health amount
-                case PowerType.Health when unitCaster.Health <= cost.Amount:
+                case PowerType.Health when unitCaster.Health <= (uint)cost.Amount:
                     return SpellCastResult.CasterAurastate;
 
                 case PowerType.Health:

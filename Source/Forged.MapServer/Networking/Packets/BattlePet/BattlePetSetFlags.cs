@@ -9,14 +9,14 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 internal class BattlePetSetFlags : ClientPacket
 {
     public FlagsControlType ControlType;
-    public uint Flags;
+    public ushort Flags;
     public ObjectGuid PetGuid;
     public BattlePetSetFlags(WorldPacket packet) : base(packet) { }
 
     public override void Read()
     {
         PetGuid = WorldPacket.ReadPackedGuid();
-        Flags = WorldPacket.ReadUInt32();
+        Flags = WorldPacket.ReadUInt16();
         ControlType = (FlagsControlType)WorldPacket.ReadBits<byte>(2);
     }
 }

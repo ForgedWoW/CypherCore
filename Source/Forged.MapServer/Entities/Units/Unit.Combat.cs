@@ -771,7 +771,7 @@ public partial class Unit
     {
         AttackerStateUpdate packet = new()
         {
-            hitInfo = damageInfo.HitInfo,
+            HitInfo = damageInfo.HitInfo,
             AttackerGUID = damageInfo.Attacker.GUID,
             VictimGUID = damageInfo.Target.GUID,
             Damage = (int)damageInfo.Damage,

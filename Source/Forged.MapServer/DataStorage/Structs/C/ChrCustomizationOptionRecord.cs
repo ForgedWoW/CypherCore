@@ -20,5 +20,4 @@ public sealed record ChrCustomizationOptionRecord
     public ushort SecondaryID;
     public int SortIndex;
     public int UiOrderIndex;
-    public float QuestXpMultiplier;
 }

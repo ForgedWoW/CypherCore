@@ -34,7 +34,7 @@ internal class ContentTuningParams
 
     public short PlayerLevelDelta;
 
-    public ushort ScalingHealthItemLevelCurveID;
+    public uint ScalingHealthItemLevelCurveID;
 
     public uint TargetContentTuningID;
 
@@ -90,7 +90,7 @@ internal class ContentTuningParams
         data.WriteFloat(PlayerItemLevel);
         data.WriteFloat(TargetItemLevel);
         data.WriteInt16(PlayerLevelDelta);
-        data.WriteUInt16(ScalingHealthItemLevelCurveID);
+        data.WriteUInt32(ScalingHealthItemLevelCurveID);
         data.WriteUInt8(TargetLevel);
         data.WriteUInt8(Expansion);
         data.WriteInt8(TargetScalingLevelDelta);

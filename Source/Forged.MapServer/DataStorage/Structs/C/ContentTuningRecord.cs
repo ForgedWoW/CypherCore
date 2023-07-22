@@ -19,6 +19,7 @@ public sealed record ContentTuningRecord
     public int TargetLevelMax;
     public int TargetLevelMaxDelta;
     public int TargetLevelMin;
+    public float QuestXpMultiplier;
 
     public ContentTuningFlag GetFlags()
     {

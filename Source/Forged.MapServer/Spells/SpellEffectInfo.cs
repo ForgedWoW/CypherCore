@@ -325,6 +325,16 @@ public class SpellEffectInfo
         new(SpellEffectImplicitTargetTypes.Explicit, SpellTargetObjectTypes.None),        // 302 SPELL_EFFECT_GATHERING
         new(SpellEffectImplicitTargetTypes.Explicit, SpellTargetObjectTypes.Unit),        // 303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
         new(SpellEffectImplicitTargetTypes.Explicit, SpellTargetObjectTypes.Unit),        // 304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 305 SPELL_EFFECT_305
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 306 SPELL_EFFECT_306
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 307 SPELL_EFFECT_307
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 308 SPELL_EFFECT_308
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 309 SPELL_EFFECT_309
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 310 SPELL_EFFECT_310
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 311 SPELL_EFFECT_311
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 312 SPELL_EFFECT_312
+        new(SpellEffectImplicitTargetTypes.Explicit, SpellTargetObjectTypes.Item),        // 313 SPELL_EFFECT_313
+        new(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None),        // 314 SPELL_EFFECT_314
     };
 
     private readonly CliDB _cliDB;

@@ -75,6 +75,7 @@ public class PVPMatchStatistics
         public int PlayerClass;
         public ObjectGuid PlayerGUID;
         public Race PlayerRace;
+        public uint? PostMatchMMR;
         public uint? PreMatchMMR;
         public uint? PreMatchRating;
         public int PrimaryTalentTree;
@@ -123,6 +124,9 @@ public class PVPMatchStatistics
 
             if (MmrChange.HasValue)
                 data.WriteInt32(MmrChange.Value);
+
+            if (PostMatchMMR.HasValue)
+                data.WriteUInt32(PostMatchMMR.Value);
         }
     }
 

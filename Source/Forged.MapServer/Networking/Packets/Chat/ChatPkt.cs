@@ -19,7 +19,6 @@ public class ChatPkt : ServerPacket
     public float DisplayTime;
     public bool FakeSenderName;
     public bool HideChatLog;
-    public ObjectGuid PartyGUID;
     public string Prefix = "";
     public ObjectGuid SenderAccountGUID;
     public ObjectGuid SenderGUID;
@@ -30,6 +29,7 @@ public class ChatPkt : ServerPacket
     public ObjectGuid TargetGUID;
     public string TargetName = "";
     public uint TargetVirtualAddress;
+    public uint SpellID;
     public uint? Unused801;
     public ChatPkt() : base(ServerOpcodes.Chat) { }
 
@@ -41,7 +41,6 @@ public class ChatPkt : ServerPacket
         SenderGUID.Clear();
         SenderAccountGUID.Clear();
         SenderGuildGUID.Clear();
-        PartyGUID.Clear();
         TargetGUID.Clear();
         SenderName = "";
         TargetName = "";
@@ -84,15 +83,15 @@ public class ChatPkt : ServerPacket
         WorldPacket.WritePackedGuid(TargetGUID);
         WorldPacket.WriteUInt32(TargetVirtualAddress);
         WorldPacket.WriteUInt32(SenderVirtualAddress);
-        WorldPacket.WritePackedGuid(PartyGUID);
         WorldPacket.WriteUInt32(AchievementID);
         WorldPacket.WriteFloat(DisplayTime);
+        WorldPacket.WriteUInt32(SpellID);
         WorldPacket.WriteBits(SenderName.GetByteCount(), 11);
         WorldPacket.WriteBits(TargetName.GetByteCount(), 11);
         WorldPacket.WriteBits(Prefix.GetByteCount(), 5);
         WorldPacket.WriteBits(Channel.GetByteCount(), 7);
         WorldPacket.WriteBits(ChatText.GetByteCount(), 12);
-        WorldPacket.WriteBits((byte)ChatFlags, 14);
+        WorldPacket.WriteBits((ushort)ChatFlags, 14);
         WorldPacket.WriteBit(HideChatLog);
         WorldPacket.WriteBit(FakeSenderName);
         WorldPacket.WriteBit(Unused801.HasValue);
@@ -130,10 +129,5 @@ public class ChatPkt : ServerPacket
         ChatFlags = playerSender.ChatFlags;
 
         SenderGuildGUID = ObjectGuid.Create(HighGuid.Guild, playerSender.GuildId);
-
-        var group = playerSender.Group;
-
-        if (group != null)
-            PartyGUID = group.GUID;
     }
 }

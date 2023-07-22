@@ -25,7 +25,8 @@ public class SetupCurrency : ServerPacket
             WorldPacket.WriteBit(data.TrackedQuantity.HasValue);
             WorldPacket.WriteBit(data.MaxQuantity.HasValue);
             WorldPacket.WriteBit(data.TotalEarned.HasValue);
-            WorldPacket.WriteBit(data.LastSpendTime.HasValue);
+            WorldPacket.WriteBit(data.NextRechargeTime.HasValue);
+            WorldPacket.WriteBit(data.RechargeCycleStartTime.HasValue);
             WorldPacket.WriteBits(data.Flags, 5);
             WorldPacket.FlushBits();
 
@@ -44,15 +45,18 @@ public class SetupCurrency : ServerPacket
             if (data.TotalEarned.HasValue)
                 WorldPacket.WriteInt32(data.TotalEarned.Value);
 
-            if (data.LastSpendTime.HasValue)
-                WorldPacket.WriteInt64(data.LastSpendTime.Value);
+            if (data.NextRechargeTime.HasValue)
+                WorldPacket.WriteInt64(data.NextRechargeTime.Value);
+            if (data.RechargeCycleStartTime.HasValue)
+                WorldPacket.WriteInt64(data.RechargeCycleStartTime.Value);
         }
     }
 
     public struct Record
     {
         public byte Flags;
-        public long? LastSpendTime;
+        public long? NextRechargeTime;
+        public long? RechargeCycleStartTime;
         public int? MaxQuantity;
         public uint? MaxWeeklyQuantity;
         public uint Quantity;

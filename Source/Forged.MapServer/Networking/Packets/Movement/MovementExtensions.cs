@@ -38,7 +38,7 @@ public static class MovementExtensions
         for (uint i = 0; i < removeMovementForcesCount; ++i)
             data.ReadPackedGuid();
 
-        // ResetBitReader
+        bool hasStandingOnGameObjectGUID = data.HasBit();
 
         var hasTransport = data.HasBit();
         var hasFall = data.HasBit();
@@ -51,6 +51,9 @@ public static class MovementExtensions
 
         if (hasTransport)
             ReadTransportInfo(data, ref movementInfo.Transport);
+
+        if (hasStandingOnGameObjectGUID)
+            movementInfo.StandingOnGameObjectGUID = data.ReadPackedGuid();
 
         if (hasInertia)
         {
@@ -308,6 +311,9 @@ public static class MovementExtensions
 
         if (hasTransportData)
             WriteTransportInfo(data, movementInfo.Transport);
+
+        if (movementInfo.StandingOnGameObjectGUID.HasValue)
+            data.WritePackedGuid(movementInfo.StandingOnGameObjectGUID.Value);
 
         if (hasInertia)
         {

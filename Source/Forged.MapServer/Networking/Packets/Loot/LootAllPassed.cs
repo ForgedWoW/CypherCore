@@ -10,11 +10,14 @@ internal class LootAllPassed : ServerPacket
 {
     public LootItemData Item = new();
     public ObjectGuid LootObj;
+    public uint DungeonEncounterID;
+
     public LootAllPassed() : base(ServerOpcodes.LootAllPassed) { }
 
     public override void Write()
     {
         WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WriteUInt32(DungeonEncounterID);
         Item.Write(WorldPacket);
     }
 }

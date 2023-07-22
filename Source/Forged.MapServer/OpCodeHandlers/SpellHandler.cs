@@ -611,13 +611,6 @@ public class SpellHandler : IWorldSessionHandler
         pet.RemoveOwnedAura(packet.SpellID, ObjectGuid.Empty, AuraRemoveMode.Cancel);
     }
 
-    [WorldPacketHandler(ClientOpcodes.RequestCategoryCooldowns, Processing = PacketProcessing.Inplace)]
-    private void HandleRequestCategoryCooldowns(RequestCategoryCooldowns requestCategoryCooldowns)
-    {
-        if (requestCategoryCooldowns == null) return;
-        _session.Player.SendSpellCategoryCooldowns();
-    }
-
     [WorldPacketHandler(ClientOpcodes.SelfRes)]
     private void HandleSelfRes(SelfRes selfRes)
     {

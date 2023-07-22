@@ -11,33 +11,33 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class CharCustomizeSuccess : ServerPacket
 {
-    private readonly ObjectGuid CharGUID;
-    private readonly string CharName = "";
-    private readonly Array<ChrCustomizationChoice> Customizations = new(72);
-    private readonly byte SexID;
+    private readonly ObjectGuid _charGUID;
+    private readonly string _charName;
+    private readonly Array<ChrCustomizationChoice> _customizations;
+    private readonly byte _sexID;
 
     public CharCustomizeSuccess(CharCustomizeInfo customizeInfo) : base(ServerOpcodes.CharCustomizeSuccess)
     {
-        CharGUID = customizeInfo.CharGUID;
-        SexID = (byte)customizeInfo.SexID;
-        CharName = customizeInfo.CharName;
-        Customizations = customizeInfo.Customizations;
+        _charGUID = customizeInfo.CharGUID;
+        _sexID = (byte)customizeInfo.SexID;
+        _charName = customizeInfo.CharName;
+        _customizations = customizeInfo.Customizations;
     }
 
     public override void Write()
     {
-        WorldPacket.WritePackedGuid(CharGUID);
-        WorldPacket.WriteUInt8(SexID);
-        WorldPacket.WriteInt32(Customizations.Count);
+        WorldPacket.WritePackedGuid(_charGUID);
+        WorldPacket.WriteUInt8(_sexID);
+        WorldPacket.WriteInt32(_customizations.Count);
 
-        foreach (var customization in Customizations)
+        foreach (var customization in _customizations)
         {
             WorldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
             WorldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
         }
 
-        WorldPacket.WriteBits(CharName.GetByteCount(), 6);
+        WorldPacket.WriteBits(_charName.GetByteCount(), 6);
         WorldPacket.FlushBits();
-        WorldPacket.WriteString(CharName);
+        WorldPacket.WriteString(_charName);
     }
 }

@@ -16,6 +16,8 @@ internal class StartLootRoll : ServerPacket
     public LootMethod Method;
     public uint RollTime;
     public RollMask ValidRolls;
+    public uint DungeonEncounterID;
+
     public StartLootRoll() : base(ServerOpcodes.StartLootRoll) { }
 
     public override void Write()
@@ -29,6 +31,7 @@ internal class StartLootRoll : ServerPacket
             WorldPacket.WriteUInt32((uint)reason);
 
         WorldPacket.WriteUInt8((byte)Method);
+        WorldPacket.WriteUInt32(DungeonEncounterID);
         Item.Write(WorldPacket);
     }
 }

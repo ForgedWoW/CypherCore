@@ -10,7 +10,7 @@ public class SpellCategoryCooldown : ServerPacket
 {
     public List<CategoryCooldownInfo> CategoryCooldowns = new();
 
-    public SpellCategoryCooldown() : base(ServerOpcodes.CategoryCooldown, ConnectionType.Instance) { }
+    public SpellCategoryCooldown() : base(ServerOpcodes.SpellCategoryCooldown, ConnectionType.Instance) { }
 
     public override void Write()
     {

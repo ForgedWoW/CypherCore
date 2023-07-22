@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
@@ -11,7 +12,6 @@ public class SetCurrency : ServerPacket
 {
     public uint? FirstCraftOperationID;
     public CurrencyGainFlags Flags;
-    public long? LastSpendTime;
     public int? MaxQuantity;
     public int Quantity;
     public int? QuantityChange;
@@ -23,6 +23,9 @@ public class SetCurrency : ServerPacket
     public int? TrackedQuantity;
     public uint Type;
     public int? WeeklyQuantity;
+    public long? NextRechargeTime;
+    public long? RechargeCycleStartTime;
+
     public SetCurrency() : base(ServerOpcodes.SetCurrency, ConnectionType.Instance) { }
 
     public override void Write()
@@ -44,7 +47,8 @@ public class SetCurrency : ServerPacket
         WorldPacket.WriteBit(QuantityGainSource.HasValue);
         WorldPacket.WriteBit(QuantityLostSource.HasValue);
         WorldPacket.WriteBit(FirstCraftOperationID.HasValue);
-        WorldPacket.WriteBit(LastSpendTime.HasValue);
+        WorldPacket.WriteBit(NextRechargeTime.HasValue);
+        WorldPacket.WriteBit(RechargeCycleStartTime.HasValue);
         WorldPacket.FlushBits();
 
         if (WeeklyQuantity.HasValue)
@@ -71,7 +75,10 @@ public class SetCurrency : ServerPacket
         if (FirstCraftOperationID.HasValue)
             WorldPacket.WriteUInt32(FirstCraftOperationID.Value);
 
-        if (LastSpendTime.HasValue)
-            WorldPacket.WriteInt64(LastSpendTime.Value);
+        if (NextRechargeTime.HasValue)
+            WorldPacket.WriteInt64(NextRechargeTime.Value);
+
+        if (RechargeCycleStartTime.HasValue)
+            WorldPacket.WriteInt64(RechargeCycleStartTime.Value);
     }
 }

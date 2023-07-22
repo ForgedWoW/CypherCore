@@ -543,6 +543,7 @@ public enum AuraType
     DisableNavigation = 533, // Disables Map Pins
     Unk534 = 534,
     Unk535 = 535,
+    IgnoreSpellCreatureTypeRequirements = 536,
     Total
 }
 

@@ -2287,10 +2287,7 @@ public class SpellInfo
 
         if (!CheckTargetCreatureType(unitTarget))
         {
-            if (target.IsTypeId(TypeId.Player))
-                return SpellCastResult.TargetIsPlayer;
-
-            return SpellCastResult.BadTargets;
+            return target.IsTypeId(TypeId.Player) ? SpellCastResult.TargetIsPlayer : SpellCastResult.BadTargets;
         }
 
         // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
@@ -2367,7 +2364,7 @@ public class SpellInfo
 
         var creatureType = target.CreatureTypeMask;
 
-        return TargetCreatureType == 0 || creatureType == 0 || Convert.ToBoolean(creatureType & TargetCreatureType);
+        return TargetCreatureType == 0 || creatureType == 0 || (creatureType & TargetCreatureType) != 0 || target.HasAuraType(AuraType.IgnoreSpellCreatureTypeRequirements);
     }
 
     public SpellCastResult CheckVehicle(Unit caster)

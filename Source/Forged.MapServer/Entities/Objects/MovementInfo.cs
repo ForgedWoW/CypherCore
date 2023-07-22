@@ -31,6 +31,7 @@ public class MovementInfo
     public MovementFlag2 MovementFlags2 { get; private set; }
     public float Pitch { get; set; }
     public Position Pos { get; set; }
+    public ObjectGuid? StandingOnGameObjectGUID { get; set; }
     public float StepUpStartElevation { get; set; }
     public uint Time { get; set; }
 

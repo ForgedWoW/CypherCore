@@ -22,8 +22,8 @@ public class ShowTaxiNodes : ServerPacket
         WorldPacket.WriteBit(WindowInfo.HasValue);
         WorldPacket.FlushBits();
 
-        WorldPacket.WriteInt32(CanLandNodes.Length);
-        WorldPacket.WriteInt32(CanUseNodes.Length);
+        WorldPacket.WriteInt32(CanLandNodes.Length / 8); // client reads this in uint64 blocks, size is ensured to be divisible by 8 in TaxiMask constructor
+        WorldPacket.WriteInt32(CanUseNodes.Length / 8);  // client reads this in uint64 blocks, size is ensured to be divisible by 8 in TaxiMask constructor
 
         if (WindowInfo.HasValue)
         {

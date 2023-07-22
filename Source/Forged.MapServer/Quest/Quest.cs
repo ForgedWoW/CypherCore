@@ -11,7 +11,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Quest;
-using Forged.MapServer.Pools;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
@@ -28,16 +27,14 @@ public class Quest
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
     private readonly GameObjectManager _gameObjectManager;
-    private readonly QuestPoolManager _questPoolManager;
     private readonly SpellManager _spellManager;
 
-    public Quest(SQLFields fields, IConfiguration configuration, DB2Manager db2Manager, CliDB cliDB, QuestPoolManager questPoolManager, GameObjectManager gameObjectManager,
+    public Quest(SQLFields fields, IConfiguration configuration, DB2Manager db2Manager, CliDB cliDB, GameObjectManager gameObjectManager,
                  SpellManager spellManager, ConditionManager conditionManager)
     {
         _configuration = configuration;
         _db2Manager = db2Manager;
         _cliDB = cliDB;
-        _questPoolManager = questPoolManager;
         _gameObjectManager = gameObjectManager;
         _spellManager = spellManager;
         _conditionManager = conditionManager;
@@ -331,6 +328,11 @@ public class Quest
         if (questXp == null || xpDifficulty >= 10)
             return 0;
 
+        uint xp = questXp.Difficulty[xpDifficulty];
+        var contentTuning = player.CliDB.ContentTuningStorage.LookupByKey(contentTuningId);
+        if (contentTuning != null)
+            xp = (uint)(xp * contentTuning.QuestXpMultiplier);
+
         var diffFactor = (int)(2 * (questLevel - player.Level) + 12);
 
         diffFactor = diffFactor switch
@@ -340,7 +342,7 @@ public class Quest
             _    => diffFactor
         };
 
-        var xp = (uint)(diffFactor * questXp.Difficulty[xpDifficulty] * xpMultiplier / 10);
+        xp = (uint)(diffFactor * xp * xpMultiplier / 10);
 
         if (player.Level >= player.GameObjectManager.GetMaxLevelForExpansion((Expansion)player.Configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) &&
             player.Session.Expansion == (Expansion)player.Configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) &&

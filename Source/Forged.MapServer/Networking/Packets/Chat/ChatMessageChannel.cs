@@ -11,7 +11,9 @@ public class ChatMessageChannel : ClientPacket
     public ObjectGuid ChannelGUID;
     public Language Language = Language.Universal;
     public string Target;
-    public string Text;
+    public string Text; 
+    public bool? IsSecure;
+
     public ChatMessageChannel(WorldPacket packet) : base(packet) { }
 
     public override void Read()
@@ -20,6 +22,10 @@ public class ChatMessageChannel : ClientPacket
         ChannelGUID = WorldPacket.ReadPackedGuid();
         var targetLen = WorldPacket.ReadBits<uint>(9);
         var textLen = WorldPacket.ReadBits<uint>(11);
+
+        if (WorldPacket.HasBit())
+            IsSecure = WorldPacket.HasBit();
+
         Target = WorldPacket.ReadString(targetLen);
         Text = WorldPacket.ReadString(textLen);
     }

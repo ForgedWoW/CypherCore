@@ -10,11 +10,14 @@ internal class LootRollsComplete : ServerPacket
 {
     public byte LootListID;
     public ObjectGuid LootObj;
+    public int DungeonEncounterID;
+
     public LootRollsComplete() : base(ServerOpcodes.LootRollsComplete) { }
 
     public override void Write()
     {
         WorldPacket.WritePackedGuid(LootObj);
         WorldPacket.WriteUInt8(LootListID);
+        WorldPacket.WriteInt32(DungeonEncounterID);
     }
 }

@@ -549,7 +549,7 @@ public abstract class WorldObject : IDisposable
 
             //for (public uint i = 0; i < RemoveForcesIDs.Count; ++i)
             //    *data << ObjectGuid(RemoveForcesIDs);
-
+            data.WriteBit(unit.MovementInfo.StandingOnGameObjectGUID.HasValue);
             data.WriteBit(!unit.MovementInfo.Transport.Guid.IsEmpty); // HasTransport
             data.WriteBit(hasFall);                                   // HasFall
             data.WriteBit(hasSpline);                                 // HasSpline - marks that the unit uses spline movement
@@ -559,6 +559,9 @@ public abstract class WorldObject : IDisposable
 
             if (!unit.MovementInfo.Transport.Guid.IsEmpty)
                 MovementExtensions.WriteTransportInfo(data, unit.MovementInfo.Transport);
+
+            if (unit.MovementInfo.StandingOnGameObjectGUID.HasValue)
+                data.WritePackedGuid(unit.MovementInfo.StandingOnGameObjectGUID.Value);
 
             if (hasInertia)
             {

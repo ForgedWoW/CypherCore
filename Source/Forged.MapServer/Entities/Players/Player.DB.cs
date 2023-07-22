@@ -1122,19 +1122,8 @@ public partial class Player
             stmt.AddValue(index++, DrunkValue);
             stmt.AddValue(index++, Health);
 
-            var storedPowers = 0;
-
-            for (PowerType powerType = 0; powerType < PowerType.Max; ++powerType)
-                if (GetPowerIndex(powerType) != (int)PowerType.Max)
-                {
-                    stmt.AddValue(index++, UnitData.Power[storedPowers]);
-
-                    if (++storedPowers >= (int)PowerType.MaxPerClass)
-                        break;
-                }
-
-            for (; storedPowers < (int)PowerType.MaxPerClass; ++storedPowers)
-                stmt.AddValue(index++, 0);
+            for (var i = 0; i < (int)PowerType.MaxPerClass; ++i)
+                stmt.AddValue(index++, UnitData.Power[i]);
 
             stmt.AddValue(index++, Session.Latency);
             stmt.AddValue(index++, GetActiveTalentGroup());
@@ -1277,20 +1266,9 @@ public partial class Player
             stmt.AddValue(index++, ActivePlayerData.WatchedFactionIndex);
             stmt.AddValue(index++, DrunkValue);
             stmt.AddValue(index++, Health);
-
-            var storedPowers = 0;
-
-            for (PowerType powerType = 0; powerType < PowerType.Max; ++powerType)
-                if (GetPowerIndex(powerType) != (int)PowerType.Max)
-                {
-                    stmt.AddValue(index++, UnitData.Power[storedPowers]);
-
-                    if (++storedPowers >= (int)PowerType.MaxPerClass)
-                        break;
-                }
-
-            for (; storedPowers < (int)PowerType.MaxPerClass; ++storedPowers)
-                stmt.AddValue(index++, 0);
+            
+            for (var i = 0; i < (int)PowerType.MaxPerClass; ++i)
+                stmt.AddValue(index++, UnitData.Power[i]);
 
             stmt.AddValue(index++, Session.Latency);
             stmt.AddValue(index++, GetActiveTalentGroup());
@@ -1395,9 +1373,7 @@ public partial class Player
             _SaveStats(characterTransaction);
 
         // TODO: Move this out
-        Session.
-            // TODO: Move this out
-            CollectionMgr.SaveAccountToys(loginTransaction);
+        Session.CollectionMgr.SaveAccountToys(loginTransaction);
 
         Session.BattlePetMgr.SaveToDB(loginTransaction);
         Session.CollectionMgr.SaveAccountHeirlooms(loginTransaction);

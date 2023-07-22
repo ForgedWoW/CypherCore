@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Blizzard.Telemetry.Wow;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
@@ -304,6 +305,7 @@ public class LootRoll
 
         FillPacket(lootAllPassed.Item);
         lootAllPassed.Item.UIType = LootSlotType.AllowLoot;
+        lootAllPassed.DungeonEncounterID = _loot.DungeonEncounterId;
         lootAllPassed.Write();
 
         foreach (var (playerGuid, roll) in _rollVoteMap)
@@ -347,6 +349,7 @@ public class LootRoll
 
         FillPacket(lootRollWon.Item);
         lootRollWon.Item.UIType = LootSlotType.Locked;
+        lootRollWon.DungeonEncounterID = _loot.DungeonEncounterId;
         lootRollWon.MainSpec = true; // offspec rolls not implemented
         lootRollWon.Write();
 
@@ -387,6 +390,7 @@ public class LootRoll
 
         FillPacket(lootRoll.Item);
         lootRoll.Item.UIType = LootSlotType.RollOngoing;
+        lootRoll.DungeonEncounterID = _loot.DungeonEncounterId;
         lootRoll.Write();
 
         foreach (var (playerGuid, roll) in _rollVoteMap)
@@ -447,6 +451,7 @@ public class LootRoll
 
             FillPacket(startLootRoll.Item);
             startLootRoll.Item.UIType = LootSlotType.RollOngoing;
+            startLootRoll.DungeonEncounterID = _loot.DungeonEncounterId;
 
             player.SendPacket(startLootRoll);
         }

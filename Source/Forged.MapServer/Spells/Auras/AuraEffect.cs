@@ -2263,7 +2263,7 @@ public class AuraEffect
         var amt = apply ? AmountAsLong : -AmountAsLong;
 
         if (amt < 0)
-            target.ModifyHealth(Math.Max(1L - target.Health, amt));
+            target.ModifyHealth(Math.Max(1L - checked((long)target.Health), amt));
 
         target.HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Total, Amount, apply);
 
@@ -4811,8 +4811,14 @@ public class AuraEffect
     {
         if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
             return;
+        
+        if (!aurApp.Target.TryGetAsPlayer(out var target))
+            return;
 
-        aurApp.Target.AsPlayer?.SendSpellCategoryCooldowns();
+        if (apply)
+            target.AddSpellCategoryCooldownMod(MiscValue, AmountAsInt);
+        else
+            target.RemoveSpellCategoryCooldownMod(MiscValue, AmountAsInt);
     }
 
     [AuraEffectHandler(AuraType.ModSpellCritChance)]
@@ -5508,7 +5514,7 @@ public class AuraEffect
         if (damage == 0)
             return;
 
-        caster.ModifyHealth(-damage);
+        caster.ModifyHealth((long)-damage);
         Log.Logger.Debug("PeriodicTick: donator {0} target {1} damage {2}.", caster.Entry, target.Entry, damage);
 
         var gainMultiplier = SpellEffectInfo.CalcValueMultiplier(caster);

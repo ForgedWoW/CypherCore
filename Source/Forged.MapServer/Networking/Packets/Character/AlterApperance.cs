@@ -8,7 +8,7 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class AlterApperance : ClientPacket
 {
-    public Array<ChrCustomizationChoice> Customizations = new(72);
+    public Array<ChrCustomizationChoice> Customizations = new(125);
     public int CustomizedRace;
     public byte NewSex;
     public AlterApperance(WorldPacket packet) : base(packet) { }

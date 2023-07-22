@@ -135,6 +135,45 @@ public partial class Player
         }
     }
 
+    public void AddSpellCategoryCooldownMod(int spellCategoryId, int mod)
+    {
+        var categoryIndex = ActivePlayerData.CategoryCooldownMods.FindIndexIf(mod => mod.SpellCategoryID == spellCategoryId);
+
+        if (categoryIndex < 0)
+        {
+            CategoryCooldownMod newMod = new()
+            {
+                SpellCategoryID = spellCategoryId,
+                ModCooldown = -mod
+            };
+
+            AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CategoryCooldownMods), newMod);
+        }
+        else
+        {
+            CategoryCooldownMod g = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CategoryCooldownMods, categoryIndex);
+            SetUpdateFieldValue(ref g.ModCooldown, ActivePlayerData.CategoryCooldownMods[categoryIndex].ModCooldown - mod);
+        }
+    }
+
+    public void RemoveSpellCategoryCooldownMod(int spellCategoryId, int mod)
+    {
+        var categoryIndex = ActivePlayerData.CategoryCooldownMods.FindIndexIf(mod => mod.SpellCategoryID == spellCategoryId);
+
+        if (categoryIndex < 0)
+            return;
+
+        if (ActivePlayerData.CategoryCooldownMods[categoryIndex].ModCooldown + mod == 0)
+        {
+            RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CategoryCooldownMods), categoryIndex);
+        }
+        else
+        {
+            CategoryCooldownMod g = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CategoryCooldownMods, categoryIndex);
+            SetUpdateFieldValue(ref g.ModCooldown, ActivePlayerData.CategoryCooldownMods[categoryIndex].ModCooldown + mod);
+        }
+    }
+
     public void AddStoredAuraTeleportLocation(uint spellId)
     {
         StoredAuraTeleportLocation storedLocation = new()

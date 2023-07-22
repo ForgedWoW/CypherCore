@@ -15,7 +15,7 @@ internal class AttackerStateUpdate : CombatLogServerPacket
     public int BlockAmount;
     public ContentTuningParams ContentTuning = new();
     public int Damage;
-    public HitInfo hitInfo; // Flags
+    public HitInfo HitInfo; // Flags
     public uint MeleeSpellID;
     public int OriginalDamage;
     public int OverDamage = -1;
@@ -34,7 +34,7 @@ internal class AttackerStateUpdate : CombatLogServerPacket
     public override void Write()
     {
         WorldPacket attackRoundInfo = new();
-        attackRoundInfo.WriteUInt32((uint)hitInfo);
+        attackRoundInfo.WriteUInt32((uint)HitInfo);
         attackRoundInfo.WritePackedGuid(AttackerGUID);
         attackRoundInfo.WritePackedGuid(VictimGUID);
         attackRoundInfo.WriteInt32(Damage);
@@ -48,10 +48,10 @@ internal class AttackerStateUpdate : CombatLogServerPacket
             attackRoundInfo.WriteFloat(SubDmg.Value.FDamage);
             attackRoundInfo.WriteInt32(SubDmg.Value.Damage);
 
-            if (hitInfo.HasAnyFlag(HitInfo.FullAbsorb | HitInfo.PartialAbsorb))
+            if (HitInfo.HasAnyFlag(HitInfo.FullAbsorb | HitInfo.PartialAbsorb))
                 attackRoundInfo.WriteInt32(SubDmg.Value.Absorbed);
 
-            if (hitInfo.HasAnyFlag(HitInfo.FullResist | HitInfo.PartialResist))
+            if (HitInfo.HasAnyFlag(HitInfo.FullResist | HitInfo.PartialResist))
                 attackRoundInfo.WriteInt32(SubDmg.Value.Resisted);
         }
 
@@ -59,13 +59,13 @@ internal class AttackerStateUpdate : CombatLogServerPacket
         attackRoundInfo.WriteUInt32(AttackerState);
         attackRoundInfo.WriteUInt32(MeleeSpellID);
 
-        if (hitInfo.HasAnyFlag(HitInfo.Block))
+        if (HitInfo.HasAnyFlag(HitInfo.Block))
             attackRoundInfo.WriteInt32(BlockAmount);
 
-        if (hitInfo.HasAnyFlag(HitInfo.RageGain))
+        if (HitInfo.HasAnyFlag(HitInfo.RageGain))
             attackRoundInfo.WriteInt32(RageGained);
 
-        if (hitInfo.HasAnyFlag(HitInfo.Unk1))
+        if (HitInfo.HasAnyFlag(HitInfo.Unk1))
         {
             attackRoundInfo.WriteUInt32(UnkState.State1);
             attackRoundInfo.WriteFloat(UnkState.State2);
@@ -81,7 +81,7 @@ internal class AttackerStateUpdate : CombatLogServerPacket
             attackRoundInfo.WriteUInt32(UnkState.State12);
         }
 
-        if (hitInfo.HasAnyFlag(HitInfo.Block | HitInfo.Unk12))
+        if (HitInfo.HasAnyFlag(HitInfo.Block | HitInfo.Unk12))
             attackRoundInfo.WriteFloat(Unk);
 
         attackRoundInfo.WriteUInt8((byte)ContentTuning.TuningType);
@@ -91,7 +91,7 @@ internal class AttackerStateUpdate : CombatLogServerPacket
         attackRoundInfo.WriteInt8(ContentTuning.TargetScalingLevelDelta);
         attackRoundInfo.WriteFloat(ContentTuning.PlayerItemLevel);
         attackRoundInfo.WriteFloat(ContentTuning.TargetItemLevel);
-        attackRoundInfo.WriteUInt16(ContentTuning.ScalingHealthItemLevelCurveID);
+        attackRoundInfo.WriteUInt32(ContentTuning.ScalingHealthItemLevelCurveID);
         attackRoundInfo.WriteUInt32((uint)ContentTuning.Flags);
         attackRoundInfo.WriteUInt32(ContentTuning.PlayerContentTuningID);
         attackRoundInfo.WriteUInt32(ContentTuning.TargetContentTuningID);

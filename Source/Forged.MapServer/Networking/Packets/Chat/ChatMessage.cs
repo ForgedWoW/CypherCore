@@ -9,12 +9,28 @@ public class ChatMessage : ClientPacket
 {
     public Language Language = Language.Universal;
     public string Text;
+    public bool IsSecure = true;
+
     public ChatMessage(WorldPacket packet) : base(packet) { }
 
     public override void Read()
     {
         Language = (Language)WorldPacket.ReadInt32();
         var len = WorldPacket.ReadBits<uint>(11);
+
+        switch (GetOpcode())
+        {
+            case ClientOpcodes.ChatMessageSay:
+            case ClientOpcodes.ChatMessageParty:
+            case ClientOpcodes.ChatMessageRaid:
+            case ClientOpcodes.ChatMessageRaidWarning:
+            case ClientOpcodes.ChatMessageInstanceChat:
+                IsSecure = WorldPacket.HasBit();
+                break;
+            default:
+                break;
+        }
+
         Text = WorldPacket.ReadString(len);
     }
 }

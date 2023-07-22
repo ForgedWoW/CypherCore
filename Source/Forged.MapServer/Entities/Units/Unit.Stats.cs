@@ -16,11 +16,11 @@ public partial class Unit
     //Powers
     public PowerType DisplayPowerType => (PowerType)(byte)UnitData.DisplayPower;
 
-    public long Health => UnitData.Health;
+    public long Health => UnitData.HealthMem;
 
     public float HealthPct => MaxHealth != 0 ? 100.0f * Health / MaxHealth : 0.0f;
     public bool IsFullHealth => Health == MaxHealth;
-    public long MaxHealth => UnitData.MaxHealth;
+    public long MaxHealth => UnitData.MaxHealthMem;
 
     public void ApplyModManaCostModifier(SpellSchools school, int mod, bool apply)
     {
@@ -542,7 +542,8 @@ public partial class Unit
             }
 
             var oldVal = Health;
-            SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Health), val);
+            UnitData.HealthMem = val;
+            SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Health), (ulong)val);
 
             TriggerOnHealthChangeAuras(oldVal, val);
 
@@ -579,7 +580,8 @@ public partial class Unit
         if (val == 0)
             val = 1;
 
-        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.MaxHealth), val);
+        UnitData.MaxHealthMem = val;
+        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.MaxHealth), (uint)val);
         var health = Health;
 
         // group update
@@ -1262,6 +1264,13 @@ public partial class Unit
             case UnitMods.ArcaneCharges:
             case UnitMods.Fury:
             case UnitMods.Pain:
+            case UnitMods.Essence:
+            case UnitMods.RuneBlood:
+            case UnitMods.RuneFrost:
+            case UnitMods.RuneUnholy:
+            case UnitMods.AlternateQuest:
+            case UnitMods.AlternateEncounter:
+            case UnitMods.AlternateMount:
                 UpdateMaxPower((PowerType)(unitMod - UnitMods.PowerStart));
 
                 break;

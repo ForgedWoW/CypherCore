@@ -129,7 +129,7 @@ public class EnumCharactersResult : ServerPacket
     {
         public bool BoostInProgress;
         public PlayerClass ClassId;
-        public Array<ChrCustomizationChoice> Customizations = new(72);
+        public Array<ChrCustomizationChoice> Customizations = new(125);
         public byte ExperienceLevel;
         public bool FirstLogin;
 

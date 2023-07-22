@@ -16,7 +16,8 @@ public class SpellCastRequest
     public MissileTrajectoryRequest MissileTrajectory;
     public MovementInfo MoveUpdate;
     public Array<SpellExtraCurrencyCost> OptionalCurrencies = new(5 /*MAX_ITEM_EXT_COST_CURRENCIES*/);
-    public Array<SpellCraftingReagent> OptionalReagents = new(3);
+    public Array<SpellCraftingReagent> OptionalReagents = new(6);
+    public Array<SpellCraftingReagent> RemovedModifications = new(6);
     public uint SendCastFlags;
     public uint SpellID;
     public SpellTargetData Target = new();
@@ -37,6 +38,7 @@ public class SpellCastRequest
 
         var optionalCurrencies = data.ReadUInt32();
         var optionalReagents = data.ReadUInt32();
+        var removedModificationsCount = data.ReadUInt32();
 
         for (var i = 0; i < optionalCurrencies; ++i)
             OptionalCurrencies[i].Read(data);
@@ -53,6 +55,9 @@ public class SpellCastRequest
 
         for (var i = 0; i < optionalReagents; ++i)
             OptionalReagents[i].Read(data);
+
+        for (var i = 0; i < removedModificationsCount; ++i)
+            RemovedModifications[i].Read(data);
 
         if (hasMoveUpdate)
             MoveUpdate = MovementExtensions.ReadMovementInfo(data);

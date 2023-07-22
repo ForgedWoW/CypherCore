@@ -1565,9 +1565,9 @@ public partial class Unit : WorldObject
         return Math.Max(tmpDamage, 0.0f);
     }
 
-    public long ModifyHealth(double dval)
+    public long ModifyHealth(double dVal)
     {
-        return ModifyHealth((long)dval);
+        return ModifyHealth((long)dVal);
     }
 
     public long ModifyHealth(long dVal)

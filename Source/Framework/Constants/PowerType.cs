@@ -25,9 +25,15 @@ public enum PowerType : sbyte
     Fury = 17,
     Pain = 18,
     Essence = 19,
-    Max = 20,
+    RuneBlood = 20,
+    RuneFrost = 21,
+    RuneUnholy = 22,
+    AlternateQuest = 23,
+    AlternateEncounter = 24,
+    AlternateMount = 25,
+    Max = 26,
 
     All = 127,   // default for class?
     Health = -2, // (-2 as signed value)
-    MaxPerClass = 7
+    MaxPerClass = 10
 }

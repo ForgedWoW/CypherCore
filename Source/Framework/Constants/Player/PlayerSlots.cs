@@ -9,6 +9,6 @@ public enum PlayerSlots
     Start = 0,
 
     // last+1 slot for item stored (in any way in player items data)
-    End = 218,
+    End = 227,
     Count = (End - Start)
 }

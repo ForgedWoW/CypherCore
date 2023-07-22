@@ -41,7 +41,7 @@ public class CharFactionChangeResult : ServerPacket
 
     public class CharFactionChangeDisplayInfo
     {
-        public Array<ChrCustomizationChoice> Customizations = new(72);
+        public Array<ChrCustomizationChoice> Customizations = new(125);
         public string Name;
         public byte RaceID;
         public byte SexID;
