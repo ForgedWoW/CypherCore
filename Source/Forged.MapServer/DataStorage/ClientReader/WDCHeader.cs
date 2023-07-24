@@ -36,6 +36,6 @@ public class WDCHeader
 
     public bool HasOffsetTable()
     {
-        return Convert.ToBoolean(Flags & HeaderFlags.Index);
+        return Convert.ToBoolean(Flags & HeaderFlags.Sparse);
     }
 }
