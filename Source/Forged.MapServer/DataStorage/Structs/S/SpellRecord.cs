@@ -5,8 +5,8 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed record SpellRecord
 {
-    public string AuraDescription_lang;
-    public string Description_lang;
     public uint Id;
     public string NameSubtext_lang;
+    public string Description_lang;
+    public string AuraDescription_lang;
 }

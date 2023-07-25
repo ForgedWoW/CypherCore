@@ -174,7 +174,7 @@ public class BattlegroundManager
         bg.SetQueueId(queueId);
         bg.SetBracket(bracketEntry);
         bg.SetInstanceID(_mapManager.GenerateInstanceId());
-        bg.SetClientInstanceID(CreateClientVisibleInstanceId((BattlegroundTypeId)queueId.BattlemasterListId, bracketEntry.BracketId));
+        bg.SetClientInstanceID(CreateClientVisibleInstanceId((BattlegroundTypeId)queueId.BattlemasterListId, bracketEntry.GetBracketId()));
         bg.Reset();                                // reset the new bg (set status to status_wait_queue from status_none)
         bg.SetStatus(BattlegroundStatus.WaitJoin); // start the joining of the bg
         bg.SetArenaType((ArenaTypes)queueId.TeamSize);

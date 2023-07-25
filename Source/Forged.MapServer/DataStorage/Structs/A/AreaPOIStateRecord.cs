@@ -7,10 +7,10 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public class AreaPOIStateRecord
 {
-    public uint AreaPoiID;
-    public LocalizedString Description;
-    public byte IconEnumValue;
     public uint ID;
-    public uint UiTextureAtlasMemberID;
+    public LocalizedString Description;
     public byte WorldStateValue;
+    public byte IconEnumValue;
+    public uint UiTextureAtlasMemberID;
+    public uint AreaPoiID;
 }

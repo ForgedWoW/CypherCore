@@ -1,12 +1,9 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-namespace Forged.MapServer.DataStorage.Structs.C;
-
-public sealed record ChrClassUIDisplayRecord
+public sealed class ChrClassUIDisplayRecord
 {
-    public uint AdvGuidePlayerConditionID;
-    public byte ChrClassesID;
     public uint Id;
+    public byte ChrClassesID;
+    public uint AdvGuidePlayerConditionID;
     public uint SplashPlayerConditionID;
 }

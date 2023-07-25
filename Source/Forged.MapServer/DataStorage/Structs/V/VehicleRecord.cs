@@ -1,29 +1,30 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
 using Framework.Constants;
 
-namespace Forged.MapServer.DataStorage.Structs.V;
-
-public sealed record VehicleRecord
+namespace Forged.MapServer.DataStorage.Structs.V
 {
-    public float CameraFadeDistScalarMax;
-    public float CameraFadeDistScalarMin;
-    public float CameraPitchOffset;
-    public float CameraYawOffset;
-    public float FacingLimitLeft;
-    public float FacingLimitRight;
-    public VehicleFlags Flags;
-    public int FlagsB;
-    public uint Id;
-    public int MissileTargetingID;
-    public float MouseLookOffsetPitch;
-    public float PitchMax;
-    public float PitchMin;
-    public float PitchSpeed;
-    public ushort[] PowerDisplayID = new ushort[3];
-    public ushort[] SeatID = new ushort[8];
-    public float TurnSpeed;
-    public ushort VehiclePOITypeID;
-    public ushort VehicleUIIndicatorID;
+    public sealed class VehicleRecord
+    {
+        public uint Id;
+        public VehicleFlags Flags;
+        public int FlagsB;
+        public float TurnSpeed;
+        public float PitchSpeed;
+        public float PitchMin;
+        public float PitchMax;
+        public float MouseLookOffsetPitch;
+        public float CameraFadeDistScalarMin;
+        public float CameraFadeDistScalarMax;
+        public float CameraPitchOffset;
+        public float FacingLimitRight;
+        public float FacingLimitLeft;
+        public float CameraYawOffset;
+        public ushort VehicleUIIndicatorID;
+        public int MissileTargetingID;
+        public ushort VehiclePOITypeID;
+        public ushort[] SeatID = new ushort[8];
+        public ushort[] PowerDisplayID = new ushort[3];
+    }
 }

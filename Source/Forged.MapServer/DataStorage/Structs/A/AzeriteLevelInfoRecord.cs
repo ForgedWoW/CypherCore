@@ -1,12 +1,9 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-namespace Forged.MapServer.DataStorage.Structs.A;
-
-public sealed record AzeriteLevelInfoRecord
+public sealed class AzeriteLevelInfoRecord
 {
-    public ulong BaseExperienceToNextLevel;
     public uint Id;
-    public uint ItemLevel;
+    public ulong BaseExperienceToNextLevel;
     public ulong MinimumExperienceToNextLevel;
+    public uint ItemLevel;
 }

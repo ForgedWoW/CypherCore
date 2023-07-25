@@ -1,14 +1,11 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-namespace Forged.MapServer.DataStorage.Structs.A;
-
-public sealed record ArtifactPowerRankRecord
+public sealed class ArtifactPowerRankRecord
 {
-    public uint ArtifactPowerID;
-    public float AuraPointsOverride;
     public uint Id;
-    public ushort ItemBonusListID;
     public byte RankIndex;
     public uint SpellID;
+    public ushort ItemBonusListID;
+    public float AuraPointsOverride;
+    public uint ArtifactPowerID;
 }

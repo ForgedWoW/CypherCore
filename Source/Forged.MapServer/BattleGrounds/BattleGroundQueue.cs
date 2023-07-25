@@ -89,7 +89,7 @@ public class BattlegroundQueue
     // add group or player (grp == null) to bg queue with the given leader and bg specifications
     public GroupQueueInfo AddGroup(Player leader, PlayerGroup group, TeamFaction team, PvpDifficultyRecord bracketEntry, bool isPremade, uint arenaRating, uint matchmakerRating, uint arenateamid = 0)
     {
-        var bracketId = bracketEntry.BracketId;
+        var bracketId = bracketEntry.GetBracketId();
 
         // create new ginfo
         GroupQueueInfo ginfo = new()

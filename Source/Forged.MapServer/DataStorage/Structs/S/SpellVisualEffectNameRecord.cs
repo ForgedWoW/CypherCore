@@ -1,24 +1,21 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-namespace Forged.MapServer.DataStorage.Structs.S;
-
-public sealed record SpellVisualEffectNameRecord
+public sealed class SpellVisualEffectNameRecord
 {
-    public float Alpha;
-    public float BaseMissileSpeed;
-    public int DissolveEffectID;
-    public float EffectRadius;
-    public uint Flags;
-    public int GenericID;
     public uint Id;
-    public float MaxAllowedScale;
-    public float MinAllowedScale;
     public int ModelFileDataID;
-    public int ModelPosition;
-    public uint RibbonQualityID;
+    public float BaseMissileSpeed;
     public float Scale;
+    public float MinAllowedScale;
+    public float MaxAllowedScale;
+    public float Alpha;
+    public uint Flags;
     public int TextureFileDataID;
+    public float EffectRadius;
     public uint Type;
+    public int GenericID;
+    public uint RibbonQualityID;
+    public int DissolveEffectID;
+    public int ModelPosition;
     public sbyte Unknown901;
 }

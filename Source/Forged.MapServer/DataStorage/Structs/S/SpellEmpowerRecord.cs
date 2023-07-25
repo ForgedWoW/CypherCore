@@ -6,6 +6,6 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 public sealed record SpellEmpowerRecord
 {
     public uint Id;
-    public uint OtherValue;
     public uint SpellID;
+    public uint OtherValue;
 }

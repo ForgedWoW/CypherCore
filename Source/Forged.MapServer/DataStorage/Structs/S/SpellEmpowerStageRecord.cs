@@ -5,8 +5,8 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed record SpellEmpowerStageRecord
 {
-    public uint DurationMs;
     public uint Id;
-    public uint SpellEmpowerID;
     public byte Stage;
+    public uint DurationMs;
+    public uint SpellEmpowerID;
 }

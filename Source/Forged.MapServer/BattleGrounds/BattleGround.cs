@@ -173,7 +173,7 @@ public class Battleground : ZoneScript, IDisposable
     public ArenaTypes ArenaType { get; private set; }
     public BattlegroundManager BattlegroundManager { get; }
     public BattlegroundMap BgMap { get; private set; }
-    public BattlegroundBracketId BracketId => _pvpDifficultyEntry.BracketId;
+    public BattlegroundBracketId BracketId => _pvpDifficultyEntry.GetBracketId();
     public DB6Storage<BroadcastTextRecord> BroadcastTextRecords { get; }
     public CharacterDatabase CharacterDatabase { get; }
     public ClassFactory ClassFactory { get; }

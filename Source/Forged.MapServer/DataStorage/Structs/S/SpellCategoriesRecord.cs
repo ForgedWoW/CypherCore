@@ -1,18 +1,15 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-namespace Forged.MapServer.DataStorage.Structs.S;
-
-public sealed record SpellCategoriesRecord
+public sealed class SpellCategoriesRecord
 {
-    public ushort Category;
-    public ushort ChargeCategory;
-    public sbyte DefenseType;
-    public byte DifficultyID;
-    public sbyte DispelType;
     public uint Id;
+    public byte DifficultyID;
+    public ushort Category;
+    public sbyte DefenseType;
+    public sbyte DispelType;
     public sbyte Mechanic;
     public sbyte PreventionType;
-    public uint SpellID;
     public ushort StartRecoveryCategory;
+    public ushort ChargeCategory;
+    public uint SpellID;
 }

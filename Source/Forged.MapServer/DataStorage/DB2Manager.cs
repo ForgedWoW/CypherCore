@@ -353,7 +353,7 @@ public class DB2Manager
     public PvpDifficultyRecord GetBattlegroundBracketById(uint mapid, BattlegroundBracketId id)
     {
         foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
-            if (entry.MapID == mapid && entry.BracketId == id)
+            if (entry.MapID == mapid && entry.GetBracketId() == id)
                 return entry;
 
         return null;

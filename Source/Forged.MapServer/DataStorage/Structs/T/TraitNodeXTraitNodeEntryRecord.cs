@@ -1,12 +1,9 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-namespace Forged.MapServer.DataStorage.Structs.T;
-
-public sealed record TraitNodeXTraitNodeEntryRecord
+public sealed class TraitNodeXTraitNodeEntryRecord
 {
     public uint Id;
-    public int Index;
-    public int TraitNodeEntryID;
     public int TraitNodeID;
+    public int TraitNodeEntryID;
+    public int Index;
 }

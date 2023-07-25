@@ -1,18 +1,15 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Framework.Constants;
+﻿using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed record GarrAbilityRecord
+public sealed class GarrAbilityRecord
 {
+    public uint Id;
+    public string Name;
     public string Description;
-    public ushort FactionChangeGarrAbilityID;
-    public GarrisonAbilityFlags Flags;
     public byte GarrAbilityCategoryID;
     public sbyte GarrFollowerTypeID;
     public int IconFileDataID;
-    public uint Id;
-    public string Name;
+    public ushort FactionChangeGarrAbilityID;
+    public GarrisonAbilityFlags Flags;
 }

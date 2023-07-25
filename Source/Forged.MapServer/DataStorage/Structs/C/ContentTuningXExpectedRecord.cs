@@ -1,13 +1,10 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-namespace Forged.MapServer.DataStorage.Structs.C;
-
-public sealed record ContentTuningXExpectedRecord
+public sealed class ContentTuningXExpectedRecord
 {
-    public uint ContentTuningID;
-    public int ExpectedStatModID;
     public uint Id;
-    public int MaxMythicPlusSeasonID;
+    public int ExpectedStatModID;
     public int MinMythicPlusSeasonID;
+    public int MaxMythicPlusSeasonID;
+    public uint ContentTuningID;
 }

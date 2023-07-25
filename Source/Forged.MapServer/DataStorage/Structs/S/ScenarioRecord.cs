@@ -1,14 +1,15 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
-namespace Forged.MapServer.DataStorage.Structs.S;
-
-public sealed record ScenarioRecord
+namespace Forged.MapServer.DataStorage.Structs.S
 {
-    public ushort AreaTableID;
-    public byte Flags;
-    public uint Id;
-    public string Name;
-    public byte Type;
-    public uint UiTextureKitID;
+    public sealed class ScenarioRecord
+    {
+        public uint Id;
+        public string Name;
+        public ushort AreaTableID;
+        public byte Type;
+        public byte Flags;
+        public uint UiTextureKitID;
+    }
 }

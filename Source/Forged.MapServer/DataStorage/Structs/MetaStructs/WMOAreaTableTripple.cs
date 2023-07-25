@@ -1,21 +1,20 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
-namespace Forged.MapServer.DataStorage.Structs.MetaStructs;
-
-public struct WMOAreaTableTripple
+namespace Forged.MapServer.DataStorage.Structs.MetaStructs
 {
-    private readonly int adtId;
-
-    // ordered by entropy; that way memcmp will have a minimal medium runtime
-    private readonly int groupId;
-
-    private readonly int rootId;
-
-    public WMOAreaTableTripple(int r, int a, int g)
+    public struct WMOAreaTableTripple
     {
-        groupId = g;
-        rootId = r;
-        adtId = a;
+        public WMOAreaTableTripple(int r, int a, int g)
+        {
+            groupId = g;
+            rootId = r;
+            adtId = a;
+        }
+
+        // ordered by entropy; that way memcmp will have a minimal medium runtime
+        int groupId;
+        int rootId;
+        int adtId;
     }
 }

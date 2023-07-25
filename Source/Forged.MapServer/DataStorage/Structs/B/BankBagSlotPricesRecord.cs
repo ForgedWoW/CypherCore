@@ -1,10 +1,11 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
-namespace Forged.MapServer.DataStorage.Structs.B;
-
-public sealed record BankBagSlotPricesRecord
+namespace Forged.MapServer.DataStorage.Structs.B
 {
-    public uint Cost;
-    public uint Id;
+    public sealed class BankBagSlotPricesRecord
+    {
+        public uint Id;
+        public uint Cost;
+    }
 }

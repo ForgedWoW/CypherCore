@@ -1,17 +1,14 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-namespace Forged.MapServer.DataStorage.Structs.S;
-
-public sealed record SpellTargetRestrictionsRecord
+public sealed class SpellTargetRestrictionsRecord
 {
-    public float ConeDegrees;
-    public byte DifficultyID;
     public uint Id;
-    public uint MaxTargetLevel;
+    public byte DifficultyID;
+    public float ConeDegrees;
     public byte MaxTargets;
-    public uint SpellID;
+    public uint MaxTargetLevel;
     public ushort TargetCreatureType;
-    public uint Targets;
+    public int Targets;
     public float Width;
+    public uint SpellID;
 }

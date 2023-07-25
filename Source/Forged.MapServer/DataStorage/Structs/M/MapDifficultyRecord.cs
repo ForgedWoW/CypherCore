@@ -1,57 +1,35 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Forged.MapServer.DataStorage.ClientReader;
+﻿using Forged.MapServer.DataStorage.ClientReader;
 using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed record MapDifficultyRecord
+public sealed class MapDifficultyRecord
 {
-    public int ContentTuningID;
-    public uint DifficultyID;
-    public int Flags;
     public uint Id;
+    public LocalizedString Message; // m_message_lang (text showed when transfer to map failed)
+    public uint DifficultyID;
+    public int LockID;
+    public MapDifficultyResetInterval ResetInterval;
+    public uint MaxPlayers;
     public int ItemContext;
     public uint ItemContextPickerID;
-    public int LockID;
+    public int Flags;
+    public int ContentTuningID;
     public uint MapID;
-    public uint MaxPlayers;
-    public LocalizedString Message; // m_message_lang (text showed when transfer to map failed)
-    public MapDifficultyResetInterval ResetInterval;
 
-    public MapDifficultyFlags GetFlags()
-    {
-        return (MapDifficultyFlags)Flags;
-    }
+    public bool HasResetSchedule() { return ResetInterval != MapDifficultyResetInterval.Anytime; }
+    public bool IsUsingEncounterLocks() { return GetFlags().HasFlag(MapDifficultyFlags.UseLootBasedLockInsteadOfInstanceLock); }
+    public bool IsRestoringDungeonState() { return GetFlags().HasFlag(MapDifficultyFlags.ResumeDungeonProgressBasedOnLockout); }
+    public bool IsExtendable() { return !GetFlags().HasFlag(MapDifficultyFlags.DisableLockExtension); }
 
     public uint GetRaidDuration()
     {
-        return ResetInterval switch
-        {
-            MapDifficultyResetInterval.Daily  => 86400,
-            MapDifficultyResetInterval.Weekly => 604800,
-            _                                 => 0
-        };
+        if (ResetInterval == MapDifficultyResetInterval.Daily)
+            return 86400;
+        if (ResetInterval == MapDifficultyResetInterval.Weekly)
+            return 604800;
+        return 0;
     }
 
-    public bool HasResetSchedule()
-    {
-        return ResetInterval != MapDifficultyResetInterval.Anytime;
-    }
-
-    public bool IsExtendable()
-    {
-        return !GetFlags().HasFlag(MapDifficultyFlags.DisableLockExtension);
-    }
-
-    public bool IsRestoringDungeonState()
-    {
-        return GetFlags().HasFlag(MapDifficultyFlags.ResumeDungeonProgressBasedOnLockout);
-    }
-
-    public bool IsUsingEncounterLocks()
-    {
-        return GetFlags().HasFlag(MapDifficultyFlags.UseLootBasedLockInsteadOfInstanceLock);
-    }
+    public MapDifficultyFlags GetFlags() { return (MapDifficultyFlags)Flags; }
 }

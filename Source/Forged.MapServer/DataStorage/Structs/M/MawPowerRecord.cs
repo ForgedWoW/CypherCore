@@ -1,11 +1,8 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.M;
 
-namespace Forged.MapServer.DataStorage.Structs.M;
-
-public sealed record MawPowerRecord
+public sealed class MawPowerRecord
 {
     public uint Id;
-    public int MawPowerRarityID;
     public int SpellID;
+    public int MawPowerRarityID;
 }

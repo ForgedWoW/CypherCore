@@ -401,7 +401,7 @@ public class TraitMgr
 
         foreach (var traitNodeXTraitCostEntry in _cliDB.TraitNodeXTraitCostStorage.Values)
             if (_cliDB.TraitCostStorage.TryGetValue((uint)traitNodeXTraitCostEntry.TraitCostID, out var traitCostEntry))
-                nodeCosts.Add(traitNodeXTraitCostEntry.TraitNodeID, traitCostEntry);
+                nodeCosts.Add((uint)traitNodeXTraitCostEntry.TraitNodeID, traitCostEntry);
 
         MultiMap<int, TraitNodeEntryRecord> nodeEntries = new();
 

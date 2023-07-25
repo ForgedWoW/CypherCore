@@ -1,18 +1,15 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
-namespace Forged.MapServer.DataStorage.Structs.C;
-
-public sealed record Cfg_RegionsRecord
+namespace Forged.MapServer.DataStorage.Structs.C
 {
-    public uint ChallengeOrigin;
-    public uint Id;
-
-    public uint Raidorigin;
-
-    // Date of first raid reset, all other resets are calculated as this date plus interval
-    public byte RegionGroupMask;
-
-    public ushort RegionID;
-    public string Tag;
+    public sealed class Cfg_RegionsRecord
+    {
+        public uint Id;
+        public string Tag;
+        public ushort RegionID;
+        public uint Raidorigin;                                              // Date of first raid reset, all other resets are calculated as this date plus interval
+        public byte RegionGroupMask;
+        public uint ChallengeOrigin;
+    }
 }

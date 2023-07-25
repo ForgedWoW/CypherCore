@@ -6,8 +6,8 @@ namespace Forged.MapServer.DataStorage.Structs.Q;
 public class QuestPOIPointEntry
 {
     public int ID;
-    public uint QuestPOIBlobID;
     public short X;
     public short Y;
     public short Z;
+    public uint QuestPOIBlobID;
 }

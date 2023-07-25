@@ -1,10 +1,11 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
-namespace Forged.MapServer.DataStorage.Structs.T;
-
-public sealed record TactKeyRecord
+namespace Forged.MapServer.DataStorage.Structs.T
 {
-    public uint Id;
-    public byte[] Key = new byte[16];
+    public sealed class TactKeyRecord
+    {
+        public uint Id;
+        public byte[] Key = new byte[16];
+    }
 }

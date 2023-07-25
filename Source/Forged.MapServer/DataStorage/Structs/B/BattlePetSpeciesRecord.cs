@@ -1,27 +1,21 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Framework.Constants;
+﻿using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed record BattlePetSpeciesRecord
+public sealed class BattlePetSpeciesRecord
 {
-    public int CardUIModelSceneID;
-    public int CovenantID;
-    public uint CreatureID;
     public string Description;
-    public int Flags;
-    public int IconFileDataID;
-    public uint Id;
-    public int LoadoutUIModelSceneID;
-    public sbyte PetTypeEnum;
     public string SourceText;
-    public sbyte SourceTypeEnum;
+    public uint Id;
+    public uint CreatureID;
     public uint SummonSpellID;
+    public int IconFileDataID;
+    public sbyte PetTypeEnum;
+    public int Flags;
+    public sbyte SourceTypeEnum;
+    public int CardUIModelSceneID;
+    public int LoadoutUIModelSceneID;
+    public int CovenantID;
 
-    public BattlePetSpeciesFlags GetFlags()
-    {
-        return (BattlePetSpeciesFlags)Flags;
-    }
+    public BattlePetSpeciesFlags GetFlags() { return (BattlePetSpeciesFlags)Flags; }
 }

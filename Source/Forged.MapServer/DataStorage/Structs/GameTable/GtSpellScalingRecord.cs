@@ -1,31 +1,28 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-namespace Forged.MapServer.DataStorage.Structs.GameTable;
-
-public sealed record GtSpellScalingRecord
+public sealed class GtSpellScalingRecord
 {
-    public float Adventurer;
-    public float Consumable;
-    public float DamageReplaceStat;
-    public float DamageSecondary;
-    public float DeathKnight;
-    public float DemonHunter;
+    public float Rogue;
     public float Druid;
+    public float Hunter;
+    public float Mage;
+    public float Paladin;
+    public float Priest;
+    public float Shaman;
+    public float Warlock;
+    public float Warrior;
+    public float DeathKnight;
+    public float Monk;
+    public float DemonHunter;
     public float Evoker;
+    public float Adventurer;
+    public float Item;
+    public float Consumable;
     public float Gem1;
     public float Gem2;
     public float Gem3;
     public float Health;
-    public float Hunter;
-    public float Item;
-    public float Mage;
+    public float DamageReplaceStat;
+    public float DamageSecondary;
     public float ManaConsumable;
-    public float Monk;
-    public float Paladin;
-    public float Priest;
-    public float Rogue;
-    public float Shaman;
-    public float Warlock;
-    public float Warrior;
 }

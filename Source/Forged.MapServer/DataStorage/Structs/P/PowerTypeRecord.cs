@@ -1,23 +1,21 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Framework.Constants;
+﻿using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed record PowerTypeRecord
+public sealed class PowerTypeRecord
 {
-    public int CenterPower;
+    public string NameGlobalStringTag;
     public string CostGlobalStringTag;
+    public uint Id;
+    public PowerType PowerTypeEnum;
+    public int MinPower;
+    public int MaxBasePower;
+    public int CenterPower;
     public int DefaultPower;
     public int DisplayModifier;
-    public short Flags;
-    public uint Id;
-    public int MaxBasePower;
-    public int MinPower;
-    public string NameGlobalStringTag;
-    public PowerType PowerTypeEnum;
-    public float RegenCombat;
     public int RegenInterruptTimeMS;
     public float RegenPeace;
+    public float RegenCombat;
+    public short Flags;
+    
 }

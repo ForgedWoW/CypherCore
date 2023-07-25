@@ -1,15 +1,14 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-namespace Forged.MapServer.DataStorage.Structs.I;
-
-public sealed record ItemBonusListGroupEntryRecord
+public sealed class ItemBonusListGroupEntryRecord
 {
     public uint Id;
-    public uint ItemBonusListGroupID;
+    public int ItemBonusListGroupID;
     public int ItemBonusListID;
-    public int ItemExtendedCostID;
     public int ItemLevelSelectorID;
-    public int OrderIndex;
+    public int SequenceValue;
+    public int ItemExtendedCostID;
     public int PlayerConditionID;
+    public int Flags;
+    public int ItemLogicalCostGroupID;
 }

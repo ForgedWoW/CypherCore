@@ -1,21 +1,15 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Framework.Constants;
+﻿using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed record PrestigeLevelInfoRecord
+public sealed class PrestigeLevelInfoRecord
 {
-    public int AwardedAchievementID;
-    public int BadgeTextureFileDataID;
-    public PrestigeLevelInfoFlags Flags;
     public uint Id;
     public string Name;
     public int PrestigeLevel;
+    public int BadgeTextureFileDataID;
+    public PrestigeLevelInfoFlags Flags;
+    public int AwardedAchievementID;
 
-    public bool IsDisabled()
-    {
-        return (Flags & PrestigeLevelInfoFlags.Disabled) != 0;
-    }
+    public bool IsDisabled() { return (Flags & PrestigeLevelInfoFlags.Disabled) != 0; }
 }

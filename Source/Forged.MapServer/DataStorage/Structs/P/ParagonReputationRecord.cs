@@ -1,12 +1,13 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
-namespace Forged.MapServer.DataStorage.Structs.P;
-
-public sealed record ParagonReputationRecord
+namespace Forged.MapServer.DataStorage.Structs.P
 {
-    public uint FactionID;
-    public uint Id;
-    public int LevelThreshold;
-    public int QuestID;
+    public sealed class ParagonReputationRecord
+    {
+        public uint Id;
+        public uint FactionID;
+        public int LevelThreshold;
+        public int QuestID;
+    }
 }

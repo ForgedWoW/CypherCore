@@ -1,20 +1,17 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Framework.Constants;
+﻿using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed record MountCapabilityRecord
+public sealed class MountCapabilityRecord
 {
-    public MountCapabilityFlags Flags;
-    public int FlightCapabilityID;
     public uint Id;
-    public uint ModSpellAuraID;
-    public int PlayerConditionID;
-    public ushort ReqAreaID;
-    public short ReqMapID;
+    public MountCapabilityFlags Flags;
     public ushort ReqRidingSkill;
+    public ushort ReqAreaID;
     public uint ReqSpellAuraID;
     public uint ReqSpellKnownID;
+    public uint ModSpellAuraID;
+    public short ReqMapID;
+    public int PlayerConditionID;
+    public int FlightCapabilityID;
 }

@@ -1,10 +1,7 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-namespace Forged.MapServer.DataStorage.Structs.I;
-
-public sealed record ImportPriceQualityRecord
+public sealed class ImportPriceQualityRecord
 {
-    public float Data;
     public uint Id;
+    public float Data;
 }

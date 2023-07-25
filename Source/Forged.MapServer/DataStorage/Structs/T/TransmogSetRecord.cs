@@ -1,21 +1,18 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-namespace Forged.MapServer.DataStorage.Structs.T;
-
-public sealed record TransmogSetRecord
+public sealed class TransmogSetRecord
 {
-    public int ClassMask;
-    public byte ExpansionID;
-    public int Flags;
-    public uint Id;
-    public int ItemNameDescriptionID;
     public string Name;
-    public ushort ParentTransmogSetID;
-    public int PatchID;
-    public uint PlayerConditionID;
+    public uint Id;
+    public int ClassMask;
     public uint TrackingQuestID;
+    public int Flags;
     public uint TransmogSetGroupID;
-    public short UiOrder;
+    public int ItemNameDescriptionID;
+    public ushort ParentTransmogSetID;
     public byte Unknown810;
+    public byte ExpansionID;
+    public int PatchID;
+    public short UiOrder;
+    public uint PlayerConditionID;
 }

@@ -6,5 +6,6 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 public sealed record SpellReplacementRecord
 {
     public uint Id;
+    public uint Field_10_0_0_44999_000;
     public uint SpellID;
 }

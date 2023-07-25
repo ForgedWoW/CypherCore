@@ -1,11 +1,8 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.P;
 
-namespace Forged.MapServer.DataStorage.Structs.P;
-
-public sealed record PhaseXPhaseGroupRecord
+public sealed class PhaseXPhaseGroupRecord
 {
     public uint Id;
-    public uint PhaseGroupID;
     public ushort PhaseId;
+    public uint PhaseGroupID;
 }

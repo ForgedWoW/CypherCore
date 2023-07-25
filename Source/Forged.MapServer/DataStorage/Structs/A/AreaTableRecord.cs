@@ -1,38 +1,39 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using System;
+﻿using System;
 using Forged.MapServer.DataStorage.ClientReader;
 using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed record AreaTableRecord
+public sealed class AreaTableRecord
 {
-    public ushort AmbienceID;
-    public float AmbientMultiplier;
-    public short AreaBit;
-    public LocalizedString AreaName;
-    public uint ContentTuningID;
-    public ushort ContinentID;
-    public byte FactionGroupMask;
-    public uint[] Flags = new uint[2];
     public uint Id;
-    public ushort IntroSound;
-    public ushort[] LiquidTypeID = new ushort[4];
-    public uint MountFlags;
+    public string ZoneName;
+    public LocalizedString AreaName;
+    public ushort ContinentID;
     public ushort ParentAreaID;
-    public short PvpCombatWorldStateID;
+    public short AreaBit;
     public byte SoundProviderPref;
     public byte SoundProviderPrefUnderwater;
+    public ushort AmbienceID;
     public ushort UwAmbience;
-    public uint UwIntroSound;
-    public ushort UwZoneMusic;
-    public byte WildBattlePetLevelMax;
-    public byte WildBattlePetLevelMin;
-    public byte WindSettingsID;
     public ushort ZoneMusic;
-    public string ZoneName;
+    public ushort UwZoneMusic;
+    public ushort IntroSound;
+    public uint UwIntroSound;
+    public byte FactionGroupMask;
+    public float AmbientMultiplier;
+    public byte MountFlags;
+    public short PvpCombatWorldStateID;
+    public byte WildBattlePetLevelMin;
+    public byte WildBattlePetLevelMax;
+    public byte WindSettingsID;
+    public uint ContentTuningID;
+    public uint[] Flags = new uint[2];
+    public ushort[] LiquidTypeID = new ushort[4];
+
+    public AreaFlags GetFlags() { return (AreaFlags)Flags[0]; }
+    public AreaFlags2 GetFlags2() { return (AreaFlags2)Flags[1]; }
+    public AreaMountFlags GetMountFlags() { return (AreaMountFlags)MountFlags; }
 
     public bool HasFlag(AreaFlags flag)
     {
@@ -44,17 +45,8 @@ public sealed record AreaTableRecord
         return Flags[1].HasAnyFlag((uint)flag);
     }
 
-    public bool IsFlyable()
-    {
-        if (HasFlag(AreaFlags.Outland))
-            if (!HasFlag(AreaFlags.NoFlyZone))
-                return true;
-
-        return false;
-    }
-
     public bool IsSanctuary()
     {
-        return HasFlag(AreaFlags.Sanctuary);
+        return GetFlags().HasFlag(AreaFlags.Sanctuary);
     }
 }

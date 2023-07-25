@@ -1,26 +1,23 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Forged.MapServer.DataStorage.ClientReader;
+﻿using Forged.MapServer.DataStorage.ClientReader;
 using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed record ChrSpecializationRecord
+public sealed class ChrSpecializationRecord
 {
-    public int AnimReplacements;
-    public byte ClassID;
-    public string Description;
-    public string FemaleName;
-    public ChrSpecializationFlag Flags;
-    public uint Id;
-    public uint[] MasterySpellID = new uint[PlayerConst.MaxMasterySpells];
     public LocalizedString Name;
+    public string FemaleName;
+    public string Description;
+    public uint Id;
+    public byte ClassID;
     public byte OrderIndex;
     public sbyte PetTalentType;
-    public sbyte PrimaryStatPriority;
     public sbyte Role;
+    public ChrSpecializationFlag Flags;
     public int SpellIconFileID;
+    public sbyte PrimaryStatPriority;
+    public int AnimReplacements;
+    public uint[] MasterySpellID = new uint[PlayerConst.MaxMasterySpells];
 
     public bool IsPetSpecialization()
     {

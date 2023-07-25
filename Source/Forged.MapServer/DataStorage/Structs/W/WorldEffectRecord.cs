@@ -1,15 +1,12 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿namespace Forged.MapServer.DataStorage.Structs.W;
 
-namespace Forged.MapServer.DataStorage.Structs.W;
-
-public sealed record WorldEffectRecord
+public sealed class WorldEffectRecord
 {
-    public ushort CombatConditionID;
     public uint Id;
-    public uint PlayerConditionID;
     public uint QuestFeedbackEffectID;
-    public int TargetAsset;
-    public byte TargetType;
     public byte WhenToDisplay;
+    public byte TargetType;
+    public int TargetAsset;
+    public uint PlayerConditionID;
+    public ushort CombatConditionID;
 }

@@ -1,18 +1,19 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+﻿// Copyright (c) CypherCore <http://github.com/CypherCore> All rights reserved.
+// Licensed under the GNU GENERAL PUBLIC LICENSE. See LICENSE file in the project root for full license information.
 
-namespace Forged.MapServer.DataStorage.Structs.E;
-
-public sealed record EmotesRecord
+namespace Forged.MapServer.DataStorage.Structs.E
 {
-    public int AnimId;
-    public int ClassMask;
-    public uint EmoteFlags;
-    public string EmoteSlashCommand;
-    public byte EmoteSpecProc;
-    public uint EmoteSpecProcParam;
-    public uint EventSoundID;
-    public uint Id;
-    public long RaceMask;
-    public uint SpellVisualKitId;
+    public sealed class EmotesRecord
+    {
+        public uint Id;
+        public long RaceMask;
+        public string EmoteSlashCommand;
+        public int AnimId;
+        public uint EmoteFlags;
+        public byte EmoteSpecProc;
+        public uint EmoteSpecProcParam;
+        public uint EventSoundID;
+        public uint SpellVisualKitId;
+        public int ClassMask;
+    }
 }

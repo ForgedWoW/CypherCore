@@ -1,40 +1,30 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Framework.Constants;
+﻿using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed record CurrencyTypesRecord
+public sealed class CurrencyTypesRecord
 {
-    public int AwardConditionID;
-    public int CategoryID;
-    public string Description;
-    public int FactionID;
-    public int[] Flags = new int[2];
     public uint Id;
-    public int InventoryIconFileID;
-    public int ItemGroupSoundsID;
-    public uint MaxEarnablePerWeek;
-    public uint MaxQty;
-    public int MaxQtyWorldStateID;
     public string Name;
+    public string Description;
+    public int CategoryID;
+    public int InventoryIconFileID;
+    public uint SpellWeight;
+    public byte SpellCategory;
+    public uint MaxQty;
+    public uint MaxEarnablePerWeek;
     public sbyte Quality;
+    public int FactionID;
+    public int ItemGroupSoundsID;
+    public int XpQuestDifficulty;
+    public int AwardConditionID;
+    public int MaxQtyWorldStateID;
     public uint RechargingAmountPerCycle;
     public uint RechargingCycleDurationMS;
-    public byte SpellCategory;
-    public uint SpellWeight;
-    public int XpQuestDifficulty;
+    public int[] Flags = new int[2];
 
-    public CurrencyTypesFlags GetFlags()
-    {
-        return (CurrencyTypesFlags)Flags[0];
-    }
-
-    public CurrencyTypesFlagsB GetFlagsB()
-    {
-        return (CurrencyTypesFlagsB)Flags[1];
-    }
+    public CurrencyTypesFlags GetFlags() { return (CurrencyTypesFlags)Flags[0]; }
+    public CurrencyTypesFlagsB GetFlagsB() { return (CurrencyTypesFlagsB)Flags[1]; }
 
     // Helpers
     public int GetScaler()

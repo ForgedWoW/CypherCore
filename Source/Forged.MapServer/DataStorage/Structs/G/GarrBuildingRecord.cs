@@ -1,35 +1,32 @@
-﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Framework.Constants;
+﻿using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed record GarrBuildingRecord
+public sealed class GarrBuildingRecord
 {
-    public uint AllianceGameObjectID;
-    public string AllianceName;
-    public ushort AllianceSceneScriptPackageID;
-    public ushort AllianceUiTextureKitID;
-    public ushort BonusGarrAbilityID;
-    public sbyte BuildingType;
-    public int BuildSeconds;
-    public int CurrencyQty;
-    public ushort CurrencyTypeID;
-    public string Description;
-    public GarrisonBuildingFlags Flags;
-    public ushort GarrAbilityID;
-    public int GarrSiteID;
-    public byte GarrTypeID;
-    public ushort GoldCost;
-    public uint HordeGameObjectID;
-    public string HordeName;
-    public ushort HordeSceneScriptPackageID;
-    public ushort HordeUiTextureKitID;
-    public int IconFileDataID;
     public uint Id;
+    public string HordeName;
+    public string AllianceName;
+    public string Description;
+    public string Tooltip;
+    public sbyte GarrTypeID;
+    public sbyte BuildingType;
+    public uint HordeGameObjectID;
+    public uint AllianceGameObjectID;
+    public int GarrSiteID;
+    public byte UpgradeLevel;
+    public int BuildSeconds;
+    public ushort CurrencyTypeID;
+    public int CurrencyQty;
+    public ushort HordeUiTextureKitID;
+    public ushort AllianceUiTextureKitID;
+    public int IconFileDataID;
+    public ushort AllianceSceneScriptPackageID;
+    public ushort HordeSceneScriptPackageID;
     public int MaxAssignments;
     public byte ShipmentCapacity;
-    public string Tooltip;
-    public byte UpgradeLevel;
+    public ushort GarrAbilityID;
+    public ushort BonusGarrAbilityID;
+    public ushort GoldCost;
+    public GarrisonBuildingFlags Flags;
 }
