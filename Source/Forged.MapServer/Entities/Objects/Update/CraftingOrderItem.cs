@@ -38,6 +38,7 @@ public class CraftingOrderItem : BaseUpdateData<Player>
         data.WriteUInt32(Quantity);
         data.WriteInt32(ReagentQuality);
         data.WriteBits(DataSlotIndex.HasValue(), 1);
+        data.FlushBits();
 
         if (DataSlotIndex.HasValue())
             data.WriteUInt8(DataSlotIndex);
@@ -73,6 +74,7 @@ public class CraftingOrderItem : BaseUpdateData<Player>
             data.WriteInt32(ReagentQuality);
 
         data.WriteBits(DataSlotIndex.HasValue(), 1);
+        data.FlushBits();
 
         if (changesMask[6])
             if (DataSlotIndex.HasValue())

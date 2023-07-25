@@ -18,10 +18,9 @@ public class QuestLog : BaseUpdateData<Player>
 
     public override void ClearChangesMask()
     {
+        ClearChangesMask(EndTime);
         ClearChangesMask(QuestID);
         ClearChangesMask(StateFlags);
-        ClearChangesMask(EndTime);
-        ClearChangesMask(AcceptTime);
         ClearChangesMask(ObjectiveFlags);
         ClearChangesMask(ObjectiveProgress);
         ChangesMask.ResetAll();
@@ -29,10 +28,9 @@ public class QuestLog : BaseUpdateData<Player>
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
+        data.WriteInt64(EndTime);
         data.WriteUInt32(QuestID);
         data.WriteUInt32(StateFlags);
-        data.WriteUInt32(EndTime);
-        data.WriteUInt32(AcceptTime);
         data.WriteUInt32(ObjectiveFlags);
 
         for (var i = 0; i < 24; ++i)
@@ -56,24 +54,21 @@ public class QuestLog : BaseUpdateData<Player>
         if (changesMask[0])
         {
             if (changesMask[1])
+                data.WriteInt64(EndTime);
+            
+            if (changesMask[2])
                 data.WriteUInt32(QuestID);
 
-            if (changesMask[2])
-                data.WriteUInt32(StateFlags);
-
             if (changesMask[3])
-                data.WriteUInt32(EndTime);
-
+                data.WriteUInt32(StateFlags);
+            
             if (changesMask[4])
-                data.WriteUInt32(AcceptTime);
-
-            if (changesMask[5])
                 data.WriteUInt32(ObjectiveFlags);
         }
 
-        if (changesMask[6])
+        if (changesMask[5])
             for (var i = 0; i < 24; ++i)
-                if (changesMask[7 + i])
+                if (changesMask[6 + i])
                     data.WriteUInt16(ObjectiveProgress[i]);
     }
 }
