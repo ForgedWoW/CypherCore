@@ -2099,10 +2099,6 @@ public sealed class GameObjectManager
         LoadQuestGreetings();
         LoadQuestGreetingLocales();
         LoadNPCSpellClickSpells();
-        VehicleObjectManager.LoadVehicleTemplate();            // must be after LoadCreatureTemplates()
-        VehicleObjectManager.LoadVehicleTemplateAccessories(); // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
-        VehicleObjectManager.LoadVehicleAccessories();         // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
-        VehicleObjectManager.LoadVehicleSeatAddon();                              // must be after loading DBC
         LoadWorldSafeLocs();                                   // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
         LoadAreaTriggerTeleports();
         LoadAccessRequirements(); // must be after item template load

@@ -52,6 +52,14 @@ public sealed class VehicleObjectManager
         return _vehicleTemplateStore.LookupByKey(veh.CreatureEntry);
     }
 
+    public void Initialize()
+    {
+        LoadVehicleTemplate();
+        LoadVehicleAccessories();
+        LoadVehicleSeatAddon();
+        LoadVehicleTemplateAccessories();
+    }
+
     public void LoadVehicleAccessories()
     {
         var oldMSTime = Time.MSTime;

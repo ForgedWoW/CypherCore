@@ -348,6 +348,7 @@ void RegisterManagers()
     builder.RegisterType<PhasingHandler>().SingleInstance();
     builder.RegisterType<CriteriaDataValidator>().SingleInstance();
     builder.RegisterType<LFGGroupScript>().SingleInstance();
+    builder.RegisterType<VehicleObjectManager>().SingleInstance().OnActivated(c => c.Instance.Initialize());
 }
 
 void RegisterFactories()
