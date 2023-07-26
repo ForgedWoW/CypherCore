@@ -350,6 +350,7 @@ void RegisterManagers()
     builder.RegisterType<LFGGroupScript>().SingleInstance();
     builder.RegisterType<VehicleObjectManager>().SingleInstance().OnActivated(c => c.Instance.Initialize());
     builder.RegisterType<SpellClickInfoObjectManager>().SingleInstance().OnActivated(c => c.Instance.LoadNPCSpellClickSpells());
+    builder.RegisterType<GameTeleObjectManager>().SingleInstance().OnActivated(c => c.Instance.LoadGameTele());
 }
 
 void RegisterFactories()

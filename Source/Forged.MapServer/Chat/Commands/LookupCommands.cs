@@ -6,6 +6,7 @@ using System.Text;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
@@ -612,7 +613,7 @@ internal class LookupCommands
         uint count = 0;
         var limitReached = false;
 
-        foreach (var tele in handler.ObjectManager.GameTeleStorage)
+        foreach (var tele in handler.ClassFactory.Resolve<GameTeleObjectManager>().GameTeleStorage)
         {
             if (!tele.Value.Name.Like(namePart))
                 continue;

@@ -80,7 +80,7 @@ internal class TeleCommands
         if (player == null)
             return false;
 
-        if (handler.ObjectManager.GetGameTeleExactName(name) != null)
+        if (handler.ClassFactory.Resolve<GameTeleObjectManager>().GetGameTeleExactName(name) != null)
         {
             handler.SendSysMessage(CypherStrings.CommandTpAlreadyexist);
 
@@ -98,7 +98,7 @@ internal class TeleCommands
             NameLow = name.ToLowerInvariant()
         };
 
-        if (handler.ObjectManager.AddGameTele(tele))
+        if (handler.ClassFactory.Resolve<GameTeleObjectManager>().AddGameTele(tele))
             handler.SendSysMessage(CypherStrings.CommandTpAdded);
         else
         {
@@ -159,7 +159,7 @@ internal class TeleCommands
             return false;
         }
 
-        handler.ObjectManager.DeleteGameTele(tele.Name);
+        handler.ClassFactory.Resolve<GameTeleObjectManager>().DeleteGameTele(tele.Name);
         handler.SendSysMessage(CypherStrings.CommandTpDeleted);
 
         return true;

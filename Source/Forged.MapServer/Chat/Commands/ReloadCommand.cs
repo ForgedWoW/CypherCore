@@ -352,7 +352,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Game Tele coordinates...");
 
-        handler.ObjectManager.LoadGameTele();
+        handler.ClassFactory.Resolve<GameTeleObjectManager>().LoadGameTele();
 
         handler.SendGlobalGMSysMessage("DB table `game_tele` reloaded.");
 
