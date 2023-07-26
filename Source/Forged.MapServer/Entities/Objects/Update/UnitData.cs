@@ -19,6 +19,7 @@ public class UnitData : BaseUpdateData<Unit>
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
     private readonly SpellManager _spellManager;
+
     public UpdateField<List<uint>> StateWorldEffectIDs = new(0, 1);
     public DynamicUpdateField<PassiveSpellHistory> PassiveSpells = new(0, 2);
     public DynamicUpdateField<int> WorldEffects = new(0, 3);
@@ -109,51 +110,56 @@ public class UnitData : BaseUpdateData<Unit>
     public UpdateField<int> AttackPowerModPos = new(64, 87);
     public UpdateField<int> AttackPowerModNeg = new(64, 88);
     public UpdateField<float> AttackPowerMultiplier = new(64, 89);
-    public UpdateField<int> RangedAttackPower = new(64, 90);
-    public UpdateField<int> RangedAttackPowerModPos = new(64, 91);
-    public UpdateField<int> RangedAttackPowerModNeg = new(64, 92);
-    public UpdateField<float> RangedAttackPowerMultiplier = new(64, 93);
-    public UpdateField<int> MainHandWeaponAttackPower = new(64, 94);
-    public UpdateField<int> OffHandWeaponAttackPower = new(64, 95);
-    public UpdateField<int> RangedWeaponAttackPower = new(96, 97);
-    public UpdateField<int> SetAttackSpeedAura = new(96, 98);
-    public UpdateField<float> Lifesteal = new(96, 99);
-    public UpdateField<float> MinRangedDamage = new(96, 100);
-    public UpdateField<float> MaxRangedDamage = new(96, 101);
-    public UpdateField<float> ManaCostMultiplier = new(96, 102);
-    public UpdateField<float> MaxHealthModifier = new(96, 103);
-    public UpdateField<float> HoverHeight = new(96, 104);
-    public UpdateField<uint> MinItemLevelCutoff = new(96, 105);
-    public UpdateField<uint> MinItemLevel = new(96, 106);
-    public UpdateField<uint> MaxItemLevel = new(96, 107);
-    public UpdateField<int> AzeriteItemLevel = new(96, 108);
-    public UpdateField<uint> WildBattlePetLevel = new(96, 109);
-    public UpdateField<uint> BattlePetCompanionExperience = new(96, 110);
-    public UpdateField<uint> BattlePetCompanionNameTimestamp = new(96, 111);
-    public UpdateField<int> InteractSpellID = new(96, 112);
-    public UpdateField<int> ScaleDuration = new(96, 113);
-    public UpdateField<int> LooksLikeMountID = new(96, 114);
-    public UpdateField<int> LooksLikeCreatureID = new(96, 115);
-    public UpdateField<int> LookAtControllerID = new(96, 116);
-    public UpdateField<int> PerksVendorItemID = new(96, 117);
-    public UpdateField<int> TaxiNodesID = new(96, 118);
-    public UpdateField<ObjectGuid> GuildGUID = new(96, 119);
-    public UpdateField<int> FlightCapabilityID = new(96, 120);
-    public UpdateField<uint> SilencedSchoolMask = new(96, 121);
-    public UpdateField<ObjectGuid> NameplateAttachToGUID = new(96, 122);                     // When set, nameplate of this unit will instead appear on that object
-    public UpdateFieldArray<uint> NpcFlags = new(2, 123, 124);
-    public UpdateFieldArray<int> Power = new(10, 126, 127);
-    public UpdateFieldArray<uint> MaxPower = new(10, 126, 137);
-    public UpdateFieldArray<float> PowerRegenFlatModifier = new(10, 126, 147);
-    public UpdateFieldArray<float> PowerRegenInterruptedFlatModifier = new(10, 126, 157);
-    public UpdateFieldArray<VisibleItem> VirtualItems = new(3, 167, 168);
-    public UpdateFieldArray<uint> AttackRoundBaseTime = new(2, 171, 172);
-    public UpdateFieldArray<int> Stats = new(4, 174, 175);
-    public UpdateFieldArray<int> StatPosBuff = new(4, 174, 179);
-    public UpdateFieldArray<int> StatNegBuff = new(4, 174, 183);
-    public UpdateFieldArray<int> Resistances = new(7, 187, 188);
-    public UpdateFieldArray<int> BonusResistanceMods = new(7, 187, 195);
-    public UpdateFieldArray<int> ManaCostModifier = new(7, 187, 202);
+    public UpdateField<int> AttackPowerModSupport = new(64, 90);
+    public UpdateField<int> RangedAttackPower = new(64, 91);
+    public UpdateField<int> RangedAttackPowerModPos = new(64, 92);
+    public UpdateField<int> RangedAttackPowerModNeg = new(64, 93);
+    public UpdateField<float> RangedAttackPowerMultiplier = new(64, 94);
+    public UpdateField<int> RangedAttackPowerModSupport = new(64, 95);
+    public UpdateField<int> MainHandWeaponAttackPower = new(96, 97);
+    public UpdateField<int> OffHandWeaponAttackPower = new(96, 98);
+    public UpdateField<int> RangedWeaponAttackPower = new(96, 99);
+    public UpdateField<int> SetAttackSpeedAura = new(96, 100);
+    public UpdateField<float> Lifesteal = new(96, 101);
+    public UpdateField<float> MinRangedDamage = new(96, 102);
+    public UpdateField<float> MaxRangedDamage = new(96, 103);
+    public UpdateField<float> ManaCostMultiplier = new(96, 104);
+    public UpdateField<float> MaxHealthModifier = new(96, 105);
+    public UpdateField<float> HoverHeight = new(96, 106);
+    public UpdateField<uint> MinItemLevelCutoff = new(96, 107);
+    public UpdateField<uint> MinItemLevel = new(96, 108);
+    public UpdateField<uint> MaxItemLevel = new(96, 109);
+    public UpdateField<int> AzeriteItemLevel = new(96, 110);
+    public UpdateField<uint> WildBattlePetLevel = new(96, 111);
+    public UpdateField<uint> BattlePetCompanionExperience = new(96, 112);
+    public UpdateField<uint> BattlePetCompanionNameTimestamp = new(96, 113);
+    public UpdateField<int> InteractSpellID = new(96, 114);
+    public UpdateField<int> ScaleDuration = new(96, 115);
+    public UpdateField<int> LooksLikeMountID = new(96, 116);
+    public UpdateField<int> LooksLikeCreatureID = new(96, 117);
+    public UpdateField<int> LookAtControllerID = new(96, 118);
+    public UpdateField<int> PerksVendorItemID = new(96, 119);
+    public UpdateField<int> TaxiNodesID = new(96, 120);
+    public UpdateField<ObjectGuid> GuildGUID = new(96, 121);
+    public UpdateField<int> FlightCapabilityID = new(96, 122);
+    public UpdateField<float> GlideEventSpeedDivisor = new(96, 123);                         // Movement speed gets divided by this value when evaluating what GlideEvents to use
+    public UpdateField<uint> SilencedSchoolMask = new(96, 124);
+    public UpdateField<int> CurrentAreaID = new(96, 125);
+    public UpdateField<ObjectGuid> NameplateAttachToGUID = new(96, 126);                     // When set, nameplate of this unit will instead appear on that object
+    public UpdateFieldArray<uint> NpcFlags = new(2, 127, 128);
+    public UpdateFieldArray<int> Power = new(10, 130, 131);
+    public UpdateFieldArray<uint> MaxPower = new(10, 130, 141);
+    public UpdateFieldArray<float> PowerRegenFlatModifier = new(10, 130, 151);
+    public UpdateFieldArray<float> PowerRegenInterruptedFlatModifier = new(10, 130, 161);
+    public UpdateFieldArray<VisibleItem> VirtualItems = new(3, 171, 172);
+    public UpdateFieldArray<uint> AttackRoundBaseTime = new(2, 175, 176);
+    public UpdateFieldArray<int> Stats = new(4, 178, 179);
+    public UpdateFieldArray<int> StatPosBuff = new(4, 178, 183);
+    public UpdateFieldArray<int> StatNegBuff = new(4, 178, 187);
+    public UpdateFieldArray<int> StatSupportBuff = new(4, 178, 191);
+    public UpdateFieldArray<int> Resistances = new(7, 195, 196);
+    public UpdateFieldArray<int> BonusResistanceMods = new(7, 195, 203);
+    public UpdateFieldArray<int> ManaCostModifier = new(7, 195, 210);
 
     public UnitData(IConfiguration configuration, GameObjectManager objectManager, SpellManager spellManager) : base(0, TypeId.Unit, 209)
     {
@@ -942,7 +948,7 @@ public class UnitData : BaseUpdateData<Unit>
             }
             if (changesMask[125])
             {
-                data.ReadUInt32(CurrentAreaID);
+                data.WriteInt32(CurrentAreaID);
             }
             if (changesMask[126])
             {
