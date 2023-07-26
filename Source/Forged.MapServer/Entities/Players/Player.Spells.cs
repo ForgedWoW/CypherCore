@@ -705,7 +705,7 @@ public partial class Player
         if (!creature.HasNpcFlag(NPCFlags.SpellClick))
             return false;
 
-        var clickBounds = GameObjectManager.GetSpellClickInfoMapBounds(creature.Entry);
+        var clickBounds = SpellClickInfoObjectManager.GetSpellClickInfoMapBounds(creature.Entry);
 
         if (clickBounds.Empty())
             return true;

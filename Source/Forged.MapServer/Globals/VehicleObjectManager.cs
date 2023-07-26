@@ -16,16 +16,18 @@ public sealed class VehicleObjectManager
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly DB6Storage<VehicleSeatRecord> _vehicleSeatRecords;
+    private readonly SpellClickInfoObjectManager _spellClickInfoObjectManager;
     private readonly GameObjectManager _gameObjectManager;
     private readonly MultiMap<ulong, VehicleAccessory> _vehicleAccessoryStore = new();
     private readonly Dictionary<uint, VehicleSeatAddon> _vehicleSeatAddonStore = new();
     private readonly MultiMap<uint, VehicleAccessory> _vehicleTemplateAccessoryStore = new();
     private readonly Dictionary<uint, VehicleTemplate> _vehicleTemplateStore = new();
 
-    public VehicleObjectManager(WorldDatabase worldDatabase, DB6Storage<VehicleSeatRecord> vehicleSeatRecords, GameObjectManager gameObjectManager)
+    public VehicleObjectManager(WorldDatabase worldDatabase, DB6Storage<VehicleSeatRecord> vehicleSeatRecords, SpellClickInfoObjectManager spellClickInfoObjectManager, GameObjectManager gameObjectManager)
     {
         _worldDatabase = worldDatabase;
         _vehicleSeatRecords = vehicleSeatRecords;
+        _spellClickInfoObjectManager = spellClickInfoObjectManager;
         _gameObjectManager = gameObjectManager;
     }
 
@@ -238,7 +240,7 @@ public sealed class VehicleObjectManager
                 continue;
             }
 
-            if (_gameObjectManager.GetSpellClickInfoMapBounds(entry) == null)
+            if (_spellClickInfoObjectManager.GetSpellClickInfoMapBounds(entry) == null)
             {
                 Log.Logger.Error("Table `vehicle_template_accessory`: creature template entry {0} has no data in npc_spellclick_spells", entry);
 

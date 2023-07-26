@@ -51,6 +51,7 @@ public partial class Unit : WorldObject
         DB2Manager = classFactory.Resolve<DB2Manager>();
         UnitCombatHelpers = classFactory.Resolve<UnitCombatHelpers>();
         SmartAIManager = classFactory.Resolve<SmartAIManager>();
+        SpellClickInfoObjectManager = classFactory.Resolve<SpellClickInfoObjectManager>();
         MoveSpline = new MoveSpline(DB2Manager);
         MotionMaster = new MotionMaster(this);
         CombatManager = new CombatManager(this);

@@ -834,7 +834,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellClickSpellsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `npc_spellclick_spells` Table!");
-        handler.ObjectManager.LoadNPCSpellClickSpells();
+        handler.ClassFactory.Resolve<SpellClickInfoObjectManager>().LoadNPCSpellClickSpells();
         handler.SendGlobalGMSysMessage("DB table `npc_spellclick_spells` reloaded.");
 
         return true;

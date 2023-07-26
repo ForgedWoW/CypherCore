@@ -2968,7 +2968,7 @@ public partial class Player
                     if (!obj.HasNpcFlag(NPCFlags.SpellClick))
                         continue;
 
-                    var clickBounds = GameObjectManager.GetSpellClickInfoMapBounds(obj.Entry);
+                    var clickBounds = SpellClickInfoObjectManager.GetSpellClickInfoMapBounds(obj.Entry);
 
                     if (clickBounds.Select(spellClickInfo => ConditionManager.GetConditionsForSpellClickEvent(obj.Entry, spellClickInfo.SpellId)).All(conds => conds == null))
                         continue;

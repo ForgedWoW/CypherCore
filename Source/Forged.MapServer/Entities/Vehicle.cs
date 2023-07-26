@@ -26,6 +26,7 @@ public class Vehicle : ITransport
     private readonly GameObjectManager _gameObjectManager;
 
     private readonly ObjectAccessor _objectAccessor;
+    private readonly VehicleObjectManager _vehicleObjectManager;
 
     private readonly List<VehicleJoinEvent> _pendingJoinEvents = new();
 
@@ -35,7 +36,8 @@ public class Vehicle : ITransport
     private Status _status;
 
     //< Number of seats that match VehicleSeatEntry.UsableByPlayer, used for proper display flags
-    public Vehicle(Unit unit, VehicleRecord vehInfo, uint creatureEntry, DB6Storage<VehicleSeatRecord> vehicleSeatRecords, GameObjectManager gameObjectManager, ScriptManager scriptManager, ObjectAccessor objectAccessor)
+    public Vehicle(Unit unit, VehicleRecord vehInfo, uint creatureEntry, DB6Storage<VehicleSeatRecord> vehicleSeatRecords, 
+                   GameObjectManager gameObjectManager, ScriptManager scriptManager, ObjectAccessor objectAccessor, VehicleObjectManager vehicleObjectManager)
     {
         Base = unit;
         VehicleInfo = vehInfo;
@@ -43,6 +45,7 @@ public class Vehicle : ITransport
         _gameObjectManager = gameObjectManager;
         _scriptManager = scriptManager;
         _objectAccessor = objectAccessor;
+        _vehicleObjectManager = vehicleObjectManager;
         _status = Status.None;
 
         for (uint i = 0; i < SharedConst.MaxVehicleSeats; ++i)
@@ -55,7 +58,7 @@ public class Vehicle : ITransport
             if (!vehicleSeatRecords.TryGetValue(seatId, out var veSeat))
                 continue;
 
-            var addon = _gameObjectManager.VehicleObjectManager.GetVehicleSeatAddon(seatId);
+            var addon = vehicleObjectManager.GetVehicleSeatAddon(seatId);
             Seats.Add((sbyte)i, new VehicleSeat(veSeat, addon));
 
             if (veSeat.CanEnterOrExit())
@@ -85,7 +88,7 @@ public class Vehicle : ITransport
 
     public Unit Base { get; }
     public uint CreatureEntry { get; }
-    public TimeSpan DespawnDelay => _gameObjectManager.VehicleObjectManager.GetVehicleTemplate(this)?.DespawnDelay ?? TimeSpan.FromMilliseconds(1);
+    public TimeSpan DespawnDelay => _vehicleObjectManager.GetVehicleTemplate(this)?.DespawnDelay ?? TimeSpan.FromMilliseconds(1);
     public ObjectGuid GUID => Base.GUID;
 
     public bool IsControllableVehicle
@@ -294,7 +297,7 @@ public class Vehicle : ITransport
         if (Base.IsTypeId(TypeId.Player) || !evading)
             RemoveAllPassengers(); // We might have aura's saved in the DB with now invalid casters - remove
 
-        var accessories = _gameObjectManager.VehicleObjectManager.GetVehicleAccessoryList(this);
+        var accessories = _vehicleObjectManager.GetVehicleAccessoryList(this);
 
         if (accessories == null)
             return;

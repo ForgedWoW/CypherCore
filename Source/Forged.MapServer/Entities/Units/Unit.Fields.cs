@@ -22,6 +22,7 @@ using Framework.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Globals;
 
 namespace Forged.MapServer.Entities.Units;
 
@@ -132,6 +133,7 @@ public partial class Unit
     public bool CanHaveThreatList => _threatManager.CanHaveThreatList;
     public bool CanInstantCast { get; private set; }
     public bool CanProc => ProcDeep == 0;
+    public SpellClickInfoObjectManager SpellClickInfoObjectManager { get; }
 
     public virtual bool CanSwim
     {

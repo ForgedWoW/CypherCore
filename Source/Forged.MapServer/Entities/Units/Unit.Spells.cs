@@ -1120,7 +1120,7 @@ public partial class Unit
         var spellClickEntry = VehicleKit?.CreatureEntry ?? Entry;
         var flags = VehicleKit != null ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
 
-        var clickBounds = GameObjectManager.GetSpellClickInfoMapBounds(spellClickEntry);
+        var clickBounds = SpellClickInfoObjectManager.GetSpellClickInfoMapBounds(spellClickEntry);
 
         foreach (var clickInfo in clickBounds)
         {

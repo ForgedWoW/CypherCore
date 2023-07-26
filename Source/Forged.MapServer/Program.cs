@@ -349,6 +349,7 @@ void RegisterManagers()
     builder.RegisterType<CriteriaDataValidator>().SingleInstance();
     builder.RegisterType<LFGGroupScript>().SingleInstance();
     builder.RegisterType<VehicleObjectManager>().SingleInstance().OnActivated(c => c.Instance.Initialize());
+    builder.RegisterType<SpellClickInfoObjectManager>().SingleInstance().OnActivated(c => c.Instance.LoadNPCSpellClickSpells());
 }
 
 void RegisterFactories()
