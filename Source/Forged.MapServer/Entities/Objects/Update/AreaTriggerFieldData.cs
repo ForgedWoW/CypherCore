@@ -12,30 +12,31 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
 {
-    public UpdateField<float> BoundsRadius2D = new(0, 17);
-    public UpdateField<ObjectGuid> Caster = new(0, 8);
-    public UpdateField<ObjectGuid> CreatingEffectGUID = new(0, 19);
-    public UpdateField<uint> DecalPropertiesID = new(0, 18);
-    public UpdateField<uint> Duration = new(0, 9);
-    public UpdateField<ScaleCurve> ExtraScaleCurve = new(0, 4);
-    public UpdateField<bool> Field260 = new(0, 1);
+    public UpdateField<bool> HeightIgnoresScale = new(0, 1);
     public UpdateField<bool> Field261 = new(0, 2);
-    public UpdateField<uint> NumUnitsInside = new(0, 20);
-    public UpdateField<uint> NumPlayersInside = new(0, 21);
-    public UpdateField<ObjectGuid> OrbitPathTarget = new(0, 22);
-    public UpdateField<uint> FieldB0 = new(0, 13);
-    public UpdateField<ScaleCurve> FieldC38 = new(0, 5);
-    public UpdateField<ScaleCurve> FieldC54 = new(0, 6);
-    public UpdateField<ScaleCurve> FieldC70 = new(0, 7);
-    public UpdateField<Vector3> FieldF8 = new(0, 23);
     public UpdateField<ScaleCurve> OverrideScaleCurve = new(0, 3);
-    public UpdateField<uint> SpellForVisuals = new(0, 15);
-    public UpdateField<uint> SpellID = new(0, 14);
-    public UpdateField<SpellCastVisualField> SpellVisual = new(0, 16);
+    public UpdateField<ScaleCurve> ExtraScaleCurve = new(0, 4);
+    public UpdateField<ScaleCurve> OverrideMoveCurveX = new(0, 5);
+    public UpdateField<ScaleCurve> OverrideMoveCurveY = new(0, 6);
+    public UpdateField<ScaleCurve> OverrideMoveCurveZ = new(0, 7);
+    public UpdateField<ObjectGuid> Caster = new(0, 8);
+    public UpdateField<uint> Duration = new(0, 9);
     public UpdateField<uint> TimeToTarget = new(0, 10);
-    public UpdateField<uint> TimeToTargetExtraScale = new(0, 12);
     public UpdateField<uint> TimeToTargetScale = new(0, 11);
-    public UpdateField<VisualAnim> VisualAnim = new(0, 24);
+    public UpdateField<uint> TimeToTargetExtraScale = new(0, 12);
+    public UpdateField<uint> TimeToTargetPos = new(0, 13);                                 // Linked to OverrideMoveCurve
+    public UpdateField<uint> SpellID = new(0, 14);
+    public UpdateField<uint> SpellForVisuals = new(0, 15);
+    public UpdateField<SpellCastVisualField> SpellVisual = new(0, 16);
+    public UpdateField<float> BoundsRadius2D = new(0, 17);
+    public UpdateField<uint> DecalPropertiesID = new(0, 18);
+    public UpdateField<ObjectGuid> CreatingEffectGUID = new(0, 19);
+    public UpdateField<uint> NumUnitsInside = new(0, 20);
+    public UpdateField<uint> NumPlayersInside = new(0, 21);                                // When not 0 this causes SpellVisualEvent 14 to trigger, playing alternate visuals, typically used by "SOAK THIS" areatriggers
+    public UpdateField<ObjectGuid> OrbitPathTarget = new(0, 22);
+    public UpdateField<Vector3> RollPitchYaw = new(0, 23);
+    public UpdateField<int> PositionalSoundKitID = new(0, 24);
+    public UpdateField<VisualAnim> VisualAnim = new(0, 25);
 
     public AreaTriggerFieldData() : base(0, TypeId.AreaTrigger, 25)
     {
@@ -43,19 +44,19 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
 
     public override void ClearChangesMask()
     {
-        ClearChangesMask(Field260);
+        ClearChangesMask(HeightIgnoresScale);
         ClearChangesMask(Field261);
         ClearChangesMask(OverrideScaleCurve);
         ClearChangesMask(ExtraScaleCurve);
-        ClearChangesMask(FieldC38);
-        ClearChangesMask(FieldC54);
-        ClearChangesMask(FieldC70);
+        ClearChangesMask(OverrideMoveCurveX);
+        ClearChangesMask(OverrideMoveCurveY);
+        ClearChangesMask(OverrideMoveCurveZ);
         ClearChangesMask(Caster);
         ClearChangesMask(Duration);
         ClearChangesMask(TimeToTarget);
         ClearChangesMask(TimeToTargetScale);
         ClearChangesMask(TimeToTargetExtraScale);
-        ClearChangesMask(FieldB0);
+        ClearChangesMask(TimeToTargetPos);
         ClearChangesMask(SpellID);
         ClearChangesMask(SpellForVisuals);
         ClearChangesMask(SpellVisual);
@@ -65,7 +66,8 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
         ClearChangesMask(NumUnitsInside);
         ClearChangesMask(NumPlayersInside);
         ClearChangesMask(OrbitPathTarget);
-        ClearChangesMask(FieldF8);
+        ClearChangesMask(RollPitchYaw);
+        ClearChangesMask(PositionalSoundKitID);
         ClearChangesMask(VisualAnim);
         ChangesMask.ResetAll();
     }
@@ -78,7 +80,7 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
         data.WriteUInt32(TimeToTarget);
         data.WriteUInt32(TimeToTargetScale);
         data.WriteUInt32(TimeToTargetExtraScale);
-        data.WriteUInt32(FieldB0);
+        data.WriteUInt32(TimeToTargetPos);
         data.WriteUInt32(SpellID);
         data.WriteUInt32(SpellForVisuals);
 
@@ -90,13 +92,15 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
         data.WriteUInt32(NumUnitsInside);
         data.WriteUInt32(NumPlayersInside);
         data.WritePackedGuid(OrbitPathTarget);
-        data.WriteVector3(FieldF8);
+        data.WriteVector3(RollPitchYaw);
+        data.WriteInt32(PositionalSoundKitID);
         ExtraScaleCurve.Value.WriteCreate(data, owner, receiver);
-        data.WriteBit(Field260);
+        data.FlushBits();
+        data.WriteBit(HeightIgnoresScale);
         data.WriteBit(Field261);
-        FieldC38.Value.WriteCreate(data, owner, receiver);
-        FieldC54.Value.WriteCreate(data, owner, receiver);
-        FieldC70.Value.WriteCreate(data, owner, receiver);
+        OverrideMoveCurveX.Value.WriteCreate(data, owner, receiver);
+        OverrideMoveCurveY.Value.WriteCreate(data, owner, receiver);
+        OverrideMoveCurveZ.Value.WriteCreate(data, owner, receiver);
         VisualAnim.Value.WriteCreate(data, owner, receiver);
         data.FlushBits();
     }
@@ -108,13 +112,13 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
 
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, AreaTrigger owner, Player receiver)
     {
-        data.WriteBits(ChangesMask.GetBlock(0), 25);
+        data.WriteBits(ChangesMask.GetBlock(0), 26);
 
         if (ChangesMask[0])
         {
             if (ChangesMask[1])
             {
-                data.WriteBit(Field260);
+                data.WriteBit(HeightIgnoresScale);
             }
             if (changesMask[2])
             {
@@ -150,7 +154,7 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
             }
             if (ChangesMask[13])
             {
-                data.WriteUInt32(FieldB0);
+                data.WriteUInt32(TimeToTargetPos);
             }
             if (changesMask[14])
             {
@@ -190,7 +194,11 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
             }
             if (changesMask[23])
             {
-                data.WriteVector3(FieldF8);
+                data.WriteVector3(RollPitchYaw);
+            }
+            if (changesMask[24])
+            {
+                data.WriteInt32(PositionalSoundKitID);
             }
             if (ChangesMask[4])
             {
@@ -198,17 +206,17 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
             }
             if (changesMask[5])
             {
-                FieldC38.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                OverrideMoveCurveX.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
             if (changesMask[6])
             {
-                FieldC54.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                OverrideMoveCurveY.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
             if (changesMask[7])
             {
-                FieldC70.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                OverrideMoveCurveZ.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
-            if (changesMask[24])
+            if (changesMask[25])
             {
                 VisualAnim.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }

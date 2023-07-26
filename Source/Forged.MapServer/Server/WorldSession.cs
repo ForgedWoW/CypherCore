@@ -36,6 +36,7 @@ using Forged.MapServer.Networking.Packets.Hotfix;
 using Forged.MapServer.Networking.Packets.Instance;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Movement;
+using Forged.MapServer.Networking.Packets.Pet;
 using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Scripting;
@@ -986,6 +987,13 @@ public class WorldSession : IDisposable
             KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
 
         return false;
+    }
+
+    public void SendPetStableResult(StableResult result)
+    {
+        PetStableResult petStableResult = new();
+        petStableResult.Result = result;
+        SendPacket(petStableResult);
     }
 
     internal TransactionCallback AddTransactionCallback(TransactionCallback callback)

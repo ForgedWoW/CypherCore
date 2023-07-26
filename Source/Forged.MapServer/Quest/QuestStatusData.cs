@@ -10,5 +10,6 @@ public class QuestStatusData
     public bool Explored { get; set; }
     public ushort Slot { get; set; } = SharedConst.MaxQuestLogSize;
     public QuestStatus Status { get; set; }
+    public long AcceptTime { get; set; } = 0;
     public uint Timer { get; set; }
 }

@@ -171,7 +171,7 @@ public class Battleground : ZoneScript, IDisposable
 			player = _objectAccessor.FindPlayer(guid);
 
 			if (!player)
-				Log.Logger.Error($"Battleground.{context}: player ({guid}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!"););
+				Log.Logger.Error($"Battleground.{context}: player ({guid}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 		}
 
 		return player;

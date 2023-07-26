@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage.Structs.D;
 using Forged.MapServer.DataStorage.Structs.F;
 using Forged.MapServer.DataStorage.Structs.Q;
 using Forged.MapServer.Entities.Creatures;
@@ -15,6 +16,7 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Mails;
+using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Quest;
@@ -26,6 +28,7 @@ using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -119,7 +122,7 @@ public partial class Player
                 limittime = questGiver.AsPlayer._mQuestStatus[questId].Timer / Time.IN_MILLISECONDS;
 
             AddTimedQuest(questId);
-            questStatusData.Timer = limittime * Time.IN_MILLISECONDS;
+            questStatusData.Timer = (uint)limittime * Time.IN_MILLISECONDS;
             endTime = GameTime.CurrentTime + limittime;
         }
         else
@@ -148,7 +151,7 @@ public partial class Player
         }
 
         SetQuestSlotEndTime(logSlot, endTime);
-        SetQuestSlotAcceptTime(logSlot, GameTime.CurrentTime);
+        questStatusData.AcceptTime = GameTime.CurrentTime;
 
         _questStatusSave[questId] = QuestSaveType.Default;
 
@@ -783,7 +786,9 @@ public partial class Player
             switch (GetQuestStatus(questId))
             {
                 case QuestStatus.Complete:
-                    if (quest.QuestTag == QuestTagType.CovenantCalling)
+                    if (quest.IsImportant())
+                        result |= quest.HasFlag(QuestFlags.HideRewardPoi) ? QuestGiverStatus.ImportantQuestRewardCompleteNoPOI : QuestGiverStatus.ImportantQuestRewardCompletePOI;
+                    else if (quest.QuestTag == QuestTagType.CovenantCalling)
                         result |= quest.HasFlag(QuestFlags.HideRewardPoi) ? QuestGiverStatus.CovenantCallingRewardCompleteNoPOI : QuestGiverStatus.CovenantCallingRewardCompletePOI;
                     else if (quest.HasFlagEx(QuestFlagsEx.LegendaryQuest))
                         result |= quest.HasFlag(QuestFlags.HideRewardPoi) ? QuestGiverStatus.LegendaryRewardCompleteNoPOI : QuestGiverStatus.LegendaryRewardCompletePOI;
@@ -792,8 +797,12 @@ public partial class Player
 
                     break;
                 case QuestStatus.Incomplete:
-                    if (quest.QuestTag == QuestTagType.CovenantCalling)
+                    if (quest.IsImportant())
+                        result |= QuestGiverStatus.ImportantQuestReward;
+                    else if (quest.QuestTag == QuestTagType.CovenantCalling)
                         result |= QuestGiverStatus.CovenantCallingReward;
+                    else if (quest.HasFlagEx(QuestFlagsEx.LegendaryQuest))
+                        result |= QuestGiverStatus.LegendaryReward;
                     else
                         result |= QuestGiverStatus.Reward;
 
@@ -827,22 +836,20 @@ public partial class Player
 
             if (SatisfyQuestLevel(quest, false))
             {
-                if (Level <= GetQuestLevel(quest) + Configuration.GetDefaultValue("Quests:LowLevelHideDiff", 4))
-                {
-                    if (quest.QuestTag == QuestTagType.CovenantCalling)
-                        result |= QuestGiverStatus.CovenantCallingQuest;
-                    else if (quest.HasFlagEx(QuestFlagsEx.LegendaryQuest))
-                        result |= QuestGiverStatus.LegendaryQuest;
-                    else if (quest.IsDaily)
-                        result |= QuestGiverStatus.DailyQuest;
-                    else
-                        result |= QuestGiverStatus.Quest;
-                }
+                bool isTrivial = Level <= (GetQuestLevel(quest) + Configuration.GetValue("Quests.LowLevelHideDiff", 4));
+                if (quest.IsImportant())
+                    result |= isTrivial ? QuestGiverStatus.TrivialImportantQuest : QuestGiverStatus.ImportantQuest;
+                else if (quest.QuestTag == QuestTagType.CovenantCalling)
+                    result |= isTrivial ? QuestGiverStatus.TrivialCovenantCallingQuest : QuestGiverStatus.CovenantCallingQuest;
+                else if (quest.HasFlagEx(QuestFlagsEx.LegendaryQuest))
+                    result |= isTrivial ? QuestGiverStatus.TrivialLegendaryQuest : QuestGiverStatus.LegendaryQuest;
                 else if (quest.IsDaily)
-                    result |= QuestGiverStatus.TrivialDailyQuest;
+                    result |= isTrivial ? QuestGiverStatus.TrivialDailyQuest : QuestGiverStatus.DailyQuest;
                 else
-                    result |= QuestGiverStatus.Trivial;
+                    result |= isTrivial ? QuestGiverStatus.Trivial : QuestGiverStatus.Quest;
             }
+            else if (quest.HasFlagEx(QuestFlagsEx.LegendaryQuest))
+                result |= QuestGiverStatus.FutureLegendaryQuest;
             else
                 result |= QuestGiverStatus.Future;
         }
@@ -921,7 +928,7 @@ public partial class Player
         return 0;
     }
 
-    public uint GetQuestSlotEndTime(ushort slot)
+    public long GetQuestSlotEndTime(ushort slot)
     {
         return PlayerData.QuestLog[slot].EndTime;
     }
@@ -2706,19 +2713,12 @@ public partial class Player
         SetUpdateFieldValue(questLogField.ModifyValue(questLogField.QuestID), questID);
         SetUpdateFieldValue(questLogField.ModifyValue(questLogField.StateFlags), 0u);
         SetUpdateFieldValue(questLogField.ModifyValue(questLogField.EndTime), 0u);
-        SetUpdateFieldValue(questLogField.ModifyValue(questLogField.AcceptTime), 0u);
         SetUpdateFieldValue(questLogField.ModifyValue(questLogField.ObjectiveFlags), 0u);
 
         for (var i = 0; i < SharedConst.MaxQuestCounts; ++i)
             SetUpdateFieldValue(ref questLogField.ModifyValue(questLogField.ObjectiveProgress, i), (ushort)0);
     }
-
-    public void SetQuestSlotAcceptTime(ushort slot, long acceptTime)
-    {
-        var questLog = Values.ModifyValue(PlayerData).ModifyValue(PlayerData.QuestLog, slot);
-        SetUpdateFieldValue(questLog.ModifyValue(questLog.AcceptTime), (uint)acceptTime);
-    }
-
+    
     public void SetQuestSlotCounter(ushort slot, byte counter, ushort count)
     {
         if (counter >= SharedConst.MaxQuestCounts)
@@ -2981,6 +2981,19 @@ public partial class Player
 
         udata.BuildPacket(out var packet);
         SendPacket(packet);
+    }
+
+    public bool IsLockedToDungeonEncounter(uint dungeonEncounterId, Difficulty difficulty)
+    {
+        if (!CliDB.DungeonEncounterStorage.TryGetValue(dungeonEncounterId, out DungeonEncounterRecord dungeonEncounter))
+            return false;
+
+        MapDb2Entries entries = new((uint)dungeonEncounter.MapID, difficulty, CliDB, DB2Manager);
+        InstanceLock instanceLock = InstanceLockManager.FindActiveInstanceLock(GUID, entries);
+        if (instanceLock == null)
+            return false;
+
+        return (instanceLock.Data.CompletedEncountersMask & (1u << dungeonEncounter.Bit)) != 0;
     }
 
     private void AddTimedQuest(uint questId)

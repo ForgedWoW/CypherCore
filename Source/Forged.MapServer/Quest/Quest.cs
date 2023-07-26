@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.Q;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Item;
@@ -123,7 +124,7 @@ public class Quest
         SoundAccept = fields.Read<uint>(98);
         SoundTurnIn = fields.Read<uint>(99);
         AreaGroupID = fields.Read<uint>(100);
-        LimitTime = fields.Read<uint>(101);
+        LimitTime = fields.Read<long>(101);
         AllowableRaces = (long)fields.Read<ulong>(102);
         TreasurePickerID = fields.Read<int>(103);
         Expansion = fields.Read<int>(104);
@@ -187,7 +188,7 @@ public class Quest
     public bool IsWorldQuest => HasFlagEx(QuestFlagsEx.IsWorldQuest);
     public uint[] ItemDrop { get; set; } = new uint[SharedConst.QuestItemDropCount];
     public uint[] ItemDropQuantity { get; set; } = new uint[SharedConst.QuestItemDropCount];
-    public uint LimitTime { get; set; }
+    public long LimitTime { get; set; }
     public string LogDescription { get; set; }
     public string LogTitle { get; set; }
 
@@ -529,7 +530,7 @@ public class Quest
         response.Info.AcceptedSoundKitID = SoundAccept;
         response.Info.CompleteSoundKitID = SoundTurnIn;
         response.Info.AreaGroupID = AreaGroupID;
-        response.Info.TimeAllowed = LimitTime;
+        response.Info.TimeAllowed = (uint)LimitTime;
 
         response.Write();
 
@@ -844,5 +845,13 @@ public class Quest
     public uint XPValue(Player player)
     {
         return XPValue(player, ContentTuningId, RewardXPDifficulty, RewardXPMultiplier, Expansion);
+    }
+
+    public bool IsImportant()
+    {
+        if (_cliDB.QuestInfoStorage.TryGetValue(QuestInfoID, out QuestInfoRecord questInfo))
+            return (questInfo.Modifiers & 0x400) != 0;
+
+        return false;
     }
 }

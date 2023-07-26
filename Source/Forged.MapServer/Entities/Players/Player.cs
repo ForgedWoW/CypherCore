@@ -3033,6 +3033,7 @@ public partial class Player : Unit
 
             case GossipOptionNpc.Stablemaster:
                 Session.PacketRouter.OpCodeHandler<NPCHandler>().SendStablePet(guid);
+                handled = false;
 
                 break;
 
@@ -3523,10 +3524,27 @@ public partial class Player : Unit
         // only if current pet in slot
         pet.SavePetToDB(mode);
 
-        PetStable.GetCurrentPet();
+        var currentPet = PetStable.GetCurrentPet();
 
-        if (mode is PetSaveMode.NotInSlot or PetSaveMode.AsDeleted)
+        if (mode is PetSaveMode.NotInSlot)
             PetStable.CurrentPetIndex = null;
+        else if (mode is PetSaveMode.AsDeleted)
+        {
+            if (ActivePlayerData.PetStable.HasValue())
+            {
+                int ufIndex = ActivePlayerData.PetStable.Value.Pets.FindIndexIf(p => p.PetNumber == currentPet.PetNumber);
+                if (ufIndex >= 0)
+                    RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData)
+                        .ModifyValue(ActivePlayerData.PetStable)
+                        .Value.ModifyValue(ActivePlayerData.PetStable.Value.Pets), ufIndex);
+            }
+
+            var petIndex = PetStable.CurrentActivePetIndex;
+            if (petIndex != null)
+                PetStable.ActivePets[petIndex.Value] = null;
+
+            PetStable.CurrentPetIndex = null;
+        }
         // else if (stable slots) handled in opcode handlers due to required swaps
         // else (current pet) doesnt need to do anything
 
@@ -5754,6 +5772,208 @@ public partial class Player : Unit
         RemovePet(pet, PetSaveMode.AsCurrent);
     }
 
+    public void AddPetToUpdateFields(PetStable.PetInfo pet, PetSaveMode slot, PetStableinfo flags)
+    {
+        var ufStable = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.PetStable);
+        var ufPet = ufStable.Value.ModifyValue(ActivePlayerData.PetStable.Value.Pets, 0);
+        ufPet.Value.ModifyValue(ufPet.Value.PetSlot).Value = (uint)slot;
+        ufPet.Value.ModifyValue(ufPet.Value.PetNumber).Value = pet.PetNumber;
+        ufPet.Value.ModifyValue(ufPet.Value.CreatureID).Value = pet.CreatureId;
+        ufPet.Value.ModifyValue(ufPet.Value.DisplayID).Value = pet.DisplayId;
+        ufPet.Value.ModifyValue(ufPet.Value.ExperienceLevel).Value = pet.Level;
+        ufPet.Value.ModifyValue(ufPet.Value.PetFlags).Value = (byte)flags;
+        ufPet.Value.ModifyValue(ufPet.Value.Name).Value = pet.Name;
+    }
+
+    public void SetPetSlot(uint petNumber, PetSaveMode dstPetSlot)
+    {
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
+        
+        if (PetStable == null)
+        {
+            Session.SendPetStableResult(StableResult.InternalError);
+            return;
+        }
+
+        var (srcPet, srcPetSlot) = Pet.GetLoadPetInfo(PetStable, 0, petNumber, null);
+        PetStable.PetInfo dstPet = Pet.GetLoadPetInfo(PetStable, 0, 0, dstPetSlot).Item1;
+
+        if (srcPet == null || srcPet.Type != PetType.Hunter)
+        {
+            Session.SendPetStableResult(StableResult.InternalError);
+            return;
+        }
+
+        if (dstPet != null && dstPet.Type != PetType.Hunter)
+        {
+            Session.SendPetStableResult(StableResult.InternalError);
+            return;
+        }
+
+        PetStable.PetInfo? src = null;
+        PetStable.PetInfo? dst = null;
+        uint? newActivePetIndex = null;
+
+        if (SharedConst.IsActivePetSlot(srcPetSlot) && SharedConst.IsActivePetSlot(dstPetSlot))
+        {
+            // active<->active: only swap ActivePets and CurrentPetIndex (do not despawn pets)
+            src = PetStable.ActivePets[srcPetSlot - PetSaveMode.FirstActiveSlot];
+            dst = PetStable.ActivePets[dstPetSlot - PetSaveMode.FirstActiveSlot];
+
+            if (PetStable.CurrentActivePetIndex == (uint)srcPetSlot)
+            {
+                newActivePetIndex = (uint)dstPetSlot;
+            }
+            else if (PetStable.CurrentActivePetIndex == (uint)dstPetSlot)
+            {
+                newActivePetIndex = (uint)srcPetSlot;
+            }
+        }
+        else if (SharedConst.IsStabledPetSlot(srcPetSlot) && SharedConst.IsStabledPetSlot(dstPetSlot))
+        {
+            // stabled<->stabled: only swap StabledPets
+            src = PetStable.StabledPets[srcPetSlot - PetSaveMode.FirstStableSlot];
+            dst = PetStable.StabledPets[dstPetSlot - PetSaveMode.FirstStableSlot];
+        }
+        else if (SharedConst.IsActivePetSlot(srcPetSlot) && SharedConst.IsStabledPetSlot(dstPetSlot))
+        {
+            // active<->stabled: swap petStable contents and despawn active pet if it is involved in swap
+            if (PetStable.CurrentPetIndex == (uint)srcPetSlot)
+            {
+                Pet oldPet = CurrentPet;
+                if (oldPet != null && !oldPet.IsAlive)
+                {
+                    Session.SendPetStableResult(StableResult.InternalError);
+                    return;
+                }
+
+                RemovePet(oldPet, PetSaveMode.NotInSlot);
+            }
+
+            if (dstPet != null)
+            {
+                CreatureTemplate creatureInfo = GameObjectManager.GetCreatureTemplate(dstPet.CreatureId);
+                if (creatureInfo == null || !creatureInfo.IsTameable(CanTameExoticPets))
+                {
+                    Session.SendPetStableResult(StableResult.CantControlExotic);
+                    return;
+                }
+            }
+
+            src = PetStable.ActivePets[srcPetSlot - PetSaveMode.FirstActiveSlot];
+            dst = PetStable.StabledPets[dstPetSlot - PetSaveMode.FirstStableSlot];
+        }
+        else if (SharedConst.IsStabledPetSlot(srcPetSlot) && SharedConst.IsActivePetSlot(dstPetSlot))
+        {
+            // stabled<->active: swap petStable contents and despawn active pet if it is involved in swap
+            if (PetStable.CurrentPetIndex == (uint)dstPetSlot)
+            {
+                Pet oldPet = CurrentPet;
+                if (oldPet != null && !oldPet.IsAlive)
+                {
+                    Session.SendPetStableResult(StableResult.InternalError);
+                    return;
+                }
+
+                RemovePet(oldPet, PetSaveMode.NotInSlot);
+            }
+
+            CreatureTemplate creatureInfo = GameObjectManager.GetCreatureTemplate(srcPet.CreatureId);
+            if (creatureInfo == null || !creatureInfo.IsTameable(CanTameExoticPets))
+            {
+                Session.SendPetStableResult(StableResult.CantControlExotic);
+                return;
+            }
+
+            src = PetStable.StabledPets[srcPetSlot - PetSaveMode.FirstStableSlot];
+            dst = PetStable.ActivePets[dstPetSlot - PetSaveMode.FirstActiveSlot];
+        }
+
+        SQLTransaction trans = new SQLTransaction();
+
+        PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_PET_SLOT_BY_ID);
+        stmt.AddValue(0, (short)dstPetSlot);
+        stmt.AddValue(1, GUID.Counter);
+        stmt.AddValue(2, srcPet.PetNumber);
+        trans.Append(stmt);
+
+        if (dstPet != null)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_PET_SLOT_BY_ID);
+            stmt.AddValue(0, (short)srcPetSlot);
+            stmt.AddValue(1, GUID.Counter);
+            stmt.AddValue(2, dstPet.PetNumber);
+            trans.Append(stmt);
+        }
+
+        //C++ TO C# CONVERTER TASK: Only lambdas having all locals passed by reference can be converted to C#:
+        //ORIGINAL LINE: GetSession()->AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(trans)).AfterComplete([sess = GetSession(), this, src, srcPetSlot = srcPetSlot, dst, dstPetSlot = dstPetSlot, newActivePetIndex](bool success)
+        Session.AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(trans)).AfterComplete((bool success) =>
+        {
+            if (Session.Player == this)
+            {
+                if (success)
+                {
+                    Extensions.Swap(ref src, ref dst);
+
+                    if (newActivePetIndex.HasValue)
+                    {
+                        Session.Player.PetStable.SetCurrentActivePetIndex(newActivePetIndex.Value);
+                    }
+                    int srcPetIndex = ActivePlayerData.PetStable.Value.Pets.FindIndexIf(p =>
+                    {
+                        return p.PetSlot == (uint)srcPetSlot;
+                    });
+                    int dstPetIndex = ActivePlayerData.PetStable.Value.Pets.FindIndexIf(p =>
+                    {
+                        return p.PetSlot == (uint)dstPetSlot;
+                    });
+                    if (srcPetIndex >= 0)
+                    {
+                        var pet = Values.ModifyValue(ActivePlayerData)
+                            .ModifyValue(ActivePlayerData.PetStable).Value
+                            .ModifyValue(ActivePlayerData.PetStable.Value.Pets, srcPetIndex);
+                        SetUpdateFieldValue(pet.Value.ModifyValue(pet.Value.PetSlot), (uint)dstPetSlot);
+                    }
+                    if (dstPetIndex >= 0)
+                    {
+                        var pet = Values.ModifyValue(ActivePlayerData)
+                            .ModifyValue(ActivePlayerData.PetStable).Value
+                            .ModifyValue(ActivePlayerData.PetStable.Value.Pets, srcPetIndex);
+                        SetUpdateFieldValue(pet.Value.ModifyValue(pet.Value.PetSlot), (uint)srcPetSlot);
+                    }
+                    Session.SendPetStableResult(StableResult.StableSuccess);
+                }
+                else
+                {
+                    Session.SendPetStableResult(StableResult.InternalError);
+                }
+            }
+        });
+    }
+
+    public ObjectGuid GetStableMaster()
+    {
+        if (!ActivePlayerData.PetStable.HasValue())
+        {
+            return ObjectGuid.Empty;
+        }
+
+        return ActivePlayerData.PetStable.Value.StableMaster;
+    }
+
+    public void SetStableMaster(ObjectGuid stableMaster)
+    {
+        if (!ActivePlayerData.PetStable.HasValue())
+        {
+            return;
+        }
+        
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData)
+            .ModifyValue(ActivePlayerData.PetStable).Value
+            .ModifyValue(ActivePlayerData.PetStable.Value.StableMaster), stableMaster);
+    }
+    
     public override void Update(uint diff)
     {
         if (!Location.IsInWorld)

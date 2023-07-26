@@ -98,6 +98,12 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
         ChangesMask.Set(updateField.FirstElementBit + index);
     }
 
+    public void MarkChanged<U>(OptionalUpdateField<U> updateField) where U : new()
+    {
+        ChangesMask.Set(updateField.BlockBit);
+        ChangesMask.Set(updateField.Bit);
+    }
+
     public UpdateField<U> ModifyValue<U>(UpdateField<U> updateField) where U : new()
     {
         MarkChanged(updateField);
@@ -106,6 +112,13 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
     }
 
     public UpdateFieldString ModifyValue(UpdateFieldString updateField)
+    {
+        MarkChanged(updateField);
+
+        return updateField;
+    }
+
+    public OptionalUpdateField<U> ModifyValue<U>(OptionalUpdateField<U> updateField) where U : new()
     {
         MarkChanged(updateField);
 

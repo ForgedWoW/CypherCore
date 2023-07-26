@@ -2398,7 +2398,7 @@ public partial class Player
 
                         SetQuestSlot(slot, questId);
                         SetQuestSlotEndTime(slot, endTime);
-                        SetQuestSlotAcceptTime(slot, acceptTime);
+                        questStatusData.AcceptTime = acceptTime;
 
                         if (questStatusData.Status == QuestStatus.Complete)
                             SetQuestSlotState(slot, QuestSlotStateMask.Complete);
@@ -3577,7 +3577,7 @@ public partial class Player
                     stmt.AddValue(1, save.Key);
                     stmt.AddValue(2, (byte)data.Status);
                     stmt.AddValue(3, data.Explored);
-                    stmt.AddValue(4, (long)GetQuestSlotAcceptTime(data.Slot));
+                    stmt.AddValue(4, (long)data.AcceptTime);
                     stmt.AddValue(5, (long)GetQuestSlotEndTime(data.Slot));
                     trans.Append(stmt);
 
