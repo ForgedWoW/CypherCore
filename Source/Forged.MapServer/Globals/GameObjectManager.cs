@@ -44,58 +44,6 @@ using Serilog;
 
 namespace Forged.MapServer.Globals;
 
-public sealed class InstanceTemplateManager
-{
-    private GameObjectManager _gameObjectManager;
-    public Dictionary<uint, InstanceTemplate> InstanceTemplates { get; } = new();
-
-    public InstanceTemplate GetInstanceTemplate(uint mapID)
-    {
-        return InstanceTemplates.LookupByKey(mapID);
-    }
-
-    public void LoadInstanceTemplate()
-    {
-        var time = Time.MSTime;
-
-        //                                          0     1       2
-        var result = _gameObjectManager._worldDatabase.Query("SELECT map, parent, script FROM instance_template");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 instance templates. DB table `instance_template` is empty!");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var mapID = result.Read<uint>(0);
-
-            if (!_gameObjectManager._mapManager.IsValidMap(mapID))
-            {
-                Log.Logger.Error("ObjectMgr.LoadInstanceTemplate: bad mapid {0} for template!", mapID);
-
-                continue;
-            }
-
-            var instanceTemplate = new InstanceTemplate
-            {
-                Parent = result.Read<uint>(1),
-                ScriptId = _gameObjectManager._scriptManager.GetScriptId(result.Read<string>(2))
-            };
-
-            InstanceTemplates.Add(mapID, instanceTemplate);
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} instance templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
-    }
-}
-
 public sealed class GameObjectManager
 {
     private readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
