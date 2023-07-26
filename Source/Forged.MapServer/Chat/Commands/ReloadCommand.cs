@@ -9,6 +9,7 @@ using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Globals;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Movement;
@@ -992,7 +993,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_accessory table...");
-        handler.ObjectManager.LoadVehicleAccessories();
+        handler.ClassFactory.Resolve<VehicleObjectManager>().LoadVehicleAccessories();
         handler.SendGlobalGMSysMessage("Vehicle accessories reloaded.");
 
         return true;
@@ -1002,7 +1003,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template_accessory table...");
-        handler.ObjectManager.LoadVehicleTemplateAccessories();
+        handler.ClassFactory.Resolve<VehicleObjectManager>().LoadVehicleTemplateAccessories();
         handler.SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
 
         return true;
@@ -1012,7 +1013,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template table...");
-        handler.ObjectManager.LoadVehicleTemplate();
+        handler.ClassFactory.Resolve<VehicleObjectManager>().LoadVehicleTemplate();
         handler.SendGlobalGMSysMessage("Vehicle templates reloaded.");
 
         return true;

@@ -109,7 +109,7 @@ internal class QuestCommands
         }
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
-        var itc = handler.ObjectManager.GetItemTemplates();
+        var itc = handler.ObjectManager.ItemTemplates;
         var result = itc.Values.FirstOrDefault(p => p.StartQuest == quest.Id);
 
         if (result != null)

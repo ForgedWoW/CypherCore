@@ -301,7 +301,7 @@ internal class TeleCommands
 
                 CreatureData spawnpoint = null;
 
-                foreach (var (id, creatureData) in handler.ObjectManager.GetAllCreatureData())
+                foreach (var (id, creatureData) in handler.ObjectManager.AllCreatureData)
                 {
                     if (id != creatureId)
                         continue;

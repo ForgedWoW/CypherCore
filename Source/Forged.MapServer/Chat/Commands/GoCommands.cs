@@ -73,7 +73,7 @@ internal class GoCommands
         Dictionary<uint, List<CreatureData>> spawnLookup = new();
 
         // find all boss flagged mobs that match our needles
-        foreach (var pair in handler.ObjectManager.GetCreatureTemplates())
+        foreach (var pair in handler.ObjectManager.CreatureTemplates)
         {
             var data = pair.Value;
 
@@ -97,7 +97,7 @@ internal class GoCommands
         if (!matches.Empty())
         {
             // find the spawn points of any matches
-            foreach (var pair in handler.ObjectManager.GetAllCreatureData())
+            foreach (var pair in handler.ObjectManager.AllCreatureData)
             {
                 var data = pair.Value;
 
@@ -257,7 +257,7 @@ internal class GoCommands
 
         MultiMap<uint, Tuple<uint, string, string>> matches = new();
 
-        foreach (var pair in handler.ObjectManager.GetInstanceTemplates())
+        foreach (var pair in handler.ObjectManager.InstanceTemplates)
         {
             uint count = 0;
             var scriptName = handler.ClassFactory.Resolve<ScriptManager>().GetScriptName(pair.Value.ScriptId);
@@ -542,7 +542,7 @@ internal class GoCommands
         {
             CreatureData spawnpoint = null;
 
-            foreach (var pair in handler.ObjectManager.GetAllCreatureData())
+            foreach (var pair in handler.ObjectManager.AllCreatureData)
             {
                 if (pair.Value.Id != id)
                     continue;
@@ -590,7 +590,7 @@ internal class GoCommands
         {
             GameObjectData spawnpoint = null;
 
-            foreach (var pair in handler.ObjectManager.GetAllGameObjectData())
+            foreach (var pair in handler.ObjectManager.AllGameObjectData)
             {
                 if (pair.Value.Id != goId)
                     continue;

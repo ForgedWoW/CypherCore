@@ -216,7 +216,7 @@ internal class MiscAddItemCommands
         Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.Additemset), itemSetId);
 
         var found = false;
-        var its = handler.ObjectManager.GetItemTemplates();
+        var its = handler.ObjectManager.ItemTemplates;
 
         foreach (var template in its)
         {

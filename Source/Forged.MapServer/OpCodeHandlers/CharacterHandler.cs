@@ -971,7 +971,7 @@ public class CharacterHandler : IWorldSessionHandler
 
         charResult.IsAlliedRacesCreationAllowed = _session.CanAccessAlliedRaces();
 
-        foreach (var requirement in _objectManager.GetRaceUnlockRequirements())
+        foreach (var requirement in _objectManager.RaceUnlockRequirements)
         {
             EnumCharactersResult.RaceUnlock raceUnlock = new()
             {
@@ -1399,7 +1399,7 @@ public class CharacterHandler : IWorldSessionHandler
 
                 // Disable all old-faction specific quests
                 {
-                    var questTemplates = _objectManager.GetQuestTemplates();
+                    var questTemplates = _objectManager.QuestTemplates;
 
                     foreach (var quest in questTemplates.Values)
                     {

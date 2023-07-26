@@ -545,7 +545,7 @@ internal class ListCommands
         var showAll = map.IsBattlegroundOrArena || map.IsDungeon;
         handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.MapName}){(showAll ? "" : " within 5000yd")}:");
 
-        foreach (var pair in handler.ObjectManager.GetAllCreatureData())
+        foreach (var pair in handler.ObjectManager.AllCreatureData)
         {
             SpawnData data = pair.Value;
 
@@ -561,7 +561,7 @@ internal class ListCommands
                 handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.X:3} | Y: {data.SpawnPoint.Y:3} | Z: {data.SpawnPoint.Z:3}");
         }
 
-        foreach (var pair in handler.ObjectManager.GetAllGameObjectData())
+        foreach (var pair in handler.ObjectManager.AllGameObjectData)
         {
             SpawnData data = pair.Value;
 

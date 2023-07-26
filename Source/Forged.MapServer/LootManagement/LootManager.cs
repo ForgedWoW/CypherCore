@@ -116,7 +116,7 @@ public class LootManager : LootStoreBox
         var count = Creature.LoadAndCollectLootIds(out var lootIdSet);
 
         // Remove real entries and check loot existence
-        var ctc = _objectManager.GetCreatureTemplates();
+        var ctc = _objectManager.CreatureTemplates;
 
         foreach (var pair in ctc)
         {
@@ -217,7 +217,7 @@ public class LootManager : LootStoreBox
         }
 
         // remove real entries and check existence loot
-        var gotc = _objectManager.GetGameObjectTemplates();
+        var gotc = _objectManager.GameObjectTemplates;
 
         foreach (var (gameObjectId, gameObjectTemplate) in gotc)
         {
@@ -257,7 +257,7 @@ public class LootManager : LootStoreBox
         var count = Items.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.GetItemTemplates();
+        var its = _objectManager.ItemTemplates;
 
         foreach (var pair in its)
             if (lootIdSet.Contains(pair.Value.Id) && pair.Value.HasFlag(ItemFlags.HasLoot))
@@ -303,7 +303,7 @@ public class LootManager : LootStoreBox
         var count = Milling.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.GetItemTemplates();
+        var its = _objectManager.ItemTemplates;
 
         foreach (var pair in its)
         {
@@ -333,7 +333,7 @@ public class LootManager : LootStoreBox
         var count = Pickpocketing.LoadAndCollectLootIds(out var lootIdSet);
 
         // Remove real entries and check loot existence
-        var ctc = _objectManager.GetCreatureTemplates();
+        var ctc = _objectManager.CreatureTemplates;
 
         foreach (var pair in ctc)
         {
@@ -369,7 +369,7 @@ public class LootManager : LootStoreBox
         var count = Prospecting.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.GetItemTemplates();
+        var its = _objectManager.ItemTemplates;
 
         foreach (var pair in its)
         {
@@ -426,7 +426,7 @@ public class LootManager : LootStoreBox
         var count = Skinning.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var ctc = _objectManager.GetCreatureTemplates();
+        var ctc = _objectManager.CreatureTemplates;
 
         foreach (var pair in ctc)
         {

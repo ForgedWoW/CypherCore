@@ -99,7 +99,7 @@ internal class LookupCommands
         var found = false;
         uint count = 0;
 
-        var ctc = handler.ObjectManager.GetCreatureTemplates();
+        var ctc = handler.ObjectManager.CreatureTemplates;
 
         foreach (var template in ctc)
         {
@@ -393,7 +393,7 @@ internal class LookupCommands
         var found = false;
         uint count = 0;
 
-        var gotc = handler.ObjectManager.GetGameObjectTemplates();
+        var gotc = handler.ObjectManager.GameObjectTemplates;
 
         foreach (var template in gotc.Values)
         {
@@ -724,7 +724,7 @@ internal class LookupCommands
             uint count = 0;
 
             // Search in ItemSparse
-            var its = handler.ObjectManager.GetItemTemplates();
+            var its = handler.ObjectManager.ItemTemplates;
 
             foreach (var template in its.Values)
             {
@@ -1106,7 +1106,7 @@ internal class LookupCommands
             var found = false;
             uint count = 0;
 
-            var qTemplates = handler.ObjectManager.GetQuestTemplates();
+            var qTemplates = handler.ObjectManager.QuestTemplates;
 
             foreach (var qInfo in qTemplates.Values)
             {
