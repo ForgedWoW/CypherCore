@@ -222,7 +222,7 @@ public class InstanceMap : Map
 
         if (!lockData.Data.IsEmpty())
         {
-            Log.Logger.Debug($"Loading instance data for `{_gameObjectManager.GetScriptName(ScriptId)}` with id {InstanceIdInternal}");
+            Log.Logger.Debug($"Loading instance data for `{_scriptManager.GetScriptName(ScriptId)}` with id {InstanceIdInternal}");
             InstanceScript.Load(lockData.Data);
         }
         else
@@ -267,7 +267,7 @@ public class InstanceMap : Map
 
     public string GetScriptName()
     {
-        return _gameObjectManager.GetScriptName(ScriptId);
+        return _scriptManager.GetScriptName(ScriptId);
     }
 
     public sealed override void InitVisibilityDistance()

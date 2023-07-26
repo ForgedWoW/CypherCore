@@ -16,7 +16,12 @@ public class AtEvokerFirestorm : AreaTriggerScript, IAreaTriggerOverrideCreatePr
 {
     uint _timer = 0;
     int _hits = 7;
-    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM);
+    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; }
+
+    public AtEvokerFirestorm(ScriptManager scriptManager)
+    {
+        AreaTriggerCreateProperties = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM, scriptManager);
+    }
 
     public void OnCreate()
     {

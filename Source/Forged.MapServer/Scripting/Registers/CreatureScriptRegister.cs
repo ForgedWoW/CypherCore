@@ -12,10 +12,12 @@ namespace Forged.MapServer.Scripting.Registers;
 public class CreatureScriptRegister : IScriptRegister
 {
     private readonly GameObjectManager _gameObjectManager;
+    private readonly ScriptManager _scriptManager;
 
-    public CreatureScriptRegister(ClassFactory classFactory)
+    public CreatureScriptRegister(GameObjectManager gameObjectManager, ScriptManager scriptManager)
     {
-        _gameObjectManager = classFactory.Resolve<GameObjectManager>();
+        _gameObjectManager = gameObjectManager;
+        _scriptManager = scriptManager;
     }
 
     public Type AttributeType => typeof(CreatureScriptAttribute);
@@ -37,7 +39,7 @@ public class CreatureScriptRegister : IScriptRegister
             }
 
             if (creatureTemplate.ScriptID == 0) // dont override database
-                creatureTemplate.ScriptID = _gameObjectManager.GetScriptId(scriptName);
+                creatureTemplate.ScriptID = _scriptManager.GetScriptId(scriptName);
         }
     }
 }

@@ -60,6 +60,7 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
     private readonly PlayerComputators _playerComputators;
+    private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly ScriptManager _scriptManager;
     private readonly WorldSession _session;
     private readonly WorldManager _worldManager;
@@ -67,7 +68,8 @@ public class CharacterHandler : IWorldSessionHandler
     public CharacterHandler(WorldSession session, CliDB cliDb, CollectionMgr collectionMgr, IConfiguration configuration,
         CharacterDatabase characterDatabase, ScriptManager scriptManager, LoginDatabase loginDatabase, DB2Manager dB2Manager,
         WorldManager worldManager, GuildManager guildManager, GameObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
-        ArenaTeamManager arenaTeamManager, ClassFactory classFactory, CalendarManager calendarManager, ConditionManager conditionManager, PlayerComputators playerComputators)
+        ArenaTeamManager arenaTeamManager, ClassFactory classFactory, CalendarManager calendarManager, ConditionManager conditionManager, PlayerComputators playerComputators,
+        ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         _session = session;
         _cliDb = cliDb;
@@ -87,6 +89,7 @@ public class CharacterHandler : IWorldSessionHandler
         _calendarManager = calendarManager;
         _conditionManager = conditionManager;
         _playerComputators = playerComputators;
+        _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
     }
 
     public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -607,7 +610,7 @@ public class CharacterHandler : IWorldSessionHandler
                                             Player newChar = new(_session, _classFactory);
                                             newChar.MotionMaster.Initialize();
 
-                                            if (!newChar.Create(_objectManager.GetGenerator(HighGuid.Player).Generate(), createInfo))
+                                            if (!newChar.Create(_objectGuidGeneratorFactory.GetGenerator(HighGuid.Player).Generate(), createInfo))
                                             {
                                                 // Player not create (race/class/etc problem?)
                                                 newChar.CleanupsBeforeDelete();

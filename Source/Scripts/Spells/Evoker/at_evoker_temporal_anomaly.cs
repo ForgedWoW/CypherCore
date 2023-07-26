@@ -18,7 +18,12 @@ public class AtEvokerTemporalAnomaly : AreaTriggerScript, IAreaTriggerOverrideCr
     double _amount = 0;
     int _targets = 0;
 
-    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY);
+    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; }
+
+    public AtEvokerTemporalAnomaly(ScriptManager scriptManager)
+    {
+        AreaTriggerCreateProperties = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY, scriptManager);
+    }
 
     public void OnCreate()
     {

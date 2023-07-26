@@ -17,6 +17,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.LFG;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
@@ -37,6 +38,7 @@ public class BattlegroundManager
     private readonly Dictionary<BattlegroundTypeId, BattlegroundData> _bgDataStore = new();
     private readonly MultiMap<BattlegroundQueueTypeId, Battleground> _bgFreeSlotQueue = new();
     private readonly ClassFactory _classFactory;
+    private readonly ScriptManager _scriptManager;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DisableManager _disableManager;
@@ -53,7 +55,7 @@ public class BattlegroundManager
     private uint _updateTimer;
 
     public BattlegroundManager(IConfiguration configuration, MapManager mapManager, WorldDatabase worldDatabase, DisableManager disableManager, CliDB cliDB,
-                               GameObjectManager objectManager, WorldManager worldManager, GameEventManager gameEventManager, ClassFactory classFactory)
+                               GameObjectManager objectManager, WorldManager worldManager, GameEventManager gameEventManager, ClassFactory classFactory, ScriptManager scriptManager)
     {
         _configuration = configuration;
         _mapManager = mapManager;
@@ -64,6 +66,7 @@ public class BattlegroundManager
         _worldManager = worldManager;
         _gameEventManager = gameEventManager;
         _classFactory = classFactory;
+        _scriptManager = scriptManager;
         _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena:RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
         _threadTaskManager = new LimitedThreadTaskManager(_configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
     }
@@ -375,7 +378,7 @@ public class BattlegroundManager
             bgTemplate.MaxStartDistSq = dist * dist;
             bgTemplate.Weight = result.Read<byte>(4);
 
-            bgTemplate.ScriptId = _objectManager.GetScriptId(result.Read<string>(5));
+            bgTemplate.ScriptId = _scriptManager.GetScriptId(result.Read<string>(5));
             bgTemplate.BattlemasterEntry = bl;
 
             if (bgTemplate.Id != BattlegroundTypeId.Aa && bgTemplate.Id != BattlegroundTypeId.Rb && bgTemplate.Id != BattlegroundTypeId.RandomEpic)

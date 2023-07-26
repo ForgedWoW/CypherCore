@@ -10,6 +10,7 @@ using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Quest;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
 using Framework.Database;
 using Game.Common;
@@ -21,6 +22,7 @@ public class CriteriaManager
 {
     private readonly ClassFactory _classFactory;
     private readonly CriteriaDataValidator _criteriaDataValidator;
+    private readonly ScriptManager _scriptManager;
     private readonly CliDB _cliDB;
     private readonly Dictionary<uint, Criteria> _criteria = new();
     private readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
@@ -40,13 +42,14 @@ public class CriteriaManager
     private readonly MultiMap<uint, Criteria>[] _scenarioCriteriasByTypeAndScenarioId = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
     private readonly WorldDatabase _worldDatabase;
 
-    public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager, ClassFactory classFactory, CriteriaDataValidator criteriaDataValidator)
+    public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager, ClassFactory classFactory, CriteriaDataValidator criteriaDataValidator, ScriptManager scriptManager)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
         _classFactory = classFactory;
         _criteriaDataValidator = criteriaDataValidator;
+        _scriptManager = scriptManager;
 
         for (var i = 0; i < (int)CriteriaType.Count; ++i)
         {
@@ -182,7 +185,7 @@ public class CriteriaManager
                 if (dataType != CriteriaDataType.Script)
                     Log.Logger.Error("Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: {0}, type {1}), useless data.", criteriaID, dataType);
                 else
-                    scriptId = _gameObjectManager.GetScriptId(scriptName);
+                    scriptId = _scriptManager.GetScriptId(scriptName);
             }
 
             var data = _classFactory.Resolve<CriteriaData>(new PositionalParameter(0, dataType),

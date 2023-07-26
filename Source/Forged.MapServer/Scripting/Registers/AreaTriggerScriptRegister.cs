@@ -10,11 +10,11 @@ namespace Forged.MapServer.Scripting.Registers;
 
 public class AreaTriggerScriptRegister : IScriptRegister
 {
-    private readonly GameObjectManager _objectMgr;
+    private readonly ScriptManager _scriptManager;
 
-    public AreaTriggerScriptRegister(ClassFactory classFactory)
+    public AreaTriggerScriptRegister(ScriptManager scriptManager)
     {
-        _objectMgr = classFactory.Resolve<GameObjectManager>();
+        _scriptManager = scriptManager;
     }
 
     public Type AttributeType => typeof(AreaTriggerScriptAttribute);
@@ -25,6 +25,6 @@ public class AreaTriggerScriptRegister : IScriptRegister
             return;
 
         foreach (var id in atScript.AreaTriggerIds)
-            _objectMgr.RegisterAreaTriggerScript(id, scriptName);
+            _scriptManager.RegisterAreaTriggerScript(id, scriptName);
     }
 }

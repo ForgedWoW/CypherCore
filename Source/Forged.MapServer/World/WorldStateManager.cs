@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage;
-using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.WorldState;
 using Forged.MapServer.Scripting;
@@ -25,7 +24,6 @@ public class WorldStateManager
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
     private readonly DB2Manager _db2Manager;
-    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<int, int> _realmWorldStateValues = new();
     private readonly ScriptManager _scriptManager;
     private readonly WorldDatabase _worldDatabase;
@@ -33,12 +31,11 @@ public class WorldStateManager
     private readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
     private readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
 
-    public WorldStateManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager,
+    public WorldStateManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB,
                              CharacterDatabase characterDatabase, ScriptManager scriptManager, WorldManager worldManager, DB2Manager db2Manager)
     {
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;
-        _objectManager = objectManager;
         _characterDatabase = characterDatabase;
         _scriptManager = scriptManager;
         _worldManager = worldManager;
@@ -195,7 +192,7 @@ public class WorldStateManager
             else if (!areaIds.IsEmpty())
                 Log.Logger.Error($"Table `world_state` contains a world state {id} with nonempty AreaIDs ({areaIds}) but is a realm wide world state, area requirement ignored");
 
-            worldState.ScriptId = _objectManager.GetScriptId(result.Read<string>(4));
+            worldState.ScriptId = _scriptManager.GetScriptId(result.Read<string>(4));
 
             if (!worldState.MapIds.Empty())
                 foreach (var mapId in worldState.MapIds)

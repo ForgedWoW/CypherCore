@@ -11,8 +11,10 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.SupportSystem;
 using Framework.Constants;
+using Game.Common;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedType.Local
 
@@ -79,7 +81,7 @@ internal class GoCommands
                 continue;
 
             uint count = 0;
-            var scriptName = handler.ObjectManager.GetScriptName(data.ScriptID);
+            var scriptName = handler.ClassFactory.Resolve<ScriptManager>().GetScriptName(data.ScriptID);
 
             foreach (var label in needles)
                 if (scriptName.Contains(label) || data.Name.Contains(label))
@@ -127,7 +129,7 @@ internal class GoCommands
 
                 do
                 {
-                    handler.SendSysMessage(CypherStrings.CommandMultipleBossesEntry, keyValueList[i].Value.Entry, keyValueList[i].Value.Name, handler.ObjectManager.GetScriptName(keyValueList[i].Value.ScriptID));
+                    handler.SendSysMessage(CypherStrings.CommandMultipleBossesEntry, keyValueList[i].Value.Entry, keyValueList[i].Value.Name, handler.ClassFactory.Resolve<ScriptManager>().GetScriptName(keyValueList[i].Value.ScriptID));
                 } while (++i != 0 && keyValueList[i].Key == maxCount);
 
                 return false;
@@ -258,7 +260,7 @@ internal class GoCommands
         foreach (var pair in handler.ObjectManager.GetInstanceTemplates())
         {
             uint count = 0;
-            var scriptName = handler.ObjectManager.GetScriptName(pair.Value.ScriptId);
+            var scriptName = handler.ClassFactory.Resolve<ScriptManager>().GetScriptName(pair.Value.ScriptId);
             var mapName1 = handler.CliDB.MapStorage.LookupByKey(pair.Key).MapName[handler.SessionDbcLocale];
 
             foreach (var label in labels)

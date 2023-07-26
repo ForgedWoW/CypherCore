@@ -12,10 +12,12 @@ namespace Forged.MapServer.Scripting.Registers;
 public class GameObjectScriptRegister : IScriptRegister
 {
     private readonly GameObjectManager _gameObjectManager;
+    private readonly ScriptManager _scriptManager;
 
-    public GameObjectScriptRegister(ClassFactory classFactory)
+    public GameObjectScriptRegister(GameObjectManager gameObjectManager, ScriptManager scriptManager)
     {
-        _gameObjectManager = classFactory.Resolve<GameObjectManager>();
+        _gameObjectManager = gameObjectManager;
+        _scriptManager = scriptManager;
     }
 
     public Type AttributeType => typeof(GameObjectScriptAttribute);
@@ -37,7 +39,7 @@ public class GameObjectScriptRegister : IScriptRegister
             }
 
             if (gameObject.ScriptId == 0) // dont override database
-                gameObject.ScriptId = _gameObjectManager.GetScriptId(scriptName);
+                gameObject.ScriptId = _scriptManager.GetScriptId(scriptName);
         }
     }
 }

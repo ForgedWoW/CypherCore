@@ -217,7 +217,7 @@ public class OutdoorPvPManager
                 continue;
             }
 
-            _outdoorPvPDatas[typeId] = _objectManager.GetScriptId(result.Read<string>(1));
+            _outdoorPvPDatas[typeId] = _scriptManager.GetScriptId(result.Read<string>(1));
 
             ++count;
         } while (result.NextRow());

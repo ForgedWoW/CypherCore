@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using Forged.MapServer.AI.CoreAI;
+using Autofac;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.AreaTriggers;
@@ -32,6 +32,7 @@ using Framework.Util;
 using Game.Common;
 using Game.Common.Extendability;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace Forged.MapServer.Scripting;
@@ -110,7 +111,7 @@ public class ScriptManager
 
         if (!_scriptStorage.TryGetValue(script.GetType(), out var scriptReg))
         {
-            scriptReg = new ScriptRegistry(this, _classFactory.Resolve<GameObjectManager>());
+            scriptReg = new ScriptRegistry(this);
             _scriptStorage[script.GetType()] = scriptReg;
         }
 
@@ -251,7 +252,7 @@ public class ScriptManager
 
         if (!_scriptStorage.TryGetValue(iface, out var scriptReg))
         {
-            scriptReg = new ScriptRegistry(this, _classFactory.Resolve<GameObjectManager>());
+            scriptReg = new ScriptRegistry(this);
             _scriptStorage[iface] = scriptReg;
         }
 
@@ -408,23 +409,12 @@ public class ScriptManager
                             if (attribute.Args.Empty())
                                 activatedObj = numArgsMin switch
                                 {
-                                    0 or 99 => Activator.CreateInstance(type) as IScriptObject,
+                                    0 => Activator.CreateInstance(type) as IScriptObject,
                                     1 when paramType != null && paramType == typeof(string) => Activator.CreateInstance(type, name) as IScriptObject,
-                                    _ => activatedObj
+                                    _ => _classFactory.ActiveNonRegistered<IScriptObject>(name)
                                 };
                             else
-                            {
-                                if (numArgsMin == 1 &&
-                                    paramType != null &&
-                                    paramType != typeof(string))
-                                    activatedObj = Activator.CreateInstance(type, attribute.Args) as IScriptObject;
-                                else
-                                    activatedObj = Activator.CreateInstance(type,
-                                                                            new object[]
-                                                                            {
-                                                                                name
-                                                                            }.Combine(attribute.Args)) as IScriptObject;
-                            }
+                                activatedObj = _classFactory.ActiveNonRegistered<IScriptObject>(name, attribute.Args);
 
                         if (activatedObj != null)
                             activatedObj.ClassFactory = _classFactory;
@@ -560,12 +550,7 @@ public class ScriptManager
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
             return;
 
-        IScriptActivator asa = null;
-
-        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
-            asa = Activator.CreateInstance(type, _classFactory) as IScriptActivator;
-        else
-            asa = Activator.CreateInstance(type) as IScriptActivator;
+        var asa = _classFactory.ActiveNonRegistered<IScriptActivator>();
 
         if (asa == null)
             return;
@@ -579,12 +564,7 @@ public class ScriptManager
         if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
             return;
 
-        IScriptRegister newReg = null;
-
-        if (type.GetConstructors().Any(c => c.GetParameters().Any(p => p.ParameterType == typeof(ClassFactory))))
-            newReg = Activator.CreateInstance(type, _classFactory) as IScriptRegister;
-        else
-            newReg = Activator.CreateInstance(type) as IScriptRegister;
+        var newReg = _classFactory.ActiveNonRegistered<IScriptRegister>();
 
         if (newReg != null)
             registers[newReg.AttributeType] = newReg;

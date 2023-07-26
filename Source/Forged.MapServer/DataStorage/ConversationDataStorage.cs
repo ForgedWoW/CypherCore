@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
 using Framework.Database;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
@@ -15,17 +16,19 @@ public class ConversationDataStorage
 {
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
+    private readonly ScriptManager _scriptManager;
     private readonly Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
     private readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public ConversationDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, IConfiguration configuration)
+    public ConversationDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, IConfiguration configuration, ScriptManager scriptManager)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _cliDB = cliDB;
         _configuration = configuration;
+        _scriptManager = scriptManager;
     }
 
     public ConversationLineTemplate GetConversationLineTemplate(uint conversationLineId)
@@ -155,7 +158,7 @@ public class ConversationDataStorage
                     Id = templateResult.Read<uint>(0),
                     FirstLineId = templateResult.Read<uint>(1),
                     TextureKitId = templateResult.Read<uint>(2),
-                    ScriptId = _objectManager.GetScriptId(templateResult.Read<string>(3))
+                    ScriptId = _scriptManager.GetScriptId(templateResult.Read<string>(3))
                 };
 
                 conversationTemplate.Actors = actorsByConversation.TryGetValue(conversationTemplate.Id, out var actors) ? actors.ToList() : new List<ConversationActorTemplate>();

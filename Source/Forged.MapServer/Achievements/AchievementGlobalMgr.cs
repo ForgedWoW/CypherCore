@@ -7,6 +7,7 @@ using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
 using Framework.Database;
 using Serilog;
@@ -27,15 +28,17 @@ public class AchievementGlobalMgr
 
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
+    private readonly ScriptManager _scriptManager;
     private readonly GameObjectManager _gameObjectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB)
+    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB, ScriptManager scriptManager)
     {
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
         _gameObjectManager = gameObjectManager;
         _cliDB = cliDB;
+        _scriptManager = scriptManager;
     }
 
     public List<AchievementRecord> GetAchievementByReferencedId(uint id)
@@ -135,7 +138,7 @@ public class AchievementGlobalMgr
                 continue;
             }
 
-            _achievementScripts[achievementId] = _gameObjectManager.GetScriptId(scriptName);
+            _achievementScripts[achievementId] = _scriptManager.GetScriptId(scriptName);
         } while (result.NextRow());
 
         Log.Logger.Information($"Loaded {_achievementScripts.Count} achievement scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");

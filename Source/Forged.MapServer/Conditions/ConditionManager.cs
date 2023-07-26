@@ -33,6 +33,7 @@ using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Forged.MapServer.MapWeather;
+using Forged.MapServer.Scripting;
 
 namespace Forged.MapServer.Conditions;
 
@@ -67,6 +68,7 @@ public sealed class ConditionManager
     private readonly MultiMap<(uint objectType, uint objectId), Condition> _objectVisibilityConditionStorage = new();
     private readonly PlayerComputators _playerComputators;
     private readonly PhasingHandler _phasingHandler;
+    private readonly ScriptManager _scriptManager;
     private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
     private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
     private readonly SpellManager _spellManager;
@@ -81,7 +83,8 @@ public sealed class ConditionManager
                             LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager,
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
                             GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
-                            ObjectAccessor objectAccessor, LootStoreBox lootStorage, ClassFactory classFactory, PlayerComputators playerComputators, PhasingHandler phasingHandler)
+                            ObjectAccessor objectAccessor, LootStoreBox lootStorage, ClassFactory classFactory, PlayerComputators playerComputators, 
+                            PhasingHandler phasingHandler, ScriptManager scriptManager)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -101,6 +104,7 @@ public sealed class ConditionManager
         _classFactory = classFactory;
         _playerComputators = playerComputators;
         _phasingHandler = phasingHandler;
+        _scriptManager = scriptManager;
     }
 
     public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
@@ -1037,7 +1041,7 @@ public sealed class ConditionManager
             cond.NegativeCondition = result.Read<byte>(10) != 0;
             cond.ErrorType = result.Read<uint>(11);
             cond.ErrorTextId = result.Read<uint>(12);
-            cond.ScriptId = _objectManager.GetScriptId(result.Read<string>(13));
+            cond.ScriptId = _scriptManager.GetScriptId(result.Read<string>(13));
 
             if (iConditionTypeOrReference >= 0)
                 cond.ConditionType = (ConditionTypes)iConditionTypeOrReference;

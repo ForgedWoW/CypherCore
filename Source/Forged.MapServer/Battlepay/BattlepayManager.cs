@@ -7,6 +7,7 @@ using System.Linq;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Bpay;
 using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Server;
@@ -22,6 +23,7 @@ namespace Forged.MapServer.Battlepay;
 public class BattlepayManager
 {
     private readonly BattlePayDataStoreMgr _battlePayDataStoreMgr;
+    private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly BattlePetData _battlePet;
     private readonly IConfiguration _configuration;
     private readonly LoginDatabase _loginDatabase;
@@ -29,13 +31,15 @@ public class BattlepayManager
     private ulong _distributionIDCount;
     private ulong _purchaseIDCount;
 
-    public BattlepayManager(WorldSession session, BattlePetData battlePet, LoginDatabase loginDatabase, IConfiguration configuration, BattlePayDataStoreMgr battlePayDataStoreMgr)
+    public BattlepayManager(WorldSession session, BattlePetData battlePet, LoginDatabase loginDatabase, IConfiguration configuration, BattlePayDataStoreMgr battlePayDataStoreMgr,
+                            ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         _session = session;
         _battlePet = battlePet;
         _loginDatabase = loginDatabase;
         _configuration = configuration;
         _battlePayDataStoreMgr = battlePayDataStoreMgr;
+        _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
         _purchaseIDCount = 0;
         _distributionIDCount = 0;
         WalletName = "Credits";
@@ -60,7 +64,7 @@ public class BattlepayManager
         _session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePet.SelectPetDisplay(speciesEntry), _battlePet.RollPetBreed(speciesEntry.Id), _battlePet.GetDefaultPetQuality(speciesEntry.Id));
 
         //it gives back false information need to get the pet guid from the add pet method somehow
-        SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _session.Player.GameObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
+        SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _objectGuidGeneratorFactory.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
     }
 
     public bool AlreadyOwnProduct(uint itemId)

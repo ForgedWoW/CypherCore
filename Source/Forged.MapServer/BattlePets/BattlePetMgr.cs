@@ -26,19 +26,20 @@ public class BattlePetMgr
 {
     private readonly CliDB _cliDB;
     private readonly LoginDatabase _loginDatabase;
-    private readonly GameObjectManager _objectManager;
     private readonly ClassFactory _classFactory;
+    private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly Dictionary<ulong, BattlePet> _pets = new();
     private readonly WorldManager _worldManager;
 
-    public BattlePetMgr(WorldSession owner, CliDB cliDB, WorldManager worldManager, LoginDatabase loginDatabase, GameObjectManager objectManager, ClassFactory classFactory)
+    public BattlePetMgr(WorldSession owner, CliDB cliDB, WorldManager worldManager, LoginDatabase loginDatabase,
+                        ClassFactory classFactory, ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         Owner = owner;
         _cliDB = cliDB;
         _worldManager = worldManager;
         _loginDatabase = loginDatabase;
-        _objectManager = objectManager;
         _classFactory = classFactory;
+        _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
 
         for (byte i = 0; i < (int)BattlePetSlots.Count; ++i)
         {
@@ -69,7 +70,7 @@ public class BattlePetMgr
             return;
 
         var pet = _classFactory.Resolve<BattlePet>();
-        pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, _objectManager.GetGenerator(HighGuid.BattlePet).Generate());
+        pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, _objectGuidGeneratorFactory.GetGenerator(HighGuid.BattlePet).Generate());
         pet.PacketInfo.Species = species;
         pet.PacketInfo.CreatureID = battlePetSpecies.CreatureID;
         pet.PacketInfo.DisplayID = display;

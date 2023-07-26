@@ -21,6 +21,7 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Pools;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Text;
 using Forged.MapServer.World;
@@ -1017,7 +1018,7 @@ public partial class Creature : Unit
 
     public string GetScriptName()
     {
-        return GameObjectManager.GetScriptName(GetScriptId());
+        return ScriptManager.GetScriptName(GetScriptId());
     }
 
     public float GetSpellDamageMod(CreatureEliteType rank)

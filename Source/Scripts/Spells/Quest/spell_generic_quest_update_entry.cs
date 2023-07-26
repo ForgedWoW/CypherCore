@@ -44,7 +44,7 @@ internal class SpellGenericQuestUpdateEntry : SpellScript, IHasSpellEffects
     {
         var creatureTarget = HitCreature;
 
-        if (creatureTarget)
+        if (creatureTarget != null)
             if (!creatureTarget.IsPet &&
                 creatureTarget.Entry == _originalEntry)
             {

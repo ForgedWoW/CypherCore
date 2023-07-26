@@ -31,6 +31,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Interfaces;
+using Forged.MapServer.MapWeather;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Misc;
@@ -50,7 +51,6 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Forged.MapServer.MapWeather;
 
 namespace Forged.MapServer.Maps;
 
@@ -78,6 +78,7 @@ public class Map : IDisposable
     private readonly LimitedThreadTaskManager _processTransportaionQueue = new(1);
     private readonly SortedSet<RespawnInfo> _respawnTimes = new(new CompareRespawnInfo());
     private readonly object _scriptLock = new();
+    private readonly ScriptManager _scriptManager;
     private readonly SortedDictionary<long, List<ScriptAction>> _scriptSchedule = new();
     private readonly LimitedThreadTaskManager _threadManager;
     private readonly List<uint> _toggledSpawnGroupIds = new();
@@ -118,6 +119,7 @@ public class Map : IDisposable
         CellCalculator = classFactory.Resolve<CellCalculator>();
         WaypointManager = classFactory.Resolve<WaypointManager>();
         PhasingHandler = classFactory.Resolve<PhasingHandler>();
+        _scriptManager = classFactory.Resolve<ScriptManager>();
 
         try
         {
@@ -130,6 +132,8 @@ public class Map : IDisposable
             Terrain = TerrainManager.LoadTerrain(id);
             _zonePlayerCountMap.Clear();
 
+            var guidGeneratorFactory = classFactory.Resolve<ObjectGuidGeneratorFactory>();
+
             //lets initialize visibility distance for map
             InitVisibilityDistance();
 
@@ -138,7 +142,7 @@ public class Map : IDisposable
                 Interval = 1 * Time.IN_MILLISECONDS
             };
 
-            GetGuidSequenceGenerator(HighGuid.Transport).Set(GameObjectManager.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
+            GetGuidSequenceGenerator(HighGuid.Transport).Set(guidGeneratorFactory.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
 
             PoolData = PoolManager.InitPoolsForMap(this);
 
@@ -212,8 +216,8 @@ public class Map : IDisposable
     public ObjectAccessor ObjectAccessor { get; }
     public ConcurrentDictionary<ObjectGuid, WorldObject> ObjectsStore { get; } = new();
     public OutdoorPvPManager OutdoorPvPManager { get; }
-    public List<Player> Players => ActivePlayers;
     public PhasingHandler PhasingHandler { get; }
+    public List<Player> Players => ActivePlayers;
 
     public int PlayersCountExceptGMs
     {
@@ -240,30 +244,6 @@ public class Map : IDisposable
     internal object MapLock { get; set; } = new();
     internal uint UnloadTimer { get; set; }
     protected List<Player> ActivePlayers { get; } = new();
-
-    public void Dispose()
-    {
-        OnDestroyMap(this);
-
-        // Delete all waiting spawns
-        // This doesn't delete from database.
-        UnloadAllRespawnInfos();
-
-        for (var i = 0; i < _worldObjects.Count; ++i)
-        {
-            var obj = _worldObjects[i];
-            obj.RemoveFromWorld();
-            obj.Location.ResetMap();
-        }
-
-        if (!_scriptSchedule.Empty())
-            MapManager.DecreaseScheduledScriptCount((uint)_scriptSchedule.Sum(kvp => kvp.Value.Count));
-
-        OutdoorPvPManager.DestroyOutdoorPvPForMap(this);
-        BattleFieldManager.DestroyBattlefieldsForMap(this);
-
-        MMAPManager.UnloadMapInstance(Id, InstanceIdInternal);
-    }
 
     public static bool IsInWMOInterior(uint mogpFlags)
     {
@@ -850,6 +830,30 @@ public class Map : IDisposable
         CharacterDatabase.Execute(stmt);
     }
 
+    public void Dispose()
+    {
+        OnDestroyMap(this);
+
+        // Delete all waiting spawns
+        // This doesn't delete from database.
+        UnloadAllRespawnInfos();
+
+        for (var i = 0; i < _worldObjects.Count; ++i)
+        {
+            var obj = _worldObjects[i];
+            obj.RemoveFromWorld();
+            obj.Location.ResetMap();
+        }
+
+        if (!_scriptSchedule.Empty())
+            MapManager.DecreaseScheduledScriptCount((uint)_scriptSchedule.Sum(kvp => kvp.Value.Count));
+
+        OutdoorPvPManager.DestroyOutdoorPvPForMap(this);
+        BattleFieldManager.DestroyBattlefieldsForMap(this);
+
+        MMAPManager.UnloadMapInstance(Id, InstanceIdInternal);
+    }
+
     public void DoOnPlayers(Action<Player> action)
     {
         foreach (var player in Players)
@@ -1118,9 +1122,9 @@ public class Map : IDisposable
 
         return linkedGuid.High switch
         {
-            HighGuid.Creature   => GetCreatureRespawnTime(linkedGuid.Counter),
+            HighGuid.Creature => GetCreatureRespawnTime(linkedGuid.Counter),
             HighGuid.GameObject => GetGORespawnTime(linkedGuid.Counter),
-            _                   => 0L
+            _ => 0L
         };
     }
 
@@ -1270,10 +1274,10 @@ public class Map : IDisposable
     {
         return type switch
         {
-            SpawnObjectType.Creature    => GetCreatureBySpawnId(spawnId),
-            SpawnObjectType.GameObject  => GetGameObjectBySpawnId(spawnId),
+            SpawnObjectType.Creature => GetCreatureBySpawnId(spawnId),
+            SpawnObjectType.GameObject => GetGameObjectBySpawnId(spawnId),
             SpawnObjectType.AreaTrigger => GetAreaTriggerBySpawnId(spawnId),
-            _                           => null
+            _ => null
         };
     }
 
@@ -1976,7 +1980,7 @@ public class Map : IDisposable
     // Put scripts in the execution queue
     public void ScriptsStart(ScriptsType scriptsType, uint id, WorldObject source, WorldObject target)
     {
-        var scripts = GameObjectManager.GetScriptsMapByType(scriptsType);
+        var scripts = _scriptManager.GetScriptsMapByType(scriptsType);
 
         // Find the script map
         if (!scripts.TryGetValue(id, out var list))
@@ -2088,11 +2092,11 @@ public class Map : IDisposable
         SendZoneWeather(zoneInfo, player);
 
         foreach (var overrideLight in zoneInfo.LightOverrides.Select(lightOverride => new OverrideLight
-                 {
-                     AreaLightID = lightOverride.AreaLightId,
-                     OverrideLightID = lightOverride.OverrideLightId,
-                     TransitionMilliseconds = lightOverride.TransitionMilliseconds
-                 }))
+        {
+            AreaLightID = lightOverride.AreaLightId,
+            OverrideLightID = lightOverride.OverrideLightId,
+            TransitionMilliseconds = lightOverride.TransitionMilliseconds
+        }))
             player.SendPacket(overrideLight);
     }
 
@@ -2452,13 +2456,13 @@ public class Map : IDisposable
 
         var summon = mask switch
         {
-            UnitTypeMask.Summon   => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summonerUnit, false),
+            UnitTypeMask.Summon => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summonerUnit, false),
             UnitTypeMask.Guardian => ClassFactory.ResolveWithPositionalParameters<Guardian>(properties, summonerUnit, false),
-            UnitTypeMask.Puppet   => ClassFactory.ResolveWithPositionalParameters<Puppet>(properties, summonerUnit),
-            UnitTypeMask.Totem    => ClassFactory.ResolveWithPositionalParameters<Totem>(properties, summonerUnit),
-            UnitTypeMask.Minion   => ClassFactory.ResolveWithPositionalParameters<Minion>(properties, summonerUnit, false),
+            UnitTypeMask.Puppet => ClassFactory.ResolveWithPositionalParameters<Puppet>(properties, summonerUnit),
+            UnitTypeMask.Totem => ClassFactory.ResolveWithPositionalParameters<Totem>(properties, summonerUnit),
+            UnitTypeMask.Minion => ClassFactory.ResolveWithPositionalParameters<Minion>(properties, summonerUnit, false),
             // ReSharper disable once UnreachableSwitchArmDueToIntegerAnalysis
-            _                     => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summonerUnit, false)
+            _ => ClassFactory.ResolveWithPositionalParameters<TempSummon>(properties, summonerUnit, false)
         };
 
         if (!summon.Create(GenerateLowGuid(HighGuid.Creature), this, entry, pos, null, vehId, true))
@@ -3236,10 +3240,10 @@ public class Map : IDisposable
     {
         return type switch
         {
-            SpawnObjectType.Creature    => _creatureRespawnTimesBySpawnId,
-            SpawnObjectType.GameObject  => _gameObjectRespawnTimesBySpawnId,
+            SpawnObjectType.Creature => _creatureRespawnTimesBySpawnId,
+            SpawnObjectType.GameObject => _gameObjectRespawnTimesBySpawnId,
             SpawnObjectType.AreaTrigger => null,
-            _                           => null
+            _ => null
         };
     }
 
@@ -3783,7 +3787,7 @@ public class Map : IDisposable
                         // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
                         // make sure that like sources auras/etc removed before destructor start
                         obj. // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
-                            // make sure that like sources auras/etc removed before destructor start
+                             // make sure that like sources auras/etc removed before destructor start
                             AsCreature.CleanupsBeforeDelete();
 
                         RemoveFromMap(obj.AsCreature, true);
@@ -4736,7 +4740,7 @@ public class Map : IDisposable
         else if (zoneDynamicInfo.DefaultWeather != null)
             zoneDynamicInfo.DefaultWeather.SendWeatherUpdateToPlayer(player);
         else
-Weather.SendFineWeatherUpdateToPlayer(player);
+            Weather.SendFineWeatherUpdateToPlayer(player);
     }
 
     private void SetGrid(Grid grid, uint x, uint y)

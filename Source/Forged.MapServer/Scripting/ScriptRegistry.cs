@@ -13,16 +13,14 @@ namespace Forged.MapServer.Scripting;
 public class ScriptRegistry
 {
     private readonly ScriptManager _scriptManager;
-    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, IScriptObject> _scriptMap = new();
 
     // Counter used for code-only scripts.
     private uint _scriptIdCounter;
 
-    public ScriptRegistry(ScriptManager scriptManager, GameObjectManager objectManager)
+    public ScriptRegistry(ScriptManager scriptManager)
     {
         _scriptManager = scriptManager;
-        _objectManager = objectManager;
     }
 
     public void AddScript(IScriptObject script)
@@ -40,7 +38,7 @@ public class ScriptRegistry
 
         // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
         // through a script Name (or similar).
-        var id = _objectManager.GetScriptId(script.GetName());
+        var id = _scriptManager.GetScriptId(script.GetName());
 
         if (id != 0)
         {
@@ -52,23 +50,18 @@ public class ScriptRegistry
                 if (_scriptMap.Values.Contains(script)) // its already in here
                     return;
 
-                foreach (var it in _scriptMap)
-                    if (it.Value.GetName() == script.GetName())
-                    {
-                        existing = true;
-
-                        break;
-                    }
+                if (_scriptMap.Any(it => it.Value.GetName() == script.GetName()))
+                    existing = true;
             }
 
             // If the script isn't assigned . assign it!
-            if (!existing)
-            {
-                lock (_scriptMap)
-                    _scriptMap[id] = script;
+            if (existing)
+                return;
 
-                _scriptManager.IncrementScriptCount();
-            }
+            lock (_scriptMap)
+                _scriptMap[id] = script;
+
+            _scriptManager.IncrementScriptCount();
         }
         else
             // The script uses a script Name from database, but isn't assigned to anything.

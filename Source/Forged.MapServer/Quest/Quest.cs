@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Quest;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
@@ -24,13 +25,14 @@ public class Quest
 {
     private readonly CliDB _cliDB;
     private readonly ConditionManager _conditionManager;
+    private readonly ScriptManager _scriptManager;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
     private readonly GameObjectManager _gameObjectManager;
     private readonly SpellManager _spellManager;
 
     public Quest(SQLFields fields, IConfiguration configuration, DB2Manager db2Manager, CliDB cliDB, GameObjectManager gameObjectManager,
-                 SpellManager spellManager, ConditionManager conditionManager)
+                 SpellManager spellManager, ConditionManager conditionManager, ScriptManager scriptManager)
     {
         _configuration = configuration;
         _db2Manager = db2Manager;
@@ -38,6 +40,7 @@ public class Quest
         _gameObjectManager = gameObjectManager;
         _spellManager = spellManager;
         _conditionManager = conditionManager;
+        _scriptManager = scriptManager;
         Id = fields.Read<uint>(0);
         Type = (QuestType)fields.Read<byte>(1);
         PackageID = fields.Read<uint>(2);
@@ -792,7 +795,7 @@ public class Quest
         RequiredMaxRepValue = fields.Read<int>(15);
         SourceItemIdCount = fields.Read<byte>(16);
         SpecialFlags = (QuestSpecialFlags)fields.Read<byte>(17);
-        ScriptId = _gameObjectManager.GetScriptId(fields.Read<string>(18));
+        ScriptId = _scriptManager.GetScriptId(fields.Read<string>(18));
 
         if (SpecialFlags.HasAnyFlag(QuestSpecialFlags.AutoAccept))
             Flags |= QuestFlags.AutoAccept;

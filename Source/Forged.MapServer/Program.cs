@@ -366,6 +366,7 @@ void RegisterFactories()
     builder.RegisterType<AzeriteItemFactory>().SingleInstance();
     builder.RegisterType<ConversationFactory>().SingleInstance();
     builder.RegisterType<SceneFactory>().SingleInstance();
+    builder.RegisterType<ObjectGuidGeneratorFactory>().SingleInstance();
 }
 
 void RegisterInstanced()

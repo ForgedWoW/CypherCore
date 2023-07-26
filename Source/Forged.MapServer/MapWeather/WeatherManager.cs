@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
 using Framework.Database;
 using Serilog;
 
@@ -11,13 +12,15 @@ namespace Forged.MapServer.MapWeather;
 public class WeatherManager
 {
     private readonly GameObjectManager _objectManager;
+    private readonly ScriptManager _scriptManager;
     private readonly Dictionary<uint, WeatherData> _weatherData = new();
     private readonly WorldDatabase _worldDatabase;
 
-    public WeatherManager(WorldDatabase worldDatabase, GameObjectManager objectManager)
+    public WeatherManager(WorldDatabase worldDatabase, GameObjectManager objectManager, ScriptManager scriptManager)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
+        _scriptManager = scriptManager;
     }
 
     public WeatherData GetWeatherData(uint zoneId)
@@ -73,7 +76,7 @@ public class WeatherManager
                 }
             }
 
-            wzc.ScriptId = _objectManager.GetScriptId(result.Read<string>(13));
+            wzc.ScriptId = _scriptManager.GetScriptId(result.Read<string>(13));
             _weatherData[zoneID] = wzc;
             ++count;
         } while (result.NextRow());

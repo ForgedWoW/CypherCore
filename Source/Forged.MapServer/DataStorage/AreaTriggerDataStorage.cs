@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
@@ -23,17 +24,19 @@ public class AreaTriggerDataStorage
     private readonly Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
     private readonly CliDB _cliDB;
     private readonly GridDefines _gridDefines;
+    private readonly ScriptManager _scriptManager;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB, GridDefines gridDefines)
+    public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB, GridDefines gridDefines, ScriptManager scriptManager)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _configuration = configuration;
         _cliDB = cliDB;
         _gridDefines = gridDefines;
+        _scriptManager = scriptManager;
     }
 
     public AreaTriggerCreateProperties GetAreaTriggerCreateProperties(uint spellMiscValue)
@@ -42,7 +45,7 @@ public class AreaTriggerDataStorage
             return val;
 
         Log.Logger.Warning($"AreaTriggerCreateProperties did not exist for {spellMiscValue}. Using default area trigger properties.");
-        val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue, _objectManager);
+        val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue, _scriptManager);
         _areaTriggerCreateProperties[spellMiscValue] = val;
 
         return val;
@@ -123,7 +126,7 @@ public class AreaTriggerDataStorage
                         spawn.Shape.DefaultDatas.Data[i] = templates.Read<float>(12 + i);
                 }
 
-                spawn.ScriptId = _objectManager.GetScriptId(templates.Read<string>(20));
+                spawn.ScriptId = _scriptManager.GetScriptId(templates.Read<string>(20));
                 spawn.SpawnGroupData = _objectManager.GetLegacySpawnGroup();
 
                 // Add the trigger to a map::cell map, which is later used by GridLoader to query
@@ -316,7 +319,7 @@ public class AreaTriggerDataStorage
                         createProperties.Shape.DefaultDatas.Data[i] = areatriggerCreateProperties.Read<float>(12 + i);
                 }
 
-                createProperties.ScriptIds.Add(_objectManager.GetScriptId(areatriggerCreateProperties.Read<string>(20)));
+                createProperties.ScriptIds.Add(_scriptManager.GetScriptId(areatriggerCreateProperties.Read<string>(20)));
 
                 if (shape == AreaTriggerTypes.Polygon)
                     if (createProperties.Shape.PolygonDatas.Height <= 0.0f)

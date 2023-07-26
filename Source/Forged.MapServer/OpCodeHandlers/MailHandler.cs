@@ -36,6 +36,7 @@ namespace Forged.MapServer.OpCodeHandlers;
 public class MailHandler : IWorldSessionHandler
 {
     private readonly BNetAccountManager _bNetAccountManager;
+    private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
@@ -49,7 +50,7 @@ public class MailHandler : IWorldSessionHandler
 
     public MailHandler(WorldSession session, ClassFactory classFactory, GameObjectManager objectManager, DB6Storage<MailTemplateRecord> mailTemplateRecords,
                        CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, CharacterCache characterCache, IConfiguration configuration, GuildManager guildManager,
-                       CliDB cliDB, BNetAccountManager bNetAccountManager)
+                       CliDB cliDB, BNetAccountManager bNetAccountManager, ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         _session = session;
         _classFactory = classFactory;
@@ -62,6 +63,7 @@ public class MailHandler : IWorldSessionHandler
         _guildManager = guildManager;
         _cliDB = cliDB;
         _bNetAccountManager = bNetAccountManager;
+        _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
     }
 
     public void SendShowMailBox(ObjectGuid guid)
@@ -151,7 +153,7 @@ public class MailHandler : IWorldSessionHandler
 
         var bodyItem = _classFactory.Resolve<Item>(); // This is not bag and then can be used new Item.
 
-        if (!bodyItem.Create(_objectManager.GetGenerator(HighGuid.Item).Generate(), 8383, ItemContext.None, _session.Player))
+        if (!bodyItem.Create(_objectGuidGeneratorFactory.GetGenerator(HighGuid.Item).Generate(), 8383, ItemContext.None, _session.Player))
             return;
 
         // in mail template case we need create new item text

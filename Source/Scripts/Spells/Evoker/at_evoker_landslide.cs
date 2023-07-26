@@ -13,7 +13,12 @@ public class AtEvokerLandslide : AreaTriggerScript, IAreaTriggerOverrideCreatePr
 {
     uint _castInterval;
 
-    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM);
+    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; }
+
+    public AtEvokerLandslide(ScriptManager scriptManager)
+    {
+        AreaTriggerCreateProperties = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM, scriptManager);
+    }
 
     public void OnCreate()
     {
@@ -32,8 +37,10 @@ public class AtEvokerLandslide : AreaTriggerScript, IAreaTriggerOverrideCreatePr
         var ata = AreaTriggerCreateProperties.Template.Actions[0];
         ata.TargetType = Framework.Constants.AreaTriggerActionUserTypes.Enemy;
         AreaTriggerCreateProperties.Shape.TriggerType = Framework.Constants.AreaTriggerTypes.Sphere;
-        AreaTriggerCreateProperties.Shape.SphereDatas = new AreaTriggerData.spheredatas();
-        AreaTriggerCreateProperties.Shape.SphereDatas.Radius = 3;
+        AreaTriggerCreateProperties.Shape.SphereDatas = new AreaTriggerData.SphereData
+        {
+            Radius = 3
+        };
     }
 
     public void OnUpdate(uint diff)

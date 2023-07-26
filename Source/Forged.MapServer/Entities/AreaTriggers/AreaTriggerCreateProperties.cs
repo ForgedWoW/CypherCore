@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
 
 namespace Forged.MapServer.Entities.AreaTriggers;
@@ -55,12 +56,12 @@ public unsafe class AreaTriggerCreateProperties
     public uint TimeToTarget { get; set; }
     public uint TimeToTargetScale { get; set; }
 
-    public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId, GameObjectManager objectManager)
+    public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId, ScriptManager scriptManager)
     {
         AreaTriggerCreateProperties ret = new()
         {
             Id = areaTriggerId,
-            ScriptIds = objectManager.GetAreaTriggerScriptIds(areaTriggerId),
+            ScriptIds = scriptManager.GetAreaTriggerScriptIds(areaTriggerId),
             Template = new AreaTriggerTemplate
             {
                 Id = new AreaTriggerId(areaTriggerId, false),

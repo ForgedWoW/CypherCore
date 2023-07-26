@@ -12,6 +12,7 @@ using Forged.MapServer.Events;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Pools;
+using Forged.MapServer.Scripting;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
@@ -195,7 +196,7 @@ internal class GameObjectCommands
         handler.SendSysMessage(CypherStrings.GoinfoName, name);
         handler.SendSysMessage(CypherStrings.GoinfoSize, gameObjectInfo.size);
 
-        handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, handler.ObjectManager.GetScriptName(gameObjectInfo.ScriptId));
+        handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, handler.ClassFactory.Resolve<ScriptManager>().GetScriptName(gameObjectInfo.ScriptId));
         var ai = thisGO?.AI;
 
         if (ai != null)

@@ -129,7 +129,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<Tuple<uint, uint>, GossipMenuItemsLocale> _gossipMenuItemsLocaleStorage = new();
     private readonly MultiMap<uint, GossipMenuItems> _gossipMenuItemsStorage = new();
     private readonly MultiMap<uint, GossipMenus> _gossipMenusStorage = new();
-    private readonly Dictionary<HighGuid, ObjectGuidGenerator> _guidGenerators = new();
     private readonly List<uint>[] _hasDifficultyEntries = new List<uint>[SharedConst.MaxCreatureDifficulties];
     private readonly MultiMap<ushort, InstanceSpawnGroupInfo> _instanceSpawnGroupStorage = new();
     private readonly Dictionary<uint, InstanceTemplate> _instanceTemplateStorage = new();
@@ -242,7 +241,8 @@ public sealed class GameObjectManager
     private PhasingHandler _phasingHandler;
     private uint[] _playerXPperLevel;
     private QuestPoolManager _questPoolManager;
-    private ScriptManager _scriptManager;
+    private readonly ScriptManager _scriptManager;
+    private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private SpellManager _spellManager;
     private TerrainManager _terrainManager;
     private TransportManager _transportManager;
@@ -250,7 +250,7 @@ public sealed class GameObjectManager
     private WorldManager _worldManager;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
-                             CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager)
+                             CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
@@ -259,6 +259,7 @@ public sealed class GameObjectManager
         _characterDatabase = characterDatabase;
         _loginDatabase = loginDatabase;
         _scriptManager = scriptManager;
+        _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
@@ -1478,11 +1479,6 @@ public sealed class GameObjectManager
                 return tele;
 
         return null;
-    }
-
-    public ObjectGuidGenerator GetGenerator(HighGuid high)
-    {
-        return GetGuidSequenceGenerator(high);
     }
 
     public AreaTriggerStruct GetGoBackTrigger(uint map)
@@ -6453,6 +6449,76 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} npc texts in {1} ms", _npcTextStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
+    public void SetHighestGuids()
+    {
+        var result = _characterDatabase.Query("SELECT MAX(guid) FROM characters");
+        var playerGenerator = _objectGuidGeneratorFactory.GetGenerator(HighGuid.Player);
+        var itemGenerator = _objectGuidGeneratorFactory.GetGenerator(HighGuid.Item);
+        var transportGenerator = _objectGuidGeneratorFactory.GetGenerator(HighGuid.Transport);
+
+        if (!result.IsEmpty())
+            playerGenerator.Set(result.Read<ulong>(0) + 1);
+
+        result = _characterDatabase.Query("SELECT MAX(guid) FROM item_instance");
+
+        if (!result.IsEmpty())
+            itemGenerator.Set(result.Read<ulong>(0) + 1);
+
+        // Cleanup other tables from not existed guids ( >= hiItemGuid)
+        _characterDatabase.Execute("DELETE FROM character_inventory WHERE item >= {0}", itemGenerator.GetNextAfterMaxUsed()); // One-time query
+        _characterDatabase.Execute("DELETE FROM mail_items WHERE item_guid >= {0}", itemGenerator.GetNextAfterMaxUsed());     // One-time query
+
+        _characterDatabase.Execute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '{0}'",
+                                   itemGenerator.GetNextAfterMaxUsed()); // One-time query
+
+        _characterDatabase.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", itemGenerator.GetNextAfterMaxUsed()); // One-time query
+
+        result = _worldDatabase.Query("SELECT MAX(guid) FROM transports");
+
+        if (!result.IsEmpty())
+            transportGenerator.Set(result.Read<ulong>(0) + 1);
+
+        result = _characterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
+
+        if (!result.IsEmpty())
+            _auctionId = result.Read<uint>(0) + 1;
+
+        result = _characterDatabase.Query("SELECT MAX(id) FROM mail");
+
+        if (!result.IsEmpty())
+            _mailId = result.Read<ulong>(0) + 1;
+
+        result = _characterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
+
+        if (!result.IsEmpty())
+            _classFactory.Resolve<ArenaTeamManager>().SetNextArenaTeamId(result.Read<uint>(0) + 1);
+
+        result = _characterDatabase.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
+
+        if (!result.IsEmpty())
+            _equipmentSetGuid = result.Read<ulong>(0) + 1;
+
+        result = _characterDatabase.Query("SELECT MAX(guildId) FROM guild");
+
+        if (!result.IsEmpty())
+            _classFactory.Resolve<GuildManager>().SetNextGuildId(result.Read<uint>(0) + 1);
+
+        result = _characterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
+
+        if (!result.IsEmpty())
+            _voidItemId = result.Read<ulong>(0) + 1;
+
+        result = _worldDatabase.Query("SELECT MAX(guid) FROM creature");
+
+        if (!result.IsEmpty())
+            _creatureSpawnId = result.Read<ulong>(0) + 1;
+
+        result = _worldDatabase.Query("SELECT MAX(guid) FROM gameobject");
+
+        if (!result.IsEmpty())
+            _gameObjectSpawnId = result.Read<ulong>(0) + 1;
+    }
+
     public void LoadPageTextLocales()
     {
         var oldMSTime = Time.MSTime;
@@ -11053,73 +11119,6 @@ public sealed class GameObjectManager
         return true;
     }
 
-    public void SetHighestGuids()
-    {
-        var result = _characterDatabase.Query("SELECT MAX(guid) FROM characters");
-
-        if (!result.IsEmpty())
-            GetGuidSequenceGenerator(HighGuid.Player).Set(result.Read<ulong>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(guid) FROM item_instance");
-
-        if (!result.IsEmpty())
-            GetGuidSequenceGenerator(HighGuid.Item).Set(result.Read<ulong>(0) + 1);
-
-        // Cleanup other tables from not existed guids ( >= hiItemGuid)
-        _characterDatabase.Execute("DELETE FROM character_inventory WHERE item >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
-        _characterDatabase.Execute("DELETE FROM mail_items WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed());     // One-time query
-
-        _characterDatabase.Execute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '{0}'",
-                                   GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
-
-        _characterDatabase.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
-
-        result = _worldDatabase.Query("SELECT MAX(guid) FROM transports");
-
-        if (!result.IsEmpty())
-            GetGuidSequenceGenerator(HighGuid.Transport).Set(result.Read<ulong>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
-
-        if (!result.IsEmpty())
-            _auctionId = result.Read<uint>(0) + 1;
-
-        result = _characterDatabase.Query("SELECT MAX(id) FROM mail");
-
-        if (!result.IsEmpty())
-            _mailId = result.Read<ulong>(0) + 1;
-
-        result = _characterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
-
-        if (!result.IsEmpty())
-            _classFactory.Resolve<ArenaTeamManager>().SetNextArenaTeamId(result.Read<uint>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
-
-        if (!result.IsEmpty())
-            _equipmentSetGuid = result.Read<ulong>(0) + 1;
-
-        result = _characterDatabase.Query("SELECT MAX(guildId) FROM guild");
-
-        if (!result.IsEmpty())
-            _classFactory.Resolve<GuildManager>().SetNextGuildId(result.Read<uint>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
-
-        if (!result.IsEmpty())
-            _voidItemId = result.Read<ulong>(0) + 1;
-
-        result = _worldDatabase.Query("SELECT MAX(guid) FROM creature");
-
-        if (!result.IsEmpty())
-            _creatureSpawnId = result.Read<ulong>(0) + 1;
-
-        result = _worldDatabase.Query("SELECT MAX(guid) FROM gameobject");
-
-        if (!result.IsEmpty())
-            _gameObjectSpawnId = result.Read<ulong>(0) + 1;
-    }
-
     public bool TryGetGetCreatureMovementOverride(ulong spawnId, out CreatureMovementData movementData) => _creatureMovementOverrides.TryGetValue(spawnId, out movementData);
 
     public bool TryGetQuestTemplate(uint questId, out Quest.Quest quest)
@@ -11431,14 +11430,6 @@ public sealed class GameObjectManager
         }
 
         return 5 * (uint)(Math.Round(18.0f * _qualityMultipliers[(int)quality] * _weaponMultipliers[itemSubClass] * levelPenalty));
-    }
-
-    private ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)
-    {
-        if (!_guidGenerators.ContainsKey(high))
-            _guidGenerators[high] = _classFactory.Resolve<ObjectGuidGenerator>(new PositionalParameter(0, high), new PositionalParameter(1, 1));
-
-        return _guidGenerators[high];
     }
 
     private QuestRelationResult GetQuestRelationsFrom(MultiMap<uint, uint> map, uint key, bool onlyActive)

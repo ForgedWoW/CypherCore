@@ -23,7 +23,7 @@ public class BattlePetData
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public BattlePetData(LoginDatabase loginDatabase, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager)
+    public BattlePetData(LoginDatabase loginDatabase, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager, ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;
@@ -31,7 +31,7 @@ public class BattlePetData
         var result = loginDatabase.Query("SELECT MAX(guid) FROM battle_pets");
 
         if (!result.IsEmpty())
-            _objectManager.GetGenerator(HighGuid.BattlePet).Set(result.Read<ulong>(0) + 1);
+            objectGuidGeneratorFactory.GetGenerator(HighGuid.BattlePet).Set(result.Read<ulong>(0) + 1);
 
         foreach (var battlePetSpecies in _cliDB.BattlePetSpeciesStorage.Values)
         {

@@ -23,9 +23,11 @@ public class ItemFactory
     private readonly DB2Manager _db2Manager;
     private readonly GameObjectManager _gameObjectManager;
     private readonly ClassFactory _classFactory;
+    private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly SpellManager _spellManager;
 
-    public ItemFactory(CliDB cliDB, DB2Manager db2Manager, SpellManager spellManager, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, ClassFactory classFactory)
+    public ItemFactory(CliDB cliDB, DB2Manager db2Manager, SpellManager spellManager, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, 
+                       ClassFactory classFactory, ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         _cliDB = cliDB;
         _db2Manager = db2Manager;
@@ -33,6 +35,7 @@ public class ItemFactory
         _characterDatabase = characterDatabase;
         _gameObjectManager = gameObjectManager;
         _classFactory = classFactory;
+        _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
     }
 
     public void AddItemsSetItem(Player player, Item item)
@@ -182,7 +185,7 @@ public class ItemFactory
 
         var pItem = NewItemOrBag(pProto);
 
-        if (!pItem.Create(_gameObjectManager.GetGenerator(HighGuid.Item).Generate(), item, context, player))
+        if (!pItem.Create(_objectGuidGeneratorFactory.GetGenerator(HighGuid.Item).Generate(), item, context, player))
             return null;
 
         pItem.SetCount(count);

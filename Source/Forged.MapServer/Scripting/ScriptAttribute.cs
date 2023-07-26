@@ -14,6 +14,6 @@ public class ScriptAttribute : Attribute
         Args = args;
     }
 
-    public object[] Args { get; private set; }
-    public string Name { get; private set; }
+    public object[] Args { get; }
+    public string Name { get; }
 }

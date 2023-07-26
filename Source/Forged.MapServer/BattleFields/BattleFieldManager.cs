@@ -162,7 +162,7 @@ public class BattleFieldManager
                     continue;
                 }
 
-                BattlefieldIdToScriptId[(int)typeId] = _objectManager.GetScriptId(result.Read<string>(1));
+                BattlefieldIdToScriptId[(int)typeId] = _scriptManager.GetScriptId(result.Read<string>(1));
                 ++count;
             } while (result.NextRow());
 
