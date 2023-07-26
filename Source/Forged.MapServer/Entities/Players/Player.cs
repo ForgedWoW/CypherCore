@@ -83,6 +83,8 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player : Unit
 {
+    ExplorationExpManager _explorationExpManager;
+
     public Player(WorldSession session, ClassFactory classFactory) : base(true, classFactory)
     {
         ObjectTypeMask |= TypeMask.Player;
@@ -123,6 +125,7 @@ public partial class Player : Unit
         AzeriteItemFactory = classFactory.Resolve<AzeriteItemFactory>();
         AzeriteEmpoweredItemFactory = classFactory.Resolve<AzeriteEmpoweredItemFactory>();
         Session = session;
+        _explorationExpManager = classFactory.Resolve<ExplorationExpManager>();
 
         // players always accept
         if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))
@@ -7824,7 +7827,7 @@ public partial class Player : Unit
             uint xp;
 
             if (diff < -5)
-                xp = (uint)(GameObjectManager.GetBaseXP(Level + 5) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
+                xp = (uint)(_explorationExpManager.GetBaseXP(Level + 5) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             else if (diff > 5)
             {
                 var explorationPercent = 100 - (diff - 5) * 5;
@@ -7832,14 +7835,14 @@ public partial class Player : Unit
                 if (explorationPercent < 0)
                     explorationPercent = 0;
 
-                xp = (uint)(GameObjectManager.GetBaseXP(areaLevel) * explorationPercent / 100f * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
+                xp = (uint)(_explorationExpManager.GetBaseXP(areaLevel) * explorationPercent / 100f * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             }
             else
-                xp = (uint)(GameObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
+                xp = (uint)(_explorationExpManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
 
             if (Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0) != 0)
             {
-                var minScaledXP = (uint)(GameObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f)) * Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0u) / 100;
+                var minScaledXP = (uint)(_explorationExpManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f)) * Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0u) / 100;
                 xp = Math.Max(minScaledXP, xp);
             }
 

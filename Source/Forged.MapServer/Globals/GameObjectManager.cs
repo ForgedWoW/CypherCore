@@ -87,7 +87,6 @@ public sealed class GameObjectManager
         0.00f, // INVTYPE_EQUIPABLE_SPELL_MOBILITY
     };
 
-    private readonly Dictionary<uint, uint> _baseXPTable = new();
     private readonly Dictionary<uint, VendorItemData> _cacheVendorItemStorage = new();
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
@@ -954,11 +953,6 @@ public sealed class GameObjectManager
     public AreaTriggerStruct GetAreaTrigger(uint trigger)
     {
         return _areaTriggerStorage.LookupByKey(trigger);
-    }
-
-    public uint GetBaseXP(uint level)
-    {
-        return _baseXPTable.ContainsKey(level) ? _baseXPTable[level] : 0;
     }
 
     public CellObjectGuids GetCellObjectGuids(uint mapid, Difficulty difficulty, uint cellid)
@@ -2007,7 +2001,6 @@ public sealed class GameObjectManager
         LoadGraveyardZones();
         LoadSceneTemplates(); // must be before LoadPlayerInfo
         LoadPlayerInfo();
-        LoadExplorationBaseXP();
         LoadPetNames();
         LoadPlayerChoices();
         LoadPlayerChoicesLocale();
@@ -3747,32 +3740,6 @@ public sealed class GameObjectManager
                                  script.Key,
                                  SpellEffectName.SendEvent);
         }
-    }
-
-    public void LoadExplorationBaseXP()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var level = result.Read<byte>(0);
-            var basexp = result.Read<uint>(1);
-            _baseXPTable[level] = basexp;
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} BaseXP definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     //Faction Change
