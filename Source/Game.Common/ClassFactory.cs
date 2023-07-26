@@ -37,6 +37,12 @@ namespace Game.Common
             return Container.Resolve<T>(positionalParameters);
         }
 
+        /// <summary>
+        ///     Create a instance of any class with dependency injection that was not registered in the container at program start
+        /// </summary>
+        /// <typeparam name="T">The object type you wish to activate</typeparam>
+        /// <param name="args">Arguments in order that they appear in the constructor. Must be the first args of the constructor.</param>
+        /// <returns>A new instance of T</returns>
         public T ActiveNonRegistered<T>(params object[] args) where T : class
         {
             args ??= Array.Empty<object>();
@@ -50,6 +56,13 @@ namespace Game.Common
             };
         }
 
+        /// <summary>
+        ///     Create a instance of any class with dependency injection that was not registered in the container at program start
+        /// </summary>
+        /// <typeparam name="T">The object type you wish to activate</typeparam>
+        /// <param name="constructor">the explicit constructor you wish to use</param>
+        /// <param name="args">Arguments in order that they appear in the constructor. Must be the first args of the constructor.</param>
+        /// <returns>A new instance of T</returns>
         public T ActiveNonRegistered<T>(ConstructorInfo constructor, params object[] args) where T : class
         {
             args ??= Array.Empty<object>();
