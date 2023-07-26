@@ -37,23 +37,19 @@ public class ItemModList : BaseUpdateData<Item>
             changesMask.SetAll();
 
         data.WriteBits(changesMask.GetBlock(0), 1);
-
+        
         if (changesMask[0])
-            if (changesMask[0])
-            {
-                if (!ignoreChangesMask)
-                    Values.WriteUpdateMask(data, 6);
-                else
-                    WriteCompleteDynamicFieldUpdateMask(Values.Size(), data, 6);
-            }
+            if (!ignoreChangesMask)
+                Values.WriteUpdateMask(data, 6);
+            else
+                WriteCompleteDynamicFieldUpdateMask(Values.Size(), data, 6);
 
         data.FlushBits();
-
+        
         if (changesMask[0])
-            if (changesMask[0])
-                for (var i = 0; i < Values.Size(); ++i)
-                    if (Values.HasChanged(i) || ignoreChangesMask)
-                        Values[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
+            for (var i = 0; i < Values.Size(); ++i)
+                if (Values.HasChanged(i) || ignoreChangesMask)
+                    Values[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
 
         data.FlushBits();
     }

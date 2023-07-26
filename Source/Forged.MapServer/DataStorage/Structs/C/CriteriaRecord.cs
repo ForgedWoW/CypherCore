@@ -8,12 +8,12 @@ public sealed class CriteriaRecord
     public CriteriaType Type;
     public uint Asset;
     public uint ModifierTreeId;
-    public byte StartEvent;
+    public int StartEvent;
     public uint StartAsset;
     public ushort StartTimer;
-    public byte FailEvent;
+    public int FailEvent;
     public uint FailAsset;
-    public byte Flags;
+    public int Flags;
     public ushort EligibilityWorldStateID;
     public byte EligibilityWorldStateValue;
 

@@ -31,6 +31,7 @@ public class CraftingOrder : BaseUpdateData<Player>
         data.WriteBits(RecraftItemInfo.HasValue(), 1);
         data.WriteBits(Enchantments.Size(), 4);
         data.WriteBits(Gems.Size(), 2);
+        data.FlushBits();
 
         if (RecraftItemInfo.HasValue())
             RecraftItemInfo.Value.Write(data);
@@ -85,6 +86,7 @@ public class CraftingOrder : BaseUpdateData<Player>
             Data.Value.WriteUpdate(data, ignoreChangesMask, owner, receiver);
 
         data.WriteBits(RecraftItemInfo.HasValue(), 1);
+        data.FlushBits();
 
         if (changesMask[3])
             if (RecraftItemInfo.HasValue())

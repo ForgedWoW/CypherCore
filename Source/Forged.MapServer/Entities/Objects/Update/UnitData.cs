@@ -279,6 +279,7 @@ public class UnitData : BaseUpdateData<Unit>
                 data.WriteInt32(Stats[i]);
                 data.WriteInt32(StatPosBuff[i]);
                 data.WriteInt32(StatNegBuff[i]);
+                data.WriteInt32(StatSupportBuff[i]);
             }
         }
         if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner) || fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Empath))
@@ -310,10 +311,12 @@ public class UnitData : BaseUpdateData<Unit>
             data.WriteInt32(AttackPowerModPos);
             data.WriteInt32(AttackPowerModNeg);
             data.WriteFloat(AttackPowerMultiplier);
+            data.WriteInt32(AttackPowerModSupport);
             data.WriteInt32(RangedAttackPower);
             data.WriteInt32(RangedAttackPowerModPos);
             data.WriteInt32(RangedAttackPowerModNeg);
             data.WriteFloat(RangedAttackPowerMultiplier);
+            data.WriteInt32(RangedAttackPowerModSupport);
             data.WriteInt32(MainHandWeaponAttackPower);
             data.WriteInt32(OffHandWeaponAttackPower);
             data.WriteInt32(RangedWeaponAttackPower);
@@ -344,7 +347,9 @@ public class UnitData : BaseUpdateData<Unit>
         data.WriteInt32(WorldEffects.Size());
         data.WriteInt32(ChannelObjects.Size());
         data.WriteInt32(FlightCapabilityID);
+        data.WriteFloat(GlideEventSpeedDivisor);
         data.WriteUInt32(SilencedSchoolMask);
+        data.WriteInt32(CurrentAreaID);
         data.WritePackedGuid(NameplateAttachToGUID);
 
         for (var i = 0; i < PassiveSpells.Size(); ++i)
@@ -359,7 +364,7 @@ public class UnitData : BaseUpdateData<Unit>
 
     public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Unit owner, Player receiver)
     {
-        UpdateMask allowedMaskForTarget = new(209, new[] { 0xFFFFDFFFu, 0xC3FEFFFFu, 0x003DFFFFu, 0xFFFFFF01u, 0x0007FFFFu, 0x00003F80u, 0x00000000u });
+        UpdateMask allowedMaskForTarget = new(209, new[] { 0xFFFFDFFFu, 0xC3FEFFFFu, 0x003DFFFFu, 0xFFFFFC01u, 0x007FFFFFu, 0x0003F800u, 0x00000000u });
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
@@ -367,16 +372,16 @@ public class UnitData : BaseUpdateData<Unit>
     public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
     {
         if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-            allowedMaskForTarget.Or(new UpdateMask(209, new[] { 0x00002000u, 0x3C010000u, 0xFFC20000u, 0x400000FEu, 0xFFF80000u, 0xFFFFC07Fu, 0x0001FFFFu }));
+            allowedMaskForTarget.Or(new UpdateMask(209, new[] { 0x00002000u, 0x3C010000u, 0xFFC20000u, 0x000003FEu, 0xFF800004u, 0xFFFC07FFu, 0x01FFFFFFu }));
         if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.UnitAll))
-            allowedMaskForTarget.Or(new UpdateMask(209, new[] { 0x00000000u, 0x00000000u, 0x00000000u, 0x40000000u, 0xFFF80000u, 0x0000007Fu, 0x00000000u }));
+            allowedMaskForTarget.Or(new UpdateMask(209, new[] { 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFF800004u, 0x000007FFu, 0x00000000u }));
         if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Empath))
-            allowedMaskForTarget.Or(new UpdateMask(209, new[] { 0x00000000u, 0x3C000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xF8000000u, 0x00000007u }));
+            allowedMaskForTarget.Or(new UpdateMask(209, new[] { 0x00000000u, 0x3C000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x000007F8u }));
     }
 
     public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
     {
-        UpdateMask allowedMaskForTarget = new(209, new[] { 0xFFFFDFFFu, 0xC3FEFFFFu, 0x003DFFFFu, 0xFFFFFF01u, 0x0007FFFFu, 0x00003F80u, 0x00000000u });
+        UpdateMask allowedMaskForTarget = new(209, new[] { 0xFFFFDFFFu, 0xC3FEFFFFu, 0x003DFFFFu, 0xFFFFFC01u, 0x007FFFFFu, 0x0003F800u, 0x00000000u });
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         changesMask.And(allowedMaskForTarget);
     }
@@ -798,219 +803,239 @@ public class UnitData : BaseUpdateData<Unit>
             }
             if (changesMask[90])
             {
-                data.WriteInt32(RangedAttackPower);
+                data.WriteInt32(AttackPowerModSupport);
             }
             if (changesMask[91])
             {
-                data.WriteInt32(RangedAttackPowerModPos);
+                data.WriteInt32(RangedAttackPower);
             }
             if (changesMask[92])
             {
-                data.WriteInt32(RangedAttackPowerModNeg);
+                data.WriteInt32(RangedAttackPowerModPos);
             }
             if (changesMask[93])
             {
-                data.WriteFloat(RangedAttackPowerMultiplier);
+                data.WriteInt32(RangedAttackPowerModNeg);
             }
             if (changesMask[94])
             {
-                data.WriteInt32(MainHandWeaponAttackPower);
+                data.WriteFloat(RangedAttackPowerMultiplier);
             }
             if (changesMask[95])
             {
-                data.WriteInt32(OffHandWeaponAttackPower);
+                data.WriteInt32(RangedAttackPowerModSupport);
             }
         }
         if (changesMask[96])
         {
             if (changesMask[97])
             {
-                data.WriteInt32(RangedWeaponAttackPower);
+                data.WriteInt32(MainHandWeaponAttackPower);
             }
             if (changesMask[98])
             {
-                data.WriteInt32(SetAttackSpeedAura);
+                data.WriteInt32(OffHandWeaponAttackPower);
             }
             if (changesMask[99])
             {
-                data.WriteFloat(Lifesteal);
+                data.WriteInt32(RangedWeaponAttackPower);
             }
             if (changesMask[100])
             {
-                data.WriteFloat(MinRangedDamage);
+                data.WriteInt32(SetAttackSpeedAura);
             }
             if (changesMask[101])
             {
-                data.WriteFloat(MaxRangedDamage);
+                data.WriteFloat(Lifesteal);
             }
             if (changesMask[102])
             {
-                data.WriteFloat(ManaCostMultiplier);
+                data.WriteFloat(MinRangedDamage);
             }
             if (changesMask[103])
             {
-                data.WriteFloat(MaxHealthModifier);
+                data.WriteFloat(MaxRangedDamage);
             }
             if (changesMask[104])
             {
-                data.WriteFloat(HoverHeight);
+                data.WriteFloat(ManaCostMultiplier);
             }
             if (changesMask[105])
             {
-                data.WriteUInt32(MinItemLevelCutoff);
+                data.WriteFloat(MaxHealthModifier);
             }
             if (changesMask[106])
             {
-                data.WriteUInt32(MinItemLevel);
+                data.WriteFloat(HoverHeight);
             }
             if (changesMask[107])
             {
-                data.WriteUInt32(MaxItemLevel);
+                data.WriteUInt32(MinItemLevelCutoff);
             }
             if (changesMask[108])
             {
-                data.WriteInt32(AzeriteItemLevel);
+                data.WriteInt32((int)MinItemLevel.Value);
             }
             if (changesMask[109])
             {
-                data.WriteUInt32(WildBattlePetLevel);
+                data.WriteUInt32(MaxItemLevel);
             }
             if (changesMask[110])
             {
-                data.WriteUInt32(BattlePetCompanionExperience);
+                data.WriteInt32(AzeriteItemLevel);
             }
             if (changesMask[111])
             {
-                data.WriteUInt32(BattlePetCompanionNameTimestamp);
+                data.WriteInt32((int)WildBattlePetLevel.Value);
             }
             if (changesMask[112])
             {
-                data.WriteInt32(InteractSpellID);
+                data.WriteInt32((int)BattlePetCompanionExperience.Value);
             }
             if (changesMask[113])
             {
-                data.WriteInt32(ScaleDuration);
+                data.WriteUInt32(BattlePetCompanionNameTimestamp);
             }
             if (changesMask[114])
             {
-                data.WriteInt32(LooksLikeMountID);
+                data.WriteInt32(InteractSpellID);
             }
             if (changesMask[115])
             {
-                data.WriteInt32(LooksLikeCreatureID);
+                data.WriteInt32(ScaleDuration);
             }
             if (changesMask[116])
             {
-                data.WriteInt32(LookAtControllerID);
+                data.WriteInt32(LooksLikeMountID);
             }
             if (changesMask[117])
             {
-                data.WriteInt32(PerksVendorItemID);
+                data.WriteInt32(LooksLikeCreatureID);
             }
             if (changesMask[118])
             {
-                data.WriteInt32(TaxiNodesID);
+                data.WriteInt32(LookAtControllerID);
             }
             if (changesMask[119])
             {
-                data.WritePackedGuid(GuildGUID);
+                data.WriteInt32(PerksVendorItemID);
             }
             if (changesMask[120])
             {
-                data.WriteInt32(FlightCapabilityID);
+                data.WriteInt32(TaxiNodesID);
             }
             if (changesMask[121])
             {
-                data.WriteUInt32(SilencedSchoolMask);
+                data.WritePackedGuid(GuildGUID);
             }
             if (changesMask[122])
+            {
+                data.WriteInt32(FlightCapabilityID);
+            }
+            if (changesMask[123])
+            {
+                data.WriteFloat(GlideEventSpeedDivisor);
+            }
+            if (changesMask[124])
+            {
+                data.WriteUInt32(SilencedSchoolMask);
+            }
+            if (changesMask[125])
+            {
+                data.ReadUInt32(CurrentAreaID);
+            }
+            if (changesMask[126])
             {
                 data.WritePackedGuid(NameplateAttachToGUID);
             }
         }
-        if (changesMask[123])
+        if (changesMask[127])
         {
             for (var i = 0; i < 2; ++i)
             {
-                if (changesMask[124 + i])
+                if (changesMask[128 + i])
                 {
                     data.WriteUInt32(GetViewerDependentNpcFlags(this, i, owner, receiver));
                 }
             }
         }
-        if (changesMask[126])
+        if (changesMask[130])
         {
             for (var i = 0; i < 10; ++i)
             {
-                if (changesMask[127 + i])
+                if (changesMask[131 + i])
                 {
                     data.WriteInt32(Power[i]);
                 }
-                if (changesMask[137 + i])
+                if (changesMask[141 + i])
                 {
                     data.WriteUInt32(MaxPower[i]);
                 }
-                if (changesMask[147 + i])
+                if (changesMask[151 + i])
                 {
                     data.WriteFloat(PowerRegenFlatModifier[i]);
                 }
-                if (changesMask[157 + i])
+                if (changesMask[161 + i])
                 {
                     data.WriteFloat(PowerRegenInterruptedFlatModifier[i]);
                 }
             }
         }
-        if (changesMask[167])
+        if (changesMask[171])
         {
             for (var i = 0; i < 3; ++i)
             {
-                if (changesMask[168 + i])
+                if (changesMask[172 + i])
                 {
                     VirtualItems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
                 }
             }
         }
-        if (changesMask[171])
+        if (changesMask[175])
         {
             for (var i = 0; i < 2; ++i)
             {
-                if (changesMask[172 + i])
+                if (changesMask[176 + i])
                 {
                     data.WriteUInt32(AttackRoundBaseTime[i]);
                 }
             }
         }
-        if (changesMask[174])
+        if (changesMask[178])
         {
             for (var i = 0; i < 4; ++i)
             {
-                if (changesMask[175 + i])
+                if (changesMask[179 + i])
                 {
                     data.WriteInt32(Stats[i]);
                 }
-                if (changesMask[179 + i])
+                if (changesMask[183 + i])
                 {
                     data.WriteInt32(StatPosBuff[i]);
                 }
-                if (changesMask[183 + i])
+                if (changesMask[187 + i])
                 {
                     data.WriteInt32(StatNegBuff[i]);
                 }
+                if (changesMask[191 + i])
+                {
+                    data.WriteInt32(StatSupportBuff[i]);
+                }
             }
         }
-        if (changesMask[187])
+        if (changesMask[195])
         {
             for (var i = 0; i < 7; ++i)
             {
-                if (changesMask[188 + i])
+                if (changesMask[196 + i])
                 {
                     data.WriteInt32(Resistances[i]);
                 }
-                if (changesMask[195 + i])
+                if (changesMask[203 + i])
                 {
                     data.WriteInt32(BonusResistanceMods[i]);
                 }
-                if (changesMask[202 + i])
+                if (changesMask[210 + i])
                 {
                     data.WriteInt32(ManaCostModifier[i]);
                 }
@@ -1107,10 +1132,12 @@ public class UnitData : BaseUpdateData<Unit>
         ClearChangesMask(AttackPowerModPos);
         ClearChangesMask(AttackPowerModNeg);
         ClearChangesMask(AttackPowerMultiplier);
+        ClearChangesMask(AttackPowerModSupport);
         ClearChangesMask(RangedAttackPower);
         ClearChangesMask(RangedAttackPowerModPos);
         ClearChangesMask(RangedAttackPowerModNeg);
         ClearChangesMask(RangedAttackPowerMultiplier);
+        ClearChangesMask(RangedAttackPowerModSupport);
         ClearChangesMask(MainHandWeaponAttackPower);
         ClearChangesMask(OffHandWeaponAttackPower);
         ClearChangesMask(RangedWeaponAttackPower);
@@ -1137,7 +1164,9 @@ public class UnitData : BaseUpdateData<Unit>
         ClearChangesMask(TaxiNodesID);
         ClearChangesMask(GuildGUID);
         ClearChangesMask(FlightCapabilityID);
+        ClearChangesMask(GlideEventSpeedDivisor);
         ClearChangesMask(SilencedSchoolMask);
+        ClearChangesMask(CurrentAreaID);
         ClearChangesMask(NameplateAttachToGUID);
         ClearChangesMask(NpcFlags);
         ClearChangesMask(Power);
@@ -1149,6 +1178,7 @@ public class UnitData : BaseUpdateData<Unit>
         ClearChangesMask(Stats);
         ClearChangesMask(StatPosBuff);
         ClearChangesMask(StatNegBuff);
+        ClearChangesMask(StatSupportBuff);
         ClearChangesMask(Resistances);
         ClearChangesMask(BonusResistanceMods);
         ClearChangesMask(ManaCostModifier);

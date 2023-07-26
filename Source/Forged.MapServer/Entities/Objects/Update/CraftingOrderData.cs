@@ -76,6 +76,7 @@ public class CraftingOrderData : BaseUpdateData<Player>
         data.WriteBits(CustomerNotes.Value.GetByteCount(), 10);
         data.WriteBits(OutputItem.HasValue(), 1);
         data.WriteBits(OutputItemData.HasValue(), 1);
+        data.FlushBits();
 
         for (var i = 0; i < Reagents.Size(); ++i)
             Reagents[i].WriteCreate(data, owner, receiver);
@@ -183,6 +184,7 @@ public class CraftingOrderData : BaseUpdateData<Player>
 
             data.WriteBits(OutputItem.HasValue(), 1);
             data.WriteBits(OutputItemData.HasValue(), 1);
+            data.FlushBits();
 
             if (changesMask[22])
                 if (OutputItem.HasValue())

@@ -8,7 +8,7 @@ public sealed class CriteriaTreeRecord
     public string Description;
     public uint Parent;
     public uint Amount;
-    public sbyte Operator;
+    public int Operator;
     public uint CriteriaID;
     public int OrderIndex;
     public CriteriaTreeFlags Flags;
