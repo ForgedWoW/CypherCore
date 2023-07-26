@@ -20,7 +20,7 @@ public abstract class MySqlBase<T>
     private MySqlConnectionInfo _connectionInfo;
     private DatabaseUpdater<T> _updater;
     private DatabaseWorker<T> _worker;
-    private DBVersion version;
+    private DBVersion _version;
 
     public MySqlBase(IConfiguration configuration)
     {
@@ -71,7 +71,7 @@ public abstract class MySqlBase<T>
         // Set max allowed packet to 1 GB
         args += "--max-allowed-packet=1GB ";
 
-        if (!version.IsMariaDB && version.IsAtLeast(8, 0, 0))
+        if (!_version.IsMariaDB && _version.IsAtLeast(8, 0, 0))
         {
             if (_connectionInfo.UseSSL)
                 args += "--ssl-mode=REQUIRED ";
@@ -93,12 +93,14 @@ public abstract class MySqlBase<T>
         // Invokes a mysql process which doesn't leak credentials to logs
         Process process = new();
         DBExecutableUtil.CheckExecutable(_configuration);
-        process.StartInfo = new ProcessStartInfo(DBExecutableUtil.GetMySQLExecutable());
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.Arguments = args;
+        process.StartInfo = new ProcessStartInfo(DBExecutableUtil.GetMySQLExecutable())
+        {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true,
+            Arguments = args
+        };
 
         process.Start();
 
@@ -107,16 +109,16 @@ public abstract class MySqlBase<T>
         Log.Logger.Information(process.StandardOutput.ReadToEnd());
         Log.Logger.Error(process.StandardError.ReadToEnd());
 
-        if (process.ExitCode != 0)
-        {
-            Log.Logger.Fatal($"Applying of file \'{path}\' to database \'{GetDatabaseName()}\' failed!" +
-                             " If you are a user, please pull the latest revision from the repository. " +
-                             "Also make sure you have not applied any of the databases with your sql client. " +
-                             "You cannot use auto-update system and import sql files from CypherCore repository with your sql client. " +
-                             "If you are a developer, please fix your sql query.");
+        if (process.ExitCode == 0)
+            return;
 
-            throw new Exception("update failed");
-        }
+        Log.Logger.Fatal($"Applying of file \'{path}\' to database \'{GetDatabaseName()}\' failed!" +
+                         " If you are a user, please pull the latest revision from the repository. " +
+                         "Also make sure you have not applied any of the databases with your sql client. " +
+                         "You cannot use auto-update system and import sql files from CypherCore repository with your sql client. " +
+                         "If you are a developer, please fix your sql query.");
+
+        throw new Exception("update failed");
     }
 
     public TransactionCallback AsyncCommitTransaction(SQLTransaction transaction)
@@ -143,11 +145,11 @@ public abstract class MySqlBase<T>
         _worker.QueueQuery(new TransactionTask(transaction));
     }
 
-    public SQLQueryHolderCallback<R> DelayQueryHolder<R>(SQLQueryHolder<R> holder)
+    public SQLQueryHolderCallback<TR> DelayQueryHolder<TR>(SQLQueryHolder<TR> holder)
     {
-        SQLQueryHolderTask<R> task = new(holder);
+        SQLQueryHolderTask<TR> task = new(holder);
         // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-        var callback = new SQLQueryHolderCallback<R>(task);
+        var callback = new SQLQueryHolderCallback<TR>(task);
         _worker.QueueQuery(task, callback.QueryExecuted);
 
         return callback;
@@ -160,30 +162,29 @@ public abstract class MySqlBase<T>
 
         while (retryCount < 5)
         {
-            using (var Connection = _connectionInfo.GetConnection())
+            using (var connection = _connectionInfo.GetConnection())
             {
                 var query = "";
 
-                Connection.Open();
+                connection.Open();
 
-                using (var trans = Connection.BeginTransaction())
+                using (var trans = connection.BeginTransaction())
                 {
                     try
                     {
-                        using (var scope = new TransactionScope())
+                        using var scope = new TransactionScope();
+
+                        foreach (var cmd in transaction.commands)
                         {
-                            foreach (var cmd in transaction.commands)
-                            {
-                                cmd.Transaction = trans;
-                                cmd.Connection = Connection;
-                                query = cmd.CommandText;
+                            cmd.Transaction = trans;
+                            cmd.Connection = connection;
+                            query = cmd.CommandText;
 
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            trans.Commit();
-                            scope.Complete();
+                            cmd.ExecuteNonQuery();
                         }
+
+                        trans.Commit();
+                        scope.Complete();
 
                         return MySqlErrorCode.None;
                     }
@@ -191,7 +192,7 @@ public abstract class MySqlBase<T>
                     {
                         trans.Rollback();
 
-                        sqlEx = HandleMySQLException(ex, query);
+                        sqlEx = HandleMySqlException(ex, query);
                     }
                 }
             }
@@ -212,26 +213,24 @@ public abstract class MySqlBase<T>
     {
         try
         {
-            using (var Connection = _connectionInfo.GetConnection())
-            {
-                Connection.Open();
+            using var connection = _connectionInfo.GetConnection();
 
-                using (var cmd = Connection.CreateCommand())
-                {
-                    cmd.CommandText = stmt.CommandText;
+            connection.Open();
 
-                    foreach (var parameter in stmt.Parameters)
-                        cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
+            using var cmd = connection.CreateCommand();
 
-                    cmd.ExecuteNonQuery();
+            cmd.CommandText = stmt.CommandText;
 
-                    return true;
-                }
-            }
+            foreach (var parameter in stmt.Parameters)
+                cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
+
+            cmd.ExecuteNonQuery();
+
+            return true;
         }
         catch (MySqlException ex)
         {
-            HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
+            HandleMySqlException(ex, stmt.CommandText, stmt.Parameters);
 
             return false;
         }
@@ -279,19 +278,18 @@ public abstract class MySqlBase<T>
 
         try
         {
-            using (var connection = _connectionInfo.GetConnection())
-            {
-                connection.Open();
+            using var connection = _connectionInfo.GetConnection();
 
-                version = DBVersion.Parse(connection.ServerVersion);
-                Log.Logger.Information($"Connected to DB: {_connectionInfo.Database} Server: {(version.IsMariaDB ? "MariaDB" : "MySQL")} Ver: {connection.ServerVersion}");
+            connection.Open();
 
-                return MySqlErrorCode.None;
-            }
+            _version = DBVersion.Parse(connection.ServerVersion);
+            Log.Logger.Information($"Connected to DB: {_connectionInfo.Database} Server: {(_version.IsMariaDB ? "MariaDB" : "MySQL")} Ver: {connection.ServerVersion}");
+
+            return MySqlErrorCode.None;
         }
         catch (MySqlException ex)
         {
-            return HandleMySQLException(ex);
+            return HandleMySqlException(ex);
         }
     }
 
@@ -327,11 +325,11 @@ public abstract class MySqlBase<T>
         StringBuilder sb = new();
         var index = 0;
 
-        for (var i = 0; i < sql.Length; i++)
-            if (sql[i].Equals('?'))
+        foreach (var character in sql)
+            if (character.Equals('?'))
                 sb.Append("@" + index++);
             else
-                sb.Append(sql[i]);
+                sb.Append(character);
 
         _preparedQueries[statement] = sb.ToString();
     }
@@ -350,10 +348,10 @@ public abstract class MySqlBase<T>
         {
             try
             {
-                var Connection = _connectionInfo.GetConnection();
-                Connection.Open();
+                var connection = _connectionInfo.GetConnection();
+                connection.Open();
 
-                var cmd = Connection.CreateCommand();
+                var cmd = connection.CreateCommand();
                 cmd.CommandText = stmt.CommandText;
 
                 foreach (var parameter in stmt.Parameters)
@@ -363,7 +361,7 @@ public abstract class MySqlBase<T>
             }
             catch (MySqlException ex)
             {
-                HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
+                HandleMySqlException(ex, stmt.CommandText, stmt.Parameters);
             }
 
             retryCount++;
@@ -376,12 +374,12 @@ public abstract class MySqlBase<T>
         throw new Exception($"Error processing statement `{stmt.CommandText}` with parameters: {string.Join(',', stmt.Parameters)}");
     }
 
-    private MySqlErrorCode HandleMySQLException(MySqlException ex, string query = "", Dictionary<int, object> parameters = null)
+    private MySqlErrorCode HandleMySqlException(MySqlException ex, string query = "", Dictionary<int, object> parameters = null)
     {
         var code = (MySqlErrorCode)ex.Number;
 
-        if (ex.InnerException is MySqlException)
-            code = (MySqlErrorCode)((MySqlException)ex.InnerException).Number;
+        if (ex.InnerException is MySqlException exception)
+            code = (MySqlErrorCode)exception.Number;
 
         StringBuilder stringBuilder = new($"SqlException: MySqlErrorCode: {code} Message: {ex.Message} SqlQuery: {query} ");
 

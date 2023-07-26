@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Autofac;
+using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Arenas;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
@@ -46,7 +47,6 @@ namespace Forged.MapServer.Globals;
 public sealed class GameObjectManager
 {
     private readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
-    private readonly MultiMap<uint, uint> _areaTriggerScriptStorage = new();
     private readonly Dictionary<uint, AreaTriggerStruct> _areaTriggerStorage = new();
 
     private readonly float[] _armorMultipliers = {
@@ -176,13 +176,11 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, RepSpilloverTemplate> _repSpilloverTemplateStorage = new();
     private readonly List<string> _reservedNamesStorage = new();
     private readonly Dictionary<uint, SceneTemplate> _sceneTemplateStorage = new();
-    private readonly ScriptNameContainer _scriptNamesStorage = new();
     private readonly Dictionary<uint, SkillTiersEntry> _skillTiers = new();
     private readonly Dictionary<uint, SpawnGroupTemplateData> _spawnGroupDataStorage = new();
     private readonly MultiMap<uint, SpawnMetadata> _spawnGroupMapStorage = new();
     private readonly MultiMap<uint, uint> _spawnGroupsByMap = new();
     private readonly MultiMap<uint, SpellClickInfo> _spellClickInfoStorage = new();
-    private readonly MultiMap<uint, uint> _spellScriptsStorage = new();
     private readonly List<uint> _tavernAreaTriggerStorage = new();
     private readonly MultiMap<Tuple<uint, SummonerType, byte>, TempSummonData> _tempSummonDataStorage = new();
     private readonly Dictionary<uint, TerrainSwapInfo> _terrainSwapInfoById = new();
@@ -252,7 +250,7 @@ public sealed class GameObjectManager
     private WorldManager _worldManager;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
-                             CharacterDatabase characterDatabase, LoginDatabase loginDatabase)
+                             CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
@@ -260,6 +258,7 @@ public sealed class GameObjectManager
         _classFactory = classFactory;
         _characterDatabase = characterDatabase;
         _loginDatabase = loginDatabase;
+        _scriptManager = scriptManager;
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
@@ -269,8 +268,6 @@ public sealed class GameObjectManager
     }
 
     public List<RaceClassAvailability> ClassExpansionRequirements => _classExpansionRequirementStorage;
-
-    public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts { get; set; } = new();
 
     public Dictionary<uint, uint> FactionChangeAchievements { get; set; } = new();
 
@@ -291,10 +288,6 @@ public sealed class GameObjectManager
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
 
     public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos { get; } = new();
-
-    public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts { get; set; } = new();
-
-    public Dictionary<uint, MultiMap<uint, ScriptInfo>> WaypointScripts { get; set; } = new();
 
     public void AddCreatureToGrid(CreatureData data)
     {
@@ -1045,11 +1038,6 @@ public sealed class GameObjectManager
         return _creatureDataStorage;
     }
 
-    public List<string> GetAllDBScriptNames()
-    {
-        return _scriptNamesStorage.GetAllDBScriptNames();
-    }
-
     public Dictionary<ulong, GameObjectData> GetAllGameObjectData()
     {
         return _gameObjectDataStorage;
@@ -1058,11 +1046,6 @@ public sealed class GameObjectManager
     public AreaTriggerStruct GetAreaTrigger(uint trigger)
     {
         return _areaTriggerStorage.LookupByKey(trigger);
-    }
-
-    public List<uint> GetAreaTriggerScriptIds(uint triggerid)
-    {
-        return _areaTriggerScriptStorage.LookupByKey(triggerid);
     }
 
     public uint GetBaseXP(uint level)
@@ -1957,35 +1940,6 @@ public sealed class GameObjectManager
         return _sceneTemplateStorage.LookupByKey(sceneId);
     }
 
-    public uint GetScriptId(string name, bool isDatabaseBound = true)
-    {
-        if (string.IsNullOrEmpty(name))
-            return 0;
-
-        return _scriptNamesStorage.Insert(name, isDatabaseBound);
-    }
-
-    public string GetScriptName(uint id)
-    {
-        var entry = _scriptNamesStorage.Find(id);
-
-        if (entry != null)
-            return entry.Name;
-
-        return "";
-    }
-
-    public Dictionary<uint, MultiMap<uint, ScriptInfo>> GetScriptsMapByType(ScriptsType type)
-    {
-        return type switch
-        {
-            ScriptsType.Spell => SpellScripts,
-            ScriptsType.Event => EventScripts,
-            ScriptsType.Waypoint => WaypointScripts,
-            _ => null
-        };
-    }
-
     public string GetScriptsTableNameByType(ScriptsType type)
     {
         return type switch
@@ -2049,11 +2003,6 @@ public sealed class GameObjectManager
     public List<SpellClickInfo> GetSpellClickInfoMapBounds(uint creatureID)
     {
         return _spellClickInfoStorage.LookupByKey(creatureID);
-    }
-
-    public List<uint> GetSpellScriptsBounds(uint spellId)
-    {
-        return _spellScriptsStorage.LookupByKey(spellId);
     }
 
     public List<TempSummonData> GetSummonGroup(uint summonerId, SummonerType summonerType, byte group)
@@ -2179,10 +2128,7 @@ public sealed class GameObjectManager
 
     public uint GetXPForLevel(uint level)
     {
-        if (level < _playerXPperLevel.Length)
-            return _playerXPperLevel[level];
-
-        return 0;
+        return level < _playerXPperLevel.Length ? _playerXPperLevel[level] : 0;
     }
 
     public bool HasPersonalSpawns(uint mapid, Difficulty spawnMode, uint phaseId)
@@ -2195,6 +2141,119 @@ public sealed class GameObjectManager
         _itemFactory = cf.Resolve<ItemFactory>();
         _azeriteItemFactory = cf.Resolve<AzeriteItemFactory>();
         _azeriteEmpoweredItemFactory = cf.Resolve<AzeriteEmpoweredItemFactory>();
+        _db2Manager = _classFactory.Resolve<DB2Manager>();
+        _spellManager = _classFactory.Resolve<SpellManager>();
+        _worldManager = _classFactory.Resolve<WorldManager>();
+        _terrainManager = _classFactory.Resolve<TerrainManager>();
+        _conditionManager = _classFactory.Resolve<ConditionManager>();
+        _areaTriggerDataStorage = _classFactory.Resolve<AreaTriggerDataStorage>();
+        _lootStoreBox = _classFactory.Resolve<LootStoreBox>();
+        _lfgManager = _classFactory.Resolve<LFGManager>();
+        _mapManager = _classFactory.Resolve<MapManager>();
+        _transportManager = _classFactory.Resolve<TransportManager>();
+        _disableManager = _classFactory.Resolve<DisableManager>();
+        _objectAccessor = _classFactory.Resolve<ObjectAccessor>();
+        _questPoolManager = _classFactory.Resolve<QuestPoolManager>();
+        _gridDefines = _classFactory.Resolve<GridDefines>();
+        _phasingHandler = _classFactory.Resolve<PhasingHandler>();
+
+        FillSpellSummary();
+        SetHighestGuids();
+
+        if (!LoadCypherStrings())
+            Environment.Exit(1);
+
+        LoadInstanceTemplate();
+        LoadCreatureLocales();
+        LoadGameObjectLocales();
+        LoadQuestTemplateLocale();
+        LoadQuestOfferRewardLocale();
+        LoadQuestRequestItemsLocale();
+        LoadQuestObjectivesLocale();
+        LoadPageTextLocales();
+        LoadGossipMenuItemsLocales();
+        LoadPointOfInterestLocales();
+        LoadPageTexts();
+        LoadGameObjectTemplate();
+        LoadGameObjectTemplateAddons();
+        LoadNPCText();
+        LoadItemTemplates(); // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+        LoadItemTemplateAddon(); // must be after LoadItemPrototypes
+        LoadItemScriptNames(); // must be after LoadItemPrototypes
+        LoadCreatureModelInfo();
+        LoadCreatureTemplates();
+        LoadEquipmentTemplates();
+        LoadCreatureTemplateAddons();
+        LoadCreatureScalingData();
+        LoadReputationRewardRate();
+        LoadReputationOnKill();
+        LoadReputationSpilloverTemplate();
+        LoadPointsOfInterest();
+        LoadCreatureClassLevelStats();
+        LoadSpawnGroupTemplates();
+        LoadCreatures();
+        LoadTempSummons(); // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
+        LoadCreatureAddons();
+        LoadCreatureMovementOverrides(); // must be after LoadCreatures()
+        LoadGameObjects();
+        LoadSpawnGroups();
+        LoadInstanceSpawnGroups();
+        LoadGameObjectAddons(); // must be after LoadGameObjects()
+        LoadGameObjectOverrides(); // must be after LoadGameObjects()
+        LoadGameObjectQuestItems();
+        LoadCreatureQuestItems();
+        LoadLinkedRespawn(); // must be after LoadCreatures(), LoadGameObjects()
+        LoadQuests();
+        LoadQuestPOI();
+        LoadQuestStartersAndEnders(); // must be after quest load
+        LoadQuestGreetings();
+        LoadQuestGreetingLocales();
+        LoadNPCSpellClickSpells();
+        LoadVehicleTemplate(); // must be after LoadCreatureTemplates()
+        LoadVehicleTemplateAccessories(); // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+        LoadVehicleAccessories(); // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+        LoadVehicleSeatAddon(); // must be after loading DBC
+        LoadWorldSafeLocs(); // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
+        LoadAreaTriggerTeleports();
+        LoadAccessRequirements(); // must be after item template load
+        LoadQuestAreaTriggers(); // must be after LoadQuests
+        LoadTavernAreaTriggers();
+        LoadAreaTriggerScripts();
+        LoadInstanceEncounters();
+        LoadGraveyardZones();
+        LoadSceneTemplates(); // must be before LoadPlayerInfo
+        LoadPlayerInfo();
+        LoadExplorationBaseXP();
+        LoadPetNames();
+        LoadPlayerChoices();
+        LoadPlayerChoicesLocale();
+        LoadJumpChargeParams();
+        LoadPetNumber();
+        LoadPetLevelInfo();
+        LoadMailLevelRewards();
+        LoadFishingBaseSkillLevel();
+        LoadSkillTiers();
+        LoadReservedPlayersNames();
+        LoadGameObjectForQuests();
+        LoadGameTele();
+        LoadTrainers(); // must be after load CreatureTemplate
+        LoadGossipMenu();
+        LoadGossipMenuItems();
+        LoadGossipMenuAddon();
+        LoadCreatureTrainers(); // must be after LoadGossipMenuItems
+        LoadVendors();          // must be after load CreatureTemplate and ItemTemplate
+        LoadPhases();
+        LoadFactionChangeAchievements();
+        LoadFactionChangeSpells();
+        LoadFactionChangeItems();
+        LoadFactionChangeQuests();
+        LoadFactionChangeReputations();
+        LoadFactionChangeTitles();
+        ReturnOrDeleteOldMails(false);
+        InitializeQueriesData(QueryDataGroup.All);
+        LoadRaceAndClassExpansionRequirements();
+        LoadRealmNames();
+        LoadPhaseNames();
     }
 
     public void InitializeQueriesData(QueryDataGroup mask)
@@ -2232,26 +2291,6 @@ public sealed class GameObjectManager
         Log.Logger.Information($"Initialized query cache data in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
-    public void Inject(DB2Manager db2Manager)
-    {
-        _db2Manager = db2Manager;
-        _spellManager = _classFactory.Resolve<SpellManager>();
-        _worldManager = _classFactory.Resolve<WorldManager>();
-        _terrainManager = _classFactory.Resolve<TerrainManager>();
-        _conditionManager = _classFactory.Resolve<ConditionManager>();
-        _areaTriggerDataStorage = _classFactory.Resolve<AreaTriggerDataStorage>();
-        _scriptManager = _classFactory.Resolve<ScriptManager>();
-        _lootStoreBox = _classFactory.Resolve<LootStoreBox>();
-        _lfgManager = _classFactory.Resolve<LFGManager>();
-        _mapManager = _classFactory.Resolve<MapManager>();
-        _transportManager = _classFactory.Resolve<TransportManager>();
-        _disableManager = _classFactory.Resolve<DisableManager>();
-        _objectAccessor = _classFactory.Resolve<ObjectAccessor>();
-        _questPoolManager = _classFactory.Resolve<QuestPoolManager>();
-        _gridDefines = _classFactory.Resolve<GridDefines>();
-        _phasingHandler = _classFactory.Resolve<PhasingHandler>();
-    }
-
     public bool IsGameObjectForQuests(uint entry)
     {
         return _gameObjectForQuestStorage.Contains(entry);
@@ -2270,6 +2309,11 @@ public sealed class GameObjectManager
     public bool IsTransportMap(uint mapId)
     {
         return _transportMaps.Contains((ushort)mapId);
+    }
+
+    public void FillSpellSummary()
+    {
+        UnitAI.FillAISpellInfo(_classFactory.Resolve<SpellManager>());
     }
 
     public bool IsValidCharterName(string name)
@@ -2506,11 +2550,12 @@ public sealed class GameObjectManager
     }
 
     //Scripts
+
     public void LoadAreaTriggerScripts()
     {
         var oldMSTime = Time.MSTime;
 
-        _areaTriggerScriptStorage.Clear(); // need for reload case
+        _scriptManager.AreaTriggerScriptStorage.Clear(); // need for reload case
         var result = _worldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
 
         if (result.IsEmpty())
@@ -2535,10 +2580,10 @@ public sealed class GameObjectManager
             }
 
             ++count;
-            _areaTriggerScriptStorage.AddUnique(id, GetScriptId(scriptName));
+            _scriptManager.AreaTriggerScriptStorage.AddUnique(id, _scriptManager.GetScriptId(scriptName));
         } while (result.NextRow());
 
-        _areaTriggerScriptStorage.RemoveIfMatching(script =>
+        _scriptManager.AreaTriggerScriptStorage.RemoveIfMatching(script =>
         {
             var areaTriggerScriptLoaders = _scriptManager.CreateAreaTriggerScriptLoaders(script.Key);
 
@@ -2549,7 +2594,7 @@ public sealed class GameObjectManager
 
                 if (areaTriggerScript == null)
                 {
-                    Log.Logger.Error("Functions LoadAreaTriggerScripts() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+                    Log.Logger.Error("Functions LoadAreaTriggerScripts() of script `{0}` do not return object - script skipped", _scriptManager.GetScriptName(pair.Value));
                     valid = false;
                 }
 
@@ -3161,7 +3206,7 @@ public sealed class GameObjectManager
             var scriptId = result.Read<string>(27);
 
             if (string.IsNullOrEmpty(scriptId))
-                data.ScriptId = GetScriptId(scriptId);
+                data.ScriptId = _scriptManager.GetScriptId(scriptId);
 
             data.StringId = result.Read<string>(28);
             data.SpawnGroupData = _spawnGroupDataStorage[IsTransportMap(data.MapId) ? 1 : 0u]; // transport spawns default to compatibility group
@@ -3478,7 +3523,7 @@ public sealed class GameObjectManager
         creature.MechanicImmuneMask = fields.Read<ulong>(67);
         creature.SpellSchoolImmuneMask = fields.Read<uint>(68);
         creature.FlagsExtra = (CreatureFlagsExtra)fields.Read<uint>(69);
-        creature.ScriptID = GetScriptId(fields.Read<string>(70));
+        creature.ScriptID = _scriptManager.GetScriptId(fields.Read<string>(70));
         creature.StringId = fields.Read<string>(71);
 
         _creatureTemplateStorage[entry] = creature;
@@ -3675,6 +3720,7 @@ public sealed class GameObjectManager
         foreach (var template in _creatureTemplateStorage.Values)
             CheckCreatureTemplate(template);
 
+        LoadScriptWaypoints();
         Log.Logger.Information("Loaded {0} creature definitions in {1} ms", _creatureTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
     }
 
@@ -3914,7 +3960,7 @@ public sealed class GameObjectManager
             }
 
         // Then check if all scripts are in above list of possible script entries
-        foreach (var script in EventScripts)
+        foreach (var script in _scriptManager.EventScripts)
         {
             var id = evtScripts.Find(p => p == script.Key);
 
@@ -4660,7 +4706,7 @@ public sealed class GameObjectManager
                 }
             }
 
-            data.ScriptId = GetScriptId(result.Read<string>(21));
+            data.ScriptId = _scriptManager.GetScriptId(result.Read<string>(21));
 
             if (data.Rotation.X is < -1.0f or > 1.0f)
             {
@@ -4791,7 +4837,7 @@ public sealed class GameObjectManager
 
                 got.ContentTuningId = result.Read<uint>(43);
                 got.AIName = result.Read<string>(44);
-                got.ScriptId = GetScriptId(result.Read<string>(45));
+                got.ScriptId = _scriptManager.GetScriptId(result.Read<string>(45));
 
                 switch (got.type)
                 {
@@ -5687,7 +5733,7 @@ public sealed class GameObjectManager
             var instanceTemplate = new InstanceTemplate
             {
                 Parent = result.Read<uint>(1),
-                ScriptId = GetScriptId(result.Read<string>(2))
+                ScriptId = _scriptManager.GetScriptId(result.Read<string>(2))
             };
 
             _instanceTemplateStorage.Add(mapID, instanceTemplate);
@@ -5717,7 +5763,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                _itemTemplateStorage[itemId].ScriptId = GetScriptId(result.Read<string>(1));
+                _itemTemplateStorage[itemId].ScriptId = _scriptManager.GetScriptId(result.Read<string>(1));
                 ++count;
             } while (result.NextRow());
 
@@ -9825,7 +9871,7 @@ public sealed class GameObjectManager
                 PlaybackFlags = (SceneFlags)result.Read<uint>(1),
                 ScenePackageId = result.Read<uint>(2),
                 Encrypted = result.Read<byte>(3) != 0,
-                ScriptId = GetScriptId(result.Read<string>(4))
+                ScriptId = _scriptManager.GetScriptId(result.Read<string>(4))
             };
 
             _sceneTemplateStorage[sceneId] = sceneTemplate;
@@ -10027,7 +10073,7 @@ public sealed class GameObjectManager
     {
         var oldMSTime = Time.MSTime;
 
-        _spellScriptsStorage.Clear(); // need for reload case
+        _scriptManager.SpellScriptsStorage.Clear(); // need for reload case
 
         var result = _worldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
 
@@ -10057,7 +10103,7 @@ public sealed class GameObjectManager
         LoadScripts(ScriptsType.Spell);
 
         // check ids
-        foreach (var script in SpellScripts)
+        foreach (var script in _scriptManager.SpellScripts)
         {
             var spellId = script.Key & 0x00FFFFFF;
             var spellInfo = _spellManager.GetSpellInfo(spellId);
@@ -10595,7 +10641,7 @@ public sealed class GameObjectManager
 
         List<uint> actionSet = new();
 
-        foreach (var script in WaypointScripts)
+        foreach (var script in _scriptManager.WaypointScripts)
             actionSet.Add(script.Key);
 
         var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ACTION);
@@ -10688,13 +10734,6 @@ public sealed class GameObjectManager
         return true;
     }
 
-    public bool RegisterAreaTriggerScript(uint areaTriggerId, string scriptName)
-    {
-        _areaTriggerScriptStorage.AddUnique(areaTriggerId, GetScriptId(scriptName));
-
-        return true;
-    }
-
     public bool RegisterSpellScript(int spellId, string scriptName)
     {
         var allRanks = false;
@@ -10726,7 +10765,7 @@ public sealed class GameObjectManager
 
             while (spellInfo != null)
             {
-                _spellScriptsStorage.AddUnique(spellInfo.Id, GetScriptId(scriptName));
+                _scriptManager.SpellScriptsStorage.AddUnique(spellInfo.Id, _scriptManager.GetScriptId(scriptName));
                 spellInfo = spellInfo.NextRankSpell;
             }
         }
@@ -10735,7 +10774,7 @@ public sealed class GameObjectManager
             if (spellInfo.IsRanked)
                 Log.Logger.Debug("Scriptname: `{0}` spell (Id: {1}) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
 
-            _spellScriptsStorage.AddUnique(spellInfo.Id, GetScriptId(scriptName));
+            _scriptManager.SpellScriptsStorage.AddUnique(spellInfo.Id, _scriptManager.GetScriptId(scriptName));
         }
 
         return true;
@@ -11098,7 +11137,7 @@ public sealed class GameObjectManager
     {
         var oldMSTime = Time.MSTime;
 
-        if (_spellScriptsStorage.Empty())
+        if (_scriptManager.SpellScriptsStorage.Empty())
         {
             Log.Logger.Information("Validated 0 scripts.");
 
@@ -11107,7 +11146,7 @@ public sealed class GameObjectManager
 
         uint count = 0;
 
-        _spellScriptsStorage.RemoveIfMatching(script =>
+        _scriptManager.SpellScriptsStorage.RemoveIfMatching(script =>
         {
             var spellEntry = _spellManager.GetSpellInfo(script.Key);
 
@@ -11120,7 +11159,7 @@ public sealed class GameObjectManager
 
                 if (spellScript == null)
                 {
-                    Log.Logger.Error("Functions GetSpellScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+                    Log.Logger.Error("Functions GetSpellScript() of script `{0}` do not return object - script skipped", _scriptManager.GetScriptName(pair.Value));
                     valid = false;
                 }
 
@@ -11146,7 +11185,7 @@ public sealed class GameObjectManager
 
                 if (auraScript == null)
                 {
-                    Log.Logger.Error("Functions GetAuraScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+                    Log.Logger.Error("Functions GetAuraScript() of script `{0}` do not return object - script skipped", _scriptManager.GetScriptName(pair.Value));
                     valid = false;
                 }
 
@@ -11932,7 +11971,7 @@ public sealed class GameObjectManager
     {
         var oldMSTime = Time.MSTime;
 
-        var scripts = GetScriptsMapByType(type);
+        var scripts = _scriptManager.GetScriptsMapByType(type);
 
         if (scripts == null)
             return;
@@ -12455,6 +12494,69 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} script definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    private void LoadScriptWaypoints()
+    {
+        var oldMSTime = Time.MSTime;
+
+        // Drop Existing Waypoint list
+        _scriptManager.WaypointStore.Clear();
+
+        ulong entryCount = 0;
+
+        // Load Waypoints
+        var result = _worldDatabase.Query("SELECT COUNT(entry) FROM script_waypoint GROUP BY entry");
+
+        if (!result.IsEmpty())
+            entryCount = result.Read<uint>(0);
+
+        Log.Logger.Information($"Loading Script Waypoints for {entryCount} creature(s)...");
+
+        //                                0       1         2           3           4           5
+        result = _worldDatabase.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 Script Waypoints. DB table `script_waypoint` is empty.");
+
+            return;
+        }
+
+        uint count = 0;
+
+        do
+        {
+            var entry = result.Read<uint>(0);
+            var id = result.Read<uint>(1);
+            var x = result.Read<float>(2);
+            var y = result.Read<float>(3);
+            var z = result.Read<float>(4);
+            var waitTime = result.Read<uint>(5);
+
+            var info = GetCreatureTemplate(entry);
+
+            if (info == null)
+            {
+                Log.Logger.Error($"SystemMgr: DB table script_waypoint has waypoint for non-existant creature entry {entry}");
+
+                continue;
+            }
+
+            if (info.ScriptID == 0)
+                Log.Logger.Error($"SystemMgr: DB table script_waypoint has waypoint for creature entry {entry}, but creature does not have ScriptName defined and then useless.");
+
+            if (!_scriptManager.WaypointStore.ContainsKey(entry))
+                _scriptManager.WaypointStore[entry] = new WaypointPath();
+
+            var path = _scriptManager.WaypointStore[entry];
+            path.ID = entry;
+            path.Nodes.Add(new WaypointNode(id, x, y, z, null, waitTime));
+
+            ++count;
+        } while (result.NextRow());
+
+        Log.Logger.Information("Loaded {0} Script Waypoint nodes in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     private void LoadTerrainSwapDefaults()
