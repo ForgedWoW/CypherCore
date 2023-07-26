@@ -25,6 +25,7 @@ namespace Forged.MapServer.Maps;
 public class InstanceMap : Map
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly InstanceTemplateManager _instanceTemplateManager;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
     private readonly InstanceLockManager _instanceLockManager;
@@ -36,7 +37,7 @@ public class InstanceMap : Map
 
     public InstanceMap(uint id, long expiry, uint instanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock, ClassFactory classFactory, IConfiguration configuration,
                        WorldStateManager worldStateManager, WorldManager worldManager, GameObjectManager gameObjectManager, ScriptManager scriptManager, InstanceLockManager instanceLockManager,
-                       CharacterDatabase characterDatabase)
+                       CharacterDatabase characterDatabase, InstanceTemplateManager instanceTemplateManager)
         : base(id, expiry, instanceId, spawnMode, classFactory)
     {
         _configuration = configuration;
@@ -46,6 +47,7 @@ public class InstanceMap : Map
         _scriptManager = scriptManager;
         _instanceLockManager = instanceLockManager;
         _characterDatabase = characterDatabase;
+        _instanceTemplateManager = instanceTemplateManager;
         InstanceLock = instanceLock;
 
         //lets initialize visibility distance for dungeons
@@ -189,7 +191,7 @@ public class InstanceMap : Map
         if (InstanceScript != null)
             return;
 
-        var mInstance = _gameObjectManager.GetInstanceTemplate(Id);
+        var mInstance = _instanceTemplateManager.GetInstanceTemplate(Id);
 
         if (mInstance != null)
         {

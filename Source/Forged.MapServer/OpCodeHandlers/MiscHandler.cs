@@ -51,6 +51,7 @@ public class MiscHandler : IWorldSessionHandler
     private readonly DB6Storage<MapRecord> _mapRecords;
     private readonly GameObjectManager _objectManager;
     private readonly DB6Storage<PlayerConditionRecord> _playerConditionRecords;
+    private readonly InstanceTemplateManager _instanceTemplateManager;
     private readonly ScriptManager _scriptManager;
     private readonly WorldSession _session;
     private readonly DB6Storage<UISplashScreenRecord> _splashScreenRecords;
@@ -59,7 +60,8 @@ public class MiscHandler : IWorldSessionHandler
 
     public MiscHandler(WorldSession session, Warden.Warden warden, ScriptManager scriptManager, DB6Storage<AreaTriggerRecord> areaTriggerData, ConditionManager conditionManager,
                        GameObjectManager objectManager, WorldManager worldManager, MapManager mapManager, DB6Storage<MapRecord> mapRecords, DB2Manager db2Manager,
-                       InstanceLockManager instanceLockManager, GuildManager guildManager, DB6Storage<UISplashScreenRecord> splashScreenRecords, DB6Storage<PlayerConditionRecord> playerConditionRecords)
+                       InstanceLockManager instanceLockManager, GuildManager guildManager, DB6Storage<UISplashScreenRecord> splashScreenRecords, DB6Storage<PlayerConditionRecord> playerConditionRecords,
+                       InstanceTemplateManager instanceTemplateManager)
     {
         _session = session;
         _warden = warden;
@@ -75,6 +77,7 @@ public class MiscHandler : IWorldSessionHandler
         _guildManager = guildManager;
         _splashScreenRecords = splashScreenRecords;
         _playerConditionRecords = playerConditionRecords;
+        _instanceTemplateManager = instanceTemplateManager;
     }
 
     public void SendLoadCUFProfiles()
@@ -224,7 +227,7 @@ public class MiscHandler : IWorldSessionHandler
                         if (corpseMap == at.TargetMapId)
                             break;
 
-                        var corpseInstance = _objectManager.GetInstanceTemplate(corpseMap);
+                        var corpseInstance = _instanceTemplateManager.GetInstanceTemplate(corpseMap);
                         corpseMap = corpseInstance?.Parent ?? 0;
                     } while (corpseMap != 0);
 

@@ -44,6 +44,58 @@ using Serilog;
 
 namespace Forged.MapServer.Globals;
 
+public sealed class InstanceTemplateManager
+{
+    private GameObjectManager _gameObjectManager;
+    public Dictionary<uint, InstanceTemplate> InstanceTemplates { get; } = new();
+
+    public InstanceTemplate GetInstanceTemplate(uint mapID)
+    {
+        return InstanceTemplates.LookupByKey(mapID);
+    }
+
+    public void LoadInstanceTemplate()
+    {
+        var time = Time.MSTime;
+
+        //                                          0     1       2
+        var result = _gameObjectManager._worldDatabase.Query("SELECT map, parent, script FROM instance_template");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 instance templates. DB table `instance_template` is empty!");
+
+            return;
+        }
+
+        uint count = 0;
+
+        do
+        {
+            var mapID = result.Read<uint>(0);
+
+            if (!_gameObjectManager._mapManager.IsValidMap(mapID))
+            {
+                Log.Logger.Error("ObjectMgr.LoadInstanceTemplate: bad mapid {0} for template!", mapID);
+
+                continue;
+            }
+
+            var instanceTemplate = new InstanceTemplate
+            {
+                Parent = result.Read<uint>(1),
+                ScriptId = _gameObjectManager._scriptManager.GetScriptId(result.Read<string>(2))
+            };
+
+            InstanceTemplates.Add(mapID, instanceTemplate);
+
+            ++count;
+        } while (result.NextRow());
+
+        Log.Logger.Information("Loaded {0} instance templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+    }
+}
+
 public sealed class GameObjectManager
 {
     private readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
@@ -230,10 +282,11 @@ public sealed class GameObjectManager
     private TransportManager _transportManager;
     private ulong _voidItemId;
     private WorldManager _worldManager;
+    private readonly InstanceTemplateManager _instanceTemplateManager;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
-                             ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
+                             ObjectGuidGeneratorFactory objectGuidGeneratorFactory, InstanceTemplateManager instanceTemplateManager)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
@@ -243,6 +296,7 @@ public sealed class GameObjectManager
         _loginDatabase = loginDatabase;
         _scriptManager = scriptManager;
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
+        _instanceTemplateManager = instanceTemplateManager;
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
@@ -274,7 +328,6 @@ public sealed class GameObjectManager
 
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
 
-    public Dictionary<uint, InstanceTemplate> InstanceTemplates { get; } = new();
     public Dictionary<uint, ItemTemplate> ItemTemplates { get; } = new();
     public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos { get; } = new();
 
@@ -1344,7 +1397,7 @@ public sealed class GameObjectManager
 
         if (mapEntry.IsDungeon())
         {
-            var iTemplate = GetInstanceTemplate(map);
+            var iTemplate = _instanceTemplateManager.GetInstanceTemplate(map);
 
             if (iTemplate != null)
                 parentId = iTemplate.Parent;
@@ -1407,11 +1460,6 @@ public sealed class GameObjectManager
     public List<InstanceSpawnGroupInfo> GetInstanceSpawnGroupsForMap(uint mapId)
     {
         return _instanceSpawnGroupStorage.LookupByKey(mapId);
-    }
-
-    public InstanceTemplate GetInstanceTemplate(uint mapID)
-    {
-        return InstanceTemplates.LookupByKey(mapID);
     }
 
     public ItemTemplate GetItemTemplate(uint itemId)
@@ -1946,7 +1994,6 @@ public sealed class GameObjectManager
         if (!LoadCypherStrings())
             Environment.Exit(1);
 
-        LoadInstanceTemplate();
         LoadCreatureLocales();
         LoadGameObjectLocales();
         LoadQuestTemplateLocale();
@@ -5400,46 +5447,6 @@ public sealed class GameObjectManager
     }
 
     //Maps
-    public void LoadInstanceTemplate()
-    {
-        var time = Time.MSTime;
-
-        //                                          0     1       2
-        var result = _worldDatabase.Query("SELECT map, parent, script FROM instance_template");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 instance templates. DB table `instance_template` is empty!");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var mapID = result.Read<uint>(0);
-
-            if (!_mapManager.IsValidMap(mapID))
-            {
-                Log.Logger.Error("ObjectMgr.LoadInstanceTemplate: bad mapid {0} for template!", mapID);
-
-                continue;
-            }
-
-            var instanceTemplate = new InstanceTemplate
-            {
-                Parent = result.Read<uint>(1),
-                ScriptId = _scriptManager.GetScriptId(result.Read<string>(2))
-            };
-
-            InstanceTemplates.Add(mapID, instanceTemplate);
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} instance templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
-    }
 
     public void LoadItemScriptNames()
     {

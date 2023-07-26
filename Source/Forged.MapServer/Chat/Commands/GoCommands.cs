@@ -8,6 +8,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
@@ -257,7 +258,7 @@ internal class GoCommands
 
         MultiMap<uint, Tuple<uint, string, string>> matches = new();
 
-        foreach (var pair in handler.ObjectManager.InstanceTemplates)
+        foreach (var pair in handler.ClassFactory.Resolve<InstanceTemplateManager>().InstanceTemplates)
         {
             uint count = 0;
             var scriptName = handler.ClassFactory.Resolve<ScriptManager>().GetScriptName(pair.Value.ScriptId);
