@@ -402,7 +402,7 @@ public class PhasingHandler
         obj.Location.PhaseShift.UiMapPhaseIds.Clear();
         obj.Location.SuppressedPhaseShift.VisibleMapIds.Clear();
 
-        foreach (var (mapId, visibleMapInfo) in _objectManager.GetTerrainSwaps().KeyValueList)
+        foreach (var (mapId, visibleMapInfo) in _objectManager.TerrainSwaps.KeyValueList)
             if (_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
             {
                 if (mapId == obj.Location.MapId)

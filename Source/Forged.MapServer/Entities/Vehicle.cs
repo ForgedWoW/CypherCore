@@ -55,7 +55,7 @@ public class Vehicle : ITransport
             if (!vehicleSeatRecords.TryGetValue(seatId, out var veSeat))
                 continue;
 
-            var addon = _gameObjectManager.GetVehicleSeatAddon(seatId);
+            var addon = _gameObjectManager.VehicleObjectManager.GetVehicleSeatAddon(seatId);
             Seats.Add((sbyte)i, new VehicleSeat(veSeat, addon));
 
             if (veSeat.CanEnterOrExit())
@@ -85,7 +85,7 @@ public class Vehicle : ITransport
 
     public Unit Base { get; }
     public uint CreatureEntry { get; }
-    public TimeSpan DespawnDelay => _gameObjectManager.GetVehicleTemplate(this)?.DespawnDelay ?? TimeSpan.FromMilliseconds(1);
+    public TimeSpan DespawnDelay => _gameObjectManager.VehicleObjectManager.GetVehicleTemplate(this)?.DespawnDelay ?? TimeSpan.FromMilliseconds(1);
     public ObjectGuid GUID => Base.GUID;
 
     public bool IsControllableVehicle
@@ -294,7 +294,7 @@ public class Vehicle : ITransport
         if (Base.IsTypeId(TypeId.Player) || !evading)
             RemoveAllPassengers(); // We might have aura's saved in the DB with now invalid casters - remove
 
-        var accessories = _gameObjectManager.GetVehicleAccessoryList(this);
+        var accessories = _gameObjectManager.VehicleObjectManager.GetVehicleAccessoryList(this);
 
         if (accessories == null)
             return;

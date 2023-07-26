@@ -729,7 +729,7 @@ public class BattlegroundManager
 
     private void CheckBattleMasters()
     {
-        var templates = _objectManager.GetCreatureTemplates();
+        var templates = _objectManager.CreatureTemplates;
 
         foreach (var creature in templates)
             if (creature.Value.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster) && !_battleMastersMap.ContainsKey(creature.Value.Entry))

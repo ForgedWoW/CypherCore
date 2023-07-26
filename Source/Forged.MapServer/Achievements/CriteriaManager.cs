@@ -230,7 +230,7 @@ public class CriteriaManager
 
         Dictionary<uint /*criteriaTreeID*/, QuestObjective> questObjectiveCriteriaTreeIds = new();
 
-        foreach (var pair in _gameObjectManager.GetQuestTemplates())
+        foreach (var pair in _gameObjectManager.QuestTemplates)
         {
             foreach (var objective in pair.Value.Objectives)
             {

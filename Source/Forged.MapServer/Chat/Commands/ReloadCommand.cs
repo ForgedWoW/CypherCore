@@ -992,7 +992,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_accessory table...");
-        handler.ObjectManager.LoadVehicleAccessories();
+        handler.ObjectManager.VehicleObjectManager.LoadVehicleAccessories();
         handler.SendGlobalGMSysMessage("Vehicle accessories reloaded.");
 
         return true;
@@ -1002,7 +1002,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template_accessory table...");
-        handler.ObjectManager.LoadVehicleTemplateAccessories();
+        handler.ObjectManager.VehicleObjectManager.LoadVehicleTemplateAccessories();
         handler.SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
 
         return true;
@@ -1012,7 +1012,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template table...");
-        handler.ObjectManager.LoadVehicleTemplate();
+        handler.ObjectManager.VehicleObjectManager.LoadVehicleTemplate();
         handler.SendGlobalGMSysMessage("Vehicle templates reloaded.");
 
         return true;

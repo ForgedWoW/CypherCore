@@ -3023,7 +3023,7 @@ public partial class Player
 
     private void PushQuests()
     {
-        foreach (var quest in GameObjectManager.GetQuestTemplatesAutoPush())
+        foreach (var quest in GameObjectManager.QuestTemplatesAutoPush)
         {
             if (quest.QuestTag != 0 && quest.QuestTag != QuestTagType.Tag)
                 continue;

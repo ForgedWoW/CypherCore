@@ -355,7 +355,7 @@ public class BattlepayManager
                 // Customs:
                 case ProductType.ItemSet:
                 {
-                    var its = _session.Player.GameObjectManager.GetItemTemplates();
+                    var its = _session.Player.GameObjectManager.ItemTemplates;
 
                     //C++ TO C# CONVERTER NOTE: 'auto' variable declarations are not supported in C#:
                     //ORIGINAL LINE: for (auto const& itemTemplatePair : its)

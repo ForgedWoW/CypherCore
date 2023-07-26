@@ -793,7 +793,7 @@ internal class DebugCommands
             var z = player.Location.Z;
             var distNearest = float.MaxValue;
 
-            foreach (var pair in handler.ObjectManager.GetWorldSafeLocs())
+            foreach (var pair in handler.ObjectManager.WorldSafeLocs)
             {
                 var worldSafe = pair.Value;
 
