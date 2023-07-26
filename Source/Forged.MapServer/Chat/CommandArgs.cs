@@ -228,7 +228,7 @@ internal class CommandArgs
                         if (!result.IsSuccessful)
                             result = TryConsume(out tempVal, typeof(string), handler, args);
 
-                        if (!result.IsSuccessful || (val = handler.ObjectManager.GetGameTele(tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.ClassFactory.Resolve<GameTeleObjectManager>().GetGameTele(tempVal)) != null)
                             return result;
 
                         if (tempVal is uint)
