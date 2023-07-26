@@ -257,7 +257,7 @@ internal class NPCCommands
 
         handler.ObjectManager.RemoveCreatureFromGrid(data);
         data.SpawnPoint.Relocate(player.Location);
-        handler.ObjectManager.AddCreatureToGrid(data);
+        handler.ObjectManager.AddSpawnDataToGrid(data);
 
         // update position in DB
         var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
@@ -651,7 +651,7 @@ internal class NPCCommands
                                                    map.DifficultyID
                                                });
 
-                    handler.Session.Player.GameObjectManager.AddCreatureToGrid(data);
+                    handler.Session.Player.GameObjectManager.AddSpawnDataToGrid(data);
                 }
 
                 return true;
@@ -680,7 +680,7 @@ internal class NPCCommands
             if (creature == null)
                 return false;
 
-            handler.Session.Player.GameObjectManager.AddCreatureToGrid(handler.Session.Player.GameObjectManager.GetCreatureData(dbGUID));
+            handler.Session.Player.GameObjectManager.AddSpawnDataToGrid(handler.Session.Player.GameObjectManager.GetCreatureData(dbGUID));
 
             return true;
         }

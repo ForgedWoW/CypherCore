@@ -290,16 +290,6 @@ public sealed class GameObjectManager
 
     public Dictionary<uint, WorldSafeLocsEntry> WorldSafeLocs { get; } = new();
 
-    public void AddCreatureToGrid(CreatureData data)
-    {
-        AddSpawnDataToGrid(data);
-    }
-
-    public void AddGameObjectToGrid(GameObjectData data)
-    {
-        AddSpawnDataToGrid(data);
-    }
-
     public bool AddGameTele(GameTele tele)
     {
         // find max id
@@ -3236,7 +3226,7 @@ public sealed class GameObjectManager
 
             // Add to grid if not managed by the GameInfo event
             if (gameEvent == 0)
-                AddCreatureToGrid(data);
+                AddSpawnDataToGrid(data);
 
             AllCreatureData[guid] = data;
             count++;
@@ -4632,7 +4622,7 @@ public sealed class GameObjectManager
 
             // if not this is to be managed by GameEvent System
             if (gameEvent == 0)
-                AddGameObjectToGrid(data);
+                AddSpawnDataToGrid(data);
 
             AllGameObjectData[guid] = data;
             ++count;
@@ -10818,7 +10808,7 @@ public sealed class GameObjectManager
         Log.Logger.Information("Validated {0} scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    private void AddSpawnDataToGrid(SpawnData data)
+    public void AddSpawnDataToGrid(SpawnData data)
     {
         var cellId = _gridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
         var isPersonalPhase = _phasingHandler.IsPersonalPhase(data.PhaseId);

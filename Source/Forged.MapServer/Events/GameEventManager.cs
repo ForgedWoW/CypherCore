@@ -1403,7 +1403,7 @@ public class GameEventManager
             if (data == null)
                 continue;
 
-            _objectManager.AddCreatureToGrid(data);
+            _objectManager.AddSpawnDataToGrid(data);
 
             // Spawn if necessary (loaded grids only)
             _mapManager.DoForAllMapsWithMapId(data.MapId,
@@ -1434,7 +1434,7 @@ public class GameEventManager
             if (data == null)
                 continue;
 
-            _objectManager.AddGameObjectToGrid(data);
+            _objectManager.AddSpawnDataToGrid(data);
 
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
