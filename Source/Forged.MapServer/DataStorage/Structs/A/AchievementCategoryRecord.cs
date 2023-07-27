@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AchievementCategoryRecord
+public sealed record AchievementCategoryRecord
 {
     public LocalizedString Name;
     public uint Id;

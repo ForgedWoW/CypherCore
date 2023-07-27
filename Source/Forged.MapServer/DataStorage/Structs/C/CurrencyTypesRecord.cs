@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CurrencyTypesRecord
+public sealed record CurrencyTypesRecord
 {
     public uint Id;
     public string Name;

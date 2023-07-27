@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.K;
 
-public sealed class KeystoneAffixRecord
+public sealed record KeystoneAffixRecord
 {
     public LocalizedString Name;
     public LocalizedString Description;

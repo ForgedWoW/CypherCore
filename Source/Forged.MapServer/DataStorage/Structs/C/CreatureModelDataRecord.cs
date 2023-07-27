@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureModelDataRecord
+public sealed record CreatureModelDataRecord
 {
     public uint Id;
     public float[] GeoBox = new float[6];

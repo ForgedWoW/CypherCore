@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtItemSocketCostPerLevelRecord
+public sealed record GtItemSocketCostPerLevelRecord
 {
     public float SocketCost;
 }

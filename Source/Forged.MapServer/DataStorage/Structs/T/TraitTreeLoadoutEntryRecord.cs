@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitTreeLoadoutEntryRecord
+public sealed record TraitTreeLoadoutEntryRecord
 {
     public uint Id;
     public int TraitTreeLoadoutID;

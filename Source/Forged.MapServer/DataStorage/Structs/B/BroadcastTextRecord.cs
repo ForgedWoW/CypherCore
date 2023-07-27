@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BroadcastTextRecord
+public sealed record BroadcastTextRecord
 {
     public LocalizedString Text;
     public LocalizedString Text1;

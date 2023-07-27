@@ -856,7 +856,7 @@ public class PlayerComputators
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);
 
-        var proto = _gameObjectManager.GetItemTemplate(itemEntry);
+        var proto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
 
         if (proto == null)
         {

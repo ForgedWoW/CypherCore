@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ConditionalContentTuningRecord
+public sealed record ConditionalContentTuningRecord
 {
     public uint Id;
     public int OrderIndex;

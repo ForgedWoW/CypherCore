@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureDisplayInfoRecord
+public sealed record CreatureDisplayInfoRecord
 {
     public uint Id;
     public ushort ModelID;

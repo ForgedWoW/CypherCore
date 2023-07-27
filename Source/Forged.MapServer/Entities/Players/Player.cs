@@ -6970,7 +6970,7 @@ public partial class Player : Unit
                 break;
 
             case ActionButtonType.Item:
-                if (GameObjectManager.GetItemTemplate((uint)action) == null)
+                if (GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)action) == null)
                 {
                     Log.Logger.Error($"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
 

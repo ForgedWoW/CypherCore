@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrFollowerRecord
+public sealed record GarrFollowerRecord
 {
     public uint Id;
     public string HordeSourceText;

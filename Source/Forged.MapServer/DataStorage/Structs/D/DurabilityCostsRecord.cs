@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.D;
 
-public sealed class DurabilityCostsRecord
+public sealed record DurabilityCostsRecord
 {
     public uint Id;
     public ushort[] WeaponSubClassCost = new ushort[21];

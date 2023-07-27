@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CinematicCameraRecord
+public sealed record CinematicCameraRecord
 {
     public uint Id;
     public Vector3 Origin;     // Position in map used for basis for M2 co-ordinates

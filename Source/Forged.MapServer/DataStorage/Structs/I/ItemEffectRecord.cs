@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemEffectRecord
+public sealed record ItemEffectRecord
 {
     public uint Id;
     public byte LegacySlotIndex;

@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.Q;
 
-public sealed class QuestLineXQuestRecord
+public sealed record QuestLineXQuestRecord
 {
     public uint Id;
     public uint QuestLineID;

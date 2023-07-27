@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellCastingRequirementsRecord
+public sealed record SpellCastingRequirementsRecord
 {
     public uint Id;
     public uint SpellID;

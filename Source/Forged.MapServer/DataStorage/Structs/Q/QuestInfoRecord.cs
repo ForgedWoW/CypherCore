@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.Q;
 
-public sealed class QuestInfoRecord
+public sealed record QuestInfoRecord
 {
     public uint Id;
     public LocalizedString InfoName;

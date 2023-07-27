@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CharTitlesRecord
+public sealed record CharTitlesRecord
 {
     public uint Id;
     public LocalizedString Name;

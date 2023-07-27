@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitCurrencySourceRecord
+public sealed record TraitCurrencySourceRecord
 {
     public LocalizedString Requirement;
     public uint Id;

@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TaxiPathRecord
+public sealed record TaxiPathRecord
 {
     public uint Id;
     public ushort FromTaxiNode;

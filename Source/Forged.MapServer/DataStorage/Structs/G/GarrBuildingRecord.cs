@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrBuildingRecord
+public sealed record GarrBuildingRecord
 {
     public uint Id;
     public string HordeName;

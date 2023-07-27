@@ -124,7 +124,7 @@ public class ItemFactory
 
     public bool CanTransmogrifyItemWithItem(Item item, ItemModifiedAppearanceRecord itemModifiedAppearance)
     {
-        var source = _gameObjectManager.GetItemTemplate(itemModifiedAppearance.ItemID); // source
+        var source = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID); // source
         var target = item.Template;                                                     // dest
 
         if (source == null || target == null)
@@ -175,7 +175,7 @@ public class ItemFactory
         if (count < 1)
             return null; //don't create item at zero count
 
-        var pProto = _gameObjectManager.GetItemTemplate(item);
+        var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(item);
 
         if (pProto == null)
             return null;
@@ -350,7 +350,7 @@ public class ItemFactory
 
         standardPrice = false;
 
-        return (uint)(proto.PriceVariance * typeFactor * baseFactor * qualityFactor * proto.PriceRandomValue);
+        return (uint)(proto.PriceVariance * typeFactor * baseFactor * qualityFactor * proto.ExtendedData.PriceRandomValue);
     }
 
     public ItemDisenchantLootRecord GetDisenchantLoot(ItemTemplate itemTemplate, uint quality, uint itemLevel)

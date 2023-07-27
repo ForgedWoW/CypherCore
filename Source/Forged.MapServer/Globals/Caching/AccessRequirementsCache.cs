@@ -90,7 +90,7 @@ public class AccessRequirementsCache : IObjectCache
 
             if (ar.Item != 0)
             {
-                var pProto = _gameObjectManager.GetItemTemplate(ar.Item);
+                var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(ar.Item);
 
                 if (pProto == null)
                 {
@@ -101,7 +101,7 @@ public class AccessRequirementsCache : IObjectCache
 
             if (ar.Item2 != 0)
             {
-                var pProto = _gameObjectManager.GetItemTemplate(ar.Item2);
+                var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(ar.Item2);
 
                 if (pProto == null)
                 {

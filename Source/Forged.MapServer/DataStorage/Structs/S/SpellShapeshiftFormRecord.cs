@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellShapeshiftFormRecord
+public sealed record SpellShapeshiftFormRecord
 {
     public uint Id;
     public string Name;

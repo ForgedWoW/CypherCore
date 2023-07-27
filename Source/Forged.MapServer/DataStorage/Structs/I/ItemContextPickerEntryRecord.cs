@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemContextPickerEntryRecord
+public sealed record ItemContextPickerEntryRecord
 {
     public uint Id;
     public byte ItemCreationContext;

@@ -338,7 +338,7 @@ internal class ListCommands
                                         var itemEntry = result3.Read<uint>(0);
                                         var itemCount = result3.Read<uint>(1);
 
-                                        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemEntry);
+                                        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
 
                                         if (itemTemplate == null)
                                             continue;

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitDefinitionEffectPointsRecord
+public sealed record TraitDefinitionEffectPointsRecord
 {
     public uint Id;
     public int TraitDefinitionID;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.Q
 {
-    public sealed class QuestFactionRewardRecord
+    public sealed record QuestFactionRewardRecord
     {
         public uint Id;
         public short[] Difficulty = new short[10];

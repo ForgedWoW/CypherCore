@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitNodeRecord
+public sealed record TraitNodeRecord
 {
     public uint Id;
     public int TraitTreeID;

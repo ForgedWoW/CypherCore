@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MovieRecord
+public sealed record MovieRecord
 {
     public uint Id;
     public byte Volume;

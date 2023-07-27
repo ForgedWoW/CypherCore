@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemSearchNameRecord
+public sealed record ItemSearchNameRecord
 {
     public uint Id;
     public long AllowableRace;

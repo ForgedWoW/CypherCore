@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GameObjectDisplayInfoRecord
+public sealed record GameObjectDisplayInfoRecord
 {
     public uint Id;
     public float[] GeoBox = new float[6];

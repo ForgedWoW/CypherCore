@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellItemEnchantmentConditionRecord
+public sealed record SpellItemEnchantmentConditionRecord
 {
     public uint Id;
     public byte[] LtOperandType = new byte[5];

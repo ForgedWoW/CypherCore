@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PvpTalentSlotUnlockRecord
+public sealed record PvpTalentSlotUnlockRecord
 {
     public uint Id;
     public sbyte Slot;

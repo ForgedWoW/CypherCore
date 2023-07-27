@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class ToyRecord
+public sealed record ToyRecord
 {
     public string SourceText;
     public uint Id;

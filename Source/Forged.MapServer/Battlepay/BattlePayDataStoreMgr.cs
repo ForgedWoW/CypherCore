@@ -289,7 +289,7 @@ public class BattlePayDataStoreMgr
                 ItemID = fields.Read<uint>(2)
             };
 
-            if (_gameObjectManager.GetItemTemplate(productItem.ItemID) != null)
+            if (_gameObjectManager.ItemTemplateCache.GetItemTemplate(productItem.ItemID) != null)
                 continue;
 
             productItem.Entry = fields.Read<uint>(0);

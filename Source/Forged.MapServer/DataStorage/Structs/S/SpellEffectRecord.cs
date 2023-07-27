@@ -3,7 +3,7 @@ using Framework.Dynamic;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellEffectRecord
+public sealed record SpellEffectRecord
 {
     public uint Id;
     public short EffectAura;

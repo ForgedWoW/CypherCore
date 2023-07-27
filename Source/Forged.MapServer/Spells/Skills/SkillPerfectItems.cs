@@ -93,7 +93,7 @@ public class SkillPerfectItems
 
             var perfectItemType = result.Read<uint>(3);
 
-            if (_objectManager.GetItemTemplate(perfectItemType) == null)
+            if (_objectManager.ItemTemplateCache.GetItemTemplate(perfectItemType) == null)
             {
                 Log.Logger.Error("Skill perfection data for spell {0} references non-existent perfect item id {1} in `skill_perfect_item_template`!", spellId, perfectItemType);
 

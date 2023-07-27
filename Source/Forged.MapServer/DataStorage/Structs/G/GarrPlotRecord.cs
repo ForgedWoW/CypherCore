@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrPlotRecord
+public sealed record GarrPlotRecord
 {
     public uint Id;
     public string Name;

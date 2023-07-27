@@ -36,7 +36,7 @@ public struct LootGroupInvalidSelector
                                           null,
                                           item.Itemid,
                                           item.NeedsQuest,
-                                          !item.NeedsQuest || _objectManager.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                          !item.NeedsQuest || _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                           true,
                                           item.Conditions,
                                           _objectManager,

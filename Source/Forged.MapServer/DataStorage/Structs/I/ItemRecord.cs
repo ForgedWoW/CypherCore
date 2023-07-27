@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemRecord
+public sealed record ItemRecord
 {
     public uint Id;
     public ItemClass ClassID;

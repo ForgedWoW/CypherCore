@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactRecord
+public sealed record ArtifactRecord
 {
     public string Name;
     public uint Id;

@@ -53,7 +53,7 @@ public partial class Spell
         var player = UnitTarget.AsPlayer;
 
         var newitemid = itemId;
-        var pProto = _gameObjectManager.GetItemTemplate(newitemid);
+        var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(newitemid);
 
         if (pProto == null)
         {

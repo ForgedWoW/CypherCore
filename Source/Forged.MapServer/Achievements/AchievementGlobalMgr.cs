@@ -328,7 +328,7 @@ public class AchievementGlobalMgr
             }
 
             if (reward.ItemId != 0)
-                if (_gameObjectManager.GetItemTemplate(reward.ItemId) == null)
+                if (_gameObjectManager.ItemTemplateCache.GetItemTemplate(reward.ItemId) == null)
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid item id {reward.ItemId}, reward mail will not contain the rewarded item.");
                     reward.ItemId = 0;

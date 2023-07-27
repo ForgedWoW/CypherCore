@@ -754,7 +754,7 @@ public sealed class SpellManager
                         }
                     }
                     // also possible IsLootCrafting case but fake item must exist anyway
-                    else if (_objectManager.GetItemTemplate(spellEffectInfo.ItemType) == null)
+                    else if (_objectManager.ItemTemplateCache.GetItemTemplate(spellEffectInfo.ItemType) == null)
                     {
                         if (msg)
                         {
@@ -794,7 +794,7 @@ public sealed class SpellManager
 
         if (needCheckReagents)
             for (var j = 0; j < SpellConst.MaxReagents; ++j)
-                if (spellInfo.Reagent[j] > 0 && _objectManager.GetItemTemplate((uint)spellInfo.Reagent[j]) == null)
+                if (spellInfo.Reagent[j] > 0 && _objectManager.ItemTemplateCache.GetItemTemplate((uint)spellInfo.Reagent[j]) == null)
                 {
                     if (msg)
                     {

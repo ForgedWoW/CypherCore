@@ -77,7 +77,7 @@ public class GuildBankTab
             return false;
         }
 
-        var proto = _objectManager.GetItemTemplate(itemEntry);
+        var proto = _objectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
 
         if (proto == null)
         {

@@ -262,7 +262,7 @@ public class AuctionManager
             var itemGuid = result.Read<ulong>(0);
             var itemEntry = result.Read<uint>(1);
 
-            var proto = _objectManager.GetItemTemplate(itemEntry);
+            var proto = _objectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
 
             if (proto == null)
             {

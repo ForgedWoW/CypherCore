@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteTierUnlockRecord
+public sealed record AzeriteTierUnlockRecord
 {
     public uint Id;
     public byte ItemCreationContext;

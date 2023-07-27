@@ -356,7 +356,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
             return false;
         }
 
-        var itemTemplate = _gameObjectManager.GetItemTemplate(itemModifiedAppearance.ItemID);
+        var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID);
 
         if (_session.Player.CanUseItem(itemTemplate) != InventoryResult.Ok)
         {

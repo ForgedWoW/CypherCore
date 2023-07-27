@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.D;
 
-public sealed class DungeonEncounterRecord
+public sealed record DungeonEncounterRecord
 {
     public LocalizedString Name;
     public uint Id;

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrAbilityRecord
+public sealed record GarrAbilityRecord
 {
     public uint Id;
     public string Name;

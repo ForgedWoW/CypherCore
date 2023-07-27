@@ -4,7 +4,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AreaTableRecord
+public sealed record AreaTableRecord
 {
     public uint Id;
     public string ZoneName;

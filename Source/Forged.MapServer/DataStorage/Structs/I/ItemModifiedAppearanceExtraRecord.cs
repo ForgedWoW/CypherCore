@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemModifiedAppearanceExtraRecord
+public sealed record ItemModifiedAppearanceExtraRecord
 {
     public uint Id;
     public int IconFileDataID;

@@ -107,7 +107,7 @@ public class NPCHandler : IWorldSessionHandler
             {
                 case ItemVendorType.Item:
                 {
-                    var itemTemplate = _objectManager.GetItemTemplate(vendorItem.Item);
+                    var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(vendorItem.Item);
 
                     if (itemTemplate == null)
                         continue;

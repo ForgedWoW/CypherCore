@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellPowerRecord
+public sealed record SpellPowerRecord
 {
     public uint Id;
     public byte OrderIndex;

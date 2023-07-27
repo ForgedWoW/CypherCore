@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellKeyboundOverrideRecord
+public sealed record SpellKeyboundOverrideRecord
 {
     public uint Id;
     public string Function;

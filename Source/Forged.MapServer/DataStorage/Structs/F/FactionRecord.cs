@@ -5,7 +5,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.F
 {
-    public sealed class FactionRecord
+    public sealed record FactionRecord
     {
         public uint Id;
         public long[] ReputationRaceMask = new long[4];

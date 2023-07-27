@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BarberShopStyleRecord
+public sealed record BarberShopStyleRecord
 {
     public uint Id;
     public string DisplayName;

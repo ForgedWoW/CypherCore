@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitCurrencyRecord
+public sealed record TraitCurrencyRecord
 {
     public uint Id;
     public int Type;

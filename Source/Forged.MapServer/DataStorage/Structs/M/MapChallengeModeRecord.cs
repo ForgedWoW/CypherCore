@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapChallengeModeRecord
+public sealed record MapChallengeModeRecord
 {
     public LocalizedString Name;
     public uint Id;

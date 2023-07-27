@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellScalingRecord
+public sealed record SpellScalingRecord
 {
     public uint Id;
     public uint SpellID;

@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.R;
 
-public sealed class RewardPackXCurrencyTypeRecord
+public sealed record RewardPackXCurrencyTypeRecord
 {
     public uint Id;
     public uint CurrencyTypeID;

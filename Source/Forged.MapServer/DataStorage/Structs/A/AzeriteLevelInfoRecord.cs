@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteLevelInfoRecord
+public sealed record AzeriteLevelInfoRecord
 {
     public uint Id;
     public ulong BaseExperienceToNextLevel;

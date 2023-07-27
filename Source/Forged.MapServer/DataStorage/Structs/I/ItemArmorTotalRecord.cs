@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemArmorTotalRecord
+public sealed record ItemArmorTotalRecord
 {
     public uint Id;
     public short ItemLevel;

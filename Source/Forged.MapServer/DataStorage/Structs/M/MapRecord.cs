@@ -4,7 +4,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapRecord
+public sealed record MapRecord
 {
     public uint Id;
     public string Directory;

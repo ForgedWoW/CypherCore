@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PvpSeasonRecord
+public sealed record PvpSeasonRecord
 {
     public uint Id;
     public int MilestoneSeason;

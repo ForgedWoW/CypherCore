@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellAuraRestrictionsRecord
+public sealed record SpellAuraRestrictionsRecord
 {
     public uint Id;
     public uint DifficultyID;

@@ -1052,7 +1052,7 @@ public partial class Creature : Unit
         if (vCount.LastIncrementTime + vItem.Incrtime > ptime)
             return vCount.Count;
 
-        var pProto = GameObjectManager.GetItemTemplate(vItem.Item);
+        var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(vItem.Item);
 
         var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
@@ -2970,7 +2970,7 @@ public partial class Creature : Unit
 
         if (vCount.LastIncrementTime + vItem.Incrtime <= ptime)
         {
-            var pProto = GameObjectManager.GetItemTemplate(vItem.Item);
+            var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(vItem.Item);
 
             var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 

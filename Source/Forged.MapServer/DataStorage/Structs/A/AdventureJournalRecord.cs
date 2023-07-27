@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AdventureJournalRecord
+public sealed record AdventureJournalRecord
 {
     public uint Id;
     public LocalizedString Name;

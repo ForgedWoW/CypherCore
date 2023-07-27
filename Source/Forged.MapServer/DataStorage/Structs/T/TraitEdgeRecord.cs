@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitEdgeRecord
+public sealed record TraitEdgeRecord
 {
     public uint Id;
     public int VisualStyle;

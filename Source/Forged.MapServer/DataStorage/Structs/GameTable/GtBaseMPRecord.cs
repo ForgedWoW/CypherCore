@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtBaseMPRecord
+public sealed record GtBaseMPRecord
 {
     public float Rogue;
     public float Druid;

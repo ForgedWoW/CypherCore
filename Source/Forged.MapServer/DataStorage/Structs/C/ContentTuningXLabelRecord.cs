@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ContentTuningXLabelRecord
+public sealed record ContentTuningXLabelRecord
 {
     public uint Id;
     public int LabelID;

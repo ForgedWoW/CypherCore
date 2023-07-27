@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.H;
 
-public sealed class HolidaysRecord
+public sealed record HolidaysRecord
 {
     public uint Id;
     public ushort Region;

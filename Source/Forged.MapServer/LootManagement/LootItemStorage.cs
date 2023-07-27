@@ -66,7 +66,7 @@ public class LootItemStorage
                 continue;
 
             // Don't save currency tokens
-            var itemTemplate = _objectManager.GetItemTemplate(li.Itemid);
+            var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(li.Itemid);
 
             if (itemTemplate == null || itemTemplate.IsCurrencyToken)
                 continue;

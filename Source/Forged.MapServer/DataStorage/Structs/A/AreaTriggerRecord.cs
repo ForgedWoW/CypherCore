@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AreaTriggerRecord
+public sealed record AreaTriggerRecord
 {
     public Vector3 Pos;
     public uint Id;

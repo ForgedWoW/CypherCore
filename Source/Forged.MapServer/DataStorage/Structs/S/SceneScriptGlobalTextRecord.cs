@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SceneScriptGlobalTextRecord
+public sealed record SceneScriptGlobalTextRecord
 {
     public uint Id;
     public string Name;

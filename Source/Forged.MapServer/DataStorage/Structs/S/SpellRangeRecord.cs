@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellRangeRecord
+public sealed record SpellRangeRecord
 {
     public uint Id;
     public string DisplayName;

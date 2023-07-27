@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PowerDisplayRecord
+public sealed record PowerDisplayRecord
 {
     public uint Id;
     public string GlobalStringBaseTag;

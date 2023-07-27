@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellRadiusRecord
+public sealed record SpellRadiusRecord
 {
     public uint Id;
     public float Radius;

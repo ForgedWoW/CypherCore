@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellVisualEffectNameRecord
+public sealed record SpellVisualEffectNameRecord
 {
     public uint Id;
     public int ModelFileDataID;

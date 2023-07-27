@@ -43,7 +43,7 @@ internal class SendCommands
             if (!uint.TryParse(itemIdAndCountStr[0], out var itemId) || itemId == 0)
                 return false;
 
-            var itemProto = handler.ObjectManager.GetItemTemplate(itemId);
+            var itemProto = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
             if (itemProto == null)
             {

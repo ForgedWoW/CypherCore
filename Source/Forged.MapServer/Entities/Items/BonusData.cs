@@ -56,13 +56,13 @@ public class BonusData
         RequiredLevel = proto.BaseRequiredLevel;
 
         for (uint i = 0; i < ItemConst.MaxStats; ++i)
-            ItemStatType[i] = proto.GetStatModifierBonusStat(i);
+            ItemStatType[i] = proto.ExtendedData.StatModifierBonusStat[i];
 
         for (uint i = 0; i < ItemConst.MaxStats; ++i)
-            StatPercentEditor[i] = proto.GetStatPercentEditor(i);
+            StatPercentEditor[i] = proto.ExtendedData.StatPercentEditor[i];
 
         for (uint i = 0; i < ItemConst.MaxStats; ++i)
-            ItemStatSocketCostMultiplier[i] = proto.GetStatPercentageOfSocket(i);
+            ItemStatSocketCostMultiplier[i] = proto.ExtendedData.StatPercentageOfSocket[i];
 
         for (uint i = 0; i < ItemConst.MaxGemSockets; ++i)
         {
@@ -107,7 +107,7 @@ public class BonusData
         _state.HasQualityBonus = false;
     }
 
-    public BonusData(ItemInstance itemInstance, DB2Manager db2Manager, DB6Storage<ItemEffectRecord> itemEffectRecords, GameObjectManager objectManager) : this(objectManager.GetItemTemplate(itemInstance.ItemID), db2Manager, itemEffectRecords)
+    public BonusData(ItemInstance itemInstance, DB2Manager db2Manager, DB6Storage<ItemEffectRecord> itemEffectRecords, GameObjectManager objectManager) : this(objectManager.ItemTemplateCache.GetItemTemplate(itemInstance.ItemID), db2Manager, itemEffectRecords)
     {
         if (itemInstance.ItemBonus == null)
             return;

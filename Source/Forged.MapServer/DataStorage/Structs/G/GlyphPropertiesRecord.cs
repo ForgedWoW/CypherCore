@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GlyphPropertiesRecord
+public sealed record GlyphPropertiesRecord
 {
     public uint Id;
     public uint SpellID;

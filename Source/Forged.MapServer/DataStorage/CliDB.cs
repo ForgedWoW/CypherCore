@@ -234,11 +234,11 @@ public class CliDB
         taskManager.Post(() => builder.RegisterInstance(ItemChildEquipmentStorage = ReadDB2<ItemChildEquipmentRecord>("ItemChildEquipment.db2", HotfixStatements.SEL_ITEM_CHILD_EQUIPMENT)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ItemClassStorage = ReadDB2<ItemClassRecord>("ItemClass.db2", HotfixStatements.SEL_ITEM_CLASS, HotfixStatements.SEL_ITEM_CLASS_LOCALE)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ItemCurrencyCostStorage = ReadDB2<ItemCurrencyCostRecord>("ItemCurrencyCost.db2", HotfixStatements.SEL_ITEM_CURRENCY_COST)).SingleInstance());
-        taskManager.Post(() => builder.RegisterInstance(ItemDamageAmmoStorage = ReadDB2<ItemDamageRecord>("ItemDamageAmmo.db2", HotfixStatements.SEL_ITEM_DAMAGE_AMMO)).SingleInstance());
-        taskManager.Post(() => builder.RegisterInstance(ItemDamageOneHandStorage = ReadDB2<ItemDamageRecord>("ItemDamageOneHand.db2", HotfixStatements.SEL_ITEM_DAMAGE_ONE_HAND)).SingleInstance());
-        taskManager.Post(() => builder.RegisterInstance(ItemDamageOneHandCasterStorage = ReadDB2<ItemDamageRecord>("ItemDamageOneHandCaster.db2", HotfixStatements.SEL_ITEM_DAMAGE_ONE_HAND_CASTER)).SingleInstance());
-        taskManager.Post(() => builder.RegisterInstance(ItemDamageTwoHandStorage = ReadDB2<ItemDamageRecord>("ItemDamageTwoHand.db2", HotfixStatements.SEL_ITEM_DAMAGE_TWO_HAND)).SingleInstance());
-        taskManager.Post(() => builder.RegisterInstance(ItemDamageTwoHandCasterStorage = ReadDB2<ItemDamageRecord>("ItemDamageTwoHandCaster.db2", HotfixStatements.SEL_ITEM_DAMAGE_TWO_HAND_CASTER)).SingleInstance());
+        taskManager.Post(() => builder.RegisterInstance(ItemDamageAmmoStorage = ReadDB2<ItemDamageAmmoRecord>("ItemDamageAmmo.db2", HotfixStatements.SEL_ITEM_DAMAGE_AMMO)).SingleInstance());
+        taskManager.Post(() => builder.RegisterInstance(ItemDamageOneHandStorage = ReadDB2<ItemDamageOneHandRecord>("ItemDamageOneHand.db2", HotfixStatements.SEL_ITEM_DAMAGE_ONE_HAND)).SingleInstance());
+        taskManager.Post(() => builder.RegisterInstance(ItemDamageOneHandCasterStorage = ReadDB2<ItemDamageOneHandCasterRecord>("ItemDamageOneHandCaster.db2", HotfixStatements.SEL_ITEM_DAMAGE_ONE_HAND_CASTER)).SingleInstance());
+        taskManager.Post(() => builder.RegisterInstance(ItemDamageTwoHandStorage = ReadDB2<ItemDamageTwoHandRecord>("ItemDamageTwoHand.db2", HotfixStatements.SEL_ITEM_DAMAGE_TWO_HAND)).SingleInstance());
+        taskManager.Post(() => builder.RegisterInstance(ItemDamageTwoHandCasterStorage = ReadDB2<ItemDamageTwoHandCasterRecord>("ItemDamageTwoHandCaster.db2", HotfixStatements.SEL_ITEM_DAMAGE_TWO_HAND_CASTER)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ItemDisenchantLootStorage = ReadDB2<ItemDisenchantLootRecord>("ItemDisenchantLoot.db2", HotfixStatements.SEL_ITEM_DISENCHANT_LOOT)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ItemEffectStorage = ReadDB2<ItemEffectRecord>("ItemEffect.db2", HotfixStatements.SEL_ITEM_EFFECT)).SingleInstance());
         taskManager.Post(() => builder.RegisterInstance(ItemStorage = ReadDB2<ItemRecord>("Item.db2", HotfixStatements.SEL_ITEM)).SingleInstance());
@@ -654,11 +654,11 @@ public class CliDB
     public DB6Storage<ItemClassRecord> ItemClassStorage { get; private set; }
     public DB6Storage<ItemChildEquipmentRecord> ItemChildEquipmentStorage { get; private set; }
     public DB6Storage<ItemCurrencyCostRecord> ItemCurrencyCostStorage { get; private set; }
-    public DB6Storage<ItemDamageRecord> ItemDamageAmmoStorage { get; private set; }
-    public DB6Storage<ItemDamageRecord> ItemDamageOneHandStorage { get; private set; }
-    public DB6Storage<ItemDamageRecord> ItemDamageOneHandCasterStorage { get; private set; }
-    public DB6Storage<ItemDamageRecord> ItemDamageTwoHandStorage { get; private set; }
-    public DB6Storage<ItemDamageRecord> ItemDamageTwoHandCasterStorage { get; private set; }
+    public DB6Storage<ItemDamageAmmoRecord> ItemDamageAmmoStorage { get; private set; }
+    public DB6Storage<ItemDamageOneHandRecord> ItemDamageOneHandStorage { get; private set; }
+    public DB6Storage<ItemDamageOneHandCasterRecord> ItemDamageOneHandCasterStorage { get; private set; }
+    public DB6Storage<ItemDamageTwoHandRecord> ItemDamageTwoHandStorage { get; private set; }
+    public DB6Storage<ItemDamageTwoHandCasterRecord> ItemDamageTwoHandCasterStorage { get; private set; }
     public DB6Storage<ItemDisenchantLootRecord> ItemDisenchantLootStorage { get; private set; }
     public DB6Storage<ItemEffectRecord> ItemEffectStorage { get; private set; }
     public DB6Storage<ItemRecord> ItemStorage { get; private set; }

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LightRecord
+public sealed record LightRecord
 {
     public uint Id;
     public Vector3 GameCoords;

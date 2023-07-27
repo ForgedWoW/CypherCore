@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureTypeRecord
+public sealed record CreatureTypeRecord
 {
     public uint Id;
     public string Name;

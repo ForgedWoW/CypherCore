@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtXpRecord
+public sealed record GtXpRecord
 {
     public float Total;
     public float PerKill;

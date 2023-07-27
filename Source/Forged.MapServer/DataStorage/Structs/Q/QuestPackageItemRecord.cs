@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.Q;
 
-public sealed class QuestPackageItemRecord
+public sealed record QuestPackageItemRecord
 {
     public uint Id;
     public ushort PackageID;

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CurvePointRecord
+public sealed record CurvePointRecord
 {
     public Vector2 Pos;
     public Vector2 PreSLSquishPos;

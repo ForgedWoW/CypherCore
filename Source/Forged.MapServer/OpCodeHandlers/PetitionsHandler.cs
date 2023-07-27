@@ -151,7 +151,7 @@ public class PetitionsHandler : IWorldSessionHandler
 			return;
 		}
 
-		var pProto = _gameObjectManager.GetItemTemplate(charterItemID);
+		var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(charterItemID);
 
 		if (pProto == null)
 		{

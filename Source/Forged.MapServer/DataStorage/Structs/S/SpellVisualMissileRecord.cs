@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellVisualMissileRecord
+public sealed record SpellVisualMissileRecord
 {
     public float[] CastOffset = new float[3];
     public float[] ImpactOffset = new float[3];

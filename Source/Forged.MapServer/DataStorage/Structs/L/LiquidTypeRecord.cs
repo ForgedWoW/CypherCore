@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LiquidTypeRecord
+public sealed record LiquidTypeRecord
 {
     public uint Id;
     public string Name;

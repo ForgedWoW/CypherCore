@@ -148,7 +148,7 @@ public class LootRoll
         }
 
         // initialize item prototype and check enchant possibilities for this group
-        var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
+        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(_lootItem.Itemid);
         _voteMask = RollMask.AllMask;
 
         if (itemTemplate.HasFlag(ItemFlags2.CanOnlyRollGreed))
@@ -284,7 +284,7 @@ public class LootRoll
 
     private ItemDisenchantLootRecord GetItemDisenchantLoot()
     {
-        var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
+        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(_lootItem.Itemid);
         BonusData bonusData = new(itemTemplate, _db2Manager, _cliDb.ItemEffectStorage);
 
         if (!bonusData.CanDisenchant)
@@ -424,7 +424,7 @@ public class LootRoll
     // Send the roll for the whole group
     private void SendStartRoll()
     {
-        var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
+        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(_lootItem.Itemid);
 
         foreach (var (playerGuid, roll) in _rollVoteMap)
         {

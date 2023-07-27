@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CharacterLoadoutItemRecord
+public sealed record CharacterLoadoutItemRecord
 {
     public uint Id;
     public ushort CharacterLoadoutID;

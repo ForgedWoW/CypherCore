@@ -398,7 +398,7 @@ public class AuctionHandler : IWorldSessionHandler
             BucketKey = listItemsByBucketKey.BucketKey
         };
 
-        var itemTemplate = _gameObjectManager.GetItemTemplate(listItemsByBucketKey.BucketKey.ItemID);
+        var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(listItemsByBucketKey.BucketKey.ItemID);
         listItemsResult.ListType = itemTemplate is { MaxStackSize: > 1 } ? AuctionHouseListType.Commodities : AuctionHouseListType.Items;
 
         auctionHouse.BuildListAuctionItems(listItemsResult,
@@ -443,7 +443,7 @@ public class AuctionHandler : IWorldSessionHandler
             }
         };
 
-        var itemTemplate = _gameObjectManager.GetItemTemplate(listItemsByItemID.ItemID);
+        var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(listItemsByItemID.ItemID);
         listItemsResult.ListType = itemTemplate is { MaxStackSize: > 1 } ? AuctionHouseListType.Commodities : AuctionHouseListType.Items;
 
         auctionHouse.BuildListAuctionItems(listItemsResult,

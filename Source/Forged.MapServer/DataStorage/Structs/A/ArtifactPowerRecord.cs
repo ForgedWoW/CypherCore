@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactPowerRecord
+public sealed record ArtifactPowerRecord
 {
     public Vector2 DisplayPos;
     public uint Id;

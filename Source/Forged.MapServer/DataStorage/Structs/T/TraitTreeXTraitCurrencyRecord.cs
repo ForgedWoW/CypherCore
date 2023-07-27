@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitTreeXTraitCurrencyRecord
+public sealed record TraitTreeXTraitCurrencyRecord
 {
     public uint Id;
     public int Index;

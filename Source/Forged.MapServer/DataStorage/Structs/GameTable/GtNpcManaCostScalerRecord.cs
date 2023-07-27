@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtNpcManaCostScalerRecord
+public sealed record GtNpcManaCostScalerRecord
 {
     public float Scaler;
 }

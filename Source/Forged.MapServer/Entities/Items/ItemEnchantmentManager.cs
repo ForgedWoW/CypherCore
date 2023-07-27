@@ -28,7 +28,7 @@ public class ItemEnchantmentManager
 
     public uint GenerateItemRandomBonusListId(uint itemID)
     {
-        var itemProto = _objectManager.GetItemTemplate(itemID);
+        var itemProto = _objectManager.ItemTemplateCache.GetItemTemplate(itemID);
 
         if (itemProto == null)
             return 0;

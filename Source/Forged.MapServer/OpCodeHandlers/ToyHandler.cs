@@ -75,7 +75,7 @@ public class ToyHandler : IWorldSessionHandler
     private void HandleUseToy(UseToy packet)
     {
         var itemId = packet.Cast.Misc[0];
-        var item = _gameObjectManager.GetItemTemplate(itemId);
+        var item = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (item == null)
             return;

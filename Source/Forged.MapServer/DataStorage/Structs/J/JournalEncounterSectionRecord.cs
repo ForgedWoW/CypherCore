@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.J;
 
-public sealed class JournalEncounterSectionRecord
+public sealed record JournalEncounterSectionRecord
 {
     public uint Id;
     public LocalizedString Title;

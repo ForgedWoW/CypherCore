@@ -111,7 +111,7 @@ public sealed class GuildManager
                 Cost = result.Read<ulong>(3)
             };
 
-            if (_objectManager.GetItemTemplate(reward.ItemID) == null)
+            if (_objectManager.ItemTemplateCache.GetItemTemplate(reward.ItemID) == null)
             {
                 Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
 

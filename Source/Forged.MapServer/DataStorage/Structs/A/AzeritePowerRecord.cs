@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeritePowerRecord
+public sealed record AzeritePowerRecord
 {
     public uint Id;
     public uint SpellID;

@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.W;
 
-public sealed class WorldEffectRecord
+public sealed record WorldEffectRecord
 {
     public uint Id;
     public uint QuestFeedbackEffectID;

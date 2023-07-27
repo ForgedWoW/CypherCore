@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrClassesRecord
+public sealed record ChrClassesRecord
 {
     public LocalizedString Name;
     public string Filename;

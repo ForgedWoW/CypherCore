@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CurrencyContainerRecord
+public sealed record CurrencyContainerRecord
 {
     public uint Id;
     public LocalizedString ContainerName;

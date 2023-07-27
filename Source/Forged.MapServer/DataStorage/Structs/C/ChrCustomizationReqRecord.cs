@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationReqRecord
+public sealed record ChrCustomizationReqRecord
 {
     public uint Id;
     public long RaceMask;

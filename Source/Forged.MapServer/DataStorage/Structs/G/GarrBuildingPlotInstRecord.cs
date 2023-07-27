@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrBuildingPlotInstRecord
+public sealed record GarrBuildingPlotInstRecord
 {
     public Vector2 MapOffset;
     public uint Id;

@@ -90,7 +90,7 @@ public class Loot
     // Inserts the item into the loot (called by LootTemplate processors)
     public void AddItem(LootStoreItem item)
     {
-        var proto = _objectManager.GetItemTemplate(item.Itemid);
+        var proto = _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid);
 
         if (proto == null)
             return;
@@ -253,7 +253,7 @@ public class Loot
                 if (!item.FollowLootRules || item.Freeforall)
                     continue;
 
-                var proto = _objectManager.GetItemTemplate(item.Itemid);
+                var proto = _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid);
 
                 if (proto == null)
                     continue;

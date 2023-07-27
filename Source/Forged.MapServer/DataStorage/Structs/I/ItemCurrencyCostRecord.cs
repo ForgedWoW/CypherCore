@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemCurrencyCostRecord
+public sealed record ItemCurrencyCostRecord
 {
     public uint Id;
     public uint ItemID;

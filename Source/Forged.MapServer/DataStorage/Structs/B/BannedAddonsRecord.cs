@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BannedAddonsRecord
+public sealed record BannedAddonsRecord
 {
     public uint Id;
     public string Name;

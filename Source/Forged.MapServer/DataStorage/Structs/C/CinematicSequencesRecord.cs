@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CinematicSequencesRecord
+public sealed record CinematicSequencesRecord
 {
     public uint Id;
     public uint SoundID;

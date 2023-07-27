@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrClassSpecRecord
+public sealed record GarrClassSpecRecord
 {
     public uint Id;
     public string ClassSpec;

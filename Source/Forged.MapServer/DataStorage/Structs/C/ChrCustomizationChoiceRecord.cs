@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationChoiceRecord
+public sealed record ChrCustomizationChoiceRecord
 {
     public LocalizedString Name;
     public uint Id;

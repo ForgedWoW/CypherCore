@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellLevelsRecord
+public sealed record SpellLevelsRecord
 {
     public uint Id;
     public byte DifficultyID;

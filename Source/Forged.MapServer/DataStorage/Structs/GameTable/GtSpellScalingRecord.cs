@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtSpellScalingRecord
+public sealed record GtSpellScalingRecord
 {
     public float Rogue;
     public float Druid;

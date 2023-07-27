@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UiMapAssignmentRecord
+public sealed record UiMapAssignmentRecord
 {
     public Vector2 UiMin;
     public Vector2 UiMax;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.L
 {
-    public sealed class LanguageWordsRecord
+    public sealed record LanguageWordsRecord
     {
         public uint Id;
         public string Word;

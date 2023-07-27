@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.F;
 
-public sealed class FriendshipRepReactionRecord
+public sealed record FriendshipRepReactionRecord
 {
     public uint Id;
     public LocalizedString Reaction;

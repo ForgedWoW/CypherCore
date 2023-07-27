@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.D;
 
-public sealed class DifficultyRecord
+public sealed record DifficultyRecord
 {
     public uint Id;
     public string Name;

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ContentTuningRecord
+public sealed record ContentTuningRecord
 {
     public uint Id;
     public int Flags;

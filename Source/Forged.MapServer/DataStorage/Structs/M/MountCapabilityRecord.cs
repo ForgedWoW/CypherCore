@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MountCapabilityRecord
+public sealed record MountCapabilityRecord
 {
     public uint Id;
     public MountCapabilityFlags Flags;

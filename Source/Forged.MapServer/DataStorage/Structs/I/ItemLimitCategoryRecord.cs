@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemLimitCategoryRecord
+public sealed record ItemLimitCategoryRecord
 {
     public uint Id;
     public string Name;

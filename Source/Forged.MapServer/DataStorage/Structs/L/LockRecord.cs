@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LockRecord
+public sealed record LockRecord
 {
     public uint Id;
     public int Flags;

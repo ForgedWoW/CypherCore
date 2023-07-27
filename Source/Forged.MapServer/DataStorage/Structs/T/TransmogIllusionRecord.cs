@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TransmogIllusionRecord
+public sealed record TransmogIllusionRecord
 {
     public uint Id;
     public int UnlockConditionID;

@@ -3595,7 +3595,7 @@ public partial class Spell : IDisposable
                         if (spellEffectInfo.ItemType != 0)
                             item = spellEffectInfo.ItemType;
 
-                    var proto = caster.GameObjectManager.GetItemTemplate(item);
+                    var proto = caster.GameObjectManager.ItemTemplateCache.GetItemTemplate(item);
 
                     if (proto != null && proto.ItemLimitCategory != 0)
                         packet.FailedArg1 = (int)proto.ItemLimitCategory;
@@ -5292,7 +5292,7 @@ public partial class Spell : IDisposable
 
                         if (spellEffectInfo.ItemType != 0)
                         {
-                            var itemTemplate = _gameObjectManager.GetItemTemplate(spellEffectInfo.ItemType);
+                            var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(spellEffectInfo.ItemType);
 
                             if (itemTemplate == null)
                                 return SpellCastResult.ItemNotFound;
@@ -5586,7 +5586,7 @@ public partial class Spell : IDisposable
                 {
                     var itemId = spellEffectInfo.ItemType;
 
-                    var proto = _gameObjectManager.GetItemTemplate(itemId);
+                    var proto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
                     if (proto == null)
                         return SpellCastResult.ItemAtMaxCharges;

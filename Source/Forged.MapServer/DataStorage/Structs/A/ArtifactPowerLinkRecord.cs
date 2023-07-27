@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactPowerLinkRecord
+public sealed record ArtifactPowerLinkRecord
 {
     public uint Id;
     public ushort PowerA;

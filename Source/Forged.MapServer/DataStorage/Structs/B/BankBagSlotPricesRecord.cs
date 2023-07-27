@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.B
 {
-    public sealed class BankBagSlotPricesRecord
+    public sealed record BankBagSlotPricesRecord
     {
         public uint Id;
         public uint Cost;

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MountRecord
+public sealed record MountRecord
 {
     public string Name;
     public string SourceText;

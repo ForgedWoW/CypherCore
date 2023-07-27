@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S
 {
-    public sealed class ScenarioRecord
+    public sealed record ScenarioRecord
     {
         public uint Id;
         public string Name;

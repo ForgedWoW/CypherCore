@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitNodeEntryXTraitCondRecord
+public sealed record TraitNodeEntryXTraitCondRecord
 {
     public uint Id;
     public int TraitCondID;

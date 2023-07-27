@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GuildColorBorderRecord
+public sealed record GuildColorBorderRecord
 {
     public uint Id;
     public byte Red;

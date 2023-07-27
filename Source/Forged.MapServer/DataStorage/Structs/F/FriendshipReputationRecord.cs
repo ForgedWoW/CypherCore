@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.F;
 
-public sealed class FriendshipReputationRecord
+public sealed record FriendshipReputationRecord
 {
     public LocalizedString Description;
     public LocalizedString StandingModified;

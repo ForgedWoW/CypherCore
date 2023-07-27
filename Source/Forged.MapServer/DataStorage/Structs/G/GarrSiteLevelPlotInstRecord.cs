@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrSiteLevelPlotInstRecord
+public sealed record GarrSiteLevelPlotInstRecord
 {
     public uint Id;
     public Vector2 UiMarkerPos;

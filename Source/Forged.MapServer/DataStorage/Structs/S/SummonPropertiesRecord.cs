@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SummonPropertiesRecord
+public sealed record SummonPropertiesRecord
 {
     public uint Id;
     public SummonCategory Control;

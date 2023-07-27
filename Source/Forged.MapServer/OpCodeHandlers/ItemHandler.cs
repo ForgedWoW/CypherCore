@@ -826,7 +826,7 @@ public class ItemHandler : IWorldSessionHandler
                         else if (oldGemData[j] != null)
                         {
                             // existing gem
-                            var jProto = _objectManager.GetItemTemplate(oldGemData[j].ItemId);
+                            var jProto = _objectManager.ItemTemplateCache.GetItemTemplate(oldGemData[j].ItemId);
 
                             if (jProto == null)
                                 continue;

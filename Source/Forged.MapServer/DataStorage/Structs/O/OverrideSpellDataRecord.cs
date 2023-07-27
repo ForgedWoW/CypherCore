@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.O;
 
-public sealed class OverrideSpellDataRecord
+public sealed record OverrideSpellDataRecord
 {
     public uint Id;
     public uint[] Spells = new uint[SharedConst.MaxOverrideSpell];

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BattlePetSpeciesRecord
+public sealed record BattlePetSpeciesRecord
 {
     public string Description;
     public string SourceText;

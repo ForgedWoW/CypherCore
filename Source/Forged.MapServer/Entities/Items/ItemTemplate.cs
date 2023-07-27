@@ -4,7 +4,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Players;
@@ -13,11 +14,20 @@ using Framework.Util;
 using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Entities.Items;
-
+// TODO: Clean up properties that call other properties
 public class ItemTemplate
 {
-    private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
+    private readonly DB6Storage<ItemArmorQualityRecord> _itemArmorQualityRecords;
+    private readonly DB6Storage<ItemArmorTotalRecord> _itemArmorTotalRecords;
+    private readonly DB6Storage<ArmorLocationRecord> _armorLocationRecords;
+    private readonly DB6Storage<ItemArmorShieldRecord> _itemArmorShieldRecords;
+    private readonly DB6Storage<ItemDamageAmmoRecord> _itemDamageAmmoRecords;
+    private readonly DB6Storage<ItemDamageTwoHandCasterRecord> _itemDamageTwoHandCasterRecords;
+    private readonly DB6Storage<ItemDamageTwoHandRecord> _itemDamageTwoHandRecords;
+    private readonly DB6Storage<ItemDamageOneHandCasterRecord> _itemDamageOneHandCasterRecords;
+    private readonly DB6Storage<ItemDamageOneHandRecord> _itemDamageOneHandRecords;
+    private readonly DB6Storage<ChrSpecializationRecord> _chrSpecializationRecords;
 
     private static readonly SkillType[] ItemArmorSkills =
     {
@@ -39,10 +49,22 @@ public class ItemTemplate
         SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking, SkillType.ClassicBlacksmithing, SkillType.ClassicLeatherworking, SkillType.ClassicAlchemy, SkillType.ClassicHerbalism, SkillType.ClassicCooking, SkillType.Mining, SkillType.Tailoring, SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing, SkillType.ClassicMining, SkillType.ClassicTailoring, SkillType.ClassicEngineering, SkillType.ClassicEnchanting, SkillType.ClassicFishing, SkillType.Skinning, SkillType.Jewelcrafting, SkillType.Inscription, SkillType.Archaeology, SkillType.ClassicSkinning, SkillType.ClassicJewelcrafting, SkillType.ClassicInscription
     };
 
-    public ItemTemplate(ItemRecord item, ItemSparseRecord sparse, CliDB cliDB, IConfiguration configuration)
+    public ItemTemplate(ItemRecord item, ItemSparseRecord sparse, IConfiguration configuration, DB6Storage<ItemArmorQualityRecord> itemArmorQualityRecords,
+                        DB6Storage<ItemArmorTotalRecord> itemArmorTotalRecords, DB6Storage<ArmorLocationRecord> armorLocationRecords, DB6Storage<ItemArmorShieldRecord> itemArmorShieldRecords,
+                        DB6Storage<ItemDamageAmmoRecord> itemDamageAmmoRecords, DB6Storage<ItemDamageTwoHandCasterRecord> itemDamageTwoHandCasterRecords, DB6Storage<ItemDamageTwoHandRecord> itemDamageTwoHandRecords,
+                        DB6Storage<ItemDamageOneHandCasterRecord> itemDamageOneHandCasterRecords, DB6Storage<ItemDamageOneHandRecord> itemDamageOneHandRecords, DB6Storage<ChrSpecializationRecord> chrSpecializationRecords)
     {
-        _cliDB = cliDB;
         _configuration = configuration;
+        _itemArmorQualityRecords = itemArmorQualityRecords;
+        _itemArmorTotalRecords = itemArmorTotalRecords;
+        _armorLocationRecords = armorLocationRecords;
+        _itemArmorShieldRecords = itemArmorShieldRecords;
+        _itemDamageAmmoRecords = itemDamageAmmoRecords;
+        _itemDamageTwoHandCasterRecords = itemDamageTwoHandCasterRecords;
+        _itemDamageTwoHandRecords = itemDamageTwoHandRecords;
+        _itemDamageOneHandCasterRecords = itemDamageOneHandCasterRecords;
+        _itemDamageOneHandRecords = itemDamageOneHandRecords;
+        _chrSpecializationRecords = chrSpecializationRecords;
         BasicData = item;
         ExtendedData = sparse;
 
@@ -110,13 +132,9 @@ public class ItemTemplate
 
     public uint PlayerLevelToItemLevelCurveId => ExtendedData.PlayerLevelToItemLevelCurveID;
 
-    public float PriceRandomValue => ExtendedData.PriceRandomValue;
-
     public float PriceVariance => ExtendedData.PriceVariance;
 
     public ItemQuality Quality => (ItemQuality)ExtendedData.OverallQualityID;
-
-    public float QualityModifier => ExtendedData.QualityModifier;
 
     public uint RandomBonusListTemplateId { get; set; }
 
@@ -145,8 +163,8 @@ public class ItemTemplate
     public uint StartQuest => ExtendedData.StartQuestID;
     public uint SubClass => BasicData.SubclassID;
     public uint TotemCategory => ExtendedData.TotemCategoryID;
-    protected ItemRecord BasicData { get; set; }
-    protected ItemSparseRecord ExtendedData { get; set; }
+    public ItemRecord BasicData { get; set; }
+    public ItemSparseRecord ExtendedData { get; set; }
 
     /*Hearthstone*/
     public static int CalculateItemSpecBit(ChrSpecializationRecord spec)
@@ -185,9 +203,9 @@ public class ItemTemplate
         // all items but shields
         if (Class != ItemClass.Armor || SubClass != (uint)ItemSubClassArmor.Shield)
         {
-            var armorQuality = _cliDB.ItemArmorQualityStorage.LookupByKey(itemLevel);
+            var armorQuality = _itemArmorQualityRecords.LookupByKey(itemLevel);
 
-            if (!_cliDB.ItemArmorTotalStorage.TryGetValue(itemLevel, out var armorTotal))
+            if (!_itemArmorTotalRecords.TryGetValue(itemLevel, out var armorTotal))
                 return 0;
 
             var inventoryType = InventoryType;
@@ -195,7 +213,7 @@ public class ItemTemplate
             if (inventoryType == InventoryType.Robe)
                 inventoryType = InventoryType.Chest;
 
-            if (!_cliDB.ArmorLocationStorage.TryGetValue((uint)inventoryType, out var location))
+            if (!_armorLocationRecords.TryGetValue((uint)inventoryType, out var location))
                 return 0;
 
             if (SubClass is < (uint)ItemSubClassArmor.Cloth or > (uint)ItemSubClassArmor.Plate)
@@ -232,7 +250,7 @@ public class ItemTemplate
         }
 
         // shields
-        if (!_cliDB.ItemArmorShieldStorage.TryGetValue(itemLevel, out var shield))
+        if (!_itemArmorShieldRecords.TryGetValue(itemLevel, out var shield))
             return 0;
 
         return (uint)(shield.Quality[(int)quality] + 0.5f);
@@ -263,11 +281,11 @@ public class ItemTemplate
         switch (InventoryType)
         {
             case InventoryType.Ammo:
-                dps = _cliDB.ItemDamageAmmoStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                dps = _itemDamageAmmoRecords.LookupByKey(itemLevel).Quality[(int)quality];
 
                 break;
             case InventoryType.Weapon2Hand:
-                dps = HasFlag(ItemFlags2.CasterWeapon) ? _cliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality] : _cliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                dps = HasFlag(ItemFlags2.CasterWeapon) ? _itemDamageTwoHandCasterRecords.LookupByKey(itemLevel).Quality[(int)quality] : _itemDamageTwoHandRecords.LookupByKey(itemLevel).Quality[(int)quality];
 
                 break;
             case InventoryType.Ranged:
@@ -276,13 +294,13 @@ public class ItemTemplate
                 switch ((ItemSubClassWeapon)SubClass)
                 {
                     case ItemSubClassWeapon.Wand:
-                        dps = _cliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                        dps = _itemDamageOneHandCasterRecords.LookupByKey(itemLevel).Quality[(int)quality];
 
                         break;
                     case ItemSubClassWeapon.Bow:
                     case ItemSubClassWeapon.Gun:
                     case ItemSubClassWeapon.Crossbow:
-                        dps = HasFlag(ItemFlags2.CasterWeapon) ? _cliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality] : _cliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                        dps = HasFlag(ItemFlags2.CasterWeapon) ? _itemDamageTwoHandCasterRecords.LookupByKey(itemLevel).Quality[(int)quality] : _itemDamageTwoHandRecords.LookupByKey(itemLevel).Quality[(int)quality];
 
                         break;
                 }
@@ -291,10 +309,7 @@ public class ItemTemplate
             case InventoryType.Weapon:
             case InventoryType.WeaponMainhand:
             case InventoryType.WeaponOffhand:
-                if (HasFlag(ItemFlags2.CasterWeapon))
-                    dps = _cliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
-                else
-                    dps = _cliDB.ItemDamageOneHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+                dps = HasFlag(ItemFlags2.CasterWeapon) ? _itemDamageOneHandCasterRecords.LookupByKey(itemLevel).Quality[(int)quality] : _itemDamageOneHandRecords.LookupByKey(itemLevel).Quality[(int)quality];
 
                 break;
         }
@@ -332,21 +347,6 @@ public class ItemTemplate
     public SocketColor GetSocketColor(uint index)
     {
         return (SocketColor)ExtendedData.SocketType[index];
-    }
-
-    public int GetStatModifierBonusStat(uint index)
-    {
-        return ExtendedData.StatModifierBonusStat[index];
-    }
-
-    public float GetStatPercentageOfSocket(uint index)
-    {
-        return ExtendedData.StatPercentageOfSocket[index];
-    }
-
-    public int GetStatPercentEditor(uint index)
-    {
-        return ExtendedData.StatPercentEditor[index];
     }
 
     public bool HasFlag(ItemFlags flag)
@@ -387,7 +387,7 @@ public class ItemTemplate
         if (spec == 0)
             spec = player.GetDefaultSpecId();
 
-        if (!_cliDB.ChrSpecializationStorage.TryGetValue(spec, out var chrSpecialization))
+        if (!_chrSpecializationRecords.TryGetValue(spec, out var chrSpecialization))
             return false;
 
         var levelIndex = player.Level switch

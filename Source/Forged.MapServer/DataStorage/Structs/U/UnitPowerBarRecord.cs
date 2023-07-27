@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UnitPowerBarRecord
+public sealed record UnitPowerBarRecord
 {
     public uint Id;
     public string Name;

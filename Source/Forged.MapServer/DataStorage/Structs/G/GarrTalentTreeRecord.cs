@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrTalentTreeRecord
+public sealed record GarrTalentTreeRecord
 {
     public uint Id;
     public string Name;

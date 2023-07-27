@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AnimationDataRecord
+public sealed record AnimationDataRecord
 {
     public uint Id;
     public ushort Fallback;

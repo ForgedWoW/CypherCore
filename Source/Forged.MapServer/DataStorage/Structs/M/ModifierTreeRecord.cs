@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class ModifierTreeRecord
+public sealed record ModifierTreeRecord
 {
     public uint Id;
     public uint Parent;

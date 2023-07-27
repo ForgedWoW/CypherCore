@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SkillLineAbilityRecord
+public sealed record SkillLineAbilityRecord
 {
     public long RaceMask;
     public string AbilityVerb;

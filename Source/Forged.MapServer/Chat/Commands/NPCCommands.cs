@@ -49,7 +49,7 @@ internal class NPCCommands
     {
         var name = "Unknown item";
 
-        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
+        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemTemplate != null)
             name = itemTemplate.GetName(handler.SessionDbcLocale);
@@ -826,7 +826,7 @@ internal class NPCCommands
 
             handler.ObjectManager.AddVendorItem(vendorEntry, vItem);
 
-            var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
+            var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
             handler.SendSysMessage(CypherStrings.ItemAddedToList, itemId, itemTemplate.GetName(), maxcount, incrtime, extendedcost);
 
@@ -902,7 +902,7 @@ internal class NPCCommands
                 return false;
             }
 
-            var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
+            var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
             handler.SendSysMessage(CypherStrings.ItemDeletedFromList, itemId, itemTemplate.GetName());
 
             return true;

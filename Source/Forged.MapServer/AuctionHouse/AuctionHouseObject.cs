@@ -409,7 +409,7 @@ public class AuctionHouseObject
                 // pet items
                 else if (bucketData.ItemClass is (int)ItemClass.Consumable or (int)ItemClass.Recipe or (int)ItemClass.Miscellaneous)
                 {
-                    var itemTemplate = _objectManager.GetItemTemplate(bucket.Key.ItemId);
+                    var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(bucket.Key.ItemId);
 
                     if (itemTemplate.Effects.Count >= 2 && itemTemplate.Effects[0].SpellID is 483 or 55884)
                     {
@@ -430,7 +430,7 @@ public class AuctionHouseObject
                 if (bucketData.RequiredLevel != 0 && player.Level < bucketData.RequiredLevel)
                     continue;
 
-                if (player.CanUseItem(_objectManager.GetItemTemplate(bucket.Key.ItemId), true) != InventoryResult.Ok)
+                if (player.CanUseItem(_objectManager.ItemTemplateCache.GetItemTemplate(bucket.Key.ItemId), true) != InventoryResult.Ok)
                     continue;
 
                 // cannot learn caged pets whose level exceeds highest level of currently owned pet
@@ -541,7 +541,7 @@ public class AuctionHouseObject
 
     public bool BuyCommodity(SQLTransaction trans, Player player, uint itemId, uint quantity, TimeSpan delayForNextAction)
     {
-        var itemTemplate = _objectManager.GetItemTemplate(itemId);
+        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
             return false;
@@ -762,7 +762,7 @@ public class AuctionHouseObject
 
     public CommodityQuote CreateCommodityQuote(Player player, uint itemId, uint quantity)
     {
-        var itemTemplate = _objectManager.GetItemTemplate(itemId);
+        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
             return null;

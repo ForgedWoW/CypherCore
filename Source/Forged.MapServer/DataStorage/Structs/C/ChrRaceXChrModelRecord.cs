@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrRaceXChrModelRecord
+public sealed record ChrRaceXChrModelRecord
 {
     public uint Id;
     public int ChrRacesID;

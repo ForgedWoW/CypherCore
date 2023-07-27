@@ -257,7 +257,7 @@ public class LootManager : LootStoreBox
         var count = Items.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.ItemTemplates;
+        var its = _objectManager.ItemTemplateCache.ItemTemplates;
 
         foreach (var pair in its)
             if (lootIdSet.Contains(pair.Value.Id) && pair.Value.HasFlag(ItemFlags.HasLoot))
@@ -303,7 +303,7 @@ public class LootManager : LootStoreBox
         var count = Milling.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.ItemTemplates;
+        var its = _objectManager.ItemTemplateCache.ItemTemplates;
 
         foreach (var pair in its)
         {
@@ -369,7 +369,7 @@ public class LootManager : LootStoreBox
         var count = Prospecting.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.ItemTemplates;
+        var its = _objectManager.ItemTemplateCache.ItemTemplates;
 
         foreach (var pair in its)
         {

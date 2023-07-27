@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellVisualKitRecord
+public sealed record SpellVisualKitRecord
 {
     public uint Id;
     public sbyte FallbackPriority;

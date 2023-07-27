@@ -933,7 +933,7 @@ public partial class Player
         if (!IsAlive)
             return false;
 
-        var pProto = GameObjectManager.GetItemTemplate(item);
+        var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(item);
 
         if (pProto == null)
         {
@@ -1647,7 +1647,7 @@ public partial class Player
         // check unique-equipped on gems
         foreach (var gemData in pItem.ItemData.Gems)
         {
-            var pGem = GameObjectManager.GetItemTemplate(gemData.ItemId);
+            var pGem = GameObjectManager.ItemTemplateCache.GetItemTemplate(gemData.ItemId);
 
             if (pGem == null)
                 continue;
@@ -3831,7 +3831,7 @@ public partial class Player
     {
         uint tempcount = 0;
 
-        var pProto = GameObjectManager.GetItemTemplate(item);
+        var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(item);
         var includeGems = pProto?.GemProperties != 0;
 
         return !ForEachItem(ItemSearchLocation.Equipment,
@@ -4378,7 +4378,7 @@ public partial class Player
                 case InventoryResult.ItemMaxLimitCategorySocketedExceededIs:
                 case InventoryResult.ItemMaxLimitCategoryEquippedExceededIs:
                 {
-                    var proto = item1 != null ? item1.Template : GameObjectManager.GetItemTemplate(itemId);
+                    var proto = item1 != null ? item1.Template : GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
                     failure.LimitCategory = (int)(proto?.ItemLimitCategory ?? 0u);
 
                     break;
@@ -4958,7 +4958,7 @@ public partial class Player
 
             --loot.UnlootedCount;
 
-            if (GameObjectManager.GetItemTemplate(item.Itemid) != null)
+            if (GameObjectManager.ItemTemplateCache.GetItemTemplate(item.Itemid) != null)
                 if (newitem.Quality > ItemQuality.Epic || (newitem.Quality == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
                     Guild?.AddGuildNews(GuildNews.ItemLooted, GUID, 0, item.Itemid);
 
@@ -5032,7 +5032,7 @@ public partial class Player
 
             if (childItemEntry != null)
             {
-                var childTemplate = GameObjectManager.GetItemTemplate(childItemEntry.ChildItemID);
+                var childTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(childItemEntry.ChildItemID);
 
                 if (childTemplate != null)
                 {
@@ -6151,7 +6151,7 @@ public partial class Player
         noSpaceCount = 0;
         Log.Logger.Debug("STORAGE: CanStoreItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, entry, count);
 
-        var pProto = GameObjectManager.GetItemTemplate(entry);
+        var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(entry);
 
         if (pProto == null)
         {
@@ -6781,7 +6781,7 @@ public partial class Player
 
     private InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint noSpaceCount, ref uint offendingItemId)
     {
-        var pProto = GameObjectManager.GetItemTemplate(entry);
+        var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(entry);
 
         if (pProto == null)
         {

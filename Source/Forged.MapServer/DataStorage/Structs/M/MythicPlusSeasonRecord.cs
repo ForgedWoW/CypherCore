@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MythicPlusSeasonRecord
+public sealed record MythicPlusSeasonRecord
 {
     public uint Id;
     public int MilestoneSeason;

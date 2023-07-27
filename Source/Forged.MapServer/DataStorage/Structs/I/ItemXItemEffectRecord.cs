@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemXItemEffectRecord
+public sealed record ItemXItemEffectRecord
 {
     public uint Id;
     public int ItemEffectID;

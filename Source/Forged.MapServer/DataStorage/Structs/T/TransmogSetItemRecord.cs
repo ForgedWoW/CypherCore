@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TransmogSetItemRecord
+public sealed record TransmogSetItemRecord
 {
     public uint Id;
     public uint TransmogSetID;

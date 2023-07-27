@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MawPowerRecord
+public sealed record MawPowerRecord
 {
     public uint Id;
     public int SpellID;

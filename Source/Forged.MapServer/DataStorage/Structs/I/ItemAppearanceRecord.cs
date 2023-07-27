@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemAppearanceRecord
+public sealed record ItemAppearanceRecord
 {
     public uint Id;
     public int DisplayType;

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PvpTierRecord
+public sealed record PvpTierRecord
 {
     public LocalizedString Name;
     public uint Id;

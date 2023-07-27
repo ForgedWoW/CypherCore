@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GossipNPCOptionRecord
+public sealed record GossipNPCOptionRecord
 {
     public uint Id;
     public int GossipNpcOption;

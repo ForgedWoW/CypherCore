@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TaxiPathNodeRecord
+public sealed record TaxiPathNodeRecord
 {
     public Vector3 Loc;
     public uint Id;

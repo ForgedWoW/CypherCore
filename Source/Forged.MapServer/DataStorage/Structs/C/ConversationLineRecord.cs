@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ConversationLineRecord
+public sealed record ConversationLineRecord
 {
     public uint Id;
     public uint BroadcastTextID;

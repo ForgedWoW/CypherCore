@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactPowerRankRecord
+public sealed record ArtifactPowerRankRecord
 {
     public uint Id;
     public byte RankIndex;

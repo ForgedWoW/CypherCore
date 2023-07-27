@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CriteriaRecord
+public sealed record CriteriaRecord
 {
     public uint Id;
     public CriteriaType Type;

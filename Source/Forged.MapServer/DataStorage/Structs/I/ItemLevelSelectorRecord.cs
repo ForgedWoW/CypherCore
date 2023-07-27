@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemLevelSelectorRecord
+public sealed record ItemLevelSelectorRecord
 {
     public uint Id;
     public ushort MinItemLevel;

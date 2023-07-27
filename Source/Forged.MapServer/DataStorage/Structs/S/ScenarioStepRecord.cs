@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class ScenarioStepRecord
+public sealed record ScenarioStepRecord
 {
     public uint Id;
     public string Description;

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.F;
 
-public sealed class FactionTemplateRecord
+public sealed record FactionTemplateRecord
 {
     static int MAX_FACTION_RELATIONS = 8;
 

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapDifficultyXConditionRecord
+public sealed record MapDifficultyXConditionRecord
 {
     public uint Id;
     public LocalizedString FailureDescription;

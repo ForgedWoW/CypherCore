@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BattlePetSpeciesStateRecord
+public sealed record BattlePetSpeciesStateRecord
 {
     public uint Id;
     public ushort BattlePetStateID;

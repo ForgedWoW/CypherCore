@@ -471,7 +471,7 @@ public class QuestHandler : IWorldSessionHandler
             switch (packet.Choice.LootItemType)
             {
                 case LootItemType.Item:
-                    var rewardProto = _objectManager.GetItemTemplate(packet.Choice.Item.ItemID);
+                    var rewardProto = _objectManager.ItemTemplateCache.GetItemTemplate(packet.Choice.Item.ItemID);
 
                     if (rewardProto == null)
                     {

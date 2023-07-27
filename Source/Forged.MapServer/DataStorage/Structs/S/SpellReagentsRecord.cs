@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellReagentsRecord
+public sealed record SpellReagentsRecord
 {
     public uint Id;
     public uint SpellID;

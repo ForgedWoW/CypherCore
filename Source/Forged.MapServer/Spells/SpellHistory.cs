@@ -233,7 +233,7 @@ public class SpellHistory
         if (player != null)
         {
             // potions start cooldown until exiting combat
-            var itemTemplate = _owner.GameObjectManager.GetItemTemplate(itemId);
+            var itemTemplate = _owner.GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
             if (itemTemplate != null)
                 if (itemTemplate.IsPotion || spellInfo.IsCooldownStartedOnEvent)
@@ -1044,7 +1044,7 @@ public class SpellHistory
         // cooldown information stored in ItemEffect.db2, overriding normal cooldown and category
         if (itemId != 0)
         {
-            var proto = _owner.GameObjectManager.GetItemTemplate(itemId);
+            var proto = _owner.GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
             if (proto != null)
                 foreach (var itemEffect in proto.Effects.Where(itemEffect => itemEffect.SpellID == spellInfo.Id))

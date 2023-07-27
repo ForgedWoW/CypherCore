@@ -75,7 +75,7 @@ public class LootStoreItem
 
         if (Reference == 0) // item (quest or non-quest) entry, maybe grouped
         {
-            var proto = _objectManager.GetItemTemplate(Itemid);
+            var proto = _objectManager.ItemTemplateCache.GetItemTemplate(Itemid);
 
             if (proto == null)
             {
@@ -134,7 +134,7 @@ public class LootStoreItem
         if (Reference > 0) // reference case
             return RandomHelper.randChance(Chance * (rate ? _configuration.GetDefaultValue("Rate:Drop:Item:Referenced", 1.0f) : 1.0f));
 
-        var pProto = _objectManager.GetItemTemplate(Itemid);
+        var pProto = _objectManager.ItemTemplateCache.GetItemTemplate(Itemid);
 
         var qualityModifier = pProto != null && rate ? _configuration.GetDefaultValue(QualityToRate[(int)pProto.Quality], 1.0f) : 1.0f;
 

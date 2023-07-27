@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PowerTypeRecord
+public sealed record PowerTypeRecord
 {
     public string NameGlobalStringTag;
     public string CostGlobalStringTag;

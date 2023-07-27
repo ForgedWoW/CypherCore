@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteEssencePowerRecord
+public sealed record AzeriteEssencePowerRecord
 {
     public uint Id;
     public string SourceAlliance;

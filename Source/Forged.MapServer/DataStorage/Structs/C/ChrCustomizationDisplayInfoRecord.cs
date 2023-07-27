@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationDisplayInfoRecord
+public sealed record ChrCustomizationDisplayInfoRecord
 {
     public uint Id;
     public int ShapeshiftFormID;

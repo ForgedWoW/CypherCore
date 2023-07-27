@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemBonusTreeRecord
+public sealed record ItemBonusTreeRecord
 {
     public uint Id;
     public int Flags;

@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SkillLineRecord
+public sealed record SkillLineRecord
 {
     public LocalizedString DisplayName;
     public string AlternateVerb;

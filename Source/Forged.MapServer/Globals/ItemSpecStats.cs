@@ -3,6 +3,8 @@
 
 using System;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.G;
 using Forged.MapServer.DataStorage.Structs.I;
 using Framework.Constants;
 
@@ -14,7 +16,7 @@ internal class ItemSpecStats
     public ItemSpecStat[] ItemSpecStatTypes = new ItemSpecStat[ItemConst.MaxStats];
     public uint ItemType;
 
-    public ItemSpecStats(ItemRecord item, ItemSparseRecord sparse, CliDB cliDB)
+    public ItemSpecStats(ItemRecord item, ItemSparseRecord sparse, DB6Storage<GemPropertiesRecord> gemPropertiesRecords)
     {
         if (item.ClassID == ItemClass.Weapon)
         {
@@ -135,7 +137,7 @@ internal class ItemSpecStats
         {
             ItemType = 7;
 
-            if (cliDB.GemPropertiesStorage.TryGetValue(sparse.GemProperties, out var gem))
+            if (gemPropertiesRecords.TryGetValue(sparse.GemProperties, out var gem))
             {
                 if (gem.Type.HasAnyFlag(SocketColor.RelicIron))
                     AddStat(ItemSpecStat.RelicIron);

@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.G;
 
-public sealed class GarrSiteLevelRecord
+public sealed record GarrSiteLevelRecord
 {
     public uint Id;
     public Vector2 TownHallUiPos;

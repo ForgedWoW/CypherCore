@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.I;
 
-public sealed class ItemExtendedCostRecord
+public sealed record ItemExtendedCostRecord
 {
     public uint Id;
     public ushort RequiredArenaRating;

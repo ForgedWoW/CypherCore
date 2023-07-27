@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CharacterLoadoutRecord
+public sealed record CharacterLoadoutRecord
 {
     public uint Id;
     public long RaceMask;

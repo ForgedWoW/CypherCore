@@ -150,6 +150,7 @@ void InitializeServer()
 
 void RegisterServerTypes()
 {
+    RegisterCaches();
     RegisterManagers();
     RegisterFactories();
     RegisterInstanced();
@@ -349,6 +350,12 @@ void RegisterManagers()
     builder.RegisterType<PhasingHandler>().SingleInstance();
     builder.RegisterType<CriteriaDataValidator>().SingleInstance();
     builder.RegisterType<LFGGroupScript>().SingleInstance();
+}
+
+// These are all extrations from the old ObjectMgr. Extracted into seperate classes for better maintainability and to support Dependency Injection
+void RegisterCaches()
+{
+
     builder.RegisterType<VehicleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpellClickInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameTeleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
@@ -460,6 +467,8 @@ void RegisterInstanced()
     builder.RegisterType<Weather>();
     builder.RegisterType<PacketRouter>();
     builder.RegisterType<LFGQueue>();
+    builder.RegisterType<ItemTemplate>();
+    builder.RegisterType<ItemSpecStats>();
 }
 
 void RegisterOpCodeHandlers()

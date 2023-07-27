@@ -103,7 +103,7 @@ internal class MiscAddItemCommands
         if (playerTarget == null)
             playerTarget = player;
 
-        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
+        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
         {
@@ -216,7 +216,7 @@ internal class MiscAddItemCommands
         Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.Additemset), itemSetId);
 
         var found = false;
-        var its = handler.ObjectManager.ItemTemplates;
+        var its = handler.ObjectManager.ItemTemplateCache.ItemTemplates;
 
         foreach (var template in its)
         {
@@ -359,7 +359,7 @@ internal class MiscAddItemCommands
                 if (uint.TryParse(token, out var bonusListId))
                     bonusListIDs.Add(bonusListId);
 
-        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
+        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
         {

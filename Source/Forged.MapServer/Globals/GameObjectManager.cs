@@ -47,43 +47,6 @@ namespace Forged.MapServer.Globals;
 
 public sealed class GameObjectManager
 {
-    private readonly float[] _armorMultipliers = {
-        0.00f, // INVTYPE_NON_EQUIP
-        0.60f, // INVTYPE_HEAD
-        0.00f, // INVTYPE_NECK
-        0.60f, // INVTYPE_SHOULDERS
-        0.00f, // INVTYPE_BODY
-        1.00f, // INVTYPE_CHEST
-        0.33f, // INVTYPE_WAIST
-        0.72f, // INVTYPE_LEGS
-        0.48f, // INVTYPE_FEET
-        0.33f, // INVTYPE_WRISTS
-        0.33f, // INVTYPE_HANDS
-        0.00f, // INVTYPE_FINGER
-        0.00f, // INVTYPE_TRINKET
-        0.00f, // INVTYPE_WEAPON
-        0.72f, // INVTYPE_SHIELD
-        0.00f, // INVTYPE_RANGED
-        0.00f, // INVTYPE_CLOAK
-        0.00f, // INVTYPE_2HWEAPON
-        0.00f, // INVTYPE_BAG
-        0.00f, // INVTYPE_TABARD
-        1.00f, // INVTYPE_ROBE
-        0.00f, // INVTYPE_WEAPONMAINHAND
-        0.00f, // INVTYPE_WEAPONOFFHAND
-        0.00f, // INVTYPE_HOLDABLE
-        0.00f, // INVTYPE_AMMO
-        0.00f, // INVTYPE_THROWN
-        0.00f, // INVTYPE_RANGEDRIGHT
-        0.00f, // INVTYPE_QUIVER
-        0.00f, // INVTYPE_RELIC
-        0.00f, // INVTYPE_PROFESSION_TOOL
-        0.00f, // INVTYPE_PROFESSION_GEAR
-        0.00f, // INVTYPE_EQUIPABLE_SPELL_OFFENSIVE
-        0.00f, // INVTYPE_EQUIPABLE_SPELL_UTILITY
-        0.00f, // INVTYPE_EQUIPABLE_SPELL_DEFENSIVE
-        0.00f, // INVTYPE_EQUIPABLE_SPELL_MOBILITY
-    };
 
     private readonly Dictionary<uint, VendorItemData> _cacheVendorItemStorage = new();
     private readonly CharacterDatabase _characterDatabase;
@@ -143,11 +106,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<int /*choiceId*/, PlayerChoice> _playerChoices = new();
     private readonly Dictionary<uint, PointOfInterestLocale> _pointOfInterestLocaleStorage = new();
     private readonly Dictionary<uint, PointOfInterest> _pointsOfInterestStorage = new();
-
-    private readonly float[] _qualityMultipliers = {
-        0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f
-    };
-
     private readonly MultiMap<uint, uint> _questAreaTriggerStorage = new();
     private readonly Dictionary<uint, QuestGreetingLocale>[] _questGreetingLocaleStorage = new Dictionary<uint, QuestGreetingLocale>[2];
     private readonly Dictionary<uint, QuestGreeting>[] _questGreetingStorage = new Dictionary<uint, QuestGreeting>[2];
@@ -174,29 +132,7 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, Trainer> _trainers = new();
     private readonly List<ushort> _transportMaps = new();
 
-    private readonly float[] _weaponMultipliers = {
-        0.91f, // ITEM_SUBCLASS_WEAPON_AXE
-        1.00f, // ITEM_SUBCLASS_WEAPON_AXE2
-        1.00f, // ITEM_SUBCLASS_WEAPON_BOW
-        1.00f, // ITEM_SUBCLASS_WEAPON_GUN
-        0.91f, // ITEM_SUBCLASS_WEAPON_MACE
-        1.00f, // ITEM_SUBCLASS_WEAPON_MACE2
-        1.00f, // ITEM_SUBCLASS_WEAPON_POLEARM
-        0.91f, // ITEM_SUBCLASS_WEAPON_SWORD
-        1.00f, // ITEM_SUBCLASS_WEAPON_SWORD2
-        1.00f, // ITEM_SUBCLASS_WEAPON_WARGLAIVES
-        1.00f, // ITEM_SUBCLASS_WEAPON_STAFF
-        0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC
-        0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC2
-        0.66f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
-        0.00f, // ITEM_SUBCLASS_WEAPON_MISCELLANEOUS
-        0.66f, // ITEM_SUBCLASS_WEAPON_DAGGER
-        0.00f, // ITEM_SUBCLASS_WEAPON_THROWN
-        0.00f, // ITEM_SUBCLASS_WEAPON_SPEAR
-        1.00f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
-        0.66f, // ITEM_SUBCLASS_WEAPON_WAND
-        0.66f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
-    };
+
 
     private readonly WorldDatabase _worldDatabase;
     private AreaTriggerDataStorage _areaTriggerDataStorage;
@@ -228,14 +164,13 @@ public sealed class GameObjectManager
     private TransportManager _transportManager;
     private ulong _voidItemId;
     private WorldManager _worldManager;
-    private readonly InstanceTemplateCache _instanceTemplateCache;
-    private readonly AreaTriggerCache _areaTriggerCache;
     private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
-                             ObjectGuidGeneratorFactory objectGuidGeneratorFactory, InstanceTemplateCache instanceTemplateCache,
-                             WorldSafeLocationsCache worldSafeLocationsCache, AreaTriggerCache areaTriggerCache)
+                             ObjectGuidGeneratorFactory objectGuidGeneratorFactory, WorldSafeLocationsCache worldSafeLocationsCache,
+                             ItemTemplateCache itemTemplateCache)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
@@ -245,9 +180,8 @@ public sealed class GameObjectManager
         _loginDatabase = loginDatabase;
         _scriptManager = scriptManager;
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
-        _instanceTemplateCache = instanceTemplateCache;
         _worldSafeLocationsCache = worldSafeLocationsCache;
-        _areaTriggerCache = areaTriggerCache;
+        _itemTemplateCache = itemTemplateCache;
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
@@ -279,7 +213,6 @@ public sealed class GameObjectManager
 
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
 
-    public Dictionary<uint, ItemTemplate> ItemTemplates { get; } = new();
     public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos { get; } = new();
 
     public Dictionary<uint, Quest.Quest> QuestTemplates { get; } = new();
@@ -289,6 +222,8 @@ public sealed class GameObjectManager
     public Dictionary<byte, RaceUnlockRequirement> RaceUnlockRequirements { get; } = new();
 
     public MultiMap<uint, TerrainSwapInfo> TerrainSwaps { get; } = new();
+
+    public ItemTemplateCache ItemTemplateCache => _itemTemplateCache;
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
     {
@@ -1371,11 +1306,6 @@ public sealed class GameObjectManager
         return _instanceSpawnGroupStorage.LookupByKey(mapId);
     }
 
-    public ItemTemplate GetItemTemplate(uint itemId)
-    {
-        return ItemTemplates.LookupByKey(itemId);
-    }
-
     public JumpChargeParams GetJumpChargeParams(int id)
     {
         return _jumpChargeParams.LookupByKey(id);
@@ -1901,9 +1831,9 @@ public sealed class GameObjectManager
         LoadGameObjectTemplate();
         LoadGameObjectTemplateAddons();
         LoadNPCText();
-        LoadItemTemplates(); // must be after LoadRandomEnchantmentsTable and LoadPageTexts
-        LoadItemTemplateAddon(); // must be after LoadItemPrototypes
-        LoadItemScriptNames(); // must be after LoadItemPrototypes
+        _itemTemplateCache.LoadItemTemplates();     // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+        _itemTemplateCache.LoadItemTemplateAddon(); // must be after LoadItemPrototypes
+        _itemTemplateCache.LoadItemScriptNames();                   // must be after LoadItemPrototypes
         LoadCreatureModelInfo();
         LoadCreatureTemplates();
         LoadEquipmentTemplates();
@@ -2073,7 +2003,7 @@ public sealed class GameObjectManager
             return false;
         }
 
-        if ((vItem.Type == ItemVendorType.Item && GetItemTemplate(vItem.Item) == null) ||
+        if ((vItem.Type == ItemVendorType.Item && _itemTemplateCache.GetItemTemplate(vItem.Item) == null) ||
             (vItem.Type == ItemVendorType.Currency && _cliDB.CurrencyTypesStorage.LookupByKey(vItem.Item) == null))
         {
             if (player != null)
@@ -3561,7 +3491,7 @@ public sealed class GameObjectManager
 
         uint count = 0;
 
-        foreach (var itemPair in ItemTemplates)
+        foreach (var itemPair in _itemTemplateCache.ItemTemplates)
         {
             if (itemPair.Value.OtherFactionItemId == 0)
                 continue;
@@ -5180,160 +5110,7 @@ public sealed class GameObjectManager
 
     //Maps
 
-    public void LoadItemScriptNames()
-    {
-        var oldMSTime = Time.MSTime;
-        uint count = 0;
-
-        var result = _worldDatabase.Query("SELECT Id, ScriptName FROM item_script_names");
-
-        if (!result.IsEmpty())
-            do
-            {
-                var itemId = result.Read<uint>(0);
-
-                if (GetItemTemplate(itemId) == null)
-                {
-                    Log.Logger.Error("Item {0} specified in `item_script_names` does not exist, skipped.", itemId);
-
-                    continue;
-                }
-
-                ItemTemplates[itemId].ScriptId = _scriptManager.GetScriptId(result.Read<string>(1));
-                ++count;
-            } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} item script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadItemTemplateAddon()
-    {
-        var time = Time.MSTime;
-
-        uint count = 0;
-        var result = _worldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
-
-        if (!result.IsEmpty())
-            do
-            {
-                var itemId = result.Read<uint>(0);
-                var itemTemplate = GetItemTemplate(itemId);
-
-                if (itemTemplate == null)
-                {
-                    Log.Logger.Error("Item {0} specified in `itemtemplateaddon` does not exist, skipped.", itemId);
-
-                    continue;
-                }
-
-                var minMoneyLoot = result.Read<uint>(3);
-                var maxMoneyLoot = result.Read<uint>(4);
-
-                if (minMoneyLoot > maxMoneyLoot)
-                {
-                    Log.Logger.Error("Minimum money loot specified in `itemtemplateaddon` for item {0} was greater than maximum amount, swapping.", itemId);
-                    (minMoneyLoot, maxMoneyLoot) = (maxMoneyLoot, minMoneyLoot);
-                }
-
-                itemTemplate.FlagsCu = (ItemFlagsCustom)result.Read<uint>(1);
-                itemTemplate.FoodType = result.Read<uint>(2);
-                itemTemplate.MinMoneyLoot = minMoneyLoot;
-                itemTemplate.MaxMoneyLoot = maxMoneyLoot;
-                itemTemplate.SpellPPMRate = result.Read<float>(5);
-                itemTemplate.RandomBonusListTemplateId = result.Read<uint>(6);
-                ++count;
-            } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} item addon templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
-    }
-
     //Items
-    public void LoadItemTemplates()
-    {
-        var oldMSTime = Time.MSTime;
-        uint sparseCount = 0;
-
-        foreach (var sparse in _cliDB.ItemSparseStorage.Values)
-        {
-            if (!_cliDB.ItemStorage.TryGetValue(sparse.Id, out var db2Data))
-                continue;
-
-            var itemTemplate = new ItemTemplate(db2Data, sparse, _cliDB, _configuration)
-            {
-                MaxDurability = FillMaxDurability(db2Data.ClassID, db2Data.SubclassID, sparse.inventoryType, (ItemQuality)sparse.OverallQualityID, sparse.ItemLevel)
-            };
-
-            var itemSpecOverrides = _db2Manager.GetItemSpecOverrides(sparse.Id);
-
-            if (itemSpecOverrides != null)
-            {
-                foreach (var itemSpecOverride in itemSpecOverrides)
-                    if (_cliDB.ChrSpecializationStorage.TryGetValue(itemSpecOverride.SpecID, out var specialization))
-                    {
-                        itemTemplate.ItemSpecClassMask |= 1u << (specialization.ClassID - 1);
-                        itemTemplate.Specializations[0].Set(ItemTemplate.CalculateItemSpecBit(specialization), true);
-
-                        itemTemplate.Specializations[1] = itemTemplate.Specializations[1].Or(itemTemplate.Specializations[0]);
-                        itemTemplate.Specializations[2] = itemTemplate.Specializations[2].Or(itemTemplate.Specializations[0]);
-                    }
-            }
-            else
-            {
-                ItemSpecStats itemSpecStats = new(db2Data, sparse, _cliDB);
-
-                foreach (var itemSpec in _cliDB.ItemSpecStorage.Values)
-                {
-                    if (itemSpecStats.ItemType != itemSpec.ItemType)
-                        continue;
-
-                    var hasPrimary = itemSpec.PrimaryStat == ItemSpecStat.None;
-                    var hasSecondary = itemSpec.SecondaryStat == ItemSpecStat.None;
-
-                    for (uint i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
-                    {
-                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec.PrimaryStat)
-                            hasPrimary = true;
-
-                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec.SecondaryStat)
-                            hasSecondary = true;
-                    }
-
-                    if (!hasPrimary || !hasSecondary)
-                        continue;
-
-                    if (_cliDB.ChrSpecializationStorage.TryGetValue(itemSpec.SpecializationID, out var specialization))
-                        if (Convert.ToBoolean((1 << (specialization.ClassID - 1)) & sparse.AllowableClass))
-                        {
-                            itemTemplate.ItemSpecClassMask |= 1u << (specialization.ClassID - 1);
-                            var specBit = ItemTemplate.CalculateItemSpecBit(specialization);
-                            itemTemplate.Specializations[0].Set(specBit, true);
-
-                            if (itemSpec.MaxLevel > 40)
-                                itemTemplate.Specializations[1].Set(specBit, true);
-
-                            if (itemSpec.MaxLevel >= 110)
-                                itemTemplate.Specializations[2].Set(specBit, true);
-                        }
-                }
-            }
-
-            // Items that have no specializations set can be used by everyone
-            foreach (var specs in itemTemplate.Specializations)
-                if (specs.Count == 0)
-                    specs.SetAll(true);
-
-            ++sparseCount;
-            ItemTemplates.Add(sparse.Id, itemTemplate);
-        }
-
-        // Load item effects (spells)
-        foreach (var effectEntry in _cliDB.ItemXItemEffectStorage.Values)
-            if (ItemTemplates.TryGetValue(effectEntry.ItemID, out var item))
-                if (_cliDB.ItemEffectStorage.TryGetValue((uint)effectEntry.ItemEffectID, out var effect))
-                    item.Effects.Add(effect);
-
-        Log.Logger.Information("Loaded {0} item templates in {1} ms", sparseCount, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
 
     public void LoadJumpChargeParams()
     {
@@ -6263,7 +6040,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (GetItemTemplate(itemId) == null)
+                if (_itemTemplateCache.GetItemTemplate(itemId) == null)
                 {
                     Log.Logger.Error($"Table `playerchoice_response_reward_item` references non-existing item {itemId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
@@ -6401,7 +6178,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (GetItemTemplate(itemId) == null)
+                if (_itemTemplateCache.GetItemTemplate(itemId) == null)
                 {
                     Log.Logger.Error($"Table `playerchoice_response_reward_item_choice` references non-existing item {itemId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
@@ -6707,7 +6484,7 @@ public sealed class GameObjectManager
 
             foreach (var characterLoadoutItem in _cliDB.CharacterLoadoutItemStorage.Values)
             {
-                var itemTemplate = GetItemTemplate(characterLoadoutItem.ItemID);
+                var itemTemplate = _itemTemplateCache.GetItemTemplate(characterLoadoutItem.ItemID);
 
                 if (itemTemplate != null)
                     itemsByCharacterLoadout.Add(characterLoadoutItem.CharacterLoadoutID, itemTemplate);
@@ -6793,7 +6570,7 @@ public sealed class GameObjectManager
 
                     var itemid = result.Read<uint>(2);
 
-                    if (GetItemTemplate(itemid).Id == 0)
+                    if (_itemTemplateCache.GetItemTemplate(itemid).Id == 0)
                     {
                         Log.Logger.Error("Item id {0} (race {1} class {2}) in `playercreateinfo_item` table but not listed in `itemtemplate`, ignoring.", itemid, currentrace, currentclass);
 
@@ -8068,7 +7845,7 @@ public sealed class GameObjectManager
 
             if (qinfo.SourceItemId != 0)
             {
-                if (GetItemTemplate(qinfo.SourceItemId) == null)
+                if (_itemTemplateCache.GetItemTemplate(qinfo.SourceItemId) == null)
                 {
                     Log.Logger.Error("QuestId {0} has `SourceItemId` = {1} but item with entry {2} does not exist, quest can't be done.",
                                      qinfo.Id,
@@ -8145,7 +7922,7 @@ public sealed class GameObjectManager
                 switch (obj.Type)
                 {
                     case QuestObjectiveType.Item:
-                        if (GetItemTemplate((uint)obj.ObjectID) == null)
+                        if (_itemTemplateCache.GetItemTemplate((uint)obj.ObjectID) == null)
                             if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
@@ -8296,7 +8073,7 @@ public sealed class GameObjectManager
 
                 if (id != 0)
                 {
-                    if (GetItemTemplate(id) == null)
+                    if (_itemTemplateCache.GetItemTemplate(id) == null)
                         Log.Logger.Error("QuestId {0} has `RequiredSourceItemId{1}` = {2} but item with entry {2} does not exist, quest can't be done.",
                                          qinfo.Id,
                                          j + 1,
@@ -8323,7 +8100,7 @@ public sealed class GameObjectManager
                     switch (qinfo.RewardChoiceItemType[j])
                     {
                         case LootItemType.Item:
-                            if (GetItemTemplate(id) == null)
+                            if (_itemTemplateCache.GetItemTemplate(id) == null)
                             {
                                 Log.Logger.Error($"QuestId {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but item with entry {id} does not exist, quest will not reward this item.");
                                 qinfo.RewardChoiceItemId[j] = 0; // no changes, quest will not reward this
@@ -8361,7 +8138,7 @@ public sealed class GameObjectManager
 
                 if (id != 0)
                 {
-                    if (GetItemTemplate(id) == null)
+                    if (_itemTemplateCache.GetItemTemplate(id) == null)
                     {
                         Log.Logger.Error("QuestId {0} has `RewardItemId{1}` = {2} but item with entry {3} does not exist, quest will not reward this item.",
                                          qinfo.Id,
@@ -10549,26 +10326,7 @@ public sealed class GameObjectManager
         Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but Spell (Entry {4}) not exist.", goInfo.entry, goInfo.type, n, dataN, dataN);
     }
 
-    private uint FillMaxDurability(ItemClass itemClass, uint itemSubClass, InventoryType inventoryType, ItemQuality quality, uint itemLevel)
-    {
-        if (itemClass != ItemClass.Armor && itemClass != ItemClass.Weapon)
-            return 0;
 
-        var levelPenalty = 1.0f;
-
-        if (itemLevel <= 28)
-            levelPenalty = 0.966f - (28u - itemLevel) / 54.0f;
-
-        if (itemClass == ItemClass.Armor)
-        {
-            if (inventoryType > InventoryType.Robe)
-                return 0;
-
-            return 5 * (uint)(Math.Round(25.0f * _qualityMultipliers[(int)quality] * _armorMultipliers[(int)inventoryType] * levelPenalty));
-        }
-
-        return 5 * (uint)(Math.Round(18.0f * _qualityMultipliers[(int)quality] * _weaponMultipliers[itemSubClass] * levelPenalty));
-    }
 
     private QuestRelationResult GetQuestRelationsFrom(MultiMap<uint, uint> map, uint key, bool onlyActive)
     {
@@ -11556,7 +11314,7 @@ public sealed class GameObjectManager
 
                 case ScriptCommands.CreateItem:
                 {
-                    if (GetItemTemplate(tmp.CreateItem.ItemEntry) == null)
+                    if (_itemTemplateCache.GetItemTemplate(tmp.CreateItem.ItemEntry) == null)
                     {
                         if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");

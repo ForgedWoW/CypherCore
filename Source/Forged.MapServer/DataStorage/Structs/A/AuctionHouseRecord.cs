@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AuctionHouseRecord
+public sealed record AuctionHouseRecord
 {
     public uint Id;
     public string Name;

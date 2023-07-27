@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class CreatureFamilyRecord
+public sealed record CreatureFamilyRecord
 {
     public uint Id;
     public LocalizedString Name;

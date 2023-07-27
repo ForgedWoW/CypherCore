@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.U;
 
-public sealed class UiMapLinkRecord
+public sealed record UiMapLinkRecord
 {
     public Vector2 UiMin;
     public Vector2 UiMax;

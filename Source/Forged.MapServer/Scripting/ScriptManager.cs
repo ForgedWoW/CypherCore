@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using Autofac;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.AreaTriggers;
@@ -32,7 +31,6 @@ using Framework.Util;
 using Game.Common;
 using Game.Common.Extendability;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace Forged.MapServer.Scripting;

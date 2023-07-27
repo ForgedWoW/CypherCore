@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrCustomizationElementRecord
+public sealed record ChrCustomizationElementRecord
 {
     public uint Id;
     public uint ChrCustomizationChoiceID;

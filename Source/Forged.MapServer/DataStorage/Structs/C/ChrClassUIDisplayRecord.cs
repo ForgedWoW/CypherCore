@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrClassUIDisplayRecord
+public sealed record ChrClassUIDisplayRecord
 {
     public uint Id;
     public byte ChrClassesID;

@@ -4,7 +4,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.V;
 
-public sealed class VehicleSeatRecord
+public sealed record VehicleSeatRecord
 {
     public uint Id;
     public Vector3 AttachmentOffset;

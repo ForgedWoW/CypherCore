@@ -541,7 +541,7 @@ public class CriteriaDataValidator
                 var entry = _criteriaManager.GetCriteria(criteriaId);
 
                 var itemId = entry.Entry.Type == CriteriaType.EquipItemInSlot ? miscValue2 : miscValue1;
-                var itemTemplate = _objectManager.GetItemTemplate(itemId);
+                var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
                 if (itemTemplate == null)
                     return false;
@@ -560,7 +560,7 @@ public class CriteriaDataValidator
             }
             case CriteriaDataType.SItemQuality:
             {
-                var pProto = _objectManager.GetItemTemplate(miscValue1);
+                var pProto = _objectManager.ItemTemplateCache.GetItemTemplate(miscValue1);
 
                 if (pProto == null)
                     return false;

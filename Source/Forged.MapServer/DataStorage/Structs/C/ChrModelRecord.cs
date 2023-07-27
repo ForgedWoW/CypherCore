@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrModelRecord
+public sealed record ChrModelRecord
 {
     public float[] FaceCustomizationOffset = new float[3];
     public float[] CustomizeOffset = new float[3];

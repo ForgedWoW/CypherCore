@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.P;
 
-public sealed class PrestigeLevelInfoRecord
+public sealed record PrestigeLevelInfoRecord
 {
     public uint Id;
     public string Name;

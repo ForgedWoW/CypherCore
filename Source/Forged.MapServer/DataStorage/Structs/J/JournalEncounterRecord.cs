@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 
 namespace Forged.MapServer.DataStorage.Structs.J
 {
-    public sealed class JournalEncounterRecord
+    public sealed record JournalEncounterRecord
     {
         public LocalizedString Name;
         public LocalizedString Description;

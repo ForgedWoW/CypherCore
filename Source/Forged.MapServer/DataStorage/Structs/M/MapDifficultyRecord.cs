@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.M;
 
-public sealed class MapDifficultyRecord
+public sealed record MapDifficultyRecord
 {
     public uint Id;
     public LocalizedString Message; // m_message_lang (text showed when transfer to map failed)

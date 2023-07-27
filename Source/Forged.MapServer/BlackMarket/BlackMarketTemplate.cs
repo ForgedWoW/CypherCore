@@ -63,7 +63,7 @@ public class BlackMarketTemplate
             return false;
         }
 
-        if (_objectManager.GetItemTemplate(Item.ItemID) != null)
+        if (_objectManager.ItemTemplateCache.GetItemTemplate(Item.ItemID) != null)
             return true;
 
         Log.Logger.Error("Black market template {0} does not have a valid item. (Entry: {1})", MarketID, Item.ItemID);

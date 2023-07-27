@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArmorLocationRecord
+public sealed record ArmorLocationRecord
 {
     public uint Id;
     public float Clothmodifier;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.H
 {
-    public sealed class HeirloomRecord
+    public sealed record HeirloomRecord
     {
         public string SourceText;
         public uint Id;

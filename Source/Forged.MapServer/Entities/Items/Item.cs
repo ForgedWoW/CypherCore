@@ -195,7 +195,7 @@ public class Item : WorldObject
 
     public byte Slot { get; private set; }
     public ItemUpdateState State { get; private set; }
-    public ItemTemplate Template => GameObjectManager.GetItemTemplate(Entry);
+    public ItemTemplate Template => GameObjectManager.ItemTemplateCache.GetItemTemplate(Entry);
     public string Text { get; private set; }
     private bool IsInBag => Container != null;
     //Static
@@ -485,7 +485,7 @@ public class Item : WorldObject
             SetContainedIn(owner.GUID);
         }
 
-        var itemProto = GameObjectManager.GetItemTemplate(itemId);
+        var itemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemProto == null)
             return false;
@@ -572,7 +572,7 @@ public class Item : WorldObject
 
             SocketColor gemColor = 0;
 
-            var gemProto = GameObjectManager.GetItemTemplate(gemData.ItemId);
+            var gemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(gemData.ItemId);
 
             if (gemProto != null)
                 if (CliDB.GemPropertiesStorage.TryGetValue(gemProto.GemProperties, out var gemProperty))
@@ -650,7 +650,7 @@ public class Item : WorldObject
 
         return (byte)list.Count(gemData =>
         {
-            var gemProto = GameObjectManager.GetItemTemplate(gemData.ItemId);
+            var gemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(gemData.ItemId);
 
             if (gemProto == null)
                 return false;
@@ -1776,7 +1776,7 @@ public class Item : WorldObject
         //ASSERT(slot < MAX_GEM_SOCKETS);
         _gemScalingLevels[slot] = gemScalingLevel;
         BonusData.GemItemLevelBonus[slot] = 0;
-        var gemTemplate = GameObjectManager.GetItemTemplate(gem.ItemId);
+        var gemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(gem.ItemId);
 
         if (gemTemplate != null)
             if (CliDB.GemPropertiesStorage.TryGetValue(gemTemplate.GemProperties, out var gemProperties))
@@ -2210,7 +2210,7 @@ public class Item : WorldObject
         var owner = OwnerUnit;
 
         for (byte i = 0; i < ItemConst.MaxStats; ++i)
-            if ((owner != null ? GetItemStatValue(i, owner) : proto.GetStatPercentEditor(i)) != 0)
+            if ((owner != null ? GetItemStatValue(i, owner) : proto.ExtendedData.StatPercentEditor[i]) != 0)
                 return true;
 
         return false;

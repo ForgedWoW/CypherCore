@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class ArtifactUnlockRecord
+public sealed record ArtifactUnlockRecord
 {
     public uint Id;
     public uint PowerID;

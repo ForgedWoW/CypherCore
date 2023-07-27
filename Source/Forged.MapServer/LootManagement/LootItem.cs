@@ -30,7 +30,7 @@ public class LootItem
         Itemid = li.Itemid;
         Conditions = li.Conditions;
 
-        var proto = objectManager.GetItemTemplate(Itemid);
+        var proto = objectManager.ItemTemplateCache.GetItemTemplate(Itemid);
         Freeforall = proto != null && proto.HasFlag(ItemFlags.MultiDrop);
         FollowLootRules = !li.NeedsQuest || (proto != null && proto.FlagsCu.HasAnyFlag(ItemFlagsCustom.FollowLootRules));
 
@@ -69,7 +69,7 @@ public class LootItem
         if (!conditionManager.IsObjectMeetToConditions(player, conditions))
             return false;
 
-        var pProto = objectManager.GetItemTemplate(itemid);
+        var pProto = objectManager.ItemTemplateCache.GetItemTemplate(itemid);
 
         if (pProto == null)
             return false;

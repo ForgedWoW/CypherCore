@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.C;
 
-public sealed class ChrRacesRecord
+public sealed record ChrRacesRecord
 {
     public uint Id;
     public string ClientPrefix;

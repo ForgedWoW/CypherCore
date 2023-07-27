@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.R
 {
-    public sealed class RandPropPointsRecord
+    public sealed record RandPropPointsRecord
     {
         public uint Id;
         public float DamageReplaceStatF;

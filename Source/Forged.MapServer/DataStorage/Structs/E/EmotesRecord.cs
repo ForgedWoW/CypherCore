@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.E
 {
-    public sealed class EmotesRecord
+    public sealed record EmotesRecord
     {
         public uint Id;
         public long RaceMask;

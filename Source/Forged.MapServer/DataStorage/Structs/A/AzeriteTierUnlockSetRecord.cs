@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.A;
 
-public sealed class AzeriteTierUnlockSetRecord
+public sealed record AzeriteTierUnlockSetRecord
 {
     public uint Id;
     public AzeriteTierUnlockSetFlags Flags;

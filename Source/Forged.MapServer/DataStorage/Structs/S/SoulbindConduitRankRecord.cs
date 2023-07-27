@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SoulbindConduitRankRecord
+public sealed record SoulbindConduitRankRecord
 {
     public uint Id;
     public int RankIndex;

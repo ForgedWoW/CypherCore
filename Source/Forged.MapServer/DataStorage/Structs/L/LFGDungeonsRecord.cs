@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.L;
 
-public sealed class LFGDungeonsRecord
+public sealed record LFGDungeonsRecord
 {
     public uint Id;
     public LocalizedString Name;

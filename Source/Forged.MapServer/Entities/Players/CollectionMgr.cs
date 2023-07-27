@@ -777,7 +777,7 @@ public class CollectionMgr
         if (!_cliDB.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))
             return false;
 
-        var itemTemplate = _objectManager.GetItemTemplate(itemModifiedAppearance.ItemID);
+        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID);
 
         if (itemTemplate == null)
             return false;

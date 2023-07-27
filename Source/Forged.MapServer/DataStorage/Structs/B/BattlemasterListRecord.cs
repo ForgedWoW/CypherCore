@@ -3,7 +3,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.Structs.B;
 
-public sealed class BattlemasterListRecord
+public sealed record BattlemasterListRecord
 {
     public uint Id;
     public LocalizedString Name;

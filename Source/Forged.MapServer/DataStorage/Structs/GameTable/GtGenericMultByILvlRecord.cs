@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
-public sealed class GtGenericMultByILvlRecord
+public sealed record GtGenericMultByILvlRecord
 {
     public float ArmorMultiplier;
     public float WeaponMultiplier;

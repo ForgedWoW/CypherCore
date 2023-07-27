@@ -1,6 +1,6 @@
 ﻿namespace Forged.MapServer.DataStorage.Structs.T;
 
-public sealed class TraitNodeEntryXTraitCostRecord
+public sealed record TraitNodeEntryXTraitCostRecord
 {
     public uint Id;
     public int TraitNodeEntryID;

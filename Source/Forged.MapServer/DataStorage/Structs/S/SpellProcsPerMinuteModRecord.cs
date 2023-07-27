@@ -2,7 +2,7 @@
 
 namespace Forged.MapServer.DataStorage.Structs.S;
 
-public sealed class SpellProcsPerMinuteModRecord
+public sealed record SpellProcsPerMinuteModRecord
 {
     public uint Id;
     public SpellProcsPerMinuteModType Type;
