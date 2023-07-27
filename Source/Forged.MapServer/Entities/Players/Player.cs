@@ -3042,7 +3042,7 @@ public partial class Player : Unit
                 break;
 
             case GossipOptionNpc.Stablemaster:
-                Session.PacketRouter.OpCodeHandler<NPCHandler>().SendStablePet(guid);
+                Session.Player.SetStableMaster(guid);
                 handled = false;
 
                 break;
