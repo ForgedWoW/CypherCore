@@ -324,7 +324,9 @@ public enum SpellCastResult
     CantBeRecrafted = 316,
     PassiveReplaced = 317,
     CantFlyHere = 318,
-    Unknown = 319,
+    DragonridingRidingRequirement = 319,
+    ItemModAppearanceGroupAlreadyKnown = 320,
+    Unknown = 321,
 
     // Ok Cast Value - Here In Case A Future Version Removes Success And We Need To Use A Custom Value (Not Sent To Client Either Way)
     SpellCastOk = Success

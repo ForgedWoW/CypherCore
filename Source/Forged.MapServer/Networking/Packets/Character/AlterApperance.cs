@@ -10,6 +10,7 @@ public class AlterApperance : ClientPacket
 {
     public Array<ChrCustomizationChoice> Customizations = new(125);
     public int CustomizedRace;
+    public int CustomizedChrModelID;
     public byte NewSex;
     public AlterApperance(WorldPacket packet) : base(packet) { }
 
@@ -18,6 +19,7 @@ public class AlterApperance : ClientPacket
         var customizationCount = WorldPacket.ReadUInt32();
         NewSex = WorldPacket.ReadUInt8();
         CustomizedRace = WorldPacket.ReadInt32();
+        CustomizedChrModelID = WorldPacket.ReadInt32();
 
         for (var i = 0; i < customizationCount; ++i)
             Customizations[i] = new ChrCustomizationChoice

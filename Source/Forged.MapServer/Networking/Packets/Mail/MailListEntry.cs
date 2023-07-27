@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Mails;
 using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Mail;
@@ -41,6 +42,10 @@ public class MailListEntry
             case MailMessageType.Gameobject:
             case MailMessageType.Auction:
             case MailMessageType.Calendar:
+            case MailMessageType.Blackmarket:
+            case MailMessageType.CommerceAuction:
+            case MailMessageType.Auction2:
+            case MailMessageType.ArtisansConsortium:
                 AltSenderID = (uint)mail.Sender;
 
                 break;
@@ -67,7 +72,7 @@ public class MailListEntry
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(MailID);
-        data.WriteUInt8(SenderType);
+        data.WriteUInt32(SenderType);
         data.WriteUInt64(Cod);
         data.WriteInt32(StationeryID);
         data.WriteUInt64(SentMoney);
@@ -76,20 +81,31 @@ public class MailListEntry
         data.WriteInt32(MailTemplateID);
         data.WriteInt32(Attachments.Count);
 
-        data.WriteBit(SenderCharacter.HasValue);
-        data.WriteBit(AltSenderID.HasValue);
+        switch ((MailMessageType)SenderType)
+        {
+            case MailMessageType.Normal:
+                data.WritePackedGuid(SenderCharacter.Value);
+
+                break;
+            case MailMessageType.Creature:
+            case MailMessageType.Gameobject:
+            case MailMessageType.Auction:
+            case MailMessageType.Calendar:
+            case MailMessageType.Blackmarket:
+            case MailMessageType.CommerceAuction:
+            case MailMessageType.Auction2:
+            case MailMessageType.ArtisansConsortium:
+                data.WriteUInt32(AltSenderID.Value);
+
+                break;
+        }
+
         data.WriteBits(Subject.GetByteCount(), 8);
         data.WriteBits(Body.GetByteCount(), 13);
         data.FlushBits();
 
         Attachments.ForEach(p => p.Write(data));
-
-        if (SenderCharacter.HasValue)
-            data.WritePackedGuid(SenderCharacter.Value);
-
-        if (AltSenderID.HasValue)
-            data.WriteUInt32(AltSenderID.Value);
-
+        
         data.WriteString(Subject);
         data.WriteString(Body);
     }

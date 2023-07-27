@@ -11,5 +11,7 @@ public enum MailMessageType
     Gameobject = 4,
     Calendar = 5,
     Blackmarket = 6,
-    CommerceAuction = 7
+    CommerceAuction = 7,
+    Auction2 = 8,
+    ArtisansConsortium = 9
 }

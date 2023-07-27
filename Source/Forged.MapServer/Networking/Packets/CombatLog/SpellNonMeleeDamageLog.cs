@@ -4,6 +4,7 @@
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Networking.Packets.Spell;
 using Framework.Constants;
+using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
@@ -28,6 +29,9 @@ internal class SpellNonMeleeDamageLog : CombatLogServerPacket
     public int ShieldBlock;
     public int SpellID;
     public SpellCastVisual Visual;
+    public List<CombatWorldTextViewerInfo> WorldTextViewers;
+    public List<SpellSupportInfo> Supporters;
+
     public SpellNonMeleeDamageLog() : base(ServerOpcodes.SpellNonMeleeDamageLog, ConnectionType.Instance) { }
 
     public override void Write()
@@ -44,6 +48,11 @@ internal class SpellNonMeleeDamageLog : CombatLogServerPacket
         WorldPacket.WriteInt32(Absorbed);
         WorldPacket.WriteInt32(Resisted);
         WorldPacket.WriteInt32(ShieldBlock);
+        WorldPacket.WriteUInt32((uint)WorldTextViewers.Count);
+        WorldPacket.WriteUInt32((uint)Supporters.Count);
+
+        foreach (var supporter in Supporters)
+            supporter.Write(WorldPacket);
 
         WorldPacket.WriteBit(Periodic);
         WorldPacket.WriteBits(Flags, 7);
@@ -51,6 +60,10 @@ internal class SpellNonMeleeDamageLog : CombatLogServerPacket
         WriteLogDataBit();
         WorldPacket.WriteBit(ContentTuning != null);
         FlushBits();
+
+        foreach (var viewer in WorldTextViewers)
+            viewer.Write(WorldPacket);
+
         WriteLogData();
 
         ContentTuning?.Write(WorldPacket);

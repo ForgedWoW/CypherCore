@@ -48,6 +48,7 @@ internal class SpellPeriodicAuraLog : CombatLogServerPacket
         public uint OverHealOrKill;
         public uint Resisted;
         public uint SchoolMaskOrPower;
+        public List<SpellSupportInfo> Supporters;
 
         public void Write(WorldPacket data)
         {
@@ -58,6 +59,10 @@ internal class SpellPeriodicAuraLog : CombatLogServerPacket
             data.WriteUInt32(SchoolMaskOrPower);
             data.WriteUInt32(AbsorbedOrAmplitude);
             data.WriteUInt32(Resisted);
+            data.WriteUInt32((uint)Supporters.Count);
+
+            foreach (var supporter in Supporters)
+                supporter.Write(data);
 
             data.WriteBit(Crit);
             data.WriteBit(DebugInfo.HasValue);

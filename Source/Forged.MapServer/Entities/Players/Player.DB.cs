@@ -2304,13 +2304,23 @@ public partial class Player
                 switch (slot)
                 {
                     case >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot:
+                    {
                         PetStable.ActivePets[(int)slot] = petInfo;
 
-                        break;
-                    case >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot:
-                        PetStable.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
+                        if (petInfo.Type == PetType.Hunter)
+                            AddPetToUpdateFields(petInfo, slot, PetStableinfo.Active);
 
                         break;
+                    }
+                    case >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot:
+                    {
+                        PetStable.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
+
+                        if (petInfo.Type == PetType.Hunter)
+                            AddPetToUpdateFields(petInfo, slot, PetStableinfo.Inactive);
+
+                        break;
+                    }
                     case PetSaveMode.NotInSlot:
                         PetStable.UnslottedPets.Add(petInfo);
 

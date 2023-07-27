@@ -91,9 +91,6 @@ public class PetHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.PetAbandon)]
     private void HandlePetAbandon(PetAbandon packet)
     {
-        if (!_session.Player.Location.IsInWorld)
-            return;
-
         // pet/charmed
         var creature = ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, packet.Pet);
 

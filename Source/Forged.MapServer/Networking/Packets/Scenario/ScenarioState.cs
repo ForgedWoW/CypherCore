@@ -10,6 +10,7 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal class ScenarioState : ServerPacket
 {
+    public ObjectGuid ScenarioGUID;
     public List<BonusObjectiveData> BonusObjectives = new();
     public List<CriteriaProgressPkt> CriteriaProgress = new();
     public int CurrentStep = -1;
@@ -26,6 +27,7 @@ internal class ScenarioState : ServerPacket
 
     public override void Write()
     {
+        WorldPacket.WritePackedGuid(ScenarioGUID);
         WorldPacket.WriteInt32(ScenarioID);
         WorldPacket.WriteInt32(CurrentStep);
         WorldPacket.WriteUInt32(DifficultyID);

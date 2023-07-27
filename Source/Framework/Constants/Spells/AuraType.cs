@@ -544,6 +544,11 @@ public enum AuraType
     Unk534 = 534,
     Unk535 = 535,
     IgnoreSpellCreatureTypeRequirements = 536,
+    Unk537 = 537,
+    ModFakeInebriationMovementOnly = 538,
+    AllowMountInCombat = 539,
+    ModSupportStat = 540, // NYI
+    ModRequiredMountCapabilityFlags = 541,
     Total
 }
 

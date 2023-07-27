@@ -126,7 +126,7 @@ public class QuestInfo
     // reward skill id
     // reward skill points
     // rep mask (unsure on what it does)
-    public uint TimeAllowed;
+    public long TimeAllowed;
     public int TreasurePickerID;
     public QuestInfoChoiceItem[] UnfilteredChoiceItems = new QuestInfoChoiceItem[SharedConst.QuestRewardChoicesCount];
 

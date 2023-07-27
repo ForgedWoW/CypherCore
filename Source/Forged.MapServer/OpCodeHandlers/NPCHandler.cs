@@ -197,62 +197,7 @@ public class NPCHandler : IWorldSessionHandler
 
         _session.SendPacket(packet);
     }
-
-    public void SendStablePet(ObjectGuid guid)
-    {
-        PetStableList packet = new()
-        {
-            StableMaster = guid
-        };
-
-        var petStable = _session.Player.PetStable;
-
-        if (petStable == null)
-        {
-            _session.SendPacket(packet);
-
-            return;
-        }
-
-        for (uint petSlot = 0; petSlot < petStable.ActivePets.Length; ++petSlot)
-        {
-            if (petStable.ActivePets[petSlot] == null)
-                continue;
-
-            var pet = petStable.ActivePets[petSlot];
-            PetStableInfo stableEntry;
-            stableEntry.PetSlot = petSlot + (int)PetSaveMode.FirstActiveSlot;
-            stableEntry.PetNumber = pet.PetNumber;
-            stableEntry.CreatureID = pet.CreatureId;
-            stableEntry.DisplayID = pet.DisplayId;
-            stableEntry.ExperienceLevel = pet.Level;
-            stableEntry.PetFlags = PetStableinfo.Active;
-            stableEntry.PetName = pet.Name;
-
-            packet.Pets.Add(stableEntry);
-        }
-
-        for (uint petSlot = 0; petSlot < petStable.StabledPets.Length; ++petSlot)
-        {
-            if (petStable.StabledPets[petSlot] == null)
-                continue;
-
-            var pet = petStable.StabledPets[petSlot];
-            PetStableInfo stableEntry;
-            stableEntry.PetSlot = petSlot + (int)PetSaveMode.FirstStableSlot;
-            stableEntry.PetNumber = pet.PetNumber;
-            stableEntry.CreatureID = pet.CreatureId;
-            stableEntry.DisplayID = pet.DisplayId;
-            stableEntry.ExperienceLevel = pet.Level;
-            stableEntry.PetFlags = PetStableinfo.Inactive;
-            stableEntry.PetName = pet.Name;
-
-            packet.Pets.Add(stableEntry);
-        }
-
-        _session.SendPacket(packet);
-    }
-
+    
     public void SendTabardVendorActivate(ObjectGuid guid)
     {
         NPCInteractionOpenResult npcInteraction = new()
@@ -506,7 +451,7 @@ public class NPCHandler : IWorldSessionHandler
         if (_session.Player.IsMounted)
             _session.Player.RemoveAurasByType(AuraType.Mounted);
 
-        SendStablePet(packet.StableMaster);
+        _session.Player.SetStableMaster(packet.StableMaster);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetPetSlot)]
@@ -518,151 +463,8 @@ public class NPCHandler : IWorldSessionHandler
 
             return;
         }
-
-        _session.Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
-
-        var petStable = _session.Player.PetStable;
-
-        if (petStable == null)
-        {
-            SendPetStableResult(StableResult.InternalError);
-
-            return;
-        }
-
-        var (srcPet, srcPetSlot) = Pet.GetLoadPetInfo(petStable, 0, setPetSlot.PetNumber, null);
-        var dstPetSlot = (PetSaveMode)setPetSlot.DestSlot;
-        var dstPet = Pet.GetLoadPetInfo(petStable, 0, 0, dstPetSlot).Item1;
-
-        if (srcPet == null || srcPet.Type != PetType.Hunter)
-        {
-            SendPetStableResult(StableResult.InternalError);
-
-            return;
-        }
-
-        if (dstPet != null && dstPet.Type != PetType.Hunter)
-        {
-            SendPetStableResult(StableResult.InternalError);
-
-            return;
-        }
-
-        PetStable.PetInfo src = null;
-        PetStable.PetInfo dst = null;
-        PetSaveMode? newActivePetIndex = null;
-
-        if (SharedConst.IsActivePetSlot(srcPetSlot) && SharedConst.IsActivePetSlot(dstPetSlot))
-        {
-            // active<.active: only swap ActivePets and CurrentPetIndex (do not despawn pets)
-            src = petStable.ActivePets[srcPetSlot - PetSaveMode.FirstActiveSlot];
-            dst = petStable.ActivePets[dstPetSlot - PetSaveMode.FirstActiveSlot];
-
-            if (petStable.CurrentActivePetIndex == (uint)srcPetSlot)
-                newActivePetIndex = dstPetSlot;
-            else if (petStable.CurrentActivePetIndex == (uint)dstPetSlot)
-                newActivePetIndex = srcPetSlot;
-        }
-        else if (SharedConst.IsStabledPetSlot(srcPetSlot) && SharedConst.IsStabledPetSlot(dstPetSlot))
-        {
-            // stabled<.stabled: only swap StabledPets
-            src = petStable.StabledPets[srcPetSlot - PetSaveMode.FirstStableSlot];
-            dst = petStable.StabledPets[dstPetSlot - PetSaveMode.FirstStableSlot];
-        }
-        else if (SharedConst.IsActivePetSlot(srcPetSlot) && SharedConst.IsStabledPetSlot(dstPetSlot))
-        {
-            // active<.stabled: swap petStable contents and despawn active pet if it is involved in swap
-            if (petStable.CurrentPetIndex == (uint)srcPetSlot)
-            {
-                var oldPet = _session.Player.CurrentPet;
-
-                if (oldPet is { IsAlive: false })
-                {
-                    SendPetStableResult(StableResult.InternalError);
-
-                    return;
-                }
-
-                _session.Player.RemovePet(oldPet, PetSaveMode.NotInSlot);
-            }
-
-            if (dstPet != null)
-            {
-                var creatureInfo = _objectManager.GetCreatureTemplate(dstPet.CreatureId);
-
-                if (creatureInfo == null || !creatureInfo.IsTameable(_session.Player.CanTameExoticPets))
-                {
-                    SendPetStableResult(StableResult.CantControlExotic);
-
-                    return;
-                }
-            }
-
-            src = petStable.ActivePets[srcPetSlot - PetSaveMode.FirstActiveSlot];
-            dst = petStable.StabledPets[dstPetSlot - PetSaveMode.FirstStableSlot];
-        }
-        else if (SharedConst.IsStabledPetSlot(srcPetSlot) && SharedConst.IsActivePetSlot(dstPetSlot))
-        {
-            // stabled<.active: swap petStable contents and despawn active pet if it is involved in swap
-            if (petStable.CurrentPetIndex == (uint)dstPetSlot)
-            {
-                var oldPet = _session.Player.CurrentPet;
-
-                if (oldPet is { IsAlive: false })
-                {
-                    SendPetStableResult(StableResult.InternalError);
-
-                    return;
-                }
-
-                _session.Player.RemovePet(oldPet, PetSaveMode.NotInSlot);
-            }
-
-            var creatureInfo = _objectManager.GetCreatureTemplate(srcPet.CreatureId);
-
-            if (creatureInfo == null || !creatureInfo.IsTameable(_session.Player.CanTameExoticPets))
-            {
-                SendPetStableResult(StableResult.CantControlExotic);
-
-                return;
-            }
-
-            src = petStable.StabledPets[srcPetSlot - PetSaveMode.FirstStableSlot];
-            dst = petStable.ActivePets[dstPetSlot - PetSaveMode.FirstActiveSlot];
-        }
-
-        SQLTransaction trans = new();
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_PET_SLOT_BY_ID);
-        stmt.AddValue(0, (short)dstPetSlot);
-        stmt.AddValue(1, _session.Player.GUID.Counter);
-        stmt.AddValue(2, srcPet.PetNumber);
-        trans.Append(stmt);
-
-        if (dstPet != null)
-        {
-            stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_PET_SLOT_BY_ID);
-            stmt.AddValue(0, (short)srcPetSlot);
-            stmt.AddValue(1, _session.Player.GUID.Counter);
-            stmt.AddValue(2, dstPet.PetNumber);
-            trans.Append(stmt);
-        }
-
-        _session.AddTransactionCallback(_characterDatabase.AsyncCommitTransaction(trans))
-            .AfterComplete(success =>
-            {
-                if (success)
-                {
-                    Extensions.Swap(ref src, ref dst);
-
-                    if (newActivePetIndex.HasValue)
-                        _session.Player.PetStable.SetCurrentActivePetIndex((uint)newActivePetIndex.Value);
-
-                    SendPetStableResult(StableResult.StableSuccess);
-                }
-                else
-                    SendPetStableResult(StableResult.InternalError);
-            });
+        
+        _session.Player.SetPetSlot(setPetSlot.PetNumber, (PetSaveMode)setPetSlot.DestSlot);
     }
 
     [WorldPacketHandler(ClientOpcodes.SpiritHealerActivate)]

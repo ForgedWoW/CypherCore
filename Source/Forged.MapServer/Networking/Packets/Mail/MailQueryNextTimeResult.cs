@@ -53,8 +53,14 @@ public class MailQueryNextTimeResult : ServerPacket
                 case MailMessageType.Creature:
                 case MailMessageType.Gameobject:
                 case MailMessageType.Calendar:
+                case MailMessageType.Blackmarket:
+                case MailMessageType.CommerceAuction:
+                case MailMessageType.Auction2:
+                case MailMessageType.ArtisansConsortium:
                     AltSenderID = (int)mail.Sender;
 
+                    break;
+                default:
                     break;
             }
 

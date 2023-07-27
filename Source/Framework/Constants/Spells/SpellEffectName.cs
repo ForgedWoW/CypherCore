@@ -312,7 +312,7 @@ public enum SpellEffectName
     CreateTraitTreeConfig = 303, // Miscvalue[0] = Traittreeid
     ChangeActiveCombatTraitConfig = 304,
     Unk305 = 305,
-    Unk306 = 306,
+    UpdateInteractions = 306,
     Unk307 = 307,
     CancelPreloadWorld = 308,
     PreloadWorld = 309,
@@ -321,5 +321,6 @@ public enum SpellEffectName
     Unk312 = 312,
     ChangeItemBonuses2 = 313, // MiscValue[0] = ItemBonusTreeID to preserve
     AddSocketBonus = 314,     // MiscValue[0] = required ItemBonusTreeID
+    LearnTransmogAppearanceFromItemModAppearanceGroup = 315, // MiscValue[0] = ItemModAppearanceGroupID (not in db2)
     TotalSpellEffects
 }

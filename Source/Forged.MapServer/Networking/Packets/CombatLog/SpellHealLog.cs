@@ -4,6 +4,7 @@
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Networking.Packets.Spell;
 using Framework.Constants;
+using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
@@ -20,6 +21,7 @@ internal class SpellHealLog : CombatLogServerPacket
     public uint OverHeal;
     public uint SpellID;
     public ObjectGuid TargetGUID;
+    public List<SpellSupportInfo> Supporters;
     public SpellHealLog() : base(ServerOpcodes.SpellHealLog, ConnectionType.Instance) { }
 
     public override void Write()
@@ -32,6 +34,10 @@ internal class SpellHealLog : CombatLogServerPacket
         WorldPacket.WriteInt32(OriginalHeal);
         WorldPacket.WriteUInt32(OverHeal);
         WorldPacket.WriteUInt32(Absorbed);
+        WorldPacket.WriteUInt32((uint)Supporters.Count);
+
+        foreach (var supporter in Supporters)
+            supporter.Write(WorldPacket);
 
         WorldPacket.WriteBit(Crit);
 

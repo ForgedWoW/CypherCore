@@ -11,6 +11,7 @@ public class DuelRequested : ServerPacket
     public ObjectGuid ArbiterGUID;
     public ObjectGuid RequestedByGUID;
     public ObjectGuid RequestedByWowAccount;
+    public bool ToTheDeath = false;
     public DuelRequested() : base(ServerOpcodes.DuelRequested, ConnectionType.Instance) { }
 
     public override void Write()
@@ -18,5 +19,7 @@ public class DuelRequested : ServerPacket
         WorldPacket.WritePackedGuid(ArbiterGUID);
         WorldPacket.WritePackedGuid(RequestedByGUID);
         WorldPacket.WritePackedGuid(RequestedByWowAccount);
+        WorldPacket.WriteBit(ToTheDeath);
+        WorldPacket.FlushBits();
     }
 }

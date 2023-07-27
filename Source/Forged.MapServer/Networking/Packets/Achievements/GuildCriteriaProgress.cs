@@ -14,4 +14,5 @@ public struct GuildCriteriaProgress
     public int Flags;
     public ObjectGuid PlayerGUID;
     public ulong Quantity;
+    public int Unused_10_1_5;
 }

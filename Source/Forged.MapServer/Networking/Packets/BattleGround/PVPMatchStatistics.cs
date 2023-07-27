@@ -81,7 +81,7 @@ public class PVPMatchStatistics
         public int PrimaryTalentTree;
         public int? RatingChange;
         public int Role;
-        public int Sex;
+        public sbyte Sex;
         public List<PVPMatchPlayerPVPStat> Stats = new();
 
         public void Write(WorldPacket data)
@@ -92,7 +92,7 @@ public class PVPMatchStatistics
             data.WriteUInt32(HealingDone);
             data.WriteInt32(Stats.Count);
             data.WriteInt32(PrimaryTalentTree);
-            data.WriteInt32(Sex);
+            data.WriteInt8(Sex);
             data.WriteUInt32((uint)PlayerRace);
             data.WriteInt32(PlayerClass);
             data.WriteInt32(CreatureID);
