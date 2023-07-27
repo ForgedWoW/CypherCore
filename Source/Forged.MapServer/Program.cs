@@ -364,6 +364,7 @@ void RegisterCaches()
     builder.RegisterType<AccessRequirementsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<AreaTriggerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<WorldSafeLocationsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<ItemTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
 }
 
 void RegisterFactories()
