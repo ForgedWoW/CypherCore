@@ -83,7 +83,7 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player : Unit
 {
-    ExplorationExpManager _explorationExpManager;
+    private readonly ExplorationExpManager _explorationExpManager;
 
     public Player(WorldSession session, ClassFactory classFactory) : base(true, classFactory)
     {
@@ -124,6 +124,7 @@ public partial class Player : Unit
         ItemFactory = classFactory.Resolve<ItemFactory>();
         AzeriteItemFactory = classFactory.Resolve<AzeriteItemFactory>();
         AzeriteEmpoweredItemFactory = classFactory.Resolve<AzeriteEmpoweredItemFactory>();
+        AccessRequirementsManager = classFactory.Resolve<AccessRequirementsManager>();
         Session = session;
         _explorationExpManager = classFactory.Resolve<ExplorationExpManager>();
 

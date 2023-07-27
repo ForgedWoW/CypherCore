@@ -46,7 +46,6 @@ namespace Forged.MapServer.Globals;
 
 public sealed class GameObjectManager
 {
-    private readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
     private readonly Dictionary<uint, AreaTriggerStruct> _areaTriggerStorage = new();
 
     private readonly float[] _armorMultipliers = {
@@ -944,11 +943,6 @@ public sealed class GameObjectManager
         _worldManager.StopNow();
 
         return _voidItemId++;
-    }
-
-    public AccessRequirement GetAccessRequirement(uint mapid, Difficulty difficulty)
-    {
-        return _accessRequirementStorage.LookupByKey(MathFunctions.MakePair64(mapid, (uint)difficulty));
     }
 
     public AreaTriggerStruct GetAreaTrigger(uint trigger)
@@ -1988,7 +1982,6 @@ public sealed class GameObjectManager
         LoadQuestGreetingLocales();
         LoadWorldSafeLocs();                                   // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
         LoadAreaTriggerTeleports();
-        LoadAccessRequirements(); // must be after item template load
         LoadQuestAreaTriggers(); // must be after LoadQuests
         LoadTavernAreaTriggers();
         LoadAreaTriggerScripts();
@@ -2211,108 +2204,6 @@ public sealed class GameObjectManager
         Log.Logger.Error("Table `(game_event_)npc_vendor` have Item (Entry: {0}, type: {1}) with missing maxcount for vendor ({2}), ignore", vItem.Item, vItem.Type, vendorentry);
 
         return false;
-    }
-
-    public void LoadAccessRequirements()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _accessRequirementStorage.Clear();
-
-        //                                          0      1           2          3          4           5      6             7             8                      9
-        var result = _worldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 access requirement definitions. DB table `access_requirement` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var mapid = result.Read<uint>(0);
-
-            if (!_cliDB.MapStorage.ContainsKey(mapid))
-            {
-                Log.Logger.Error("Map {0} referenced in `access_requirement` does not exist, skipped.", mapid);
-
-                continue;
-            }
-
-            var difficulty = result.Read<uint>(1);
-
-            if (_db2Manager.GetMapDifficultyData(mapid, (Difficulty)difficulty) == null)
-            {
-                Log.Logger.Error("Map {0} referenced in `access_requirement` does not have difficulty {1}, skipped", mapid, difficulty);
-
-                continue;
-            }
-
-            var requirementId = MathFunctions.MakePair64(mapid, difficulty);
-
-            AccessRequirement ar = new()
-            {
-                LevelMin = result.Read<byte>(2),
-                LevelMax = result.Read<byte>(3),
-                Item = result.Read<uint>(4),
-                Item2 = result.Read<uint>(5),
-                QuestA = result.Read<uint>(6),
-                QuestH = result.Read<uint>(7),
-                Achievement = result.Read<uint>(8),
-                QuestFailedText = result.Read<string>(9)
-            };
-
-            if (ar.Item != 0)
-            {
-                var pProto = GetItemTemplate(ar.Item);
-
-                if (pProto == null)
-                {
-                    Log.Logger.Error("Key item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item, mapid, difficulty);
-                    ar.Item = 0;
-                }
-            }
-
-            if (ar.Item2 != 0)
-            {
-                var pProto = GetItemTemplate(ar.Item2);
-
-                if (pProto == null)
-                {
-                    Log.Logger.Error("Second item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item2, mapid, difficulty);
-                    ar.Item2 = 0;
-                }
-            }
-
-            if (ar.QuestA != 0)
-                if (GetQuestTemplate(ar.QuestA) == null)
-                {
-                    Log.Logger.Error("Required Alliance QuestId {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestA, mapid, difficulty);
-                    ar.QuestA = 0;
-                }
-
-            if (ar.QuestH != 0)
-                if (GetQuestTemplate(ar.QuestH) == null)
-                {
-                    Log.Logger.Error("Required Horde QuestId {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestH, mapid, difficulty);
-                    ar.QuestH = 0;
-                }
-
-            if (ar.Achievement != 0)
-                if (!_cliDB.AchievementStorage.ContainsKey(ar.Achievement))
-                {
-                    Log.Logger.Error("Required Achievement {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.Achievement, mapid, difficulty);
-                    ar.Achievement = 0;
-                }
-
-            _accessRequirementStorage[requirementId] = ar;
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} access requirement definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     //Scripts

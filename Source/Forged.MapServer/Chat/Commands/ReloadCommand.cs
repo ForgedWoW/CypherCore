@@ -31,7 +31,7 @@ internal class ReloadCommand
     private static bool HandleReloadAccessRequirementCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Access Requirement definitions...");
-        handler.ObjectManager.LoadAccessRequirements();
+        handler.ClassFactory.Resolve<AccessRequirementsManager>().LoadAccessRequirements();
         handler.SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
 
         return true;

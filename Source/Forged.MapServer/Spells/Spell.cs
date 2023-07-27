@@ -104,6 +104,7 @@ public partial class Spell : IDisposable
     private readonly ConversationFactory _conversationFactory;
     private readonly ItemFactory _itemFactory;
     private readonly SceneFactory _sceneFactory;
+    private readonly AccessRequirementsManager _accessRequirementsManager;
     private readonly ScriptManager _scriptManager;
     private readonly SkillExtraItems _skillExtraItems;
     private readonly SkillPerfectItems _skillPerfectItems;
@@ -168,7 +169,7 @@ public partial class Spell : IDisposable
                  CliDB cliDb, BattleFieldManager battleFieldManager, UnitCombatHelpers combatHelpers, SpellManager spellManager, GroupManager groupManager, ScriptManager scriptManager, LootStoreBox lootStoreBox,
                  WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator, TraitMgr traitMgr, GameObjectFactory gameObjectFactory, PhasingHandler phasingHandler,
                  BattlePetData battlePetData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, 
-                 ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, 
+                 ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, AccessRequirementsManager accessRequirementsManager,
                  ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
         SpellInfo = info;
@@ -200,6 +201,7 @@ public partial class Spell : IDisposable
         _conversationFactory = conversationFactory;
         _itemFactory = itemFactory;
         _sceneFactory = sceneFactory;
+        _accessRequirementsManager = accessRequirementsManager;
 
         foreach (var stage in info.EmpowerStages)
             _empowerStages[stage.Key] = new SpellEmpowerStageRecord
@@ -1487,7 +1489,7 @@ public partial class Spell : IDisposable
                             if (_instanceLockManager.CanJoinInstanceLock(target.GUID, new MapDb2Entries(mapId, difficulty, _cliDb, _db2Manager), mapLock) != TransferAbortReason.None)
                                 return SpellCastResult.TargetLockedToRaidInstance;
 
-                        if (!target.Satisfy(_gameObjectManager.GetAccessRequirement(mapId, difficulty), mapId))
+                        if (!target.Satisfy(_accessRequirementsManager.GetAccessRequirement(mapId, difficulty), mapId))
                             return SpellCastResult.BadTargets;
                     }
 

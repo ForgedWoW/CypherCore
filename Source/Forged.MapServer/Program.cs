@@ -353,6 +353,7 @@ void RegisterManagers()
     builder.RegisterType<GameTeleObjectManager>().SingleInstance().OnActivated(c => c.Instance.LoadGameTele());
     builder.RegisterType<ExplorationExpManager>().SingleInstance().OnActivated(c => c.Instance.LoadExplorationBaseXP());
     builder.RegisterType<InstanceTemplateManager>().SingleInstance().OnActivated(c => c.Instance.LoadInstanceTemplate());
+    builder.RegisterType<AccessRequirementsManager>().SingleInstance().OnActivated(c => c.Instance.LoadAccessRequirements());
 }
 
 void RegisterFactories()

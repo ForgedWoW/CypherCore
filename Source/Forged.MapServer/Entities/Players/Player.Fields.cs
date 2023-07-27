@@ -463,6 +463,7 @@ public partial class Player
     public ItemFactory ItemFactory { get; set; }
     public AzeriteItemFactory AzeriteItemFactory { get; set; }
     public AzeriteEmpoweredItemFactory AzeriteEmpoweredItemFactory { get; set; }
+    public AccessRequirementsManager AccessRequirementsManager { get; }
 
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }

@@ -991,9 +991,10 @@ public class WorldSession : IDisposable
 
     public void SendPetStableResult(StableResult result)
     {
-        PetStableResult petStableResult = new();
-        petStableResult.Result = result;
-        SendPacket(petStableResult);
+        SendPacket(new PetStableResult()
+        {
+            Result = result
+        });
     }
 
     internal TransactionCallback AddTransactionCallback(TransactionCallback callback)

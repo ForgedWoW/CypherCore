@@ -35,6 +35,7 @@ public class LFGManager
     private readonly MultiMap<byte, uint> _cachedDungeonMapStore = new();
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
+    private readonly AccessRequirementsManager _accessRequirementsManager;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
@@ -83,7 +84,8 @@ public class LFGManager
 
     public LFGManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager objectManager, CliDB cliDB,
                       DB2Manager db2Manager, GroupManager groupManager, ObjectAccessor objectAccessor, DisableManager disableManager,
-                      InstanceLockManager instanceLockManager, GameEventManager gameEventManager, WorldManager worldManager, ClassFactory classFactory)
+                      InstanceLockManager instanceLockManager, GameEventManager gameEventManager, WorldManager worldManager, ClassFactory classFactory,
+                      AccessRequirementsManager accessRequirementsManager)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -98,6 +100,7 @@ public class LFGManager
         _gameEventManager = gameEventManager;
         _worldManager = worldManager;
         _classFactory = classFactory;
+        _accessRequirementsManager = accessRequirementsManager;
         _lfgProposalId = 1;
         _options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder:OptionsMask", 1);
 
@@ -522,7 +525,7 @@ public class LFGManager
                 lockStatus = LfgLockStatusType.NotInSeason;
             else if (dungeon.RequiredItemLevel > player.GetAverageItemLevel())
                 lockStatus = LfgLockStatusType.TooLowGearScore;
-            else if ((ar = _objectManager.GetAccessRequirement(dungeon.Map, dungeon.Difficulty)) != null)
+            else if ((ar = _accessRequirementsManager.GetAccessRequirement(dungeon.Map, dungeon.Difficulty)) != null)
             {
                 if (ar.Achievement != 0 && !player.HasAchieved(ar.Achievement))
                     lockStatus = LfgLockStatusType.MissingAchievement;
