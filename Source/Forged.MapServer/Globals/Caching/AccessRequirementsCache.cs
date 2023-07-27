@@ -11,9 +11,9 @@ using Framework.Constants;
 using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Globals;
+namespace Forged.MapServer.Globals.Caching;
 
-public sealed class AccessRequirementsManager
+public class AccessRequirementsCache : IObjectCache
 {
     private readonly GameObjectManager _gameObjectManager;
     private readonly DB6Storage<MapRecord> _mapRecords;
@@ -22,7 +22,7 @@ public sealed class AccessRequirementsManager
     private readonly DB6Storage<AchievementRecord> _achievementRecords;
     private readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
 
-    public AccessRequirementsManager(GameObjectManager gameObjectManager, DB6Storage<MapRecord> mapRecords, DB2Manager db2Manager, WorldDatabase worldDatabase, DB6Storage<AchievementRecord> achievementRecords)
+    public AccessRequirementsCache(GameObjectManager gameObjectManager, DB6Storage<MapRecord> mapRecords, DB2Manager db2Manager, WorldDatabase worldDatabase, DB6Storage<AchievementRecord> achievementRecords)
     {
         _gameObjectManager = gameObjectManager;
         _mapRecords = mapRecords;
@@ -36,7 +36,7 @@ public sealed class AccessRequirementsManager
         return _accessRequirementStorage.LookupByKey(MathFunctions.MakePair64(mapid, (uint)difficulty));
     }
 
-    public void LoadAccessRequirements()
+    public void Load()
     {
         var oldMSTime = Time.MSTime;
 
@@ -53,7 +53,7 @@ public sealed class AccessRequirementsManager
         }
 
         uint count = 0;
-        
+
         do
         {
             var mapid = result.Read<uint>(0);

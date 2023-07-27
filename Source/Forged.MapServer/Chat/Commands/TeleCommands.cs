@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
@@ -80,7 +81,7 @@ internal class TeleCommands
         if (player == null)
             return false;
 
-        if (handler.ClassFactory.Resolve<GameTeleObjectManager>().GetGameTeleExactName(name) != null)
+        if (handler.ClassFactory.Resolve<GameTeleObjectCache>().GetGameTeleExactName(name) != null)
         {
             handler.SendSysMessage(CypherStrings.CommandTpAlreadyexist);
 
@@ -98,7 +99,7 @@ internal class TeleCommands
             NameLow = name.ToLowerInvariant()
         };
 
-        if (handler.ClassFactory.Resolve<GameTeleObjectManager>().AddGameTele(tele))
+        if (handler.ClassFactory.Resolve<GameTeleObjectCache>().AddGameTele(tele))
             handler.SendSysMessage(CypherStrings.CommandTpAdded);
         else
         {
@@ -159,7 +160,7 @@ internal class TeleCommands
             return false;
         }
 
-        handler.ClassFactory.Resolve<GameTeleObjectManager>().DeleteGameTele(tele.Name);
+        handler.ClassFactory.Resolve<GameTeleObjectCache>().DeleteGameTele(tele.Name);
         handler.SendSysMessage(CypherStrings.CommandTpDeleted);
 
         return true;

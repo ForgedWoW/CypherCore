@@ -21,6 +21,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
@@ -46,8 +47,6 @@ namespace Forged.MapServer.Globals;
 
 public sealed class GameObjectManager
 {
-    private readonly Dictionary<uint, AreaTriggerStruct> _areaTriggerStorage = new();
-
     private readonly float[] _armorMultipliers = {
         0.00f, // INVTYPE_NON_EQUIP
         0.60f, // INVTYPE_HEAD
@@ -229,11 +228,14 @@ public sealed class GameObjectManager
     private TransportManager _transportManager;
     private ulong _voidItemId;
     private WorldManager _worldManager;
-    private readonly InstanceTemplateManager _instanceTemplateManager;
+    private readonly InstanceTemplateCache _instanceTemplateCache;
+    private readonly AreaTriggerCache _areaTriggerCache;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
-                             ObjectGuidGeneratorFactory objectGuidGeneratorFactory, InstanceTemplateManager instanceTemplateManager)
+                             ObjectGuidGeneratorFactory objectGuidGeneratorFactory, InstanceTemplateCache instanceTemplateCache,
+                             WorldSafeLocationsCache worldSafeLocationsCache, AreaTriggerCache areaTriggerCache)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
@@ -243,7 +245,9 @@ public sealed class GameObjectManager
         _loginDatabase = loginDatabase;
         _scriptManager = scriptManager;
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
-        _instanceTemplateManager = instanceTemplateManager;
+        _instanceTemplateCache = instanceTemplateCache;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
+        _areaTriggerCache = areaTriggerCache;
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
@@ -285,8 +289,6 @@ public sealed class GameObjectManager
     public Dictionary<byte, RaceUnlockRequirement> RaceUnlockRequirements { get; } = new();
 
     public MultiMap<uint, TerrainSwapInfo> TerrainSwaps { get; } = new();
-
-    public Dictionary<uint, WorldSafeLocsEntry> WorldSafeLocs { get; } = new();
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
     {
@@ -945,11 +947,6 @@ public sealed class GameObjectManager
         return _voidItemId++;
     }
 
-    public AreaTriggerStruct GetAreaTrigger(uint trigger)
-    {
-        return _areaTriggerStorage.LookupByKey(trigger);
-    }
-
     public CellObjectGuids GetCellObjectGuids(uint mapid, Difficulty difficulty, uint cellid)
     {
         var key = (mapid, difficulty);
@@ -1036,7 +1033,7 @@ public sealed class GameObjectManager
 
         foreach (var data in range)
         {
-            var entry = GetWorldSafeLoc(data.SafeLocId);
+            var entry = _worldSafeLocationsCache.GetWorldSafeLoc(data.SafeLocId);
 
             if (entry == null)
             {
@@ -1254,9 +1251,9 @@ public sealed class GameObjectManager
     {
         return team switch
         {
-            TeamFaction.Horde => GetWorldSafeLoc(10),
-            TeamFaction.Alliance => GetWorldSafeLoc(4),
-            _ => null
+            TeamFaction.Horde    => _worldSafeLocationsCache.GetWorldSafeLoc(10),
+            TeamFaction.Alliance => _worldSafeLocationsCache.GetWorldSafeLoc(4),
+            _                    => null
         };
     }
 
@@ -1327,36 +1324,6 @@ public sealed class GameObjectManager
     public GameObjectTemplateAddon GetGameObjectTemplateAddon(uint entry)
     {
         return _gameObjectTemplateAddonStorage.LookupByKey(entry);
-    }
-
-    public AreaTriggerStruct GetGoBackTrigger(uint map)
-    {
-        uint? parentId = null;
-        var mapEntry = _cliDB.MapStorage.LookupByKey(map);
-
-        if (mapEntry == null || mapEntry.CorpseMapID < 0)
-            return null;
-
-        if (mapEntry.IsDungeon())
-        {
-            var iTemplate = _instanceTemplateManager.GetInstanceTemplate(map);
-
-            if (iTemplate != null)
-                parentId = iTemplate.Parent;
-        }
-
-        var entranceMap = parentId.GetValueOrDefault((uint)mapEntry.CorpseMapID);
-
-        foreach (var pair in _areaTriggerStorage)
-            if (pair.Value.TargetMapId == entranceMap)
-            {
-                var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(pair.Key);
-
-                if (atEntry != null && atEntry.ContinentID == map)
-                    return pair.Value;
-            }
-
-        return null;
     }
 
     public List<uint> GetGOQuestInvolvedRelationReverseBounds(uint questId)
@@ -1444,16 +1411,6 @@ public sealed class GameObjectManager
         foreach (var mailReward in mailList)
             if (Convert.ToBoolean(mailReward.RaceMask & raceMask))
                 return mailReward;
-
-        return null;
-    }
-
-    public AreaTriggerStruct GetMapEntranceTrigger(uint map)
-    {
-        foreach (var pair in _areaTriggerStorage)
-            if (pair.Value.TargetMapId == map)
-                if (_cliDB.AreaTriggerStorage.TryGetValue(pair.Key, out _))
-                    return pair.Value;
 
         return null;
     }
@@ -1894,11 +1851,6 @@ public sealed class GameObjectManager
         return _trainers.LookupByKey(trainerId);
     }
 
-    public WorldSafeLocsEntry GetWorldSafeLoc(uint id)
-    {
-        return WorldSafeLocs.LookupByKey(id);
-    }
-
     public uint GetXPForLevel(uint level)
     {
         return level < _playerXPperLevel.Length ? _playerXPperLevel[level] : 0;
@@ -1980,8 +1932,6 @@ public sealed class GameObjectManager
         LoadQuestStartersAndEnders(); // must be after quest load
         LoadQuestGreetings();
         LoadQuestGreetingLocales();
-        LoadWorldSafeLocs();                                   // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
-        LoadAreaTriggerTeleports();
         LoadQuestAreaTriggers(); // must be after LoadQuests
         LoadTavernAreaTriggers();
         LoadAreaTriggerScripts();
@@ -2269,63 +2219,6 @@ public sealed class GameObjectManager
         });
 
         Log.Logger.Information("Loaded {0} areatrigger scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadAreaTriggerTeleports()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _areaTriggerStorage.Clear(); // need for reload case
-
-        //                                         0   1
-        var result = _worldDatabase.Query("SELECT ID, PortLocID FROM areatrigger_teleport");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            ++count;
-
-            var triggerID = result.Read<uint>(0);
-            var portLocID = result.Read<uint>(1);
-
-            var portLoc = GetWorldSafeLoc(portLocID);
-
-            if (portLoc == null)
-            {
-                Log.Logger.Error("Area Trigger (ID: {0}) has a non-existing Port Loc (ID: {1}) in WorldSafeLocs.dbc, skipped", triggerID, portLocID);
-
-                continue;
-            }
-
-            AreaTriggerStruct at = new()
-            {
-                TargetMapId = portLoc.Location.MapId,
-                TargetX = portLoc.Location.X,
-                TargetY = portLoc.Location.Y,
-                TargetZ = portLoc.Location.Z,
-                TargetOrientation = portLoc.Location.Orientation,
-                PortLocId = portLoc.Id
-            };
-
-            if (!_cliDB.AreaTriggerStorage.TryGetValue(triggerID, out _))
-            {
-                Log.Logger.Error("Area trigger (ID: {0}) does not exist in `AreaTrigger.dbc`.", triggerID);
-
-                continue;
-            }
-
-            _areaTriggerStorage[triggerID] = at;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} area trigger teleport definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadCreatureAddons()
@@ -5045,7 +4938,7 @@ public sealed class GameObjectManager
             var zoneId = result.Read<uint>(1);
             var team = (TeamFaction)result.Read<uint>(2);
 
-            var entry = GetWorldSafeLoc(safeLocId);
+            var entry = _worldSafeLocationsCache.GetWorldSafeLoc(safeLocId);
 
             if (entry == null)
             {
@@ -9936,44 +9829,6 @@ public sealed class GameObjectManager
 
         foreach (var id in actionSet)
             Log.Logger.Error("There is no waypoint which links to the waypoint script {0}", id);
-    }
-
-    public void LoadWorldSafeLocs()
-    {
-        var oldMSTime = Time.MSTime;
-
-        //                                         0   1      2     3     4     5
-        var result = _worldDatabase.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 world locations. DB table `world_safe_locs` is empty.");
-
-            return;
-        }
-
-        do
-        {
-            var id = result.Read<uint>(0);
-            WorldLocation loc = new(result.Read<uint>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), MathFunctions.DegToRad(result.Read<float>(5)));
-
-            if (!_gridDefines.IsValidMapCoord(loc))
-            {
-                Log.Logger.Error($"World location (ID: {id}) has a invalid position MapID: {loc.MapId} {loc}, skipped");
-
-                continue;
-            }
-
-            WorldSafeLocsEntry worldSafeLocs = new()
-            {
-                Id = id,
-                Location = loc
-            };
-
-            WorldSafeLocs[id] = worldSafeLocs;
-        } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {WorldSafeLocs.Count} world locations {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
     public CreatureData NewOrExistCreatureData(ulong spawnId)

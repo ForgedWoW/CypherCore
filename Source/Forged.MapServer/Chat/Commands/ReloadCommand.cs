@@ -9,7 +9,7 @@ using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Items;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Movement;
@@ -31,7 +31,7 @@ internal class ReloadCommand
     private static bool HandleReloadAccessRequirementCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Access Requirement definitions...");
-        handler.ClassFactory.Resolve<AccessRequirementsManager>().LoadAccessRequirements();
+        handler.ClassFactory.Resolve<AccessRequirementsCache>().Load();
         handler.SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
 
         return true;
@@ -71,7 +71,7 @@ internal class ReloadCommand
     private static bool HandleReloadAreaTriggerTeleportCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading AreaTrigger teleport definitions...");
-        handler.ObjectManager.LoadAreaTriggerTeleports();
+        handler.ClassFactory.Resolve<AreaTriggerCache>().Load();
         handler.SendGlobalGMSysMessage("DB table `areatrigger_teleport` reloaded.");
 
         return true;
@@ -352,7 +352,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Game Tele coordinates...");
 
-        handler.ClassFactory.Resolve<GameTeleObjectManager>().LoadGameTele();
+        handler.ClassFactory.Resolve<GameTeleObjectCache>().Load();
 
         handler.SendGlobalGMSysMessage("DB table `game_tele` reloaded.");
 
@@ -834,7 +834,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellClickSpellsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `npc_spellclick_spells` Table!");
-        handler.ClassFactory.Resolve<SpellClickInfoObjectManager>().LoadNPCSpellClickSpells();
+        handler.ClassFactory.Resolve<SpellClickInfoCache>().Load();
         handler.SendGlobalGMSysMessage("DB table `npc_spellclick_spells` reloaded.");
 
         return true;
@@ -993,7 +993,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_accessory table...");
-        handler.ClassFactory.Resolve<VehicleObjectManager>().LoadVehicleAccessories();
+        handler.ClassFactory.Resolve<VehicleObjectCache>().LoadVehicleAccessories();
         handler.SendGlobalGMSysMessage("Vehicle accessories reloaded.");
 
         return true;
@@ -1003,7 +1003,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template_accessory table...");
-        handler.ClassFactory.Resolve<VehicleObjectManager>().LoadVehicleTemplateAccessories();
+        handler.ClassFactory.Resolve<VehicleObjectCache>().LoadVehicleTemplateAccessories();
         handler.SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
 
         return true;
@@ -1013,7 +1013,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template table...");
-        handler.ClassFactory.Resolve<VehicleObjectManager>().LoadVehicleTemplate();
+        handler.ClassFactory.Resolve<VehicleObjectCache>().LoadVehicleTemplate();
         handler.SendGlobalGMSysMessage("Vehicle templates reloaded.");
 
         return true;

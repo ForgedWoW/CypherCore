@@ -8,6 +8,7 @@ using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 
@@ -228,7 +229,7 @@ internal class CommandArgs
                         if (!result.IsSuccessful)
                             result = TryConsume(out tempVal, typeof(string), handler, args);
 
-                        if (!result.IsSuccessful || (val = handler.ClassFactory.Resolve<GameTeleObjectManager>().GetGameTele(tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.ClassFactory.Resolve<GameTeleObjectCache>().GetGameTele(tempVal)) != null)
                             return result;
 
                         if (tempVal is uint)

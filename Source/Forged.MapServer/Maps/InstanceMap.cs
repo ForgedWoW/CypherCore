@@ -5,6 +5,7 @@ using System;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Instance;
@@ -25,7 +26,7 @@ namespace Forged.MapServer.Maps;
 public class InstanceMap : Map
 {
     private readonly CharacterDatabase _characterDatabase;
-    private readonly InstanceTemplateManager _instanceTemplateManager;
+    private readonly InstanceTemplateCache _instanceTemplateManager;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
     private readonly InstanceLockManager _instanceLockManager;
@@ -37,7 +38,7 @@ public class InstanceMap : Map
 
     public InstanceMap(uint id, long expiry, uint instanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock, ClassFactory classFactory, IConfiguration configuration,
                        WorldStateManager worldStateManager, WorldManager worldManager, GameObjectManager gameObjectManager, ScriptManager scriptManager, InstanceLockManager instanceLockManager,
-                       CharacterDatabase characterDatabase, InstanceTemplateManager instanceTemplateManager)
+                       CharacterDatabase characterDatabase, InstanceTemplateCache instanceTemplateManager)
         : base(id, expiry, instanceId, spawnMode, classFactory)
     {
         _configuration = configuration;

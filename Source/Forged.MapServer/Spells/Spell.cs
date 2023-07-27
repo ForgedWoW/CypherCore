@@ -18,6 +18,7 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
@@ -104,7 +105,7 @@ public partial class Spell : IDisposable
     private readonly ConversationFactory _conversationFactory;
     private readonly ItemFactory _itemFactory;
     private readonly SceneFactory _sceneFactory;
-    private readonly AccessRequirementsManager _accessRequirementsManager;
+    private readonly AccessRequirementsCache _accessRequirementsManager;
     private readonly ScriptManager _scriptManager;
     private readonly SkillExtraItems _skillExtraItems;
     private readonly SkillPerfectItems _skillPerfectItems;
@@ -169,7 +170,7 @@ public partial class Spell : IDisposable
                  CliDB cliDb, BattleFieldManager battleFieldManager, UnitCombatHelpers combatHelpers, SpellManager spellManager, GroupManager groupManager, ScriptManager scriptManager, LootStoreBox lootStoreBox,
                  WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator, TraitMgr traitMgr, GameObjectFactory gameObjectFactory, PhasingHandler phasingHandler,
                  BattlePetData battlePetData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, 
-                 ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, AccessRequirementsManager accessRequirementsManager,
+                 ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, AccessRequirementsCache accessRequirementsManager,
                  ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
         SpellInfo = info;

@@ -8,7 +8,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
@@ -190,7 +190,7 @@ internal class GoCommands
     [Command("graveyard", RBACPermissions.CommandGo)]
     private static bool HandleGoGraveyardCommand(CommandHandler handler, uint graveyardId)
     {
-        var gy = handler.ObjectManager.GetWorldSafeLoc(graveyardId);
+        var gy = handler.ClassFactory.Resolve<WorldSafeLocationsCache>().GetWorldSafeLoc(graveyardId);
 
         if (gy == null)
         {
@@ -258,7 +258,7 @@ internal class GoCommands
 
         MultiMap<uint, Tuple<uint, string, string>> matches = new();
 
-        foreach (var pair in handler.ClassFactory.Resolve<InstanceTemplateManager>().InstanceTemplates)
+        foreach (var pair in handler.ClassFactory.Resolve<InstanceTemplateCache>().InstanceTemplates)
         {
             uint count = 0;
             var scriptName = handler.ClassFactory.Resolve<ScriptManager>().GetScriptName(pair.Value.ScriptId);
@@ -309,7 +309,7 @@ internal class GoCommands
             player.SaveRecallPosition();
 
         // try going to entrance
-        var exit = handler.ObjectManager.GetGoBackTrigger(mapId);
+        var exit = handler.ClassFactory.Resolve<AreaTriggerCache>().GetGoBackTrigger(mapId);
 
         if (exit != null)
         {
@@ -328,7 +328,7 @@ internal class GoCommands
             handler.SendSysMessage(CypherStrings.CommandInstanceNoExit, mapName, mapId);
 
         // try going to start
-        var entrance = handler.ObjectManager.GetMapEntranceTrigger(mapId);
+        var entrance = handler.ClassFactory.Resolve<AreaTriggerCache>().GetMapEntranceTrigger(mapId);
 
         if (entrance != null)
         {

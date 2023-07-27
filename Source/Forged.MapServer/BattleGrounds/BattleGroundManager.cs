@@ -14,6 +14,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.LFG;
@@ -39,6 +40,7 @@ public class BattlegroundManager
     private readonly MultiMap<BattlegroundQueueTypeId, Battleground> _bgFreeSlotQueue = new();
     private readonly ClassFactory _classFactory;
     private readonly ScriptManager _scriptManager;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DisableManager _disableManager;
@@ -55,7 +57,7 @@ public class BattlegroundManager
     private uint _updateTimer;
 
     public BattlegroundManager(IConfiguration configuration, MapManager mapManager, WorldDatabase worldDatabase, DisableManager disableManager, CliDB cliDB,
-                               GameObjectManager objectManager, WorldManager worldManager, GameEventManager gameEventManager, ClassFactory classFactory, ScriptManager scriptManager)
+                               GameObjectManager objectManager, WorldManager worldManager, GameEventManager gameEventManager, ClassFactory classFactory, ScriptManager scriptManager, WorldSafeLocationsCache worldSafeLocationsCache)
     {
         _configuration = configuration;
         _mapManager = mapManager;
@@ -67,6 +69,7 @@ public class BattlegroundManager
         _gameEventManager = gameEventManager;
         _classFactory = classFactory;
         _scriptManager = scriptManager;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena:RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
         _threadTaskManager = new LimitedThreadTaskManager(_configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
     }
@@ -384,7 +387,7 @@ public class BattlegroundManager
             if (bgTemplate.Id != BattlegroundTypeId.Aa && bgTemplate.Id != BattlegroundTypeId.Rb && bgTemplate.Id != BattlegroundTypeId.RandomEpic)
             {
                 var startId = result.Read<uint>(1);
-                var start = _objectManager.GetWorldSafeLoc(startId);
+                var start = _worldSafeLocationsCache.GetWorldSafeLoc(startId);
 
                 if (start != null)
                     bgTemplate.StartLocation[TeamIds.Alliance] = start;
@@ -398,7 +401,7 @@ public class BattlegroundManager
                 }
 
                 startId = result.Read<uint>(2);
-                start = _objectManager.GetWorldSafeLoc(startId);
+                start = _worldSafeLocationsCache.GetWorldSafeLoc(startId);
 
                 if (start != null)
                     bgTemplate.StartLocation[TeamIds.Horde] = start;

@@ -6,6 +6,7 @@ using System.Numerics;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Scripting;
 using Framework.Constants;
@@ -25,11 +26,13 @@ public class AreaTriggerDataStorage
     private readonly CliDB _cliDB;
     private readonly GridDefines _gridDefines;
     private readonly ScriptManager _scriptManager;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB, GridDefines gridDefines, ScriptManager scriptManager)
+    public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB, 
+                                  GridDefines gridDefines, ScriptManager scriptManager, WorldSafeLocationsCache worldSafeLocationsCache)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
@@ -37,6 +40,7 @@ public class AreaTriggerDataStorage
         _cliDB = cliDB;
         _gridDefines = gridDefines;
         _scriptManager = scriptManager;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
     }
 
     public AreaTriggerCreateProperties GetAreaTriggerCreateProperties(uint spellMiscValue)
@@ -184,7 +188,7 @@ public class AreaTriggerDataStorage
 
 
                 if (action.ActionType == AreaTriggerActionTypes.Teleport)
-                    if (_objectManager.GetWorldSafeLoc(action.Param) == null)
+                    if (_worldSafeLocationsCache.GetWorldSafeLoc(action.Param) == null)
                     {
                         Log.Logger.Error($"Table `areatrigger_template_actions` has invalid (Id: {areaTriggerId}, IsServerSide: {areaTriggerId.IsServerSide}) with TargetType=Teleport and Param ({action.Param}) not a valid world safe loc entry");
 

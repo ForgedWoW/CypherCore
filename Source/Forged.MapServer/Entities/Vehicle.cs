@@ -10,6 +10,7 @@ using Forged.MapServer.DataStorage.Structs.V;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IVehicle;
 using Framework.Constants;
@@ -26,7 +27,7 @@ public class Vehicle : ITransport
     private readonly GameObjectManager _gameObjectManager;
 
     private readonly ObjectAccessor _objectAccessor;
-    private readonly VehicleObjectManager _vehicleObjectManager;
+    private readonly VehicleObjectCache _vehicleObjectManager;
 
     private readonly List<VehicleJoinEvent> _pendingJoinEvents = new();
 
@@ -37,7 +38,7 @@ public class Vehicle : ITransport
 
     //< Number of seats that match VehicleSeatEntry.UsableByPlayer, used for proper display flags
     public Vehicle(Unit unit, VehicleRecord vehInfo, uint creatureEntry, DB6Storage<VehicleSeatRecord> vehicleSeatRecords, 
-                   GameObjectManager gameObjectManager, ScriptManager scriptManager, ObjectAccessor objectAccessor, VehicleObjectManager vehicleObjectManager)
+                   GameObjectManager gameObjectManager, ScriptManager scriptManager, ObjectAccessor objectAccessor, VehicleObjectCache vehicleObjectManager)
     {
         Base = unit;
         VehicleInfo = vehInfo;

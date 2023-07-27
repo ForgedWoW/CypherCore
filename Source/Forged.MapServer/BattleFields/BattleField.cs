@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
@@ -84,6 +85,7 @@ public class BattleField : ZoneScript
     public uint ZoneId;
     private readonly GameObjectFactory _gameObjectFactory;
     private readonly ClassFactory _classFactory;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
 
     // Timer for invite players in area 15 minute before start battle
     // bool for know if all players in area has been invited
@@ -103,7 +105,7 @@ public class BattleField : ZoneScript
     private uint _uiKickAfkPlayersTimer;
 
     public BattleField(Map map, ObjectAccessor objectAccessor, GameObjectManager objectManager, BattleFieldManager battleFieldManager, CreatureTextManager creatureTextManager,
-                       CreatureFactory creatureFactory, GroupManager groupManager, GameObjectFactory gameObjectFactory, ClassFactory classFactory)
+                       CreatureFactory creatureFactory, GroupManager groupManager, GameObjectFactory gameObjectFactory, ClassFactory classFactory, WorldSafeLocationsCache worldSafeLocationsCache)
     {
         CreatureFactory = creatureFactory;
         GroupManager = groupManager;
@@ -119,6 +121,7 @@ public class BattleField : ZoneScript
         Map = map;
         _gameObjectFactory = gameObjectFactory;
         _classFactory = classFactory;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         ObjectAccessor = objectAccessor;
         ObjectManager = objectManager;
         BattlefieldManager = battleFieldManager;
@@ -251,7 +254,7 @@ public class BattleField : ZoneScript
             }
 
         if (closestGY != null)
-            return ObjectManager.GetWorldSafeLoc(closestGY.GraveyardId);
+            return _worldSafeLocationsCache.GetWorldSafeLoc(closestGY.GraveyardId);
 
         return null;
     }

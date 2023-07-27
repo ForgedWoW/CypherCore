@@ -29,6 +29,7 @@ using Framework.Util;
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.Collision.Management;
+using Forged.MapServer.Globals.Caching;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -953,7 +954,7 @@ internal class MiscCommands
         else
             return false;
 
-        var graveyard = handler.ObjectManager.GetWorldSafeLoc(graveyardId);
+        var graveyard = handler.ClassFactory.Resolve<WorldSafeLocationsCache>().GetWorldSafeLoc(graveyardId);
 
         if (graveyard == null)
         {

@@ -13,6 +13,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Text;
@@ -27,6 +28,7 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 public class BgStrandOfAncients : Battleground
 {
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly Dictionary<uint /*id*/, uint /*timer*/> _demoliserRespawnList = new();
 
     // Status of each gate (Destroy/Damage/Intact)
@@ -71,10 +73,11 @@ public class BgStrandOfAncients : Battleground
     public BgStrandOfAncients(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
                               CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
                               GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
-                              CreatureTextManager creatureTextManager, WorldStateManager worldStateManager) :
+                              CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, WorldSafeLocationsCache worldSafeLocationsCache) :
         base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
              guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager)
     {
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         StartMessageIds[BattlegroundConst.EVENT_ID_FOURTH] = 0;
 
         BgObjects = new ObjectGuid[SaObjectTypes.MAX_OBJ];
@@ -168,7 +171,7 @@ public class BgStrandOfAncients : Battleground
 
         var safeloc = teamId == _attackers ? SaMiscConst.GYEntries[SaGraveyards.BEACH_GY] : SaMiscConst.GYEntries[SaGraveyards.DEFENDER_LAST_GY];
 
-        var closest = ObjectManager.GetWorldSafeLoc(safeloc);
+        var closest = _worldSafeLocationsCache.GetWorldSafeLoc(safeloc);
         var nearest = player.Location.GetExactDistSq(closest.Location);
 
         for (byte i = SaGraveyards.RIGHT_CAPTURABLE_GY; i < SaGraveyards.MAX; i++)
@@ -176,7 +179,7 @@ public class BgStrandOfAncients : Battleground
             if (_graveyardStatus[i] != teamId)
                 continue;
 
-            var ret = ObjectManager.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
+            var ret = _worldSafeLocationsCache.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
             var dist = player.Location.GetExactDistSq(ret.Location);
 
             if (!(dist < nearest))
@@ -527,7 +530,7 @@ public class BgStrandOfAncients : Battleground
         DelCreature(SaCreatureTypes.MAX + i);
         var teamId = GetTeamIndexByTeamId(GetPlayerTeam(source.GUID));
         _graveyardStatus[i] = teamId;
-        var sg = ObjectManager.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
+        var sg = _worldSafeLocationsCache.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
 
         if (sg == null)
         {
@@ -806,7 +809,7 @@ public class BgStrandOfAncients : Battleground
         //Graveyards
         for (byte i = 0; i < SaGraveyards.MAX; i++)
         {
-            var sg = ObjectManager.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
+            var sg = _worldSafeLocationsCache.GetWorldSafeLoc(SaMiscConst.GYEntries[i]);
 
             if (sg == null)
             {

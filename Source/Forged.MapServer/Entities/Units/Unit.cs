@@ -17,6 +17,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
@@ -51,7 +52,7 @@ public partial class Unit : WorldObject
         DB2Manager = classFactory.Resolve<DB2Manager>();
         UnitCombatHelpers = classFactory.Resolve<UnitCombatHelpers>();
         SmartAIManager = classFactory.Resolve<SmartAIManager>();
-        SpellClickInfoObjectManager = classFactory.Resolve<SpellClickInfoObjectManager>();
+        SpellClickInfoObjectManager = classFactory.Resolve<SpellClickInfoCache>();
         MoveSpline = new MoveSpline(DB2Manager);
         MotionMaster = new MotionMaster(this);
         CombatManager = new CombatManager(this);

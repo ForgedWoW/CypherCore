@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Text;
@@ -25,6 +26,7 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal class BgArathiBasin : Battleground
 {
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     public const uint ABBG_WEEKEND_HONOR_TICKS = 160;
 
     public const uint ABBG_WEEKEND_REPUTATION_TICKS = 120;
@@ -166,10 +168,11 @@ internal class BgArathiBasin : Battleground
     public BgArathiBasin(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
                          CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
                          GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
-                         CreatureTextManager creatureTextManager, WorldStateManager worldStateManager) :
+                         CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, WorldSafeLocationsCache worldSafeLocationsCache) :
         base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
              guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager)
     {
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         _mIsInformedNearVictory = false;
         MBuffChange = true;
         BgObjects = new ObjectGuid[ABObjectTypes.MAX];
@@ -371,7 +374,7 @@ internal class BgArathiBasin : Battleground
 
             for (byte i = 0; i < nodes.Count; ++i)
             {
-                var entry = ObjectManager.GetWorldSafeLoc(GraveyardIds[nodes[i]]);
+                var entry = _worldSafeLocationsCache.GetWorldSafeLoc(GraveyardIds[nodes[i]]);
 
                 if (entry == null)
                     continue;
@@ -389,12 +392,12 @@ internal class BgArathiBasin : Battleground
         }
 
         // If not, place ghost on starting location
-        return goodEntry ??= ObjectManager.GetWorldSafeLoc(GraveyardIds[teamIndex + 5]);
+        return goodEntry ??= _worldSafeLocationsCache.GetWorldSafeLoc(GraveyardIds[teamIndex + 5]);
     }
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
-        return ObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EXPLOIT_TELEPORT_LOCATION_HORDE);
+        return _worldSafeLocationsCache.GetWorldSafeLoc(team == TeamFaction.Alliance ? EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EXPLOIT_TELEPORT_LOCATION_HORDE);
     }
 
     public override TeamFaction GetPrematureWinner()

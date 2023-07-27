@@ -39,6 +39,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
@@ -348,12 +349,14 @@ void RegisterManagers()
     builder.RegisterType<PhasingHandler>().SingleInstance();
     builder.RegisterType<CriteriaDataValidator>().SingleInstance();
     builder.RegisterType<LFGGroupScript>().SingleInstance();
-    builder.RegisterType<VehicleObjectManager>().SingleInstance().OnActivated(c => c.Instance.Initialize());
-    builder.RegisterType<SpellClickInfoObjectManager>().SingleInstance().OnActivated(c => c.Instance.LoadNPCSpellClickSpells());
-    builder.RegisterType<GameTeleObjectManager>().SingleInstance().OnActivated(c => c.Instance.LoadGameTele());
-    builder.RegisterType<ExplorationExpManager>().SingleInstance().OnActivated(c => c.Instance.LoadExplorationBaseXP());
-    builder.RegisterType<InstanceTemplateManager>().SingleInstance().OnActivated(c => c.Instance.LoadInstanceTemplate());
-    builder.RegisterType<AccessRequirementsManager>().SingleInstance().OnActivated(c => c.Instance.LoadAccessRequirements());
+    builder.RegisterType<VehicleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<SpellClickInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<GameTeleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<ExplorationExpCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<InstanceTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<AccessRequirementsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<AreaTriggerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<WorldSafeLocationsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
 }
 
 void RegisterFactories()

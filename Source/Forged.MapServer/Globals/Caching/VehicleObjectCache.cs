@@ -10,20 +10,20 @@ using Framework.Constants;
 using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Globals;
+namespace Forged.MapServer.Globals.Caching;
 
-public sealed class VehicleObjectManager
+public class VehicleObjectCache
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly DB6Storage<VehicleSeatRecord> _vehicleSeatRecords;
-    private readonly SpellClickInfoObjectManager _spellClickInfoObjectManager;
+    private readonly SpellClickInfoCache _spellClickInfoObjectManager;
     private readonly GameObjectManager _gameObjectManager;
     private readonly MultiMap<ulong, VehicleAccessory> _vehicleAccessoryStore = new();
     private readonly Dictionary<uint, VehicleSeatAddon> _vehicleSeatAddonStore = new();
     private readonly MultiMap<uint, VehicleAccessory> _vehicleTemplateAccessoryStore = new();
     private readonly Dictionary<uint, VehicleTemplate> _vehicleTemplateStore = new();
 
-    public VehicleObjectManager(WorldDatabase worldDatabase, DB6Storage<VehicleSeatRecord> vehicleSeatRecords, SpellClickInfoObjectManager spellClickInfoObjectManager, GameObjectManager gameObjectManager)
+    public VehicleObjectCache(WorldDatabase worldDatabase, DB6Storage<VehicleSeatRecord> vehicleSeatRecords, SpellClickInfoCache spellClickInfoObjectManager, GameObjectManager gameObjectManager)
     {
         _worldDatabase = worldDatabase;
         _vehicleSeatRecords = vehicleSeatRecords;
@@ -54,7 +54,7 @@ public sealed class VehicleObjectManager
         return _vehicleTemplateStore.LookupByKey(veh.CreatureEntry);
     }
 
-    public void Initialize()
+    public void Load()
     {
         LoadVehicleTemplate();
         LoadVehicleAccessories();

@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Constants;
 using Serilog;
 
@@ -15,13 +16,15 @@ public class BfGraveyard
 {
     protected BattleField BattleField;
     private readonly ObjectAccessor _objectAccessor;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly List<ObjectGuid> _resurrectQueue = new();
     private readonly ObjectGuid[] _spiritGuide = new ObjectGuid[SharedConst.PvpTeamsCount];
 
-    public BfGraveyard(BattleField battlefield, ObjectAccessor objectAccessor)
+    public BfGraveyard(BattleField battlefield, ObjectAccessor objectAccessor, WorldSafeLocationsCache worldSafeLocationsCache)
     {
         BattleField = battlefield;
         _objectAccessor = objectAccessor;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         GraveyardId = 0;
         ControlTeamId = TeamIds.Neutral;
         _spiritGuide[0] = ObjectGuid.Empty;
@@ -45,7 +48,7 @@ public class BfGraveyard
 
     public float GetDistance(Player player)
     {
-        var safeLoc = player.GameObjectManager.GetWorldSafeLoc(GraveyardId);
+        var safeLoc = _worldSafeLocationsCache.GetWorldSafeLoc(GraveyardId);
 
         return player.Location.GetDistance2d(safeLoc.Location.X, safeLoc.Location.Y);
     }

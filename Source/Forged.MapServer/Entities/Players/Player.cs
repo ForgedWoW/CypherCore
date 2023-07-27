@@ -25,6 +25,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
@@ -83,7 +84,9 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player : Unit
 {
-    private readonly ExplorationExpManager _explorationExpManager;
+    private readonly ExplorationExpCache _explorationExpManager;
+    private readonly AreaTriggerCache _areaTriggerCache;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
 
     public Player(WorldSession session, ClassFactory classFactory) : base(true, classFactory)
     {
@@ -124,9 +127,11 @@ public partial class Player : Unit
         ItemFactory = classFactory.Resolve<ItemFactory>();
         AzeriteItemFactory = classFactory.Resolve<AzeriteItemFactory>();
         AzeriteEmpoweredItemFactory = classFactory.Resolve<AzeriteEmpoweredItemFactory>();
-        AccessRequirementsManager = classFactory.Resolve<AccessRequirementsManager>();
+        AccessRequirementsManager = classFactory.Resolve<AccessRequirementsCache>();
         Session = session;
-        _explorationExpManager = classFactory.Resolve<ExplorationExpManager>();
+        _explorationExpManager = classFactory.Resolve<ExplorationExpCache>();
+        _areaTriggerCache = classFactory.Resolve<AreaTriggerCache>();
+        _worldSafeLocationsCache = classFactory.Resolve<WorldSafeLocationsCache>();
 
         // players always accept
         if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))

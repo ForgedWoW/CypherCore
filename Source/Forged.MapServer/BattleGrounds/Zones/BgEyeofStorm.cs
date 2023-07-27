@@ -10,6 +10,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Text;
@@ -24,6 +25,7 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal class BgEyeofStorm : Battleground
 {
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly byte[] _mCurrentPointPlayersCount = new byte[2 * EotSPoints.POINTS_MAX];
     private readonly uint[] _mHonorScoreTics = new uint[2];
     private readonly BattlegroundPointCaptureStatus[] _mLastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.POINTS_MAX];
@@ -49,10 +51,11 @@ internal class BgEyeofStorm : Battleground
     public BgEyeofStorm(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
                         CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
                         GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
-                        CreatureTextManager creatureTextManager, WorldStateManager worldStateManager) :
+                        CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, WorldSafeLocationsCache worldSafeLocationsCache) :
         base(battlegroundTemplate, worldManager, battlegroundManager, objectAccessor, objectManager, creatureFactory, gameObjectFactory, classFactory, configuration, characterDatabase,
              guildManager, formulas, playerComputators, factionStorage, broadcastTextRecords, creatureTextManager, worldStateManager)
     {
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         MBuffChange = true;
         BgObjects = new ObjectGuid[EotSObjectTypes.MAX];
         BgCreatures = new ObjectGuid[EotSCreaturesTypes.MAX];
@@ -199,7 +202,7 @@ internal class BgEyeofStorm : Battleground
             default: return null;
         }
 
-        var entry = ObjectManager.GetWorldSafeLoc(gID);
+        var entry = _worldSafeLocationsCache.GetWorldSafeLoc(gID);
         var nearestEntry = entry;
 
         if (entry == null)
@@ -219,7 +222,7 @@ internal class BgEyeofStorm : Battleground
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
             if (_mPointOwnedByTeam[i] == team && _mPointState[i] == EotSPointState.UnderControl)
             {
-                entry = ObjectManager.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[i].GraveYardId);
+                entry = _worldSafeLocationsCache.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[i].GraveYardId);
 
                 if (entry == null)
                     Log.Logger.Error("BattlegroundEY: Graveyard {0} could not be found.", EotSMisc.MCapturingPointTypes[i].GraveYardId);
@@ -240,7 +243,7 @@ internal class BgEyeofStorm : Battleground
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
-        return ObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EotSMisc.EXPLOIT_TELEPORT_LOCATION_HORDE);
+        return _worldSafeLocationsCache.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EotSMisc.EXPLOIT_TELEPORT_LOCATION_HORDE);
     }
 
     public override ObjectGuid GetFlagPickerGUID(int team = -1)
@@ -519,7 +522,7 @@ internal class BgEyeofStorm : Battleground
             return false;
         }
 
-        var sg = ObjectManager.GetWorldSafeLoc(EotSGaveyardIds.MAIN_ALLIANCE);
+        var sg = _worldSafeLocationsCache.GetWorldSafeLoc(EotSGaveyardIds.MAIN_ALLIANCE);
 
         if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_ALLIANCE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.124139f, TeamIds.Alliance))
         {
@@ -528,7 +531,7 @@ internal class BgEyeofStorm : Battleground
             return false;
         }
 
-        sg = ObjectManager.GetWorldSafeLoc(EotSGaveyardIds.MAIN_HORDE);
+        sg = _worldSafeLocationsCache.GetWorldSafeLoc(EotSGaveyardIds.MAIN_HORDE);
 
         if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_HORDE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.193953f, TeamIds.Horde))
         {
@@ -765,7 +768,7 @@ internal class BgEyeofStorm : Battleground
         if (!BgCreatures[point].IsEmpty)
             DelCreature(point);
 
-        var sg = ObjectManager.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[point].GraveYardId);
+        var sg = _worldSafeLocationsCache.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[point].GraveYardId);
 
         if (sg == null || !AddSpiritGuide(point, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.124139f, GetTeamIndexByTeamId(team)))
             Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. point: {0}, team: {1}, graveyard_id: {2}",

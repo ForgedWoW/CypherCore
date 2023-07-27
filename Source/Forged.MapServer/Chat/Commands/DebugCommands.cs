@@ -15,6 +15,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -793,7 +794,7 @@ internal class DebugCommands
             var z = player.Location.Z;
             var distNearest = float.MaxValue;
 
-            foreach (var pair in handler.ObjectManager.WorldSafeLocs)
+            foreach (var pair in handler.ClassFactory.Resolve<WorldSafeLocationsCache>().WorldSafeLocs)
             {
                 var worldSafe = pair.Value;
 

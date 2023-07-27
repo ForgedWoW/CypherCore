@@ -34,6 +34,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Forged.MapServer.MapWeather;
 using Forged.MapServer.Scripting;
+using Forged.MapServer.Globals.Caching;
 
 namespace Forged.MapServer.Conditions;
 
@@ -69,6 +70,7 @@ public sealed class ConditionManager
     private readonly PlayerComputators _playerComputators;
     private readonly PhasingHandler _phasingHandler;
     private readonly ScriptManager _scriptManager;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
     private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
     private readonly SpellManager _spellManager;
@@ -84,7 +86,7 @@ public sealed class ConditionManager
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
                             GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
                             ObjectAccessor objectAccessor, LootStoreBox lootStorage, ClassFactory classFactory, PlayerComputators playerComputators, 
-                            PhasingHandler phasingHandler, ScriptManager scriptManager)
+                            PhasingHandler phasingHandler, ScriptManager scriptManager, WorldSafeLocationsCache worldSafeLocationsCache)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -105,6 +107,7 @@ public sealed class ConditionManager
         _playerComputators = playerComputators;
         _phasingHandler = phasingHandler;
         _scriptManager = scriptManager;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
     }
 
     public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
@@ -3036,7 +3039,7 @@ public sealed class ConditionManager
             case ConditionSourceType.SmartEvent:
                 break;
             case ConditionSourceType.Graveyard:
-                if (_objectManager.GetWorldSafeLoc((uint)cond.SourceEntry) == null)
+                if (_worldSafeLocationsCache.GetWorldSafeLoc((uint)cond.SourceEntry) == null)
                 {
                     Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.");
 

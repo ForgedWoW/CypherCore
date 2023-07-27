@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Globals;
+namespace Forged.MapServer.Globals.Caching;
 
-public sealed class ExplorationExpManager
+public class ExplorationExpCache : IObjectCache
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly Dictionary<uint, uint> _baseXPTable = new();
 
-    public ExplorationExpManager(WorldDatabase worldDatabase)
+    public ExplorationExpCache(WorldDatabase worldDatabase)
     {
         _worldDatabase = worldDatabase;
     }
@@ -22,7 +22,7 @@ public sealed class ExplorationExpManager
         return _baseXPTable.ContainsKey(level) ? _baseXPTable[level] : 0;
     }
 
-    public void LoadExplorationBaseXP()
+    public void Load()
     {
         var oldMSTime = Time.MSTime;
 

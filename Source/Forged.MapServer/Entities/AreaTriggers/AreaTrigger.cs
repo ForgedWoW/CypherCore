@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -36,6 +37,7 @@ public class AreaTrigger : WorldObject
     private readonly AreaTriggerFieldData _areaTriggerData;
     private readonly AreaTriggerDataStorage _dataStorage;
     private readonly DB2Manager _db2Manager;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly Dictionary<Type, List<IAreaTriggerScript>> _scriptsByType = new();
 
     private uint _areaTriggerId;
@@ -51,10 +53,11 @@ public class AreaTrigger : WorldObject
 
     private ObjectGuid _targetGuid;
 
-    public AreaTrigger(ClassFactory classFactory, AreaTriggerDataStorage dataStorage, DB2Manager db2Manager) : base(false, classFactory)
+    public AreaTrigger(ClassFactory classFactory, AreaTriggerDataStorage dataStorage, DB2Manager db2Manager, WorldSafeLocationsCache worldSafeLocationsCache) : base(false, classFactory)
     {
         _dataStorage = dataStorage;
         _db2Manager = db2Manager;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         _previousCheckOrientation = float.PositiveInfinity;
         _reachedDestination = true;
 
@@ -743,7 +746,7 @@ public class AreaTrigger : WorldObject
 
                     break;
                 case AreaTriggerActionTypes.Teleport:
-                    var safeLoc = GameObjectManager.GetWorldSafeLoc(action.Param);
+                    var safeLoc = _worldSafeLocationsCache.GetWorldSafeLoc(action.Param);
 
                     if (safeLoc != null && caster.TryGetAsPlayer(out var player))
                         player.TeleportTo(safeLoc.Location);

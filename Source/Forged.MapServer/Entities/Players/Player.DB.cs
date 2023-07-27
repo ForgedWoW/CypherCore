@@ -14,6 +14,7 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
@@ -603,7 +604,7 @@ public partial class Player
 
         if (map == null)
         {
-            areaTrigger = GameObjectManager.GetGoBackTrigger(mapId);
+            areaTrigger = _areaTriggerCache.GetGoBackTrigger(mapId);
             check = true;
         }
         else if (map.IsDungeon) // if map is dungeon...
@@ -613,12 +614,12 @@ public partial class Player
             if (denyReason != null)
             {
                 SendTransferAborted(map.Id, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
-                areaTrigger = GameObjectManager.GetGoBackTrigger(mapId);
+                areaTrigger = _areaTriggerCache.GetGoBackTrigger(mapId);
                 check = true;
             }
             else if (instanceID != 0 && InstanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID, CliDB, DB2Manager)) != null) // ... and instance is reseted then look for entrance.
             {
-                areaTrigger = GameObjectManager.GetMapEntranceTrigger(mapId);
+                areaTrigger = _areaTriggerCache.GetMapEntranceTrigger(mapId);
                 check = true;
             }
         }
@@ -1853,10 +1854,10 @@ public partial class Player
             var loc = GameObjectManager.GetDefaultGraveYard(Team);
 
             if (loc == null && Race == Race.PandarenNeutral)
-                loc = GameObjectManager.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
+                loc = _worldSafeLocationsCache.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
 
             if (loc == null)
-                loc = GameObjectManager.GetWorldSafeLoc(1); // Stormwind, Default GY
+                loc = _worldSafeLocationsCache.GetWorldSafeLoc(1); // Stormwind, Default GY
 
             Homebind.WorldRelocate(loc.Location);
             _homebindAreaId = TerrainManager.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Location);

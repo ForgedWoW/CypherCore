@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Text;
@@ -29,6 +30,7 @@ internal class BgWarsongGluch : Battleground
     private const uint ExploitTeleportLocationAlliance = 3784;
     private const uint ExploitTeleportLocationHorde = 3785;
     private readonly DB6Storage<AreaTriggerRecord> _areaTriggerRecords;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
 
     private readonly int[] _flagsDropTimer = new int[2];
 
@@ -65,7 +67,7 @@ internal class BgWarsongGluch : Battleground
     public BgWarsongGluch(BattlegroundTemplate battlegroundTemplate, WorldManager worldManager, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor, GameObjectManager objectManager,
                           CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory, ClassFactory classFactory, IConfiguration configuration, CharacterDatabase characterDatabase,
                           GuildManager guildManager, Formulas formulas, PlayerComputators playerComputators, DB6Storage<FactionRecord> factionStorage, DB6Storage<BroadcastTextRecord> broadcastTextRecords,
-                          CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, DB6Storage<AreaTriggerRecord> areaTriggerRecords) :
+                          CreatureTextManager creatureTextManager, WorldStateManager worldStateManager, DB6Storage<AreaTriggerRecord> areaTriggerRecords, WorldSafeLocationsCache worldSafeLocationsCache) :
         base(battlegroundTemplate,
              worldManager,
              battlegroundManager,
@@ -85,6 +87,7 @@ internal class BgWarsongGluch : Battleground
              worldStateManager)
     {
         _areaTriggerRecords = areaTriggerRecords;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
         BgObjects = new ObjectGuid[WsgObjectTypes.MAX];
         BgCreatures = new ObjectGuid[WsgCreatureTypes.MAX];
 
@@ -341,20 +344,20 @@ internal class BgWarsongGluch : Battleground
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
         {
             if (Status == BattlegroundStatus.InProgress)
-                return ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
+                return _worldSafeLocationsCache.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
 
-            return ObjectManager.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_ALLIANCE);
+            return _worldSafeLocationsCache.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_ALLIANCE);
         }
 
         if (Status == BattlegroundStatus.InProgress)
-            return ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
+            return _worldSafeLocationsCache.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
 
-        return ObjectManager.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_HORDE);
+        return _worldSafeLocationsCache.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_HORDE);
     }
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
-        return ObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
+        return _worldSafeLocationsCache.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
     }
 
     public override ObjectGuid GetFlagPickerGUID(int team = -1)
@@ -708,7 +711,7 @@ internal class BgWarsongGluch : Battleground
             return false;
         }
 
-        var sg = ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
+        var sg = _worldSafeLocationsCache.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
 
         if (sg == null || !AddSpiritGuide(WsgCreatureTypes.SPIRIT_MAIN_ALLIANCE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.124139f, TeamIds.Alliance))
         {
@@ -717,7 +720,7 @@ internal class BgWarsongGluch : Battleground
             return false;
         }
 
-        sg = ObjectManager.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
+        sg = _worldSafeLocationsCache.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
 
         if (sg == null || !AddSpiritGuide(WsgCreatureTypes.SPIRIT_MAIN_HORDE, sg.Location.X, sg.Location.Y, sg.Location.Z, 3.193953f, TeamIds.Horde))
         {

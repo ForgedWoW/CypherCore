@@ -19,6 +19,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
@@ -463,7 +464,7 @@ public partial class Player
     public ItemFactory ItemFactory { get; set; }
     public AzeriteItemFactory AzeriteItemFactory { get; set; }
     public AzeriteEmpoweredItemFactory AzeriteEmpoweredItemFactory { get; set; }
-    public AccessRequirementsManager AccessRequirementsManager { get; }
+    public AccessRequirementsCache AccessRequirementsManager { get; }
 
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }

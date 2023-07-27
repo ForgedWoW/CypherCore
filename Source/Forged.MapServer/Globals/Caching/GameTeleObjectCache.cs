@@ -7,15 +7,15 @@ using Forged.MapServer.Maps.Grids;
 using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Globals;
+namespace Forged.MapServer.Globals.Caching;
 
-public sealed class GameTeleObjectManager
+public class GameTeleObjectCache : IObjectCache
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly GridDefines _gridDefines;
     public Dictionary<uint, GameTele> GameTeleStorage { get; set; } = new();
 
-    public GameTeleObjectManager(WorldDatabase worldDatabase, GridDefines gridDefines)
+    public GameTeleObjectCache(WorldDatabase worldDatabase, GridDefines gridDefines)
     {
         _worldDatabase = worldDatabase;
         _gridDefines = gridDefines;
@@ -100,7 +100,7 @@ public sealed class GameTeleObjectManager
         return null;
     }
 
-    public void LoadGameTele()
+    public void Load()
     {
         var oldMSTime = Time.MSTime;
 

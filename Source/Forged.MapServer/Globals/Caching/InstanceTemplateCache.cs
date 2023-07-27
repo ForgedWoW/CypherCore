@@ -7,16 +7,16 @@ using Forged.MapServer.Scripting;
 using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Globals;
+namespace Forged.MapServer.Globals.Caching;
 
-public sealed class InstanceTemplateManager
+public class InstanceTemplateCache : IObjectCache
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly MapManager _mapManager;
     private readonly ScriptManager _scriptManager;
     public Dictionary<uint, InstanceTemplate> InstanceTemplates { get; } = new();
 
-    public InstanceTemplateManager(WorldDatabase worldDatabase, MapManager mapManager, ScriptManager scriptManager)
+    public InstanceTemplateCache(WorldDatabase worldDatabase, MapManager mapManager, ScriptManager scriptManager)
     {
         _worldDatabase = worldDatabase;
         _mapManager = mapManager;
@@ -28,7 +28,7 @@ public sealed class InstanceTemplateManager
         return InstanceTemplates.LookupByKey(mapID);
     }
 
-    public void LoadInstanceTemplate()
+    public void Load()
     {
         var time = Time.MSTime;
 

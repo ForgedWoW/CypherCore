@@ -8,16 +8,16 @@ using Framework.Constants;
 using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Globals;
+namespace Forged.MapServer.Globals.Caching;
 
-public sealed class SpellClickInfoObjectManager
+public class SpellClickInfoCache : IObjectCache
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly SpellManager _spellManager;
     private GameObjectManager _gameObjectManager;
     private readonly MultiMap<uint, SpellClickInfo> _spellClickInfoStorage = new();
 
-    public SpellClickInfoObjectManager(WorldDatabase worldDatabase, SpellManager spellManager)
+    public SpellClickInfoCache(WorldDatabase worldDatabase, SpellManager spellManager)
     {
         _worldDatabase = worldDatabase;
         _spellManager = spellManager;
@@ -28,7 +28,7 @@ public sealed class SpellClickInfoObjectManager
         return _spellClickInfoStorage.LookupByKey(creatureID);
     }
 
-    public void LoadNPCSpellClickSpells()
+    public void Load()
     {
         var oldMSTime = Time.MSTime;
 

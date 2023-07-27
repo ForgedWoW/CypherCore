@@ -14,6 +14,7 @@ using Forged.MapServer.DataStorage.Structs.P;
 using Forged.MapServer.DataStorage.Structs.U;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
@@ -51,7 +52,9 @@ public class MiscHandler : IWorldSessionHandler
     private readonly DB6Storage<MapRecord> _mapRecords;
     private readonly GameObjectManager _objectManager;
     private readonly DB6Storage<PlayerConditionRecord> _playerConditionRecords;
-    private readonly InstanceTemplateManager _instanceTemplateManager;
+    private readonly InstanceTemplateCache _instanceTemplateManager;
+    private readonly AreaTriggerCache _areaTriggerCache;
+    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly ScriptManager _scriptManager;
     private readonly WorldSession _session;
     private readonly DB6Storage<UISplashScreenRecord> _splashScreenRecords;
@@ -61,7 +64,7 @@ public class MiscHandler : IWorldSessionHandler
     public MiscHandler(WorldSession session, Warden.Warden warden, ScriptManager scriptManager, DB6Storage<AreaTriggerRecord> areaTriggerData, ConditionManager conditionManager,
                        GameObjectManager objectManager, WorldManager worldManager, MapManager mapManager, DB6Storage<MapRecord> mapRecords, DB2Manager db2Manager,
                        InstanceLockManager instanceLockManager, GuildManager guildManager, DB6Storage<UISplashScreenRecord> splashScreenRecords, DB6Storage<PlayerConditionRecord> playerConditionRecords,
-                       InstanceTemplateManager instanceTemplateManager)
+                       InstanceTemplateCache instanceTemplateManager, AreaTriggerCache areaTriggerCache, WorldSafeLocationsCache worldSafeLocationsCache)
     {
         _session = session;
         _warden = warden;
@@ -78,6 +81,8 @@ public class MiscHandler : IWorldSessionHandler
         _splashScreenRecords = splashScreenRecords;
         _playerConditionRecords = playerConditionRecords;
         _instanceTemplateManager = instanceTemplateManager;
+        _areaTriggerCache = areaTriggerCache;
+        _worldSafeLocationsCache = worldSafeLocationsCache;
     }
 
     public void SendLoadCUFProfiles()
@@ -206,7 +211,7 @@ public class MiscHandler : IWorldSessionHandler
             if (pvp.HandleAreaTrigger(_session.Player, packet.AreaTriggerID, packet.Entered))
                 return;
 
-        var at = _objectManager.GetAreaTrigger(packet.AreaTriggerID);
+        var at = _areaTriggerCache.GetAreaTrigger(packet.AreaTriggerID);
 
         if (at == null)
             return;
@@ -332,7 +337,7 @@ public class MiscHandler : IWorldSessionHandler
                     var instanceScript = map?.ToInstanceMap?.InstanceScript;
 
                     if (instanceScript != null)
-                        entranceLocation = _objectManager.GetWorldSafeLoc(instanceScript.GetEntranceLocation());
+                        entranceLocation = _worldSafeLocationsCache.GetWorldSafeLoc(instanceScript.GetEntranceLocation());
                 }
 
                 // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
@@ -344,7 +349,7 @@ public class MiscHandler : IWorldSessionHandler
                     var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, new MapDb2Entries(mapEntry, _db2Manager.GetDownscaledMapDifficultyData(at.TargetMapId, ref difficulty)));
 
                     if (instanceLock != null)
-                        entranceLocation = _objectManager.GetWorldSafeLoc(instanceLock.Data.EntranceWorldSafeLocId);
+                        entranceLocation = _worldSafeLocationsCache.GetWorldSafeLoc(instanceLock.Data.EntranceWorldSafeLocId);
                 }
             }
 

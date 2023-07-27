@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
@@ -35,7 +36,8 @@ public class LFGManager
     private readonly MultiMap<byte, uint> _cachedDungeonMapStore = new();
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
-    private readonly AccessRequirementsManager _accessRequirementsManager;
+    private readonly AccessRequirementsCache _accessRequirementsManager;
+    private readonly AreaTriggerCache _areaTriggerCache;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
@@ -85,7 +87,7 @@ public class LFGManager
     public LFGManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager objectManager, CliDB cliDB,
                       DB2Manager db2Manager, GroupManager groupManager, ObjectAccessor objectAccessor, DisableManager disableManager,
                       InstanceLockManager instanceLockManager, GameEventManager gameEventManager, WorldManager worldManager, ClassFactory classFactory,
-                      AccessRequirementsManager accessRequirementsManager)
+                      AccessRequirementsCache accessRequirementsManager, AreaTriggerCache areaTriggerCache)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -101,6 +103,7 @@ public class LFGManager
         _worldManager = worldManager;
         _classFactory = classFactory;
         _accessRequirementsManager = accessRequirementsManager;
+        _areaTriggerCache = areaTriggerCache;
         _lfgProposalId = 1;
         _options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder:OptionsMask", 1);
 
@@ -1205,7 +1208,7 @@ public class LFGManager
             // No teleport coords in database, load from areatriggers
             if (dungeon.Type != LfgType.Random && dungeon.X == 0.0f && dungeon.Y == 0.0f && dungeon.Z == 0.0f)
             {
-                var at = _objectManager.GetMapEntranceTrigger(dungeon.Map);
+                var at = _areaTriggerCache.GetMapEntranceTrigger(dungeon.Map);
 
                 if (at == null)
                 {
