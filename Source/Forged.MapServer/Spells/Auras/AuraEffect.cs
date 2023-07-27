@@ -6218,17 +6218,18 @@ public class AuraEffect
 
         if (apply)
         {
-            playerTarget.SetRequiredMountCapabilityFlag(MiscValue);
+            playerTarget.SetRequiredMountCapabilityFlag((byte)MiscValue);
         }
         else
         {
             int mountCapabilityFlags = 0;
-            foreach (AuraEffect otherAura in playerTarget.GetAuraEffectsByType(GetAuraType()))
-            {
-                mountCapabilityFlags |= otherAura.GetMiscValue();
-            }
+            foreach (AuraType type in aurApp.Base.AuraEffects.Select(a => a.Value.AuraType))
+                foreach (AuraEffect otherAura in playerTarget.GetAuraEffectsByType(type))
+                {
+                    mountCapabilityFlags |= otherAura.MiscValue;
+                }
 
-            playerTarget.ReplaceAllRequiredMountCapabilityFlags(mountCapabilityFlags);
+            playerTarget.ReplaceAllRequiredMountCapabilityFlags((byte)mountCapabilityFlags);
         }
 
     }

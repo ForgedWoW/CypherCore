@@ -6543,6 +6543,17 @@ public partial class Player : Unit
         SendPacket(petSpells);
     }
 
+    public void SetRequiredMountCapabilityFlag(byte flag)
+    {
+        SetUpdateFieldFlagValue(Values.ModifyValue(ActivePlayerData)
+            .ModifyValue(ActivePlayerData.RequiredMountCapabilityFlags), flag);
+    }
+    public void ReplaceAllRequiredMountCapabilityFlags(byte flags)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData)
+            .ModifyValue(ActivePlayerData.RequiredMountCapabilityFlags), flags);
+    }
+
     private void ApplyCustomConfigs()
     {
         // Adds the extra bag slots for having an authenticator.
