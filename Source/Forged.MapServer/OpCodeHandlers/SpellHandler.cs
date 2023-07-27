@@ -788,7 +788,7 @@ public class SpellHandler : IWorldSessionHandler
                 if (spellInfo == null)
                     continue;
 
-                if (spellInfo.CanBeUsedInCombat)
+                if (spellInfo.CanBeUsedInCombat(user))
                     continue;
 
                 user.SendEquipError(InventoryResult.NotInCombat, item);

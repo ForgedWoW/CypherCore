@@ -340,7 +340,6 @@ public class SpellInfo
     public SpellAuraInterruptFlags2 AuraInterruptFlags2 { get; set; }
     public AuraStateType AuraState { get; private set; }
     public uint BaseLevel { get; set; }
-    public bool CanBeUsedInCombat => !HasAttribute(SpellAttr0.NotInCombatOnlyPeaceful);
     public uint CasterAuraSpell { get; set; }
     public AuraStateType CasterAuraState { get; set; }
     public AuraType CasterAuraType { get; set; }
@@ -720,6 +719,12 @@ public class SpellInfo
             return (uint)DispelType.AllMask;
 
         return (uint)(1 << (int)type);
+    }
+
+    public bool CanBeUsedInCombat(Unit caster)
+    {
+        return !HasAttribute(SpellAttr0.NotInCombatOnlyPeaceful)
+               || (caster.HasAuraType(AuraType.AllowMountInCombat) && HasAura(AuraType.Mounted));
     }
 
     public static SpellCastTargetFlags GetTargetFlagMask(SpellTargetObjectTypes objType)

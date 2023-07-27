@@ -92,12 +92,15 @@ public class CharacterHandler : IWorldSessionHandler
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
     }
 
-    public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
+    public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, Race race, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
     {
         if (!req.GetFlags().HasFlag(ChrCustomizationReqFlag.HasRequirements))
             return true;
 
         if (req.ClassMask != 0 && (req.ClassMask & (1 << ((int)playerClass - 1))) == 0)
+            return false;
+
+        if (race != Race.None && req.RaceMask != 0 && req.RaceMask != -1 && (req.RaceMask & (int)race) == 0)
             return false;
 
         if (req.AchievementID != 0 /*&& !HasAchieved(req->AchievementID)*/)
@@ -169,7 +172,7 @@ public class CharacterHandler : IWorldSessionHandler
             var req = _cliDb.ChrCustomizationReqStorage.LookupByKey((uint)customizationOptionData.ChrCustomizationReqID);
 
             if (req != null)
-                if (!MeetsChrCustomizationReq(req, playerClass, false, customizations))
+                if (!MeetsChrCustomizationReq(req, race, playerClass, false, customizations))
                     return false;
 
             var choicesForOption = _dB2Manager.GetCustomiztionChoices(playerChoice.ChrCustomizationOptionID);
@@ -185,7 +188,7 @@ public class CharacterHandler : IWorldSessionHandler
 
             var reqEntry = _cliDb.ChrCustomizationReqStorage.LookupByKey(customizationChoiceData.ChrCustomizationReqID);
 
-            if (reqEntry != null && !MeetsChrCustomizationReq(reqEntry, playerClass, true, customizations))
+            if (reqEntry != null && !MeetsChrCustomizationReq(reqEntry, race, playerClass, true, customizations))
                 return false;
         }
 
@@ -195,6 +198,27 @@ public class CharacterHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.AlterAppearance)]
     private void HandleAlterAppearance(AlterApperance packet)
     {
+        if (packet.CustomizedChrModelID != 0)
+        {
+            if (!_cliDb.ConditionalChrModelStorage.TryGetValue((uint)packet.CustomizedChrModelID, out var conditionalChrModel))
+            {
+                return;
+            }
+            
+            if (_cliDb.ChrCustomizationReqStorage.TryGetValue((uint)conditionalChrModel.ChrCustomizationReqID, out var req)
+                && !MeetsChrCustomizationReq(req, _session.Player.Race, _session.Player.Class, false, packet.Customizations))
+            {
+                return;
+            }
+            
+            if (_cliDb.PlayerConditionStorage.TryGetValue((uint)conditionalChrModel.PlayerConditionID, out var condition)
+                && !_conditionManager.IsPlayerMeetingCondition(_session.Player, condition))
+            {
+                return;
+            }
+        }
+
+
         if (!ValidateAppearance(_session.Player.Race, _session.Player.Class, (Gender)packet.NewSex, packet.Customizations))
             return;
 

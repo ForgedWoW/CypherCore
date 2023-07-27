@@ -3192,7 +3192,7 @@ public class AuraEffect
             return;
 
         if (apply)
-            target.AsPlayer.Session.PacketRouter.OpCodeHandler<NPCHandler>().SendStablePet(target.GUID);
+            target.AsPlayer.SetStableMaster(target.GUID);
 
         // client auto close stable dialog at !apply aura
     }
@@ -6201,6 +6201,37 @@ public class AuraEffect
         // update timers in client
         if (target.IsTypeId(TypeId.Player))
             target.AsPlayer.UpdateMirrorTimers();
+    }
+
+    [AuraEffectHandler(AuraType.ModRequiredMountCapabilityFlags)]
+    private void HandleModRequiredMountCapabilityFlags(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    {
+        if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
+        {
+            return;
+        }
+        
+        if (!aurApp.Target.TryGetAsPlayer(out var playerTarget))
+        {
+            return;
+        }
+
+        if (apply)
+        {
+            playerTarget.SetRequiredMountCapabilityFlag((byte)MiscValue);
+        }
+        else
+        {
+            int mountCapabilityFlags = 0;
+            foreach (AuraType type in aurApp.Base.AuraEffects.Select(a => a.Value.AuraType))
+                foreach (AuraEffect otherAura in playerTarget.GetAuraEffectsByType(type))
+                {
+                    mountCapabilityFlags |= otherAura.MiscValue;
+                }
+
+            playerTarget.ReplaceAllRequiredMountCapabilityFlags((byte)mountCapabilityFlags);
+        }
+
     }
 
     #endregion AuraEffect Handlers

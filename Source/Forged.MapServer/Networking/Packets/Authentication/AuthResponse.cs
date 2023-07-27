@@ -58,6 +58,7 @@ internal class AuthResponse : ServerPacket
             WorldPacket.WriteBit(SuccessInfo.NumPlayersHorde.HasValue);
             WorldPacket.WriteBit(SuccessInfo.NumPlayersAlliance.HasValue);
             WorldPacket.WriteBit(SuccessInfo.ExpansionTrialExpiration.HasValue);
+            WorldPacket.WriteBit(SuccessInfo.NewBuildKeys.HasValue);
             WorldPacket.FlushBits();
 
             {
@@ -80,6 +81,15 @@ internal class AuthResponse : ServerPacket
             if (SuccessInfo.ExpansionTrialExpiration.HasValue)
                 WorldPacket.WriteInt64(SuccessInfo.ExpansionTrialExpiration.Value);
 
+            if (SuccessInfo.NewBuildKeys.HasValue)
+            {
+                for (int i = 0; i < 16; ++i)
+                {
+                    WorldPacket.WriteUInt8(SuccessInfo.NewBuildKeys.Value.NewBuildKey[i]);
+                    WorldPacket.WriteUInt8(SuccessInfo.NewBuildKeys.Value.SomeKey[i]);
+                }
+            }
+            
             foreach (var virtualRealm in SuccessInfo.VirtualRealms)
                 virtualRealm.Write(WorldPacket);
 
@@ -140,6 +150,7 @@ internal class AuthResponse : ServerPacket
 
         public uint VirtualRealmAddress; // a special identifier made from the Index, BattleGroup and Region. @todo implement
 
+        public NewBuild? NewBuildKeys;
         // @todo research
         public List<VirtualRealmInfo> VirtualRealms = new(); // list of realms connected to this one (inclusive) @todo implement
         // list of pre-made character templates. @todo implement
@@ -154,6 +165,12 @@ internal class AuthResponse : ServerPacket
             public bool InGameRoom;
             public uint TimeRemain;
             public uint Unknown735;
+        }
+
+        public struct NewBuild
+        {
+            public List<byte> NewBuildKey;
+            public List<byte> SomeKey;
         }
     }
 }

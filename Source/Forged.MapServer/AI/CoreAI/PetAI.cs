@@ -366,7 +366,7 @@ public class PetAI : CreatureAI
 
                 if (spellInfo.IsPositive)
                 {
-                    if (spellInfo.CanBeUsedInCombat)
+                    if (spellInfo.CanBeUsedInCombat(Me))
                         // Check if we're in combat or commanded to attack
                         if (!Me.IsInCombat && !Me.GetCharmInfo().IsCommandAttack)
                             continue;
@@ -419,7 +419,7 @@ public class PetAI : CreatureAI
                     if (!spellUsed)
                         spell.Dispose();
                 }
-                else if (Me.Victim != null && CanAttack(Me.Victim) && spellInfo.CanBeUsedInCombat)
+                else if (Me.Victim != null && CanAttack(Me.Victim) && spellInfo.CanBeUsedInCombat(Me))
                 {
                     var spell = Me.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
 

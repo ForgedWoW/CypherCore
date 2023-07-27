@@ -860,7 +860,7 @@ public partial class Unit : WorldObject
                         {
                             var choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(formModelData.Choices[i].ChrCustomizationReqID);
 
-                            if (choiceReq == null || thisPlayer.MeetsChrCustomizationReq(choiceReq, Class, false, thisPlayer.PlayerData.Customizations))
+                            if (choiceReq == null || thisPlayer.MeetsChrCustomizationReq(choiceReq, Race, Class, false, thisPlayer.PlayerData.Customizations))
                                 displayIds.Add(displayInfo.DisplayID);
                         }
                     }

@@ -630,9 +630,12 @@ public enum SpellCustomErrors
     MarkedTooManyTreasuresInTheForbiddenReach = 830,                                    // You Have Already Marked Too Many Treasures In The Forbidden Reach. Collect A Few Before Unsealing More Forbidden Reach Treasure Scrolls.
     RequiresADjaradinPillarShard = 831,                                                 // Requires A Djaradin Pillar Shard.
     RequiresAResilientStone = 832,                                                      // Requires A Resilient Stone.
-    MyrritCannotCarryAnyMoreMaps = 835,                                                 // Myrrit Cannot Carry Any More Maps. Go On A Dig With Him!
+    MyrritCannotCarryAnyMoreMaps = 835,
+    SomeGiftsAreBetterLeftUndelivered = 836,                                            // Some gifts are better left undelivered.                                             // Myrrit Cannot Carry Any More Maps. Go On A Dig With Him!
     RequiresNiffenCaveDiveKeyandShieldDisabled = 850,                                   // Requires Niffen Cave Dive Key And Shield Disabled.
     ElusiveCreatureBaitWasRecentlyUsed = 851,                                           // You Cannot Lure Anything In This Area For A Few Minutes. Elusive Creature Bait Was Recently Used.
+    MustBeInQuietPlaceWithinCaerDarrow = 852,                                           // Must be in a suitably quiet place within Caer Darrow.
+    YouDontHaveAnyGlimmerOfLightsActive = 856,                                          // You don't have any Glimmer of Lights active.
     YouDontHaveTheSwirlingMojoStone = 999,                                              // You Don'T Have The Swirling Mojo Stone Equipped.
     YouMustBeNearADragonflightOathstone = 1000,                                         // You Must Be Near One Of The Five Dragonflight Oathstones In The Dragon Isles.
     CanOnlyUseThisItemWhileAirborne = 1001,                                             // You Can Only Use This Item While Airborne.

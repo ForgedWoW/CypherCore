@@ -28,7 +28,7 @@ public class BuyItem : ClientPacket
         Quantity = WorldPacket.ReadInt32();
         Muid = WorldPacket.ReadUInt32();
         Slot = WorldPacket.ReadUInt32();
+        ItemType = (ItemVendorType)WorldPacket.ReadInt32();
         Item.Read(WorldPacket);
-        ItemType = (ItemVendorType)WorldPacket.ReadBits<int>(3);
     }
 }

@@ -776,7 +776,7 @@ public partial class Spell : IDisposable
                 if (SpellInfo.ExcludeCasterAuraType != 0 && unitCaster.HasAuraType(SpellInfo.ExcludeCasterAuraType))
                     return SpellCastResult.CasterAurastate;
 
-                if (reqCombat && unitCaster.IsInCombat && !SpellInfo.CanBeUsedInCombat)
+                if (reqCombat && unitCaster.IsInCombat && !SpellInfo.CanBeUsedInCombat(unitCaster))
                     return SpellCastResult.AffectingCombat;
             }
 

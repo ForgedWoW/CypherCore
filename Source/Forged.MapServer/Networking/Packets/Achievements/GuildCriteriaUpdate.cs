@@ -24,6 +24,7 @@ public class GuildCriteriaUpdate : ServerPacket
             WorldPacket.WriteUInt32(0); // this is a hack. this is a packed time written as int64 (progress.DateUpdated)
             WorldPacket.WriteUInt64(progress.Quantity);
             WorldPacket.WritePackedGuid(progress.PlayerGUID);
+            WorldPacket.WriteInt32(progress.Unused_10_1_5);
             WorldPacket.WriteInt32(progress.Flags);
         }
     }

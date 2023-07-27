@@ -23,15 +23,17 @@ public struct CriteriaProgressPkt
 
     public long TimeFromStart;
 
+    public uint Unused_10_1_5;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Id);
         data.WriteUInt64(Quantity);
         data.WritePackedGuid(Player);
+        data.WriteUInt32(Unused_10_1_5);
         data.WritePackedTime(Date);
         data.WriteInt64(TimeFromStart);
         data.WriteInt64(TimeFromCreate);
-        data.WriteBits(Flags, 4);
         data.WriteBit(RafAcceptanceID.HasValue);
         data.FlushBits();
 

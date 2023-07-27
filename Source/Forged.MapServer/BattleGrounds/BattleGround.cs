@@ -532,7 +532,7 @@ public class Battleground : ZoneScript, IDisposable
             {
                 playerData.IsInWorld = true;
                 playerData.PrimaryTalentTree = (int)player.GetPrimarySpecialization();
-                playerData.Sex = (int)player.Gender;
+                playerData.Sex = (sbyte)player.Gender;
                 playerData.PlayerRace = player.Race;
                 playerData.PlayerClass = (int)player.Class;
                 playerData.HonorLevel = (int)player.HonorLevel;

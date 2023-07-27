@@ -8,7 +8,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionHelloResponse : ServerPacket
 {
-    public uint DeliveryDelay;
+    public uint PurchasedItemDeliveryDelay;
+    public uint CancelledItemDeliveryDelay;
     public ObjectGuid Guid;
     public bool OpenForBusiness = true;
 
@@ -17,7 +18,8 @@ internal class AuctionHelloResponse : ServerPacket
     public override void Write()
     {
         WorldPacket.WritePackedGuid(Guid);
-        WorldPacket.WriteUInt32(DeliveryDelay);
+        WorldPacket.WriteUInt32(PurchasedItemDeliveryDelay);
+        WorldPacket.WriteUInt32(CancelledItemDeliveryDelay);
         WorldPacket.WriteBit(OpenForBusiness);
         WorldPacket.FlushBits();
     }

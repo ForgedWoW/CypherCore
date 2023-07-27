@@ -97,7 +97,7 @@ public class QueryQuestInfoResponse : ServerPacket
             WorldPacket.WriteUInt32(Info.CompleteSoundKitID);
 
             WorldPacket.WriteUInt32(Info.AreaGroupID);
-            WorldPacket.WriteUInt32(Info.TimeAllowed);
+            WorldPacket.WriteUInt64((ulong)Info.TimeAllowed);
 
             WorldPacket.WriteInt32(Info.Objectives.Count);
             WorldPacket.WriteInt64(Info.AllowableRaces);

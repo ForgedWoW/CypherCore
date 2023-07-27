@@ -301,7 +301,7 @@ internal class ModifyCommand
         {
             var optionReq = handler.CliDB.ChrCustomizationReqStorage.LookupByKey(option.ChrCustomizationReqID);
 
-            if (optionReq != null && !worldSession.Player.MeetsChrCustomizationReq(optionReq, target.Class, false, customizations))
+            if (optionReq != null && !worldSession.Player.MeetsChrCustomizationReq(optionReq, target.Race, target.Class, false, customizations))
                 continue;
 
             // Loop over the options until the first one fits
@@ -311,7 +311,7 @@ internal class ModifyCommand
             {
                 var choiceReq = handler.CliDB.ChrCustomizationReqStorage.LookupByKey(choiceForOption.ChrCustomizationReqID);
 
-                if (choiceReq != null && !worldSession.Player.MeetsChrCustomizationReq(choiceReq, target.Class, false, customizations))
+                if (choiceReq != null && !worldSession.Player.MeetsChrCustomizationReq(choiceReq, target.Race, target.Class, false, customizations))
                     continue;
 
                 var choiceEntry = choicesForOption[0];

@@ -365,6 +365,9 @@ public class MiscHandler : IWorldSessionHandler
     {
         if (_session.Player.PlayerTalkClass.InteractionData.SourceGuid == closeInteraction.SourceGuid)
             _session.Player.PlayerTalkClass.InteractionData.Reset();
+
+        if (_session.Player.GetStableMaster() == closeInteraction.SourceGuid)
+            _session.Player.SetStableMaster(ObjectGuid.Empty);
     }
 
     [WorldPacketHandler(ClientOpcodes.CompleteCinematic)]

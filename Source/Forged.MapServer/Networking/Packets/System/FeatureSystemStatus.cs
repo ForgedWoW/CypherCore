@@ -71,6 +71,7 @@ public class FeatureSystemStatus : ServerPacket
     public bool Unk67;
     public bool Unknown901CheckoutRelated;
     public bool Unused1000;
+    public bool ContentTrackingEnabled;
     public bool VoiceChatDisabledByParentalControl;
     public bool VoiceChatMutedByParentalControl;
     public bool VoiceEnabled;

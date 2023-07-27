@@ -826,8 +826,7 @@ public partial class Unit
         pet.Faction = Faction;
         pet.SetCreatedBySpell(spellID);
 
-        if (IsTypeId(TypeId.Player))
-            pet.SetUnitFlag(UnitFlags.PlayerControlled);
+        pet.SetUnitFlag(UnitFlags.PlayerControlled);
 
         if (!pet.InitStatsForLevel(level))
         {
@@ -847,6 +846,7 @@ public partial class Unit
 
         PetStable.PetInfo petInfo = new();
         pet.FillPetInfo(petInfo);
+        player.AddPetToUpdateFields(petInfo, (PetSaveMode)petStable.CurrentActivePetIndex, PetStableinfo.Active);
         petStable.ActivePets[freeActiveSlot] = petInfo;
 
         return true;

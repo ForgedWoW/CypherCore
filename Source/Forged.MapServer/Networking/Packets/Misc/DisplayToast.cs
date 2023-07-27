@@ -37,7 +37,7 @@ internal class DisplayToast : ServerPacket
                 WorldPacket.WriteBit(BonusRoll);
                 Item.Write(WorldPacket);
                 WorldPacket.WriteInt32(LootSpec);
-                WorldPacket.WriteInt32((int)Gender);
+                WorldPacket.WriteInt8((sbyte)Gender);
 
                 break;
             case DisplayToastType.NewCurrency:

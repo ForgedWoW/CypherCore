@@ -16,6 +16,7 @@ public class CriteriaUpdate : ServerPacket
     public ObjectGuid PlayerGUID;
     public ulong Quantity;
     public ulong? RafAcceptanceID;
+    public uint Unused_10_1_5;
     public CriteriaUpdate() : base(ServerOpcodes.CriteriaUpdate, ConnectionType.Instance) { }
 
     public override void Write()
@@ -23,6 +24,7 @@ public class CriteriaUpdate : ServerPacket
         WorldPacket.WriteUInt32(CriteriaID);
         WorldPacket.WriteUInt64(Quantity);
         WorldPacket.WritePackedGuid(PlayerGUID);
+        WorldPacket.WriteUInt32(Unused_10_1_5);
         WorldPacket.WriteUInt32(Flags);
         WorldPacket.WritePackedTime(CurrentTime);
         WorldPacket.WriteInt64(ElapsedTime);

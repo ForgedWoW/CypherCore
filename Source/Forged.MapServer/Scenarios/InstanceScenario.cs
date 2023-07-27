@@ -38,7 +38,7 @@ public class InstanceScenario : Scenario
              spellManager, 
              arenaTeamManager, 
              disableManager, 
-             worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler, itemTemplateCache)
+             worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler, itemTemplateCache, map)
     {
         _map = map;
         _mapSpawnGroupCache = mapSpawnGroupCache;

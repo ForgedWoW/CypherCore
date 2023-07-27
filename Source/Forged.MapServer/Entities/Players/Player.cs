@@ -2733,12 +2733,15 @@ public partial class Player : Unit
         return !CliDB.PlayerConditionStorage.TryGetValue(conditionId, out var playerCondition) || ConditionManager.IsPlayerMeetingCondition(this, playerCondition);
     }
 
-    public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
+    public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, Race race, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
     {
         if (!req.GetFlags().HasFlag(ChrCustomizationReqFlag.HasRequirements))
             return true;
 
         if (req.ClassMask != 0 && (req.ClassMask & (1 << ((int)playerClass - 1))) == 0)
+            return false;
+
+        if (race != Race.None && req.RaceMask != 0 && req.RaceMask != -1 && (req.RaceMask & (int)race) == 0)
             return false;
 
         if (req.AchievementID != 0 /*&& !HasAchieved(req->AchievementID)*/)
@@ -3039,7 +3042,7 @@ public partial class Player : Unit
                 break;
 
             case GossipOptionNpc.Stablemaster:
-                Session.PacketRouter.OpCodeHandler<NPCHandler>().SendStablePet(guid);
+                Session.Player.SetStableMaster(guid);
                 handled = false;
 
                 break;
@@ -6538,6 +6541,17 @@ public partial class Player : Unit
             SpellHistory.WritePacket(petSpells);
 
         SendPacket(petSpells);
+    }
+
+    public void SetRequiredMountCapabilityFlag(byte flag)
+    {
+        SetUpdateFieldFlagValue(Values.ModifyValue(ActivePlayerData)
+            .ModifyValue(ActivePlayerData.RequiredMountCapabilityFlags), flag);
+    }
+    public void ReplaceAllRequiredMountCapabilityFlags(byte flags)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData)
+            .ModifyValue(ActivePlayerData.RequiredMountCapabilityFlags), flags);
     }
 
     private void ApplyCustomConfigs()

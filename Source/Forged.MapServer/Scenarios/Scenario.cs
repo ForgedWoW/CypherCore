@@ -35,14 +35,16 @@ public class Scenario : CriteriaHandler
     private readonly List<ObjectGuid> _players = new();
     private readonly Dictionary<ScenarioStepRecord, ScenarioStepState> _stepStates = new();
     private ScenarioStepRecord _currentstep;
+    private ObjectGuid _guid;
 
     public Scenario(ScenarioData scenarioData, ObjectAccessor objectAccessor, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                     DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
-                    LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, PhasingHandler phasingHandler, ItemTemplateCache itemTemplateCache) :
+                    LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, PhasingHandler phasingHandler, ItemTemplateCache itemTemplateCache, InstanceMap map) :
         base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler, itemTemplateCache)
     {
         Data = scenarioData;
         _objectAccessor = objectAccessor;
+        _guid = ObjectGuid.Create(HighGuid.Scenario, map.Id, Data.Entry.Id, map.GenerateLowGuid(HighGuid.Scenario));
         _currentstep = null;
 
         //ASSERT(_data);
@@ -247,6 +249,7 @@ public class Scenario : CriteriaHandler
 
     private void BuildScenarioState(ScenarioState scenarioState)
     {
+        scenarioState.ScenarioGUID = _guid;
         scenarioState.ScenarioID = (int)Data.Entry.Id;
         var step = GetStep();
 
@@ -368,7 +371,8 @@ public class Scenario : CriteriaHandler
     {
         ScenarioVacate scenarioBoot = new()
         {
-            ScenarioID = (int)Data.Entry.Id
+            ScenarioID = (int)Data.Entry.Id,
+            ScenarioGUID = _guid
         };
 
         player.SendPacket(scenarioBoot);
