@@ -148,6 +148,7 @@ public class ItemTemplateCache : IObjectCache
     {
         LoadItemTemplates();
         LoadItemTemplateAddon();
+        LoadItemScriptNames();
     }
 
     public void LoadItemTemplateAddon()

@@ -641,7 +641,7 @@ internal class NPCCommands
                 var guid = handler.Session.Player.GameObjectManager.GenerateCreatureSpawnId();
                 var data = handler.Session.Player.GameObjectManager.NewOrExistCreatureData(guid);
                 data.SpawnId = guid;
-                data.SpawnGroupData = handler.Session.Player.GameObjectManager.GetDefaultSpawnGroup();
+                data.SpawnGroupData = handler.Session.Player.GameObjectManager.SpawnGroupDataCache.GetDefaultSpawnGroup();
                 data.Id = id;
                 data.SpawnPoint.Relocate(chr.MovementInfo.Transport.Pos.X, chr.MovementInfo.Transport.Pos.Y, chr.MovementInfo.Transport.Pos.Z, chr.MovementInfo.Transport.Pos.Orientation);
                 data.SpawnGroupData = new SpawnGroupTemplateData();

@@ -551,7 +551,7 @@ internal class DebugCommands
         else
             groupID = (uint)optArg;
 
-        if (groupID != 0 && handler.ObjectManager.GetSpawnGroupData(groupID) == null)
+        if (groupID != 0 && handler.ObjectManager.SpawnGroupDataCache.GetSpawnGroupData(groupID) == null)
         {
             handler.SendSysMessage($"There is no spawn group with ID {groupID}.");
 
@@ -599,7 +599,7 @@ internal class DebugCommands
 
         if (groupID != 0 && !store.ContainsKey(groupID))
         {
-            handler.SendSysMessage($"{mapName}'s instance script does not manage group '{handler.ObjectManager.GetSpawnGroupData(groupID).Name}'.");
+            handler.SendSysMessage($"{mapName}'s instance script does not manage group '{handler.ObjectManager.SpawnGroupDataCache.GetSpawnGroupData(groupID).Name}'.");
 
             return false;
         }
@@ -609,7 +609,7 @@ internal class DebugCommands
 
         foreach (var key in store.Keys)
         {
-            var groupData = handler.ObjectManager.GetSpawnGroupData(key);
+            var groupData = handler.ObjectManager.SpawnGroupDataCache.GetSpawnGroupData(key);
 
             if (groupData == null)
                 continue;

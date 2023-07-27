@@ -3140,7 +3140,7 @@ public sealed class ConditionManager
             }
             case ConditionSourceType.SpawnGroup:
             {
-                var spawnGroup = _objectManager.GetSpawnGroupData((uint)cond.SourceEntry);
+                var spawnGroup = _objectManager.SpawnGroupDataCache.GetSpawnGroupData((uint)cond.SourceEntry);
 
                 if (spawnGroup == null)
                 {

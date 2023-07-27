@@ -1942,7 +1942,7 @@ public partial class Creature : Unit
         data.UnitFlags3 = unitFlags3;
         data.Dynamicflags = (uint)dynamicflags;
 
-        data.SpawnGroupData ??= GameObjectManager.GetDefaultSpawnGroup();
+        data.SpawnGroupData ??= GameObjectManager.SpawnGroupDataCache.GetDefaultSpawnGroup();
 
         data.PhaseId = Location.DBPhase > 0 ? (uint)Location.DBPhase : data.PhaseId;
         data.PhaseGroup = Location.DBPhase < 0 ? (uint)-Location.DBPhase : data.PhaseGroup;

@@ -3359,7 +3359,7 @@ public class Map : IDisposable
 
     private SpawnGroupTemplateData GetSpawnGroupData(uint groupId)
     {
-        var data = GameObjectManager.GetSpawnGroupData(groupId);
+        var data = GameObjectManager.SpawnGroupDataCache.GetSpawnGroupData(groupId);
 
         if (data != null && (data.Flags.HasAnyFlag(SpawnGroupFlags.System) || data.MapId == Id))
             return data;

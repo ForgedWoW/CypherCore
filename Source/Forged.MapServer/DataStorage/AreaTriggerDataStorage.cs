@@ -131,7 +131,7 @@ public class AreaTriggerDataStorage
                 }
 
                 spawn.ScriptId = _scriptManager.GetScriptId(templates.Read<string>(20));
-                spawn.SpawnGroupData = _objectManager.GetLegacySpawnGroup();
+                spawn.SpawnGroupData = _objectManager.SpawnGroupDataCache.GetLegacySpawnGroup();
 
                 // Add the trigger to a map::cell map, which is later used by GridLoader to query
                 var cellCoord = _gridDefines.ComputeCellCoord(spawn.SpawnPoint.X, spawn.SpawnPoint.Y);

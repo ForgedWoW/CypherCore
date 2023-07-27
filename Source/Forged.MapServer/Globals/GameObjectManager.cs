@@ -49,13 +49,15 @@ public class MapSpawnGroupCache
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly IConfiguration _configuration;
+    private readonly SpawnGroupDataCache _spawnGroupDataCache;
     public MultiMap<uint, SpawnMetadata> SpawnGroupMapStorage { get; } = new();
     private readonly MultiMap<uint, uint> _spawnGroupsByMap = new();
 
-    public MapSpawnGroupCache(WorldDatabase worldDatabase, IConfiguration configuration)
+    public MapSpawnGroupCache(WorldDatabase worldDatabase, IConfiguration configuration, SpawnGroupDataCache spawnGroupDataCache)
     {
         _worldDatabase = worldDatabase;
         _configuration = configuration;
+        _spawnGroupDataCache = spawnGroupDataCache;
     }
 
     public List<uint> GetSpawnGroupsForMap(uint mapId)
@@ -117,7 +119,7 @@ public class MapSpawnGroupCache
                 continue;
             }
 
-            if (!_spawnGroupDataStorage.TryGetValue(groupId, out var groupTemplate))
+            if (!_spawnGroupDataCache.TryGetSpawnGroupData(groupId, out var groupTemplate))
                 Log.Logger.Error($"Spawn group {groupId} assigned to spawn ID ({spawnType},{spawnId}), but group is found!");
             else
             {
@@ -329,7 +331,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, SceneTemplate> _sceneTemplateStorage = new();
     private readonly ScriptManager _scriptManager;
     private readonly Dictionary<uint, SkillTiersEntry> _skillTiers = new();
-    private readonly Dictionary<uint, SpawnGroupTemplateData> _spawnGroupDataStorage = new();
     private readonly List<uint> _tavernAreaTriggerStorage = new();
     private readonly MultiMap<Tuple<uint, SummonerType, byte>, TempSummonData> _tempSummonDataStorage = new();
     private readonly Dictionary<uint, TerrainSwapInfo> _terrainSwapInfoById = new();
@@ -375,6 +376,7 @@ public sealed class GameObjectManager
     private readonly CreatureTemplateCache _creatureTemplateCache;
     private readonly CreatureModelCache _creatureModelCache;
     private readonly CreatureMovementOverrideCache _creatureMovementOverrideCache;
+    private readonly SpawnGroupDataCache _spawnGroupDataCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -450,6 +452,11 @@ public sealed class GameObjectManager
     public CreatureMovementOverrideCache CreatureMovementOverrideCache
     {
         get { return _creatureMovementOverrideCache; }
+    }
+
+    public SpawnGroupDataCache SpawnGroupDataCache
+    {
+        get { return _spawnGroupDataCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -929,14 +936,6 @@ public sealed class GameObjectManager
         };
     }
 
-    public SpawnGroupTemplateData GetDefaultSpawnGroup()
-    {
-        if (!_spawnGroupDataStorage.TryGetValue(0, out var gt))
-            gt = _spawnGroupDataStorage.ElementAt(0).Value;
-
-        return gt;
-    }
-
     public List<DungeonEncounter> GetDungeonEncounterList(uint mapId, Difficulty difficulty)
     {
         return _dungeonEncounterStorage.LookupByKey(MathFunctions.MakePair64(mapId, (uint)difficulty));
@@ -1046,14 +1045,6 @@ public sealed class GameObjectManager
     public JumpChargeParams GetJumpChargeParams(int id)
     {
         return _jumpChargeParams.LookupByKey(id);
-    }
-
-    public SpawnGroupTemplateData GetLegacySpawnGroup()
-    {
-        if (!_spawnGroupDataStorage.TryGetValue(1, out var gt))
-            gt = _spawnGroupDataStorage.ElementAt(1).Value;
-
-        return gt;
     }
 
     public ObjectGuid GetLinkedRespawnGuid(ObjectGuid spawnId)
@@ -1403,11 +1394,6 @@ public sealed class GameObjectManager
         };
     }
 
-    public SpawnGroupTemplateData GetSpawnGroupData(uint groupId)
-    {
-        return _spawnGroupDataStorage.LookupByKey(groupId);
-    }
-
     public SpawnGroupTemplateData GetSpawnGroupData(SpawnObjectType type, ulong spawnId)
     {
         var data = GetSpawnMetadata(type, spawnId);
@@ -1438,9 +1424,7 @@ public sealed class GameObjectManager
         // select mount creature id
         if (_cliDB.TaxiNodesStorage.TryGetValue(id, out var node))
         {
-            uint mountEntry;
-
-            mountEntry = team == TeamFaction.Alliance ? node.MountCreatureID[1] : node.MountCreatureID[0];
+            var mountEntry = team == TeamFaction.Alliance ? node.MountCreatureID[1] : node.MountCreatureID[0];
 
             // Fix for Alliance not being able to use Acherus taxi
             // only one mount type for both sides
@@ -1553,11 +1537,6 @@ public sealed class GameObjectManager
         LoadGameObjectTemplate();
         LoadGameObjectTemplateAddons();
         LoadNPCText();
-        _itemTemplateCache.LoadItemTemplates();     // must be after LoadRandomEnchantmentsTable and LoadPageTexts
-        _itemTemplateCache.LoadItemTemplateAddon(); // must be after LoadItemPrototypes
-        _itemTemplateCache.LoadItemScriptNames();                   // must be after LoadItemPrototypes
-        CreatureModelCache.Load();
-        CreatureTemplateCache.Load();
         LoadEquipmentTemplates();
         LoadCreatureTemplateAddons();
         LoadCreatureScalingData();
@@ -1566,13 +1545,10 @@ public sealed class GameObjectManager
         LoadReputationSpilloverTemplate();
         LoadPointsOfInterest();
         LoadCreatureClassLevelStats();
-        LoadSpawnGroupTemplates();
         LoadCreatures();
         LoadTempSummons(); // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
         LoadCreatureAddons();
-        CreatureMovementOverrideCache.Load(); // must be after LoadCreatures()
         LoadGameObjects();
-        MapSpawnGroupCache.Load();
         LoadInstanceSpawnGroups();
         LoadGameObjectAddons(); // must be after LoadGameObjects()
         LoadGameObjectOverrides(); // must be after LoadGameObjects()
@@ -1607,7 +1583,6 @@ public sealed class GameObjectManager
         LoadGossipMenuItems();
         LoadGossipMenuAddon();
         LoadCreatureTrainers(); // must be after LoadGossipMenuItems
-        VendorItemCache.Load();        // must be after load CreatureTemplate and ItemTemplate
         LoadPhases();
         LoadFactionChangeAchievements();
         LoadFactionChangeSpells();
@@ -2165,7 +2140,7 @@ public sealed class GameObjectManager
                 data.ScriptId = _scriptManager.GetScriptId(scriptId);
 
             data.StringId = result.Read<string>(28);
-            data.SpawnGroupData = _spawnGroupDataStorage[IsTransportMap(data.MapId) ? 1 : 0u]; // transport spawns default to compatibility group
+            data.SpawnGroupData = SpawnGroupDataCache.GetSpawnGroupData(IsTransportMap(data.MapId) ? 1 : 0u); // transport spawns default to compatibility group
 
             if (!_cliDB.MapStorage.TryGetValue(data.MapId, out var mapEntry))
             {
@@ -2184,7 +2159,7 @@ public sealed class GameObjectManager
             var ok = true;
 
             for (uint diff = 0; diff < SharedConst.MaxCreatureDifficulties && ok; ++diff)
-                if (_difficultyEntries[diff].Contains(data.Id))
+                if (CreatureTemplateCache.DifficultyEntries[diff].Contains(data.Id))
                 {
                     Log.Logger.Error("Table `creature` have creature (GUID: {0}) that listed as difficulty {1} template (entry: {2}) in `creaturetemplate`, skipped.", guid, diff + 1, data.Id);
                     ok = false;
@@ -3398,7 +3373,7 @@ public sealed class GameObjectManager
                 Spawntimesecs = result.Read<int>(11)
             };
 
-            data.SpawnGroupData = IsTransportMap(data.MapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
+            data.SpawnGroupData = IsTransportMap(data.MapId) ? SpawnGroupDataCache.GetLegacySpawnGroup() : SpawnGroupDataCache.GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
             if (!_cliDB.MapStorage.TryGetValue(data.MapId, out _))
             {
@@ -4377,7 +4352,7 @@ public sealed class GameObjectManager
         {
             var instanceMapId = result.Read<ushort>(0);
             var spawnGroupId = result.Read<uint>(3);
-            var spawnGroupTemplate = _spawnGroupDataStorage.LookupByKey(spawnGroupId);
+            var spawnGroupTemplate = SpawnGroupDataCache.GetSpawnGroupData(spawnGroupId);
 
             if (spawnGroupTemplate == null || spawnGroupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
             {
@@ -8383,80 +8358,6 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} skill max values in {1} ms", _skillTiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    public void LoadSpawnGroupTemplates()
-    {
-        var oldMSTime = Time.MSTime;
-
-        //                                         0        1          2
-        var result = _worldDatabase.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
-
-        if (!result.IsEmpty())
-            do
-            {
-                var groupId = result.Read<uint>(0);
-
-                SpawnGroupTemplateData group = new()
-                {
-                    GroupId = groupId,
-                    Name = result.Read<string>(1),
-                    MapId = 0xFFFFFFFF
-                };
-
-                var flags = (SpawnGroupFlags)result.Read<uint>(2);
-
-                if (flags.HasAnyFlag(~SpawnGroupFlags.All))
-                {
-                    flags &= SpawnGroupFlags.All;
-                    Log.Logger.Error($"Invalid spawn group Id {flags} on group ID {groupId} ({group.Name}), reduced to valid Id {group.Flags}.");
-                }
-
-                if (flags.HasAnyFlag(SpawnGroupFlags.System) && flags.HasAnyFlag(SpawnGroupFlags.ManualSpawn))
-                {
-                    flags &= ~SpawnGroupFlags.ManualSpawn;
-                    Log.Logger.Error($"System spawn group {groupId} ({group.Name}) has invalid manual spawn Id. Ignored.");
-                }
-
-                group.Flags = flags;
-
-                _spawnGroupDataStorage[groupId] = group;
-            } while (result.NextRow());
-
-        if (!_spawnGroupDataStorage.ContainsKey(0))
-        {
-            Log.Logger.Error("Default spawn group (index 0) is missing from DB! Manually inserted.");
-
-            SpawnGroupTemplateData data = new()
-            {
-                GroupId = 0,
-                Name = "Default Group",
-                MapId = 0,
-                Flags = SpawnGroupFlags.System
-            };
-
-            _spawnGroupDataStorage[0] = data;
-        }
-
-        if (!_spawnGroupDataStorage.ContainsKey(1))
-        {
-            Log.Logger.Error("Default legacy spawn group (index 1) is missing from DB! Manually inserted.");
-
-            SpawnGroupTemplateData data = new()
-            {
-                GroupId = 1,
-                Name = "Legacy Group",
-                MapId = 0,
-                Flags = SpawnGroupFlags.System | SpawnGroupFlags.CompatibilityMode
-            };
-
-            _spawnGroupDataStorage[1] = data;
-        }
-
-        if (!result.IsEmpty())
-            Log.Logger.Information($"Loaded {_spawnGroupDataStorage.Count} spawn group templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-        else
-            Log.Logger.Information("Loaded 0 spawn group templates. DB table `spawn_group_template` is empty.");
-    }
-
     public void LoadSpellScriptNames()
     {
         var oldMSTime = Time.MSTime;
@@ -10351,7 +10252,7 @@ public sealed class GameObjectManager
 
     private void OnDeleteSpawnData(SpawnData data)
     {
-        var templateIt = _spawnGroupDataStorage.LookupByKey(data.SpawnGroupData.GroupId);
+        var templateIt = SpawnGroupDataCache.GetSpawnGroupData(data.SpawnGroupData.GroupId);
 
         if (templateIt.Flags.HasAnyFlag(SpawnGroupFlags.System)) // system groups don't store their members in the map
             return;

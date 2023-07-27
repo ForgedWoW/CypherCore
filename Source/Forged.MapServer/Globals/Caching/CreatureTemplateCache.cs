@@ -27,7 +27,6 @@ public class CreatureTemplateCache : IObjectCache
     private readonly CreatureModelCache _creatureModelCache;
     private readonly Dictionary<uint, CreatureSummonedData> _creatureSummonedDataStorage = new();
     private readonly DB6Storage<CreatureTypeRecord> _creatureTypeRecords;
-    private readonly List<uint>[] _difficultyEntries = new List<uint>[SharedConst.MaxCreatureDifficulties];
     private readonly DB6Storage<FactionTemplateRecord> _factionTemplateRecords;
     private readonly GameObjectManager _gameObjectManager;
     private readonly List<uint>[] _hasDifficultyEntries = new List<uint>[SharedConst.MaxCreatureDifficulties];
@@ -55,12 +54,13 @@ public class CreatureTemplateCache : IObjectCache
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
-            _difficultyEntries[i] = new List<uint>();
+            DifficultyEntries[i] = new List<uint>();
             _hasDifficultyEntries[i] = new List<uint>();
         }
     }
 
     public Dictionary<uint, CreatureTemplate> CreatureTemplates { get; } = new();
+    public List<uint>[] DifficultyEntries { get; } = new List<uint>[SharedConst.MaxCreatureDifficulties];
 
     public void CheckCreatureTemplate(CreatureTemplate cInfo)
     {
@@ -95,7 +95,7 @@ public class CreatureTemplateCache : IObjectCache
             {
                 ok2 = false;
 
-                if (_difficultyEntries[diff2].Contains(cInfo.Entry))
+                if (DifficultyEntries[diff2].Contains(cInfo.Entry))
                 {
                     Log.Logger.Error("Creature (Entry: {0}) is listed as `difficulty_entry_{1}` of another creature, but itself lists {2} in `difficulty_entry_{3}`.",
                                      cInfo.Entry,
@@ -106,7 +106,7 @@ public class CreatureTemplateCache : IObjectCache
                     continue;
                 }
 
-                if (_difficultyEntries[diff2].Contains(cInfo.DifficultyEntry[diff]))
+                if (DifficultyEntries[diff2].Contains(cInfo.DifficultyEntry[diff]))
                 {
                     Log.Logger.Error("Creature (Entry: {0}) already listed as `difficulty_entry_{1}` for another entry.", cInfo.DifficultyEntry[diff], diff2 + 1);
 
@@ -299,7 +299,7 @@ public class CreatureTemplateCache : IObjectCache
             }
 
             _hasDifficultyEntries[diff].Add(cInfo.Entry);
-            _difficultyEntries[diff].Add(cInfo.DifficultyEntry[diff]);
+            DifficultyEntries[diff].Add(cInfo.DifficultyEntry[diff]);
             ok = true;
         }
 
