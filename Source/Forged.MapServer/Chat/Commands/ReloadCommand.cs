@@ -628,7 +628,7 @@ internal class ReloadCommand
     private static bool HandleReloadPageTextsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Page Text...");
-        handler.ObjectManager.LoadPageTexts();
+        handler.ObjectManager.PageTextCache.Load();
         handler.SendGlobalGMSysMessage("DB table `page_text` reloaded.");
 
         return true;

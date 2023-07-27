@@ -274,7 +274,7 @@ public class PoolGroup<T>
                 break;
             case "GameObject":
             {
-                var data = _objectManager.GetGameObjectData(obj.Guid);
+                var data = _objectManager.GameObjectCache.GetGameObjectData(obj.Guid);
 
                 if (data != null)
                     // Spawn if necessary (loaded grids only)

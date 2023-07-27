@@ -28,7 +28,7 @@ public class GameObjectFactory
 
     public GameObject CreateGameObject(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit = 0)
     {
-        var goInfo = _objectManager.GetGameObjectTemplate(entry);
+        var goInfo = _objectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
         if (goInfo == null)
             return null;
@@ -47,7 +47,7 @@ public class GameObjectFactory
 
     public bool DeleteFromDB(ulong spawnId)
     {
-        var data = _objectManager.GetGameObjectData(spawnId);
+        var data = _objectManager.GameObjectCache.GetGameObjectData(spawnId);
 
         if (data == null)
             return false;
@@ -65,7 +65,7 @@ public class GameObjectFactory
                                           });
 
         // delete data from memory
-        _objectManager.DeleteGameObjectData(spawnId);
+        _objectManager.GameObjectCache.DeleteGameObjectData(spawnId);
 
         trans = new SQLTransaction();
 

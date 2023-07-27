@@ -426,7 +426,7 @@ public class GarrisonManager
                 continue;
             }
 
-            var goTemplate = _objectManager.GetGameObjectTemplate(hordeGameObjectId);
+            var goTemplate = _objectManager.GameObjectTemplateCache.GetGameObjectTemplate(hordeGameObjectId);
 
             if (goTemplate == null)
             {
@@ -447,7 +447,7 @@ public class GarrisonManager
                 continue;
             }
 
-            goTemplate = _objectManager.GetGameObjectTemplate(allianceGameObjectId);
+            goTemplate = _objectManager.GameObjectTemplateCache.GetGameObjectTemplate(allianceGameObjectId);
 
             if (goTemplate == null)
             {

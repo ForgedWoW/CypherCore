@@ -129,7 +129,7 @@ internal class GameObjectCommands
         if (!isGuid.IsEmpty() && isGuid.Equals("guid", StringComparison.OrdinalIgnoreCase))
         {
             spawnId = data;
-            spawnData = handler.ObjectManager.GetGameObjectData(spawnId);
+            spawnData = handler.ObjectManager.GameObjectCache.GetGameObjectData(spawnId);
 
             if (spawnData == null)
             {
@@ -144,7 +144,7 @@ internal class GameObjectCommands
         else
             entry = (uint)data;
 
-        var gameObjectInfo = handler.ObjectManager.GetGameObjectTemplate(entry);
+        var gameObjectInfo = handler.ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
         if (gameObjectInfo == null)
         {
@@ -291,7 +291,7 @@ internal class GameObjectCommands
                 var z = result.Read<float>(4);
                 var mapId = result.Read<ushort>(5);
 
-                var gameObjectInfo = handler.ObjectManager.GetGameObjectTemplate(entry);
+                var gameObjectInfo = handler.ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
                 if (gameObjectInfo == null)
                     continue;
@@ -460,7 +460,7 @@ internal class GameObjectCommands
             return false;
         }
 
-        var objectInfo = handler.ObjectManager.GetGameObjectTemplate(id);
+        var objectInfo = handler.ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(id);
 
         if (objectInfo == null)
         {
@@ -537,7 +537,7 @@ internal class GameObjectCommands
             if (objectId == 0)
                 return false;
 
-            var objectInfo = handler.ObjectManager.GetGameObjectTemplate(objectId);
+            var objectInfo = handler.ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(objectId);
 
             if (objectInfo == null)
             {
@@ -584,7 +584,7 @@ internal class GameObjectCommands
                 return false;
 
             // TODO: is it really necessary to add both the real and DB table guid here ?
-            handler.ObjectManager.AddSpawnDataToGrid(handler.ObjectManager.GetGameObjectData(spawnId));
+            handler.ObjectManager.AddSpawnDataToGrid(handler.ObjectManager.GameObjectCache.GetGameObjectData(spawnId));
             handler.SendSysMessage(CypherStrings.GameobjectAdd, objectId, objectInfo.name, spawnId, player.Location.X, player.Location.Y, player.Location.Z);
 
             return true;
@@ -598,7 +598,7 @@ internal class GameObjectCommands
 
             var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f));
 
-            if (handler.ObjectManager.GetGameObjectTemplate(objectId) == null)
+            if (handler.ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(objectId) == null)
             {
                 handler.SendSysMessage(CypherStrings.GameobjectNotExist, objectId);
 

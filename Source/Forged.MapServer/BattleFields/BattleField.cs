@@ -552,7 +552,7 @@ public class BattleField : ZoneScript
     // Method for spawning gameobject on map
     public GameObject SpawnGameObject(uint entry, Position pos, Quaternion rotation)
     {
-        if (ObjectManager.GetGameObjectTemplate(entry) == null)
+        if (ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry) == null)
         {
             Log.Logger.Error("Battlefield.SpawnGameObject: GameObject template {0} not found in database! Battlefield not created!", entry);
 

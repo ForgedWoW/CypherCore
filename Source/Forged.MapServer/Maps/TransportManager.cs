@@ -302,7 +302,7 @@ public class TransportManager
         do
         {
             var entry = result.Read<uint>(0);
-            var goInfo = _objectManager.GetGameObjectTemplate(entry);
+            var goInfo = _objectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
             if (goInfo == null)
             {

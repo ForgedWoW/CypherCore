@@ -128,7 +128,7 @@ public class Transport : GameObject, ITransport
 
         Create(ObjectGuid.Create(HighGuid.Transport, guidlow));
 
-        var goinfo = GameObjectManager.GetGameObjectTemplate(entry);
+        var goinfo = GameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
         if (goinfo == null)
         {
@@ -606,7 +606,7 @@ public class Transport : GameObject, ITransport
 
             // GameObjects on transport
             foreach (var go in cell.Value.Gameobjects)
-                CreateGOPassenger(go, GameObjectManager.GetGameObjectData(go));
+                CreateGOPassenger(go, GameObjectManager.GameObjectCache.GetGameObjectData(go));
         }
     }
 

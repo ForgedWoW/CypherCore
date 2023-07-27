@@ -2179,7 +2179,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.NearGameobject:
             {
-                if (_objectManager.GetGameObjectTemplate(cond.ConditionValue1) == null)
+                if (_objectManager.GameObjectTemplateCache.GetGameObjectTemplate(cond.ConditionValue1) == null)
                 {
                     Log.Logger.Debug("{0} has non existing gameobject template entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2223,7 +2223,7 @@ public sealed class ConditionManager
 
                         break;
                     case TypeId.GameObject:
-                        if (cond.ConditionValue2 != 0 && _objectManager.GetGameObjectTemplate(cond.ConditionValue2) == null)
+                        if (cond.ConditionValue2 != 0 && _objectManager.GameObjectTemplateCache.GetGameObjectTemplate(cond.ConditionValue2) == null)
                         {
                             Log.Logger.Debug("{0} has non existing gameobject template entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue2);
 
@@ -2232,7 +2232,7 @@ public sealed class ConditionManager
 
                         if (cond.ConditionValue3 != 0)
                         {
-                            var goData = _objectManager.GetGameObjectData(cond.ConditionValue3);
+                            var goData = _objectManager.GameObjectCache.GetGameObjectData(cond.ConditionValue3);
 
                             if (goData != null)
                             {
@@ -3122,7 +3122,7 @@ public sealed class ConditionManager
                 }
                 else if (cond.SourceGroup == (uint)TypeId.GameObject)
                 {
-                    if (_objectManager.GetGameObjectTemplate((uint)cond.SourceEntry) == null)
+                    if (_objectManager.GameObjectTemplateCache.GetGameObjectTemplate((uint)cond.SourceEntry) == null)
                     {
                         Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.");
 

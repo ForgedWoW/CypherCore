@@ -20,7 +20,7 @@ internal class TeleCommands
 {
     private static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
     {
-        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, pos) || handler.ClassFactory.Resolve<GameObjectTemplateCache>().IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 

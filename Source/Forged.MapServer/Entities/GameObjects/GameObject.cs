@@ -106,7 +106,7 @@ public class GameObject : WorldObject
     {
         get
         {
-            var got = GameObjectManager.GetGameObjectTemplate(Entry);
+            var got = GameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(Entry);
 
             return got != null ? got.AIName : "";
         }
@@ -156,7 +156,7 @@ public class GameObject : WorldObject
         set
         {
             SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ArtKit), value);
-            var data = GameObjectManager.GetGameObjectData(SpawnId);
+            var data = GameObjectManager.GameObjectCache.GetGameObjectData(SpawnId);
 
             if (data != null)
                 data.ArtKit = value;
@@ -1282,7 +1282,7 @@ public class GameObject : WorldObject
 
     public override bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool unused = true)
     {
-        var data = GameObjectManager.GetGameObjectData(spawnId);
+        var data = GameObjectManager.GameObjectCache.GetGameObjectData(spawnId);
 
         if (data == null)
         {
@@ -1571,7 +1571,7 @@ public class GameObject : WorldObject
     {
         // this should only be used when the gameobject has already been loaded
         // preferably after adding to map, because mapid may not be valid otherwise
-        var data = GameObjectManager.GetGameObjectData(SpawnId);
+        var data = GameObjectManager.GameObjectCache.GetGameObjectData(SpawnId);
 
         if (data == null)
         {
@@ -1601,7 +1601,7 @@ public class GameObject : WorldObject
             SpawnId = GameObjectManager.GenerateGameObjectSpawnId();
 
         // update in loaded data (changing data only in this place)
-        var data = GameObjectManager.NewOrExistGameObjectData(SpawnId);
+        var data = GameObjectManager.GameObjectCache.NewOrExistGameObjectData(SpawnId);
 
         if (data.SpawnId == 0)
             data.SpawnId = SpawnId;
@@ -1831,7 +1831,7 @@ public class GameObject : WorldObject
             data = go.GameObjectData;
         }
         else if (lowguid != 0)
-            data = GameObjectManager.GetGameObjectData(lowguid);
+            data = GameObjectManager.GameObjectCache.GetGameObjectData(lowguid);
 
         if (data != null)
             data.ArtKit = artkit;
@@ -1972,7 +1972,7 @@ public class GameObject : WorldObject
 
     public void TriggeringLinkedGameObject(uint trapEntry, Unit target)
     {
-        var trapInfo = GameObjectManager.GetGameObjectTemplate(trapEntry);
+        var trapInfo = GameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(trapEntry);
 
         if (trapInfo is not { type: GameObjectTypes.Trap })
             return;
@@ -3535,7 +3535,7 @@ public class GameObject : WorldObject
                 return false;
         }
 
-        var goInfo = GameObjectManager.GetGameObjectTemplate(entry);
+        var goInfo = GameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
         if (goInfo == null)
         {

@@ -281,7 +281,7 @@ public class PoolManager
                     var poolID = result.Read<uint>(1);
                     var chance = result.Read<float>(2);
 
-                    var data = _objectManager.GetGameObjectData(guid);
+                    var data = _objectManager.GameObjectCache.GetGameObjectData(guid);
 
                     if (data == null)
                     {

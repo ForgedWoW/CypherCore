@@ -394,7 +394,7 @@ internal class LookupCommands
         var found = false;
         uint count = 0;
 
-        var gotc = handler.ObjectManager.GameObjectTemplates;
+        var gotc = handler.ObjectManager.GameObjectTemplateCache.GameObjectTemplates;
 
         foreach (var template in gotc.Values)
         {

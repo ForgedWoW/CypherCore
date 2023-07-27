@@ -34,7 +34,7 @@ internal class GoCommands
             _          => mapId
         };
 
-        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, pos) || handler.ClassFactory.Resolve<GameObjectTemplateCache>().IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
@@ -389,7 +389,7 @@ internal class GoCommands
             return false;
         }
 
-        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, x, y) || handler.ObjectManager.IsTransportMap(mapId))
+        if (!handler.ClassFactory.Resolve<GridDefines>().IsValidMapCoord(mapId, x, y) || handler.ClassFactory.Resolve<GameObjectTemplateCache>().IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, mapId);
 
@@ -591,7 +591,7 @@ internal class GoCommands
         {
             GameObjectData spawnpoint = null;
 
-            foreach (var pair in handler.ObjectManager.AllGameObjectData)
+            foreach (var pair in handler.ObjectManager.GameObjectCache.AllGameObjectData)
             {
                 if (pair.Value.Id != goId)
                     continue;
@@ -619,7 +619,7 @@ internal class GoCommands
         [Command("", RBACPermissions.CommandGo)]
         private static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
         {
-            var spawnpoint = handler.ObjectManager.GetGameObjectData(spawnId);
+            var spawnpoint = handler.ObjectManager.GameObjectCache.GetGameObjectData(spawnId);
 
             if (spawnpoint == null)
             {

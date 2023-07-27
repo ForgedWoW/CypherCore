@@ -374,7 +374,7 @@ internal class ListCommands
     [Command("object", RBACPermissions.CommandListObject, true)]
     private static bool HandleListObjectCommand(CommandHandler handler, uint gameObjectId, uint? countArg)
     {
-        var gInfo = handler.ObjectManager.GetGameObjectTemplate(gameObjectId);
+        var gInfo = handler.ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(gameObjectId);
 
         if (gInfo == null)
         {
@@ -564,14 +564,14 @@ internal class ListCommands
                 handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.X:3} | Y: {data.SpawnPoint.Y:3} | Z: {data.SpawnPoint.Z:3}");
         }
 
-        foreach (var pair in handler.ObjectManager.AllGameObjectData)
+        foreach (var pair in handler.ObjectManager.GameObjectCache.AllGameObjectData)
         {
             SpawnData data = pair.Value;
 
             if (data.MapId != mapId)
                 continue;
 
-            var goTemp = handler.ObjectManager.GetGameObjectTemplate(data.Id);
+            var goTemp = handler.ObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(data.Id);
 
             if (goTemp == null)
                 continue;

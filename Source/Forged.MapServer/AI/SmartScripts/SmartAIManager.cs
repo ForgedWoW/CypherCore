@@ -273,7 +273,7 @@ public class SmartAIManager
 
                     case SmartScriptType.GameObject:
                     {
-                        if (_gameObjectManager.GetGameObjectTemplate((uint)temp.EntryOrGuid) == null)
+                        if (_gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate((uint)temp.EntryOrGuid) == null)
                         {
                             if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
@@ -408,7 +408,7 @@ public class SmartAIManager
                     }
                     case SmartScriptType.GameObject:
                     {
-                        var gameObject = _gameObjectManager.GetGameObjectData((ulong)-temp.EntryOrGuid);
+                        var gameObject = _gameObjectManager.GameObjectCache.GetGameObjectData((ulong)-temp.EntryOrGuid);
 
                         if (gameObject == null)
                         {
@@ -420,7 +420,7 @@ public class SmartAIManager
                             continue;
                         }
 
-                        var gameObjectInfo = _gameObjectManager.GetGameObjectTemplate(gameObject.Id);
+                        var gameObjectInfo = _gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(gameObject.Id);
 
                         if (gameObjectInfo == null)
                         {
@@ -1472,14 +1472,14 @@ public class SmartAIManager
                         return false;
                     }
 
-                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.GetGameObjectData(e.Event.Distance.GUID) == null)
+                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.GameObjectCache.GetGameObjectData(e.Event.Distance.GUID) == null)
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid {0}, skipped.", e.Event.Distance.GUID);
 
                         return false;
                     }
 
-                    if (e.Event.Distance.Entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Event.Distance.Entry) == null)
+                    if (e.Event.Distance.Entry != 0 && _gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(e.Event.Distance.Entry) == null)
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry {0}, skipped.", e.Event.Distance.Entry);
 
@@ -2591,7 +2591,7 @@ public class SmartAIManager
 
     private bool IsGameObjectValid(SmartScriptHolder e, uint entry)
     {
-        if (_gameObjectManager.GetGameObjectTemplate(entry) == null)
+        if (_gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry) == null)
         {
             Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {entry}, skipped.");
 
@@ -2683,7 +2683,7 @@ public class SmartAIManager
             case SmartTargets.GameobjectDistance:
             case SmartTargets.GameobjectRange:
             {
-                if (e.Target.GoDistance.Entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Target.GoDistance.Entry) == null)
+                if (e.Target.GoDistance.Entry != 0 && _gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(e.Target.GoDistance.Entry) == null)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {e.Target.GoDistance.Entry} as target_param1, skipped.");
 
@@ -2722,7 +2722,7 @@ public class SmartAIManager
                     return false;
 
                 ulong guid = e.Target.GoGUID.DBGuid;
-                var data = _gameObjectManager.GetGameObjectData(guid);
+                var data = _gameObjectManager.GameObjectCache.GetGameObjectData(guid);
 
                 if (data == null)
                 {

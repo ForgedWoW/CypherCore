@@ -94,7 +94,7 @@ public class QueryHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.QueryGameObject, Processing = PacketProcessing.Inplace)]
 	void HandleGameObjectQuery(QueryGameObject packet)
 	{
-		var info = _gameObjectManager.GetGameObjectTemplate(packet.GameObjectID);
+		var info = _gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(packet.GameObjectID);
 
 		if (info != null)
 		{
@@ -209,7 +209,7 @@ public class QueryHandler : IWorldSessionHandler
 
 		while (pageID != 0)
 		{
-			var pageText = _gameObjectManager.GetPageText(pageID);
+			var pageText = _gameObjectManager.PageTextCache.GetPageText(pageID);
 
 			if (pageText == null)
 				break;

@@ -1600,7 +1600,7 @@ public abstract class WorldObject : IDisposable
         if (!Location.IsInWorld)
             return null;
 
-        var goinfo = GameObjectManager.GetGameObjectTemplate(entry);
+        var goinfo = GameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
         if (goinfo == null)
         {

@@ -5457,7 +5457,7 @@ public partial class Spell
             break;
         }
 
-        var goinfo = _gameObjectManager.GetGameObjectTemplate(nameID);
+        var goinfo = _gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(nameID);
 
         if (goinfo == null)
         {

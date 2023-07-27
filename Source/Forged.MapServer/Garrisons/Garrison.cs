@@ -851,7 +851,7 @@ public class Garrison
                     entry = faction == GarrisonFactionIndex.Horde ? building.HordeGameObjectID : building.AllianceGameObjectID;
             }
 
-            if (_gameObjectManager.GetGameObjectTemplate(entry) == null)
+            if (_gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry) == null)
             {
                 Log.Logger.Error("Garrison attempted to spawn gameobject whose template doesn't exist ({0})", entry);
 

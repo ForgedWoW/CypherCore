@@ -210,7 +210,7 @@ public class LootManager : LootStoreBox
         }
 
         // remove real entries and check existence loot
-        var gotc = _objectManager.GameObjectTemplates;
+        var gotc = _objectManager.GameObjectTemplateCache.GameObjectTemplates;
 
         foreach (var (gameObjectId, gameObjectTemplate) in gotc)
         {

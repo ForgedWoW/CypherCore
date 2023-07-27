@@ -467,7 +467,7 @@ public class GameEventManager
                     short eventID = result.Read<byte>(1);
                     var internalEventID = _gameEvent.Length + eventID - 1;
 
-                    var data = _objectManager.GetGameObjectData(guid);
+                    var data = _objectManager.GameObjectCache.GetGameObjectData(guid);
 
                     if (data == null)
                     {
@@ -1429,7 +1429,7 @@ public class GameEventManager
         foreach (var guid in GameEventGameobjectGuids[internalEventID])
         {
             // Add to correct cell
-            var data = _objectManager.GetGameObjectData(guid);
+            var data = _objectManager.GameObjectCache.GetGameObjectData(guid);
 
             if (data == null)
                 continue;
@@ -1532,7 +1532,7 @@ public class GameEventManager
                 continue;
 
             // Remove the gameobject from grid
-            var data = _objectManager.GetGameObjectData(guid);
+            var data = _objectManager.GameObjectCache.GetGameObjectData(guid);
 
             if (data == null)
                 continue;

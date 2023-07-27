@@ -158,7 +158,7 @@ public class OPvPCapturePoint
         Log.Logger.Debug("Creating capture point {0}", entry);
 
         // check info existence
-        var goinfo = PvP.Map.GameObjectManager.GetGameObjectTemplate(entry);
+        var goinfo = PvP.Map.GameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(entry);
 
         if (goinfo is not { type: GameObjectTypes.ControlZone })
         {

@@ -29,7 +29,7 @@ public class GameObjectScriptRegister : IScriptRegister
 
         foreach (var id in gameObjectScript.GameObjectIds)
         {
-            var gameObject = _gameObjectManager.GetGameObjectTemplate(id);
+            var gameObject = _gameObjectManager.GameObjectTemplateCache.GetGameObjectTemplate(id);
 
             if (gameObject == null)
             {
