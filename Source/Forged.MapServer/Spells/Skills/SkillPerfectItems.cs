@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Database;
 using Serilog;
 
@@ -11,16 +12,16 @@ namespace Forged.MapServer.Spells.Skills;
 
 public class SkillPerfectItems
 {
-    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, SkillPerfectItemEntry> _skillPerfectItemStorage = new();
     private readonly SpellManager _spellManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly WorldDatabase _worldDatabase;
 
-    public SkillPerfectItems(WorldDatabase worldDatabase, SpellManager spellManager, GameObjectManager objectManager)
+    public SkillPerfectItems(WorldDatabase worldDatabase, SpellManager spellManager, ItemTemplateCache itemTemplateCache)
     {
         _worldDatabase = worldDatabase;
         _spellManager = spellManager;
-        _objectManager = objectManager;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)
@@ -93,7 +94,7 @@ public class SkillPerfectItems
 
             var perfectItemType = result.Read<uint>(3);
 
-            if (_objectManager.ItemTemplateCache.GetItemTemplate(perfectItemType) == null)
+            if (_itemTemplateCache.GetItemTemplate(perfectItemType) == null)
             {
                 Log.Logger.Error("Skill perfection data for spell {0} references non-existent perfect item id {1} in `skill_perfect_item_template`!", spellId, perfectItemType);
 

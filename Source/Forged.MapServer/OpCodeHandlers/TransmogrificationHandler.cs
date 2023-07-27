@@ -3,10 +3,13 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.DataStorage.Structs.P;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.NPC;
 using Forged.MapServer.Networking.Packets.Transmogification;
@@ -21,19 +24,22 @@ namespace Forged.MapServer.OpCodeHandlers;
 
 public class TransmogrificationHandler : IWorldSessionHandler
 {
-    private readonly CliDB _cliDB;
     private readonly CollectionMgr _collectionMgr;
     private readonly DB2Manager _db2Manager;
-    private readonly GameObjectManager _gameObjectManager;
+    private readonly DB6Storage<ItemModifiedAppearanceRecord> _itemModifiedAppearanceRecords;
+    private readonly ItemTemplateCache _itemTemplateCache;
+    private readonly DB6Storage<PlayerConditionRecord> _playerConditionRecords;
     private readonly WorldSession _session;
 
-    public TransmogrificationHandler(WorldSession session, CliDB cliDB, CollectionMgr collectionMgr, GameObjectManager gameObjectManager, DB2Manager db2Manager)
+    public TransmogrificationHandler(WorldSession session, CollectionMgr collectionMgr, DB2Manager db2Manager, ItemTemplateCache itemTemplateCache,
+                                     DB6Storage<PlayerConditionRecord> playerConditionRecords, DB6Storage<ItemModifiedAppearanceRecord> itemModifiedAppearanceRecords)
     {
         _session = session;
-        _cliDB = cliDB;
         _collectionMgr = collectionMgr;
-        _gameObjectManager = gameObjectManager;
         _db2Manager = db2Manager;
+        _itemTemplateCache = itemTemplateCache;
+        _playerConditionRecords = playerConditionRecords;
+        _itemModifiedAppearanceRecords = itemModifiedAppearanceRecords;
     }
 
     public void SendOpenTransmogrifier(ObjectGuid guid)
@@ -117,7 +123,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
                     return;
                 }
 
-                if (_cliDB.PlayerConditionStorage.TryGetValue((uint)illusion.UnlockConditionID, out var condition))
+                if (_playerConditionRecords.TryGetValue((uint)illusion.UnlockConditionID, out var condition))
                     if (!_session.Player.ConditionManager.IsPlayerMeetingCondition(_session.Player, condition))
                     {
                         Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", _session.Player.GUID.ToString(), _session.Player.GetName(), transmogItem.SpellItemEnchantmentID);
@@ -333,7 +339,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
 
     private bool ValidateAndStoreTransmogItem(Item itemTransmogrified, uint itemModifiedAppearanceId, bool isSecondary, Dictionary<Item, uint[]> transmogItems, List<uint> bindAppearances)
     {
-        if (!_cliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var itemModifiedAppearance))
+        if (!_itemModifiedAppearanceRecords.TryGetValue(itemModifiedAppearanceId, out var itemModifiedAppearance))
         {
             Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {_session.Player.GUID}, Name: {_session.Player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
 
@@ -356,7 +362,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
             return false;
         }
 
-        var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID);
+        var itemTemplate = _itemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID);
 
         if (_session.Player.CanUseItem(itemTemplate) != InventoryResult.Ok)
         {

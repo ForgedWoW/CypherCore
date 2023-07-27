@@ -7,7 +7,7 @@ using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Constants;
 
 namespace Forged.MapServer.LootManagement;
@@ -17,20 +17,20 @@ public class LootItem
     private readonly ConditionManager _conditionManager;
 
     // quest drop
-    private readonly GameObjectManager _objectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
-    public LootItem(GameObjectManager objectManager, ConditionManager conditionManager)
+    public LootItem(ItemTemplateCache itemTemplateCache, ConditionManager conditionManager)
     {
-        _objectManager = objectManager;
+        _itemTemplateCache = itemTemplateCache;
         _conditionManager = conditionManager;
     }
 
-    public LootItem(GameObjectManager objectManager, ConditionManager conditionManager, LootStoreItem li, ItemEnchantmentManager itemEnchantmentManager) : this(objectManager, conditionManager)
+    public LootItem(ItemTemplateCache itemTemplateCache, ConditionManager conditionManager, LootStoreItem li, ItemEnchantmentManager itemEnchantmentManager) : this(itemTemplateCache, conditionManager)
     {
         Itemid = li.Itemid;
         Conditions = li.Conditions;
 
-        var proto = objectManager.ItemTemplateCache.GetItemTemplate(Itemid);
+        var proto = itemTemplateCache.GetItemTemplate(Itemid);
         Freeforall = proto != null && proto.HasFlag(ItemFlags.MultiDrop);
         FollowLootRules = !li.NeedsQuest || (proto != null && proto.FlagsCu.HasAnyFlag(ItemFlagsCustom.FollowLootRules));
 
@@ -63,13 +63,13 @@ public class LootItem
     // additional loot condition
     public ObjectGuid RollWinnerGuid { get; set; } // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
 
-    public static bool AllowedForPlayer(Player player, Loot loot, uint itemid, bool needsQuest, bool followLootRules, bool strictUsabilityCheck, List<Condition> conditions, GameObjectManager objectManager, ConditionManager conditionManager)
+    public static bool AllowedForPlayer(Player player, Loot loot, uint itemid, bool needsQuest, bool followLootRules, bool strictUsabilityCheck, List<Condition> conditions, ItemTemplateCache itemTemplateCache, ConditionManager conditionManager)
     {
         // DB conditions check
         if (!conditionManager.IsObjectMeetToConditions(player, conditions))
             return false;
 
-        var pProto = objectManager.ItemTemplateCache.GetItemTemplate(itemid);
+        var pProto = itemTemplateCache.GetItemTemplate(itemid);
 
         if (pProto == null)
             return false;
@@ -127,7 +127,7 @@ public class LootItem
     /// <returns> </returns>
     public bool AllowedForPlayer(Player player, Loot loot)
     {
-        return AllowedForPlayer(player, loot, Itemid, NeedsQuest, FollowLootRules, false, Conditions, _objectManager, _conditionManager);
+        return AllowedForPlayer(player, loot, Itemid, NeedsQuest, FollowLootRules, false, Conditions, _itemTemplateCache, _conditionManager);
     }
 
     public List<ObjectGuid> GetAllowedLooters()

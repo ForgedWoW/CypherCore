@@ -247,7 +247,7 @@ public partial class Player
 
             if (gem != null)
             {
-                var gemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(gem.ItemId);
+                var gemTemplate = ItemTemplateCache.GetItemTemplate(gem.ItemId);
 
                 if (gemTemplate != null)
                     if (gemTemplate.RequiredSkill != 0 && GetSkillValue((SkillType)gemTemplate.RequiredSkill) < gemTemplate.RequiredSkillRank)
@@ -2706,7 +2706,7 @@ public partial class Player
         if (spell == null)
         {
             // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-            var proto = GameObjectManager.ItemTemplateCache.GetItemTemplate(_lastPotionId);
+            var proto = ItemTemplateCache.GetItemTemplate(_lastPotionId);
 
             if (proto != null)
                 for (byte idx = 0; idx < proto.Effects.Count; ++idx)
@@ -3402,7 +3402,7 @@ public partial class Player
             if (pItem2 is { IsBroken: false })
                 foreach (var gemData in pItem2.ItemData.Gems)
                 {
-                    var gemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(gemData.ItemId);
+                    var gemProto = ItemTemplateCache.GetItemTemplate(gemData.ItemId);
 
                     if (gemProto == null)
                         continue;

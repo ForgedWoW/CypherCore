@@ -75,6 +75,7 @@ using Framework.Database;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
+using static Forged.MapServer.LootManagement.LootTemplate;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -470,6 +471,14 @@ void RegisterInstanced()
     builder.RegisterType<LFGQueue>();
     builder.RegisterType<ItemTemplate>();
     builder.RegisterType<ItemSpecStats>();
+    builder.RegisterType<SpellHistory>();
+    builder.RegisterType<LootTemplate>();
+    builder.RegisterType<LootStore>();
+    builder.RegisterType<Loot>();
+    builder.RegisterType<LootGroup>();
+    builder.RegisterType<BlackMarketTemplate>();
+    builder.RegisterType<LootRoll>();
+    builder.RegisterType<GuildBankTab>();
 }
 
 void RegisterOpCodeHandlers()

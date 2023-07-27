@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
@@ -21,7 +22,6 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Pools;
-using Forged.MapServer.Scripting;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Text;
 using Forged.MapServer.World;
@@ -35,6 +35,8 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public partial class Creature : Unit
 {
+    private readonly ItemTemplateCache _itemTemplateCache;
+
     public Creature(ClassFactory classFactory) : this(false, classFactory)
     {
     }
@@ -50,6 +52,7 @@ public partial class Creature : Unit
         GameEventManager = classFactory.Resolve<GameEventManager>();
         FormationManager = classFactory.Resolve<FormationMgr>();
         CreatureTextManager = classFactory.Resolve<CreatureTextManager>();
+        _itemTemplateCache = classFactory.Resolve<ItemTemplateCache>();
         RespawnDelay = 300;
         CorpseDelay = 60;
         _boundaryCheckTime = 2500;
@@ -1052,7 +1055,7 @@ public partial class Creature : Unit
         if (vCount.LastIncrementTime + vItem.Incrtime > ptime)
             return vCount.Count;
 
-        var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(vItem.Item);
+        var pProto = _itemTemplateCache.GetItemTemplate(vItem.Item);
 
         var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
@@ -2970,7 +2973,7 @@ public partial class Creature : Unit
 
         if (vCount.LastIncrementTime + vItem.Incrtime <= ptime)
         {
-            var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(vItem.Item);
+            var pProto = _itemTemplateCache.GetItemTemplate(vItem.Item);
 
             var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 

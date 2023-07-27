@@ -12,6 +12,7 @@ using Forged.MapServer.Scripting.Interfaces.IQuest;
 using Framework.Constants;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Globals.Caching;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -109,7 +110,7 @@ internal class QuestCommands
         }
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
-        var itc = handler.ObjectManager.ItemTemplateCache.ItemTemplates;
+        var itc = handler.ClassFactory.Resolve<ItemTemplateCache>().ItemTemplates;
         var result = itc.Values.FirstOrDefault(p => p.StartQuest == quest.Id);
 
         if (result != null)

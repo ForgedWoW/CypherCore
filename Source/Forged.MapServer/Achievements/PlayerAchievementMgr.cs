@@ -13,6 +13,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
@@ -47,8 +48,8 @@ public class PlayerAchievementMgr : AchievementManager
 
     public PlayerAchievementMgr(Player owner, GuildManager guildManager, ScriptManager scriptManager, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                                 DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
-                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, ClassFactory classFactory, ItemFactory itemFactory, PhasingHandler phasingHandler, CellCalculator cellCalculator) :
-        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler)
+                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, ClassFactory classFactory, ItemFactory itemFactory, PhasingHandler phasingHandler, CellCalculator cellCalculator, ItemTemplateCache itemTemplateCache) :
+        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler, itemTemplateCache)
     {
         _owner = owner;
         _guildManager = guildManager;

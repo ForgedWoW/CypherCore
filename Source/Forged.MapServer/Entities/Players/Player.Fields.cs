@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.AI.PlayerAI;
@@ -36,9 +39,6 @@ using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -188,6 +188,7 @@ public partial class Player
     private bool _weeklyQuestChanged;
     private uint _zoneUpdateId;
     private uint _zoneUpdateTimer;
+    public AccessRequirementsCache AccessRequirementsManager { get; }
     public AccountManager AccountManager { get; }
     public uint AchievementPoints => _achievementSys.AchievementPoints;
     public ActivePlayerData ActivePlayerData { get; set; }
@@ -195,6 +196,8 @@ public partial class Player
     public ArenaTeamManager ArenaTeamManager { get; }
     public bool AutoAcceptQuickJoin { get; set; }
     public string AutoReplyMsg { get; set; }
+    public AzeriteEmpoweredItemFactory AzeriteEmpoweredItemFactory { get; set; }
+    public AzeriteItemFactory AzeriteItemFactory { get; set; }
     public Battleground Battleground => BattlegroundId == 0 ? null : BattlegroundManager.GetBattleground(BattlegroundId, _bgData.BgTypeId);
     public WorldLocation BattlegroundEntryPoint => _bgData.JoinPos;
     public uint BattlegroundId => _bgData.BgInstanceId;
@@ -296,7 +299,6 @@ public partial class Player
     }
 
     public ulong GuildId => ((ObjectGuid)UnitData.GuildGUID).Counter;
-
     public ulong GuildIdInvited { get; set; }
 
     public uint GuildLevel
@@ -306,11 +308,8 @@ public partial class Player
     }
 
     public GuildManager GuildMgr { get; }
-
     public string GuildName => GuildId != 0 ? GuildMgr.GetGuildById(GuildId).GetName() : "";
-
     public uint GuildRank => PlayerData.GuildRankID;
-
     public bool HasCorpse => CorpseLocation != null && CorpseLocation.MapId != 0xFFFFFFFF;
 
     public bool HasFreeBattlegroundQueueId
@@ -331,7 +330,6 @@ public partial class Player
     public bool HasSummonPending => _summonExpire >= GameTime.CurrentTime;
     public WorldLocation Homebind { get; } = new();
     public uint HonorLevel => PlayerData.HonorLevel;
-
     public bool InArena => Battleground != null && Battleground.IsArena;
     public bool InBattleground => _bgData.BgInstanceId != 0;
 
@@ -388,7 +386,9 @@ public partial class Player
     public bool IsUsingPvpItemLevels { get; private set; }
     public bool IsWarModeLocalActive => HasPlayerLocalFlag(PlayerLocalFlags.WarMode);
     public ItemEnchantmentManager ItemEnchantmentManager { get; }
+    public ItemFactory ItemFactory { get; set; }
     public List<ItemSetEffect> ItemSetEff { get; } = new();
+    public ItemTemplateCache ItemTemplateCache { get; }
     public List<Item> ItemUpdateQueue { get; } = new();
     public bool ItemUpdateQueueBlocked { get; set; }
     public List<Channel> JoinedChannels { get; } = new();
@@ -461,10 +461,6 @@ public partial class Player
     public PetStable PetStable { get; set; } = new();
     public PlayerComputators PlayerComputators { get; }
     public PlayerData PlayerData { get; set; }
-    public ItemFactory ItemFactory { get; set; }
-    public AzeriteItemFactory AzeriteItemFactory { get; set; }
-    public AzeriteEmpoweredItemFactory AzeriteEmpoweredItemFactory { get; set; }
-    public AccessRequirementsCache AccessRequirementsManager { get; }
 
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }

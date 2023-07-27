@@ -4,6 +4,7 @@
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Constants;
 
 namespace Forged.MapServer.LootManagement;
@@ -14,15 +15,15 @@ public struct LootGroupInvalidSelector
 
     private readonly ushort _lootMode;
 
-    private readonly GameObjectManager _objectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
     private readonly Player _personalLooter;
 
-    public LootGroupInvalidSelector(ushort lootMode, Player personalLooter, GameObjectManager objectManager, ConditionManager conditionManager)
+    public LootGroupInvalidSelector(ushort lootMode, Player personalLooter, ItemTemplateCache itemTemplateCache, ConditionManager conditionManager)
     {
         _lootMode = lootMode;
         _personalLooter = personalLooter;
-        _objectManager = objectManager;
+        _itemTemplateCache = itemTemplateCache;
         _conditionManager = conditionManager;
     }
 
@@ -36,10 +37,10 @@ public struct LootGroupInvalidSelector
                                           null,
                                           item.Itemid,
                                           item.NeedsQuest,
-                                          !item.NeedsQuest || _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                          !item.NeedsQuest || _itemTemplateCache.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                           true,
-                                          item.Conditions,
-                                          _objectManager,
+        item.Conditions,
+                                          _itemTemplateCache,
                                           _conditionManager);
     }
 }

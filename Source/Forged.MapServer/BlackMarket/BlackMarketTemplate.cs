@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking.Packets.Item;
 using Framework.Collections;
 using Framework.Database;
@@ -13,10 +14,12 @@ namespace Forged.MapServer.BlackMarket;
 public class BlackMarketTemplate
 {
     private readonly GameObjectManager _objectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
-    public BlackMarketTemplate(GameObjectManager objectManager)
+    public BlackMarketTemplate(GameObjectManager objectManager, ItemTemplateCache itemTemplateCache)
     {
         _objectManager = objectManager;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public float Chance { get; set; }
@@ -63,7 +66,7 @@ public class BlackMarketTemplate
             return false;
         }
 
-        if (_objectManager.ItemTemplateCache.GetItemTemplate(Item.ItemID) != null)
+        if (_itemTemplateCache.GetItemTemplate(Item.ItemID) != null)
             return true;
 
         Log.Logger.Error("Black market template {0} does not have a valid item. (Entry: {1})", MarketID, Item.ItemID);

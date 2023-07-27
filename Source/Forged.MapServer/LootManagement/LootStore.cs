@@ -6,8 +6,10 @@ using System.Linq;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -15,27 +17,24 @@ namespace Forged.MapServer.LootManagement;
 
 public class LootStore
 {
-    private readonly ConditionManager _conditionManager;
     private readonly IConfiguration _configuration;
     private readonly Dictionary<uint, LootTemplate> _lootTemplates = new();
-    private readonly GameObjectManager _objectManager;
-    private readonly LootStoreBox _storage;
+    private readonly ClassFactory _classFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly WorldDatabase _worldDatabase;
 
-    public LootStore(IConfiguration configuration, WorldDatabase worldDatabase, ConditionManager conditionManager, GameObjectManager objectManager, LootStoreBox storage, string name, string entryName, bool ratesAllowed = true)
+    public LootStore(string name, string entryName, IConfiguration configuration, WorldDatabase worldDatabase, ClassFactory classFactory, ItemTemplateCache itemTemplateCache)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
-        _conditionManager = conditionManager;
-        _objectManager = objectManager;
-        _storage = storage;
+        _classFactory = classFactory;
+        _itemTemplateCache = itemTemplateCache;
         Name = name;
         EntryName = entryName;
-        IsRatesAllowed = ratesAllowed;
     }
 
     public string EntryName { get; }
-    public bool IsRatesAllowed { get; }
+    public bool IsRatesAllowed { get; set; }
     public string Name { get; }
 
     public void CheckLootRefs(List<uint> refSet = null)
@@ -138,7 +137,7 @@ public class LootStore
                 return 0;
             }
 
-            LootStoreItem storeitem = new(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount, _objectManager, _configuration, _worldDatabase);
+            LootStoreItem storeitem = new(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount, _configuration, _worldDatabase, _itemTemplateCache);
 
             if (!storeitem.IsValid(this, entry)) // Validity checks
                 continue;
@@ -146,7 +145,7 @@ public class LootStore
             // Looking for the template of the entry
             // often entries are put together
             if (_lootTemplates.Empty() || !_lootTemplates.ContainsKey(entry))
-                _lootTemplates.Add(entry, new LootTemplate(_configuration, _objectManager, _conditionManager, _storage));
+                _lootTemplates.Add(entry, _classFactory.Resolve<LootTemplate>());
 
             // Adds current row to the template
             _lootTemplates[entry].AddEntry(storeitem);

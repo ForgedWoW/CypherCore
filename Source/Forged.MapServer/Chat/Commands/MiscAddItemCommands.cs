@@ -6,10 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Globals.Caching;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
 using Serilog;
+
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedMember.Global
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -103,7 +107,7 @@ internal class MiscAddItemCommands
         if (playerTarget == null)
             playerTarget = player;
 
-        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+        var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemId);
 
         if (itemTemplate == null)
         {
@@ -216,7 +220,7 @@ internal class MiscAddItemCommands
         Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.Additemset), itemSetId);
 
         var found = false;
-        var its = handler.ObjectManager.ItemTemplateCache.ItemTemplates;
+        var its = handler.ClassFactory.Resolve<ItemTemplateCache>().ItemTemplates;
 
         foreach (var template in its)
         {
@@ -359,7 +363,7 @@ internal class MiscAddItemCommands
                 if (uint.TryParse(token, out var bonusListId))
                     bonusListIDs.Add(bonusListId);
 
-        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+        var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemId);
 
         if (itemTemplate == null)
         {

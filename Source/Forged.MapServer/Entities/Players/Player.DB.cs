@@ -2079,7 +2079,7 @@ public partial class Player
     {
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);
-        var proto = GameObjectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
+        var proto = ItemTemplateCache.GetItemTemplate(itemEntry);
 
         if (proto != null)
         {
@@ -2491,7 +2491,7 @@ public partial class Player
                     if (questPackageItems != null)
                         foreach (var questPackageItem in questPackageItems)
                         {
-                            var rewardProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(questPackageItem.ItemID);
+                            var rewardProto = ItemTemplateCache.GetItemTemplate(questPackageItem.ItemID);
 
                             if (rewardProto != null)
                                 if (rewardProto.ItemSpecClassMask.HasAnyFlag(ClassMask))
@@ -2935,7 +2935,7 @@ public partial class Player
                 continue;
             }
 
-            if (GameObjectManager.ItemTemplateCache.GetItemTemplate(itemEntry) == null)
+            if (ItemTemplateCache.GetItemTemplate(itemEntry) == null)
             {
                 Log.Logger.Error("Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid entry (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
 
@@ -2951,7 +2951,7 @@ public partial class Player
 
             _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomBonusListId, fixedScalingLevel, artifactKnowledgeLevel, context, bonusListIDs);
 
-            BonusData bonus = new(new ItemInstance(_voidStorageItems[slot]), DB2Manager, CliDB.ItemEffectStorage, GameObjectManager);
+            BonusData bonus = new(new ItemInstance(_voidStorageItems[slot]), DB2Manager, CliDB.ItemEffectStorage, ItemTemplateCache);
             Session.CollectionMgr.AddItemAppearance(itemEntry, bonus.AppearanceModID);
         } while (result.NextRow());
     }

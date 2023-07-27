@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Mails;
@@ -30,22 +31,22 @@ namespace Forged.MapServer.Entities.Players;
 public class PlayerComputators
 {
     private readonly ArenaTeamManager _arenaTeamManager;
+    private readonly AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
+    private readonly AzeriteItemFactory _azeriteItemFactory;
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
-    private readonly GameObjectManager _gameObjectManager;
+    private readonly DB2Manager _db2Manager;
     private readonly GroupManager _groupManager;
     private readonly GuildManager _guildManager;
+    private readonly ItemFactory _itemFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly LoginDatabase _loginDatabase;
     private readonly ObjectAccessor _objectAccessor;
     private readonly PetitionManager _petitionManager;
     private readonly PhasingHandler _phasingHandler;
-    private readonly DB2Manager _db2Manager;
-    private readonly ItemFactory _itemFactory;
-    private readonly AzeriteItemFactory _azeriteItemFactory;
-    private readonly AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
     private readonly SocialManager _socialManager;
     private readonly TerrainManager _terrainManager;
     private readonly WorldManager _worldManager;
@@ -53,8 +54,9 @@ public class PlayerComputators
     public PlayerComputators(CliDB cliDB, IConfiguration configuration, CharacterCache characterCache, GuildManager guildManager,
                              CharacterDatabase characterDatabase, GroupManager groupManager, ObjectAccessor objectAccessor, SocialManager socialManager,
                              LoginDatabase loginDatabase, WorldManager worldManager, TerrainManager terrainManager, PetitionManager petitionManager,
-                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager, ClassFactory classFactory, PhasingHandler phasingHandler,
-                             DB2Manager db2Manager, ItemFactory itemFactory, AzeriteItemFactory azeriteItemFactory, AzeriteEmpoweredItemFactory azeriteEmpoweredItemFactory)
+                             ArenaTeamManager arenaTeamManager, ClassFactory classFactory, PhasingHandler phasingHandler,
+                             DB2Manager db2Manager, ItemFactory itemFactory, AzeriteItemFactory azeriteItemFactory, AzeriteEmpoweredItemFactory azeriteEmpoweredItemFactory,
+                             ItemTemplateCache itemTemplateCache)
     {
         _cliDB = cliDB;
         _configuration = configuration;
@@ -68,7 +70,6 @@ public class PlayerComputators
         _worldManager = worldManager;
         _terrainManager = terrainManager;
         _petitionManager = petitionManager;
-        _gameObjectManager = gameObjectManager;
         _arenaTeamManager = arenaTeamManager;
         _classFactory = classFactory;
         _phasingHandler = phasingHandler;
@@ -76,6 +77,7 @@ public class PlayerComputators
         _itemFactory = itemFactory;
         _azeriteItemFactory = azeriteItemFactory;
         _azeriteEmpoweredItemFactory = azeriteEmpoweredItemFactory;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
@@ -144,7 +146,7 @@ public class PlayerComputators
             {
                 PlayerClass.Deathknight => _configuration.GetDefaultValue("CharDelete:DeathKnight:MinLevel", 0u),
                 PlayerClass.DemonHunter => _configuration.GetDefaultValue("CharDelete:DemonHunter:MinLevel", 0u),
-                _                       => _configuration.GetDefaultValue("CharDelete:MinLevel", 0u)
+                _ => _configuration.GetDefaultValue("CharDelete:MinLevel", 0u)
             };
 
             // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
@@ -610,18 +612,18 @@ public class PlayerComputators
         stmt.AddValue(0, (uint)(GameTime.CurrentTime - keepDays * Time.DAY));
         var result = _characterDatabase.Query(stmt);
 
-        if (!result.IsEmpty())
+        if (result.IsEmpty())
+            return;
+
+        var count = 0;
+
+        do
         {
-            var count = 0;
+            DeleteFromDB(ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0)), result.Read<uint>(1), true, true);
+            count++;
+        } while (result.NextRow());
 
-            do
-            {
-                DeleteFromDB(ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0)), result.Read<uint>(1), true, true);
-                count++;
-            } while (result.NextRow());
-
-            Log.Logger.Debug("Player:DeleteOldChars: Deleted {0} character(s)", count);
-        }
+        Log.Logger.Debug("Player:DeleteOldChars: Deleted {0} character(s)", count);
     }
 
     public WeaponAttackType GetAttackBySlot(byte slot, InventoryType inventoryType)
@@ -629,8 +631,8 @@ public class PlayerComputators
         return slot switch
         {
             EquipmentSlot.MainHand => inventoryType != InventoryType.Ranged && inventoryType != InventoryType.RangedRight ? WeaponAttackType.BaseAttack : WeaponAttackType.RangedAttack,
-            EquipmentSlot.OffHand  => WeaponAttackType.OffAttack,
-            _                      => WeaponAttackType.Max,
+            EquipmentSlot.OffHand => WeaponAttackType.OffAttack,
+            _ => WeaponAttackType.Max,
         };
     }
 
@@ -638,33 +640,32 @@ public class PlayerComputators
     {
         return source.TypeId switch
         {
-            TypeId.Unit       => source.AsCreature.GossipMenuId,
+            TypeId.Unit => source.AsCreature.GossipMenuId,
             TypeId.GameObject => source.AsGameObject.GossipMenuId,
-            _                 => 0
+            _ => 0
         };
     }
 
     public DrunkenState GetDrunkenstateByValue(byte value)
     {
-        if (value >= 90)
-            return DrunkenState.Smashed;
+        switch (value)
+        {
+            case >= 90:
+                return DrunkenState.Smashed;
 
-        if (value >= 50)
-            return DrunkenState.Drunk;
+            case >= 50:
+                return DrunkenState.Drunk;
+        }
 
-        if (value != 0)
-            return DrunkenState.Tipsy;
-
-        return DrunkenState.Sober;
+        return value != 0 ? DrunkenState.Tipsy : DrunkenState.Sober;
     }
 
     public byte GetFactionGroupForRace(Race race)
     {
-        if (_cliDB.ChrRacesStorage.TryGetValue((uint)race, out var rEntry))
-            if (_cliDB.FactionTemplateStorage.TryGetValue((uint)rEntry.FactionID, out var faction))
-                return faction.FactionGroup;
+        if (!_cliDB.ChrRacesStorage.TryGetValue((uint)race, out var rEntry))
+            return 1;
 
-        return 1;
+        return _cliDB.FactionTemplateStorage.TryGetValue((uint)rEntry.FactionID, out var faction) ? faction.FactionGroup : (byte)1;
     }
 
     public uint GetZoneIdFromDB(ObjectGuid guid)
@@ -679,36 +680,36 @@ public class PlayerComputators
 
         uint zone = result.Read<ushort>(0);
 
-        if (zone == 0)
-        {
-            // stored zone is zero, use generic and slow zone detection
-            stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION_XYZ);
-            stmt.AddValue(0, guidLow);
-            result = _characterDatabase.Query(stmt);
+        if (zone != 0)
+            return zone;
 
-            if (result.IsEmpty())
-                return 0;
+        // stored zone is zero, use generic and slow zone detection
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION_XYZ);
+        stmt.AddValue(0, guidLow);
+        result = _characterDatabase.Query(stmt);
 
-            uint map = result.Read<ushort>(0);
-            var posx = result.Read<float>(1);
-            var posy = result.Read<float>(2);
-            var posz = result.Read<float>(3);
+        if (result.IsEmpty())
+            return 0;
 
-            if (!_cliDB.MapStorage.ContainsKey(map))
-                return 0;
+        uint map = result.Read<ushort>(0);
+        var posx = result.Read<float>(1);
+        var posy = result.Read<float>(2);
+        var posz = result.Read<float>(3);
 
-            zone = _terrainManager.GetZoneId(_phasingHandler.EmptyPhaseShift, map, posx, posy, posz);
+        if (!_cliDB.MapStorage.ContainsKey(map))
+            return 0;
 
-            if (zone <= 0)
-                return zone;
+        zone = _terrainManager.GetZoneId(_phasingHandler.EmptyPhaseShift, map, posx, posy, posz);
 
-            stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ZONE);
+        if (zone <= 0)
+            return zone;
 
-            stmt.AddValue(0, zone);
-            stmt.AddValue(1, guidLow);
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ZONE);
 
-            _characterDatabase.Execute(stmt);
-        }
+        stmt.AddValue(0, zone);
+        stmt.AddValue(1, guidLow);
+
+        _characterDatabase.Execute(stmt);
 
         return zone;
     }
@@ -718,16 +719,16 @@ public class PlayerComputators
         var bag = (byte)(pos >> 8);
         var slot = (byte)(pos & 255);
 
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
-            return true;
+        switch (bag)
+        {
+            case InventorySlots.Bag0 when slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd:
+            case InventorySlots.Bag0 when slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd:
+            case InventorySlots.Bag0 when slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd:
+                return true;
 
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
-            return true;
-
-        return false;
+            default:
+                return false;
+        }
     }
 
     public bool IsBankPos(ushort pos)
@@ -737,19 +738,17 @@ public class PlayerComputators
 
     public bool IsBankPos(byte bag, byte slot)
     {
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankItemStart and < InventorySlots.BankItemEnd)
-            return true;
+        switch (bag)
+        {
+            case InventorySlots.Bag0 when slot is >= InventorySlots.BankItemStart and < InventorySlots.BankItemEnd:
+            case InventorySlots.Bag0 when slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd:
+            case >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd:
+            case InventorySlots.Bag0 when slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd:
+                return true;
 
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
-            return true;
-
-        if (bag is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
-            return true;
-
-        return false;
+            default:
+                return false;
+        }
     }
 
     public bool IsChildEquipmentPos(byte bag, byte slot)
@@ -769,19 +768,17 @@ public class PlayerComputators
 
     public bool IsEquipmentPos(byte bag, byte slot)
     {
-        if (bag == InventorySlots.Bag0 && slot < EquipmentSlot.End)
-            return true;
+        switch (bag)
+        {
+            case InventorySlots.Bag0 when slot < EquipmentSlot.End:
+            case InventorySlots.Bag0 when slot is >= ProfessionSlots.Start and < ProfessionSlots.End:
+            case InventorySlots.Bag0 when slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd:
+            case InventorySlots.Bag0 when slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd:
+                return true;
 
-        if (bag == InventorySlots.Bag0 && slot is >= ProfessionSlots.Start and < ProfessionSlots.End)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
-            return true;
-
-        return false;
+            default:
+                return false;
+        }
     }
 
     public bool IsInventoryPos(byte bag, byte slot)
@@ -798,10 +795,7 @@ public class PlayerComputators
         if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
             return true;
 
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ChildEquipmentStart and < InventorySlots.ChildEquipmentEnd)
-            return true;
-
-        return false;
+        return bag == InventorySlots.Bag0 && slot is >= InventorySlots.ChildEquipmentStart and < InventorySlots.ChildEquipmentEnd;
     }
 
     public bool IsReagentBankPos(ushort pos)
@@ -811,10 +805,7 @@ public class PlayerComputators
 
     public bool IsReagentBankPos(byte bag, byte slot)
     {
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
-            return true;
-
-        return false;
+        return bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd;
     }
 
     public bool IsValidClass(PlayerClass @class)
@@ -831,6 +822,7 @@ public class PlayerComputators
     {
         return Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(race) & SharedConst.RaceMaskAllPlayable);
     }
+
     public void LeaveAllArenaTeams(ObjectGuid guid)
     {
         var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);
@@ -856,7 +848,7 @@ public class PlayerComputators
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);
 
-        var proto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
+        var proto = _itemTemplateCache.GetItemTemplate(itemEntry);
 
         if (proto == null)
         {

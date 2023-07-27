@@ -2,50 +2,46 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.Conditions;
-using Forged.MapServer.DataStorage;
-using Forged.MapServer.Entities.Items;
+using System.Linq;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Spells;
 using Framework.Constants;
-using Framework.Database;
-using Microsoft.Extensions.Configuration;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.LootManagement;
 
 public class LootManager : LootStoreBox
 {
-    private readonly CliDB _cliDB;
-    private readonly ConditionManager _conditionManager;
-    private readonly IConfiguration _configuration;
-    private readonly DB2Manager _db2Manager;
-    private readonly ItemEnchantmentManager _itemEnchantmentManager;
-    private readonly LootFactory _lootFactory;
-    private readonly ItemFactory _itemFactory;
-    private readonly LootStoreBox _lootStorage;
-    private readonly ObjectAccessor _objectAccessor;
+    private readonly DB6Storage<AreaTableRecord> _areaTableRecords;
+    private readonly ClassFactory _classFactory;
+    private readonly DB6Storage<ItemDisenchantLootRecord> _itemDisenchantLootRecords;
+    private readonly ItemTemplateCache _itemTemplateCache;
+    private readonly DB6Storage<MailTemplateRecord> _mailTemplateRecords;
     private readonly GameObjectManager _objectManager;
     private readonly SpellManager _spellManager;
-    private readonly WorldDatabase _worldDatabase;
+    private readonly DB6Storage<SpellNameRecord> _spellNameRecords;
 
-    public LootManager(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, ConditionManager conditionManager, IConfiguration configuration, WorldDatabase worldDatabase,
-                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, ItemEnchantmentManager itemEnchantmentManager, LootFactory lootFactory, ItemFactory itemFactory)
+    public LootManager(GameObjectManager objectManager, SpellManager spellManager, DB6Storage<ItemDisenchantLootRecord> itemDisenchantLootRecords,
+                       DB6Storage<AreaTableRecord> areaTableRecords, DB6Storage<MailTemplateRecord> mailTemplateRecords, DB6Storage<SpellNameRecord> spellNameRecords,
+                       ClassFactory classFactory, ItemTemplateCache itemTemplateCache)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
-        _cliDB = cliDB;
-        _conditionManager = conditionManager;
-        _configuration = configuration;
-        _worldDatabase = worldDatabase;
-        _db2Manager = db2Manager;
-        _objectAccessor = objectAccessor;
-        _lootStorage = lootStorage;
-        _itemEnchantmentManager = itemEnchantmentManager;
-        _lootFactory = lootFactory;
-        _itemFactory = itemFactory;
+        _itemDisenchantLootRecords = itemDisenchantLootRecords;
+        _areaTableRecords = areaTableRecords;
+        _mailTemplateRecords = mailTemplateRecords;
+        _spellNameRecords = spellNameRecords;
+        _classFactory = classFactory;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public Dictionary<ObjectGuid, Loot> GenerateDungeonEncounterPersonalLoot(uint dungeonEncounterId, uint lootId, LootStore store,
@@ -58,12 +54,9 @@ public class LootManager : LootStoreBox
             if (tapper.IsLockedToDungeonEncounter(dungeonEncounterId))
                 continue;
 
-            Loot loot = new(lootOwner.Location.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, _lootFactory, _itemEnchantmentManager, _cliDB, _itemFactory)
-            {
-                ItemContext = context,
-                DungeonEncounterId = dungeonEncounterId
-            };
-
+            var loot = _classFactory.ResolveWithPositionalParameters<Loot>(lootOwner.Location.Map, lootOwner.GUID, type, null);
+            loot.ItemContext = context;
+            loot.DungeonEncounterId = dungeonEncounterId;
             loot.GenerateMoneyLoot(minMoney, maxMoney);
 
             tempLoot[tapper] = loot;
@@ -155,7 +148,7 @@ public class LootManager : LootStoreBox
         List<uint> lootIdSetUsed = new();
         var count = Disenchant.LoadAndCollectLootIds(out var lootIdSet);
 
-        foreach (var disenchant in _cliDB.ItemDisenchantLootStorage.Values)
+        foreach (var disenchant in _itemDisenchantLootRecords.Values)
         {
             var lootid = disenchant.Id;
 
@@ -186,7 +179,7 @@ public class LootManager : LootStoreBox
         var count = Fishing.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        foreach (var areaEntry in _cliDB.AreaTableStorage.Values)
+        foreach (var areaEntry in _areaTableRecords.Values)
             if (lootIdSet.Contains(areaEntry.Id))
                 lootIdSet.Remove(areaEntry.Id);
 
@@ -257,7 +250,7 @@ public class LootManager : LootStoreBox
         var count = Items.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.ItemTemplateCache.ItemTemplates;
+        var its = _itemTemplateCache.ItemTemplates;
 
         foreach (var pair in its)
             if (lootIdSet.Contains(pair.Value.Id) && pair.Value.HasFlag(ItemFlags.HasLoot))
@@ -281,9 +274,8 @@ public class LootManager : LootStoreBox
         var count = Mail.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        foreach (var mail in _cliDB.MailTemplateStorage.Values)
-            if (lootIdSet.Contains(mail.Id))
-                lootIdSet.Remove(mail.Id);
+        foreach (var mail in _mailTemplateRecords.Values.Where(mail => lootIdSet.Contains(mail.Id)))
+            lootIdSet.Remove(mail.Id);
 
         // output error for any still listed (not referenced from appropriate table) ids
         Mail.ReportUnusedIds(lootIdSet);
@@ -303,7 +295,7 @@ public class LootManager : LootStoreBox
         var count = Milling.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.ItemTemplateCache.ItemTemplates;
+        var its = _itemTemplateCache.ItemTemplates;
 
         foreach (var pair in its)
         {
@@ -369,7 +361,7 @@ public class LootManager : LootStoreBox
         var count = Prospecting.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var its = _objectManager.ItemTemplateCache.ItemTemplates;
+        var its = _itemTemplateCache.ItemTemplates;
 
         foreach (var pair in its)
         {
@@ -463,7 +455,7 @@ public class LootManager : LootStoreBox
         var count = Spell.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        foreach (var spellNameEntry in _cliDB.SpellNameStorage.Values)
+        foreach (var spellNameEntry in _spellNameRecords.Values)
         {
             var spellInfo = _spellManager.GetSpellInfo(spellNameEntry.Id);
 
@@ -496,17 +488,17 @@ public class LootManager : LootStoreBox
 
     private void Initialize()
     {
-        Creature = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "creature_loot_template", "creature entry");
-        Disenchant = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "disenchant_loot_template", "item disenchant id");
-        Fishing = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "fishing_loot_template", "area id");
-        Gameobject = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "gameobject_loot_template", "gameobject entry");
-        Items = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "item_loot_template", "item entry");
-        Mail = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "mail_loot_template", "mail template id");
-        Milling = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "milling_loot_template", "item entry (herb)");
-        Pickpocketing = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "pickpocketing_loot_template", "creature pickpocket lootid");
-        Prospecting = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "prospecting_loot_template", "item entry (ore)");
-        Reference = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "reference_loot_template", "reference id");
-        Skinning = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "skinning_loot_template", "creature skinning id");
-        Spell = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "spell_loot_template", "spell id (random item creating)");
+        Creature = _classFactory.ResolveWithPositionalParameters<LootStore>("creature_loot_template", "creature entry");
+        Disenchant = _classFactory.ResolveWithPositionalParameters<LootStore>("disenchant_loot_template", "item disenchant id");
+        Fishing = _classFactory.ResolveWithPositionalParameters<LootStore>("fishing_loot_template", "area id");
+        Gameobject = _classFactory.ResolveWithPositionalParameters<LootStore>("gameobject_loot_template", "gameobject entry");
+        Items = _classFactory.ResolveWithPositionalParameters<LootStore>("item_loot_template", "item entry");
+        Mail = _classFactory.ResolveWithPositionalParameters<LootStore>("mail_loot_template", "mail template id");
+        Milling = _classFactory.ResolveWithPositionalParameters<LootStore>("milling_loot_template", "item entry (herb)");
+        Pickpocketing = _classFactory.ResolveWithPositionalParameters<LootStore>("pickpocketing_loot_template", "creature pickpocket lootid");
+        Prospecting = _classFactory.ResolveWithPositionalParameters<LootStore>("prospecting_loot_template", "item entry (ore)");
+        Reference = _classFactory.ResolveWithPositionalParameters<LootStore>("reference_loot_template", "reference id");
+        Skinning = _classFactory.ResolveWithPositionalParameters<LootStore>("skinning_loot_template", "creature skinning id");
+        Spell = _classFactory.ResolveWithPositionalParameters<LootStore>("spell_loot_template", "spell id (random item creating)");
     }
 }

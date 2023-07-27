@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Constants;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -25,16 +26,18 @@ public class LootTemplate
     private readonly Dictionary<int, LootGroup> _groups = new();
 
     private readonly LootStoreBox _lootStorage;
-
-    private readonly GameObjectManager _objectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
+    private readonly ClassFactory _classFactory;
+    
     // groups have own (optimised) processing, grouped entries go there
 
-    public LootTemplate(IConfiguration configuration, GameObjectManager objectManager, ConditionManager conditionManager, LootStoreBox lootStorage)
+    public LootTemplate(IConfiguration configuration, ConditionManager conditionManager, LootStoreBox lootStorage, ItemTemplateCache itemTemplateCache, ClassFactory classFactory)
     {
         _configuration = configuration;
-        _objectManager = objectManager;
         _conditionManager = conditionManager;
         _lootStorage = lootStorage;
+        _itemTemplateCache = itemTemplateCache;
+        _classFactory = classFactory;
     }
 
     public bool AddConditionItem(Condition cond)
@@ -97,7 +100,7 @@ public class LootTemplate
         if (item.Groupid > 0 && item.Reference == 0) // Group
         {
             if (!_groups.ContainsKey(item.Groupid - 1))
-                _groups[item.Groupid - 1] = new LootGroup(_objectManager, _conditionManager, _lootStorage);
+                _groups[item.Groupid - 1] = _classFactory.Resolve<LootGroup>();
 
             _groups[item.Groupid - 1].AddEntry(item); // Adds new entry to the group
         }
@@ -243,10 +246,10 @@ public class LootTemplate
                                               null,
                                               item.Itemid,
                                               item.NeedsQuest,
-                                              !item.NeedsQuest || _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                              !item.NeedsQuest || _itemTemplateCache.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                               true,
                                               item.Conditions,
-                                              _objectManager,
+                                              _itemTemplateCache,
                                               _conditionManager))
                     loot.AddItem(item);
             }
@@ -319,10 +322,10 @@ public class LootTemplate
                                                                                            null,
                                                                                            item.Itemid,
                                                                                            item.NeedsQuest,
-                                                                                           !item.NeedsQuest || _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                                                                           !item.NeedsQuest || _itemTemplateCache.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                                                                            true,
                                                                                            item.Conditions,
-                                                                                           _objectManager,
+                                                                                           _itemTemplateCache,
                                                                                            _conditionManager));
 
                 if (lootersForItem.Empty())
@@ -383,10 +386,10 @@ public class LootTemplate
                                                null,
                                                lootStoreItem.Itemid,
                                                lootStoreItem.NeedsQuest,
-                                               !lootStoreItem.NeedsQuest || _objectManager.ItemTemplateCache.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                               !lootStoreItem.NeedsQuest || _itemTemplateCache.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                                strictUsabilityCheck,
                                                lootStoreItem.Conditions,
-                                               _objectManager,
+                                               _itemTemplateCache,
                                                _conditionManager))
                 return true; // active quest drop found
 
@@ -400,16 +403,16 @@ public class LootTemplate
         private readonly List<LootStoreItem> _equalChanced = new();
         private readonly List<LootStoreItem> _explicitlyChanced = new();
         private readonly LootStoreBox _lootStorage;
-
-        private readonly GameObjectManager _objectManager;
+        private readonly ItemTemplateCache _itemTemplateCache;
+        
         // Entries with chances defined in DB
         // Zero chances - every entry takes the same chance
 
-        public LootGroup(GameObjectManager gameObjectManager, ConditionManager conditionManager, LootStoreBox lootStorage)
+        public LootGroup(ConditionManager conditionManager, LootStoreBox lootStorage, ItemTemplateCache itemTemplateCache)
         {
-            _objectManager = gameObjectManager;
             _conditionManager = conditionManager;
             _lootStorage = lootStorage;
+            _itemTemplateCache = itemTemplateCache;
         }
 
         public void AddEntry(LootStoreItem item)
@@ -460,10 +463,10 @@ public class LootTemplate
                                                                                   null,
                                                                                   lootStoreItem.Itemid,
                                                                                   lootStoreItem.NeedsQuest,
-                                                                                  !lootStoreItem.NeedsQuest || _objectManager.ItemTemplateCache.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                                                                  !lootStoreItem.NeedsQuest || _itemTemplateCache.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                                                                   strictUsabilityCheck,
                                                                                   lootStoreItem.Conditions,
-                                                                                  _objectManager,
+                                                                                  _itemTemplateCache,
                                                                                   _conditionManager)))
                 return true;
 
@@ -471,10 +474,10 @@ public class LootTemplate
                                                                                 null,
                                                                                 lootStoreItem.Itemid,
                                                                                 lootStoreItem.NeedsQuest,
-                                                                                !lootStoreItem.NeedsQuest || _objectManager.ItemTemplateCache.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                                                                !lootStoreItem.NeedsQuest || _itemTemplateCache.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                                                                 strictUsabilityCheck,
                                                                                 lootStoreItem.Conditions,
-                                                                                _objectManager,
+                                                                                _itemTemplateCache,
                                                                                 _conditionManager));
         }
 
@@ -515,7 +518,7 @@ public class LootTemplate
         private LootStoreItem Roll(ushort lootMode, Player personalLooter = null)
         {
             var possibleLoot = _explicitlyChanced;
-            possibleLoot.RemoveAll(new LootGroupInvalidSelector(lootMode, personalLooter, _objectManager, _conditionManager).Check);
+            possibleLoot.RemoveAll(new LootGroupInvalidSelector(lootMode, personalLooter, _itemTemplateCache, _conditionManager).Check);
 
             if (!possibleLoot.Empty()) // First explicitly chanced entries are checked
             {
@@ -534,7 +537,7 @@ public class LootTemplate
             }
 
             possibleLoot = _equalChanced;
-            possibleLoot.RemoveAll(new LootGroupInvalidSelector(lootMode, personalLooter, _objectManager, _conditionManager).Check);
+            possibleLoot.RemoveAll(new LootGroupInvalidSelector(lootMode, personalLooter, _itemTemplateCache, _conditionManager).Check);
 
             return !possibleLoot.Empty()
                        ? // If nothing selected yet - an item is taken from equal-chanced part

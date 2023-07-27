@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Constants;
 using Framework.Database;
 using Game.Common;
@@ -17,20 +17,20 @@ public sealed class GuildManager
 {
     private readonly CharacterDatabase _characterDatabase;
     private readonly ClassFactory _classFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly CliDB _cliDB;
     private readonly List<GuildReward> _guildRewards = new();
     private readonly Dictionary<ulong, Guild> _guildStore = new();
-    private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
     private uint _nextGuildId;
 
-    public GuildManager(CliDB cliDB, GameObjectManager objectManager, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, ClassFactory classFactory)
+    public GuildManager(CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, ClassFactory classFactory, ItemTemplateCache itemTemplateCache)
     {
         _cliDB = cliDB;
-        _objectManager = objectManager;
         _characterDatabase = characterDatabase;
         _worldDatabase = worldDatabase;
         _classFactory = classFactory;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public void AddGuild(Guild guild)
@@ -111,7 +111,7 @@ public sealed class GuildManager
                 Cost = result.Read<ulong>(3)
             };
 
-            if (_objectManager.ItemTemplateCache.GetItemTemplate(reward.ItemID) == null)
+            if (_itemTemplateCache.GetItemTemplate(reward.ItemID) == null)
             {
                 Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
 

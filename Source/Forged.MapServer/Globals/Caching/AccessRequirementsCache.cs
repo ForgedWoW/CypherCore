@@ -20,15 +20,18 @@ public class AccessRequirementsCache : IObjectCache
     private readonly DB2Manager _db2Manager;
     private readonly WorldDatabase _worldDatabase;
     private readonly DB6Storage<AchievementRecord> _achievementRecords;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
 
-    public AccessRequirementsCache(GameObjectManager gameObjectManager, DB6Storage<MapRecord> mapRecords, DB2Manager db2Manager, WorldDatabase worldDatabase, DB6Storage<AchievementRecord> achievementRecords)
+    public AccessRequirementsCache(GameObjectManager gameObjectManager, DB6Storage<MapRecord> mapRecords, DB2Manager db2Manager, WorldDatabase worldDatabase, 
+                                   DB6Storage<AchievementRecord> achievementRecords, ItemTemplateCache itemTemplateCache)
     {
         _gameObjectManager = gameObjectManager;
         _mapRecords = mapRecords;
         _db2Manager = db2Manager;
         _worldDatabase = worldDatabase;
         _achievementRecords = achievementRecords;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public AccessRequirement GetAccessRequirement(uint mapid, Difficulty difficulty)
@@ -90,7 +93,7 @@ public class AccessRequirementsCache : IObjectCache
 
             if (ar.Item != 0)
             {
-                var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(ar.Item);
+                var pProto = _itemTemplateCache.GetItemTemplate(ar.Item);
 
                 if (pProto == null)
                 {
@@ -101,7 +104,7 @@ public class AccessRequirementsCache : IObjectCache
 
             if (ar.Item2 != 0)
             {
-                var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(ar.Item2);
+                var pProto = _itemTemplateCache.GetItemTemplate(ar.Item2);
 
                 if (pProto == null)
                 {

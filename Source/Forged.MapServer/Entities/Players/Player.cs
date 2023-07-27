@@ -129,6 +129,7 @@ public partial class Player : Unit
         AzeriteEmpoweredItemFactory = classFactory.Resolve<AzeriteEmpoweredItemFactory>();
         AccessRequirementsManager = classFactory.Resolve<AccessRequirementsCache>();
         Session = session;
+        ItemTemplateCache = classFactory.Resolve<ItemTemplateCache>();
         _explorationExpManager = classFactory.Resolve<ExplorationExpCache>();
         _areaTriggerCache = classFactory.Resolve<AreaTriggerCache>();
         _worldSafeLocationsCache = classFactory.Resolve<WorldSafeLocationsCache>();
@@ -6970,7 +6971,7 @@ public partial class Player : Unit
                 break;
 
             case ActionButtonType.Item:
-                if (GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)action) == null)
+                if (ItemTemplateCache.GetItemTemplate((uint)action) == null)
                 {
                     Log.Logger.Error($"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
 

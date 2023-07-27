@@ -1,18 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Forged.MapServer.Achievements;
+using System.Collections.Generic;
 using Forged.MapServer.Cache;
-using Forged.MapServer.Calendar;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Petition;
-using Forged.MapServer.Scripting;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
@@ -20,7 +18,7 @@ using Game.Common;
 using Game.Common.Handlers;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using System.Collections.Generic;
+// ReSharper disable UnusedMember.Local
 
 namespace Forged.MapServer.OpCodeHandlers;
 
@@ -35,16 +33,11 @@ public class PetitionsHandler : IWorldSessionHandler
 	private readonly CharacterCache _characterCache;
 	private readonly ObjectAccessor _objectAccessor;
 	private readonly CharacterDatabase _characterDatabase;
-    private readonly CliDB _cliDb;
-    private readonly PlayerComputators _playerComputators;
-    private readonly ScriptManager _scriptManager;
-    private readonly CalendarManager _calendarManager;
-    private readonly CriteriaManager _criteriaManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
     public PetitionsHandler(ClassFactory classFactory, WorldSession worldSession, PetitionManager petitionManager,
-        IConfiguration config, GuildManager guildManager, GameObjectManager gameObjectManager, CharacterCache characterCache,
-        ObjectAccessor objectAccessor, CharacterDatabase characterDatabase, CliDB cliDb, PlayerComputators playerComputators,
-        ScriptManager scriptManager, CalendarManager calendarManager, CriteriaManager criteriaManager)
+                            IConfiguration config, GuildManager guildManager, GameObjectManager gameObjectManager, CharacterCache characterCache,
+                            ObjectAccessor objectAccessor, CharacterDatabase characterDatabase, ItemTemplateCache itemTemplateCache)
     {
 		_classFactory = classFactory;
 		_session = worldSession;
@@ -55,19 +48,17 @@ public class PetitionsHandler : IWorldSessionHandler
 		_characterCache = characterCache;
 		_objectAccessor = objectAccessor;
 		_characterDatabase = characterDatabase;
-		_cliDb = cliDb;
-		_playerComputators = playerComputators;
-		_scriptManager = scriptManager;
-		_calendarManager = calendarManager;
-		_criteriaManager = criteriaManager;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public void SendPetitionQuery(ObjectGuid petitionGuid)
 	{
-		QueryPetitionResponse responsePacket = new();
-		responsePacket.PetitionID = (uint)petitionGuid.Counter; // PetitionID (in Trinity always same as GUID_LOPART(petition guid))
+		QueryPetitionResponse responsePacket = new()
+        {
+            PetitionID = (uint)petitionGuid.Counter // PetitionID (in Trinity always same as GUID_LOPART(petition guid))
+        };
 
-		var petition = _petitionManager.GetPetition(petitionGuid);
+        var petition = _petitionManager.GetPetition(petitionGuid);
 
 		if (petition == null)
 		{
@@ -79,18 +70,18 @@ public class PetitionsHandler : IWorldSessionHandler
 		}
 
 		var reqSignatures = _config.GetValue("MinPetitionSigns", 4u);
+		
+        responsePacket.Allow = true;
+		responsePacket.Info = new PetitionInfo()
+        {
+            PetitionID = (int)petitionGuid.Counter,
+            Petitioner = petition.OwnerGuid,
+            MinSignatures = reqSignatures,
+            MaxSignatures = reqSignatures,
+            Title = petition.PetitionName
+        };
 
-		PetitionInfo petitionInfo = new();
-		petitionInfo.PetitionID = (int)petitionGuid.Counter;
-		petitionInfo.Petitioner = petition.OwnerGuid;
-		petitionInfo.MinSignatures = reqSignatures;
-		petitionInfo.MaxSignatures = reqSignatures;
-		petitionInfo.Title = petition.PetitionName;
-
-		responsePacket.Allow = true;
-		responsePacket.Info = petitionInfo;
-
-		_session.SendPacket(responsePacket);
+        _session.SendPacket(responsePacket);
 	}
 
 	public void SendPetitionShowList(ObjectGuid guid)
@@ -106,11 +97,11 @@ public class PetitionsHandler : IWorldSessionHandler
 
 		WorldPacket data = new(ServerOpcodes.PetitionShowList);
 		data.WritePackedGuid(guid); // npc guid
-
-		ServerPetitionShowList packet = new();
-		packet.Unit = guid;
-        packet.Price = _config.GetValue("Guild.CharterCost", 1000u);
-		_session.SendPacket(packet);
+        _session.SendPacket(new ServerPetitionShowList()
+        {
+            Unit = guid,
+            Price = _config.GetValue("Guild.CharterCost", 1000u)
+        });
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetitionBuy)]
@@ -151,7 +142,7 @@ public class PetitionsHandler : IWorldSessionHandler
 			return;
 		}
 
-		var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(charterItemID);
+		var pProto = _itemTemplateCache.GetItemTemplate(charterItemID);
 
 		if (pProto == null)
 		{
@@ -225,18 +216,23 @@ public class PetitionsHandler : IWorldSessionHandler
 
 	void SendPetitionSigns(Petition petition, Player sendTo)
 	{
-		ServerPetitionShowSignatures signaturesPacket = new();
-		signaturesPacket.Item = petition.PetitionGuid;
-		signaturesPacket.Owner = petition.OwnerGuid;
-		signaturesPacket.OwnerAccountID = ObjectGuid.Create(HighGuid.WowAccount, _characterCache.GetCharacterAccountIdByGuid(petition.OwnerGuid));
-		signaturesPacket.PetitionID = (int)petition.PetitionGuid.Counter;
+		ServerPetitionShowSignatures signaturesPacket = new()
+        {
+            Item = petition.PetitionGuid,
+            Owner = petition.OwnerGuid,
+            OwnerAccountID = ObjectGuid.Create(HighGuid.WowAccount, _characterCache.GetCharacterAccountIdByGuid(petition.OwnerGuid)),
+            PetitionID = (int)petition.PetitionGuid.Counter
+        };
 
-		foreach (var signature in petition.Signatures)
+        foreach (var signature in petition.Signatures)
 		{
-			ServerPetitionShowSignatures.PetitionSignature signaturePkt = new();
-			signaturePkt.Signer = signature.PlayerGuid;
-			signaturePkt.Choice = 0;
-			signaturesPacket.Signatures.Add(signaturePkt);
+			ServerPetitionShowSignatures.PetitionSignature signaturePkt = new()
+            {
+                Signer = signature.PlayerGuid,
+                Choice = 0
+            };
+
+            signaturesPacket.Signatures.Add(signaturePkt);
 		}
 
 		_session.SendPacket(signaturesPacket);

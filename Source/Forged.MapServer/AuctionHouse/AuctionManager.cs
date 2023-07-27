@@ -13,6 +13,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.OpCodeHandlers;
 using Framework.Constants;
 using Framework.Database;
@@ -36,27 +37,28 @@ public class AuctionManager
     private readonly AuctionHouseObject _hordeAuctions;
     private readonly ItemFactory _itemFactory;
     private readonly AuctionBucketKeyFactory _auctionBucketKeyFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
     private readonly AuctionHouseObject _neutralAuctions;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
     private readonly Dictionary<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects = new();
 
     private DateTime _playerThrottleObjectsCleanupTime;
     private uint _replicateIdGenerator;
 
-    public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache, IConfiguration configuration,
-                          ObjectAccessor objectAccessor, ClassFactory classFactory, ItemFactory itemFactory, AuctionBucketKeyFactory auctionBucketKeyFactory)
+    public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, CharacterCache characterCache, IConfiguration configuration,
+                          ObjectAccessor objectAccessor, ClassFactory classFactory, ItemFactory itemFactory, AuctionBucketKeyFactory auctionBucketKeyFactory,
+                          ItemTemplateCache itemTemplateCache)
     {
         _characterDatabase = characterDatabase;
         _cliDB = cliDB;
-        _objectManager = objectManager;
         _characterCache = characterCache;
         _configuration = configuration;
         _objectAccessor = objectAccessor;
         _itemFactory = itemFactory;
         _auctionBucketKeyFactory = auctionBucketKeyFactory;
+        _itemTemplateCache = itemTemplateCache;
         _hordeAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 6));
         _allianceAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 2));
         _neutralAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 1));
@@ -262,7 +264,7 @@ public class AuctionManager
             var itemGuid = result.Read<ulong>(0);
             var itemEntry = result.Read<uint>(1);
 
-            var proto = _objectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
+            var proto = _itemTemplateCache.GetItemTemplate(itemEntry);
 
             if (proto == null)
             {

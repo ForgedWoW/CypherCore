@@ -725,7 +725,7 @@ internal class LookupCommands
             uint count = 0;
 
             // Search in ItemSparse
-            var its = handler.ObjectManager.ItemTemplateCache.ItemTemplates;
+            var its = handler.ClassFactory.Resolve<ItemTemplateCache>().ItemTemplates;
 
             foreach (var template in its.Values)
             {
@@ -765,7 +765,7 @@ internal class LookupCommands
         [Command("id", RBACPermissions.CommandLookupItemId, true)]
         private static bool HandleLookupItemIdCommand(CommandHandler handler, uint id)
         {
-            var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(id);
+            var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(id);
 
             if (itemTemplate != null)
             {

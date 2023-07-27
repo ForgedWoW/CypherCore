@@ -41,6 +41,7 @@ public class Guild
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
+    private readonly ClassFactory _classFactory;
     private readonly IConfiguration _configuration;
 
     private readonly CriteriaManager _criteriaManager;
@@ -54,7 +55,6 @@ public class Guild
     private readonly GuildLogHolder<GuildNewsLogEntry> _newsLog;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
-    private readonly ItemFactory _itemFactory;
     private readonly PlayerComputators _playerComputators;
     private readonly List<GuildRankInfo> _ranks = new();
     private readonly ScriptManager _scriptManager;
@@ -78,20 +78,20 @@ public class Guild
 
     public Guild(CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, CharacterCache characterCache, IConfiguration configuration, CliDB cliDB, ClassFactory classFactory,
                  PlayerComputators playerComputators, ScriptManager scriptManager, GuildManager guildManager, CalendarManager calendar, CriteriaManager criteriaManager, 
-                 GameObjectManager objectManager, ItemFactory itemFactory)
+                 GameObjectManager objectManager)
     {
         _characterDatabase = characterDatabase;
         _objectAccessor = objectAccessor;
         _characterCache = characterCache;
         _configuration = configuration;
         _cliDB = cliDB;
+        _classFactory = classFactory;
         _playerComputators = playerComputators;
         _scriptManager = scriptManager;
         _guildManager = guildManager;
         _calendar = calendar;
         _criteriaManager = criteriaManager;
         _objectManager = objectManager;
-        _itemFactory = itemFactory;
         _eventLog = new GuildLogHolder<GuildEventLogEntry>(configuration);
         _newsLog = new GuildLogHolder<GuildNewsLogEntry>(configuration);
         _emblemInfo = new GuildEmblemInfo(characterDatabase, cliDB);
@@ -1588,7 +1588,7 @@ public class Guild
         _bankTabs.Clear();
 
         for (byte i = 0; i < purchasedTabs; ++i)
-            _bankTabs.Add(new GuildBankTab(_id, i, _objectManager, _characterDatabase, _itemFactory));
+            _bankTabs.Add(_classFactory.ResolveWithPositionalParameters<GuildBankTab>(_id, i));
 
         return true;
     }
@@ -2251,7 +2251,7 @@ public class Guild
     private void CreateNewBankTab()
     {
         var tabId = GetPurchasedTabsSize(); // Next free id
-        _bankTabs.Add(new GuildBankTab(_id, tabId, _objectManager, _characterDatabase, _itemFactory));
+        _bankTabs.Add(_classFactory.ResolveWithPositionalParameters<GuildBankTab>(_id, tabId));
 
         SQLTransaction trans = new();
 

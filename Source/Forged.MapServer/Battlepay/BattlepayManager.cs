@@ -72,7 +72,7 @@ public class BattlepayManager
         if (_session.Player == null)
             return false;
 
-        var itemTemplate = _session.Player.GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+        var itemTemplate = _session.Player.ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
             return true;
@@ -168,7 +168,7 @@ public class BattlepayManager
         foreach (var productId in productInfo.ProductIds)
         {
             var product = _battlePayDataStoreMgr.GetProduct(productId);
-            var itemTemplate = _session.Player.GameObjectManager.ItemTemplateCache.GetItemTemplate(product.Flags);
+            var itemTemplate = _session.Player.ItemTemplateCache.GetItemTemplate(product.Flags);
             var itemsToSendIfInventoryFull = new List<uint>();
 
             switch ((ProductType)product.Type)
@@ -190,7 +190,7 @@ public class BattlepayManager
                     else
                         BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
-                    foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId).Where(item => _session.Player.GameObjectManager.ItemTemplateCache.GetItemTemplate(item.ItemID) != null))
+                    foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId).Where(item => _session.Player.ItemTemplateCache.GetItemTemplate(item.ItemID) != null))
                         if (player.GetFreeInventorySpace() > item.Quantity)
                             player.AddItemWithToast(item.ItemID, (ushort)item.Quantity, 0);
                         else
@@ -355,7 +355,7 @@ public class BattlepayManager
                 // Customs:
                 case ProductType.ItemSet:
                 {
-                    var its = _session.Player.GameObjectManager.ItemTemplateCache.ItemTemplates;
+                    var its = _session.Player.ItemTemplateCache.ItemTemplates;
 
                     //C++ TO C# CONVERTER NOTE: 'auto' variable declarations are not supported in C#:
                     //ORIGINAL LINE: for (auto const& itemTemplatePair : its)

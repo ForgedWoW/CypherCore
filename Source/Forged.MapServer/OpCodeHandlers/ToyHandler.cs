@@ -3,7 +3,7 @@
 
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Toy;
@@ -21,17 +21,17 @@ public class ToyHandler : IWorldSessionHandler
 {
     private readonly CollectionMgr _collectionMgr;
     private readonly DB2Manager _db2Manager;
-    private readonly GameObjectManager _gameObjectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly WorldSession _session;
     private readonly SpellManager _spellManager;
 
-    public ToyHandler(WorldSession session, CollectionMgr collectionMgr, DB2Manager db2Manager, SpellManager spellManager, GameObjectManager gameObjectManager)
+    public ToyHandler(WorldSession session, CollectionMgr collectionMgr, DB2Manager db2Manager, SpellManager spellManager, ItemTemplateCache itemTemplateCache)
     {
         _session = session;
         _collectionMgr = collectionMgr;
         _db2Manager = db2Manager;
         _spellManager = spellManager;
-        _gameObjectManager = gameObjectManager;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     [WorldPacketHandler(ClientOpcodes.AddToy)]
@@ -75,7 +75,7 @@ public class ToyHandler : IWorldSessionHandler
     private void HandleUseToy(UseToy packet)
     {
         var itemId = packet.Cast.Misc[0];
-        var item = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+        var item = _itemTemplateCache.GetItemTemplate(itemId);
 
         if (item == null)
             return;

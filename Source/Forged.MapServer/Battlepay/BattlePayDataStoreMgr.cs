@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking.Packets.Bpay;
 using Framework.Collections;
 using Framework.Database;
@@ -14,12 +15,12 @@ namespace Forged.MapServer.Battlepay;
 public class BattlePayDataStoreMgr
 {
     private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _gameObjectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
-    public BattlePayDataStoreMgr(WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+    public BattlePayDataStoreMgr(WorldDatabase worldDatabase, ItemTemplateCache itemTemplateCache)
     {
         _worldDatabase = worldDatabase;
-        _gameObjectManager = gameObjectManager;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; } = new();
@@ -289,7 +290,7 @@ public class BattlePayDataStoreMgr
                 ItemID = fields.Read<uint>(2)
             };
 
-            if (_gameObjectManager.ItemTemplateCache.GetItemTemplate(productItem.ItemID) != null)
+            if (_itemTemplateCache.GetItemTemplate(productItem.ItemID) != null)
                 continue;
 
             productItem.Entry = fields.Read<uint>(0);

@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Networking.Packets.BlackMarket;
 using Forged.MapServer.Networking.Packets.Item;
@@ -29,6 +30,7 @@ public class BlackMarketManager
     private readonly AccountManager _accountManager;
     private readonly ClassFactory _classFactory;
     private readonly ItemFactory _itemFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
@@ -41,7 +43,8 @@ public class BlackMarketManager
 
     public BlackMarketManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase,
                               ObjectAccessor objectAccessor, Realm realm, GameObjectManager objectManager,
-                              CharacterCache characterCache, AccountManager accountManager, ClassFactory classFactory, ItemFactory itemFactory)
+                              CharacterCache characterCache, AccountManager accountManager, ClassFactory classFactory, 
+                              ItemFactory itemFactory, ItemTemplateCache itemTemplateCache)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -53,6 +56,7 @@ public class BlackMarketManager
         _accountManager = accountManager;
         _classFactory = classFactory;
         _itemFactory = itemFactory;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket:Enabled", true);
@@ -180,7 +184,7 @@ public class BlackMarketManager
 
         do
         {
-            BlackMarketTemplate templ = new(_objectManager);
+            BlackMarketTemplate templ = new(_objectManager, _itemTemplateCache);
 
             if (!templ.LoadFromDB(result.GetFields())) // Add checks
                 continue;

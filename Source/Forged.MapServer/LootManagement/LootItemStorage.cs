@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -20,15 +20,16 @@ public class LootItemStorage
     private readonly LootFactory _lootFactory;
     private readonly ConcurrentDictionary<ulong, StoredLootContainer> _lootItemStorage = new();
     private readonly LootStoreBox _lootStorage;
-    private readonly GameObjectManager _objectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
-    public LootItemStorage(CharacterDatabase characterDatabase, GameObjectManager objectManager, ConditionManager conditionManager, LootFactory lootFactory, LootStoreBox lootStorage)
+    public LootItemStorage(CharacterDatabase characterDatabase, ConditionManager conditionManager, LootFactory lootFactory, 
+                           LootStoreBox lootStorage, ItemTemplateCache itemTemplateCache)
     {
         _characterDatabase = characterDatabase;
-        _objectManager = objectManager;
         _conditionManager = conditionManager;
         _lootFactory = lootFactory;
         _lootStorage = lootStorage;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public void AddNewStoredLoot(ulong containerId, Loot loot, Player player)
@@ -66,7 +67,7 @@ public class LootItemStorage
                 continue;
 
             // Don't save currency tokens
-            var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(li.Itemid);
+            var itemTemplate = _itemTemplateCache.GetItemTemplate(li.Itemid);
 
             if (itemTemplate == null || itemTemplate.IsCurrencyToken)
                 continue;
@@ -99,7 +100,7 @@ public class LootItemStorage
 
                 var storedContainer = _lootItemStorage[key];
 
-                LootItem lootItem = new(_objectManager, _conditionManager)
+                LootItem lootItem = new(_itemTemplateCache, _conditionManager)
                 {
                     Itemid = result.Read<uint>(1),
                     Count = result.Read<byte>(2),
@@ -171,7 +172,7 @@ public class LootItemStorage
         if (lt != null)
             foreach (var (id, storedItem) in container.GetLootItems().KeyValueList)
             {
-                LootItem li = new(_objectManager, _conditionManager)
+                LootItem li = new(_itemTemplateCache, _conditionManager)
                 {
                     Itemid = id,
                     Count = (byte)storedItem.Count,

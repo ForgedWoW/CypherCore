@@ -223,8 +223,6 @@ public sealed class GameObjectManager
 
     public MultiMap<uint, TerrainSwapInfo> TerrainSwaps { get; } = new();
 
-    public ItemTemplateCache ItemTemplateCache => _itemTemplateCache;
-
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
     {
         if (FindGraveYardData(id, zoneId) != null)

@@ -10,6 +10,7 @@ using Forged.MapServer.DataStorage.Structs.F;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Quest;
 using Forged.MapServer.Pools;
@@ -29,6 +30,7 @@ public class QuestHandler : IWorldSessionHandler
 {
     private readonly DB6Storage<CharTitlesRecord> _characterTitlesRecords;
     private readonly DB6Storage<ContentTuningRecord> _contentTuningRecords;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly DB6Storage<CurrencyTypesRecord> _currencyTypesRecords;
     private readonly DB2Manager _db2Manager;
     private readonly DB6Storage<FactionRecord> _factionRecords;
@@ -41,7 +43,7 @@ public class QuestHandler : IWorldSessionHandler
 
     public QuestHandler(WorldSession session, GameObjectManager objectManager, ScriptManager scriptManager, DB6Storage<CharTitlesRecord> characterTitlesRecords, ItemEnchantmentManager itemEnchantmentManager,
                         DB6Storage<FactionRecord> factionRecords, QuestPoolManager questPoolManager, ObjectAccessor objectAccessor, DB2Manager db2Manager, DB6Storage<CurrencyTypesRecord> currencyTypesRecords,
-                        DB6Storage<ContentTuningRecord> contentTuningRecords)
+                        DB6Storage<ContentTuningRecord> contentTuningRecords, ItemTemplateCache itemTemplateCache)
     {
         _session = session;
         _objectManager = objectManager;
@@ -54,6 +56,7 @@ public class QuestHandler : IWorldSessionHandler
         _db2Manager = db2Manager;
         _currencyTypesRecords = currencyTypesRecords;
         _contentTuningRecords = contentTuningRecords;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     [WorldPacketHandler(ClientOpcodes.ChoiceResponse)]
@@ -471,7 +474,7 @@ public class QuestHandler : IWorldSessionHandler
             switch (packet.Choice.LootItemType)
             {
                 case LootItemType.Item:
-                    var rewardProto = _objectManager.ItemTemplateCache.GetItemTemplate(packet.Choice.Item.ItemID);
+                    var rewardProto = _itemTemplateCache.GetItemTemplate(packet.Choice.Item.ItemID);
 
                     if (rewardProto == null)
                     {

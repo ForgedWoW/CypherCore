@@ -12,7 +12,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Server;
@@ -30,25 +30,26 @@ public class ItemHandler : IWorldSessionHandler
     private readonly BattlePetData _battlePetData;
     private readonly BattlePetMgr _battlePetMgr;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly DB6Storage<GemPropertiesRecord> _gemPropertiesRecords;
     private readonly ItemFactory _itemFactory;
     private readonly DB6Storage<ItemLimitCategoryRecord> _itemLimitCategoryRecords;
-    private readonly GameObjectManager _objectManager;
     private readonly PlayerComputators _playerComputators;
     private readonly WorldSession _session;
 
     public ItemHandler(WorldSession session, PlayerComputators playerComputators, ItemFactory itemFactory, DB6Storage<GemPropertiesRecord> gemPropertiesRecords,
-                       DB6Storage<ItemLimitCategoryRecord> itemLimitCategoryRecords, GameObjectManager objectManager, BattlePetData battlePetData, BattlePetMgr battlePetMgr, CharacterDatabase characterDatabase)
+                       DB6Storage<ItemLimitCategoryRecord> itemLimitCategoryRecords, BattlePetData battlePetData, BattlePetMgr battlePetMgr, CharacterDatabase characterDatabase,
+                       ItemTemplateCache itemTemplateCache)
     {
         _session = session;
         _playerComputators = playerComputators;
         _itemFactory = itemFactory;
         _gemPropertiesRecords = gemPropertiesRecords;
         _itemLimitCategoryRecords = itemLimitCategoryRecords;
-        _objectManager = objectManager;
         _battlePetData = battlePetData;
         _battlePetMgr = battlePetMgr;
         _characterDatabase = characterDatabase;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public void SendEnchantmentLog(ObjectGuid owner, ObjectGuid caster, ObjectGuid itemGuid, uint itemId, uint enchantId, uint enchantSlot)
@@ -826,7 +827,7 @@ public class ItemHandler : IWorldSessionHandler
                         else if (oldGemData[j] != null)
                         {
                             // existing gem
-                            var jProto = _objectManager.ItemTemplateCache.GetItemTemplate(oldGemData[j].ItemId);
+                            var jProto = _itemTemplateCache.GetItemTemplate(oldGemData[j].ItemId);
 
                             if (jProto == null)
                                 continue;

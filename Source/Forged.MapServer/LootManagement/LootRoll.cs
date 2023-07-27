@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Blizzard.Telemetry.Wow;
+using System;
+using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
@@ -9,12 +10,11 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Loot;
 using Framework.Constants;
-using System;
-using System.Collections.Generic;
 
 namespace Forged.MapServer.LootManagement;
 
@@ -23,10 +23,10 @@ public class LootRoll
     private static readonly TimeSpan LootRollTimeout = TimeSpan.FromMinutes(1);
     private readonly LootFactory _lootFactory;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly GameObjectManager _objectManager;
     private readonly DB2Manager _db2Manager;
     private readonly CliDB _cliDb;
     private readonly ItemFactory _itemFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly Dictionary<ObjectGuid, PlayerRollVote> _rollVoteMap = new();
 
     private DateTime _endTime = DateTime.MinValue;
@@ -36,15 +36,15 @@ public class LootRoll
     private Map _map;
     private RollMask _voteMask;
 
-    public LootRoll(GameObjectManager objectManager, ObjectAccessor objectAccessor, LootFactory lootFactory,
-        DB2Manager db2Manager, CliDB cliDb, ItemFactory itemFactory)
+    public LootRoll(ObjectAccessor objectAccessor, LootFactory lootFactory, DB2Manager db2Manager, CliDB cliDb, ItemFactory itemFactory,
+                    ItemTemplateCache itemTemplateCache)
     {
-        _objectManager = objectManager;
         _objectAccessor = objectAccessor;
         _lootFactory = lootFactory;
         _db2Manager = db2Manager;
         _cliDb = cliDb;
         _itemFactory = itemFactory;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public bool IsLootItem(ObjectGuid lootObject, uint lootListId)
@@ -148,7 +148,7 @@ public class LootRoll
         }
 
         // initialize item prototype and check enchant possibilities for this group
-        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(_lootItem.Itemid);
+        var itemTemplate = _itemTemplateCache.GetItemTemplate(_lootItem.Itemid);
         _voteMask = RollMask.AllMask;
 
         if (itemTemplate.HasFlag(ItemFlags2.CanOnlyRollGreed))
@@ -284,7 +284,7 @@ public class LootRoll
 
     private ItemDisenchantLootRecord GetItemDisenchantLoot()
     {
-        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(_lootItem.Itemid);
+        var itemTemplate = _itemTemplateCache.GetItemTemplate(_lootItem.Itemid);
         BonusData bonusData = new(itemTemplate, _db2Manager, _cliDb.ItemEffectStorage);
 
         if (!bonusData.CanDisenchant)
@@ -424,7 +424,7 @@ public class LootRoll
     // Send the roll for the whole group
     private void SendStartRoll()
     {
-        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(_lootItem.Itemid);
+        var itemTemplate = _itemTemplateCache.GetItemTemplate(_lootItem.Itemid);
 
         foreach (var (playerGuid, roll) in _rollVoteMap)
         {

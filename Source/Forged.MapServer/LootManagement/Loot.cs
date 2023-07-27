@@ -10,6 +10,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.Item;
@@ -41,23 +42,22 @@ public class Loot
     private readonly ItemEnchantmentManager _itemEnchantmentManager;
     private readonly CliDB _cliDB;
     private readonly ItemFactory _itemFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly LootFactory _lootFactory;
     private readonly LootStoreBox _lootStorage;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly GameObjectManager _objectManager;
     private readonly List<ObjectGuid> _playersLooting = new();
     private readonly Dictionary<uint, LootRoll> _rolls = new(); // used if an item is under rolling
 
     // The WorldObject that holds this loot
     private bool _wasOpened; // true if at least one player received the loot content
 
-    public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, ConditionManager conditionManager, GameObjectManager objectManager,
+    public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, ConditionManager conditionManager,
                 DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, IConfiguration configuration, LootFactory lootFactory, 
-                ItemEnchantmentManager itemEnchantmentManager, CliDB cliDB, ItemFactory itemFactory)
+                ItemEnchantmentManager itemEnchantmentManager, CliDB cliDB, ItemFactory itemFactory, ItemTemplateCache itemTemplateCache)
     {
         LootType = type;
         _conditionManager = conditionManager;
-        _objectManager = objectManager;
         _db2Manager = db2Manager;
         _objectAccessor = objectAccessor;
         _lootStorage = lootStorage;
@@ -66,6 +66,7 @@ public class Loot
         _itemEnchantmentManager = itemEnchantmentManager;
         _cliDB = cliDB;
         _itemFactory = itemFactory;
+        _itemTemplateCache = itemTemplateCache;
         Guid = map != null ? ObjectGuid.Create(HighGuid.LootObject, map.Id, 0, map.GenerateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
         OwnerGuid = owner;
         ItemContext = ItemContext.None;
@@ -90,7 +91,7 @@ public class Loot
     // Inserts the item into the loot (called by LootTemplate processors)
     public void AddItem(LootStoreItem item)
     {
-        var proto = _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid);
+        var proto = _itemTemplateCache.GetItemTemplate(item.Itemid);
 
         if (proto == null)
             return;
@@ -100,7 +101,7 @@ public class Loot
 
         for (uint i = 0; i < stacks && Items.Count < SharedConst.MaxNRLootItems; ++i)
         {
-            LootItem generatedLoot = new(_objectManager, _conditionManager, item, _itemEnchantmentManager)
+            LootItem generatedLoot = new(_itemTemplateCache, _conditionManager, item, _itemEnchantmentManager)
             {
                 Context = ItemContext,
                 Count = (byte)Math.Min(count, proto.MaxStackSize),
@@ -253,7 +254,7 @@ public class Loot
                 if (!item.FollowLootRules || item.Freeforall)
                     continue;
 
-                var proto = _objectManager.ItemTemplateCache.GetItemTemplate(item.Itemid);
+                var proto = _itemTemplateCache.GetItemTemplate(item.Itemid);
 
                 if (proto == null)
                     continue;
@@ -481,7 +482,7 @@ public class Loot
                     if (!item.IsBlocked)
                         continue;
 
-                    LootRoll lootRoll = new(_objectManager, _objectAccessor, _lootFactory, _db2Manager, _cliDB, _itemFactory);
+                    LootRoll lootRoll = new(_objectAccessor, _lootFactory, _db2Manager, _cliDB, _itemFactory, _itemTemplateCache);
 
                     _rolls.TryAdd(lootListId, lootRoll);
 

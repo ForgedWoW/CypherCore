@@ -8,6 +8,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
@@ -19,21 +20,21 @@ namespace Forged.MapServer.Entities.Items;
 public class ItemFactory
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly CliDB _cliDB;
     private readonly DB2Manager _db2Manager;
-    private readonly GameObjectManager _gameObjectManager;
     private readonly ClassFactory _classFactory;
     private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly SpellManager _spellManager;
 
-    public ItemFactory(CliDB cliDB, DB2Manager db2Manager, SpellManager spellManager, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, 
+    public ItemFactory(CliDB cliDB, DB2Manager db2Manager, SpellManager spellManager, CharacterDatabase characterDatabase, ItemTemplateCache itemTemplateCache, 
                        ClassFactory classFactory, ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
     {
         _cliDB = cliDB;
         _db2Manager = db2Manager;
         _spellManager = spellManager;
         _characterDatabase = characterDatabase;
-        _gameObjectManager = gameObjectManager;
+        _itemTemplateCache = itemTemplateCache;
         _classFactory = classFactory;
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
     }
@@ -124,7 +125,7 @@ public class ItemFactory
 
     public bool CanTransmogrifyItemWithItem(Item item, ItemModifiedAppearanceRecord itemModifiedAppearance)
     {
-        var source = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID); // source
+        var source = _itemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID); // source
         var target = item.Template;                                                     // dest
 
         if (source == null || target == null)
@@ -175,7 +176,7 @@ public class ItemFactory
         if (count < 1)
             return null; //don't create item at zero count
 
-        var pProto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(item);
+        var pProto = _itemTemplateCache.GetItemTemplate(item);
 
         if (pProto == null)
             return null;

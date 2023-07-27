@@ -241,7 +241,7 @@ internal class CommandArgs
                     {
                         var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-                        if (!result.IsSuccessful || (val = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(tempVal)) != null)
                             return result;
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserItemNoExist, tempVal));

@@ -71,6 +71,7 @@ public sealed class ConditionManager
     private readonly PhasingHandler _phasingHandler;
     private readonly ScriptManager _scriptManager;
     private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
     private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
     private readonly SpellManager _spellManager;
@@ -86,7 +87,8 @@ public sealed class ConditionManager
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
                             GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
                             ObjectAccessor objectAccessor, LootStoreBox lootStorage, ClassFactory classFactory, PlayerComputators playerComputators, 
-                            PhasingHandler phasingHandler, ScriptManager scriptManager, WorldSafeLocationsCache worldSafeLocationsCache)
+                            PhasingHandler phasingHandler, ScriptManager scriptManager, WorldSafeLocationsCache worldSafeLocationsCache,
+                            ItemTemplateCache itemTemplateCache)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -108,6 +110,7 @@ public sealed class ConditionManager
         _phasingHandler = phasingHandler;
         _scriptManager = scriptManager;
         _worldSafeLocationsCache = worldSafeLocationsCache;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
@@ -1942,7 +1945,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Item:
             {
-                var proto = _objectManager.ItemTemplateCache.GetItemTemplate(cond.ConditionValue1);
+                var proto = _itemTemplateCache.GetItemTemplate(cond.ConditionValue1);
 
                 if (proto == null)
                 {
@@ -1962,7 +1965,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.ItemEquipped:
             {
-                var proto = _objectManager.ItemTemplateCache.GetItemTemplate(cond.ConditionValue1);
+                var proto = _itemTemplateCache.GetItemTemplate(cond.ConditionValue1);
 
                 if (proto == null)
                 {
@@ -2615,7 +2618,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Creature.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2636,7 +2639,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2657,7 +2660,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2678,7 +2681,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2699,7 +2702,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Items.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2720,7 +2723,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Mail.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2741,7 +2744,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Milling.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2762,7 +2765,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2783,7 +2786,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2804,7 +2807,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Reference.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2825,7 +2828,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -2846,7 +2849,7 @@ public sealed class ConditionManager
                 }
 
                 var loot = _lootStorage.Spell.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var pItemProto = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
                 {
@@ -3005,7 +3008,7 @@ public sealed class ConditionManager
                     return false;
                 }
 
-                var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
+                var itemTemplate = _itemTemplateCache.GetItemTemplate((uint)cond.SourceEntry);
 
                 if (itemTemplate == null)
                 {

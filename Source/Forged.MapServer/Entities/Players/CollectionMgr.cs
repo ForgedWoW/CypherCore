@@ -10,7 +10,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Transmogification;
 using Forged.MapServer.Server;
@@ -25,9 +25,9 @@ public class CollectionMgr
     private readonly ConditionManager _conditionManager;
     private readonly DB2Manager _db2Manager;
     private readonly Dictionary<uint, FavoriteAppearanceState> _favoriteAppearances = new();
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly LoginDatabase _loginDatabase;
     private readonly MountCache _mountCache;
-    private readonly GameObjectManager _objectManager;
     private readonly WorldSession _owner;
 
     private readonly uint[] _playerClassByArmorSubclass =
@@ -51,7 +51,7 @@ public class CollectionMgr
     private BitSet _transmogIllusions;
 
     public CollectionMgr(WorldSession owner, MountCache mountCache, DB2Manager db2Manager, LoginDatabase loginDatabase,
-                         ConditionManager conditionManager, CliDB cliDB, GameObjectManager objectManager)
+                         ConditionManager conditionManager, CliDB cliDB, ItemTemplateCache itemTemplateCache)
     {
         _owner = owner;
         _mountCache = mountCache;
@@ -59,7 +59,7 @@ public class CollectionMgr
         _loginDatabase = loginDatabase;
         _conditionManager = conditionManager;
         _cliDB = cliDB;
-        _objectManager = objectManager;
+        _itemTemplateCache = itemTemplateCache;
         _appearances = new BitSet(0);
         _transmogIllusions = new BitSet(0);
     }
@@ -777,7 +777,7 @@ public class CollectionMgr
         if (!_cliDB.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))
             return false;
 
-        var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID);
+        var itemTemplate = _itemTemplateCache.GetItemTemplate(itemModifiedAppearance.ItemID);
 
         if (itemTemplate == null)
             return false;

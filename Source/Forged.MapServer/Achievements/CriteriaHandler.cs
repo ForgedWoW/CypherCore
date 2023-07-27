@@ -17,6 +17,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Phasing;
@@ -35,6 +36,7 @@ public class CriteriaHandler
 {
     public PhasingHandler PhasingHandler { get; }
     protected readonly AchievementGlobalMgr AchievementManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
     protected readonly ArenaTeamManager ArenaTeamManager;
     protected readonly CliDB CliDB;
     protected readonly ConditionManager ConditionManager;
@@ -55,10 +57,12 @@ public class CriteriaHandler
     public CriteriaHandler(CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager,
                            ArenaTeamManager arenaTeamManager, DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB,
                            ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration, LanguageManager languageManager,
-                           DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, PhasingHandler phasingHandler)
+                           DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, PhasingHandler phasingHandler,
+                           ItemTemplateCache itemTemplateCache)
     {
         PhasingHandler = phasingHandler;
         AchievementManager = achievementManager;
+        _itemTemplateCache = itemTemplateCache;
         CriteriaManager = criteriaManager;
         WorldManager = worldManager;
         GameObjectManager = gameObjectManager;
@@ -1103,7 +1107,7 @@ public class CriteriaHandler
             case ModifierTreeType.MinimumItemLevel: // 3
             {
                 // miscValue1 is itemid
-                var item = GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)miscValue1);
+                var item = _itemTemplateCache.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || item.BaseItemLevel < reqValue)
                     return false;
@@ -1173,7 +1177,7 @@ public class CriteriaHandler
             case ModifierTreeType.ItemQualityIsAtLeast: // 14
             {
                 // miscValue1 is itemid
-                var item = GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)miscValue1);
+                var item = _itemTemplateCache.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || (uint)item.Quality < reqValue)
                     return false;
@@ -1183,7 +1187,7 @@ public class CriteriaHandler
             case ModifierTreeType.ItemQualityIsExactly: // 15
             {
                 // miscValue1 is itemid
-                var item = GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)miscValue1);
+                var item = _itemTemplateCache.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || (uint)item.Quality != reqValue)
                     return false;
@@ -1739,7 +1743,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.ItemClassAndSubclass: // 96
             {
-                var item = GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)miscValue1);
+                var item = _itemTemplateCache.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || item.Class != (ItemClass)reqValue || item.SubClass != secondaryAsset)
                     return false;
@@ -3012,7 +3016,7 @@ public class CriteriaHandler
             {
                 var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.MainHand];
                 var itemSubclass = (uint)ItemSubClassWeapon.Fist;
-                var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(visibleItem.ItemID);
+                var itemTemplate = _itemTemplateCache.GetItemTemplate(visibleItem.ItemID);
 
                 if (itemTemplate is { Class: ItemClass.Weapon })
                 {
@@ -3038,7 +3042,7 @@ public class CriteriaHandler
             {
                 var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.OffHand];
                 var itemSubclass = (uint)ItemSubClassWeapon.Fist;
-                var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(visibleItem.ItemID);
+                var itemTemplate = _itemTemplateCache.GetItemTemplate(visibleItem.ItemID);
 
                 if (itemTemplate is { Class: ItemClass.Weapon })
                 {
@@ -3888,7 +3892,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerCanUseItem: // 351
             {
-                var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(reqValue);
+                var itemTemplate = _itemTemplateCache.GetItemTemplate(reqValue);
 
                 if (itemTemplate == null || referencePlayer.CanUseItem(itemTemplate) != InventoryResult.Ok)
                     return false;
@@ -4250,7 +4254,7 @@ public class CriteriaHandler
                 if (miscValue1 == 0 || miscValue2 != criteria.Entry.Asset)
                     return false;
 
-                var proto = GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)miscValue1);
+                var proto = _itemTemplateCache.GetItemTemplate((uint)miscValue1);
 
                 if (proto == null)
                     return false;

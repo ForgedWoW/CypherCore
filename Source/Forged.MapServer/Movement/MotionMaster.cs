@@ -192,7 +192,7 @@ public class MotionMaster
 
         lock (Generators)
             if (slot == MovementSlot.Active && !Generators.Empty())
-                return Generators.FirstOrDefault().GetMovementGeneratorType();
+                return Generators.First().GetMovementGeneratorType();
 
         if (slot == MovementSlot.Default && DefaultGenerator != null)
             return DefaultGenerator.GetMovementGeneratorType();
@@ -1179,10 +1179,10 @@ public class MotionMaster
                         {
                             var itr = Generators.FirstOrDefault();
 
-                            if (movement.Priority == itr.Priority)
+                            if (movement.Priority == itr?.Priority)
                                 Remove(itr, true, false);
                             else
-                                itr.Deactivate(Owner);
+                                itr?.Deactivate(Owner);
                         }
                         else
                         {

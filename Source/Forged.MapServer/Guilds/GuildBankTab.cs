@@ -3,7 +3,7 @@
 
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking.Packets.Guild;
 using Forged.MapServer.Server;
 using Framework.Constants;
@@ -16,18 +16,18 @@ public class GuildBankTab
 {
     private readonly CharacterDatabase _characterDatabase;
     private readonly ItemFactory _itemFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly ulong _guildId;
     private readonly Item[] _items = new Item[GuildConst.MaxBankSlots];
-    private readonly GameObjectManager _objectManager;
     private readonly byte _tabId;
 
-    public GuildBankTab(ulong guildId, byte tabId, GameObjectManager objectManager, CharacterDatabase characterDatabase, ItemFactory itemFactory)
+    public GuildBankTab(ulong guildId, byte tabId, CharacterDatabase characterDatabase, ItemFactory itemFactory, ItemTemplateCache itemTemplateCache)
     {
         _guildId = guildId;
         _tabId = tabId;
-        _objectManager = objectManager;
         _characterDatabase = characterDatabase;
         _itemFactory = itemFactory;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public string Icon { get; private set; }
@@ -77,7 +77,7 @@ public class GuildBankTab
             return false;
         }
 
-        var proto = _objectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
+        var proto = _itemTemplateCache.GetItemTemplate(itemEntry);
 
         if (proto == null)
         {

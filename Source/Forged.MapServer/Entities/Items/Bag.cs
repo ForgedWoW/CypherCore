@@ -7,6 +7,7 @@ using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking;
 using Framework.Constants;
@@ -18,16 +19,17 @@ namespace Forged.MapServer.Entities.Items;
 
 public class Bag : Item
 {
-    private readonly ContainerData _mContainerData;
-    private Item[] _mBagslot = new Item[36];
+    private readonly ContainerData _containerData;
+    private Item[] _bagSlot = new Item[36];
 
-    public Bag(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager, DB6Storage<ItemEffectRecord> itemEffectRecords)
-        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager, itemEffectRecords)
+    public Bag(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage, 
+               ItemEnchantmentManager itemEnchantmentManager, DB6Storage<ItemEffectRecord> itemEffectRecords, ItemTemplateCache itemTemplateCache)
+        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager, itemEffectRecords, itemTemplateCache)
     {
         ObjectTypeMask |= TypeMask.Container;
         ObjectTypeId = TypeId.Container;
 
-        _mContainerData = new ContainerData();
+        _containerData = new ContainerData();
     }
 
     public override void AddToWorld()
@@ -35,8 +37,8 @@ public class Bag : Item
         base.AddToWorld();
 
         for (uint i = 0; i < GetBagSize(); ++i)
-            if (_mBagslot[i] != null)
-                _mBagslot[i].AddToWorld();
+            if (_bagSlot[i] != null)
+                _bagSlot[i].AddToWorld();
     }
 
     public override void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
@@ -44,8 +46,8 @@ public class Bag : Item
         base.BuildCreateUpdateBlockForPlayer(data, target);
 
         for (var i = 0; i < GetBagSize(); ++i)
-            if (_mBagslot[i] != null)
-                _mBagslot[i].BuildCreateUpdateBlockForPlayer(data, target);
+            if (_bagSlot[i] != null)
+                _bagSlot[i].BuildCreateUpdateBlockForPlayer(data, target);
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -56,7 +58,7 @@ public class Bag : Item
         buffer.WriteUInt8((byte)flags);
         ObjectData.WriteCreate(buffer, flags, this, target);
         ItemData.WriteCreate(buffer, flags, this, target);
-        _mContainerData.WriteCreate(buffer, flags, this, target);
+        _containerData.WriteCreate(buffer, flags, this, target);
 
         data.WriteUInt32(buffer.GetSize());
         data.WriteBytes(buffer);
@@ -76,7 +78,7 @@ public class Bag : Item
             ItemData.WriteUpdate(buffer, flags, this, target);
 
         if (Values.HasChanged(TypeId.Container))
-            _mContainerData.WriteUpdate(buffer, flags, this, target);
+            _containerData.WriteUpdate(buffer, flags, this, target);
 
         data.WriteUInt32(buffer.GetSize());
         data.WriteBytes(buffer);
@@ -84,13 +86,13 @@ public class Bag : Item
 
     public override void ClearUpdateMask(bool remove)
     {
-        Values.ClearChangesMask(_mContainerData);
+        Values.ClearChangesMask(_containerData);
         base.ClearUpdateMask(remove);
     }
 
     public override bool Create(ulong guidlow, uint itemid, ItemContext context, Player owner)
     {
-        var itemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(itemid);
+        var itemProto = ItemTemplateCache.GetItemTemplate(itemid);
 
         if (itemProto == null || itemProto.ContainerSlots > ItemConst.MaxBagSize)
             return false;
@@ -120,7 +122,7 @@ public class Bag : Item
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
             SetSlot(i, ObjectGuid.Empty);
 
-        _mBagslot = new Item[ItemConst.MaxBagSize];
+        _bagSlot = new Item[ItemConst.MaxBagSize];
 
         return true;
     }
@@ -128,8 +130,8 @@ public class Bag : Item
     public override void DeleteFromDB(SQLTransaction trans)
     {
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
-            if (_mBagslot[i] != null)
-                _mBagslot[i].DeleteFromDB(trans);
+            if (_bagSlot[i] != null)
+                _bagSlot[i].DeleteFromDB(trans);
 
         base.DeleteFromDB(trans);
     }
@@ -138,7 +140,7 @@ public class Bag : Item
     {
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
         {
-            var item = _mBagslot[i];
+            var item = _bagSlot[i];
 
             if (item == null)
                 continue;
@@ -157,7 +159,7 @@ public class Bag : Item
                 item.RemoveFromWorld();
             }
 
-            _mBagslot[i].Dispose();
+            _bagSlot[i].Dispose();
         }
 
         base.Dispose();
@@ -165,7 +167,7 @@ public class Bag : Item
 
     public uint GetBagSize()
     {
-        return _mContainerData.NumSlots;
+        return _containerData.NumSlots;
     }
 
     public uint GetFreeSlots()
@@ -173,7 +175,7 @@ public class Bag : Item
         uint slots = 0;
 
         for (uint i = 0; i < GetBagSize(); ++i)
-            if (_mBagslot[i] == null)
+            if (_bagSlot[i] == null)
                 ++slots;
 
         return slots;
@@ -181,13 +183,13 @@ public class Bag : Item
 
     public Item GetItemByPos(byte slot)
     {
-        return slot < GetBagSize() ? _mBagslot[slot] : null;
+        return slot < GetBagSize() ? _bagSlot[slot] : null;
     }
 
     public bool IsEmpty()
     {
         for (var i = 0; i < GetBagSize(); ++i)
-            if (_mBagslot[i] != null)
+            if (_bagSlot[i] != null)
                 return false;
 
         return true;
@@ -205,7 +207,7 @@ public class Bag : Item
         for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
         {
             SetSlot(i, ObjectGuid.Empty);
-            _mBagslot[i] = null;
+            _bagSlot[i] = null;
         }
 
         return true;
@@ -214,18 +216,18 @@ public class Bag : Item
     public override void RemoveFromWorld()
     {
         for (uint i = 0; i < GetBagSize(); ++i)
-            if (_mBagslot[i] != null)
-                _mBagslot[i].RemoveFromWorld();
+            if (_bagSlot[i] != null)
+                _bagSlot[i].RemoveFromWorld();
 
         base.RemoveFromWorld();
     }
 
     public void RemoveItem(byte slot, bool update)
     {
-        if (_mBagslot[slot] != null)
-            _mBagslot[slot].SetContainer(null);
+        if (_bagSlot[slot] != null)
+            _bagSlot[slot].SetContainer(null);
 
-        _mBagslot[slot] = null;
+        _bagSlot[slot] = null;
         SetSlot(slot, ObjectGuid.Empty);
     }
 
@@ -234,7 +236,7 @@ public class Bag : Item
         if (pItem == null || pItem.GUID == GUID)
             return;
 
-        _mBagslot[slot] = pItem;
+        _bagSlot[slot] = pItem;
         SetSlot(slot, pItem.GUID);
         pItem.SetContainedIn(GUID);
         pItem.SetOwnerGUID(OwnerGUID);
@@ -244,11 +246,11 @@ public class Bag : Item
 
     private void SetBagSize(uint numSlots)
     {
-        SetUpdateFieldValue(Values.ModifyValue(_mContainerData).ModifyValue(_mContainerData.NumSlots), numSlots);
+        SetUpdateFieldValue(Values.ModifyValue(_containerData).ModifyValue(_containerData.NumSlots), numSlots);
     }
 
     private void SetSlot(int slot, ObjectGuid guid)
     {
-        SetUpdateFieldValue(ref Values.ModifyValue(_mContainerData).ModifyValue(_mContainerData.Slots, slot), guid);
+        SetUpdateFieldValue(ref Values.ModifyValue(_containerData).ModifyValue(_containerData.Slots, slot), guid);
     }
 }

@@ -14,6 +14,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.NPC;
@@ -33,6 +34,7 @@ public class NPCHandler : IWorldSessionHandler
 {
     private readonly BattlegroundManager _battlegroundManager;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly ConditionManager _conditionManager;
     private readonly DB6Storage<CurrencyTypesRecord> _currencyTypesRecords;
     private readonly DB6Storage<FactionTemplateRecord> _factionTemplateRecords;
@@ -43,7 +45,7 @@ public class NPCHandler : IWorldSessionHandler
 
     public NPCHandler(WorldSession session, DB6Storage<PlayerConditionRecord> playerConditionRecords, ConditionManager conditionManager, GameObjectManager objectManager,
                       DB6Storage<CurrencyTypesRecord> currencyTypesRecords, DB6Storage<FactionTemplateRecord> factionTemplateRecords, BattlegroundManager battlegroundManager,
-                      CharacterDatabase characterDatabase, ClassFactory classFactory)
+                      CharacterDatabase characterDatabase, ClassFactory classFactory, ItemTemplateCache itemTemplateCache)
     {
         _session = session;
         _playerConditionRecords = playerConditionRecords;
@@ -54,6 +56,7 @@ public class NPCHandler : IWorldSessionHandler
         _battlegroundManager = battlegroundManager;
         _petHandler = classFactory.ResolveWithPositionalParameters<PetHandler>(session);
         _characterDatabase = characterDatabase;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public void SendListInventory(ObjectGuid vendorGuid)
@@ -107,7 +110,7 @@ public class NPCHandler : IWorldSessionHandler
             {
                 case ItemVendorType.Item:
                 {
-                    var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(vendorItem.Item);
+                    var itemTemplate = _itemTemplateCache.GetItemTemplate(vendorItem.Item);
 
                     if (itemTemplate == null)
                         continue;

@@ -106,6 +106,7 @@ public partial class Spell : IDisposable
     private readonly ItemFactory _itemFactory;
     private readonly SceneFactory _sceneFactory;
     private readonly AccessRequirementsCache _accessRequirementsManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly ScriptManager _scriptManager;
     private readonly SkillExtraItems _skillExtraItems;
     private readonly SkillPerfectItems _skillPerfectItems;
@@ -170,7 +171,7 @@ public partial class Spell : IDisposable
                  CliDB cliDb, BattleFieldManager battleFieldManager, UnitCombatHelpers combatHelpers, SpellManager spellManager, GroupManager groupManager, ScriptManager scriptManager, LootStoreBox lootStoreBox,
                  WorldManager worldManager, GridDefines gridDefines, CellCalculator cellCalculator, TraitMgr traitMgr, GameObjectFactory gameObjectFactory, PhasingHandler phasingHandler,
                  BattlePetData battlePetData, OutdoorPvPManager outdoorPvPManager, ObjectAccessor objectAccessor, CreatureTextManager creatureTextManager, PlayerComputators playerComputators, 
-                 ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, AccessRequirementsCache accessRequirementsManager,
+                 ConversationFactory conversationFactory, ItemFactory itemFactory, SceneFactory sceneFactory, AccessRequirementsCache accessRequirementsManager, ItemTemplateCache itemTemplateCache,
                  ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
         SpellInfo = info;
@@ -203,6 +204,7 @@ public partial class Spell : IDisposable
         _itemFactory = itemFactory;
         _sceneFactory = sceneFactory;
         _accessRequirementsManager = accessRequirementsManager;
+        _itemTemplateCache = itemTemplateCache;
 
         foreach (var stage in info.EmpowerStages)
             _empowerStages[stage.Key] = new SpellEmpowerStageRecord
@@ -3595,7 +3597,7 @@ public partial class Spell : IDisposable
                         if (spellEffectInfo.ItemType != 0)
                             item = spellEffectInfo.ItemType;
 
-                    var proto = caster.GameObjectManager.ItemTemplateCache.GetItemTemplate(item);
+                    var proto = caster.ItemTemplateCache.GetItemTemplate(item);
 
                     if (proto != null && proto.ItemLimitCategory != 0)
                         packet.FailedArg1 = (int)proto.ItemLimitCategory;
@@ -5292,7 +5294,7 @@ public partial class Spell : IDisposable
 
                         if (spellEffectInfo.ItemType != 0)
                         {
-                            var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(spellEffectInfo.ItemType);
+                            var itemTemplate = _itemTemplateCache.GetItemTemplate(spellEffectInfo.ItemType);
 
                             if (itemTemplate == null)
                                 return SpellCastResult.ItemNotFound;
@@ -5586,7 +5588,7 @@ public partial class Spell : IDisposable
                 {
                     var itemId = spellEffectInfo.ItemType;
 
-                    var proto = _gameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+                    var proto = _itemTemplateCache.GetItemTemplate(itemId);
 
                     if (proto == null)
                         return SpellCastResult.ItemAtMaxCharges;

@@ -45,7 +45,7 @@ public partial class Player
             foreach (var obj in quest.Objectives)
                 if (obj.Type == QuestObjectiveType.Item)
                 {
-                    var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)obj.ObjectID);
+                    var itemTemplate = ItemTemplateCache.GetItemTemplate((uint)obj.ObjectID);
 
                     if (itemTemplate is { Bonding: ItemBondingType.Quest })
                         DestroyItemCount((uint)obj.ObjectID, (uint)obj.Amount, true);
@@ -54,7 +54,7 @@ public partial class Player
             // Destroy items received during the quest.
             for (byte i = 0; i < SharedConst.QuestItemDropCount; ++i)
             {
-                var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(quest.ItemDrop[i]);
+                var itemTemplate = ItemTemplateCache.GetItemTemplate(quest.ItemDrop[i]);
 
                 if (itemTemplate != null)
                     if (quest.ItemDropQuantity[i] != 0 && itemTemplate.Bonding == ItemBondingType.Quest)
@@ -527,7 +527,7 @@ public partial class Player
 
     public bool CanSelectQuestPackageItem(QuestPackageItemRecord questPackageItem)
     {
-        var rewardProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(questPackageItem.ItemID);
+        var rewardProto = ItemTemplateCache.GetItemTemplate(questPackageItem.ItemID);
 
         if (rewardProto == null)
             return false;
@@ -652,7 +652,7 @@ public partial class Player
             foreach (var obj in quest.Objectives)
                 if (obj.Type == QuestObjectiveType.Item)
                 {
-                    var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate((uint)obj.ObjectID);
+                    var itemTemplate = ItemTemplateCache.GetItemTemplate((uint)obj.ObjectID);
 
                     if (itemTemplate is { Bonding: ItemBondingType.Quest })
                         DestroyItemCount((uint)obj.ObjectID, (uint)obj.Amount, true);
@@ -661,7 +661,7 @@ public partial class Player
             // Destroy items received during the quest.
             for (byte i = 0; i < SharedConst.QuestItemDropCount; ++i)
             {
-                var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(quest.ItemDrop[i]);
+                var itemTemplate = ItemTemplateCache.GetItemTemplate(quest.ItemDrop[i]);
 
                 if (itemTemplate != null)
                     if (quest.ItemDropQuantity[i] != 0 && itemTemplate.Bonding == ItemBondingType.Quest)
@@ -1039,7 +1039,7 @@ public partial class Player
         if (srcitem > 0)
         {
             // Don't give source item if it is the same item used to start the quest
-            var itemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(srcitem);
+            var itemTemplate = ItemTemplateCache.GetItemTemplate(srcitem);
 
             if (quest.Id == itemTemplate.StartQuest)
                 return true;
@@ -1169,7 +1169,7 @@ public partial class Player
                 if (qInfo.ItemDrop[j] != itemid)
                     continue;
 
-                var pProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(itemid);
+                var pProto = ItemTemplateCache.GetItemTemplate(itemid);
 
                 // allows custom amount drop when not 0
                 var maxAllowedCount = qInfo.ItemDropQuantity[j] != 0 ? qInfo.ItemDropQuantity[j] : pProto.MaxStackSize;
@@ -1758,7 +1758,7 @@ public partial class Player
         switch (rewardType)
         {
             case LootItemType.Item:
-                var rewardProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(rewardId);
+                var rewardProto = ItemTemplateCache.GetItemTemplate(rewardId);
 
                 if (rewardProto != null && quest.RewChoiceItemsCount != 0)
                     for (uint i = 0; i < SharedConst.QuestRewardChoicesCount; ++i)
@@ -2776,7 +2776,7 @@ public partial class Player
         if (quest != null)
         {
             var srcItemId = quest.SourceItemId;
-            var item = GameObjectManager.ItemTemplateCache.GetItemTemplate(srcItemId);
+            var item = ItemTemplateCache.GetItemTemplate(srcItemId);
 
             if (srcItemId <= 0)
                 return true;

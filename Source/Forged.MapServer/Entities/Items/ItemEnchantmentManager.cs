@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
-using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Constants;
 using Framework.Database;
 using Serilog;
@@ -13,22 +13,22 @@ namespace Forged.MapServer.Entities.Items;
 public class ItemEnchantmentManager
 {
     private readonly CliDB _cliDB;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly DB2Manager _db2Manager;
-    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, RandomBonusListIds> _storage = new();
     private readonly WorldDatabase _worldDatabase;
 
-    public ItemEnchantmentManager(WorldDatabase worldDatabase, DB2Manager db2Manager, CliDB cliDB, GameObjectManager objectManager)
+    public ItemEnchantmentManager(WorldDatabase worldDatabase, DB2Manager db2Manager, CliDB cliDB, ItemTemplateCache itemTemplateCache)
     {
         _worldDatabase = worldDatabase;
         _db2Manager = db2Manager;
         _cliDB = cliDB;
-        _objectManager = objectManager;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public uint GenerateItemRandomBonusListId(uint itemID)
     {
-        var itemProto = _objectManager.ItemTemplateCache.GetItemTemplate(itemID);
+        var itemProto = _itemTemplateCache.GetItemTemplate(itemID);
 
         if (itemProto == null)
             return 0;

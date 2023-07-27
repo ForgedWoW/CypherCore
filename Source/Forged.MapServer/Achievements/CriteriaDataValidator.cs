@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IAchievement;
@@ -23,10 +24,12 @@ public class CriteriaDataValidator
     private readonly GameEventManager _gameEventManager;
     private readonly GameObjectManager _objectManager;
     private readonly PlayerComputators _playerComputators;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly ScriptManager _scriptManager;
     private readonly SpellManager _spellManager;
 
-    public CriteriaDataValidator(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, GameEventManager gameEventManager, ScriptManager scriptManager, CriteriaManager criteriaManager, PlayerComputators playerComputators)
+    public CriteriaDataValidator(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, GameEventManager gameEventManager, 
+                                 ScriptManager scriptManager, CriteriaManager criteriaManager, PlayerComputators playerComputators, ItemTemplateCache itemTemplateCache)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -35,6 +38,7 @@ public class CriteriaDataValidator
         _scriptManager = scriptManager;
         _criteriaManager = criteriaManager;
         _playerComputators = playerComputators;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public bool IsValid(CriteriaData criteriaData, Criteria criteria)
@@ -541,7 +545,7 @@ public class CriteriaDataValidator
                 var entry = _criteriaManager.GetCriteria(criteriaId);
 
                 var itemId = entry.Entry.Type == CriteriaType.EquipItemInSlot ? miscValue2 : miscValue1;
-                var itemTemplate = _objectManager.ItemTemplateCache.GetItemTemplate(itemId);
+                var itemTemplate = _itemTemplateCache.GetItemTemplate(itemId);
 
                 if (itemTemplate == null)
                     return false;
@@ -560,7 +564,7 @@ public class CriteriaDataValidator
             }
             case CriteriaDataType.SItemQuality:
             {
-                var pProto = _objectManager.ItemTemplateCache.GetItemTemplate(miscValue1);
+                var pProto = _itemTemplateCache.GetItemTemplate(miscValue1);
 
                 if (pProto == null)
                     return false;

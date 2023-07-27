@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Database;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
@@ -30,11 +31,11 @@ public class LootStoreItem
     // mincount for drop items
     // max drop count for the item mincount or Ref multiplicator
     // additional loot condition
-    private readonly GameObjectManager _objectManager;
 
     private readonly WorldDatabase _worldDatabase;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
-    public LootStoreItem(uint itemid, uint reference, float chance, bool needsQuest, ushort lootmode, byte groupid, byte mincount, byte maxcount, GameObjectManager objectManager, IConfiguration configuration, WorldDatabase worldDatabase)
+    public LootStoreItem(uint itemid, uint reference, float chance, bool needsQuest, ushort lootmode, byte groupid, byte mincount, byte maxcount, IConfiguration configuration, WorldDatabase worldDatabase, ItemTemplateCache itemTemplateCache)
     {
         Itemid = itemid;
         Reference = reference;
@@ -44,9 +45,9 @@ public class LootStoreItem
         Groupid = groupid;
         Mincount = mincount;
         Maxcount = maxcount;
-        _objectManager = objectManager;
         _configuration = configuration;
         _worldDatabase = worldDatabase;
+        _itemTemplateCache = itemTemplateCache;
         Conditions = new List<Condition>();
     }
 
@@ -75,7 +76,7 @@ public class LootStoreItem
 
         if (Reference == 0) // item (quest or non-quest) entry, maybe grouped
         {
-            var proto = _objectManager.ItemTemplateCache.GetItemTemplate(Itemid);
+            var proto = _itemTemplateCache.GetItemTemplate(Itemid);
 
             if (proto == null)
             {
@@ -134,7 +135,7 @@ public class LootStoreItem
         if (Reference > 0) // reference case
             return RandomHelper.randChance(Chance * (rate ? _configuration.GetDefaultValue("Rate:Drop:Item:Referenced", 1.0f) : 1.0f));
 
-        var pProto = _objectManager.ItemTemplateCache.GetItemTemplate(Itemid);
+        var pProto = _itemTemplateCache.GetItemTemplate(Itemid);
 
         var qualityModifier = pProto != null && rate ? _configuration.GetDefaultValue(QualityToRate[(int)pProto.Quality], 1.0f) : 1.0f;
 

@@ -12,6 +12,7 @@ using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Artifact;
@@ -73,13 +74,13 @@ public class Item : WorldObject
 
     private readonly Dictionary<uint, ushort> _artifactPowerIdToIndex = new();
     private readonly Array<uint> _gemScalingLevels = new(ItemConst.MaxGemSockets);
-
     private List<ObjectGuid> _allowedGuiDs = new();
     private long _lastPlayedTimeUpdate;
 
     public Item(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase, LootItemStorage lootItemStorage,
-                ItemEnchantmentManager itemEnchantmentManager, DB6Storage<ItemEffectRecord> itemEffectRecords) : base(false, classFactory)
+                ItemEnchantmentManager itemEnchantmentManager, DB6Storage<ItemEffectRecord> itemEffectRecords, ItemTemplateCache itemTemplateCache) : base(false, classFactory)
     {
+        ItemTemplateCache = itemTemplateCache;
         DB2Manager = db2Manager;
         PlayerComputators = playerComputators;
         ObjectTypeMask |= TypeMask.Item;
@@ -150,10 +151,11 @@ public class Item : WorldObject
     public bool IsVellum => Template.IsVellum;
     public bool IsWrapped => HasItemFlag(ItemFieldFlags.Wrapped);
     public ItemData ItemData { get; set; }
-    public ItemEnchantmentManager ItemEnchantmentManager { get; }
     public DB6Storage<ItemEffectRecord> ItemEffectRecords { get; }
+    public ItemEnchantmentManager ItemEnchantmentManager { get; }
     public ItemFactory ItemFactory { get; }
     public uint ItemRandomBonusListId { get; private set; }
+    public ItemTemplateCache ItemTemplateCache { get; }
     public Loot Loot { get; set; }
     public bool LootGenerated { get; set; }
     public LootItemStorage LootItemStorage { get; }
@@ -195,7 +197,7 @@ public class Item : WorldObject
 
     public byte Slot { get; private set; }
     public ItemUpdateState State { get; private set; }
-    public ItemTemplate Template => GameObjectManager.ItemTemplateCache.GetItemTemplate(Entry);
+    public ItemTemplate Template => ItemTemplateCache.GetItemTemplate(Entry);
     public string Text { get; private set; }
     private bool IsInBag => Container != null;
     //Static
@@ -485,7 +487,7 @@ public class Item : WorldObject
             SetContainedIn(owner.GUID);
         }
 
-        var itemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+        var itemProto = ItemTemplateCache.GetItemTemplate(itemId);
 
         if (itemProto == null)
             return false;
@@ -572,7 +574,7 @@ public class Item : WorldObject
 
             SocketColor gemColor = 0;
 
-            var gemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(gemData.ItemId);
+            var gemProto = ItemTemplateCache.GetItemTemplate(gemData.ItemId);
 
             if (gemProto != null)
                 if (CliDB.GemPropertiesStorage.TryGetValue(gemProto.GemProperties, out var gemProperty))
@@ -650,7 +652,7 @@ public class Item : WorldObject
 
         return (byte)list.Count(gemData =>
         {
-            var gemProto = GameObjectManager.ItemTemplateCache.GetItemTemplate(gemData.ItemId);
+            var gemProto = ItemTemplateCache.GetItemTemplate(gemData.ItemId);
 
             if (gemProto == null)
                 return false;
@@ -884,6 +886,24 @@ public class Item : WorldObject
     public ushort GetVisibleItemVisual(Player owner)
     {
         return CliDB.SpellItemEnchantmentStorage.TryGetValue(GetVisibleEnchantmentId(owner), out var enchant) ? enchant.ItemVisual : (ushort)0;
+    }
+
+    public uint GetVisibleModifiedAppearanceId(Player owner)
+    {
+        uint itemModifiedAppearanceId = GetModifier(ItemConst.AppearanceModifierSlotBySpec[owner.GetActiveTalentGroup()]);
+
+        if (itemModifiedAppearanceId == 0)
+            itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
+
+        if (itemModifiedAppearanceId == 0)
+        {
+            ItemModifiedAppearanceRecord itemModifiedAppearance = GetItemModifiedAppearance();
+
+            if (itemModifiedAppearance != null)
+                itemModifiedAppearanceId = itemModifiedAppearance.Id;
+        }
+
+        return itemModifiedAppearanceId;
     }
 
     public uint GetVisibleSecondaryModifiedAppearanceId(Player owner)
@@ -1776,7 +1796,7 @@ public class Item : WorldObject
         //ASSERT(slot < MAX_GEM_SOCKETS);
         _gemScalingLevels[slot] = gemScalingLevel;
         BonusData.GemItemLevelBonus[slot] = 0;
-        var gemTemplate = GameObjectManager.ItemTemplateCache.GetItemTemplate(gem.ItemId);
+        var gemTemplate = ItemTemplateCache.GetItemTemplate(gem.ItemId);
 
         if (gemTemplate != null)
             if (CliDB.GemPropertiesStorage.TryGetValue(gemTemplate.GemProperties, out var gemProperties))
@@ -2235,24 +2255,5 @@ public class Item : WorldObject
     private void SetExpiration(uint expiration)
     {
         SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Expiration), expiration);
-    }
-
-    public uint GetVisibleModifiedAppearanceId(Player owner) 
-    {
-        uint itemModifiedAppearanceId = GetModifier(ItemConst.AppearanceModifierSlotBySpec[owner.GetActiveTalentGroup()]);
-
-        if (itemModifiedAppearanceId == 0)
-            itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
-
-        if (itemModifiedAppearanceId == 0)
-        {
-            ItemModifiedAppearanceRecord itemModifiedAppearance = GetItemModifiedAppearance();
-
-            if (itemModifiedAppearance != null)
-                itemModifiedAppearanceId = itemModifiedAppearance.Id;
-        }
-
-
-        return itemModifiedAppearanceId;
     }
 }

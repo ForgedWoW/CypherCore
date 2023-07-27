@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Mails;
 using Framework.Collections;
 using Framework.Constants;
@@ -43,7 +44,7 @@ internal class SendCommands
             if (!uint.TryParse(itemIdAndCountStr[0], out var itemId) || itemId == 0)
                 return false;
 
-            var itemProto = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+            var itemProto = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemId);
 
             if (itemProto == null)
             {

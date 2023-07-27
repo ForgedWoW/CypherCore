@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking.Packets.Pet;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
@@ -31,13 +32,15 @@ public class SpellHistory
     private readonly DateTime[] _schoolLockouts = new DateTime[(int)SpellSchools.Max];
     private readonly LoopSafeDictionary<uint, CooldownEntry> _spellCooldowns = new();
     private readonly WorldManager _worldManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private Dictionary<uint, CooldownEntry> _spellCooldownsBeforeDuel = new();
 
-    public SpellHistory(Unit owner)
+    public SpellHistory(Unit owner, CharacterDatabase characterDatabase, WorldManager worldManager, ItemTemplateCache itemTemplateCache)
     {
         _owner = owner;
-        _characterDatabase = owner.ClassFactory.Resolve<CharacterDatabase>();
-        _worldManager = owner.ClassFactory.Resolve<WorldManager>();
+        _characterDatabase = characterDatabase;
+        _worldManager = worldManager;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public HashSet<uint> SpellsOnCooldown => _spellCooldowns.Keys.ToHashSet();
@@ -233,7 +236,7 @@ public class SpellHistory
         if (player != null)
         {
             // potions start cooldown until exiting combat
-            var itemTemplate = _owner.GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+            var itemTemplate = _itemTemplateCache.GetItemTemplate(itemId);
 
             if (itemTemplate != null)
                 if (itemTemplate.IsPotion || spellInfo.IsCooldownStartedOnEvent)
@@ -361,9 +364,8 @@ public class SpellHistory
             if (!_owner.CliDB.SpellCategoryStorage.ContainsKey(categoryId))
                 continue;
 
-            ChargeEntry charges;
-            charges.RechargeStart = Time.UnixTimeToDateTime(chargesResult.Read<long>(1));
-            charges.RechargeEnd = Time.UnixTimeToDateTime(chargesResult.Read<long>(2));
+            ChargeEntry charges = new(Time.UnixTimeToDateTime(chargesResult.Read<long>(1)), Time.UnixTimeToDateTime(chargesResult.Read<long>(2)));
+
             _categoryCharges.Add(categoryId, charges);
         } while (chargesResult.NextRow());
     }
@@ -959,7 +961,7 @@ public class SpellHistory
             if (list.Empty())
                 continue;
 
-            var cooldownDuration = list.FirstOrDefault().RechargeEnd - now;
+            var cooldownDuration = list.First().RechargeEnd - now;
 
             if (cooldownDuration.TotalMilliseconds <= 0)
                 continue;
@@ -1013,7 +1015,7 @@ public class SpellHistory
             if (list.Empty())
                 continue;
 
-            var cooldownDuration = list.FirstOrDefault().RechargeEnd - now;
+            var cooldownDuration = list.First().RechargeEnd - now;
 
             if (cooldownDuration.TotalMilliseconds <= 0)
                 continue;
@@ -1044,7 +1046,7 @@ public class SpellHistory
         // cooldown information stored in ItemEffect.db2, overriding normal cooldown and category
         if (itemId != 0)
         {
-            var proto = _owner.GameObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+            var proto = _itemTemplateCache.GetItemTemplate(itemId);
 
             if (proto != null)
                 foreach (var itemEffect in proto.Effects.Where(itemEffect => itemEffect.SpellID == spellInfo.Id))
@@ -1080,9 +1082,8 @@ public class SpellHistory
 
         var now = GameTime.SystemTime;
 
-        for (var i = 0; i < chargeList.Count; ++i)
+        foreach (var entry in chargeList)
         {
-            var entry = chargeList[i];
             entry.RechargeStart += cooldownMod;
             entry.RechargeEnd += cooldownMod;
         }
@@ -1154,7 +1155,7 @@ public class SpellHistory
         player.SendPacket(setSpellCharges);
     }
 
-    public struct ChargeEntry
+    public class ChargeEntry
     {
         public DateTime RechargeEnd;
 
@@ -1164,6 +1165,12 @@ public class SpellHistory
         {
             RechargeStart = startTime;
             RechargeEnd = startTime + rechargeTime;
+        }
+
+        public ChargeEntry(DateTime startTime, DateTime endTime)
+        {
+            RechargeStart = startTime;
+            RechargeEnd = endTime;
         }
     }
 

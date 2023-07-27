@@ -4,9 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.DataStorage.Structs.M;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Scripting;
 using Framework.Constants;
 using Framework.Database;
@@ -19,6 +22,7 @@ public class AchievementGlobalMgr
     // store achievements by referenced achievement id to speed up lookup
     private readonly MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
 
+    private readonly DB6Storage<AchievementRecord> _achievementRecords;
     private readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
     private readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
     private readonly Dictionary<uint, uint> _achievementScripts = new();
@@ -27,18 +31,25 @@ public class AchievementGlobalMgr
     private readonly Dictionary<uint /*achievementId*/, DateTime /*completionTime*/> _allCompletedAchievements = new();
 
     private readonly CharacterDatabase _characterDatabase;
-    private readonly CliDB _cliDB;
-    private readonly ScriptManager _scriptManager;
+    private readonly DB6Storage<CharTitlesRecord> _charTitlesRecords;
     private readonly GameObjectManager _gameObjectManager;
+    private readonly ItemTemplateCache _itemTemplateCache;
+    private readonly DB6Storage<MailTemplateRecord> _mailTemplateRecords;
+    private readonly ScriptManager _scriptManager;
     private readonly WorldDatabase _worldDatabase;
 
-    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB, ScriptManager scriptManager)
+    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, ScriptManager scriptManager,
+                                ItemTemplateCache itemTemplateCache, DB6Storage<AchievementRecord> achievementRecords, DB6Storage<CharTitlesRecord> charTitlesRecords,
+                                DB6Storage<MailTemplateRecord> mailTemplateRecords)
     {
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
         _gameObjectManager = gameObjectManager;
-        _cliDB = cliDB;
         _scriptManager = scriptManager;
+        _itemTemplateCache = itemTemplateCache;
+        _achievementRecords = achievementRecords;
+        _charTitlesRecords = charTitlesRecords;
+        _mailTemplateRecords = mailTemplateRecords;
     }
 
     public List<AchievementRecord> GetAchievementByReferencedId(uint id)
@@ -86,7 +97,7 @@ public class AchievementGlobalMgr
     {
         var oldMSTime = Time.MSTime;
 
-        if (_cliDB.AchievementStorage.Empty())
+        if (_achievementRecords.Empty())
         {
             Log.Logger.Information("Loaded 0 achievement references.");
 
@@ -95,7 +106,7 @@ public class AchievementGlobalMgr
 
         uint count = 0;
 
-        foreach (var achievement in _cliDB.AchievementStorage.Values)
+        foreach (var achievement in _achievementRecords.Values)
         {
             if (achievement.SharesCriteria == 0)
                 continue;
@@ -105,7 +116,7 @@ public class AchievementGlobalMgr
         }
 
         // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-        if (_cliDB.AchievementStorage.TryGetValue(4539u, out var achievement1))
+        if (_achievementRecords.TryGetValue(4539u, out var achievement1))
             achievement1.InstanceID = 631; // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
 
         Log.Logger.Information("Loaded {0} achievement references in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -131,7 +142,7 @@ public class AchievementGlobalMgr
             var achievementId = result.Read<uint>(0);
             var scriptName = result.Read<string>(1);
 
-            if (!_cliDB.AchievementStorage.ContainsKey(achievementId))
+            if (!_achievementRecords.ContainsKey(achievementId))
             {
                 Log.Logger.Error($"Table `achievement_scripts` contains non-existing Achievement (ID: {achievementId}), skipped.");
 
@@ -151,7 +162,7 @@ public class AchievementGlobalMgr
         // Populate _allCompletedAchievements with all realm first achievement ids to make multithreaded access safer
         // while it will not prevent races, it will prevent crashes that happen because std::unordered_map key was added
         // instead the only potential race will happen on value associated with the key
-        foreach (var achievement in _cliDB.AchievementStorage.Values.Where(achievement => achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill)))
+        foreach (var achievement in _achievementRecords.Values.Where(achievement => achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill)))
             _allCompletedAchievements[achievement.Id] = DateTime.MinValue;
 
         var result = _characterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
@@ -167,7 +178,7 @@ public class AchievementGlobalMgr
         {
             var achievementId = result.Read<uint>(0);
 
-            if (!_cliDB.AchievementStorage.TryGetValue(achievementId, out var achievement))
+            if (!_achievementRecords.TryGetValue(achievementId, out var achievement))
             {
                 // Remove non-existing achievements from all characters
                 Log.Logger.Error("Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
@@ -246,7 +257,7 @@ public class AchievementGlobalMgr
         {
             var id = result.Read<uint>(0);
 
-            if (!_cliDB.AchievementStorage.TryGetValue(id, out var achievement))
+            if (!_achievementRecords.TryGetValue(id, out var achievement))
             {
                 Log.Logger.Error($"Table `achievement_reward` contains a wrong achievement ID ({id}), ignored.");
 
@@ -279,14 +290,14 @@ public class AchievementGlobalMgr
                 Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains the title (A: {reward.TitleId[0]} H: {reward.TitleId[1]}) for only one team.");
 
             if (reward.TitleId[0] != 0)
-                if (!_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId[0]))
+                if (!_charTitlesRecords.ContainsKey(reward.TitleId[0]))
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[0]}) in `title_A`, set to 0");
                     reward.TitleId[0] = 0;
                 }
 
             if (reward.TitleId[1] != 0)
-                if (!_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId[1]))
+                if (!_charTitlesRecords.ContainsKey(reward.TitleId[1]))
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[1]}) in `title_H`, set to 0");
                     reward.TitleId[1] = 0;
@@ -318,7 +329,7 @@ public class AchievementGlobalMgr
 
             if (reward.MailTemplateId != 0)
             {
-                if (!_cliDB.MailTemplateStorage.ContainsKey(reward.MailTemplateId))
+                if (!_mailTemplateRecords.ContainsKey(reward.MailTemplateId))
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) is using an invalid MailTemplateId ({reward.MailTemplateId}).");
                     reward.MailTemplateId = 0;
@@ -328,7 +339,7 @@ public class AchievementGlobalMgr
             }
 
             if (reward.ItemId != 0)
-                if (_gameObjectManager.ItemTemplateCache.GetItemTemplate(reward.ItemId) == null)
+                if (_itemTemplateCache.GetItemTemplate(reward.ItemId) == null)
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid item id {reward.ItemId}, reward mail will not contain the rewarded item.");
                     reward.ItemId = 0;

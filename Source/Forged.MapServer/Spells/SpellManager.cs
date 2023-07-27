@@ -14,6 +14,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Scripting.Interfaces.ISpellManager;
 using Forged.MapServer.Spells.Auras;
@@ -34,6 +35,7 @@ public sealed class SpellManager
 
     private readonly BattlePetData _battlePetData;
     private readonly ClassFactory _classFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
 
     private readonly CliDB _cliDB;
 
@@ -104,7 +106,8 @@ public sealed class SpellManager
 
     private readonly WorldDatabase _worldDatabase;
 
-    public SpellManager(GameObjectManager objectManager, CliDB cliDB, WorldDatabase worldDatabase, DB2Manager db2Manager, LanguageManager languageManager, BattlePetData battlePetData, ClassFactory classFactory)
+    public SpellManager(GameObjectManager objectManager, CliDB cliDB, WorldDatabase worldDatabase, DB2Manager db2Manager, LanguageManager languageManager, 
+                        BattlePetData battlePetData, ClassFactory classFactory, ItemTemplateCache itemTemplateCache)
     {
         _objectManager = objectManager;
         _cliDB = cliDB;
@@ -113,6 +116,7 @@ public sealed class SpellManager
         _languageManager = languageManager;
         _battlePetData = battlePetData;
         _classFactory = classFactory;
+        _itemTemplateCache = itemTemplateCache;
         var currentAsm = Assembly.GetExecutingAssembly();
 
         foreach (var type in currentAsm.GetTypes())
@@ -568,26 +572,23 @@ public sealed class SpellManager
         if (_spellProcMap.TryGetValue(spellInfo.Id, out var diffdict) && diffdict.TryGetValue(spellInfo.Difficulty, out var procEntry))
             return procEntry;
 
-        if (_cliDB.DifficultyStorage.TryGetValue((uint)spellInfo.Difficulty, out var difficulty))
-            do
-            {
-                if (diffdict.TryGetValue((Difficulty)difficulty.FallbackDifficultyID, out procEntry))
-                    return procEntry;
+        if (!_cliDB.DifficultyStorage.TryGetValue((uint)spellInfo.Difficulty, out var difficulty))
+            return null;
 
-                difficulty = _cliDB.DifficultyStorage.LookupByKey(difficulty.FallbackDifficultyID);
-            } while (difficulty != null);
+        do
+        {
+            if (diffdict != null && diffdict.TryGetValue((Difficulty)difficulty.FallbackDifficultyID, out procEntry))
+                return procEntry;
+
+            difficulty = _cliDB.DifficultyStorage.LookupByKey(difficulty.FallbackDifficultyID);
+        } while (difficulty != null);
 
         return null;
     }
 
     public byte GetSpellRank(uint spellID)
     {
-        var node = GetSpellChainNode(spellID);
-
-        if (node != null)
-            return node.Rank;
-
-        return 0;
+        return GetSpellChainNode(spellID)?.Rank ?? 0;
     }
 
     public List<SpellGroup> GetSpellSpellGroupMapBounds(uint spellID)
@@ -754,7 +755,7 @@ public sealed class SpellManager
                         }
                     }
                     // also possible IsLootCrafting case but fake item must exist anyway
-                    else if (_objectManager.ItemTemplateCache.GetItemTemplate(spellEffectInfo.ItemType) == null)
+                    else if (_itemTemplateCache.GetItemTemplate(spellEffectInfo.ItemType) == null)
                     {
                         if (msg)
                         {
@@ -794,7 +795,7 @@ public sealed class SpellManager
 
         if (needCheckReagents)
             for (var j = 0; j < SpellConst.MaxReagents; ++j)
-                if (spellInfo.Reagent[j] > 0 && _objectManager.ItemTemplateCache.GetItemTemplate((uint)spellInfo.Reagent[j]) == null)
+                if (spellInfo.Reagent[j] > 0 && _itemTemplateCache.GetItemTemplate((uint)spellInfo.Reagent[j]) == null)
                 {
                     if (msg)
                     {

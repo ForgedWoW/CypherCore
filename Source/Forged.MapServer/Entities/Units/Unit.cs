@@ -57,7 +57,7 @@ public partial class Unit : WorldObject
         MotionMaster = new MotionMaster(this);
         CombatManager = new CombatManager(this);
         _threatManager = new ThreatManager(this);
-        SpellHistory = new SpellHistory(this);
+        SpellHistory = classFactory.ResolveWithPositionalParameters<SpellHistory>(this);
 
         ObjectTypeId = TypeId.Unit;
         ObjectTypeMask |= TypeMask.Unit;

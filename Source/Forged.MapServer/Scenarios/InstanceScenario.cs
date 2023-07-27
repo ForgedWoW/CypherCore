@@ -9,6 +9,7 @@ using Forged.MapServer.Chat;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Phasing;
@@ -26,8 +27,16 @@ public class InstanceScenario : Scenario
     public InstanceScenario(ScenarioData scenarioData, ObjectAccessor objectAccessor, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, 
                             SpellManager spellManager, ArenaTeamManager arenaTeamManager, DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, 
                             ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration, LanguageManager languageManager, DB2Manager db2Manager, 
-                            MapManager mapManager, AchievementGlobalMgr achievementManager, InstanceMap map, PhasingHandler phasingHandler) :
-        base(scenarioData, objectAccessor, criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler)
+                            MapManager mapManager, AchievementGlobalMgr achievementManager, InstanceMap map, PhasingHandler phasingHandler, ItemTemplateCache itemTemplateCache) :
+        base(scenarioData, 
+             objectAccessor, 
+             criteriaManager, 
+             worldManager, 
+             gameObjectManager, 
+             spellManager, 
+             arenaTeamManager, 
+             disableManager, 
+             worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler, itemTemplateCache)
     {
         _map = map;
         LoadInstanceData();

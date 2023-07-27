@@ -6,6 +6,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
 
@@ -107,7 +108,7 @@ public class BonusData
         _state.HasQualityBonus = false;
     }
 
-    public BonusData(ItemInstance itemInstance, DB2Manager db2Manager, DB6Storage<ItemEffectRecord> itemEffectRecords, GameObjectManager objectManager) : this(objectManager.ItemTemplateCache.GetItemTemplate(itemInstance.ItemID), db2Manager, itemEffectRecords)
+    public BonusData(ItemInstance itemInstance, DB2Manager db2Manager, DB6Storage<ItemEffectRecord> itemEffectRecords, ItemTemplateCache itemTemplateCache) : this(itemTemplateCache.GetItemTemplate(itemInstance.ItemID), db2Manager, itemEffectRecords)
     {
         if (itemInstance.ItemBonus == null)
             return;

@@ -6,11 +6,14 @@ using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedType.Local
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -338,7 +341,7 @@ internal class ListCommands
                                         var itemEntry = result3.Read<uint>(0);
                                         var itemCount = result3.Read<uint>(1);
 
-                                        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemEntry);
+                                        var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemEntry);
 
                                         if (itemTemplate == null)
                                             continue;

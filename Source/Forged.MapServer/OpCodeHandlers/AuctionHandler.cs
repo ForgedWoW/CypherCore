@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.AuctionHouse;
 using Forged.MapServer.Server;
@@ -35,10 +36,12 @@ public class AuctionHandler : IWorldSessionHandler
     private readonly GameObjectManager _gameObjectManager;
     private readonly ObjectAccessor _objectAccessor;
     private readonly AuctionBucketKeyFactory _auctionBucketKeyFactory;
+    private readonly ItemTemplateCache _itemTemplateCache;
     private readonly WorldSession _session;
 
     public AuctionHandler(WorldSession session, IConfiguration configuration, GameObjectManager gameObjectManager, AuctionManager auctionManager,
-                          CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, AuctionBucketKeyFactory auctionBucketKeyFactory)
+                          CharacterDatabase characterDatabase, ObjectAccessor objectAccessor, AuctionBucketKeyFactory auctionBucketKeyFactory,
+                          ItemTemplateCache itemTemplateCache)
     {
         _session = session;
         _configuration = configuration;
@@ -47,6 +50,7 @@ public class AuctionHandler : IWorldSessionHandler
         _characterDatabase = characterDatabase;
         _objectAccessor = objectAccessor;
         _auctionBucketKeyFactory = auctionBucketKeyFactory;
+        _itemTemplateCache = itemTemplateCache;
     }
 
     public void SendAuctionClosedNotification(AuctionPosting auction, float mailDelay, bool sold)
@@ -398,7 +402,7 @@ public class AuctionHandler : IWorldSessionHandler
             BucketKey = listItemsByBucketKey.BucketKey
         };
 
-        var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(listItemsByBucketKey.BucketKey.ItemID);
+        var itemTemplate = _itemTemplateCache.GetItemTemplate(listItemsByBucketKey.BucketKey.ItemID);
         listItemsResult.ListType = itemTemplate is { MaxStackSize: > 1 } ? AuctionHouseListType.Commodities : AuctionHouseListType.Items;
 
         auctionHouse.BuildListAuctionItems(listItemsResult,
@@ -443,7 +447,7 @@ public class AuctionHandler : IWorldSessionHandler
             }
         };
 
-        var itemTemplate = _gameObjectManager.ItemTemplateCache.GetItemTemplate(listItemsByItemID.ItemID);
+        var itemTemplate = _itemTemplateCache.GetItemTemplate(listItemsByItemID.ItemID);
         listItemsResult.ListType = itemTemplate is { MaxStackSize: > 1 } ? AuctionHouseListType.Commodities : AuctionHouseListType.Items;
 
         auctionHouse.BuildListAuctionItems(listItemsResult,

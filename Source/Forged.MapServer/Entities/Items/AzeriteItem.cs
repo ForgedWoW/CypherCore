@@ -9,6 +9,7 @@ using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Azerite;
@@ -24,8 +25,9 @@ public class AzeriteItem : Item
     private readonly AzeriteItemFactory _azeriteItemFactory;
 
     public AzeriteItem(ClassFactory classFactory, ItemFactory itemFactory, DB2Manager db2Manager, PlayerComputators playerComputators, CharacterDatabase characterDatabase,
-                       LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager, AzeriteItemFactory azeriteItemFactory, DB6Storage<ItemEffectRecord> itemEffectRecords)
-        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager, itemEffectRecords)
+                       LootItemStorage lootItemStorage, ItemEnchantmentManager itemEnchantmentManager, AzeriteItemFactory azeriteItemFactory, DB6Storage<ItemEffectRecord> itemEffectRecords,
+                       ItemTemplateCache itemTemplateCache)
+        : base(classFactory, itemFactory, db2Manager, playerComputators, characterDatabase, lootItemStorage, itemEnchantmentManager, itemEffectRecords, itemTemplateCache)
     {
         _azeriteItemFactory = azeriteItemFactory;
         AzeriteItemData = new AzeriteItemData();

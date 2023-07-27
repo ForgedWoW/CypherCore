@@ -17,6 +17,11 @@ using Framework.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Globals.Caching;
+// ReSharper disable UnusedType.Local
+
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedMember.Global
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -49,14 +54,14 @@ internal class NPCCommands
     {
         var name = "Unknown item";
 
-        var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+        var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemId);
 
         if (itemTemplate != null)
             name = itemTemplate.GetName(handler.SessionDbcLocale);
 
         handler.SendSysMessage(alternateString ? CypherStrings.CommandNpcShowlootEntry2 : CypherStrings.CommandNpcShowlootEntry,
                                itemCount,
-                               ItemConst.ItemQualityColors[(int)(itemTemplate != null ? itemTemplate.Quality : ItemQuality.Poor)],
+                               ItemConst.ItemQualityColors[(int)(itemTemplate?.Quality ?? ItemQuality.Poor)],
                                itemId,
                                name,
                                itemId);
@@ -826,7 +831,7 @@ internal class NPCCommands
 
             handler.ObjectManager.AddVendorItem(vendorEntry, vItem);
 
-            var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+            var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemId);
 
             handler.SendSysMessage(CypherStrings.ItemAddedToList, itemId, itemTemplate.GetName(), maxcount, incrtime, extendedcost);
 
@@ -902,7 +907,7 @@ internal class NPCCommands
                 return false;
             }
 
-            var itemTemplate = handler.ObjectManager.ItemTemplateCache.GetItemTemplate(itemId);
+            var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemId);
             handler.SendSysMessage(CypherStrings.ItemDeletedFromList, itemId, itemTemplate.GetName());
 
             return true;
@@ -950,17 +955,16 @@ internal class NPCCommands
 
             var movement = creature.MotionMaster.GetMovementGenerator(a =>
             {
-                if (a.GetMovementGeneratorType() == MovementGeneratorType.Follow)
-                {
-                    var followMovement = a as FollowMovementGenerator;
+                if (a.GetMovementGeneratorType() != MovementGeneratorType.Follow)
+                    return false;
 
-                    return followMovement != null && followMovement.GetTarget() == player;
-                }
+                var followMovement = a as FollowMovementGenerator;
 
-                return false;
+                return followMovement != null && followMovement.GetTarget() == player;
+
             });
 
-            if (movement != null)
+            if (movement == null)
             {
                 handler.SendSysMessage(CypherStrings.CreatureNotFollowYou, creature.GetName());
 
@@ -980,6 +984,7 @@ internal class NPCCommands
         [Command("allowmove", RBACPermissions.CommandNpcSetAllowmove)]
         private static bool HandleNpcSetAllowMovementCommand(CommandHandler handler)
         {
+            return handler != null;
             /*
             if (handler.WorldManager.getAllowMovement())
             {
@@ -992,7 +997,6 @@ internal class NPCCommands
                 handler.SendSysMessage(LANG_CREATURE_MOVE_ENABLED);
             }
             */
-            return true;
         }
 
         [Command("data", RBACPermissions.CommandNpcSetData)]
@@ -1137,7 +1141,7 @@ internal class NPCCommands
         {
             var creature = handler.SelectedCreature;
 
-            if (creature != null)
+            if (creature == null)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
 
