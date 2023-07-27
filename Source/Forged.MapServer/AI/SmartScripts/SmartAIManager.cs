@@ -259,7 +259,7 @@ public class SmartAIManager
                 switch (sourceType)
                 {
                     case SmartScriptType.Creature:
-                        if (_gameObjectManager.GetCreatureTemplate((uint)temp.EntryOrGuid) == null)
+                        if (_gameObjectManager.CreatureTemplateCache.GetCreatureTemplate((uint)temp.EntryOrGuid) == null)
                         {
                             if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
@@ -382,7 +382,7 @@ public class SmartAIManager
                             continue;
                         }
 
-                        var creatureInfo = _gameObjectManager.GetCreatureTemplate(creature.Id);
+                        var creatureInfo = _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(creature.Id);
 
                         if (creatureInfo == null)
                         {
@@ -1074,7 +1074,7 @@ public class SmartAIManager
 
     private bool IsCreatureValid(SmartScriptHolder e, uint entry)
     {
-        if (_gameObjectManager.GetCreatureTemplate(entry) == null)
+        if (_gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry) == null)
         {
             Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {entry}, skipped.");
 
@@ -1448,7 +1448,7 @@ public class SmartAIManager
                         return false;
                     }
 
-                    if (e.Event.Distance.Entry != 0 && _gameObjectManager.GetCreatureTemplate(e.Event.Distance.Entry) == null)
+                    if (e.Event.Distance.Entry != 0 && _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(e.Event.Distance.Entry) == null)
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry {0}, skipped.", e.Event.Distance.Entry);
 
@@ -1626,7 +1626,7 @@ public class SmartAIManager
             case SmartActions.MountToEntryOrModel:
                 if (e.Action.MorphOrMount.Creature != 0 || e.Action.MorphOrMount.Model != 0)
                 {
-                    if (e.Action.MorphOrMount.Creature > 0 && _gameObjectManager.GetCreatureTemplate(e.Action.MorphOrMount.Creature) == null)
+                    if (e.Action.MorphOrMount.Creature > 0 && _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(e.Action.MorphOrMount.Creature) == null)
                     {
                         Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Action.MorphOrMount.Creature}, skipped.");
 
@@ -2671,7 +2671,7 @@ public class SmartAIManager
             case SmartTargets.CreatureDistance:
             case SmartTargets.CreatureRange:
             {
-                if (e.Target.UnitDistance.Creature != 0 && _gameObjectManager.GetCreatureTemplate(e.Target.UnitDistance.Creature) == null)
+                if (e.Target.UnitDistance.Creature != 0 && _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(e.Target.UnitDistance.Creature) == null)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Target.UnitDistance.Creature} as target_param1, skipped.");
 

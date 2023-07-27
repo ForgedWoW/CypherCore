@@ -1977,7 +1977,7 @@ public partial class Unit : WorldObject
                         handledAura = eff;
                     else
                     {
-                        var ci = GameObjectManager.GetCreatureTemplate((uint)eff.MiscValue);
+                        var ci = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate((uint)eff.MiscValue);
 
                         if (ci != null)
                             if (!IsDisallowedMountForm(eff.Id, ShapeShiftForm.None, GameObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
@@ -2288,7 +2288,7 @@ public partial class Unit : WorldObject
         SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayID), modelId);
         SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayScale), displayScale);
         // Set Gender by modelId
-        var minfo = GameObjectManager.GetCreatureModelInfo(modelId);
+        var minfo = GameObjectManager.CreatureModelCache.GetCreatureModelInfo(modelId);
 
         if (minfo != null)
             Gender = (Gender)minfo.Gender;

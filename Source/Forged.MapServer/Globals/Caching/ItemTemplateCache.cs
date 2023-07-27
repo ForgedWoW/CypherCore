@@ -16,7 +16,7 @@ using Serilog;
 
 namespace Forged.MapServer.Globals.Caching;
 
-public class ItemTemplateCache
+public class ItemTemplateCache : IObjectCache
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly ClassFactory _classFactory;

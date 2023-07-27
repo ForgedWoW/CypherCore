@@ -23,11 +23,13 @@ namespace Forged.MapServer.Scenarios;
 public class InstanceScenario : Scenario
 {
     private readonly InstanceMap _map;
+    private readonly MapSpawnGroupCache _mapSpawnGroupCache;
 
     public InstanceScenario(ScenarioData scenarioData, ObjectAccessor objectAccessor, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, 
                             SpellManager spellManager, ArenaTeamManager arenaTeamManager, DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, 
                             ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration, LanguageManager languageManager, DB2Manager db2Manager, 
-                            MapManager mapManager, AchievementGlobalMgr achievementManager, InstanceMap map, PhasingHandler phasingHandler, ItemTemplateCache itemTemplateCache) :
+                            MapManager mapManager, AchievementGlobalMgr achievementManager, InstanceMap map, PhasingHandler phasingHandler, ItemTemplateCache itemTemplateCache,
+                            MapSpawnGroupCache mapSpawnGroupCache) :
         base(scenarioData, 
              objectAccessor, 
              criteriaManager, 
@@ -39,6 +41,7 @@ public class InstanceScenario : Scenario
              worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager, phasingHandler, itemTemplateCache)
     {
         _map = map;
+        _mapSpawnGroupCache = mapSpawnGroupCache;
         LoadInstanceData();
 
         var players = map.Players;
@@ -86,7 +89,7 @@ public class InstanceScenario : Scenario
                     if (!isDespawned)
                         continue;
 
-                    foreach (var spawnData in GameObjectManager.GetSpawnMetadataForGroup(spawnGroup.SpawnGroupId).Select(spawn => spawn.ToSpawnData()).Where(spawnData => spawnData != null))
+                    foreach (var spawnData in _mapSpawnGroupCache.SpawnGroupMapStorage.LookupByKey(spawnGroup.SpawnGroupId).Select(spawn => spawn.ToSpawnData()).Where(spawnData => spawnData != null))
                         ++despawnedCreatureCountsById[spawnData.Id];
                 }
 

@@ -89,7 +89,7 @@ public class VehicleObjectCache
             var uiSummonType = result.Read<byte>(4);
             var uiSummonTimer = result.Read<uint>(5);
 
-            if (_gameObjectManager.GetCreatureTemplate(uiAccessory) == null)
+            if (_gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(uiAccessory) == null)
             {
                 Log.Logger.Error("Table `vehicle_accessory`: Accessory {0} does not exist.", uiAccessory);
 
@@ -181,7 +181,7 @@ public class VehicleObjectCache
         {
             var creatureId = result.Read<uint>(0);
 
-            if (_gameObjectManager.GetCreatureTemplate(creatureId) == null)
+            if (_gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(creatureId) == null)
             {
                 Log.Logger.Error($"Table `vehicle_template`: Vehicle {creatureId} does not exist.");
 
@@ -226,14 +226,14 @@ public class VehicleObjectCache
             var summonType = result.Read<byte>(4);
             var summonTimer = result.Read<uint>(5);
 
-            if (_gameObjectManager.GetCreatureTemplate(entry) == null)
+            if (_gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry) == null)
             {
                 Log.Logger.Error("Table `vehicle_template_accessory`: creature template entry {0} does not exist.", entry);
 
                 continue;
             }
 
-            if (_gameObjectManager.GetCreatureTemplate(accessory) == null)
+            if (_gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(accessory) == null)
             {
                 Log.Logger.Error("Table `vehicle_template_accessory`: Accessory {0} does not exist.", accessory);
 

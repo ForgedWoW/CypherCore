@@ -220,7 +220,7 @@ public class Battleground : ZoneScript, IDisposable
         if (map == null)
             return null;
 
-        if (ObjectManager.GetCreatureTemplate(entry) == null)
+        if (ObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry) == null)
         {
             Log.Logger.Error($"Battleground.AddCreature: creature template (entry: {entry}) does not exist for BG (map: {MapId}, instance id: {InstanceID})!");
 

@@ -512,7 +512,7 @@ public partial class Creature : Unit
         if (!dynamic)
             RespawnCompatibilityMode = true;
 
-        var cinfo = GameObjectManager.GetCreatureTemplate(entry);
+        var cinfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
         if (cinfo == null)
         {
@@ -761,7 +761,7 @@ public partial class Creature : Unit
 
     public string GetAIName()
     {
-        return GameObjectManager.GetCreatureTemplate(Entry).AIName;
+        return GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(Entry).AIName;
     }
 
     public override float GetArmorMultiplierForTarget(WorldObject target)
@@ -1016,7 +1016,7 @@ public partial class Creature : Unit
         if (Template.ScriptID != 0)
             return Template.ScriptID;
 
-        return GameObjectManager.GetCreatureTemplate(Entry) != null ? GameObjectManager.GetCreatureTemplate(Entry).ScriptID : 0;
+        return GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(Entry) != null ? GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(Entry).ScriptID : 0;
     }
 
     public string GetScriptName()
@@ -1120,7 +1120,7 @@ public partial class Creature : Unit
 
     public bool InitEntry(uint entry, CreatureData data = null)
     {
-        var normalInfo = GameObjectManager.GetCreatureTemplate(entry);
+        var normalInfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
         if (normalInfo == null)
         {
@@ -1142,7 +1142,7 @@ public partial class Creature : Unit
 
             if (normalInfo.DifficultyEntry[idx] != 0)
             {
-                cInfo = GameObjectManager.GetCreatureTemplate(normalInfo.DifficultyEntry[idx]);
+                cInfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(normalInfo.DifficultyEntry[idx]);
 
                 break;
             }
@@ -1171,7 +1171,7 @@ public partial class Creature : Unit
         }
 
         var model = GameObjectManager.ChooseDisplayId(cInfo, data);
-        var minfo = GameObjectManager.GetCreatureModelRandomGender(ref model, cInfo);
+        var minfo = GameObjectManager.CreatureModelCache.GetCreatureModelRandomGender(ref model, cInfo);
 
         if (minfo == null) // Cancel load if no model defined
         {
@@ -1785,7 +1785,7 @@ public partial class Creature : Unit
 
                 CreatureModel display = new(NativeDisplayId, NativeDisplayScale, 1.0f);
 
-                if (GameObjectManager.GetCreatureModelRandomGender(ref display, Template) != null)
+                if (GameObjectManager.CreatureModelCache.GetCreatureModelRandomGender(ref display, Template) != null)
                 {
                     SetDisplayId(display.CreatureDisplayId, display.DisplayScale);
                     SetNativeDisplayId(display.CreatureDisplayId, display.DisplayScale);
@@ -2293,7 +2293,7 @@ public partial class Creature : Unit
     {
         base.SetDisplayId(modelId, displayScale);
 
-        var minfo = GameObjectManager.GetCreatureModelInfo(modelId);
+        var minfo = GameObjectManager.CreatureModelCache.GetCreatureModelInfo(modelId);
 
         if (minfo != null)
         {
@@ -3001,7 +3001,7 @@ public partial class Creature : Unit
                 return false;
         }
 
-        var cinfo = GameObjectManager.GetCreatureTemplate(entry);
+        var cinfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
         if (cinfo == null)
         {

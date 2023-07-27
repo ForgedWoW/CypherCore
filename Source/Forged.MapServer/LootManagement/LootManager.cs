@@ -109,7 +109,7 @@ public class LootManager : LootStoreBox
         var count = Creature.LoadAndCollectLootIds(out var lootIdSet);
 
         // Remove real entries and check loot existence
-        var ctc = _objectManager.CreatureTemplates;
+        var ctc = _objectManager.CreatureTemplateCache.CreatureTemplates;
 
         foreach (var pair in ctc)
         {
@@ -325,7 +325,7 @@ public class LootManager : LootStoreBox
         var count = Pickpocketing.LoadAndCollectLootIds(out var lootIdSet);
 
         // Remove real entries and check loot existence
-        var ctc = _objectManager.CreatureTemplates;
+        var ctc = _objectManager.CreatureTemplateCache.CreatureTemplates;
 
         foreach (var pair in ctc)
         {
@@ -418,7 +418,7 @@ public class LootManager : LootStoreBox
         var count = Skinning.LoadAndCollectLootIds(out var lootIdSet);
 
         // remove real entries and check existence loot
-        var ctc = _objectManager.CreatureTemplates;
+        var ctc = _objectManager.CreatureTemplateCache.CreatureTemplates;
 
         foreach (var pair in ctc)
         {

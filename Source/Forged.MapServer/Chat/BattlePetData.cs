@@ -94,7 +94,7 @@ public class BattlePetData
 
     public uint SelectPetDisplay(BattlePetSpeciesRecord speciesEntry)
     {
-        var creatureTemplate = _objectManager.GetCreatureTemplate(speciesEntry.CreatureID);
+        var creatureTemplate = _objectManager.CreatureTemplateCache.GetCreatureTemplate(speciesEntry.CreatureID);
 
         if (creatureTemplate != null)
             if (!speciesEntry.GetFlags().HasFlag(BattlePetSpeciesFlags.RandomDisplay))

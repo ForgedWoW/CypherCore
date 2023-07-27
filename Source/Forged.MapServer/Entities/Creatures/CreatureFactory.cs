@@ -30,7 +30,7 @@ public class CreatureFactory
 
     public Creature CreateCreature(uint entry, Map map, Position pos, uint vehId = 0)
     {
-        var cInfo = _objectManager.GetCreatureTemplate(entry);
+        var cInfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
         if (cInfo == null)
             return null;

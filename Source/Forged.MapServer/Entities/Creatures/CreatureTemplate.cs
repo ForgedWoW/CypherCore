@@ -124,7 +124,7 @@ public class CreatureTemplate
     {
         foreach (var model in Models)
         {
-            var modelInfo = _objectManager.GetCreatureModelInfo(model.CreatureDisplayId);
+            var modelInfo = _objectManager.CreatureModelCache.GetCreatureModelInfo(model.CreatureDisplayId);
 
             if (modelInfo is { IsTrigger: true })
                 return model;
@@ -142,7 +142,7 @@ public class CreatureTemplate
     {
         foreach (var model in Models)
         {
-            var modelInfo = _objectManager.GetCreatureModelInfo(model.CreatureDisplayId);
+            var modelInfo = _objectManager.CreatureModelCache.GetCreatureModelInfo(model.CreatureDisplayId);
 
             if (modelInfo is { IsTrigger: false })
                 return model;

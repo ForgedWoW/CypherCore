@@ -1422,7 +1422,7 @@ public partial class Spell : IDisposable
                         {
                             if (info.Item1.Type == PetType.Hunter)
                             {
-                                var creatureInfo = _gameObjectManager.GetCreatureTemplate(info.Item1.CreatureId);
+                                var creatureInfo = _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(info.Item1.CreatureId);
 
                                 if (creatureInfo == null || !creatureInfo.IsTameable(playerCaster.CanTameExoticPets))
                                 {

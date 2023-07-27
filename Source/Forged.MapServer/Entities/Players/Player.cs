@@ -5859,7 +5859,7 @@ public partial class Player : Unit
 
             if (dstPet != null)
             {
-                CreatureTemplate creatureInfo = GameObjectManager.GetCreatureTemplate(dstPet.CreatureId);
+                CreatureTemplate creatureInfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(dstPet.CreatureId);
                 if (creatureInfo == null || !creatureInfo.IsTameable(CanTameExoticPets))
                 {
                     Session.SendPetStableResult(StableResult.CantControlExotic);
@@ -5885,7 +5885,7 @@ public partial class Player : Unit
                 RemovePet(oldPet, PetSaveMode.NotInSlot);
             }
 
-            CreatureTemplate creatureInfo = GameObjectManager.GetCreatureTemplate(srcPet.CreatureId);
+            CreatureTemplate creatureInfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(srcPet.CreatureId);
             if (creatureInfo == null || !creatureInfo.IsTameable(CanTameExoticPets))
             {
                 Session.SendPetStableResult(StableResult.CantControlExotic);

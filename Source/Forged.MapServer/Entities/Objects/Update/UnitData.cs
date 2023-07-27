@@ -1203,7 +1203,7 @@ public class UnitData : BaseUpdateData<Unit>
                 if (summon.SummonerGUID == receiver.GUID)
                 {
                     if (summon.CreatureIdVisibleToSummoner.HasValue)
-                        cinfo = _objectManager.GetCreatureTemplate(summon.CreatureIdVisibleToSummoner.Value);
+                        cinfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate(summon.CreatureIdVisibleToSummoner.Value);
 
                     if (summon.DisplayIdVisibleToSummoner.HasValue)
                         displayId = summon.DisplayIdVisibleToSummoner.Value;
@@ -1219,7 +1219,7 @@ public class UnitData : BaseUpdateData<Unit>
                     if (!spellEffectInfo.IsAuraType(AuraType.Transform))
                         continue;
 
-                    var transformInfo = _objectManager.GetCreatureTemplate((uint)spellEffectInfo.MiscValue);
+                    var transformInfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate((uint)spellEffectInfo.MiscValue);
 
                     if (transformInfo == null)
                         continue;

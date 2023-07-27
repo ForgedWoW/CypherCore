@@ -2168,7 +2168,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.NearCreature:
             {
-                if (_objectManager.GetCreatureTemplate(cond.ConditionValue1) == null)
+                if (_objectManager.CreatureTemplateCache.GetCreatureTemplate(cond.ConditionValue1) == null)
                 {
                     Log.Logger.Debug("{0} has non existing creature template entry ({1}), skipped", cond.ToString(true), cond.ConditionValue1);
 
@@ -2193,7 +2193,7 @@ public sealed class ConditionManager
                 switch ((TypeId)cond.ConditionValue1)
                 {
                     case TypeId.Unit:
-                        if (cond.ConditionValue2 != 0 && _objectManager.GetCreatureTemplate(cond.ConditionValue2) == null)
+                        if (cond.ConditionValue2 != 0 && _objectManager.CreatureTemplateCache.GetCreatureTemplate(cond.ConditionValue2) == null)
                         {
                             Log.Logger.Debug("{0} has non existing creature template entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue2);
 
@@ -2935,7 +2935,7 @@ public sealed class ConditionManager
             }
             case ConditionSourceType.CreatureTemplateVehicle:
             {
-                if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
+                if (_objectManager.CreatureTemplateCache.GetCreatureTemplate((uint)cond.SourceEntry) == null)
                 {
                     Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
@@ -2968,7 +2968,7 @@ public sealed class ConditionManager
 
                 break;
             case ConditionSourceType.VehicleSpell:
-                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
+                if (_objectManager.CreatureTemplateCache.GetCreatureTemplate(cond.SourceGroup) == null)
                 {
                     Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
@@ -2984,7 +2984,7 @@ public sealed class ConditionManager
 
                 break;
             case ConditionSourceType.SpellClickEvent:
-                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
+                if (_objectManager.CreatureTemplateCache.GetCreatureTemplate(cond.SourceGroup) == null)
                 {
                     Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
@@ -3001,7 +3001,7 @@ public sealed class ConditionManager
                 break;
             case ConditionSourceType.NpcVendor:
             {
-                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
+                if (_objectManager.CreatureTemplateCache.GetCreatureTemplate(cond.SourceGroup) == null)
                 {
                     Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
@@ -3113,7 +3113,7 @@ public sealed class ConditionManager
 
                 if (cond.SourceGroup == (uint)TypeId.Unit)
                 {
-                    if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
+                    if (_objectManager.CreatureTemplateCache.GetCreatureTemplate((uint)cond.SourceEntry) == null)
                     {
                         Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.");
 

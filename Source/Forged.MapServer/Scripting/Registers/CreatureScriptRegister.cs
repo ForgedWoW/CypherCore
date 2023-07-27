@@ -29,7 +29,7 @@ public class CreatureScriptRegister : IScriptRegister
 
         foreach (var id in creatureScript.CreatureIds)
         {
-            var creatureTemplate = _gameObjectManager.GetCreatureTemplate(id);
+            var creatureTemplate = _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(id);
 
             if (creatureTemplate == null)
             {

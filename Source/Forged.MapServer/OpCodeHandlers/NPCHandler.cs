@@ -588,7 +588,7 @@ public class NPCHandler : IWorldSessionHandler
 
             if (dstPet != null)
             {
-                var creatureInfo = _objectManager.GetCreatureTemplate(dstPet.CreatureId);
+                var creatureInfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate(dstPet.CreatureId);
 
                 if (creatureInfo == null || !creatureInfo.IsTameable(_session.Player.CanTameExoticPets))
                 {
@@ -618,7 +618,7 @@ public class NPCHandler : IWorldSessionHandler
                 _session.Player.RemovePet(oldPet, PetSaveMode.NotInSlot);
             }
 
-            var creatureInfo = _objectManager.GetCreatureTemplate(srcPet.CreatureId);
+            var creatureInfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate(srcPet.CreatureId);
 
             if (creatureInfo == null || !creatureInfo.IsTameable(_session.Player.CanTameExoticPets))
             {

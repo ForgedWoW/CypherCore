@@ -3131,7 +3131,7 @@ public class AuraEffect
                     //    creatureEntry = mountVehicle->VehicleCreatureId;
                 }
 
-                var creatureInfo = Caster.GameObjectManager.GetCreatureTemplate(creatureEntry);
+                var creatureInfo = Caster.GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(creatureEntry);
 
                 if (creatureInfo != null)
                 {
@@ -3140,7 +3140,7 @@ public class AuraEffect
                     if (displayId == 0)
                     {
                         var model = Caster.GameObjectManager.ChooseDisplayId(creatureInfo);
-                        Caster.GameObjectManager.GetCreatureModelRandomGender(ref model, creatureInfo);
+                        Caster.GameObjectManager.CreatureModelCache.GetCreatureModelRandomGender(ref model, creatureInfo);
                         displayId = model.CreatureDisplayId;
                     }
 
@@ -3506,7 +3506,7 @@ public class AuraEffect
                 }
                 else
                 {
-                    var ci = Caster.GameObjectManager.GetCreatureTemplate((uint)MiscValue);
+                    var ci = Caster.GameObjectManager.CreatureTemplateCache.GetCreatureTemplate((uint)MiscValue);
 
                     if (ci == null)
                     {
@@ -3555,12 +3555,12 @@ public class AuraEffect
                 if (!target.GetAuraEffectsByType(AuraType.Mounted).Empty())
                 {
                     var crID = target.GetAuraEffectsByType(AuraType.Mounted)[0].MiscValue;
-                    var ci = Caster.GameObjectManager.GetCreatureTemplate((uint)crID);
+                    var ci = Caster.GameObjectManager.CreatureTemplateCache.GetCreatureTemplate((uint)crID);
 
                     if (ci != null)
                     {
                         var model = Caster.GameObjectManager.ChooseDisplayId(ci);
-                        Caster.GameObjectManager.GetCreatureModelRandomGender(ref model, ci);
+                        Caster.GameObjectManager.CreatureModelCache.GetCreatureModelRandomGender(ref model, ci);
 
                         target.MountDisplayId = model.CreatureDisplayId;
                     }

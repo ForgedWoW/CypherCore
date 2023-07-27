@@ -366,6 +366,9 @@ void RegisterCaches()
     builder.RegisterType<AreaTriggerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<WorldSafeLocationsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ItemTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CreatureModelCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CreatureTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<VendorItemCache>().SingleInstance().OnActivated(c => c.Instance.Load());
 }
 
 void RegisterFactories()

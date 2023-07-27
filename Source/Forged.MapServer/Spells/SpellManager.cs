@@ -1001,7 +1001,7 @@ public sealed class SpellManager
                         if (spellEffectInfo.Effect is SpellEffectName.Summon or SpellEffectName.SummonPet)
                         {
                             var creatureID = spellEffectInfo.MiscValue;
-                            var cInfo = _objectManager.GetCreatureTemplate((uint)creatureID);
+                            var cInfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate((uint)creatureID);
 
                             if (cInfo == null)
                                 continue;

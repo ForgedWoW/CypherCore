@@ -265,7 +265,7 @@ public class ConversationDataStorage
 
         public bool Invoke(ConversationActorNoObjectTemplate noObject)
         {
-            if (_objectManager.GetCreatureTemplate(CreatureId) == null)
+            if (_objectManager.CreatureTemplateCache.GetCreatureTemplate(CreatureId) == null)
             {
                 Log.Logger.Error($"Table `conversation_actors` references an invalid creature id ({CreatureId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
@@ -304,7 +304,7 @@ public class ConversationDataStorage
 
         public bool Invoke(ConversationActorTalkingHeadTemplate talkingHead)
         {
-            if (_objectManager.GetCreatureTemplate(CreatureId) == null)
+            if (_objectManager.CreatureTemplateCache.GetCreatureTemplate(CreatureId) == null)
             {
                 Log.Logger.Error($"Table `conversation_actors` references an invalid creature id ({CreatureId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 

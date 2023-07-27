@@ -78,7 +78,7 @@ public class TempSummon : Creature
 
                 if (summonedData.CreatureIdVisibleToSummoner.HasValue)
                 {
-                    var creatureTemplateVisibleToSummoner = GameObjectManager.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
+                    var creatureTemplateVisibleToSummoner = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
                     DisplayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner).CreatureDisplayId;
                 }
             }

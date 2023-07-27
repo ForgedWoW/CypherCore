@@ -892,7 +892,7 @@ public class GameEventManager
                             vItem.BonusListIDs.Add(token);
 
                     // check validity with event's npcflag
-                    if (!_objectManager.IsVendorItemValid(entry, vItem, null, null, eventNpcFlag))
+                    if (!_objectManager.VendorItemCache.IsVendorItemValid(entry, vItem, null, null, eventNpcFlag))
                         continue;
 
                     _gameEventVendors[eventID].Add(entry, vItem);
@@ -1287,7 +1287,7 @@ public class GameEventManager
 
                                                           if (tuple.Item2.Modelid <= 0 ||
                                                               tuple.Item2.ModelidPrev == tuple.Item2.Modelid ||
-                                                              _objectManager.GetCreatureModelInfo(tuple.Item2.Modelid) == null)
+                                                              _objectManager.CreatureModelCache.GetCreatureModelInfo(tuple.Item2.Modelid) == null)
                                                               continue;
 
                                                           creature.SetDisplayId(tuple.Item2.Modelid);
@@ -1299,7 +1299,7 @@ public class GameEventManager
 
                                                           if (tuple.Item2.ModelidPrev <= 0 ||
                                                               tuple.Item2.ModelidPrev == tuple.Item2.Modelid ||
-                                                              _objectManager.GetCreatureModelInfo(tuple.Item2.ModelidPrev) == null)
+                                                              _objectManager.CreatureModelCache.GetCreatureModelInfo(tuple.Item2.ModelidPrev) == null)
                                                               continue;
 
                                                           creature.SetDisplayId(tuple.Item2.ModelidPrev);
@@ -1822,9 +1822,9 @@ public class GameEventManager
     {
         foreach (var npcEventVendor in _gameEventVendors[eventId])
             if (activate)
-                _objectManager.AddVendorItem(npcEventVendor.Key, npcEventVendor.Value, false);
+                _objectManager.VendorItemCache.AddVendorItem(npcEventVendor.Key, npcEventVendor.Value, false);
             else
-                _objectManager.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.Item, npcEventVendor.Value.Type, false);
+                _objectManager.VendorItemCache.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.Item, npcEventVendor.Value.Type, false);
     }
 
     private void UpdateEventQuests(ushort eventId, bool activate)

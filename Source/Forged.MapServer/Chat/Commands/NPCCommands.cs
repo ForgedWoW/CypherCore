@@ -311,7 +311,7 @@ internal class NPCCommands
                 var z = result.Read<float>(4);
                 var mapId = result.Read<ushort>(5);
 
-                var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(entry);
+                var creatureTemplate = handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
                 if (creatureTemplate == null)
                     continue;
@@ -628,7 +628,7 @@ internal class NPCCommands
         [Command("", RBACPermissions.CommandNpcAdd)]
         private static bool HandleNpcAddCommand(CommandHandler handler, uint id)
         {
-            if (handler.Session.Player.GameObjectManager.GetCreatureTemplate(id) == null)
+            if (handler.Session.Player.GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(id) == null)
                 return false;
 
             var chr = handler.Session.Player;
@@ -774,7 +774,7 @@ internal class NPCCommands
                     return false;
             }
 
-            if (handler.ObjectManager.GetCreatureTemplate(id) == null)
+            if (handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(id) == null)
                 return false;
 
             var chr = handler.Session.Player;
@@ -826,10 +826,10 @@ internal class NPCCommands
                             vItem.BonusListIDs.Add(id);
             }
 
-            if (!handler.ObjectManager.IsVendorItemValid(vendorEntry, vItem, handler.Session.Player))
+            if (!handler.ObjectManager.VendorItemCache.IsVendorItemValid(vendorEntry, vItem, handler.Session.Player))
                 return false;
 
-            handler.ObjectManager.AddVendorItem(vendorEntry, vItem);
+            handler.ObjectManager.VendorItemCache.AddVendorItem(vendorEntry, vItem);
 
             var itemTemplate = handler.ClassFactory.Resolve<ItemTemplateCache>().GetItemTemplate(itemId);
 
@@ -900,7 +900,7 @@ internal class NPCCommands
             if (itemId == 0)
                 return false;
 
-            if (!handler.ObjectManager.RemoveVendorItem(vendor.Entry, itemId, ItemVendorType.Item))
+            if (!handler.ObjectManager.VendorItemCache.RemoveVendorItem(vendor.Entry, itemId, ItemVendorType.Item))
             {
                 handler.SendSysMessage(CypherStrings.ItemNotInList, itemId);
 

@@ -74,7 +74,7 @@ internal class GoCommands
         Dictionary<uint, List<CreatureData>> spawnLookup = new();
 
         // find all boss flagged mobs that match our needles
-        foreach (var pair in handler.ObjectManager.CreatureTemplates)
+        foreach (var pair in handler.ObjectManager.CreatureTemplateCache.CreatureTemplates)
         {
             var data = pair.Value;
 

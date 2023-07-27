@@ -183,7 +183,7 @@ public partial class Creature
         set => _lootid = value;
     }
 
-    public CreatureMovementData MovementTemplate => GameObjectManager.TryGetGetCreatureMovementOverride(SpawnId, out var movementOverride) ? movementOverride : Template.Movement;
+    public CreatureMovementData MovementTemplate => GameObjectManager.CreatureMovementOverrideCache.TryGetGetCreatureMovementOverride(SpawnId, out var movementOverride) ? movementOverride : Template.Movement;
     public override float NativeObjectScale => Template.Scale;
 
     //true when possessed
@@ -216,7 +216,7 @@ public partial class Creature
         set => _transportHomePosition.Relocate(value);
     }
 
-    public VendorItemData VendorItems => GameObjectManager.GetNpcVendorItemList(Entry);
+    public VendorItemData VendorItems => GameObjectManager.VendorItemCache.GetNpcVendorItemList(Entry);
     public float WanderDistance { get; set; }
     public WaypointManager WaypointManager { get; }
     public uint WaypointPath { get; private set; }

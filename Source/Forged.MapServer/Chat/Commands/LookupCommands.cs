@@ -100,7 +100,7 @@ internal class LookupCommands
         var found = false;
         uint count = 0;
 
-        var ctc = handler.ObjectManager.CreatureTemplates;
+        var ctc = handler.ObjectManager.CreatureTemplateCache.CreatureTemplates;
 
         foreach (var template in ctc)
         {

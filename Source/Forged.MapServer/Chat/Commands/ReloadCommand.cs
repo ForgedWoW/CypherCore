@@ -163,7 +163,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureMovementOverrideCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Creature movement overrides...");
-        handler.ObjectManager.LoadCreatureMovementOverrides();
+        handler.ObjectManager.CreatureMovementOverrideCache.Load();
         handler.SendGlobalGMSysMessage("DB table `creature_movement_override` reloaded.");
 
         return true;
@@ -221,7 +221,7 @@ internal class ReloadCommand
                 continue;
             }
 
-            var cInfo = handler.ObjectManager.GetCreatureTemplate(entry);
+            var cInfo = handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
             if (cInfo == null)
             {
@@ -232,7 +232,7 @@ internal class ReloadCommand
 
             Log.Logger.Information("Reloading creature template entry {0}", entry);
 
-            handler.ObjectManager.LoadCreatureTemplate(result.GetFields());
+            handler.ObjectManager.CreatureTemplateCache.LoadCreatureTemplate(result.GetFields());
             handler.ObjectManager.CheckCreatureTemplate(cInfo);
         }
 
@@ -598,7 +598,7 @@ internal class ReloadCommand
     private static bool HandleReloadNpcVendorCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `npc_vendor` Table!");
-        handler.ObjectManager.LoadVendors();
+        handler.ObjectManager.VendorItemCache.Load();
         handler.SendGlobalGMSysMessage("DB table `npc_vendor` reloaded.");
 
         return true;

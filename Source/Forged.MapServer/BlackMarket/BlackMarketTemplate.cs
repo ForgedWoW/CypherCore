@@ -59,7 +59,7 @@ public class BlackMarketTemplate
                 BonusListIDs = bonusListIDs
             };
 
-        if (_objectManager.GetCreatureTemplate(SellerNPC) == null)
+        if (_objectManager.CreatureTemplateCache.GetCreatureTemplate(SellerNPC) == null)
         {
             Log.Logger.Error("Black market template {0} does not have a valid seller. (Entry: {1})", MarketID, SellerNPC);
 

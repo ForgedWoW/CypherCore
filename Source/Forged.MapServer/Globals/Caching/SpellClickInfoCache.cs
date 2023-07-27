@@ -48,7 +48,7 @@ public class SpellClickInfoCache : IObjectCache
         do
         {
             var npcEntry = result.Read<uint>(0);
-            var cInfo = _gameObjectManager.GetCreatureTemplate(npcEntry);
+            var cInfo = _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(npcEntry);
 
             if (cInfo == null)
             {
@@ -88,7 +88,7 @@ public class SpellClickInfoCache : IObjectCache
 
         // all spellclick data loaded, now we check if there are creatures with NPC_FLAG_SPELLCLICK but with no data
         // NOTE: It *CAN* be the other way around: no spellclick Id but with spellclick data, in case of creature-only vehicle accessories
-        var ctc = _gameObjectManager.CreatureTemplates;
+        var ctc = _gameObjectManager.CreatureTemplateCache.CreatureTemplates;
 
         foreach (var creature in ctc.Values)
             if (creature.Npcflag.HasAnyFlag((uint)NPCFlags.SpellClick) && !_spellClickInfoStorage.ContainsKey(creature.Entry))

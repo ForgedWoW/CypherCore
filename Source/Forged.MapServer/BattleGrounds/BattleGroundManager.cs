@@ -453,7 +453,7 @@ public class BattlegroundManager
         do
         {
             var entry = result.Read<uint>(0);
-            var cInfo = _objectManager.GetCreatureTemplate(entry);
+            var cInfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
             if (cInfo != null)
             {
@@ -732,7 +732,7 @@ public class BattlegroundManager
 
     private void CheckBattleMasters()
     {
-        var templates = _objectManager.CreatureTemplates;
+        var templates = _objectManager.CreatureTemplateCache.CreatureTemplates;
 
         foreach (var creature in templates)
             if (creature.Value.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster) && !_battleMastersMap.ContainsKey(creature.Value.Entry))

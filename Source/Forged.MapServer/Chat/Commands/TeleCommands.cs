@@ -324,7 +324,7 @@ internal class TeleCommands
                     return false;
                 }
 
-                var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(creatureId);
+                var creatureTemplate = handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(creatureId);
 
                 return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
             }
@@ -369,7 +369,7 @@ internal class TeleCommands
                     return false;
                 }
 
-                var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(spawnpoint.Id);
+                var creatureTemplate = handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(spawnpoint.Id);
 
                 return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
             }

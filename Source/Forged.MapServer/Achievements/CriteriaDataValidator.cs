@@ -98,7 +98,7 @@ public class CriteriaDataValidator
                 return true;
 
             case CriteriaDataType.TCreature:
-                if (criteriaData.Creature.Id != 0 && _objectManager.GetCreatureTemplate(criteriaData.Creature.Id) != null)
+                if (criteriaData.Creature.Id != 0 && _objectManager.CreatureTemplateCache.GetCreatureTemplate(criteriaData.Creature.Id) != null)
                     return true;
 
                 Log.Logger.Error("Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_CREATURE ({2}) has non-existing creature id in value1 ({3}), ignored.",

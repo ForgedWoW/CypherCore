@@ -133,7 +133,7 @@ public class QueryHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.QueryCreature, Processing = PacketProcessing.Inplace)]
 	void HandleCreatureQuery(QueryCreature packet)
 	{
-		var ci = _gameObjectManager.GetCreatureTemplate(packet.CreatureID);
+		var ci = _gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(packet.CreatureID);
 
 		if (ci != null)
 		{

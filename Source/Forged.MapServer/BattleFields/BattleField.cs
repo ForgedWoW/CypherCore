@@ -523,7 +523,7 @@ public class BattleField : ZoneScript
 
     public Creature SpawnCreature(uint entry, Position pos)
     {
-        if (ObjectManager.GetCreatureTemplate(entry) == null)
+        if (ObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry) == null)
         {
             Log.Logger.Error("Battlefield:SpawnCreature: entry {0} does not exist.", entry);
 

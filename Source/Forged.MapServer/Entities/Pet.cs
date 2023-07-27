@@ -500,7 +500,7 @@ public class Pet : Guardian
 
         if (petInfo.Type == PetType.Hunter)
         {
-            var creatureInfo = GameObjectManager.GetCreatureTemplate(petInfo.CreatureId);
+            var creatureInfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(petInfo.CreatureId);
 
             if (creatureInfo == null || !creatureInfo.IsTameable(owner.CanTameExoticPets))
                 return false;

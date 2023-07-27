@@ -1487,7 +1487,7 @@ public class SmartScript
                         }
                         else
                         {
-                            var ci = _objectManager.GetCreatureTemplate(target.AsCreature.Entry);
+                            var ci = _objectManager.CreatureTemplateCache.GetCreatureTemplate(target.AsCreature.Entry);
 
                             if (ci != null)
                                 if (target.AsCreature.Faction != ci.Faction)
@@ -1516,7 +1516,7 @@ public class SmartScript
                         //set model based on entry from creature_template
                         if (e.Action.MorphOrMount.Creature != 0)
                         {
-                            var ci = _objectManager.GetCreatureTemplate(e.Action.MorphOrMount.Creature);
+                            var ci = _objectManager.CreatureTemplateCache.GetCreatureTemplate(e.Action.MorphOrMount.Creature);
 
                             if (ci == null)
                                 continue;
@@ -2338,7 +2338,7 @@ public class SmartScript
                     {
                         if (e.Action.MorphOrMount.Creature > 0)
                         {
-                            var cInfo = _objectManager.GetCreatureTemplate(e.Action.MorphOrMount.Creature);
+                            var cInfo = _objectManager.CreatureTemplateCache.GetCreatureTemplate(e.Action.MorphOrMount.Creature);
 
                             if (cInfo != null)
                                 target.AsUnit.Mount(_objectManager.ChooseDisplayId(cInfo).CreatureDisplayId);

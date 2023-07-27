@@ -306,7 +306,7 @@ public class AchievementGlobalMgr
             //check mail data before item for report including wrong item case
             if (reward.SenderCreatureId != 0)
             {
-                if (_gameObjectManager.GetCreatureTemplate(reward.SenderCreatureId) == null)
+                if (_gameObjectManager.CreatureTemplateCache.GetCreatureTemplate(reward.SenderCreatureId) == null)
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid creature ID {reward.SenderCreatureId} as sender, mail reward skipped.");
                     reward.SenderCreatureId = 0;

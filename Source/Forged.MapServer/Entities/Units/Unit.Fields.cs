@@ -521,7 +521,7 @@ public partial class Unit
         get => base.ObjectScale;
         set
         {
-            var minfo = GameObjectManager.GetCreatureModelInfo(DisplayId);
+            var minfo = GameObjectManager.CreatureModelCache.GetCreatureModelInfo(DisplayId);
 
             if (minfo != null)
             {

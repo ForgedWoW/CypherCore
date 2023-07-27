@@ -119,7 +119,9 @@ public class Map : IDisposable
         CellCalculator = classFactory.Resolve<CellCalculator>();
         WaypointManager = classFactory.Resolve<WaypointManager>();
         PhasingHandler = classFactory.Resolve<PhasingHandler>();
+        MapSpawnGroupCache = classFactory.Resolve<MapSpawnGroupCache>();
         _scriptManager = classFactory.Resolve<ScriptManager>();
+        
 
         try
         {
@@ -187,6 +189,7 @@ public class Map : IDisposable
     public DB2Manager DB2Manager { get; }
     public Difficulty DifficultyID { get; }
     public MapRecord Entry { get; }
+    public MapSpawnGroupCache MapSpawnGroupCache { get; }
     public ConcurrentMultiMap<ulong, GameObject> GameObjectBySpawnIdStore { get; } = new();
     public GameObjectManager GameObjectManager { get; }
     public GridDefines GridDefines { get; }
@@ -2276,7 +2279,7 @@ public class Map : IDisposable
             return false;
         }
 
-        foreach (var data in GameObjectManager.GetSpawnMetadataForGroup(groupId))
+        foreach (var data in MapSpawnGroupCache.SpawnGroupMapStorage.LookupByKey(groupId))
         {
             if (deleteRespawnTimes)
                 RemoveRespawnTime(data.Type, data.SpawnId);
@@ -2304,7 +2307,7 @@ public class Map : IDisposable
 
         List<SpawnData> toSpawn = new();
 
-        foreach (var data in GameObjectManager.GetSpawnMetadataForGroup(groupId))
+        foreach (var data in MapSpawnGroupCache.SpawnGroupMapStorage.LookupByKey(groupId))
         {
             var respawnMap = GetRespawnMapForType(data.Type);
 
@@ -2825,7 +2828,7 @@ public class Map : IDisposable
 
     public void UpdateSpawnGroupConditions()
     {
-        var spawnGroups = GameObjectManager.GetSpawnGroupsForMap(Id);
+        var spawnGroups = GameObjectManager.MapSpawnGroupCache.GetSpawnGroupsForMap(Id);
 
         foreach (var spawnGroupId in spawnGroups)
         {

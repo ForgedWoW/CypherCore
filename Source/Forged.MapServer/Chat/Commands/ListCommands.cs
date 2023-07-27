@@ -30,7 +30,7 @@ internal class ListCommands
     [Command("creature", RBACPermissions.CommandListCreature, true)]
     private static bool HandleListCreatureCommand(CommandHandler handler, uint creatureId, uint? countArg)
     {
-        var cInfo = handler.ObjectManager.GetCreatureTemplate(creatureId);
+        var cInfo = handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(creatureId);
 
         if (cInfo == null)
         {
@@ -555,7 +555,7 @@ internal class ListCommands
             if (data.MapId != mapId)
                 continue;
 
-            var cTemp = handler.ObjectManager.GetCreatureTemplate(data.Id);
+            var cTemp = handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(data.Id);
 
             if (cTemp == null)
                 continue;

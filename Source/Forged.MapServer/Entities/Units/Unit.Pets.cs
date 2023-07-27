@@ -46,7 +46,7 @@ public partial class Unit
         if (!IsTypeId(TypeId.Player))
             return null;
 
-        var creatureInfo = GameObjectManager.GetCreatureTemplate(creatureEntry);
+        var creatureInfo = GameObjectManager.CreatureTemplateCache.GetCreatureTemplate(creatureEntry);
 
         if (creatureInfo == null)
             return null;

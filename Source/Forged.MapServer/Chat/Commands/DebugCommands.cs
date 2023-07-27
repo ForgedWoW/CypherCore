@@ -994,7 +994,7 @@ internal class DebugCommands
         if (id == 0)
             return handler.Player.SummonCreature(entry, pos) != null;
 
-        var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(entry);
+        var creatureTemplate = handler.ObjectManager.CreatureTemplateCache.GetCreatureTemplate(entry);
 
         if (creatureTemplate == null)
             return false;
