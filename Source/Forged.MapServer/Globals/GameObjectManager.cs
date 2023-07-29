@@ -1189,7 +1189,6 @@ public sealed class GameObjectManager
         _worldManager = _classFactory.Resolve<WorldManager>();
         _terrainManager = _classFactory.Resolve<TerrainManager>();
         _conditionManager = _classFactory.Resolve<ConditionManager>();
-        SpawnDataCacheRouter._areaTriggerDataStorage = _classFactory.Resolve<AreaTriggerDataStorage>();
         _lootStoreBox = _classFactory.Resolve<LootStoreBox>();
         _lfgManager = _classFactory.Resolve<LFGManager>();
         _mapManager = _classFactory.Resolve<MapManager>();
@@ -1422,7 +1421,7 @@ public sealed class GameObjectManager
         do
         {
             var guid = result.Read<ulong>(0);
-            var creData = SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
+            var creData = CreatureDataCache.GetCreatureData(guid);
 
             if (creData == null)
             {
@@ -2316,7 +2315,7 @@ public sealed class GameObjectManager
         {
             var guid = result.Read<ulong>(0);
 
-            var goData = SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(guid);
+            var goData = GameObjectCache.GetGameObjectData(guid);
 
             if (goData == null)
             {
@@ -2493,7 +2492,7 @@ public sealed class GameObjectManager
         do
         {
             var spawnId = result.Read<ulong>(0);
-            var goData = SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(spawnId);
+            var goData = GameObjectCache.GetGameObjectData(spawnId);
 
             if (goData == null)
             {
