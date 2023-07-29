@@ -39,7 +39,7 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
     public void Visit(IList<Creature> objs)
     {
         var cellCoord = Cell.CellCoord;
-        var cellguids = Map.GameObjectManager.GetCellObjectGuids(Map.Id, Map.DifficultyID, cellCoord.GetId());
+        var cellguids = Map.GameObjectManager.MapObjectCache.GetCellObjectGuids(Map.Id, Map.DifficultyID, cellCoord.GetId());
 
         if (cellguids == null || cellguids.Creatures.Empty())
             return;
@@ -50,7 +50,7 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
     public void Visit(IList<GameObject> objs)
     {
         var cellCoord = Cell.CellCoord;
-        var cellguids = Map.GameObjectManager.GetCellObjectGuids(Map.Id, Map.DifficultyID, cellCoord.GetId());
+        var cellguids = Map.GameObjectManager.MapObjectCache.GetCellObjectGuids(Map.Id, Map.DifficultyID, cellCoord.GetId());
 
         if (cellguids == null || cellguids.Gameobjects.Empty())
             return;

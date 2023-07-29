@@ -2202,7 +2202,7 @@ public sealed class ConditionManager
 
                         if (cond.ConditionValue3 != 0)
                         {
-                            var creatureData = _objectManager.GetCreatureData(cond.ConditionValue3);
+                            var creatureData = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(cond.ConditionValue3);
 
                             if (creatureData != null)
                             {
@@ -2232,7 +2232,7 @@ public sealed class ConditionManager
 
                         if (cond.ConditionValue3 != 0)
                         {
-                            var goData = _objectManager.GameObjectCache.GetGameObjectData(cond.ConditionValue3);
+                            var goData = _objectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(cond.ConditionValue3);
 
                             if (goData != null)
                             {

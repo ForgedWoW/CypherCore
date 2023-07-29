@@ -129,7 +129,7 @@ internal class GameObjectCommands
         if (!isGuid.IsEmpty() && isGuid.Equals("guid", StringComparison.OrdinalIgnoreCase))
         {
             spawnId = data;
-            spawnData = handler.ObjectManager.GameObjectCache.GetGameObjectData(spawnId);
+            spawnData = handler.ObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(spawnId);
 
             if (spawnData == null)
             {
@@ -244,7 +244,7 @@ internal class GameObjectCommands
         // update which cell has this gameobject registered for loading
         handler.ObjectManager.RemoveGameObjectFromGrid(obj.GameObjectData);
         obj.SaveToDB();
-        handler.ObjectManager.AddSpawnDataToGrid(obj.GameObjectData);
+        handler.ObjectManager.MapObjectCache.AddSpawnDataToGrid(obj.GameObjectData);
 
         // Generate a completely new spawn with new guid
         // client caches recently deleted objects and brings them back to life
@@ -584,7 +584,7 @@ internal class GameObjectCommands
                 return false;
 
             // TODO: is it really necessary to add both the real and DB table guid here ?
-            handler.ObjectManager.AddSpawnDataToGrid(handler.ObjectManager.GameObjectCache.GetGameObjectData(spawnId));
+            handler.ObjectManager.MapObjectCache.AddSpawnDataToGrid(handler.ObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(spawnId));
             handler.SendSysMessage(CypherStrings.GameobjectAdd, objectId, objectInfo.name, spawnId, player.Location.X, player.Location.Y, player.Location.Z);
 
             return true;

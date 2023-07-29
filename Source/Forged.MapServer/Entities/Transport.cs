@@ -593,7 +593,7 @@ public class Transport : GameObject, ITransport
     private void LoadStaticPassengers()
     {
         var mapId = (uint)Template.MoTransport.SpawnMap;
-        var cells = GameObjectManager.GetMapObjectGuids(mapId, Location.Map.DifficultyID);
+        var cells = GameObjectManager.MapObjectCache.GetMapObjectGuids(mapId, Location.Map.DifficultyID);
 
         if (cells == null)
             return;
@@ -602,11 +602,11 @@ public class Transport : GameObject, ITransport
         {
             // Creatures on transport
             foreach (var npc in cell.Value.Creatures)
-                CreateNPCPassenger(npc, GameObjectManager.GetCreatureData(npc));
+                CreateNPCPassenger(npc, GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(npc));
 
             // GameObjects on transport
             foreach (var go in cell.Value.Gameobjects)
-                CreateGOPassenger(go, GameObjectManager.GameObjectCache.GetGameObjectData(go));
+                CreateGOPassenger(go, GameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(go));
         }
     }
 

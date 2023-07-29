@@ -2800,7 +2800,7 @@ public class SmartScript
 
                         if (equipId != 0)
                         {
-                            var eInfo = _objectManager.GetEquipmentInfo(npc.Entry, equipId);
+                            var eInfo = _objectManager.EquipmentInfoCache.GetEquipmentInfo(npc.Entry, equipId);
 
                             if (eInfo == null)
                             {

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -304,6 +305,7 @@ public class ScriptManager
         ++_scriptCount;
     }
 
+    [RequiresUnreferencedCode("")]
     public void LoadScripts()
     {
         var assemblies = IOHelpers.GetAllAssembliesInDir(_configuration.GetDefaultValue("ScriptsDirectory", Path.Combine(AppContext.BaseDirectory, "Scripts")));

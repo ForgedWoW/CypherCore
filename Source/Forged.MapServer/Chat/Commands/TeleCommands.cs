@@ -302,7 +302,7 @@ internal class TeleCommands
 
                 CreatureData spawnpoint = null;
 
-                foreach (var (id, creatureData) in handler.ObjectManager.AllCreatureData)
+                foreach (var (id, creatureData) in handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.AllCreatureData)
                 {
                     if (id != creatureId)
                         continue;
@@ -360,7 +360,7 @@ internal class TeleCommands
                 if (player == null)
                     return false;
 
-                var spawnpoint = handler.ObjectManager.GetCreatureData(spawnId);
+                var spawnpoint = handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(spawnId);
 
                 if (spawnpoint == null)
                 {

@@ -235,7 +235,7 @@ public class ConversationDataStorage
 
         public bool Invoke(ConversationActorWorldObjectTemplate worldObject)
         {
-            if (_objectManager.GetCreatureData(SpawnId) == null)
+            if (_objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(SpawnId) == null)
             {
                 Log.Logger.Error($"Table `conversation_actors` references an invalid creature guid (GUID: {SpawnId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 

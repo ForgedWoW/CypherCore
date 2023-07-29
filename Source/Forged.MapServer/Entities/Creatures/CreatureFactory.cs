@@ -56,7 +56,7 @@ public class CreatureFactory
 
     public bool DeleteFromDB(ulong spawnId)
     {
-        var data = _objectManager.GetCreatureData(spawnId);
+        var data = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(spawnId);
 
         if (data == null)
             return false;
@@ -79,7 +79,7 @@ public class CreatureFactory
                                           });
 
         // delete data from memory ...
-        _objectManager.DeleteCreatureData(spawnId);
+        _objectManager.SpawnDataCacheRouter.CreatureDataCache.DeleteCreatureData(spawnId);
 
         _characterDatabase.CommitTransaction(trans);
 

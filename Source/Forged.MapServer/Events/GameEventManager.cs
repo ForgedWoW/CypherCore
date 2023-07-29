@@ -10,6 +10,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Pools;
 using Forged.MapServer.World;
@@ -33,6 +34,7 @@ public class GameEventManager
     private readonly IConfiguration _configuration;
     private readonly CreatureFactory _creatureFactory;
     private readonly GameObjectFactory _gameObjectFactory;
+    private readonly MapObjectCache _mapObjectCache;
     private readonly MapManager _mapManager;
     private readonly GameObjectManager _objectManager;
     private readonly PoolManager _poolManager;
@@ -52,7 +54,8 @@ public class GameEventManager
 
     public GameEventManager(WorldManager worldManager, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, CliDB cliDB,
                             BattlegroundManager battlegroundManager, WorldStateManager worldStateManager, MapManager mapManager, GameObjectManager objectManager,
-                            PoolManager poolManager, IConfiguration configuration, CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory)
+                            PoolManager poolManager, IConfiguration configuration, CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory,
+                            MapObjectCache mapObjectCache)
     {
         _worldManager = worldManager;
         _characterDatabase = characterDatabase;
@@ -66,6 +69,7 @@ public class GameEventManager
         _configuration = configuration;
         _creatureFactory = creatureFactory;
         _gameObjectFactory = gameObjectFactory;
+        _mapObjectCache = mapObjectCache;
     }
 
     public List<ushort> GetActiveEventList()
@@ -415,7 +419,7 @@ public class GameEventManager
                     short eventID = result.Read<sbyte>(1);
                     var internalEventID = _gameEvent.Length + eventID - 1;
 
-                    var data = _objectManager.GetCreatureData(guid);
+                    var data = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
 
                     if (data == null)
                     {
@@ -467,7 +471,7 @@ public class GameEventManager
                     short eventID = result.Read<byte>(1);
                     var internalEventID = _gameEvent.Length + eventID - 1;
 
-                    var data = _objectManager.GameObjectCache.GetGameObjectData(guid);
+                    var data = _objectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(guid);
 
                     if (data == null)
                     {
@@ -536,7 +540,7 @@ public class GameEventManager
                     {
                         var equipId = (sbyte)newModelEquipSet.EquipmentID;
 
-                        if (_objectManager.GetEquipmentInfo(entry, equipId) == null)
+                        if (_objectManager.EquipmentInfoCache.GetEquipmentInfo(entry, equipId) == null)
                         {
                             Log.Logger.Error("Table `game_event_model_equip` have creature (Guid: {0}, entry: {1}) with equipment_id {2} not found in table `creature_equip_template`, set to no equipment.",
                                              guid,
@@ -869,7 +873,7 @@ public class GameEventManager
 
                     // get creature entry
                     uint entry = 0;
-                    var data = _objectManager.GetCreatureData(guid);
+                    var data = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
 
                     if (data != null)
                         entry = data.Id;
@@ -1267,7 +1271,7 @@ public class GameEventManager
         foreach (var tuple in _gameEventModelEquip[eventID])
         {
             // Remove the creature from grid
-            var data = _objectManager.GetCreatureData(tuple.Item1);
+            var data = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(tuple.Item1);
 
             if (data == null)
                 continue;
@@ -1308,7 +1312,7 @@ public class GameEventManager
                                               });
 
             // now last step: put in data
-            var data2 = _objectManager.NewOrExistCreatureData(tuple.Item1);
+            var data2 = _objectManager.SpawnDataCacheRouter.CreatureDataCache.NewOrExistCreatureData(tuple.Item1);
 
             if (activate)
             {
@@ -1398,12 +1402,12 @@ public class GameEventManager
         foreach (var guid in GameEventCreatureGuids[internalEventID])
         {
             // Add to correct cell
-            var data = _objectManager.GetCreatureData(guid);
+            var data = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
 
             if (data == null)
                 continue;
 
-            _objectManager.AddSpawnDataToGrid(data);
+            _objectManager.MapObjectCache.AddSpawnDataToGrid(data);
 
             // Spawn if necessary (loaded grids only)
             _mapManager.DoForAllMapsWithMapId(data.MapId,
@@ -1429,12 +1433,12 @@ public class GameEventManager
         foreach (var guid in GameEventGameobjectGuids[internalEventID])
         {
             // Add to correct cell
-            var data = _objectManager.GameObjectCache.GetGameObjectData(guid);
+            var data = _objectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(guid);
 
             if (data == null)
                 continue;
 
-            _objectManager.AddSpawnDataToGrid(data);
+            _objectManager.MapObjectCache.AddSpawnDataToGrid(data);
 
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
@@ -1498,12 +1502,12 @@ public class GameEventManager
                 continue;
 
             // Remove the creature from grid
-            var data = _objectManager.GetCreatureData(guid);
+            var data = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
 
             if (data == null)
                 continue;
 
-            _objectManager.RemoveCreatureFromGrid(data);
+            _mapObjectCache.RemoveSpawnDataFromGrid(data);
 
             _mapManager.DoForAllMapsWithMapId(data.MapId,
                                               map =>
@@ -1532,7 +1536,7 @@ public class GameEventManager
                 continue;
 
             // Remove the gameobject from grid
-            var data = _objectManager.GameObjectCache.GetGameObjectData(guid);
+            var data = _objectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(guid);
 
             if (data == null)
                 continue;
@@ -1787,7 +1791,7 @@ public class GameEventManager
         foreach (var (guid, _) in _gameEventNpcFlags[eventID])
         {
             // get the creature data from the low guid to get the entry, to be able to find out the whole guid
-            var data = _objectManager.GetCreatureData(guid);
+            var data = _objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
 
             if (data != null)
                 creaturesByMap.Add(data.MapId, guid);

@@ -28,7 +28,7 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
     public void Visit(IList<Creature> objs)
     {
         var cellCoord = Cell.CellCoord;
-        var cellGuids = Map.GameObjectManager.GetCellPersonalObjectGuids(Map.Id, Map.DifficultyID, _phaseId, cellCoord.GetId());
+        var cellGuids = Map.GameObjectManager.MapObjectCache.GetCellPersonalObjectGuids(Map.Id, Map.DifficultyID, _phaseId, cellCoord.GetId());
 
         if (cellGuids != null)
             Creatures = LoadHelper<Creature>(cellGuids.Creatures, cellCoord, Map, _phaseId, _phaseOwner);
@@ -37,7 +37,7 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
     public void Visit(IList<GameObject> objs)
     {
         var cellCoord = Cell.CellCoord;
-        var cellGuids = Map.GameObjectManager.GetCellPersonalObjectGuids(Map.Id, Map.DifficultyID, _phaseId, cellCoord.GetId());
+        var cellGuids = Map.GameObjectManager.MapObjectCache.GetCellPersonalObjectGuids(Map.Id, Map.DifficultyID, _phaseId, cellCoord.GetId());
 
         if (cellGuids != null)
             GameObjects = LoadHelper<GameObject>(cellGuids.Gameobjects, cellCoord, Map, _phaseId, _phaseOwner);

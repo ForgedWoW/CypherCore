@@ -98,7 +98,7 @@ internal class GoCommands
         if (!matches.Empty())
         {
             // find the spawn points of any matches
-            foreach (var pair in handler.ObjectManager.AllCreatureData)
+            foreach (var pair in handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.AllCreatureData)
             {
                 var data = pair.Value;
 
@@ -543,7 +543,7 @@ internal class GoCommands
         {
             CreatureData spawnpoint = null;
 
-            foreach (var pair in handler.ObjectManager.AllCreatureData)
+            foreach (var pair in handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.AllCreatureData)
             {
                 if (pair.Value.Id != id)
                     continue;
@@ -571,7 +571,7 @@ internal class GoCommands
         [Command("", RBACPermissions.CommandGo)]
         private static bool HandleGoCreatureSpawnIdCommand(CommandHandler handler, ulong spawnId)
         {
-            var spawnpoint = handler.ObjectManager.GetCreatureData(spawnId);
+            var spawnpoint = handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(spawnId);
 
             if (spawnpoint != null)
                 return DoTeleport(handler, spawnpoint.SpawnPoint, spawnpoint.MapId);
@@ -591,7 +591,7 @@ internal class GoCommands
         {
             GameObjectData spawnpoint = null;
 
-            foreach (var pair in handler.ObjectManager.GameObjectCache.AllGameObjectData)
+            foreach (var pair in handler.ObjectManager.SpawnDataCacheRouter.GameObjectCache.AllGameObjectData)
             {
                 if (pair.Value.Id != goId)
                     continue;
@@ -619,7 +619,7 @@ internal class GoCommands
         [Command("", RBACPermissions.CommandGo)]
         private static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
         {
-            var spawnpoint = handler.ObjectManager.GameObjectCache.GetGameObjectData(spawnId);
+            var spawnpoint = handler.ObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(spawnId);
 
             if (spawnpoint == null)
             {

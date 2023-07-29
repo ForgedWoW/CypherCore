@@ -18,6 +18,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
@@ -49,6 +50,7 @@ public class GameObject : WorldObject
     private readonly List<ObjectGuid> _uniqueUsers = new();
     private ushort _animKitId;
     private long _cooldownTime;
+    private CreatureDataCache _creatureDataCache;
     private uint _despawnDelay;
     private TimeSpan _despawnRespawnTime;
     private uint? _gossipMenuId;
@@ -70,7 +72,8 @@ public class GameObject : WorldObject
     private uint _spellId;
 
     public GameObject(LootFactory lootFactory, ClassFactory classFactory, LootStoreBox lootStoreBox, PoolManager poolManager,
-                      DB2Manager db2Manager, WorldDatabase worldDatabase, LootManager lootManager, OutdoorPvPManager outdoorPvPManager) : base(false, classFactory)
+                      DB2Manager db2Manager, WorldDatabase worldDatabase, LootManager lootManager, OutdoorPvPManager outdoorPvPManager,
+                      CreatureDataCache creatureDataCache) : base(false, classFactory)
     {
         LootFactory = lootFactory;
         LootStoreBox = lootStoreBox;
@@ -79,6 +82,7 @@ public class GameObject : WorldObject
         WorldDatabase = worldDatabase;
         LootManager = lootManager;
         OutdoorPvPManager = outdoorPvPManager;
+        _creatureDataCache = creatureDataCache;
         ObjectTypeMask |= TypeMask.GameObject;
         ObjectTypeId = TypeId.GameObject;
 
@@ -156,7 +160,7 @@ public class GameObject : WorldObject
         set
         {
             SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ArtKit), value);
-            var data = GameObjectManager.GameObjectCache.GetGameObjectData(SpawnId);
+            var data = GameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(SpawnId);
 
             if (data != null)
                 data.ArtKit = value;
@@ -1282,7 +1286,7 @@ public class GameObject : WorldObject
 
     public override bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool unused = true)
     {
-        var data = GameObjectManager.GameObjectCache.GetGameObjectData(spawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(spawnId);
 
         if (data == null)
         {
@@ -1571,7 +1575,7 @@ public class GameObject : WorldObject
     {
         // this should only be used when the gameobject has already been loaded
         // preferably after adding to map, because mapid may not be valid otherwise
-        var data = GameObjectManager.GameObjectCache.GetGameObjectData(SpawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(SpawnId);
 
         if (data == null)
         {
@@ -1601,7 +1605,7 @@ public class GameObject : WorldObject
             SpawnId = GameObjectManager.GenerateGameObjectSpawnId();
 
         // update in loaded data (changing data only in this place)
-        var data = GameObjectManager.GameObjectCache.NewOrExistGameObjectData(SpawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.GameObjectCache.NewOrExistGameObjectData(SpawnId);
 
         if (data.SpawnId == 0)
             data.SpawnId = SpawnId;
@@ -1831,7 +1835,7 @@ public class GameObject : WorldObject
             data = go.GameObjectData;
         }
         else if (lowguid != 0)
-            data = GameObjectManager.GameObjectCache.GetGameObjectData(lowguid);
+            data = GameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(lowguid);
 
         if (data != null)
             data.ArtKit = artkit;
@@ -2111,7 +2115,7 @@ public class GameObject : WorldObject
 
                             if (linkedRespawntime != 0) // Can't respawn, the master is dead
                             {
-                                var targetGuid = GameObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
+                                var targetGuid = CreatureDataCache.GetLinkedRespawnGuid(dbtableHighGuid);
 
                                 if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                                     SetRespawnTime(Time.WEEK);

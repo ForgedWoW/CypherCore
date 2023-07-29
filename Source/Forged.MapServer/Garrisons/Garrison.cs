@@ -891,7 +891,7 @@ public class Garrison
             }
 
             if (go.GoType == GameObjectTypes.GarrisonBuilding && go.Template.GarrisonBuilding.SpawnMap != 0)
-                foreach (var cellGuids in _gameObjectManager.GetMapObjectGuids((uint)go.Template.GarrisonBuilding.SpawnMap, map.DifficultyID))
+                foreach (var cellGuids in _gameObjectManager.MapObjectCache.GetMapObjectGuids((uint)go.Template.GarrisonBuilding.SpawnMap, map.DifficultyID))
                 {
                     foreach (var spawnId in cellGuids.Value.Creatures)
                     {

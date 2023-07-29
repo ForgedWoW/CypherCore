@@ -358,16 +358,21 @@ void RegisterCaches()
 {
     builder.RegisterType<AccessRequirementsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<AreaTriggerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CreatureDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureModelCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureMovementOverrideCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<EquipmentInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ExplorationExpCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameObjectTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameTeleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<InstanceTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ItemTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<MapObjectCache>().SingleInstance();
+    builder.RegisterType<MapSpawnGroupCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PageTextCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<SpawnDataCacheRouter>().SingleInstance();
     builder.RegisterType<SpawnGroupDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpellClickInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<VehicleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());

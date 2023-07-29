@@ -123,7 +123,7 @@ public class FormationMgr
 
             // check data correctness
             {
-                if (_objectManager.GetCreatureData(member.LeaderSpawnId) == null)
+                if (_objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(member.LeaderSpawnId) == null)
                 {
                     if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
@@ -133,7 +133,7 @@ public class FormationMgr
                     continue;
                 }
 
-                if (_objectManager.GetCreatureData(memberSpawnId) == null)
+                if (_objectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(memberSpawnId) == null)
                 {
                     if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");

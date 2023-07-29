@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
@@ -36,7 +37,7 @@ namespace Forged.MapServer.Entities.Creatures;
 public partial class Creature : Unit
 {
     private readonly ItemTemplateCache _itemTemplateCache;
-
+    private readonly CreatureDataCache _creatureDataCache;
     public Creature(ClassFactory classFactory) : this(false, classFactory)
     {
     }
@@ -53,6 +54,7 @@ public partial class Creature : Unit
         FormationManager = classFactory.Resolve<FormationMgr>();
         CreatureTextManager = classFactory.Resolve<CreatureTextManager>();
         _itemTemplateCache = classFactory.Resolve<ItemTemplateCache>();
+        _creatureDataCache = classFactory.Resolve<CreatureDataCache>();
         RespawnDelay = 300;
         CorpseDelay = 60;
         _boundaryCheckTime = 2500;
@@ -1385,7 +1387,7 @@ public partial class Creature : Unit
             return;
         }
 
-        var einfo = GameObjectManager.GetEquipmentInfo(Entry, id);
+        var einfo = GameObjectManager.EquipmentInfoCache.GetEquipmentInfo(Entry, id);
 
         if (einfo == null)
             return;
@@ -1422,7 +1424,7 @@ public partial class Creature : Unit
                 despawnCreature.Location.AddObjectToRemoveList();
         }
 
-        var data = GameObjectManager.GetCreatureData(spawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(spawnId);
 
         if (data == null)
         {
@@ -1846,7 +1848,7 @@ public partial class Creature : Unit
     {
         // this should only be used when the creature has already been loaded
         // preferably after adding to map, because mapid may not be valid otherwise
-        var data = GameObjectManager.GetCreatureData(SpawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(SpawnId);
 
         if (data == null)
         {
@@ -1871,7 +1873,7 @@ public partial class Creature : Unit
         if (SpawnId == 0)
             SpawnId = GameObjectManager.GenerateCreatureSpawnId();
 
-        var data = GameObjectManager.NewOrExistCreatureData(SpawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.NewOrExistCreatureData(SpawnId);
 
         var displayId = NativeDisplayId;
         var npcflag = ((ulong)UnitData.NpcFlags[1] << 32) | UnitData.NpcFlags[0];
@@ -2584,7 +2586,7 @@ public partial class Creature : Unit
                         Respawn();
                     else // the master is dead
                     {
-                        var targetGuid = GameObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
+                        var targetGuid = _creatureDataCache.GetLinkedRespawnGuid(dbtableHighGuid);
 
                         if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(Time.WEEK);

@@ -28,7 +28,7 @@ public class MultiPersonalPhaseTracker
             if (!phaseRef.Value.IsPersonal())
                 continue;
 
-            if (!map.GameObjectManager.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
+            if (!map.GameObjectManager.MapObjectCache.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
                 continue;
 
             if (playerTracker.IsGridLoadedForPhase(grid.GridId, phaseRef.Key))

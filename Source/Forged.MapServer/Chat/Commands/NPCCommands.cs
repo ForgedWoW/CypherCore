@@ -191,7 +191,7 @@ internal class NPCCommands
         handler.SendSysMessage(CypherStrings.NpcinfoLoot, cInfo.LootId, cInfo.PickPocketId, cInfo.SkinLootId);
         handler.SendSysMessage(CypherStrings.NpcinfoDungeonId, target.InstanceId);
 
-        var data = handler.ObjectManager.GetCreatureData(target.SpawnId);
+        var data = handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(target.SpawnId);
 
         if (data != null)
             handler.SendSysMessage(CypherStrings.NpcinfoPhases, data.PhaseId, data.PhaseGroup);
@@ -244,7 +244,7 @@ internal class NPCCommands
         var lowguid = spawnId ?? creature.SpawnId;
 
         // Attempting creature load from DB data
-        var data = handler.ObjectManager.GetCreatureData(lowguid);
+        var data = handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(lowguid);
 
         if (data == null)
         {
@@ -260,9 +260,9 @@ internal class NPCCommands
             return false;
         }
 
-        handler.ObjectManager.RemoveCreatureFromGrid(data);
+        handler.ClassFactory.Resolve<MapObjectCache>().RemoveSpawnDataFromGrid(data);
         data.SpawnPoint.Relocate(player.Location);
-        handler.ObjectManager.AddSpawnDataToGrid(data);
+        handler.ObjectManager.MapObjectCache.AddSpawnDataToGrid(data);
 
         // update position in DB
         var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
@@ -639,7 +639,7 @@ internal class NPCCommands
             if (trans != null)
             {
                 var guid = handler.Session.Player.GameObjectManager.GenerateCreatureSpawnId();
-                var data = handler.Session.Player.GameObjectManager.NewOrExistCreatureData(guid);
+                var data = handler.Session.Player.GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.NewOrExistCreatureData(guid);
                 data.SpawnId = guid;
                 data.SpawnGroupData = handler.Session.Player.GameObjectManager.SpawnGroupDataCache.GetDefaultSpawnGroup();
                 data.Id = id;
@@ -656,7 +656,7 @@ internal class NPCCommands
                                                    map.DifficultyID
                                                });
 
-                    handler.Session.Player.GameObjectManager.AddSpawnDataToGrid(data);
+                    handler.Session.Player.GameObjectManager.MapObjectCache.AddSpawnDataToGrid(data);
                 }
 
                 return true;
@@ -685,7 +685,7 @@ internal class NPCCommands
             if (creature == null)
                 return false;
 
-            handler.Session.Player.GameObjectManager.AddSpawnDataToGrid(handler.Session.Player.GameObjectManager.GetCreatureData(dbGUID));
+            handler.Session.Player.GameObjectManager.MapObjectCache.AddSpawnDataToGrid(handler.Session.Player.GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(dbGUID));
 
             return true;
         }
@@ -739,7 +739,7 @@ internal class NPCCommands
         private static bool HandleNpcAddMoveCommand(CommandHandler handler, ulong lowGuid)
         {
             // attempt check creature existence by DB data
-            var data = handler.ObjectManager.GetCreatureData(lowGuid);
+            var data = handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(lowGuid);
 
             if (data == null)
             {
@@ -1155,7 +1155,7 @@ internal class NPCCommands
                 return false;
             }
 
-            if (!handler.ObjectManager.SetCreatureLinkedRespawn(creature.SpawnId, linkguid))
+            if (!handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.SetCreatureLinkedRespawn(creature.SpawnId, linkguid))
             {
                 handler.SendSysMessage("Selected creature can't link with guid '{0}'", linkguid);
 
@@ -1228,7 +1228,7 @@ internal class NPCCommands
                 // attempt check creature existence by DB data
                 if (creature == null)
                 {
-                    var data = handler.ObjectManager.GetCreatureData(lowguid);
+                    var data = handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(lowguid);
 
                     if (data == null)
                     {

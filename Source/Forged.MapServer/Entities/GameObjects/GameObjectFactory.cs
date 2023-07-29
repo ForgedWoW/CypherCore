@@ -47,7 +47,7 @@ public class GameObjectFactory
 
     public bool DeleteFromDB(ulong spawnId)
     {
-        var data = _objectManager.GameObjectCache.GetGameObjectData(spawnId);
+        var data = _objectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(spawnId);
 
         if (data == null)
             return false;
@@ -65,7 +65,7 @@ public class GameObjectFactory
                                           });
 
         // delete data from memory
-        _objectManager.GameObjectCache.DeleteGameObjectData(spawnId);
+        _objectManager.SpawnDataCacheRouter.GameObjectCache.DeleteGameObjectData(spawnId);
 
         trans = new SQLTransaction();
 

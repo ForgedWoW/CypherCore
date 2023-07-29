@@ -28,6 +28,7 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Interfaces;
@@ -120,6 +121,7 @@ public class Map : IDisposable
         WaypointManager = classFactory.Resolve<WaypointManager>();
         PhasingHandler = classFactory.Resolve<PhasingHandler>();
         MapSpawnGroupCache = classFactory.Resolve<MapSpawnGroupCache>();
+        CreatureDataCache = classFactory.Resolve<CreatureDataCache>();
         _scriptManager = classFactory.Resolve<ScriptManager>();
         
 
@@ -184,6 +186,7 @@ public class Map : IDisposable
     public CliDB CliDB { get; }
     public ConditionManager ConditionManager { get; }
     public IConfiguration Configuration { get; }
+    public CreatureDataCache CreatureDataCache { get; }
     public ConcurrentMultiMap<ulong, Creature> CreatureBySpawnIdStore { get; } = new();
     public Dictionary<ulong, CreatureGroup> CreatureGroupHolder { get; set; } = new();
     public DB2Manager DB2Manager { get; }
@@ -587,7 +590,7 @@ public class Map : IDisposable
                 return;
         }
 
-        var data = GameObjectManager.GetSpawnMetadata(type, spawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.GetSpawnMetadata(type, spawnId);
 
         if (data == null)
             return;
@@ -1121,7 +1124,7 @@ public class Map : IDisposable
 
     public long GetLinkedRespawnTime(ObjectGuid guid)
     {
-        var linkedGuid = GameObjectManager.GetLinkedRespawnGuid(guid);
+        var linkedGuid = CreatureDataCache.GetLinkedRespawnGuid(guid);
 
         return linkedGuid.High switch
         {
@@ -1566,7 +1569,7 @@ public class Map : IDisposable
 
             if (SpawnMetadata.TypeHasData(type))
             {
-                var data = GameObjectManager.GetSpawnData(type, spawnId);
+                var data = GameObjectManager.SpawnDataCacheRouter.GetSpawnData(type, spawnId);
 
                 if (data != null)
                     SaveRespawnTime(type, spawnId, data.Id, respawnTime, GridDefines.ComputeGridCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId(), null, true);
@@ -1914,7 +1917,7 @@ public class Map : IDisposable
 
     public void SaveRespawnTime(SpawnObjectType type, ulong spawnId, uint entry, long respawnTime, uint gridId = 0, SQLTransaction dbTrans = null, bool startup = false)
     {
-        var data = GameObjectManager.GetSpawnMetadata(type, spawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.GetSpawnMetadata(type, spawnId);
 
         if (data == null)
         {
@@ -2968,7 +2971,7 @@ public class Map : IDisposable
 
     private bool CheckRespawn(RespawnInfo info)
     {
-        var data = GameObjectManager.GetSpawnData(info.ObjectType, info.SpawnId);
+        var data = GameObjectManager.SpawnDataCacheRouter.GetSpawnData(info.ObjectType, info.SpawnId);
 
         // First, check if this creature's spawn group is inactive
         if (!IsSpawnGroupActive(data.SpawnGroupData.GroupId))
@@ -3025,7 +3028,7 @@ public class Map : IDisposable
 
         if (linkedTime == long.MaxValue)
             respawnTime = linkedTime;
-        else if (GameObjectManager.GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
+        else if (CreatureDataCache.GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
             respawnTime = now + Time.WEEK;
         else // set us to check again shortly after linked unit
             respawnTime = Math.Max(now, linkedTime) + RandomHelper.URand(5, 15);
@@ -4773,7 +4776,7 @@ public class Map : IDisposable
         if (GetRespawnTime(type, spawnId) != 0)
             return false;
 
-        var spawnData = GameObjectManager.GetSpawnMetadata(type, spawnId);
+        var spawnData = GameObjectManager.SpawnDataCacheRouter.GetSpawnMetadata(type, spawnId);
         // check if the object is part of a spawn group
         var spawnGroup = spawnData.SpawnGroupData;
 

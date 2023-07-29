@@ -479,7 +479,7 @@ internal class ListCommands
 
             foreach (var ri in respawns)
             {
-                var data = handler.ObjectManager.GetSpawnMetadata(ri.ObjectType, ri.SpawnId);
+                var data = handler.ObjectManager.SpawnDataCacheRouter.GetSpawnMetadata(ri.ObjectType, ri.SpawnId);
 
                 if (data == null)
                     continue;
@@ -548,7 +548,7 @@ internal class ListCommands
         var showAll = map.IsBattlegroundOrArena || map.IsDungeon;
         handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.MapName}){(showAll ? "" : " within 5000yd")}:");
 
-        foreach (var pair in handler.ObjectManager.AllCreatureData)
+        foreach (var pair in handler.ObjectManager.SpawnDataCacheRouter.CreatureDataCache.AllCreatureData)
         {
             SpawnData data = pair.Value;
 
@@ -564,7 +564,7 @@ internal class ListCommands
                 handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.X:3} | Y: {data.SpawnPoint.Y:3} | Z: {data.SpawnPoint.Z:3}");
         }
 
-        foreach (var pair in handler.ObjectManager.GameObjectCache.AllGameObjectData)
+        foreach (var pair in handler.ObjectManager.SpawnDataCacheRouter.GameObjectCache.AllGameObjectData)
         {
             SpawnData data = pair.Value;
 

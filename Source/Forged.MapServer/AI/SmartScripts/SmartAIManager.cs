@@ -370,7 +370,7 @@ public class SmartAIManager
                 {
                     case SmartScriptType.Creature:
                     {
-                        var creature = _gameObjectManager.GetCreatureData((ulong)-temp.EntryOrGuid);
+                        var creature = _gameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData((ulong)-temp.EntryOrGuid);
 
                         if (creature == null)
                         {
@@ -408,7 +408,7 @@ public class SmartAIManager
                     }
                     case SmartScriptType.GameObject:
                     {
-                        var gameObject = _gameObjectManager.GameObjectCache.GetGameObjectData((ulong)-temp.EntryOrGuid);
+                        var gameObject = _gameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData((ulong)-temp.EntryOrGuid);
 
                         if (gameObject == null)
                         {
@@ -1441,7 +1441,7 @@ public class SmartAIManager
                         return false;
                     }
 
-                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.GetCreatureData(e.Event.Distance.GUID) == null)
+                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(e.Event.Distance.GUID) == null)
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid {0}, skipped.", e.Event.Distance.GUID);
 
@@ -1472,7 +1472,7 @@ public class SmartAIManager
                         return false;
                     }
 
-                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.GameObjectCache.GetGameObjectData(e.Event.Distance.GUID) == null)
+                    if (e.Event.Distance.GUID != 0 && _gameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(e.Event.Distance.GUID) == null)
                     {
                         Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid {0}, skipped.", e.Event.Distance.GUID);
 
@@ -1784,7 +1784,7 @@ public class SmartAIManager
 
                     ulong guid = e.Action.CrossCast.TargetParam1;
                     var spawnType = targetType == SmartTargets.CreatureGuid ? SpawnObjectType.Creature : SpawnObjectType.GameObject;
-                    var data = _gameObjectManager.GetSpawnData(spawnType, guid);
+                    var data = _gameObjectManager.SpawnDataCacheRouter.GetSpawnData(spawnType, guid);
 
                     if (data == null)
                     {
@@ -2111,7 +2111,7 @@ public class SmartAIManager
                 {
                     var equipId = (sbyte)e.Action.Equip.Entry;
 
-                    if (equipId != 0 && _gameObjectManager.GetEquipmentInfo((uint)e.EntryOrGuid, equipId) == null)
+                    if (equipId != 0 && _gameObjectManager.EquipmentInfoCache.GetEquipmentInfo((uint)e.EntryOrGuid, equipId) == null)
                     {
                         Log.Logger.Error("SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id {0} for creature {1}, skipped.", equipId, e.EntryOrGuid);
 
@@ -2205,7 +2205,7 @@ public class SmartAIManager
             }
             case SmartActions.RespawnBySpawnId:
             {
-                if (_gameObjectManager.GetSpawnData((SpawnObjectType)e.Action.RespawnData.SpawnType, e.Action.RespawnData.SpawnId) == null)
+                if (_gameObjectManager.SpawnDataCacheRouter.GetSpawnData((SpawnObjectType)e.Action.RespawnData.SpawnType, e.Action.RespawnData.SpawnId) == null)
                 {
                     Log.Logger.Error($"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} specifies invalid spawn data ({e.Action.RespawnData.SpawnType},{e.Action.RespawnData.SpawnId})");
 
@@ -2698,7 +2698,7 @@ public class SmartAIManager
                     return false;
 
                 ulong guid = e.Target.UnitGUID.DBGuid;
-                var data = _gameObjectManager.GetCreatureData(guid);
+                var data = _gameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
 
                 if (data == null)
                 {
@@ -2722,7 +2722,7 @@ public class SmartAIManager
                     return false;
 
                 ulong guid = e.Target.GoGUID.DBGuid;
-                var data = _gameObjectManager.GameObjectCache.GetGameObjectData(guid);
+                var data = _gameObjectManager.SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(guid);
 
                 if (data == null)
                 {
@@ -2855,7 +2855,7 @@ public class SmartAIManager
                     if (e.EntryOrGuid < 0)
                     {
                         var guid = (ulong)-e.EntryOrGuid;
-                        var data = _gameObjectManager.GetCreatureData(guid);
+                        var data = _gameObjectManager.SpawnDataCacheRouter.CreatureDataCache.GetCreatureData(guid);
 
                         if (data == null)
                         {
