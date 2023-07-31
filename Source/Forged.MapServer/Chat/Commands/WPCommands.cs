@@ -979,7 +979,7 @@ internal class WpCommands
             return true;
         }
 
-        var addon = handler.ObjectManager.GetCreatureAddon(guidLow);
+        var addon = handler.ObjectManager.CreatureAddonCache.GetCreatureAddon(guidLow);
 
         if (addon == null || addon.PathId == 0)
         {

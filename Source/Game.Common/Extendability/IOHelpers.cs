@@ -65,7 +65,7 @@ public static class IOHelpers
         return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == inter) || type.GetInterfaces().Any(i => i == inter);
     }
 
-    public static List<Assembly> GetAllAssembliesInDir(string path, bool loadGameAssembly = true, bool loadScriptsDll = true)
+    public static List<Assembly> GetAllAssembliesInDir(string path = null, bool loadGameAssembly = true, bool loadScriptsDll = true)
     {
         path ??= ".\\Scripts";
         var assemblies = new List<Assembly>();

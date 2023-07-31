@@ -2,10 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Autofac;
 using Autofac.Core;
+using Game.Common.Extendability;
 
 namespace Game.Common
 {
@@ -71,6 +73,24 @@ namespace Game.Common
                 0 or 99 => Activator.CreateInstance(typeof(T)) as T,
                 _       => Activator.CreateInstance(typeof(T), args.Combine(constructor.GetParameters().Where(p => p.ParameterType.IsClass).Select(param => Container.Resolve(param.ParameterType)).ToArray())) as T
             };
+        }
+
+        public IEnumerable<T> ResolveAllNonRegistered<T>(string scriptDir = null)
+        {
+            var assemblies = IOHelpers.GetAllAssembliesInDir(scriptDir);
+
+            foreach (var type in from assembly in assemblies from type in assembly.GetTypes() where IOHelpers.DoesTypeSupportInterface(type, typeof(T)) select type)
+            {
+
+                var constructors = type.GetConstructors();
+                var highest = constructors.OrderByDescending(x => x.GetParameters().Length).First();
+
+                yield return highest.GetParameters().Length switch
+                {
+                    0 or 99 => (T)Activator.CreateInstance(type),
+                    _       => (T)Activator.CreateInstance(type, highest.GetParameters().Where(p => p.ParameterType.IsClass).Select(param => Container.Resolve(param.ParameterType)).ToArray())
+                };
+            }
         }
     }
 }

@@ -233,7 +233,7 @@ public partial class Creature
                 return GameObjectManager.GetCreatureTemplateAddon(Template.Entry);
 
             // dependent from difficulty mode entry
-            return GameObjectManager.GetCreatureAddon(SpawnId) ?? GameObjectManager.GetCreatureTemplateAddon(Template.Entry);
+            return GameObjectManager.CreatureAddonCache.GetCreatureAddon(SpawnId) ?? GameObjectManager.GetCreatureTemplateAddon(Template.Entry);
         }
     }
 

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Autofac;
@@ -85,13 +84,12 @@ var configuration = configBuilder.Build() as IConfiguration;
 var dataPath = configuration.GetDefaultValue("DataDir", "./");
 
 IContainer container = null;
-BitSet localeMask = null;
 var builder = new ContainerBuilder();
 builder.RegisterInstance(configuration).As<IConfiguration>().SingleInstance();
 
 var hotfixDatabase = new HotfixDatabase(configuration);
 var cliDB = new CliDB(hotfixDatabase); 
-localeMask = cliDB.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
+var localeMask = cliDB.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
 cliDB.LoadGameTables(dataPath, builder);
 
 builder.RegisterInstance(cliDB).As<CliDB>().SingleInstance();
@@ -358,6 +356,7 @@ void RegisterCaches()
 {
     builder.RegisterType<AccessRequirementsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<AreaTriggerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CreatureAddonCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureModelCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureMovementOverrideCache>().SingleInstance().OnActivated(c => c.Instance.Load());

@@ -21,8 +21,10 @@ using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
+using Framework.Util;
 using Game.Common;
 using Game.Common.Extendability;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Spells;
@@ -36,6 +38,7 @@ public sealed class SpellManager
     private readonly BattlePetData _battlePetData;
     private readonly ClassFactory _classFactory;
     private readonly ItemTemplateCache _itemTemplateCache;
+    private readonly IConfiguration _configuration;
 
     private readonly CliDB _cliDB;
 
@@ -107,7 +110,7 @@ public sealed class SpellManager
     private readonly WorldDatabase _worldDatabase;
 
     public SpellManager(GameObjectManager objectManager, CliDB cliDB, WorldDatabase worldDatabase, DB2Manager db2Manager, LanguageManager languageManager, 
-                        BattlePetData battlePetData, ClassFactory classFactory, ItemTemplateCache itemTemplateCache)
+                        BattlePetData battlePetData, ClassFactory classFactory, ItemTemplateCache itemTemplateCache, IConfiguration configuration)
     {
         _objectManager = objectManager;
         _cliDB = cliDB;
@@ -117,6 +120,7 @@ public sealed class SpellManager
         _battlePetData = battlePetData;
         _classFactory = classFactory;
         _itemTemplateCache = itemTemplateCache;
+        _configuration = configuration;
         var currentAsm = Assembly.GetExecutingAssembly();
 
         foreach (var type in currentAsm.GetTypes())
@@ -1627,7 +1631,7 @@ public sealed class SpellManager
     {
         var oldMSTime = Time.MSTime;
 
-        foreach (var fix in IOHelpers.GetAllObjectsFromAssemblies<ISpellManagerSpellFix>(Path.Combine(AppContext.BaseDirectory, "Scripts")))
+        foreach (var fix in _classFactory.ResolveAllNonRegistered<ISpellManagerSpellFix>(_configuration.GetDefaultValue("ScriptsDirectory", "./Scripts")))
             ApplySpellFix(fix.SpellIds, fix.ApplySpellFix);
 
         // TODO: Pandaros - Move this to a spell fix scripts
@@ -3874,7 +3878,7 @@ public sealed class SpellManager
 
     public void LoadSpellInfosLateFix()
     {
-        foreach (var fix in IOHelpers.GetAllObjectsFromAssemblies<ISpellManagerSpellLateFix>(Path.Combine(AppContext.BaseDirectory, "Scripts")))
+        foreach (var fix in _classFactory.ResolveAllNonRegistered<ISpellManagerSpellLateFix>(_configuration.GetDefaultValue("ScriptsDirectory", "./Scripts")))
             ApplySpellFix(fix.SpellIds, fix.ApplySpellFix);
     }
 
