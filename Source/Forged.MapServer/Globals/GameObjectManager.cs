@@ -111,13 +111,11 @@ public sealed class GameObjectManager
     private AzeriteItemFactory _azeriteItemFactory;
     private ConditionManager _conditionManager;
     private DB2Manager _db2Manager;
-    private DisableManager _disableManager;
     private GridDefines _gridDefines;
     private uint _hiPetNumber;
     private ItemFactory _itemFactory;
     private LFGManager _lfgManager;
     private LootStoreBox _lootStoreBox;
-    private MapManager _mapManager;
     private ObjectAccessor _objectAccessor;
     private PhasingHandler _phasingHandler;
     private uint[] _playerXPperLevel;

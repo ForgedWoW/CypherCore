@@ -129,9 +129,6 @@ void InitializeServer()
     container.Resolve<DisableManager>().CheckQuestDisables();
     container.Resolve<SpellManager>().LoadSpellAreas();
     container.Resolve<LFGManager>().LoadLFGDungeons();
-    gom.LoadSpellScripts(); // must be after load Creature/Gameobject(Template/Data)
-    gom.LoadEventScripts(); // must be after load Creature/Gameobject(Template/Data)
-    gom.LoadWaypointScripts();
     gom.LoadSpellScriptNames();
     sm.Initialize();
     gom.ValidateSpellScripts();
