@@ -7993,7 +7993,7 @@ public sealed class GameObjectManager
 
                 case ScriptCommands.RespawnGameobject:
                 {
-                    var data = SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(tmp.RespawnGameObject.GOGuid);
+                    var data = GameObjectCache.GetGameObjectData(tmp.RespawnGameObject.GOGuid);
 
                     if (data == null)
                     {
@@ -8077,7 +8077,7 @@ public sealed class GameObjectManager
                 case ScriptCommands.OpenDoor:
                 case ScriptCommands.CloseDoor:
                 {
-                    var data = SpawnDataCacheRouter.GameObjectCache.GetGameObjectData(tmp.ToggleDoor.GOGuid);
+                    var data = GameObjectCache.GetGameObjectData(tmp.ToggleDoor.GOGuid);
 
                     if (data == null)
                     {
