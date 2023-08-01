@@ -379,6 +379,7 @@ void RegisterCaches()
     builder.RegisterType<PageTextCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PointOfInterestCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<QuestTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<ScriptLoader>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpawnDataCacheRouter>().SingleInstance();
     builder.RegisterType<SpawnGroupDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpellClickInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());

@@ -130,6 +130,7 @@ public sealed class GameObjectManager
     private readonly ItemTemplateCache _itemTemplateCache;
     private readonly IdGeneratorCache _idGeneratorCache;
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
+    private readonly ScriptLoader _scriptLoader;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -210,14 +211,13 @@ public sealed class GameObjectManager
 
     public QuestTemplateCache QuestTemplateCache { get; }
 
-    public IdGeneratorCache IDGeneratorCache
-    {
-        get { return _idGeneratorCache; }
-    }
+    public IdGeneratorCache IDGeneratorCache => _idGeneratorCache;
 
-    public FactionChangeTitleCache FactionChangeTitleCache
+    public FactionChangeTitleCache FactionChangeTitleCache => _factionChangeTitleCache;
+
+    public ScriptLoader ScriptLoader
     {
-        get { return _factionChangeTitleCache; }
+        get { return _scriptLoader; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -955,17 +955,6 @@ public sealed class GameObjectManager
         return _sceneTemplateStorage.LookupByKey(sceneId);
     }
 
-    public string GetScriptsTableNameByType(ScriptsType type)
-    {
-        return type switch
-        {
-            ScriptsType.Spell => "spell_scripts",
-            ScriptsType.Event => "event_scripts",
-            ScriptsType.Waypoint => "waypoint_scripts",
-            _ => ""
-        };
-    }
-
     public SkillTiersEntry GetSkillTier(uint skillTierId)
     {
         return _skillTiers.LookupByKey(skillTierId);
@@ -1070,12 +1059,10 @@ public sealed class GameObjectManager
         _phasingHandler = _classFactory.Resolve<PhasingHandler>();
 
         FillSpellSummary();
-        IDGeneratorCache.Load();
 
         if (!LoadCypherStrings())
             Environment.Exit(1);
-
-        CreatureLocaleCache.Load();
+        
         LoadGameObjectLocales();
         LoadQuestTemplateLocale();
         LoadQuestOfferRewardLocale();
@@ -1091,15 +1078,12 @@ public sealed class GameObjectManager
         LoadReputationRewardRate();
         LoadReputationOnKill();
         LoadReputationSpilloverTemplate();
-        PointOfInterestCache.Load();
-        CreatureBaseStatsCache.Load();
         LoadTempSummons(); // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
         LoadInstanceSpawnGroups();
         LoadGameObjectAddons(); // must be after LoadGameObjects()
         LoadGameObjectOverrides(); // must be after LoadGameObjects()
         LoadGameObjectQuestItems();
         LoadCreatureQuestItems();
-        QuestTemplateCache.Load();
         LoadQuestPOI();
         LoadQuestStartersAndEnders(); // must be after quest load
         LoadQuestGreetings();
@@ -1122,18 +1106,14 @@ public sealed class GameObjectManager
         LoadSkillTiers();
         LoadReservedPlayersNames();
         LoadGameObjectForQuests();
-        TrainerCache.Load(); // must be after load CreatureTemplate
         LoadGossipMenu();
-        GossipMenuItemsCache.Load();
         LoadGossipMenuAddon();
-        CreatureDefaultTrainersCache.Load(); // must be after LoadGossipMenuItems
         LoadPhases();
         LoadFactionChangeAchievements();
         LoadFactionChangeSpells();
         LoadFactionChangeItems();
         LoadFactionChangeQuests();
         LoadFactionChangeReputations();
-        FactionChangeTitleCache.Load();
         ReturnOrDeleteOldMails(false);
         InitializeQueriesData(QueryDataGroup.All);
         LoadRaceAndClassExpansionRequirements();
@@ -1592,59 +1572,6 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} CypherStrings in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 
         return true;
-    }
-
-    public void LoadEventScripts()
-    {
-        LoadScripts(ScriptsType.Event);
-
-        List<uint> evtScripts = new();
-
-        // Load all possible script entries from gameobjects
-        foreach (var go in GameObjectTemplateCache.GameObjectTemplates)
-        {
-            var eventId = go.Value.GetEventScriptId();
-
-            if (eventId != 0)
-                evtScripts.Add(eventId);
-        }
-
-        // Load all possible script entries from spells
-        foreach (var spellNameEntry in _cliDB.SpellNameStorage.Values)
-        {
-            var spell = _spellManager.GetSpellInfo(spellNameEntry.Id);
-
-            if (spell == null)
-                continue;
-
-            evtScripts.AddRange(from spellEffectInfo in spell.Effects 
-                                where spellEffectInfo.IsEffectName(SpellEffectName.SendEvent) 
-                                where spellEffectInfo.MiscValue != 0 
-                                select (uint)spellEffectInfo.MiscValue);
-        }
-
-        foreach (var pathIdx in _cliDB.TaxiPathNodesByPath)
-            for (uint nodeIdx = 0; nodeIdx < pathIdx.Value.Length; ++nodeIdx)
-            {
-                var node = pathIdx.Value[nodeIdx];
-
-                if (node.ArrivalEventID != 0)
-                    evtScripts.Add(node.ArrivalEventID);
-
-                if (node.DepartureEventID != 0)
-                    evtScripts.Add(node.DepartureEventID);
-            }
-
-        // Then check if all scripts are in above list of possible script entries
-        foreach (var script in _scriptManager.EventScripts)
-        {
-            var id = evtScripts.Find(p => p == script.Key);
-
-            if (id == 0)
-                Log.Logger.Error("Table `event_scripts` has script (Id: {0}) not referring to any gameobject_template type 10 data2 field, type 3 data6 field, type 13 data 2 field or any spell effect {1}",
-                                 script.Key,
-                                 SpellEffectName.SendEvent);
-        }
     }
 
     //Faction Change
@@ -5193,38 +5120,6 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} spell script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    public void LoadSpellScripts()
-    {
-        LoadScripts(ScriptsType.Spell);
-
-        // check ids
-        foreach (var script in _scriptManager.SpellScripts)
-        {
-            var spellId = script.Key & 0x00FFFFFF;
-            var spellInfo = _spellManager.GetSpellInfo(spellId);
-
-            if (spellInfo == null)
-            {
-                Log.Logger.Error("Table `spell_scripts` has not existing spell (Id: {0}) as script id", spellId);
-
-                continue;
-            }
-
-            var spellEffIndex = (byte)((script.Key >> 24) & 0x000000FF);
-
-            if (spellEffIndex >= spellInfo.Effects.Count)
-            {
-                Log.Logger.Error($"Table `spell_scripts` has too high effect index {spellEffIndex} for spell (Id: {spellId}) as script id");
-
-                continue;
-            }
-
-            //check for correct spellEffect
-            if (spellInfo.GetEffect(spellEffIndex).Effect == 0 || (spellInfo.GetEffect(spellEffIndex).Effect != SpellEffectName.ScriptEffect && spellInfo.GetEffect(spellEffIndex).Effect != SpellEffectName.Dummy))
-                Log.Logger.Error($"Table `spell_scripts` - spell {spellId} effect {spellEffIndex} is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY");
-        }
-    }
-
     public void LoadTavernAreaTriggers()
     {
         var oldMSTime = Time.MSTime;
@@ -5374,29 +5269,6 @@ public sealed class GameObjectManager
     //Vehicles
 
     //Load WP Scripts
-    public void LoadWaypointScripts()
-    {
-        LoadScripts(ScriptsType.Waypoint);
-
-        List<uint> actionSet = new();
-
-        foreach (var script in _scriptManager.WaypointScripts)
-            actionSet.Add(script.Key);
-
-        var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ACTION);
-        var result = _worldDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
-            do
-            {
-                var action = result.Read<uint>(0);
-
-                actionSet.Remove(action);
-            } while (result.NextRow());
-
-        foreach (var id in actionSet)
-            Log.Logger.Error("There is no waypoint which links to the waypoint script {0}", id);
-    }
 
     //Methods
     public bool NormalizePlayerName(ref string name)
@@ -6088,535 +5960,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} quest relations from {1} in {2} ms", count, table, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    private void LoadScripts(ScriptsType type)
-    {
-        var oldMSTime = Time.MSTime;
-
-        var scripts = _scriptManager.GetScriptsMapByType(type);
-
-        if (scripts == null)
-            return;
-
-        var tableName = GetScriptsTableNameByType(type);
-
-        if (string.IsNullOrEmpty(tableName))
-            return;
-
-        if (_mapManager.IsScriptScheduled()) // function cannot be called when scripts are in use.
-            return;
-
-        Log.Logger.Information("Loading {0}...", tableName);
-
-        scripts.Clear(); // need for reload support
-
-        var isSpellScriptTable = (type == ScriptsType.Spell);
-        //                                         0    1       2         3         4          5    6  7  8  9
-        var result = _worldDatabase.Query("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o{0} FROM {1}", isSpellScriptTable ? ", effIndex" : "", tableName);
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 script definitions. DB table `{0}` is empty!", tableName);
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            ScriptInfo tmp = new()
-            {
-                type = type,
-                id = result.Read<uint>(0)
-            };
-
-            if (isSpellScriptTable)
-                tmp.id |= result.Read<uint>(10) << 24;
-
-            tmp.delay = result.Read<uint>(1);
-            tmp.command = (ScriptCommands)result.Read<uint>(2);
-
-            unsafe
-            {
-                tmp.Raw.nData[0] = result.Read<uint>(3);
-                tmp.Raw.nData[1] = result.Read<uint>(4);
-                tmp.Raw.nData[2] = (uint)result.Read<int>(5);
-                tmp.Raw.fData[0] = result.Read<float>(6);
-                tmp.Raw.fData[1] = result.Read<float>(7);
-                tmp.Raw.fData[2] = result.Read<float>(8);
-                tmp.Raw.fData[3] = result.Read<float>(9);
-            }
-
-            // generic command args check
-            switch (tmp.command)
-            {
-                case ScriptCommands.Talk:
-                {
-                    if (tmp.Talk.ChatType > ChatMsg.RaidBossWhisper)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid talk type (datalong = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
-                                             tableName,
-                                             tmp.Talk.ChatType,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (!_cliDB.BroadcastTextStorage.ContainsKey((uint)tmp.Talk.TextID))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid talk text id (dataint = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
-                                             tableName,
-                                             tmp.Talk.TextID,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.Emote:
-                {
-                    if (!_cliDB.EmotesStorage.ContainsKey(tmp.Emote.EmoteID))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid emote id (datalong = {1}) in SCRIPT_COMMAND_EMOTE for script id {2}",
-                                             tableName,
-                                             tmp.Emote.EmoteID,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.TeleportTo:
-                {
-                    if (!_cliDB.MapStorage.ContainsKey(tmp.TeleportTo.MapID))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid map (Id: {1}) in SCRIPT_COMMAND_TELEPORT_TO for script id {2}",
-                                             tableName,
-                                             tmp.TeleportTo.MapID,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (!_gridDefines.IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TELEPORT_TO for script id {5}",
-                                             tableName,
-                                             tmp.TeleportTo.DestX,
-                                             tmp.TeleportTo.DestY,
-                                             tmp.TeleportTo.DestZ,
-                                             tmp.TeleportTo.Orientation,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.QuestExplored:
-                {
-                    var quest = QuestTemplateCache.GetQuestTemplate(tmp.QuestExplored.QuestID);
-
-                    if (quest == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
-                                             tableName,
-                                             tmp.QuestExplored.QuestID,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
-                    {
-                        Log.Logger.Error("Table `{0}` has quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, but quest not have Id QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. QuestId modified to require objective.",
-                                         tableName,
-                                         tmp.QuestExplored.QuestID,
-                                         tmp.id);
-
-                        // this will prevent quest completing without objective
-                        quest.SetSpecialFlag(QuestSpecialFlags.ExplorationOrEvent);
-
-                        // continue; - quest objective requirement set and command can be allowed
-                    }
-
-                    if (tmp.QuestExplored.Distance > SharedConst.DefaultVisibilityDistance)
-                    {
-                        Log.Logger.Error("Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
-                                         tableName,
-                                         tmp.QuestExplored.Distance,
-                                         tmp.id);
-
-                        continue;
-                    }
-
-                    if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance > SharedConst.DefaultVisibilityDistance)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, max distance is {3} or 0 for disable distance check",
-                                             tableName,
-                                             tmp.QuestExplored.Distance,
-                                             tmp.id,
-                                             SharedConst.DefaultVisibilityDistance);
-
-                        continue;
-                    }
-
-                    if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance < SharedConst.InteractionDistance)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has too small distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, min distance is {3} or 0 for disable distance check",
-                                             tableName,
-                                             tmp.QuestExplored.Distance,
-                                             tmp.id,
-                                             SharedConst.InteractionDistance);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.KillCredit:
-                {
-                    if (CreatureTemplateCache.GetCreatureTemplate(tmp.KillCredit.CreatureEntry) == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_KILL_CREDIT for script id {2}",
-                                             tableName,
-                                             tmp.KillCredit.CreatureEntry,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.RespawnGameobject:
-                {
-                    var data = GameObjectCache.GetGameObjectData(tmp.RespawnGameObject.GOGuid);
-
-                    if (data == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
-                                             tableName,
-                                             tmp.RespawnGameObject.GOGuid,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    var info = GameObjectTemplateCache.GetGameObjectTemplate(data.Id);
-
-                    if (info == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {3}",
-                                             tableName,
-                                             tmp.RespawnGameObject.GOGuid,
-                                             data.Id,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (info.type is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole or GameObjectTypes.Door or GameObjectTypes.Button or GameObjectTypes.Trap)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` have gameobject type ({1}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
-                                             tableName,
-                                             info.entry,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.TempSummonCreature:
-                {
-                    if (!_gridDefines.IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {5}",
-                                             tableName,
-                                             tmp.TempSummonCreature.PosX,
-                                             tmp.TempSummonCreature.PosY,
-                                             tmp.TempSummonCreature.PosZ,
-                                             tmp.TempSummonCreature.Orientation,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (CreatureTemplateCache.GetCreatureTemplate(tmp.TempSummonCreature.CreatureEntry) == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {2}",
-                                             tableName,
-                                             tmp.TempSummonCreature.CreatureEntry,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.OpenDoor:
-                case ScriptCommands.CloseDoor:
-                {
-                    var data = GameObjectCache.GetGameObjectData(tmp.ToggleDoor.GOGuid);
-
-                    if (data == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in {2} for script id {3}",
-                                             tableName,
-                                             tmp.ToggleDoor.GOGuid,
-                                             tmp.command,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    var info = GameObjectTemplateCache.GetGameObjectTemplate(data.Id);
-
-                    if (info == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in {3} for script id {4}",
-                                             tableName,
-                                             tmp.ToggleDoor.GOGuid,
-                                             data.Id,
-                                             tmp.command,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (info.type != GameObjectTypes.Door)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has gameobject type ({1}) non supported by command {2} for script id {3}",
-                                             tableName,
-                                             info.entry,
-                                             tmp.command,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.RemoveAura:
-                {
-                    if (!_spellManager.HasSpellInfo(tmp.RemoveAura.SpellID))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
-                                             tableName,
-                                             tmp.RemoveAura.SpellID,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (Convert.ToBoolean((int)tmp.RemoveAura.Flags & ~0x1)) // 1 bits (0, 1)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` using unknown flags in datalong2 ({1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
-                                             tableName,
-                                             tmp.RemoveAura.Flags,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.CastSpell:
-                {
-                    if (!_spellManager.HasSpellInfo(tmp.CastSpell.SpellID))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-                                             tableName,
-                                             tmp.CastSpell.SpellID,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if ((int)tmp.CastSpell.Flags > 4) // targeting type
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` using unknown target in datalong2 ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-                                             tableName,
-                                             tmp.CastSpell.Flags,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if ((int)tmp.CastSpell.Flags != 4 && Convert.ToBoolean(tmp.CastSpell.CreatureEntry & ~0x1)) // 1 bit (0, 1)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` using unknown flags in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-                                             tableName,
-                                             tmp.CastSpell.CreatureEntry,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if ((int)tmp.CastSpell.Flags == 4 && CreatureTemplateCache.GetCreatureTemplate((uint)tmp.CastSpell.CreatureEntry) == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` using invalid creature entry in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-                                             tableName,
-                                             tmp.CastSpell.CreatureEntry,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-
-                case ScriptCommands.CreateItem:
-                {
-                    if (_itemTemplateCache.GetItemTemplate(tmp.CreateItem.ItemEntry) == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has nonexistent item (entry: {1}) in SCRIPT_COMMAND_CREATE_ITEM for script id {2}",
-                                             tableName,
-                                             tmp.CreateItem.ItemEntry,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    if (tmp.CreateItem.Amount == 0)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` SCRIPT_COMMAND_CREATE_ITEM but amount is {1} for script id {2}",
-                                             tableName,
-                                             tmp.CreateItem.Amount,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-                case ScriptCommands.PlayAnimkit:
-                {
-                    if (!_cliDB.AnimKitStorage.ContainsKey(tmp.PlayAnimKit.AnimKitID))
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                        else
-                            Log.Logger.Error("Table `{0}` has invalid AnimKid id (datalong = {1}) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id {2}",
-                                             tableName,
-                                             tmp.PlayAnimKit.AnimKitID,
-                                             tmp.id);
-
-                        continue;
-                    }
-
-                    break;
-                }
-                case ScriptCommands.FieldSetDeprecated:
-                case ScriptCommands.FlagSetDeprecated:
-                case ScriptCommands.FlagRemoveDeprecated:
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
-                    else
-                        Log.Logger.Error($"Table `{tableName}` uses deprecated direct updatefield modify command {tmp.command} for script id {tmp.id}");
-
-                    continue;
-                }
-            }
-
-            if (!scripts.ContainsKey(tmp.id))
-                scripts[tmp.id] = new MultiMap<uint, ScriptInfo>();
-
-            scripts[tmp.id].Add(tmp.delay, tmp);
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} script definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     private void LoadTerrainSwapDefaults()

@@ -317,7 +317,7 @@ internal class ReloadCommand
         if (args != null)
             Log.Logger.Information("Re-Loading Scripts from `event_scripts`...");
 
-        handler.ObjectManager.LoadEventScripts();
+        handler.ObjectManager.ScriptLoader.LoadEventScripts();
 
         if (args != null)
             handler.SendGlobalGMSysMessage("DB table `event_scripts` reloaded.");
@@ -935,7 +935,7 @@ internal class ReloadCommand
         if (args != null)
             Log.Logger.Information("Re-Loading Scripts from `spell_scripts`...");
 
-        handler.ObjectManager.LoadSpellScripts();
+        handler.ObjectManager.ScriptLoader.LoadSpellScripts();
 
         if (args != null)
             handler.SendGlobalGMSysMessage("DB table `spell_scripts` reloaded.");
@@ -1046,7 +1046,7 @@ internal class ReloadCommand
         if (args != null)
             Log.Logger.Information("Re-Loading Scripts from `waypoint_scripts`...");
 
-        handler.ObjectManager.LoadWaypointScripts();
+        handler.ObjectManager.ScriptLoader.LoadWaypointScripts();
 
         if (args != null)
             handler.SendGlobalGMSysMessage("DB table `waypoint_scripts` reloaded.");
