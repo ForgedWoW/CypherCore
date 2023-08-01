@@ -150,7 +150,7 @@ public class PlayerMenu
 
     public void SendPointOfInterest(uint id)
     {
-        var pointOfInterest = _objectManager.GetPointOfInterest(id);
+        var pointOfInterest = _objectManager.PointOfInterestCache.GetPointOfInterest(id);
 
         if (pointOfInterest == null)
         {

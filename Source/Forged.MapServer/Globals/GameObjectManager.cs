@@ -8,7 +8,6 @@ using System.Numerics;
 using System.Threading;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Arenas;
-using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
@@ -51,7 +50,6 @@ public sealed class GameObjectManager
     private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
-    private readonly Dictionary<(uint creatureId, uint gossipMenuId, uint gossipOptionIndex), uint> _creatureDefaultTrainers = new();
     private readonly Dictionary<uint, CreatureLocale> _creatureLocaleStorage = new();
     private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelations = new();
     private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelationsReverse = new();
@@ -73,7 +71,6 @@ public sealed class GameObjectManager
     private readonly MultiMap<uint, uint> _goQuestRelations = new();
     private readonly Dictionary<uint, GossipMenuAddon> _gossipMenuAddonStorage = new();
     private readonly Dictionary<Tuple<uint, uint>, GossipMenuItemsLocale> _gossipMenuItemsLocaleStorage = new();
-    private readonly MultiMap<uint, GossipMenuItems> _gossipMenuItemsStorage = new();
     private readonly MultiMap<uint, GossipMenus> _gossipMenusStorage = new();
     private readonly MultiMap<ushort, InstanceSpawnGroupInfo> _instanceSpawnGroupStorage = new();
     private readonly Dictionary<int, JumpChargeParams> _jumpChargeParams = new();
@@ -91,7 +88,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<int, PlayerChoiceLocale> _playerChoiceLocales = new();
     private readonly Dictionary<int /*choiceId*/, PlayerChoice> _playerChoices = new();
     private readonly Dictionary<uint, PointOfInterestLocale> _pointOfInterestLocaleStorage = new();
-    private readonly Dictionary<uint, PointOfInterest> _pointsOfInterestStorage = new();
     private readonly MultiMap<uint, uint> _questAreaTriggerStorage = new();
     private readonly Dictionary<uint, QuestGreetingLocale>[] _questGreetingLocaleStorage = new Dictionary<uint, QuestGreetingLocale>[2];
     private readonly Dictionary<uint, QuestGreeting>[] _questGreetingStorage = new Dictionary<uint, QuestGreeting>[2];
@@ -112,8 +108,6 @@ public sealed class GameObjectManager
     private readonly List<uint> _tavernAreaTriggerStorage = new();
     private readonly MultiMap<Tuple<uint, SummonerType, byte>, TempSummonData> _tempSummonDataStorage = new();
     private readonly Dictionary<uint, TerrainSwapInfo> _terrainSwapInfoById = new();
-    private readonly Dictionary<uint, Trainer> _trainers = new();
-
 
 
     private readonly WorldDatabase _worldDatabase;
@@ -160,6 +154,10 @@ public sealed class GameObjectManager
     private readonly SpawnDataCacheRouter _spawnDataCacheRouter;
     private readonly CreatureAddonCache _creatureAddonCache;
     private readonly CreatureBaseStatsCache _creatureBaseStatsCache;
+    private readonly CreatureDefaultTrainersCache _creatureDefaultTrainersCache;
+    private readonly GossipMenuItemsCache _gossipMenuItemsCache;
+    private readonly PointOfInterestCache _pointOfInterestCache;
+    private readonly TrainerCache _trainerCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -271,6 +269,26 @@ public sealed class GameObjectManager
     public CreatureBaseStatsCache CreatureBaseStatsCache
     {
         get { return _creatureBaseStatsCache; }
+    }
+
+    public CreatureDefaultTrainersCache CreatureDefaultTrainersCache
+    {
+        get { return _creatureDefaultTrainersCache; }
+    }
+
+    public GossipMenuItemsCache GossipMenuItemsCache
+    {
+        get { return _gossipMenuItemsCache; }
+    }
+
+    public PointOfInterestCache PointOfInterestCache
+    {
+        get { return _pointOfInterestCache; }
+    }
+
+    public TrainerCache TrainerCache
+    {
+        get { return _trainerCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -617,7 +635,7 @@ public sealed class GameObjectManager
 
     public uint GetCreatureDefaultTrainer(uint creatureId)
     {
-        return GetCreatureTrainerForGossipOption(creatureId, 0, 0);
+        return CreatureDefaultTrainersCache.GetCreatureTrainerForGossipOption(creatureId, 0, 0);
     }
 
     public CreatureLocale GetCreatureLocale(uint entry)
@@ -653,11 +671,6 @@ public sealed class GameObjectManager
     public CreatureAddon GetCreatureTemplateAddon(uint entry)
     {
         return _creatureTemplateAddonStorage.LookupByKey(entry);
-    }
-
-    public uint GetCreatureTrainerForGossipOption(uint creatureId, uint gossipMenuId, uint gossipOptionIndex)
-    {
-        return _creatureDefaultTrainers.LookupByKey((creatureId, gossipMenuId, gossipOptionIndex));
     }
 
     public string GetCypherString(uint entry, Locale locale = Locale.enUS)
@@ -760,11 +773,6 @@ public sealed class GameObjectManager
     public GossipMenuItemsLocale GetGossipMenuItemsLocale(uint menuId, uint optionIndex)
     {
         return _gossipMenuItemsLocaleStorage.LookupByKey(Tuple.Create(menuId, optionIndex));
-    }
-
-    public List<GossipMenuItems> GetGossipMenuItemsMapBounds(uint uiMenuId)
-    {
-        return _gossipMenuItemsStorage.LookupByKey(uiMenuId);
     }
 
     public List<GossipMenus> GetGossipMenusMapBounds(uint uiMenuId)
@@ -956,11 +964,6 @@ public sealed class GameObjectManager
             return pInfo.LevelInfo[level - 1];
 
         return BuildPlayerLevelInfo(race, @class, level);
-    }
-
-    public PointOfInterest GetPointOfInterest(uint id)
-    {
-        return _pointsOfInterestStorage.LookupByKey(id);
     }
 
     public PointOfInterestLocale GetPointOfInterestLocale(uint id)
@@ -1168,11 +1171,6 @@ public sealed class GameObjectManager
         return _terrainSwapInfoById.LookupByKey(terrainSwapId);
     }
 
-    public Trainer GetTrainer(uint trainerId)
-    {
-        return _trainers.LookupByKey(trainerId);
-    }
-
     public uint GetXPForLevel(uint level)
     {
         return level < _playerXPperLevel.Length ? _playerXPperLevel[level] : 0;
@@ -1220,7 +1218,7 @@ public sealed class GameObjectManager
         LoadReputationRewardRate();
         LoadReputationOnKill();
         LoadReputationSpilloverTemplate();
-        LoadPointsOfInterest();
+        PointOfInterestCache.Load();
         CreatureBaseStatsCache.Load();
         LoadTempSummons(); // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
         LoadInstanceSpawnGroups();
@@ -1251,11 +1249,11 @@ public sealed class GameObjectManager
         LoadSkillTiers();
         LoadReservedPlayersNames();
         LoadGameObjectForQuests();
-        LoadTrainers(); // must be after load CreatureTemplate
+        TrainerCache.Load(); // must be after load CreatureTemplate
         LoadGossipMenu();
-        LoadGossipMenuItems();
+        GossipMenuItemsCache.Load();
         LoadGossipMenuAddon();
-        LoadCreatureTrainers(); // must be after LoadGossipMenuItems
+        CreatureDefaultTrainersCache.Load(); // must be after LoadGossipMenuItems
         LoadPhases();
         LoadFactionChangeAchievements();
         LoadFactionChangeSpells();
@@ -1722,64 +1720,6 @@ public sealed class GameObjectManager
     }
 
     //Creatures
-
-    public void LoadCreatureTrainers()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _creatureDefaultTrainers.Clear();
-
-        var result = _worldDatabase.Query("SELECT CreatureID, TrainerID, MenuID, OptionID FROM creature_trainer");
-
-        if (!result.IsEmpty())
-            do
-            {
-                var creatureId = result.Read<uint>(0);
-                var trainerId = result.Read<uint>(1);
-                var gossipMenuId = result.Read<uint>(2);
-                var gossipOptionIndex = result.Read<uint>(3);
-
-                if (CreatureTemplateCache.GetCreatureTemplate(creatureId) == null)
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
-                    else
-                        Log.Logger.Error($"Table `creature_trainer` references non-existing creature template (CreatureId: {creatureId}), ignoring");
-
-                    continue;
-                }
-
-                if (GetTrainer(trainerId) == null)
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
-                    else
-                        Log.Logger.Error($"Table `creature_trainer` references non-existing trainer (TrainerId: {trainerId}) for CreatureId {creatureId} MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}, ignoring");
-
-                    continue;
-                }
-
-                if (gossipMenuId != 0 || gossipOptionIndex != 0)
-                {
-                    var gossipMenuItems = GetGossipMenuItemsMapBounds(gossipMenuId);
-                    var gossipOptionItr = gossipMenuItems.Find(entry => { return entry.OrderIndex == gossipOptionIndex; });
-
-                    if (gossipOptionItr == null)
-                    {
-                        if (_configuration.GetDefaultValue("load:autoclean", false))
-                            _worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
-                        else
-                            Log.Logger.Error($"Table `creature_trainer` references non-existing gossip menu option (MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}) for CreatureId {creatureId} and TrainerId {trainerId}, ignoring");
-
-                        continue;
-                    }
-                }
-
-                _creatureDefaultTrainers[(creatureId, gossipMenuId, gossipOptionIndex)] = trainerId;
-            } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {_creatureDefaultTrainers.Count} default trainers in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-    }
 
     //General
     public bool LoadCypherStrings()
@@ -2572,164 +2512,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information($"Loaded {_gossipMenuAddonStorage.Count} gossip_menu_addon IDs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-    }
-
-    public void LoadGossipMenuItems()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _gossipMenuItemsStorage.Clear();
-
-        //                                         0       1               2         3          4           5                      6         7      8             9            10
-        var result = _worldDatabase.Query("SELECT MenuID, GossipOptionID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, Flags, ActionMenuID, ActionPoiID, GossipNpcOptionID, " +
-                                          //11        12        13       14                  15       16
-                                          "BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID, SpellID, OverrideIconID FROM gossip_menu_option ORDER BY MenuID, OptionID");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 gossip_menu_option Ids. DB table `gossip_menu_option` is empty!");
-
-            return;
-        }
-
-        Dictionary<int, uint> optionToNpcOption = new();
-
-        foreach (var (_, npcOption) in _cliDB.GossipNPCOptionStorage)
-            optionToNpcOption[npcOption.GossipOptionID] = npcOption.Id;
-
-        do
-        {
-            GossipMenuItems gMenuItem = new()
-            {
-                MenuId = result.Read<uint>(0),
-                GossipOptionId = result.Read<int>(1),
-                OrderIndex = result.Read<uint>(2),
-                OptionNpc = (GossipOptionNpc)result.Read<byte>(3),
-                OptionText = result.Read<string>(4),
-                OptionBroadcastTextId = result.Read<uint>(5),
-                Language = result.Read<uint>(6),
-                Flags = (GossipOptionFlags)result.Read<int>(7),
-                ActionMenuId = result.Read<uint>(8),
-                ActionPoiId = result.Read<uint>(9)
-            };
-
-            if (!result.IsNull(10))
-                gMenuItem.GossipNpcOptionId = result.Read<int>(10);
-
-            gMenuItem.BoxCoded = result.Read<bool>(11);
-            gMenuItem.BoxMoney = result.Read<uint>(12);
-            gMenuItem.BoxText = result.Read<string>(13);
-            gMenuItem.BoxBroadcastTextId = result.Read<uint>(14);
-
-            if (!result.IsNull(15))
-                gMenuItem.SpellId = result.Read<int>(15);
-
-            if (!result.IsNull(16))
-                gMenuItem.OverrideIconId = result.Read<int>(16);
-
-            if (gMenuItem.OptionNpc >= GossipOptionNpc.Max)
-            {
-                Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} has unknown NPC option id {gMenuItem.OptionNpc}. Replacing with GossipOptionNpc.None");
-                gMenuItem.OptionNpc = GossipOptionNpc.None;
-            }
-
-            if (gMenuItem.OptionBroadcastTextId != 0)
-                if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.OptionBroadcastTextId))
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                    else
-                        Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
-
-                    gMenuItem.OptionBroadcastTextId = 0;
-                }
-
-            if (gMenuItem.Language != 0 && !_cliDB.LanguagesStorage.ContainsKey(gMenuItem.Language))
-            {
-                if (_configuration.GetDefaultValue("load:autoclean", false))
-                    _worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                else
-                    Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
-
-                gMenuItem.Language = 0;
-            }
-
-            if (gMenuItem.ActionMenuId != 0 && gMenuItem.OptionNpc != GossipOptionNpc.None)
-            {
-                if (_configuration.GetDefaultValue("load:autoclean", false))
-                    _worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                else
-                    Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
-
-                gMenuItem.ActionMenuId = 0;
-            }
-
-            if (gMenuItem.ActionPoiId != 0)
-            {
-                if (gMenuItem.OptionNpc != GossipOptionNpc.None)
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                    else
-                        Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
-
-                    gMenuItem.ActionPoiId = 0;
-                }
-                else if (GetPointOfInterest(gMenuItem.ActionPoiId) == null)
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                    else
-                        Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiId}, ignoring");
-
-                    gMenuItem.ActionPoiId = 0;
-                }
-            }
-
-            if (gMenuItem.GossipNpcOptionId.HasValue)
-            {
-                if (!_cliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                    else
-                        Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionId}, ignoring");
-
-                    gMenuItem.GossipNpcOptionId = null;
-                }
-            }
-            else
-            {
-                if (optionToNpcOption.TryGetValue(gMenuItem.GossipOptionId, out var npcOptionId))
-                    gMenuItem.GossipNpcOptionId = (int)npcOptionId;
-            }
-
-            if (gMenuItem.BoxBroadcastTextId != 0)
-                if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.BoxBroadcastTextId))
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                    else
-                        Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
-
-                    gMenuItem.BoxBroadcastTextId = 0;
-                }
-
-            if (gMenuItem.SpellId.HasValue)
-                if (!_spellManager.HasSpellInfo((uint)gMenuItem.SpellId.Value))
-                {
-                    if (_configuration.GetDefaultValue("load:autoclean", false))
-                        _worldDatabase.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
-                    else
-                        Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellId}, ignoring");
-
-                    gMenuItem.SpellId = null;
-                }
-
-            _gossipMenuItemsStorage.Add(gMenuItem.MenuId, gMenuItem);
-        } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {_gossipMenuItemsStorage.Count} gossip_menu_option entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
     public void LoadGossipMenuItemsLocales()
@@ -4603,54 +4385,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} points_of_interest locale strings in {1} ms", _pointOfInterestLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadPointsOfInterest()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _pointsOfInterestStorage.Clear(); // need for reload case
-
-        //                                   0   1          2          3          4     5      6           7     8
-        var result = _worldDatabase.Query("SELECT ID, PositionX, PositionY, PositionZ, Icon, Flags, Importance, Name, WMOGroupID FROM points_of_interest");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var id = result.Read<uint>(0);
-
-            PointOfInterest poi = new()
-            {
-                Id = id,
-                Pos = new Vector3(result.Read<float>(1), result.Read<float>(2), result.Read<float>(3)),
-                Icon = result.Read<uint>(4),
-                Flags = result.Read<uint>(5),
-                Importance = result.Read<uint>(6),
-                Name = result.Read<string>(7),
-                WmoGroupId = result.Read<uint>(8)
-            };
-
-            if (!_gridDefines.IsValidMapCoord(poi.Pos.X, poi.Pos.Y, poi.Pos.Z))
-            {
-                Log.Logger.Error($"Table `points_of_interest` (ID: {id}) have invalid coordinates (PositionX: {poi.Pos.X} PositionY: {poi.Pos.Y} PositionZ: {poi.Pos.Z}), ignored.");
-
-                continue;
-            }
-
-            _pointsOfInterestStorage[id] = poi;
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {count} Points of Interest definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
     public void LoadQuestAreaTriggers()
@@ -6858,109 +6592,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} temp summons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadTrainers()
-    {
-        var oldMSTime = Time.MSTime;
-
-        // For reload case
-        _trainers.Clear();
-
-        MultiMap<uint, TrainerSpell> spellsByTrainer = new();
-        var trainerSpellsResult = _worldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell");
-
-        if (!trainerSpellsResult.IsEmpty())
-            do
-            {
-                TrainerSpell spell = new();
-                var trainerId = trainerSpellsResult.Read<uint>(0);
-                spell.SpellId = trainerSpellsResult.Read<uint>(1);
-                spell.MoneyCost = trainerSpellsResult.Read<uint>(2);
-                spell.ReqSkillLine = trainerSpellsResult.Read<uint>(3);
-                spell.ReqSkillRank = trainerSpellsResult.Read<uint>(4);
-                spell.ReqAbility[0] = trainerSpellsResult.Read<uint>(5);
-                spell.ReqAbility[1] = trainerSpellsResult.Read<uint>(6);
-                spell.ReqAbility[2] = trainerSpellsResult.Read<uint>(7);
-                spell.ReqLevel = trainerSpellsResult.Read<byte>(8);
-
-                var spellInfo = _spellManager.GetSpellInfo(spell.SpellId);
-
-                if (spellInfo == null)
-                {
-                    Log.Logger.Error($"Table `trainer_spell` references non-existing spell (SpellId: {spell.SpellId}) for TrainerId {trainerId}, ignoring");
-
-                    continue;
-                }
-
-                if (spell.ReqSkillLine != 0 && !_cliDB.SkillLineStorage.ContainsKey(spell.ReqSkillLine))
-                {
-                    Log.Logger.Error($"Table `trainer_spell` references non-existing skill (ReqSkillLine: {spell.ReqSkillLine}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
-
-                    continue;
-                }
-
-                var allReqValid = true;
-
-                for (var i = 0; i < spell.ReqAbility.Count; ++i)
-                {
-                    var requiredSpell = spell.ReqAbility[i];
-
-                    if (requiredSpell != 0 && !_spellManager.HasSpellInfo(requiredSpell))
-                    {
-                        Log.Logger.Error($"Table `trainer_spell` references non-existing spell (ReqAbility {i + 1}: {requiredSpell}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
-                        allReqValid = false;
-                    }
-                }
-
-                if (!allReqValid)
-                    continue;
-
-                spellsByTrainer.Add(trainerId, spell);
-            } while (trainerSpellsResult.NextRow());
-
-        var trainersResult = _worldDatabase.Query("SELECT Id, Type, Greeting FROM trainer");
-
-        if (!trainersResult.IsEmpty())
-            do
-            {
-                var trainerId = trainersResult.Read<uint>(0);
-                var trainerType = (TrainerType)trainersResult.Read<byte>(1);
-                var greeting = trainersResult.Read<string>(2);
-                List<TrainerSpell> spells = new();
-
-                if (spellsByTrainer.TryGetValue(trainerId, out var spellList))
-                {
-                    spells = spellList;
-                    spellsByTrainer.Remove(trainerId);
-                }
-
-                _trainers.Add(trainerId, new Trainer(trainerId, trainerType, greeting, spells, _classFactory.Resolve<ConditionManager>(), _classFactory.Resolve<BattlePetData>(), _classFactory.Resolve<SpellManager>()));
-            } while (trainersResult.NextRow());
-
-        foreach (var unusedSpells in spellsByTrainer.KeyValueList)
-            Log.Logger.Error($"Table `trainer_spell` references non-existing trainer (TrainerId: {unusedSpells.Key}) for SpellId {unusedSpells.Value.SpellId}, ignoring");
-
-        var trainerLocalesResult = _worldDatabase.Query("SELECT Id, locale, Greeting_lang FROM trainer_locale");
-
-        if (!trainerLocalesResult.IsEmpty())
-            do
-            {
-                var trainerId = trainerLocalesResult.Read<uint>(0);
-                var localeName = trainerLocalesResult.Read<string>(1);
-
-                var locale = localeName.ToEnum<Locale>();
-
-                if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
-                    continue;
-
-                if (_trainers.TryGetValue(trainerId, out var trainer))
-                    trainer.AddGreetingLocale(locale, trainerLocalesResult.Read<string>(2));
-                else
-                    Log.Logger.Error($"Table `trainer_locale` references non-existing trainer (TrainerId: {trainerId}) for locale {localeName}, ignoring");
-            } while (trainerLocalesResult.NextRow());
-
-        Log.Logger.Information($"Loaded {_trainers.Count} Trainers in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
     //Vehicles

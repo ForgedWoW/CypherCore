@@ -2999,7 +2999,7 @@ public partial class Player : Unit
                 break;
 
             case GossipOptionNpc.Trainer:
-                Session.PacketRouter.OpCodeHandler<NPCHandler>().SendTrainerList(source.AsCreature, GameObjectManager.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
+                Session.PacketRouter.OpCodeHandler<NPCHandler>().SendTrainerList(source.AsCreature, GameObjectManager.CreatureDefaultTrainersCache.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
 
                 break;
 
@@ -3212,7 +3212,7 @@ public partial class Player : Unit
 
         menu.GossipMenu.MenuId = menuId;
 
-        var menuItemBounds = GameObjectManager.GetGossipMenuItemsMapBounds(menuId);
+        var menuItemBounds = GameObjectManager.GossipMenuItemsCache.GetGossipMenuItemsMapBounds(menuId);
 
         if (source.IsTypeId(TypeId.Unit))
         {

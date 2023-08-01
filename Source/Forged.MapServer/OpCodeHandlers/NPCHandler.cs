@@ -216,7 +216,7 @@ public class NPCHandler : IWorldSessionHandler
         if (_session.Player.HasUnitState(UnitState.Died))
             _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        var trainer = _objectManager.GetTrainer(trainerId);
+        var trainer = _objectManager.TrainerCache.GetTrainer(trainerId);
 
         if (trainer == null)
         {
@@ -528,7 +528,7 @@ public class NPCHandler : IWorldSessionHandler
             return;
 
         // check present spell in trainer spell list
-        var trainer = _objectManager.GetTrainer(packet.TrainerID);
+        var trainer = _objectManager.TrainerCache.GetTrainer(packet.TrainerID);
 
         if (trainer == null)
             return;

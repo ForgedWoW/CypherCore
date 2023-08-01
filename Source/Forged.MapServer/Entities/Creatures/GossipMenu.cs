@@ -38,7 +38,7 @@ public class GossipMenu
             if (MenuId != 0)
             {
                 // set baseline orderIndex as higher than whatever exists in db
-                var bounds = _objectManager.GetGossipMenuItemsMapBounds(MenuId);
+                var bounds = _objectManager.GossipMenuItemsCache.GetGossipMenuItemsMapBounds(MenuId);
                 var itr = bounds.MaxBy(a => a.OrderIndex);
 
                 if (itr != null)
@@ -93,7 +93,7 @@ public class GossipMenu
     public void AddMenuItem(uint menuId, uint menuItemId, uint sender, uint action)
     {
         // Find items for given menu id.
-        var bounds = _objectManager.GetGossipMenuItemsMapBounds(menuId);
+        var bounds = _objectManager.GossipMenuItemsCache.GetGossipMenuItemsMapBounds(menuId);
 
         // Return if there are none.
         if (bounds.Empty())

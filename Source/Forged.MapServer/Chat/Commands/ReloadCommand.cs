@@ -394,7 +394,7 @@ internal class ReloadCommand
     private static bool HandleReloadGossipMenuOptionCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `gossip_menu_option` Table!");
-        handler.ObjectManager.LoadGossipMenuItems();
+        handler.ObjectManager.GossipMenuItemsCache.Load();
         handler.SendGlobalGMSysMessage("DB table `gossip_menu_option` reloaded.");
         handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
@@ -638,7 +638,7 @@ internal class ReloadCommand
     private static bool HandleReloadPointsOfInterestCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `points_of_interest` Table!");
-        handler.ObjectManager.LoadPointsOfInterest();
+        handler.ObjectManager.PointOfInterestCache.Load();
         handler.SendGlobalGMSysMessage("DB table `points_of_interest` reloaded.");
 
         return true;
@@ -979,8 +979,8 @@ internal class ReloadCommand
     private static bool HandleReloadTrainerCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `trainer` Table!");
-        handler.ObjectManager.LoadTrainers();
-        handler.ObjectManager.LoadCreatureTrainers();
+        handler.ObjectManager.TrainerCache.Load();
+        handler.ObjectManager.CreatureDefaultTrainersCache.Load();
         handler.SendGlobalGMSysMessage("DB table `trainer` reloaded.");
         handler.SendGlobalGMSysMessage("DB table `trainer_locale` reloaded.");
         handler.SendGlobalGMSysMessage("DB table `trainer_spell` reloaded.");

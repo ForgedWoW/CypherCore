@@ -359,6 +359,7 @@ void RegisterCaches()
     builder.RegisterType<CreatureAddonCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureBaseStatsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CreatureDefaultTrainersCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureModelCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureMovementOverrideCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
@@ -367,14 +368,17 @@ void RegisterCaches()
     builder.RegisterType<GameObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameObjectTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameTeleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<GossipMenuItemsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<InstanceTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ItemTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<MapObjectCache>().SingleInstance();
     builder.RegisterType<MapSpawnGroupCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PageTextCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<PointOfInterestCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpawnDataCacheRouter>().SingleInstance();
     builder.RegisterType<SpawnGroupDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpellClickInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<TrainerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<VehicleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<VendorItemCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<WorldSafeLocationsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
@@ -491,6 +495,7 @@ void RegisterInstanced()
     builder.RegisterType<BlackMarketTemplate>();
     builder.RegisterType<LootRoll>();
     builder.RegisterType<GuildBankTab>();
+    builder.RegisterType<Trainer>();
 }
 
 void RegisterOpCodeHandlers()

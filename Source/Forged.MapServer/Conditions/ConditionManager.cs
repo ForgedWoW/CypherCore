@@ -1013,7 +1013,7 @@ public sealed class ConditionManager
             _objectManager.LoadGossipMenu();
 
             Log.Logger.Information("Re-Loading `gossip_menu_option` Table for Conditions!");
-            _objectManager.LoadGossipMenuItems();
+            _objectManager.GossipMenuItemsCache.Load();
             _spellManager.UnloadSpellInfoImplicitTargetConditionLists();
 
             _objectManager.UnloadPhaseConditions();
@@ -1298,7 +1298,7 @@ public sealed class ConditionManager
 
     private bool AddToGossipMenuItems(Condition cond)
     {
-        var pMenuItemBounds = _objectManager.GetGossipMenuItemsMapBounds(cond.SourceGroup);
+        var pMenuItemBounds = _objectManager.GossipMenuItemsCache.GetGossipMenuItemsMapBounds(cond.SourceGroup);
 
         foreach (var gossipMenuItem in pMenuItemBounds)
             if (gossipMenuItem.MenuId == cond.SourceGroup && gossipMenuItem.OrderIndex == cond.SourceEntry)
@@ -3086,7 +3086,7 @@ public sealed class ConditionManager
                 break;
             case ConditionSourceType.TrainerSpell:
             {
-                if (_objectManager.GetTrainer(cond.SourceGroup) == null)
+                if (_objectManager.TrainerCache.GetTrainer(cond.SourceGroup) == null)
                 {
                     Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, does not exist in `trainer`, ignoring.");
 
