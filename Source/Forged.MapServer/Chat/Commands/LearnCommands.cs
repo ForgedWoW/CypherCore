@@ -328,7 +328,7 @@ internal class LearnCommands
         {
             var player = handler.Player;
 
-            foreach (var (_, quest) in handler.ObjectManager.QuestTemplates)
+            foreach (var (_, quest) in handler.ObjectManager.QuestTemplateCache.QuestTemplates)
                 if (quest.AllowableClasses != 0 && player.SatisfyQuestClass(quest, false))
                     player.LearnQuestRewardedSpells(quest);
 

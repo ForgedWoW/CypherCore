@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Phasing;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Scripting;
 
 namespace Scripts.Draenor;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.S;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 
 namespace Forged.MapServer.Achievements;
 

@@ -7,7 +7,7 @@ using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 using Forged.MapServer.Scripting.Interfaces.IAreaTriggerEntity;

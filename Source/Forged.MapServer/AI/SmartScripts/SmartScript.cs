@@ -30,6 +30,7 @@ using Forged.MapServer.Text;
 using Framework.Constants;
 using Serilog;
 using Forged.MapServer.MapWeather;
+using Forged.MapServer.Questing;
 
 namespace Forged.MapServer.AI.SmartScripts;
 
@@ -69,7 +70,7 @@ public class SmartScript
     private uint _nestedEventsCounter;
     private uint _pathId;
     private Player _player;
-    private Quest.Quest _quest;
+    private Quest _quest;
     private SceneTemplate _sceneTemplate;
     private SmartScriptType _scriptType;
     private uint _talkerEntry;
@@ -163,7 +164,7 @@ public class SmartScript
         return obj != null && (obj.IsTypeId(TypeId.Unit) || obj.IsTypeId(TypeId.Player));
     }
 
-    public void OnInitialize(WorldObject obj, AreaTriggerRecord at = null, SceneTemplate scene = null, Quest.Quest qst = null)
+    public void OnInitialize(WorldObject obj, AreaTriggerRecord at = null, SceneTemplate scene = null, Quest qst = null)
     {
         if (at != null)
         {
@@ -542,7 +543,7 @@ public class SmartScript
         return searcher.GetTarget();
     }
 
-    private void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest.Quest quest)
+    private void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest quest)
     {
         if (e.Empty())
         {
@@ -1575,7 +1576,7 @@ public class SmartScript
                     if (player == null)
                         continue;
 
-                    var quest = _objectManager.GetQuestTemplate(e.Action.QuestOffer.QuestId);
+                    var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(e.Action.QuestOffer.QuestId);
 
                     if (quest == null)
                         continue;

@@ -361,7 +361,7 @@ internal class GoCommands
     {
         var player = handler.Session.Player;
 
-        if (handler.ObjectManager.GetQuestTemplate(questId) == null)
+        if (handler.ObjectManager.QuestTemplateCache.GetQuestTemplate(questId) == null)
         {
             handler.SendSysMessage(CypherStrings.CommandQuestNotfound, questId);
 

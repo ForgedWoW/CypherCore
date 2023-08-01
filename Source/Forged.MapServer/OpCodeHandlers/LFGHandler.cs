@@ -214,14 +214,14 @@ public class LFGHandler : IWorldSessionHandler
 
             if (reward != null)
             {
-                var quest = _gameObjectManager.GetQuestTemplate(reward.FirstQuest);
+                var quest = _gameObjectManager.QuestTemplateCache.GetQuestTemplate(reward.FirstQuest);
 
                 if (quest != null)
                 {
                     playerDungeonInfo.FirstReward = !_session.Player.CanRewardQuest(quest, false);
 
                     if (!playerDungeonInfo.FirstReward)
-                        quest = _gameObjectManager.GetQuestTemplate(reward.OtherQuest);
+                        quest = _gameObjectManager.QuestTemplateCache.GetQuestTemplate(reward.OtherQuest);
 
                     if (quest != null)
                     {

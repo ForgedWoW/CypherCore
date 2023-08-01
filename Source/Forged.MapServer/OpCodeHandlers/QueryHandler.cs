@@ -323,7 +323,7 @@ public class QueryHandler : IWorldSessionHandler
 		{
 			QuestCompletionNPC questCompletionNPC = new();
 
-			if (_gameObjectManager.GetQuestTemplate(questID) == null)
+			if (_gameObjectManager.QuestTemplateCache.GetQuestTemplate(questID) == null)
 			{
 				Log.Logger.Debug("WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, _session.Player.GUID);
 

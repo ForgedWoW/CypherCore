@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Questing;
 using Framework.Constants;
 using Framework.Util;
 using Serilog;
@@ -129,7 +130,7 @@ internal class FollowerAI : ScriptedAI
         }
     }
 
-    public void StartFollow(Player player, uint factionForFollower = 0, Quest.Quest quest = null)
+    public void StartFollow(Player player, uint factionForFollower = 0, Quest quest = null)
     {
         var cdata = Me.CreatureData;
 

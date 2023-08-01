@@ -387,7 +387,7 @@ public class LFGManager
                 continue;
 
             var done = false;
-            var quest = _objectManager.GetQuestTemplate(reward.FirstQuest);
+            var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(reward.FirstQuest);
 
             if (quest == null)
                 continue;
@@ -398,7 +398,7 @@ public class LFGManager
             else
             {
                 done = true;
-                quest = _objectManager.GetQuestTemplate(reward.OtherQuest);
+                quest = _objectManager.QuestTemplateCache.GetQuestTemplate(reward.OtherQuest);
 
                 if (quest == null)
                     continue;
@@ -1272,14 +1272,14 @@ public class LFGManager
                 maxLevel = (uint)_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
             }
 
-            if (firstQuestId == 0 || _objectManager.GetQuestTemplate(firstQuestId) == null)
+            if (firstQuestId == 0 || _objectManager.QuestTemplateCache.GetQuestTemplate(firstQuestId) == null)
             {
                 Log.Logger.Error("First quest {0} specified for dungeon {1} in table `lfg_dungeon_rewards` does not exist!", firstQuestId, dungeonId);
 
                 continue;
             }
 
-            if (otherQuestId != 0 && _objectManager.GetQuestTemplate(otherQuestId) == null)
+            if (otherQuestId != 0 && _objectManager.QuestTemplateCache.GetQuestTemplate(otherQuestId) == null)
             {
                 Log.Logger.Error("Other quest {0} specified for dungeon {1} in table `lfg_dungeon_rewards` does not exist!", otherQuestId, dungeonId);
                 otherQuestId = 0;

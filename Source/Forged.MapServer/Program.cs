@@ -54,7 +54,7 @@ using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Pools;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting;
@@ -376,6 +376,7 @@ void RegisterCaches()
     builder.RegisterType<MapSpawnGroupCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PageTextCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PointOfInterestCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<QuestTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpawnDataCacheRouter>().SingleInstance();
     builder.RegisterType<SpawnGroupDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpellClickInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());

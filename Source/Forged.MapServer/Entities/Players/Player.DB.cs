@@ -21,7 +21,7 @@ using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Trait;
 using Forged.MapServer.OpCodeHandlers;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
@@ -1656,7 +1656,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var qQuest = GameObjectManager.GetQuestTemplate(questID);
+                var qQuest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
                 if (qQuest is { IsDfQuest: true })
                 {
@@ -1669,7 +1669,7 @@ public partial class Player
                 // save _any_ from daily quest times (it must be after last reset anyway)
                 _lastDailyQuestTime = result.Read<long>(1);
 
-                var quest = GameObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -2251,7 +2251,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var quest = GameObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -2355,7 +2355,7 @@ public partial class Player
             {
                 var questId = result.Read<uint>(0);
                 // used to be new, no delete?
-                var quest = GameObjectManager.GetQuestTemplate(questId);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questId);
 
                 if (quest != null)
                 {
@@ -2436,7 +2436,7 @@ public partial class Player
             {
                 var questID = result.Read<uint>(0);
 
-                var quest = GameObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
                 if (_mQuestStatus.TryGetValue(questID, out var questStatusData))
                 {
@@ -2468,7 +2468,7 @@ public partial class Player
             {
                 var questID = result.Read<uint>(0);
                 // used to be new, no delete?
-                var quest = GameObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
                 if (quest != null)
                 {
@@ -2530,7 +2530,7 @@ public partial class Player
                 var questID = result.Read<uint>(0);
                 var eventID = result.Read<uint>(1);
                 var completedTime = result.Read<long>(2);
-                var quest = GameObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -2974,7 +2974,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var quest = GameObjectManager.GetQuestTemplate(questID);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -3598,7 +3598,7 @@ public partial class Player
                     stmt.AddValue(1, save.Key);
                     trans.Append(stmt);
 
-                    var quest = GameObjectManager.GetQuestTemplate(save.Key);
+                    var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(save.Key);
 
                     foreach (var obj in quest.Objectives)
                     {

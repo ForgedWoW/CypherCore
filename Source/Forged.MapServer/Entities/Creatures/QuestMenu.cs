@@ -18,7 +18,7 @@ public class QuestMenu
 
     public void AddMenuItem(uint questId, byte icon)
     {
-        if (_objectManager.GetQuestTemplate(questId) == null)
+        if (_objectManager.QuestTemplateCache.GetQuestTemplate(questId) == null)
             return;
 
         QuestMenuItem questMenuItem = new()

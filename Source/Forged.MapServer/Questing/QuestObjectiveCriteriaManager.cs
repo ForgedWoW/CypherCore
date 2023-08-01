@@ -24,7 +24,7 @@ using Framework.Database;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
-namespace Forged.MapServer.Quest;
+namespace Forged.MapServer.Questing;
 
 internal class QuestObjectiveCriteriaManager : CriteriaHandler
 {
@@ -69,7 +69,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
             return false;
         }
 
-        var quest = GameObjectManager.GetQuestTemplate(objective.QuestID);
+        var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(objective.QuestID);
 
         if (_owner.Group is { IsRaidGroup: true } && !quest.IsAllowedInRaid(referencePlayer.Location.Map.DifficultyID))
         {
@@ -142,7 +142,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
             {
                 var objectiveId = objectiveResult.Read<uint>(0);
 
-                var objective = GameObjectManager.GetQuestObjective(objectiveId);
+                var objective = GameObjectManager.QuestTemplateCache.GetQuestObjective(objectiveId);
 
                 if (objective == null)
                     continue;

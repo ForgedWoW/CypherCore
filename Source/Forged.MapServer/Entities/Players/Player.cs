@@ -55,7 +55,6 @@ using Forged.MapServer.Networking.Packets.Vehicle;
 using Forged.MapServer.Networking.Packets.WorldState;
 using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.OutdoorPVP;
-using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Server;
@@ -75,6 +74,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using Forged.MapServer.Questing;
 using PlayerChoiceResponse = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponse;
 using PlayerChoiceResponseMawPower = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseMawPower;
 using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
@@ -4050,7 +4050,7 @@ public partial class Player : Unit
 
         if (!GetPlayerSharingQuest().IsEmpty)
         {
-            var quest = GameObjectManager.GetQuestTemplate(GetSharedQuestID());
+            var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(GetSharedQuestID());
 
             if (quest != null)
                 PlayerTalkClass.SendQuestGiverQuestDetails(quest, GUID, true, false);
@@ -7344,7 +7344,7 @@ public partial class Player : Unit
     }
 
     // Calculate how many reputation points player gain with the quest
-    private void RewardReputation(Quest.Quest quest)
+    private void RewardReputation(Quest quest)
     {
         for (byte i = 0; i < SharedConst.QuestRewardReputationsCount; ++i)
         {

@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Forged.MapServer.Quest;
+namespace Forged.MapServer.Questing;
 
 public class QuestStatusData
 {

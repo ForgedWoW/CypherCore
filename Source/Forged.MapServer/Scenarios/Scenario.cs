@@ -125,7 +125,7 @@ public class Scenario : CriteriaHandler
 
     public virtual void CompleteStep(ScenarioStepRecord step)
     {
-        var quest = GameObjectManager.GetQuestTemplate(step.RewardQuestID);
+        var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(step.RewardQuestID);
 
         if (quest != null)
             foreach (var guid in _players)

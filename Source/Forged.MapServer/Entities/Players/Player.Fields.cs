@@ -30,7 +30,7 @@ using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Miscellaneous;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;

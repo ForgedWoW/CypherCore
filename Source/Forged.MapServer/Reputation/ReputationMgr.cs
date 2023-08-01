@@ -472,7 +472,7 @@ public class ReputationMgr
 
                 if (oldParagonLevel != newParagonLevel)
                 {
-                    var paragonRewardQuest = _gameObjectManager.GetQuestTemplate((uint)paragonReputation.QuestID);
+                    var paragonRewardQuest = _gameObjectManager.QuestTemplateCache.GetQuestTemplate((uint)paragonReputation.QuestID);
 
                     if (paragonRewardQuest != null)
                         _player.AddQuestAndCheckCompletion(paragonRewardQuest, null);
@@ -621,7 +621,7 @@ public class ReputationMgr
         if (paragonReputation == null)
             return false;
 
-        var quest = _gameObjectManager.GetQuestTemplate((uint)paragonReputation.QuestID);
+        var quest = _gameObjectManager.QuestTemplateCache.GetQuestTemplate((uint)paragonReputation.QuestID);
 
         if (quest == null)
             return false;

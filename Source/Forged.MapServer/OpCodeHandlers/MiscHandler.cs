@@ -153,7 +153,7 @@ public class MiscHandler : IWorldSessionHandler
 
                 foreach (var questId in quests)
                 {
-                    var qInfo = _objectManager.GetQuestTemplate(questId);
+                    var qInfo = _objectManager.QuestTemplateCache.GetQuestTemplate(questId);
                     var slot = _session.Player.FindQuestSlot(questId);
 
                     if (qInfo == null || slot >= SharedConst.MaxQuestLogSize || _session.Player.GetQuestStatus(questId) != QuestStatus.Incomplete)

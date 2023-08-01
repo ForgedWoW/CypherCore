@@ -315,7 +315,7 @@ public class SmartAIManager
                     }
                     case SmartScriptType.Quest:
                     {
-                        if (_gameObjectManager.GetQuestTemplate((uint)temp.EntryOrGuid) == null)
+                        if (_gameObjectManager.QuestTemplateCache.GetQuestTemplate((uint)temp.EntryOrGuid) == null)
                         {
                             if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
@@ -1525,7 +1525,7 @@ public class SmartAIManager
                     break;
 
                 case SmartEvents.QuestObjCompletion:
-                    if (_gameObjectManager.GetQuestObjective(e.Event.QuestObjective.ID) == null)
+                    if (_gameObjectManager.QuestTemplateCache.GetQuestObjective(e.Event.QuestObjective.ID) == null)
                     {
                         Log.Logger.Error($"SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id {e.Event.QuestObjective.ID}, skipped.");
 
@@ -1824,7 +1824,7 @@ public class SmartAIManager
 
             case SmartActions.CallAreaexploredoreventhappens:
             case SmartActions.CallGroupeventhappens:
-                var qid = _gameObjectManager.GetQuestTemplate(e.Action.Quest.QuestId);
+                var qid = _gameObjectManager.QuestTemplateCache.GetQuestTemplate(e.Action.Quest.QuestId);
 
                 if (qid != null)
                 {
@@ -2615,7 +2615,7 @@ public class SmartAIManager
 
     private bool IsQuestValid(SmartScriptHolder e, uint entry)
     {
-        if (_gameObjectManager.GetQuestTemplate(entry) == null)
+        if (_gameObjectManager.QuestTemplateCache.GetQuestTemplate(entry) == null)
         {
             Log.Logger.Error($"SmartAIMgr: {e} uses non-existent QuestId entry {entry}, skipped.");
 

@@ -9,7 +9,7 @@ using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Scripting;
 using Framework.Constants;
 using Framework.Database;
@@ -230,7 +230,7 @@ public class CriteriaManager
 
         Dictionary<uint /*criteriaTreeID*/, QuestObjective> questObjectiveCriteriaTreeIds = new();
 
-        foreach (var pair in _gameObjectManager.QuestTemplates)
+        foreach (var pair in _gameObjectManager.QuestTemplateCache.QuestTemplates)
         {
             foreach (var objective in pair.Value.Objectives)
             {

@@ -12,7 +12,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Phasing;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IScene;
 using Framework.Constants;

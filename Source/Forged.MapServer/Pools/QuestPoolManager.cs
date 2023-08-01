@@ -134,7 +134,7 @@ public class QuestPoolManager
                 var poolIndex = result.Read<uint>(2);
                 var numActive = result.Read<uint>(3);
 
-                var quest = _objectManager.GetQuestTemplate(questId);
+                var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(questId);
 
                 if (quest == null)
                 {

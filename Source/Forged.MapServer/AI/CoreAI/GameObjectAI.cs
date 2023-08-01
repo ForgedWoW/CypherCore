@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
@@ -108,12 +109,12 @@ public class GameObjectAI
     /// <summary>
     ///     Called when a player accepts a quest from the gameobject.
     /// </summary>
-    public virtual void OnQuestAccept(Player player, Quest.Quest quest) { }
+    public virtual void OnQuestAccept(Player player, Quest quest) { }
 
     /// <summary>
     ///     Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
     /// </summary>
-    public virtual void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt) { }
+    public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt) { }
 
     // Called when a Player clicks a GameObject, before GossipHello
     // prevents achievement tracking if returning true

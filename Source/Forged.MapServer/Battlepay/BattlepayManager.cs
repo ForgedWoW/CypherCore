@@ -906,9 +906,9 @@ public class BattlepayManager
 
                     if (player.Class == PlayerClass.Deathknight)
                     {
-                        var quest = _session.Player.GameObjectManager.GetQuestTemplate(12801);
+                        var quest = _session.Player.GameObjectManager.QuestTemplateCache.GetQuestTemplate(12801);
 
-                        if (_session.Player.GameObjectManager.GetQuestTemplate(12801) != null)
+                        if (_session.Player.GameObjectManager.QuestTemplateCache.GetQuestTemplate(12801) != null)
                         {
                             player.AddQuest(quest, null);
                             player.CompleteQuest(quest.Id);

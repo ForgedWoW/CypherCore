@@ -169,7 +169,7 @@ public sealed class ConditionManager
 
                 if (reward != null)
                 {
-                    var quest = _objectManager.GetQuestTemplate(reward.FirstQuest);
+                    var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(reward.FirstQuest);
 
                     if (quest != null)
                         if (player.CanRewardQuest(quest, false))
@@ -828,7 +828,7 @@ public sealed class ConditionManager
 
         if (condition.QuestKillID != 0)
         {
-            var quest = _objectManager.GetQuestTemplate(condition.QuestKillID);
+            var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(condition.QuestKillID);
             var questSlot = player.FindQuestSlot(condition.QuestKillID);
 
             if (quest != null && player.GetQuestStatus(condition.QuestKillID) != QuestStatus.Complete && questSlot < SharedConst.MaxQuestLogSize)
@@ -2042,7 +2042,7 @@ public sealed class ConditionManager
                     return false;
                 }
 
-                if (_objectManager.GetQuestTemplate(cond.ConditionValue1) == null)
+                if (_objectManager.QuestTemplateCache.GetQuestTemplate(cond.ConditionValue1) == null)
                 {
                     Log.Logger.Debug("{0} points to non-existing quest ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2056,7 +2056,7 @@ public sealed class ConditionManager
             case ConditionTypes.QuestComplete:
             case ConditionTypes.DailyQuestDone:
             {
-                if (_objectManager.GetQuestTemplate(cond.ConditionValue1) == null)
+                if (_objectManager.QuestTemplateCache.GetQuestTemplate(cond.ConditionValue1) == null)
                 {
                     Log.Logger.Debug("{0} points to non-existing quest ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2476,7 +2476,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.ObjectiveProgress:
             {
-                var obj = _objectManager.GetQuestObjective(cond.ConditionValue1);
+                var obj = _objectManager.QuestTemplateCache.GetQuestObjective(cond.ConditionValue1);
 
                 if (obj == null)
                 {
@@ -2959,7 +2959,7 @@ public sealed class ConditionManager
                 break;
             }
             case ConditionSourceType.QuestAvailable:
-                if (_objectManager.GetQuestTemplate((uint)cond.SourceEntry) == null)
+                if (_objectManager.QuestTemplateCache.GetQuestTemplate((uint)cond.SourceEntry) == null)
                 {
                     Log.Logger.Debug("{0} SourceEntry specifies non-existing quest, skipped.", cond.ToString());
 

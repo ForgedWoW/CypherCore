@@ -29,6 +29,7 @@ using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Networking.Packets.Talent;
 using Forged.MapServer.Networking.Packets.Taxi;
 using Forged.MapServer.Networking.Packets.Trait;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IQuest;
 using Forged.MapServer.Scripting.Interfaces.ISpell;
@@ -2095,7 +2096,7 @@ public partial class Spell
         if (playerTarget == null)
             return;
 
-        var xp = Quest.Quest.XPValue(playerTarget, (uint)EffectInfo.MiscValue, (uint)EffectInfo.MiscValueB);
+        var xp = Quest.XPValue(playerTarget, (uint)EffectInfo.MiscValue, (uint)EffectInfo.MiscValueB);
         playerTarget.GiveXP(xp, null);
     }
 
@@ -3540,7 +3541,7 @@ public partial class Spell
 
         var questID = (uint)EffectInfo.MiscValue;
 
-        var quest = _gameObjectManager.GetQuestTemplate(questID);
+        var quest = _gameObjectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
         if (quest == null)
             return;
@@ -3594,7 +3595,7 @@ public partial class Spell
         if (questId == 0)
             return;
 
-        var quest = _gameObjectManager.GetQuestTemplate(questId);
+        var quest = _gameObjectManager.QuestTemplateCache.GetQuestTemplate(questId);
 
         if (quest == null)
             return;
@@ -3630,7 +3631,7 @@ public partial class Spell
         if (player == null)
             return;
 
-        var quest = _gameObjectManager.GetQuestTemplate((uint)EffectInfo.MiscValue);
+        var quest = _gameObjectManager.QuestTemplateCache.GetQuestTemplate((uint)EffectInfo.MiscValue);
 
         if (quest == null)
             return;

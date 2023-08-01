@@ -30,6 +30,7 @@ using Forged.MapServer.Networking.Packets.GameObject;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Pools;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
@@ -2833,7 +2834,7 @@ public class GameObject : WorldObject
                     }
 
                     // possible quest objective for active quests
-                    if (info.Goober.questID != 0 && GameObjectManager.GetQuestTemplate(info.Goober.questID) != null)
+                    if (info.Goober.questID != 0 && GameObjectManager.QuestTemplateCache.GetQuestTemplate(info.Goober.questID) != null)
                         //QuestId require to be active for GO using
                         if (player.GetQuestStatus(info.Goober.questID) != QuestStatus.Incomplete)
                             break;
@@ -3427,7 +3428,7 @@ public class GameObject : WorldObject
                     if (info.GatheringNode.xpDifficulty != 0 && info.GatheringNode.xpDifficulty < 10)
                         if (CliDB.QuestXPStorage.TryGetValue(player.Level, out var questXp))
                         {
-                            var xp = Quest.Quest.RoundXPValue(questXp.Difficulty[info.GatheringNode.xpDifficulty]);
+                            var xp = Quest.RoundXPValue(questXp.Difficulty[info.GatheringNode.xpDifficulty]);
 
                             if (xp != 0)
                                 player.GiveXP(xp, null);

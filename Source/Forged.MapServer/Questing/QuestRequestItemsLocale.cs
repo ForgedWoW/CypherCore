@@ -4,9 +4,9 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Forged.MapServer.Quest;
+namespace Forged.MapServer.Questing;
 
-public class QuestOfferRewardLocale
+public class QuestRequestItemsLocale
 {
-    public StringArray RewardText { get; set; } = new((int)Locale.Total);
+    public StringArray CompletionText { get; set; } = new((int)Locale.Total);
 }

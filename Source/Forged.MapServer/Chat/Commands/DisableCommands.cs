@@ -75,7 +75,7 @@ internal class DisableCommands
                 }
                 case DisableType.Quest:
                 {
-                    if (handler.ObjectManager.GetQuestTemplate(entry) == null)
+                    if (handler.ObjectManager.QuestTemplateCache.GetQuestTemplate(entry) == null)
                     {
                         handler.SendSysMessage(CypherStrings.CommandNoquestfound, entry);
 

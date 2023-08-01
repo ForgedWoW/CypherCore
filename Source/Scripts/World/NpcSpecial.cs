@@ -14,7 +14,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Movement;
-using Forged.MapServer.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Text;

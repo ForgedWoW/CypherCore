@@ -15,6 +15,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
@@ -400,10 +401,10 @@ public class CreatureAI : UnitAI
     }
 
     // Called when a player accepts a quest from the creature.
-    public virtual void OnQuestAccept(Player player, Quest.Quest quest) { }
+    public virtual void OnQuestAccept(Player player, Quest quest) { }
 
     // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-    public virtual void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt) { }
+    public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt) { }
 
     // Called when a spell finishes
     public virtual void OnSpellCast(SpellInfo spell) { }

@@ -689,7 +689,7 @@ internal class ReloadCommand
     private static bool HandleReloadQuestTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading QuestId Templates...");
-        handler.ObjectManager.LoadQuests();
+        handler.ObjectManager.QuestTemplateCache.Load();
         handler.ObjectManager.InitializeQueriesData(QueryDataGroup.Quests);
         handler.SendGlobalGMSysMessage("DB table `quest_template` (quest definitions) reloaded.");
 

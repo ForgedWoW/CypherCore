@@ -129,7 +129,7 @@ public class QuestHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.PushQuestToParty)]
     private void HandlePushQuestToParty(PushQuestToParty packet)
     {
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest == null)
             return;
@@ -314,7 +314,7 @@ public class QuestHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.QuestConfirmAccept)]
     private void HandleQuestConfirmAccept(QuestConfirmAccept packet)
     {
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest != null)
         {
@@ -402,7 +402,7 @@ public class QuestHandler : IWorldSessionHandler
             return;
         }
 
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest != null)
         {
@@ -465,7 +465,7 @@ public class QuestHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.QuestGiverChooseReward, Processing = PacketProcessing.Inplace)]
     private void HandleQuestgiverChooseReward(QuestGiverChooseReward packet)
     {
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest == null)
             return;
@@ -611,7 +611,7 @@ public class QuestHandler : IWorldSessionHandler
         if (_session.Player.FindQuestSlot(questGiverCloseQuest.QuestID) >= SharedConst.MaxQuestLogSize)
             return;
 
-        var quest = _objectManager.GetQuestTemplate(questGiverCloseQuest.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(questGiverCloseQuest.QuestID);
 
         if (quest == null)
             return;
@@ -624,7 +624,7 @@ public class QuestHandler : IWorldSessionHandler
     {
         var autoCompleteMode = packet.FromScript; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
 
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest == null)
             return;
@@ -720,7 +720,7 @@ public class QuestHandler : IWorldSessionHandler
             return;
         }
 
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest == null)
             return;
@@ -755,7 +755,7 @@ public class QuestHandler : IWorldSessionHandler
         if (_session.Player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete)
             return;
 
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest != null)
             _session.Player.PlayerTalkClass.SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
@@ -825,7 +825,7 @@ public class QuestHandler : IWorldSessionHandler
             if (!_session.Player.TakeQuestSourceItem(questId, true))
                 return; // can't un-equip some items, reject quest cancel
 
-            var quest = _objectManager.GetQuestTemplate(questId);
+            var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(questId);
             var oldStatus = _session.Player.GetQuestStatus(questId);
 
             if (quest != null)
@@ -876,7 +876,7 @@ public class QuestHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.QueryQuestInfo, Processing = PacketProcessing.Inplace)]
     private void HandleQuestQuery(QueryQuestInfo packet)
     {
-        var quest = _objectManager.GetQuestTemplate(packet.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(packet.QuestID);
 
         if (quest != null)
             _session.Player.PlayerTalkClass.SendQuestQueryResponse(quest);
@@ -918,7 +918,7 @@ public class QuestHandler : IWorldSessionHandler
                     foreach (var lineXRecord in lineXQuestRecords)
                         if (_db2Manager.TryGetQuestsForQuestLine(lineXRecord.QuestID, out var questLineQuests))
                             foreach (var questLineQuest in questLineQuests)
-                                if (_objectManager.TryGetQuestTemplate(questLineQuest.QuestID, out var quest) &&
+                                if (_objectManager.QuestTemplateCache.TryGetQuestTemplate(questLineQuest.QuestID, out var quest) &&
                                     _session.Player.CanTakeQuest(quest, false) &&
                                     _contentTuningRecords.TryGetValue(quest.ContentTuningId, out var contentTune) &&
                                     _session.Player.Level >= contentTune.MinLevel)

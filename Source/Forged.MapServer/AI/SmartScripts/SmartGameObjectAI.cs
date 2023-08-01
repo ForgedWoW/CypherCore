@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 
@@ -84,12 +85,12 @@ public class SmartGameObjectAI : GameObjectAI
         GetScript().ProcessEventsFor(SmartEvents.GoLootStateChanged, unit, state);
     }
 
-    public override void OnQuestAccept(Player player, Quest.Quest quest)
+    public override void OnQuestAccept(Player player, Quest quest)
     {
         GetScript().ProcessEventsFor(SmartEvents.AcceptedQuest, player, quest.Id, 0, false, null, Me);
     }
 
-    public override void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt)
+    public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     {
         GetScript().ProcessEventsFor(SmartEvents.RewardQuest, player, quest.Id, opt, false, null, Me);
     }

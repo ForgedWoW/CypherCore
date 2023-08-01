@@ -1423,7 +1423,7 @@ public class CharacterHandler : IWorldSessionHandler
 
                 // Disable all old-faction specific quests
                 {
-                    var questTemplates = _objectManager.QuestTemplates;
+                    var questTemplates = _objectManager.QuestTemplateCache.QuestTemplates;
 
                     foreach (var quest in questTemplates.Values)
                     {

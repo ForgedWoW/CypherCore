@@ -617,12 +617,12 @@ public class Condition
             {
                 if (player != null)
                 {
-                    var questObj = _objectManager.GetQuestObjective(ConditionValue1);
+                    var questObj = _objectManager.QuestTemplateCache.GetQuestObjective(ConditionValue1);
 
                     if (questObj == null)
                         break;
 
-                    var quest = _objectManager.GetQuestTemplate(questObj.QuestID);
+                    var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(questObj.QuestID);
 
                     if (quest == null)
                         break;

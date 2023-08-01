@@ -1223,7 +1223,7 @@ public sealed class SpellManager
                 continue;
             }
 
-            if (spellArea.QuestStart != 0 && _objectManager.GetQuestTemplate(spellArea.QuestStart) == null)
+            if (spellArea.QuestStart != 0 && _objectManager.QuestTemplateCache.GetQuestTemplate(spellArea.QuestStart) == null)
             {
                 Log.Logger.Error("Spell {0} listed in `spell_area` have wrong start quest ({1}) requirement", spell, spellArea.QuestStart);
 
@@ -1231,7 +1231,7 @@ public sealed class SpellManager
             }
 
             if (spellArea.QuestEnd != 0)
-                if (_objectManager.GetQuestTemplate(spellArea.QuestEnd) == null)
+                if (_objectManager.QuestTemplateCache.GetQuestTemplate(spellArea.QuestEnd) == null)
                 {
                     Log.Logger.Error("Spell {0} listed in `spell_area` have wrong end quest ({1}) requirement", spell, spellArea.QuestEnd);
 

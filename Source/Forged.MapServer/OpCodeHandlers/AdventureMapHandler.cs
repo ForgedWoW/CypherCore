@@ -30,7 +30,7 @@ public class AdventureMapHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
     private void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
     {
-        var quest = _objectManager.GetQuestTemplate(startQuest.QuestID);
+        var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(startQuest.QuestID);
 
         if (quest == null)
             return;

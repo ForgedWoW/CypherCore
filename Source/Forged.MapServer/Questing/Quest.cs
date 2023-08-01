@@ -20,7 +20,7 @@ using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
-namespace Forged.MapServer.Quest;
+namespace Forged.MapServer.Questing;
 
 public class Quest
 {

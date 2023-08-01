@@ -5,7 +5,6 @@ using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Quest;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IQuest;
@@ -13,6 +12,7 @@ using Framework.Constants;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Globals.Caching;
+using Forged.MapServer.Questing;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -91,7 +91,7 @@ internal class QuestCommands
     }
 
     [Command("add", RBACPermissions.CommandQuestAdd)]
-    private static bool HandleQuestAdd(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestAdd(CommandHandler handler, Quest quest)
     {
         var player = handler.SelectedPlayer;
 
@@ -131,7 +131,7 @@ internal class QuestCommands
     }
 
     [Command("complete", RBACPermissions.CommandQuestComplete)]
-    private static bool HandleQuestComplete(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestComplete(CommandHandler handler, Quest quest)
     {
         var player = handler.SelectedPlayer;
 
@@ -159,7 +159,7 @@ internal class QuestCommands
     }
 
     [Command("remove", RBACPermissions.CommandQuestRemove)]
-    private static bool HandleQuestRemove(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestRemove(CommandHandler handler, Quest quest)
     {
         var player = handler.SelectedPlayer;
 
@@ -211,7 +211,7 @@ internal class QuestCommands
     }
 
     [Command("reward", RBACPermissions.CommandQuestReward)]
-    private static bool HandleQuestReward(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestReward(CommandHandler handler, Quest quest)
     {
         var player = handler.SelectedPlayer;
 
@@ -250,7 +250,7 @@ internal class QuestCommands
                 return false;
             }
 
-            var obj = handler.ObjectManager.GetQuestObjective(objectiveId);
+            var obj = handler.ObjectManager.QuestTemplateCache.GetQuestObjective(objectiveId);
 
             if (obj == null)
             {

@@ -648,7 +648,7 @@ public class CriteriaHandler
 
                         foreach (var id in rewQuests)
                         {
-                            var quest = GameObjectManager.GetQuestTemplate(id);
+                            var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(id);
 
                             if (quest is { QuestSortID: >= 0 } && quest.QuestSortID == criteria.Entry.Asset)
                                 ++counter;
@@ -1852,12 +1852,12 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerHasCompletedQuestObjective: // 112
             {
-                var objective = GameObjectManager.GetQuestObjective(reqValue);
+                var objective = GameObjectManager.QuestTemplateCache.GetQuestObjective(reqValue);
 
                 if (objective == null)
                     return false;
 
-                var quest = GameObjectManager.GetQuestTemplate(objective.QuestID);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(objective.QuestID);
 
                 if (quest == null)
                     return false;
@@ -2451,7 +2451,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.PlayerQuestObjectiveProgressEqual: // 158
             {
-                var objective = GameObjectManager.GetQuestObjective(reqValue);
+                var objective = GameObjectManager.QuestTemplateCache.GetQuestObjective(reqValue);
 
                 if (objective == null)
                     return false;
@@ -2463,7 +2463,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.PlayerQuestObjectiveProgressEqualOrGreaterThan: // 159
             {
-                var objective = GameObjectManager.GetQuestObjective(reqValue);
+                var objective = GameObjectManager.QuestTemplateCache.GetQuestObjective(reqValue);
 
                 if (objective == null)
                     return false;
@@ -2576,7 +2576,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerCanAcceptQuest: // 174
             {
-                var quest = GameObjectManager.GetQuestTemplate(reqValue);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(reqValue);
 
                 if (quest == null)
                     return false;
@@ -2807,7 +2807,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.QuestHasQuestInfoId: // 206
             {
-                var quest = GameObjectManager.GetQuestTemplate((uint)miscValue1);
+                var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate((uint)miscValue1);
 
                 if (quest == null || quest.Id != reqValue)
                     return false;
@@ -3136,7 +3136,7 @@ public class CriteriaHandler
 
                 var canTakeQuest = questLineQuests.Any(questLineQuest =>
                 {
-                    var quest = GameObjectManager.GetQuestTemplate(questLineQuest.QuestID);
+                    var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate(questLineQuest.QuestID);
 
                     if (quest != null)
                         return referencePlayer.CanTakeQuest(quest, false);
@@ -4092,7 +4092,7 @@ public class CriteriaHandler
             case CriteriaType.CompleteQuestsInZone:
                 if (miscValue1 != 0)
                 {
-                    var quest = GameObjectManager.GetQuestTemplate((uint)miscValue1);
+                    var quest = GameObjectManager.QuestTemplateCache.GetQuestTemplate((uint)miscValue1);
 
                     if (quest == null || quest.QuestSortID != criteria.Entry.Asset)
                         return false;

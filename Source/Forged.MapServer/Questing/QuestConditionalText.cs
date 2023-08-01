@@ -4,7 +4,7 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Forged.MapServer.Quest;
+namespace Forged.MapServer.Questing;
 
 public class QuestConditionalText
 {

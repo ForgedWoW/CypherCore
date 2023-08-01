@@ -114,14 +114,14 @@ public class AccessRequirementsCache : IObjectCache
             }
 
             if (ar.QuestA != 0)
-                if (_gameObjectManager.GetQuestTemplate(ar.QuestA) == null)
+                if (_gameObjectManager.QuestTemplateCache.GetQuestTemplate(ar.QuestA) == null)
                 {
                     Log.Logger.Error("Required Alliance QuestId {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestA, mapid, difficulty);
                     ar.QuestA = 0;
                 }
 
             if (ar.QuestH != 0)
-                if (_gameObjectManager.GetQuestTemplate(ar.QuestH) == null)
+                if (_gameObjectManager.QuestTemplateCache.GetQuestTemplate(ar.QuestH) == null)
                 {
                     Log.Logger.Error("Required Horde QuestId {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestH, mapid, difficulty);
                     ar.QuestH = 0;

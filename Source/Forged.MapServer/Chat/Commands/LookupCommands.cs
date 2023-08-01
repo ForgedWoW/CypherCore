@@ -1107,7 +1107,7 @@ internal class LookupCommands
             var found = false;
             uint count = 0;
 
-            var qTemplates = handler.ObjectManager.QuestTemplates;
+            var qTemplates = handler.ObjectManager.QuestTemplateCache.QuestTemplates;
 
             foreach (var qInfo in qTemplates.Values)
             {
@@ -1252,7 +1252,7 @@ internal class LookupCommands
             // can be NULL at console call
             var target = handler.SelectedPlayerOrSelf;
 
-            var quest = handler.ObjectManager.GetQuestTemplate(id);
+            var quest = handler.ObjectManager.QuestTemplateCache.GetQuestTemplate(id);
 
             if (quest != null)
             {

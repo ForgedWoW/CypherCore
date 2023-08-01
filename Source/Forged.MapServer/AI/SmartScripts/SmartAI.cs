@@ -14,6 +14,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Questing;
 
 namespace Forged.MapServer.AI.SmartScripts;
 
@@ -473,12 +474,12 @@ public class SmartAI : CreatureAI
         return false;
     }
 
-    public override void OnQuestAccept(Player player, Quest.Quest quest)
+    public override void OnQuestAccept(Player player, Quest quest)
     {
         GetScript().ProcessEventsFor(SmartEvents.AcceptedQuest, player, quest.Id);
     }
 
-    public override void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt)
+    public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     {
         GetScript().ProcessEventsFor(SmartEvents.RewardQuest, player, quest.Id, opt);
     }

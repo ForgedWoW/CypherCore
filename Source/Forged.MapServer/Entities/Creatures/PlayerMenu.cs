@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.NPC;
 using Forged.MapServer.Networking.Packets.Quest;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
@@ -116,7 +117,7 @@ public class PlayerMenu
         {
             var item = QuestMenu.GetItem(i);
             var questID = item.QuestId;
-            var quest = _objectManager.GetQuestTemplate(questID);
+            var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
             if (quest == null)
                 continue;
@@ -184,7 +185,7 @@ public class PlayerMenu
         _session.SendPacket(packet);
     }
 
-    public void SendQuestGiverOfferReward(Quest.Quest quest, ObjectGuid npcGUID, bool autoLaunched)
+    public void SendQuestGiverOfferReward(Quest quest, ObjectGuid npcGUID, bool autoLaunched)
     {
         QuestGiverOfferRewardMessage packet = new()
         {
@@ -262,7 +263,7 @@ public class PlayerMenu
         _session.SendPacket(packet);
     }
 
-    public void SendQuestGiverQuestDetails(Quest.Quest quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup)
+    public void SendQuestGiverQuestDetails(Quest quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup)
     {
         QuestGiverQuestDetails packet = new()
         {
@@ -390,7 +391,7 @@ public class PlayerMenu
             var questMenuItem = QuestMenu.GetItem(i);
 
             var questID = questMenuItem.QuestId;
-            var quest = _objectManager.GetQuestTemplate(questID);
+            var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(questID);
 
             if (quest != null)
             {
@@ -420,7 +421,7 @@ public class PlayerMenu
         _session.SendPacket(questList);
     }
 
-    public void SendQuestGiverRequestItems(Quest.Quest quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched)
+    public void SendQuestGiverRequestItems(Quest quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched)
     {
         // We can always call to RequestItems, but this packet only goes out if there are actually
         // items.  Otherwise, we'll skip straight to the OfferReward
@@ -530,7 +531,7 @@ public class PlayerMenu
         _session.SendPacket(packet);
     }
 
-    public void SendQuestQueryResponse(Quest.Quest quest)
+    public void SendQuestQueryResponse(Quest quest)
     {
         if (_configuration.GetDefaultValue("CacheDataQueries", true))
             _session.SendPacket(quest.Response[(int)_session.SessionDbLocaleIndex]);

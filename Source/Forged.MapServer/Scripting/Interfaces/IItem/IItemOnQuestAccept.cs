@@ -3,10 +3,11 @@
 
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Questing;
 
 namespace Forged.MapServer.Scripting.Interfaces.IItem;
 
 public interface IItemOnQuestAccept : IScriptObject
 {
-    bool OnQuestAccept(Player player, Item item, Quest.Quest quest);
+    bool OnQuestAccept(Player player, Item item, Quest quest);
 }

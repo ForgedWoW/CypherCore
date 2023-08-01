@@ -10,6 +10,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Movement;
+using Forged.MapServer.Questing;
 using Framework.Constants;
 using Framework.Util;
 using Serilog;
@@ -24,7 +25,7 @@ public class EscortAI : ScriptedAI
     private bool _despawnAtEnd;
     private bool _despawnAtFar;
     private bool _ended;
-    private Quest.Quest _escortQuest;
+    private Quest _escortQuest;
     private EscortState _escortState;
     private bool _hasImmuneToNPCFlags;
     private bool _instantRespawn;
@@ -286,7 +287,7 @@ public class EscortAI : ScriptedAI
     }
 
     /// todo get rid of this many variables passed in function.
-    public void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = default, Quest.Quest quest = null, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true)
+    public void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = default, Quest quest = null, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true)
     {
         // Queue respawn from the point it starts
         var cdata = Me.CreatureData;

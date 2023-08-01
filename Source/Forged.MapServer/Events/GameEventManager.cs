@@ -809,7 +809,7 @@ public class GameEventManager
                     var questId = result.Read<uint>(0);
                     ushort eventEntry = result.Read<byte>(1);
 
-                    var questTemplate = _objectManager.GetQuestTemplate(questId);
+                    var questTemplate = _objectManager.QuestTemplateCache.GetQuestTemplate(questId);
 
                     if (questTemplate == null)
                     {

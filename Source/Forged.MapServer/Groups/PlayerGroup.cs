@@ -1299,7 +1299,7 @@ public class PlayerGroup
 
                 if (reward != null)
                 {
-                    var quest = _objectManager.GetQuestTemplate(reward.FirstQuest);
+                    var quest = _objectManager.QuestTemplateCache.GetQuestTemplate(reward.FirstQuest);
 
                     if (quest != null)
                         lfgInfos.MyFirstReward = player.CanRewardQuest(quest, false);

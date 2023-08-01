@@ -9,6 +9,7 @@ using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Globals.Caching;
+using Forged.MapServer.Questing;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 
@@ -255,11 +256,11 @@ internal class CommandArgs
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserSpellNoExist, tempVal));
                     }
-                    case nameof(Quest.Quest):
+                    case nameof(Quest):
                     {
                         var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-                        if (!result.IsSuccessful || (val = handler.ObjectManager.GetQuestTemplate(tempVal)) != null)
+                        if (!result.IsSuccessful || (val = handler.ObjectManager.QuestTemplateCache.GetQuestTemplate(tempVal)) != null)
                             return result;
 
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserQuestNoExist, tempVal));
