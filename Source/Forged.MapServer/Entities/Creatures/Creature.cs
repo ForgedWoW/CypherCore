@@ -1871,7 +1871,7 @@ public partial class Creature : Unit
     {
         // update in loaded data
         if (SpawnId == 0)
-            SpawnId = GameObjectManager.GenerateCreatureSpawnId();
+            SpawnId = GameObjectManager.IDGeneratorCache.GenerateCreatureSpawnId();
 
         var data = GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.NewOrExistCreatureData(SpawnId);
 

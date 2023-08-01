@@ -1603,7 +1603,7 @@ public class GameObject : WorldObject
             return;
 
         if (SpawnId == 0)
-            SpawnId = GameObjectManager.GenerateGameObjectSpawnId();
+            SpawnId = GameObjectManager.IDGeneratorCache.GenerateGameObjectSpawnId();
 
         // update in loaded data (changing data only in this place)
         var data = GameObjectManager.SpawnDataCacheRouter.GameObjectCache.NewOrExistGameObjectData(SpawnId);

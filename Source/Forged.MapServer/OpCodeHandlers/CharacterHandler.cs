@@ -16,6 +16,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Character;
@@ -61,6 +62,7 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly GameObjectManager _objectManager;
     private readonly PlayerComputators _playerComputators;
     private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
+    private readonly FactionChangeTitleCache _factionChangeTitleCache;
     private readonly ScriptManager _scriptManager;
     private readonly WorldSession _session;
     private readonly WorldManager _worldManager;
@@ -69,7 +71,7 @@ public class CharacterHandler : IWorldSessionHandler
         CharacterDatabase characterDatabase, ScriptManager scriptManager, LoginDatabase loginDatabase, DB2Manager dB2Manager,
         WorldManager worldManager, GuildManager guildManager, GameObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
         ArenaTeamManager arenaTeamManager, ClassFactory classFactory, CalendarManager calendarManager, ConditionManager conditionManager, PlayerComputators playerComputators,
-        ObjectGuidGeneratorFactory objectGuidGeneratorFactory)
+        ObjectGuidGeneratorFactory objectGuidGeneratorFactory, FactionChangeTitleCache factionChangeTitleCache)
     {
         _session = session;
         _cliDb = cliDb;
@@ -90,6 +92,7 @@ public class CharacterHandler : IWorldSessionHandler
         _conditionManager = conditionManager;
         _playerComputators = playerComputators;
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
+        _factionChangeTitleCache = factionChangeTitleCache;
     }
 
     public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, Race race, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -1507,7 +1510,7 @@ public class CharacterHandler : IWorldSessionHandler
                         if (uint.TryParse(tokens[index], out var id))
                             knownTitles.Add(id);
 
-                    foreach (var (titleAlliance, titleHorde) in _objectManager.FactionChangeTitles)
+                    foreach (var (titleAlliance, titleHorde) in _factionChangeTitleCache.FactionChangeTitles)
                     {
                         var atitleInfo = _cliDb.CharTitlesStorage.LookupByKey(titleAlliance);
                         var htitleInfo = _cliDb.CharTitlesStorage.LookupByKey(titleHorde);

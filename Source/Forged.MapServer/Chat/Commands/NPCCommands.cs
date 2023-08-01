@@ -638,7 +638,7 @@ internal class NPCCommands
 
             if (trans != null)
             {
-                var guid = handler.Session.Player.GameObjectManager.GenerateCreatureSpawnId();
+                var guid = handler.Session.Player.GameObjectManager.IDGeneratorCache.GenerateCreatureSpawnId();
                 var data = handler.Session.Player.GameObjectManager.SpawnDataCacheRouter.CreatureDataCache.NewOrExistCreatureData(guid);
                 data.SpawnId = guid;
                 data.SpawnGroupData = handler.Session.Player.GameObjectManager.SpawnGroupDataCache.GetDefaultSpawnGroup();

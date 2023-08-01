@@ -5,9 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
 using Forged.MapServer.AI.CoreAI;
-using Forged.MapServer.Arenas;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
@@ -20,7 +18,6 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals.Caching;
-using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
@@ -109,22 +106,17 @@ public sealed class GameObjectManager
     private readonly WorldDatabase _worldDatabase;
 
     // first free id for selected id type
-    private uint _auctionId;
 
     private AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
     private AzeriteItemFactory _azeriteItemFactory;
     private ConditionManager _conditionManager;
-    private ulong _creatureSpawnId;
     private DB2Manager _db2Manager;
     private DisableManager _disableManager;
-    private ulong _equipmentSetGuid;
-    private ulong _gameObjectSpawnId;
     private GridDefines _gridDefines;
     private uint _hiPetNumber;
     private ItemFactory _itemFactory;
     private LFGManager _lfgManager;
     private LootStoreBox _lootStoreBox;
-    private ulong _mailId;
     private MapManager _mapManager;
     private ObjectAccessor _objectAccessor;
     private PhasingHandler _phasingHandler;
@@ -133,11 +125,11 @@ public sealed class GameObjectManager
     private SpellManager _spellManager;
     private TerrainManager _terrainManager;
     private TransportManager _transportManager;
-    private ulong _voidItemId;
     private WorldManager _worldManager;
     private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly ItemTemplateCache _itemTemplateCache;
-    private readonly QuestTemplateCache _questTemplateCache;
+    private readonly IdGeneratorCache _idGeneratorCache;
+    private readonly FactionChangeTitleCache _factionChangeTitleCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -171,8 +163,6 @@ public sealed class GameObjectManager
     public Dictionary<uint, uint> FactionChangeReputation { get; set; } = new();
 
     public Dictionary<uint, uint> FactionChangeSpells { get; set; } = new();
-
-    public Dictionary<uint, uint> FactionChangeTitles { get; set; } = new();
 
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
 
@@ -218,9 +208,16 @@ public sealed class GameObjectManager
 
     public CreatureLocaleCache CreatureLocaleCache { get; }
 
-    public QuestTemplateCache QuestTemplateCache
+    public QuestTemplateCache QuestTemplateCache { get; }
+
+    public IdGeneratorCache IDGeneratorCache
     {
-        get { return _questTemplateCache; }
+        get { return _idGeneratorCache; }
+    }
+
+    public FactionChangeTitleCache FactionChangeTitleCache
+    {
+        get { return _factionChangeTitleCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -350,31 +347,6 @@ public sealed class GameObjectManager
         return range.FirstOrDefault(data => data.SafeLocId == id);
     }
 
-    public uint GenerateAuctionID()
-    {
-        return Interlocked.Increment(ref _auctionId);
-    }
-
-    public ulong GenerateCreatureSpawnId()
-    {
-        return Interlocked.Increment(ref _creatureSpawnId);
-    }
-
-    public ulong GenerateEquipmentSetGuid()
-    {
-        return Interlocked.Increment(ref _equipmentSetGuid);
-    }
-
-    public ulong GenerateGameObjectSpawnId()
-    {
-        return Interlocked.Increment(ref _gameObjectSpawnId);
-    }
-
-    public ulong GenerateMailID()
-    {
-        return Interlocked.Increment(ref _mailId);
-    }
-
     public string GeneratePetName(uint entry)
     {
         var list0 = _petHalfName0[entry];
@@ -402,17 +374,6 @@ public sealed class GameObjectManager
         _worldManager.StopNow();
 
         return _hiPetNumber++;
-    }
-
-    public ulong GenerateVoidStorageItemId()
-    {
-        if (_voidItemId < 0xFFFFFFFFFFFFFFFE)
-            return _voidItemId++;
-
-        Log.Logger.Error("_voidItemId overflow!! Can't continue, shutting down server. ");
-        _worldManager.StopNow();
-
-        return _voidItemId++;
     }
 
     public ClassAvailability GetClassExpansionRequirement(Race raceId, PlayerClass classId)
@@ -1109,7 +1070,7 @@ public sealed class GameObjectManager
         _phasingHandler = _classFactory.Resolve<PhasingHandler>();
 
         FillSpellSummary();
-        SetHighestGuids();
+        IDGeneratorCache.Load();
 
         if (!LoadCypherStrings())
             Environment.Exit(1);
@@ -1172,7 +1133,7 @@ public sealed class GameObjectManager
         LoadFactionChangeItems();
         LoadFactionChangeQuests();
         LoadFactionChangeReputations();
-        LoadFactionChangeTitles();
+        FactionChangeTitleCache.Load();
         ReturnOrDeleteOldMails(false);
         InitializeQueriesData(QueryDataGroup.All);
         LoadRaceAndClassExpansionRequirements();
@@ -1653,11 +1614,13 @@ public sealed class GameObjectManager
         {
             var spell = _spellManager.GetSpellInfo(spellNameEntry.Id);
 
-            if (spell != null)
-                foreach (var spellEffectInfo in spell.Effects)
-                    if (spellEffectInfo.IsEffectName(SpellEffectName.SendEvent))
-                        if (spellEffectInfo.MiscValue != 0)
-                            evtScripts.Add((uint)spellEffectInfo.MiscValue);
+            if (spell == null)
+                continue;
+
+            evtScripts.AddRange(from spellEffectInfo in spell.Effects 
+                                where spellEffectInfo.IsEffectName(SpellEffectName.SendEvent) 
+                                where spellEffectInfo.MiscValue != 0 
+                                select (uint)spellEffectInfo.MiscValue);
         }
 
         foreach (var pathIdx in _cliDB.TaxiPathNodesByPath)
@@ -1838,39 +1801,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} faction change spell pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadFactionChangeTitles()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 faction change title pairs. DB table `player_factionchange_title` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var alliance = result.Read<uint>(0);
-            var horde = result.Read<uint>(1);
-
-            if (!_cliDB.CharTitlesStorage.ContainsKey(alliance))
-                Log.Logger.Error("Title {0} (alliance_id) referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
-            else if (!_cliDB.CharTitlesStorage.ContainsKey(horde))
-                Log.Logger.Error("Title {0} (horde_id) referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
-            else
-                FactionChangeTitles[alliance] = horde;
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} faction change title pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadFishingBaseSkillLevel()
@@ -5726,76 +5656,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Processed {0} expired mails: {1} deleted and {2} returned in {3} ms", deletedCount + returnedCount, deletedCount, returnedCount, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void SetHighestGuids()
-    {
-        var result = _characterDatabase.Query("SELECT MAX(guid) FROM characters");
-        var playerGenerator = _objectGuidGeneratorFactory.GetGenerator(HighGuid.Player);
-        var itemGenerator = _objectGuidGeneratorFactory.GetGenerator(HighGuid.Item);
-        var transportGenerator = _objectGuidGeneratorFactory.GetGenerator(HighGuid.Transport);
-
-        if (!result.IsEmpty())
-            playerGenerator.Set(result.Read<ulong>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(guid) FROM item_instance");
-
-        if (!result.IsEmpty())
-            itemGenerator.Set(result.Read<ulong>(0) + 1);
-
-        // Cleanup other tables from not existed guids ( >= hiItemGuid)
-        _characterDatabase.Execute("DELETE FROM character_inventory WHERE item >= {0}", itemGenerator.GetNextAfterMaxUsed()); // One-time query
-        _characterDatabase.Execute("DELETE FROM mail_items WHERE item_guid >= {0}", itemGenerator.GetNextAfterMaxUsed());     // One-time query
-
-        _characterDatabase.Execute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '{0}'",
-                                   itemGenerator.GetNextAfterMaxUsed()); // One-time query
-
-        _characterDatabase.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", itemGenerator.GetNextAfterMaxUsed()); // One-time query
-
-        result = _worldDatabase.Query("SELECT MAX(guid) FROM transports");
-
-        if (!result.IsEmpty())
-            transportGenerator.Set(result.Read<ulong>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
-
-        if (!result.IsEmpty())
-            _auctionId = result.Read<uint>(0) + 1;
-
-        result = _characterDatabase.Query("SELECT MAX(id) FROM mail");
-
-        if (!result.IsEmpty())
-            _mailId = result.Read<ulong>(0) + 1;
-
-        result = _characterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
-
-        if (!result.IsEmpty())
-            _classFactory.Resolve<ArenaTeamManager>().SetNextArenaTeamId(result.Read<uint>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
-
-        if (!result.IsEmpty())
-            _equipmentSetGuid = result.Read<ulong>(0) + 1;
-
-        result = _characterDatabase.Query("SELECT MAX(guildId) FROM guild");
-
-        if (!result.IsEmpty())
-            _classFactory.Resolve<GuildManager>().SetNextGuildId(result.Read<uint>(0) + 1);
-
-        result = _characterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
-
-        if (!result.IsEmpty())
-            _voidItemId = result.Read<ulong>(0) + 1;
-
-        result = _worldDatabase.Query("SELECT MAX(guid) FROM creature");
-
-        if (!result.IsEmpty())
-            _creatureSpawnId = result.Read<ulong>(0) + 1;
-
-        result = _worldDatabase.Query("SELECT MAX(guid) FROM gameobject");
-
-        if (!result.IsEmpty())
-            _gameObjectSpawnId = result.Read<ulong>(0) + 1;
     }
 
     public void UnloadPhaseConditions()

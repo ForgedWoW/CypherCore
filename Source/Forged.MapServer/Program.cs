@@ -366,10 +366,12 @@ void RegisterCaches()
     builder.RegisterType<CreatureTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<EquipmentInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ExplorationExpCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<FactionChangeTitleCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameObjectTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameTeleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GossipMenuItemsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<IdGeneratorCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<InstanceTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ItemTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<MapObjectCache>().SingleInstance();

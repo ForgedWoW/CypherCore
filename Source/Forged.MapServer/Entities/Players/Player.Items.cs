@@ -4645,7 +4645,7 @@ public partial class Player
             }
         }
 
-        var setGuid = newEqSet.Guid != 0 ? newEqSet.Guid : GameObjectManager.GenerateEquipmentSetGuid();
+        var setGuid = newEqSet.Guid != 0 ? newEqSet.Guid : GameObjectManager.IDGeneratorCache.GenerateEquipmentSetGuid();
 
         if (!_equipmentSets.ContainsKey(setGuid))
             _equipmentSets[setGuid] = new EquipmentSetInfo();

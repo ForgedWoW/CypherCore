@@ -101,7 +101,7 @@ public class MailDraft
         if (pReceiver != null)
             PrepareItems(pReceiver, trans); // generate mail template items
 
-        var mailId = _objectManager.GenerateMailID();
+        var mailId = _objectManager.IDGeneratorCache.GenerateMailID();
 
         var deliverTime = GameTime.CurrentTime + deliverDelay;
 

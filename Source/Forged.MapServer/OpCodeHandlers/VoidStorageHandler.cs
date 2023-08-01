@@ -153,7 +153,7 @@ public class VoidStorageHandler : IWorldSessionHandler
                 continue;
             }
 
-            VoidStorageItem itemVs = new(_objectManager.GenerateVoidStorageItemId(),
+            VoidStorageItem itemVs = new(_objectManager.IDGeneratorCache.GenerateVoidStorageItemId(),
                                          item.Entry,
                                          item.Creator,
                                          item.ItemRandomBonusListId,

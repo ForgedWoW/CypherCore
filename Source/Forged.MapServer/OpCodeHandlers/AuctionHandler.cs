@@ -884,7 +884,7 @@ public class AuctionHandler : IWorldSessionHandler
             return;
         }
 
-        var auctionId = _gameObjectManager.GenerateAuctionID();
+        var auctionId = _gameObjectManager.IDGeneratorCache.GenerateAuctionID();
         AuctionPosting auction = new(_auctionBucketKeyFactory)
         {
             Id = auctionId,
@@ -1108,7 +1108,7 @@ public class AuctionHandler : IWorldSessionHandler
             return;
         }
 
-        var auctionId = _gameObjectManager.GenerateAuctionID();
+        var auctionId = _gameObjectManager.IDGeneratorCache.GenerateAuctionID();
 
         AuctionPosting auction = new(_auctionBucketKeyFactory)
         {
