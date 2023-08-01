@@ -947,7 +947,7 @@ public partial class Creature : Unit
         if (locale == Locale.enUS)
             return base.GetName(locale);
 
-        var cl = GameObjectManager.GetCreatureLocale(Entry);
+        var cl = GameObjectManager.CreatureLocaleCache.GetCreatureLocale(Entry);
 
         if (cl == null)
             return base.GetName(locale);

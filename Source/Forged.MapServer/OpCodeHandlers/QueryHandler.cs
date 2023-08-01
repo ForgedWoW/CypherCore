@@ -146,7 +146,7 @@ public class QueryHandler : IWorldSessionHandler
 
 			if (loc != Locale.enUS)
 			{
-				var creatureLocale = _gameObjectManager.GetCreatureLocale(ci.Entry);
+				var creatureLocale = _gameObjectManager.CreatureLocaleCache.GetCreatureLocale(ci.Entry);
 
 				if (creatureLocale != null)
 				{

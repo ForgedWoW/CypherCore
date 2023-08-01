@@ -360,6 +360,7 @@ void RegisterCaches()
     builder.RegisterType<CreatureBaseStatsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureDefaultTrainersCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CreatureLocaleCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureModelCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureMovementOverrideCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());

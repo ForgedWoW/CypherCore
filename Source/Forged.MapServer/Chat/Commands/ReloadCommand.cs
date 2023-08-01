@@ -246,7 +246,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureTemplateLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Creature Template Locale...");
-        handler.ObjectManager.LoadCreatureLocales();
+        handler.ObjectManager.CreatureLocaleCache.Load();
         handler.SendGlobalGMSysMessage("DB table `Creature Template Locale` reloaded.");
 
         return true;

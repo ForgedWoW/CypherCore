@@ -106,7 +106,7 @@ internal class LookupCommands
         {
             var id = template.Value.Entry;
             var localeIndex = handler.SessionDbLocaleIndex;
-            var creatureLocale = handler.ObjectManager.GetCreatureLocale(id);
+            var creatureLocale = handler.ObjectManager.CreatureLocaleCache.GetCreatureLocale(id);
 
             if (creatureLocale != null)
                 if (creatureLocale.Name.Length > localeIndex && !string.IsNullOrEmpty(creatureLocale.Name[localeIndex]))

@@ -50,7 +50,6 @@ public sealed class GameObjectManager
     private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
-    private readonly Dictionary<uint, CreatureLocale> _creatureLocaleStorage = new();
     private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelations = new();
     private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelationsReverse = new();
     private readonly MultiMap<uint, uint> _creatureQuestItemStorage = new();
@@ -158,6 +157,7 @@ public sealed class GameObjectManager
     private readonly GossipMenuItemsCache _gossipMenuItemsCache;
     private readonly PointOfInterestCache _pointOfInterestCache;
     private readonly TrainerCache _trainerCache;
+    private readonly CreatureLocaleCache _creatureLocaleCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -289,6 +289,11 @@ public sealed class GameObjectManager
     public TrainerCache TrainerCache
     {
         get { return _trainerCache; }
+    }
+
+    public CreatureLocaleCache CreatureLocaleCache
+    {
+        get { return _creatureLocaleCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -636,11 +641,6 @@ public sealed class GameObjectManager
     public uint GetCreatureDefaultTrainer(uint creatureId)
     {
         return CreatureDefaultTrainersCache.GetCreatureTrainerForGossipOption(creatureId, 0, 0);
-    }
-
-    public CreatureLocale GetCreatureLocale(uint entry)
-    {
-        return _creatureLocaleStorage.LookupByKey(entry);
     }
 
     public List<uint> GetCreatureQuestInvolvedRelationReverseBounds(uint questId)
@@ -1202,7 +1202,7 @@ public sealed class GameObjectManager
         if (!LoadCypherStrings())
             Environment.Exit(1);
 
-        LoadCreatureLocales();
+        CreatureLocaleCache.Load();
         LoadGameObjectLocales();
         LoadQuestTemplateLocale();
         LoadQuestOfferRewardLocale();
@@ -1400,39 +1400,6 @@ public sealed class GameObjectManager
     }
 
     //Locales
-    public void LoadCreatureLocales()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _creatureLocaleStorage.Clear(); // need for reload case
-
-        //                                         0      1       2     3        4      5
-        var result = _worldDatabase.Query("SELECT entry, locale, Name, NameAlt, Title, TitleAlt FROM creature_template_locale");
-
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            var id = result.Read<uint>(0);
-            var localeName = result.Read<string>(1);
-            var locale = localeName.ToEnum<Locale>();
-
-            if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
-                continue;
-
-            if (!_creatureLocaleStorage.ContainsKey(id))
-                _creatureLocaleStorage[id] = new CreatureLocale();
-
-            var data = _creatureLocaleStorage[id];
-            AddLocaleString(result.Read<string>(2), locale, data.Name);
-            AddLocaleString(result.Read<string>(3), locale, data.NameAlt);
-            AddLocaleString(result.Read<string>(4), locale, data.Title);
-            AddLocaleString(result.Read<string>(5), locale, data.TitleAlt);
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} creature locale strings in {1} ms", _creatureLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
 
     public void LoadCreatureQuestEnders()
     {
