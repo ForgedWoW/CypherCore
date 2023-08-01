@@ -115,7 +115,7 @@ public class Guardian : Minion
         else // not exist in DB, use some default fake data
         {
             // remove elite bonuses included in DB values
-            var stats = GameObjectManager.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
+            var stats = GameObjectManager.CreatureBaseStatsCache.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
             ApplyLevelScaling();
 
             SetCreateHealth((uint)(DB2Manager.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));

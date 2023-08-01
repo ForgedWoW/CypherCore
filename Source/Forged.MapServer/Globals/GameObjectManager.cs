@@ -13,7 +13,6 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.D;
-using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.AreaTriggers;
@@ -52,7 +51,6 @@ public sealed class GameObjectManager
     private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
-    private readonly Dictionary<uint, CreatureBaseStats> _creatureBaseStatsStorage = new();
     private readonly Dictionary<(uint creatureId, uint gossipMenuId, uint gossipOptionIndex), uint> _creatureDefaultTrainers = new();
     private readonly Dictionary<uint, CreatureLocale> _creatureLocaleStorage = new();
     private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelations = new();
@@ -161,6 +159,7 @@ public sealed class GameObjectManager
     private readonly MapObjectCache _mapObjectCache;
     private readonly SpawnDataCacheRouter _spawnDataCacheRouter;
     private readonly CreatureAddonCache _creatureAddonCache;
+    private readonly CreatureBaseStatsCache _creatureBaseStatsCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -267,6 +266,11 @@ public sealed class GameObjectManager
     public CreatureAddonCache CreatureAddonCache
     {
         get { return _creatureAddonCache; }
+    }
+
+    public CreatureBaseStatsCache CreatureBaseStatsCache
+    {
+        get { return _creatureBaseStatsCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -609,11 +613,6 @@ public sealed class GameObjectManager
             return entryNear;
 
         return entryEntr ?? entryFar;
-    }
-
-    public CreatureBaseStats GetCreatureBaseStats(uint level, uint unitClass)
-    {
-        return _creatureBaseStatsStorage.TryGetValue(MathFunctions.MakePair16(level, unitClass), out var stats) ? stats : new DefaultCreatureBaseStats();
     }
 
     public uint GetCreatureDefaultTrainer(uint creatureId)
@@ -1222,7 +1221,7 @@ public sealed class GameObjectManager
         LoadReputationOnKill();
         LoadReputationSpilloverTemplate();
         LoadPointsOfInterest();
-        LoadCreatureClassLevelStats();
+        CreatureBaseStatsCache.Load();
         LoadTempSummons(); // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
         LoadInstanceSpawnGroups();
         LoadGameObjectAddons(); // must be after LoadGameObjects()
@@ -1400,52 +1399,6 @@ public sealed class GameObjectManager
         });
 
         Log.Logger.Information("Loaded {0} areatrigger scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadCreatureClassLevelStats()
-    {
-        var time = Time.MSTime;
-
-        _creatureBaseStatsStorage.Clear();
-
-        //                                         0      1      2         3            4
-        var result = _worldDatabase.Query("SELECT level, class, basemana, attackpower, rangedattackpower FROM creature_classlevelstats");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 creature base stats. DB table `creature_classlevelstats` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var level = result.Read<byte>(0);
-            var @class = result.Read<byte>(1);
-
-            if (@class == 0 || ((1 << (@class - 1)) & (int)PlayerClass.ClassMaskAllCreatures) == 0)
-                Log.Logger.Error("Creature base stats for level {0} has invalid class {1}", level, @class);
-
-            CreatureBaseStats stats = new()
-            {
-                BaseMana = result.Read<uint>(2),
-                AttackPower = result.Read<ushort>(3),
-                RangedAttackPower = result.Read<ushort>(4)
-            };
-
-            _creatureBaseStatsStorage.Add(MathFunctions.MakePair16(level, @class), stats);
-
-            ++count;
-        } while (result.NextRow());
-
-        foreach (var creatureTemplate in CreatureTemplateCache.CreatureTemplates.Values)
-            for (var lvl = creatureTemplate.Minlevel; lvl <= creatureTemplate.Maxlevel; ++lvl)
-                if (_creatureBaseStatsStorage.LookupByKey(MathFunctions.MakePair16((uint)lvl, creatureTemplate.UnitClass)) == null)
-                    Log.Logger.Error("Missing base stats for creature class {0} level {1}", creatureTemplate.UnitClass, lvl);
-
-        Log.Logger.Information("Loaded {0} creature base stats in {1} ms", count, Time.GetMSTimeDiffToNow(time));
     }
 
     //Locales

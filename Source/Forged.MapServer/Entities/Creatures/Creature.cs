@@ -2868,7 +2868,7 @@ public partial class Creature : Unit
         var cInfo = Template;
         var rank = IsPet ? 0 : cInfo.Rank;
         var level = Level;
-        var stats = GameObjectManager.GetCreatureBaseStats(level, cInfo.UnitClass);
+        var stats = GameObjectManager.CreatureBaseStatsCache.GetCreatureBaseStats(level, cInfo.UnitClass);
 
         // health
         var healthmod = GetHealthMod(rank);

@@ -357,6 +357,7 @@ void RegisterCaches()
     builder.RegisterType<AccessRequirementsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<AreaTriggerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureAddonCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CreatureBaseStatsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureModelCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureMovementOverrideCache>().SingleInstance().OnActivated(c => c.Instance.Load());
