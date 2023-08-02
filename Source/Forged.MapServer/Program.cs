@@ -383,6 +383,7 @@ void RegisterCaches()
     builder.RegisterType<SpawnGroupDataCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpellClickInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<TrainerCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<TerrainSwapCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<VehicleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<VendorItemCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<WorldSafeLocationsCache>().SingleInstance().OnActivated(c => c.Instance.Load());

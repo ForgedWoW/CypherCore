@@ -99,7 +99,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, SkillTiersEntry> _skillTiers = new();
     private readonly List<uint> _tavernAreaTriggerStorage = new();
     private readonly MultiMap<Tuple<uint, SummonerType, byte>, TempSummonData> _tempSummonDataStorage = new();
-    private readonly Dictionary<uint, TerrainSwapInfo> _terrainSwapInfoById = new();
 
 
     private readonly WorldDatabase _worldDatabase;
@@ -125,11 +124,8 @@ public sealed class GameObjectManager
     private WorldManager _worldManager;
     private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly ItemTemplateCache _itemTemplateCache;
-    private readonly IdGeneratorCache _idGeneratorCache;
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
-    private readonly ScriptLoader _scriptLoader;
-    private readonly ClassAndRaceExpansionRequirementsCache _classAndRaceExpansionRequirementsCache;
-    private readonly FishingBaseForAreaCache _fishingBaseForAreaCache;
+    private readonly TerrainSwapCache _terrainSwapCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -165,8 +161,6 @@ public sealed class GameObjectManager
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
 
     public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos { get; } = new();
-
-    public MultiMap<uint, TerrainSwapInfo> TerrainSwaps { get; } = new();
 
     public VendorItemCache VendorItemCache { get; }
 
@@ -206,22 +200,18 @@ public sealed class GameObjectManager
 
     public QuestTemplateCache QuestTemplateCache { get; }
 
-    public IdGeneratorCache IDGeneratorCache => _idGeneratorCache;
-    
+    public IdGeneratorCache IDGeneratorCache { get; }
 
-    public ScriptLoader ScriptLoader
-    {
-        get { return _scriptLoader; }
-    }
 
-    public ClassAndRaceExpansionRequirementsCache ClassAndRaceExpansionRequirementsCache
-    {
-        get { return _classAndRaceExpansionRequirementsCache; }
-    }
+    public ScriptLoader ScriptLoader { get; }
 
-    public FishingBaseForAreaCache FishingBaseForAreaCache
+    public ClassAndRaceExpansionRequirementsCache ClassAndRaceExpansionRequirementsCache { get; }
+
+    public FishingBaseForAreaCache FishingBaseForAreaCache { get; }
+
+    public TerrainSwapCache TerrainSwapCache
     {
-        get { return _fishingBaseForAreaCache; }
+        get { return _terrainSwapCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -1002,11 +992,6 @@ public sealed class GameObjectManager
 
         cost = destI.price;
         path = destI.Id;
-    }
-
-    public TerrainSwapInfo GetTerrainSwapInfo(uint terrainSwapId)
-    {
-        return _terrainSwapInfoById.LookupByKey(terrainSwapId);
     }
 
     public uint GetXPForLevel(uint level)
@@ -2897,13 +2882,13 @@ public sealed class GameObjectManager
 
         foreach (var map in _cliDB.MapStorage.Values)
             if (map.ParentMapID != -1)
-                _terrainSwapInfoById.Add(map.Id, new TerrainSwapInfo(map.Id));
+                TerrainSwapCache._terrainSwapInfoById.Add(map.Id, new TerrainSwapInfo(map.Id));
 
         Log.Logger.Information("Loading Terrain World Map definitions...");
-        LoadTerrainWorldMaps();
+        TerrainSwapCache.LoadTerrainWorldMaps();
 
         Log.Logger.Information("Loading Terrain Swap Default definitions...");
-        LoadTerrainSwapDefaults();
+        TerrainSwapCache.LoadTerrainSwapDefaults();
 
         Log.Logger.Information("Loading Phase Area definitions...");
         LoadAreaPhases();
@@ -5756,99 +5741,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} quest relations from {1} in {2} ms", count, table, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    private void LoadTerrainSwapDefaults()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 terrain swap defaults. DB table `terrain_swap_defaults` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var mapId = result.Read<uint>(0);
-
-            if (!_cliDB.MapStorage.ContainsKey(mapId))
-            {
-                Log.Logger.Error("Map {0} defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
-
-                continue;
-            }
-
-            var terrainSwap = result.Read<uint>(1);
-
-            if (!_cliDB.MapStorage.ContainsKey(terrainSwap))
-            {
-                Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
-
-                continue;
-            }
-
-            var terrainSwapInfo = _terrainSwapInfoById[terrainSwap];
-            terrainSwapInfo.Id = terrainSwap;
-            TerrainSwaps.Add(mapId, terrainSwapInfo);
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} terrain swap defaults in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    private void LoadTerrainWorldMaps()
-    {
-        var oldMSTime = Time.MSTime;
-
-        //                                         0               1
-        var result = _worldDatabase.Query("SELECT TerrainSwapMap, UiMapPhaseId  FROM `terrain_worldmap`");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 terrain world maps. DB table `terrain_worldmap` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var mapId = result.Read<uint>(0);
-            var uiMapPhaseId = result.Read<uint>(1);
-
-            if (!_cliDB.MapStorage.ContainsKey(mapId))
-            {
-                Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_worldmap` does not exist, skipped.", mapId);
-
-                continue;
-            }
-
-            if (!_db2Manager.IsUiMapPhase((int)uiMapPhaseId))
-            {
-                Log.Logger.Error($"Phase {uiMapPhaseId} defined in `terrain_worldmap` is not a valid terrain swap phase, skipped.");
-
-                continue;
-            }
-
-            if (!_terrainSwapInfoById.ContainsKey(mapId))
-                _terrainSwapInfoById.Add(mapId, new TerrainSwapInfo());
-
-            var terrainSwapInfo = _terrainSwapInfoById[mapId];
-            terrainSwapInfo.Id = mapId;
-            terrainSwapInfo.UiMapPhaseIDs.Add(uiMapPhaseId);
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} terrain world maps in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     private void PlayerCreateInfoAddItemHelper(uint race, uint @class, uint itemId, int count)

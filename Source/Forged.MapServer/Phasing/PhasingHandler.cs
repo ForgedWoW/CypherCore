@@ -206,7 +206,7 @@ public class PhasingHandler
         phaseShift.VisibleMapIds.Clear();
 
         if (visibleMapId != -1)
-            phaseShift.AddVisibleMapId((uint)visibleMapId, _objectManager.GetTerrainSwapInfo((uint)visibleMapId));
+            phaseShift.AddVisibleMapId((uint)visibleMapId, _objectManager.TerrainSwapCache.GetTerrainSwapInfo((uint)visibleMapId));
     }
 
     public bool IsPersonalPhase(uint phaseId)
@@ -402,7 +402,7 @@ public class PhasingHandler
         obj.Location.PhaseShift.UiMapPhaseIds.Clear();
         obj.Location.SuppressedPhaseShift.VisibleMapIds.Clear();
 
-        foreach (var (mapId, visibleMapInfo) in _objectManager.TerrainSwaps.KeyValueList)
+        foreach (var (mapId, visibleMapInfo) in _objectManager.TerrainSwapCache.TerrainSwaps.KeyValueList)
             if (_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
             {
                 if (mapId == obj.Location.MapId)
@@ -600,7 +600,7 @@ public class PhasingHandler
 
     private void AddVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
     {
-        var terrainSwapInfo = _objectManager.GetTerrainSwapInfo(visibleMapId);
+        var terrainSwapInfo = _objectManager.TerrainSwapCache.GetTerrainSwapInfo(visibleMapId);
         var changed = obj.Location.PhaseShift.AddVisibleMapId(visibleMapId, terrainSwapInfo);
 
         foreach (var uiMapPhaseId in terrainSwapInfo.UiMapPhaseIDs)
@@ -651,7 +651,7 @@ public class PhasingHandler
 
     private void RemoveVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
     {
-        var terrainSwapInfo = _objectManager.GetTerrainSwapInfo(visibleMapId);
+        var terrainSwapInfo = _objectManager.TerrainSwapCache.GetTerrainSwapInfo(visibleMapId);
         var changed = obj.Location.PhaseShift.RemoveVisibleMapId(visibleMapId);
 
         foreach (var uiWorldMapAreaIDSwap in terrainSwapInfo.UiMapPhaseIDs)
