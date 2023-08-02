@@ -129,6 +129,7 @@ public sealed class GameObjectManager
     private readonly IdGeneratorCache _idGeneratorCache;
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
     private readonly ScriptLoader _scriptLoader;
+    private readonly ClassAndRaceExpansionRequirementsCache _classAndRaceExpansionRequirementsCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -149,8 +150,6 @@ public sealed class GameObjectManager
         
     }
 
-    public List<RaceClassAvailability> ClassExpansionRequirements { get; } = new();
-
     public Dictionary<uint, uint> FactionChangeAchievements { get; set; } = new();
 
     public Dictionary<uint, uint> FactionChangeItemsAllianceToHorde { get; set; } = new();
@@ -166,8 +165,6 @@ public sealed class GameObjectManager
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
 
     public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos { get; } = new();
-
-    public Dictionary<byte, RaceUnlockRequirement> RaceUnlockRequirements { get; } = new();
 
     public MultiMap<uint, TerrainSwapInfo> TerrainSwaps { get; } = new();
 
@@ -216,6 +213,11 @@ public sealed class GameObjectManager
     public ScriptLoader ScriptLoader
     {
         get { return _scriptLoader; }
+    }
+
+    public ClassAndRaceExpansionRequirementsCache ClassAndRaceExpansionRequirementsCache
+    {
+        get { return _classAndRaceExpansionRequirementsCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -372,24 +374,6 @@ public sealed class GameObjectManager
         _worldManager.StopNow();
 
         return _hiPetNumber++;
-    }
-
-    public ClassAvailability GetClassExpansionRequirement(Race raceId, PlayerClass classId)
-    {
-        var raceClassAvailability = ClassExpansionRequirements.Find(raceClass => raceClass.RaceID == (byte)raceId);
-
-        var classAvailability = raceClassAvailability?.Classes.Find(availability => availability.ClassID == (byte)classId);
-
-        return classAvailability;
-    }
-
-    public ClassAvailability GetClassExpansionRequirementFallback(byte classId)
-    {
-        foreach (var raceClassAvailability in ClassExpansionRequirements)
-            foreach (var classAvailability in raceClassAvailability.Classes.Where(classAvailability => classAvailability.ClassID == classId))
-                return classAvailability;
-
-        return null;
     }
 
     public WorldSafeLocsEntry GetClosestGraveYard(WorldLocation location, TeamFaction team, WorldObject conditionObject)
@@ -910,11 +894,6 @@ public sealed class GameObjectManager
         return _questAreaTriggerStorage.LookupByKey(triggerId);
     }
 
-    public RaceUnlockRequirement GetRaceUnlockRequirement(Race race)
-    {
-        return RaceUnlockRequirements.LookupByKey((byte)race);
-    }
-
     public string GetRealmName(uint realm)
     {
         return _realmNameStorage.LookupByKey(realm);
@@ -1048,9 +1027,7 @@ public sealed class GameObjectManager
         _conditionManager = _classFactory.Resolve<ConditionManager>();
         _lootStoreBox = _classFactory.Resolve<LootStoreBox>();
         _lfgManager = _classFactory.Resolve<LFGManager>();
-        _mapManager = _classFactory.Resolve<MapManager>();
         _transportManager = _classFactory.Resolve<TransportManager>();
-        _disableManager = _classFactory.Resolve<DisableManager>();
         _objectAccessor = _classFactory.Resolve<ObjectAccessor>();
         _questPoolManager = _classFactory.Resolve<QuestPoolManager>();
         _gridDefines = _classFactory.Resolve<GridDefines>();
@@ -1114,7 +1091,6 @@ public sealed class GameObjectManager
         LoadFactionChangeReputations();
         ReturnOrDeleteOldMails(false);
         InitializeQueriesData(QueryDataGroup.All);
-        LoadRaceAndClassExpansionRequirements();
         LoadRealmNames();
         LoadPhaseNames();
     }
@@ -4545,147 +4521,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} QuestId Tempalate locale strings in {1} ms", _questTemplateLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadRaceAndClassExpansionRequirements()
-    {
-        var oldMSTime = Time.MSTime;
-        RaceUnlockRequirements.Clear();
-
-        //                                         0       1          2
-        var result = _worldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
-
-        if (!result.IsEmpty())
-        {
-            uint count = 0;
-
-            do
-            {
-                var raceID = result.Read<byte>(0);
-                var expansion = result.Read<byte>(1);
-                var achievementId = result.Read<uint>(2);
-
-                if (!_cliDB.ChrRacesStorage.TryGetValue(raceID, out _))
-                {
-                    Log.Logger.Error("Race {0} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
-
-                    continue;
-                }
-
-                if (expansion >= (int)Expansion.MaxAccountExpansions)
-                {
-                    Log.Logger.Error("Race {0} defined in `race_unlock_requirement` has incorrect expansion {1}, skipped.", raceID, expansion);
-
-                    continue;
-                }
-
-                if (achievementId != 0 && !_cliDB.AchievementStorage.ContainsKey(achievementId))
-                {
-                    Log.Logger.Error($"Race {raceID} defined in `race_unlock_requirement` has incorrect achievement {achievementId}, skipped.");
-
-                    continue;
-                }
-
-                RaceUnlockRequirement raceUnlockRequirement = new()
-                {
-                    Expansion = expansion,
-                    AchievementId = achievementId
-                };
-
-                RaceUnlockRequirements[raceID] = raceUnlockRequirement;
-
-                ++count;
-            } while (result.NextRow());
-
-            Log.Logger.Information("Loaded {0} race expansion requirements in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
-        }
-        else
-            Log.Logger.Information("Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
-
-        oldMSTime = Time.MSTime;
-        ClassExpansionRequirements.Clear();
-
-        //                               0        1       2                     3
-        result = _worldDatabase.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
-
-        if (!result.IsEmpty())
-        {
-            Dictionary<byte, Dictionary<byte, Tuple<byte, byte>>> temp = new();
-            var minRequirementForClass = new byte[(int)PlayerClass.Max];
-            Array.Fill(minRequirementForClass, (byte)Expansion.Max);
-            uint count = 0;
-
-            do
-            {
-                var classID = result.Read<byte>(0);
-                var raceID = result.Read<byte>(1);
-                var activeExpansionLevel = result.Read<byte>(2);
-                var accountExpansionLevel = result.Read<byte>(3);
-
-                if (!_cliDB.ChrClassesStorage.TryGetValue(classID, out _))
-                {
-                    Log.Logger.Error($"Class {classID} (race {raceID}) defined in `class_expansion_requirement` does not exists, skipped.");
-
-                    continue;
-                }
-
-                if (!_cliDB.ChrRacesStorage.TryGetValue(raceID, out _))
-                {
-                    Log.Logger.Error($"Race {raceID} (class {classID}) defined in `class_expansion_requirement` does not exists, skipped.");
-
-                    continue;
-                }
-
-                if (activeExpansionLevel >= (int)Expansion.Max)
-                {
-                    Log.Logger.Error($"Class {classID} Race {raceID} defined in `class_expansion_requirement` has incorrect ActiveExpansionLevel {activeExpansionLevel}, skipped.");
-
-                    continue;
-                }
-
-                if (accountExpansionLevel >= (int)Expansion.MaxAccountExpansions)
-                {
-                    Log.Logger.Error($"Class {classID} Race {raceID} defined in `class_expansion_requirement` has incorrect AccountExpansionLevel {accountExpansionLevel}, skipped.");
-
-                    continue;
-                }
-
-                if (!temp.ContainsKey(raceID))
-                    temp[raceID] = new Dictionary<byte, Tuple<byte, byte>>();
-
-                temp[raceID][classID] = Tuple.Create(activeExpansionLevel, accountExpansionLevel);
-                minRequirementForClass[classID] = Math.Min(minRequirementForClass[classID], activeExpansionLevel);
-
-                ++count;
-            } while (result.NextRow());
-
-            foreach (var race in temp)
-            {
-                RaceClassAvailability raceClassAvailability = new()
-                {
-                    RaceID = race.Key
-                };
-
-                foreach (var @class in race.Value)
-                {
-                    ClassAvailability classAvailability = new()
-                    {
-                        ClassID = @class.Key,
-                        ActiveExpansionLevel = @class.Value.Item1,
-                        AccountExpansionLevel = @class.Value.Item2,
-                        MinActiveExpansionLevel = minRequirementForClass[@class.Key]
-                    };
-
-                    raceClassAvailability.Classes.Add(classAvailability);
-                }
-
-                ClassExpansionRequirements.Add(raceClassAvailability);
-            }
-
-            Log.Logger.Information($"Loaded {count} class expansion requirements in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
-        }
-        else
-            Log.Logger.Information("Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
     }
 
     public void LoadRealmNames()

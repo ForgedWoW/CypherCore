@@ -4,6 +4,7 @@
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.Networking.Packets.Authentication;
 using Forged.MapServer.Networking.Packets.ClientConfig;
 using Forged.MapServer.Networking.Packets.System;
@@ -22,13 +23,16 @@ public class AuthenticationHandler : IWorldSessionHandler
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
     private readonly CharacterTemplateDataStorage _characterTemplateDataStorage;
+    private readonly ClassAndRaceExpansionRequirementsCache _classAndRaceExpansionRequirementsCache;
 
-    public AuthenticationHandler(WorldSession session, IConfiguration configuration, GameObjectManager gameObjectManager, CharacterTemplateDataStorage characterTemplateDataStorage)
+    public AuthenticationHandler(WorldSession session, IConfiguration configuration, GameObjectManager gameObjectManager, CharacterTemplateDataStorage characterTemplateDataStorage,
+                                 ClassAndRaceExpansionRequirementsCache classAndRaceExpansionRequirementsCache)
     {
         _session = session;
         _configuration = configuration;
         _gameObjectManager = gameObjectManager;
         _characterTemplateDataStorage = characterTemplateDataStorage;
+        _classAndRaceExpansionRequirementsCache = classAndRaceExpansionRequirementsCache;
     }
 
 
@@ -59,7 +63,7 @@ public class AuthenticationHandler : IWorldSessionHandler
 				foreach (var templ in _characterTemplateDataStorage.GetCharacterTemplates().Values)
 					response.SuccessInfo.Templates.Add(templ);
 
-			response.SuccessInfo.AvailableClasses = _gameObjectManager.ClassExpansionRequirements;
+			response.SuccessInfo.AvailableClasses = _classAndRaceExpansionRequirementsCache.ClassExpansionRequirements;
 		}
 
 		if (queued)

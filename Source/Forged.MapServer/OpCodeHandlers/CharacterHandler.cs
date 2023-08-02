@@ -63,6 +63,7 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly PlayerComputators _playerComputators;
     private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
+    private readonly ClassAndRaceExpansionRequirementsCache _classAndRaceExpansionRequirementsCache;
     private readonly ScriptManager _scriptManager;
     private readonly WorldSession _session;
     private readonly WorldManager _worldManager;
@@ -71,7 +72,7 @@ public class CharacterHandler : IWorldSessionHandler
         CharacterDatabase characterDatabase, ScriptManager scriptManager, LoginDatabase loginDatabase, DB2Manager dB2Manager,
         WorldManager worldManager, GuildManager guildManager, GameObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
         ArenaTeamManager arenaTeamManager, ClassFactory classFactory, CalendarManager calendarManager, ConditionManager conditionManager, PlayerComputators playerComputators,
-        ObjectGuidGeneratorFactory objectGuidGeneratorFactory, FactionChangeTitleCache factionChangeTitleCache)
+        ObjectGuidGeneratorFactory objectGuidGeneratorFactory, FactionChangeTitleCache factionChangeTitleCache, ClassAndRaceExpansionRequirementsCache classAndRaceExpansionRequirementsCache)
     {
         _session = session;
         _cliDb = cliDb;
@@ -93,6 +94,7 @@ public class CharacterHandler : IWorldSessionHandler
         _playerComputators = playerComputators;
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
         _factionChangeTitleCache = factionChangeTitleCache;
+        _classAndRaceExpansionRequirementsCache = classAndRaceExpansionRequirementsCache;
     }
 
     public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, Race race, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -334,7 +336,7 @@ public class CharacterHandler : IWorldSessionHandler
         if (_configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true))
         {
             // prevent character creating Expansion race without Expansion account
-            var raceExpansionRequirement = _objectManager.GetRaceUnlockRequirement(charCreate.CreateInfo.RaceId);
+            var raceExpansionRequirement = _classAndRaceExpansionRequirementsCache.GetRaceUnlockRequirement(charCreate.CreateInfo.RaceId);
 
             if (raceExpansionRequirement == null)
             {
@@ -361,7 +363,7 @@ public class CharacterHandler : IWorldSessionHandler
             //}
 
             // prevent character creating Expansion race without Expansion account
-            var raceClassExpansionRequirement = _objectManager.GetClassExpansionRequirement(charCreate.CreateInfo.RaceId, charCreate.CreateInfo.ClassId);
+            var raceClassExpansionRequirement = _objectManager.ClassAndRaceExpansionRequirementsCache.GetClassExpansionRequirement(charCreate.CreateInfo.RaceId, charCreate.CreateInfo.ClassId);
 
             if (raceClassExpansionRequirement != null)
             {
@@ -378,7 +380,7 @@ public class CharacterHandler : IWorldSessionHandler
             }
             else
             {
-                var classExpansionRequirement = _objectManager.GetClassExpansionRequirementFallback((byte)charCreate.CreateInfo.ClassId);
+                var classExpansionRequirement = _objectManager.ClassAndRaceExpansionRequirementsCache.GetClassExpansionRequirementFallback((byte)charCreate.CreateInfo.ClassId);
 
                 if (classExpansionRequirement != null)
                 {
@@ -998,7 +1000,7 @@ public class CharacterHandler : IWorldSessionHandler
 
         charResult.IsAlliedRacesCreationAllowed = _session.CanAccessAlliedRaces();
 
-        foreach (var requirement in _objectManager.RaceUnlockRequirements)
+        foreach (var requirement in _classAndRaceExpansionRequirementsCache.RaceUnlockRequirements)
         {
             EnumCharactersResult.RaceUnlock raceUnlock = new()
             {
