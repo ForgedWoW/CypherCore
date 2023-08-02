@@ -47,7 +47,6 @@ public class QuestTemplateCache : IObjectCache
     private readonly ItemTemplateCache _itemTemplateCache;
     private readonly DB6Storage<MailTemplateRecord> _mailTemplateRecords;
     private readonly DB6Storage<ParagonReputationRecord> _paragonReputationRecords;
-    private readonly Dictionary<uint, QuestObjective> _questObjectives = new();
     private readonly DB6Storage<QuestSortRecord> _questSortRecords;
     private readonly DB6Storage<SkillLineRecord> _skillLineRecords;
     private readonly DB6Storage<SoundKitRecord> _soundKitRecords;
@@ -91,6 +90,7 @@ public class QuestTemplateCache : IObjectCache
         _paragonReputationRecords = paragonReputationRecords;
     }
 
+    public Dictionary<uint, QuestObjective> QuestObjectives { get; } = new();
     public Dictionary<uint, Quest> QuestTemplates { get; } = new();
     public List<Quest> QuestTemplatesAutoPush { get; } = new();
 
@@ -101,7 +101,7 @@ public class QuestTemplateCache : IObjectCache
 
     public QuestObjective GetQuestObjective(uint questObjectiveId)
     {
-        return _questObjectives.LookupByKey(questObjectiveId);
+        return QuestObjectives.LookupByKey(questObjectiveId);
     }
 
     public Quest GetQuestTemplate(uint questId)
@@ -116,7 +116,7 @@ public class QuestTemplateCache : IObjectCache
         // For reload case
         QuestTemplates.Clear();
         QuestTemplatesAutoPush.Clear();
-        _questObjectives.Clear();
+        QuestObjectives.Clear();
         _exclusiveQuestGroups.Clear();
 
         var result = _worldDatabase.Query("SELECT " +
@@ -585,7 +585,7 @@ public class QuestTemplateCache : IObjectCache
             foreach (var obj in qinfo.Objectives)
             {
                 // Store objective for lookup by id
-                _questObjectives[obj.Id] = obj;
+                QuestObjectives[obj.Id] = obj;
 
                 // Check storage index for objectives which store data
                 if (obj.StorageIndex < 0)

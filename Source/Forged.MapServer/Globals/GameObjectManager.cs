@@ -53,7 +53,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, CreatureAddon> _creatureTemplateAddonStorage = new();
     private readonly Dictionary<uint, StringArray> _cypherStringStorage = new();
     private readonly MultiMap<ulong, DungeonEncounter> _dungeonEncounterStorage = new();
-    private readonly Dictionary<uint, int> _fishingBaseForAreaStorage = new();
     private readonly Dictionary<ulong, GameObjectAddon> _gameObjectAddonStorage = new();
     private readonly List<uint> _gameObjectForQuestStorage = new();
     private readonly Dictionary<uint, GameObjectLocale> _gameObjectLocaleStorage = new();
@@ -130,6 +129,7 @@ public sealed class GameObjectManager
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
     private readonly ScriptLoader _scriptLoader;
     private readonly ClassAndRaceExpansionRequirementsCache _classAndRaceExpansionRequirementsCache;
+    private readonly FishingBaseForAreaCache _fishingBaseForAreaCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -207,8 +207,7 @@ public sealed class GameObjectManager
     public QuestTemplateCache QuestTemplateCache { get; }
 
     public IdGeneratorCache IDGeneratorCache => _idGeneratorCache;
-
-    public FactionChangeTitleCache FactionChangeTitleCache => _factionChangeTitleCache;
+    
 
     public ScriptLoader ScriptLoader
     {
@@ -218,6 +217,11 @@ public sealed class GameObjectManager
     public ClassAndRaceExpansionRequirementsCache ClassAndRaceExpansionRequirementsCache
     {
         get { return _classAndRaceExpansionRequirementsCache; }
+    }
+
+    public FishingBaseForAreaCache FishingBaseForAreaCache
+    {
+        get { return _fishingBaseForAreaCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -578,11 +582,6 @@ public sealed class GameObjectManager
     public List<DungeonEncounter> GetDungeonEncounterList(uint mapId, Difficulty difficulty)
     {
         return _dungeonEncounterStorage.LookupByKey(MathFunctions.MakePair64(mapId, (uint)difficulty));
-    }
-
-    public int GetFishingBaseSkillLevel(uint entry)
-    {
-        return _fishingBaseForAreaStorage.LookupByKey(entry);
     }
 
     public GameObjectAddon GetGameObjectAddon(ulong lowguid)
@@ -1077,7 +1076,7 @@ public sealed class GameObjectManager
         LoadPetNumber();
         LoadPetLevelInfo();
         LoadMailLevelRewards();
-        LoadFishingBaseSkillLevel();
+        FishingBaseForAreaCache.Load();
         LoadSkillTiers();
         LoadReservedPlayersNames();
         LoadGameObjectForQuests();
@@ -1702,42 +1701,6 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} faction change spell pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadFishingBaseSkillLevel()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _fishingBaseForAreaStorage.Clear(); // for reload case
-
-        var result = _worldDatabase.Query("SELECT entry, skill FROM skill_fishing_base_level");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var entry = result.Read<uint>(0);
-            var skill = result.Read<int>(1);
-
-            if (!_cliDB.AreaTableStorage.TryGetValue(entry, out _))
-            {
-                Log.Logger.Error("AreaId {0} defined in `skill_fishing_base_level` does not exist", entry);
-
-                continue;
-            }
-
-            _fishingBaseForAreaStorage[entry] = skill;
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} areas for fishing base skill level in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadGameObjectAddons()
@@ -4150,7 +4113,7 @@ public sealed class GameObjectManager
             _questAreaTriggerStorage.Add(triggerID, questID);
         } while (result.NextRow());
 
-        foreach (var pair in QuestTemplateCache._questObjectives)
+        foreach (var pair in QuestTemplateCache.QuestObjectives)
         {
             var objective = pair.Value;
 

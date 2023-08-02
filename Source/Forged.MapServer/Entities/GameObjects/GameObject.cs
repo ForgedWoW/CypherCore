@@ -2931,10 +2931,10 @@ public class GameObject : WorldObject
                         ReplaceAllFlags(GameObjectFlags.InMultiUse);
 
                         SendUpdateToPlayer(player);
-                        var zoneSkill = GameObjectManager.GetFishingBaseSkillLevel(Location.Area);
+                        var zoneSkill = GameObjectManager.FishingBaseForAreaCache.GetFishingBaseSkillLevel(Location.Area);
 
                         if (zoneSkill == 0)
-                            zoneSkill = GameObjectManager.GetFishingBaseSkillLevel(Location.Zone);
+                            zoneSkill = GameObjectManager.FishingBaseForAreaCache.GetFishingBaseSkillLevel(Location.Zone);
 
                         //provide error, no fishable zone or area should be 0
                         if (zoneSkill == 0)

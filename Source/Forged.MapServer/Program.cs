@@ -365,6 +365,7 @@ void RegisterCaches()
     builder.RegisterType<EquipmentInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ExplorationExpCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<FactionChangeTitleCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<FishingBaseForAreaCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameObjectTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameTeleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());

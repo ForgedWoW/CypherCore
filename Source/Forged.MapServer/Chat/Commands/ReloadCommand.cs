@@ -794,7 +794,7 @@ internal class ReloadCommand
     private static bool HandleReloadSkillFishingBaseLevelCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Skill Fishing base level requirements...");
-        handler.ObjectManager.LoadFishingBaseSkillLevel();
+        handler.ObjectManager.FishingBaseForAreaCache.Load();
         handler.SendGlobalGMSysMessage("DB table `skill_fishing_base_level` (fishing base level for zone/subzone) reloaded.");
 
         return true;
