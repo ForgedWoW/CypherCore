@@ -132,7 +132,7 @@ public class SceneMgr
 
     public uint PlayScene(uint sceneId, Position position = null)
     {
-        var sceneTemplate = _gameObjectManager.GetSceneTemplate(sceneId);
+        var sceneTemplate = _gameObjectManager.SceneTemplateCache.GetSceneTemplate(sceneId);
 
         return PlaySceneByTemplate(sceneTemplate, position);
     }

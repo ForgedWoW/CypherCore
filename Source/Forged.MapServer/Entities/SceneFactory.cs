@@ -22,7 +22,7 @@ public class SceneFactory
 
     public SceneObject CreateSceneObject(uint sceneId, Unit creator, Position pos, ObjectGuid privateObjectOwner)
     {
-        var sceneTemplate = _gameObjectManager.GetSceneTemplate(sceneId);
+        var sceneTemplate = _gameObjectManager.SceneTemplateCache.GetSceneTemplate(sceneId);
 
         if (sceneTemplate == null)
             return null;

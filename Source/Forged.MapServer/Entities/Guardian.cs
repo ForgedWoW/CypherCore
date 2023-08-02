@@ -3,6 +3,8 @@
 
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Globals.Caching;
 using Framework.Constants;
 using Game.Common;
 using Serilog;
@@ -35,9 +37,12 @@ public class Guardian : Minion
 
         UnitTypeMask |= UnitTypeMask.ControlableGuardian;
         InitCharmInfo();
+        PlayerInfoCache = classFactory.Resolve<PlayerInfoCache>();
     }
 
     public float BonusDamage { get; private set; }
+
+    public PlayerInfoCache PlayerInfoCache { get; }
 
     public float GetBonusStatFromOwner(Stats stat)
     {
@@ -164,7 +169,7 @@ public class Guardian : Minion
             }
             case PetType.Hunter:
             {
-                AsPet.SetPetNextLevelExperience((uint)(GameObjectManager.GetXPForLevel(petlevel) * 0.05f));
+                AsPet.SetPetNextLevelExperience((uint)(PlayerInfoCache.GetXPForLevel(petlevel) * 0.05f));
                 //these formula may not be correct; however, it is designed to be close to what it should be
                 //this makes dps 0.5 of pets level
                 SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - petlevel / 4);

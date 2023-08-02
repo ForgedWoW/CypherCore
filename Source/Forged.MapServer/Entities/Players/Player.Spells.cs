@@ -1552,7 +1552,7 @@ public partial class Player
         //    return;
 
         // learn default race/class spells
-        var info = GameObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.PlayerInfoCache.GetPlayerInfo(Race, Class);
 
         foreach (var tspell in info.CustomSpells)
         {
@@ -1616,7 +1616,7 @@ public partial class Player
     public void LearnDefaultSkills()
     {
         // learn default race/class skills
-        var info = GameObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.PlayerInfoCache.GetPlayerInfo(Race, Class);
 
         foreach (var rcInfo in info.Skills)
         {

@@ -87,6 +87,7 @@ public partial class Player : Unit
     private readonly ExplorationExpCache _explorationExpManager;
     private readonly AreaTriggerCache _areaTriggerCache;
     private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
+    private readonly PlayerInfoCache _playerInfoCache;
 
     public Player(WorldSession session, ClassFactory classFactory) : base(true, classFactory)
     {
@@ -133,6 +134,7 @@ public partial class Player : Unit
         _explorationExpManager = classFactory.Resolve<ExplorationExpCache>();
         _areaTriggerCache = classFactory.Resolve<AreaTriggerCache>();
         _worldSafeLocationsCache = classFactory.Resolve<WorldSafeLocationsCache>();
+        _playerInfoCache = classFactory.Resolve<PlayerInfoCache>();
 
         // players always accept
         if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))
@@ -1103,7 +1105,7 @@ public partial class Player : Unit
 
         SetName(createInfo.Name);
 
-        var info = GameObjectManager.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
+        var info = GameObjectManager.PlayerInfoCache.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
 
         if (info == null)
         {
@@ -1863,7 +1865,7 @@ public partial class Player : Unit
 
         guild?.UpdateMemberData(this, GuildMemberData.Level, level);
 
-        var info = GameObjectManager.GetPlayerLevelInfo(Race, Class, level);
+        var info = GameObjectManager.PlayerInfoCache.GetPlayerLevelInfo(Race, Class, level);
 
         GameObjectManager.GetPlayerClassLevelInfo(Class, level, out var basemana);
 
@@ -1906,7 +1908,7 @@ public partial class Player : Unit
 
         SendPacket(packet);
 
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), GameObjectManager.GetXPForLevel(level));
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), _playerInfoCache.GetXPForLevel(level));
 
         //update level, max level of skills
         LevelPlayedTime = 0; // Level Played Time reset
@@ -2290,7 +2292,7 @@ public partial class Player : Unit
 
         GameObjectManager.GetPlayerClassLevelInfo(Class, Level, out var basemana);
 
-        var info = GameObjectManager.GetPlayerLevelInfo(Race, Class, Level);
+        var info = GameObjectManager.PlayerInfoCache.GetPlayerLevelInfo(Race, Class, Level);
 
         var expMaxLvl = (int)GameObjectManager.GetMaxLevelForExpansion(Session.Expansion);
         var confMaxLvl = Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
@@ -2300,7 +2302,7 @@ public partial class Player : Unit
         else
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), expMaxLvl);
 
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), GameObjectManager.GetXPForLevel(Level));
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), _playerInfoCache.GetXPForLevel(Level));
 
         if (ActivePlayerData.XP >= ActivePlayerData.NextLevelXP)
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.XP), ActivePlayerData.NextLevelXP - 1);

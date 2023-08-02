@@ -303,7 +303,7 @@ public partial class Player
         Gender = gender;
 
         // check if race/class combination is valid
-        var info = GameObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.PlayerInfoCache.GetPlayerInfo(Race, Class);
 
         if (info == null)
         {
@@ -1791,7 +1791,7 @@ public partial class Player
 
     private bool _LoadHomeBind(SQLResult result)
     {
-        var info = GameObjectManager.GetPlayerInfo(Race, Class);
+        var info = GameObjectManager.PlayerInfoCache.GetPlayerInfo(Race, Class);
 
         if (info == null)
         {

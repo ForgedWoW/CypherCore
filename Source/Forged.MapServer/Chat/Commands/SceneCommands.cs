@@ -54,7 +54,7 @@ internal class SceneCommands
             return false;
         }
 
-        if (handler.ObjectManager.GetSceneTemplate(sceneId) == null)
+        if (handler.ObjectManager.SceneTemplateCache.GetSceneTemplate(sceneId) == null)
             return false;
 
         target.SceneMgr.PlayScene(sceneId);

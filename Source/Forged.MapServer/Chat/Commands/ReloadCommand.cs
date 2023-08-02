@@ -764,7 +764,7 @@ internal class ReloadCommand
     private static bool HandleReloadSceneTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading scene_template table...");
-        handler.ObjectManager.LoadSceneTemplates();
+        handler.ObjectManager.SceneTemplateCache.Load();
         handler.SendGlobalGMSysMessage("Scenes templates reloaded. New scriptname need a reboot.");
 
         return true;

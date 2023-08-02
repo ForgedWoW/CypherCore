@@ -1559,7 +1559,7 @@ internal class MiscCommands
         {
             xp = result4.Read<uint>(0);         // Used for "current xp" output and "%u XP Left" calculation
             var gguid = result4.Read<ulong>(1); // We check if have a guild for the person, so we might not require to query it at all
-            xptotal = handler.ObjectManager.GetXPForLevel(level);
+            xptotal = handler.ClassFactory.Resolve<PlayerInfoCache>().GetXPForLevel(level);
 
             if (gguid != 0)
             {

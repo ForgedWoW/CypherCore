@@ -356,7 +356,7 @@ public class Pet : Guardian
         if (PetType == PetType.Hunter)
         {
             SetPetExperience(0);
-            SetPetNextLevelExperience((uint)(GameObjectManager.GetXPForLevel((uint)level) * PetXPFactor));
+            SetPetNextLevelExperience((uint)(PlayerInfoCache.GetXPForLevel((uint)level) * PetXPFactor));
         }
 
         InitStatsForLevel((uint)level);
@@ -1505,7 +1505,7 @@ public class Pet : Guardian
 
         SetPetNameTimestamp(0);
         SetPetExperience(0);
-        SetPetNextLevelExperience((uint)(GameObjectManager.GetXPForLevel(Level + 1) * PetXPFactor));
+        SetPetNextLevelExperience((uint)(PlayerInfoCache.GetXPForLevel(Level + 1) * PetXPFactor));
         ReplaceAllNpcFlags(NPCFlags.None);
         ReplaceAllNpcFlags2(NPCFlags2.None);
 

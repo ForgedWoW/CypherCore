@@ -301,7 +301,7 @@ public class SmartAIManager
                     }
                     case SmartScriptType.Scene:
                     {
-                        if (_gameObjectManager.GetSceneTemplate((uint)temp.EntryOrGuid) == null)
+                        if (_gameObjectManager.SceneTemplateCache.GetSceneTemplate((uint)temp.EntryOrGuid) == null)
                         {
                             if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
@@ -2183,7 +2183,7 @@ public class SmartAIManager
             }
             case SmartActions.ScenePlay:
             {
-                if (_gameObjectManager.GetSceneTemplate(e.Action.Scene.SceneId) == null)
+                if (_gameObjectManager.SceneTemplateCache.GetSceneTemplate(e.Action.Scene.SceneId) == null)
                 {
                     Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId {0} but scene don't exist, skipped", e.Action.Scene.SceneId);
 
@@ -2194,7 +2194,7 @@ public class SmartAIManager
             }
             case SmartActions.SceneCancel:
             {
-                if (_gameObjectManager.GetSceneTemplate(e.Action.Scene.SceneId) == null)
+                if (_gameObjectManager.SceneTemplateCache.GetSceneTemplate(e.Action.Scene.SceneId) == null)
                 {
                     Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId {0} but scene don't exist, skipped", e.Action.Scene.SceneId);
 

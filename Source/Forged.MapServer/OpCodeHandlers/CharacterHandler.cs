@@ -1061,7 +1061,7 @@ public class CharacterHandler : IWorldSessionHandler
         var playerClass = characterInfo.ClassId;
         var level = characterInfo.Level;
 
-        if (_objectManager.GetPlayerInfo(factionChangeInfo.RaceID, playerClass) == null)
+        if (_objectManager.PlayerInfoCache.GetPlayerInfo(factionChangeInfo.RaceID, playerClass) == null)
         {
             SendCharFactionChange(ResponseCodes.CharCreateError, factionChangeInfo);
 

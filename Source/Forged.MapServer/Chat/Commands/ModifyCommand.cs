@@ -249,7 +249,7 @@ internal class ModifyCommand
             return false;
         }
 
-        var info = handler.ObjectManager.GetPlayerInfo(target.Race, target.Class);
+        var info = handler.ObjectManager.PlayerInfoCache.GetPlayerInfo(target.Race, target.Class);
 
         if (info == null)
             return false;
