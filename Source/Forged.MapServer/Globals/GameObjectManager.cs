@@ -124,6 +124,7 @@ public sealed class GameObjectManager
     private readonly TerrainSwapCache _terrainSwapCache;
     private readonly PlayerInfoCache _playerInfoCache;
     private readonly SceneTemplateCache _sceneTemplateCache;
+    private readonly FactionChangeCache _factionChangeCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -142,18 +143,6 @@ public sealed class GameObjectManager
 
         
     }
-
-    public Dictionary<uint, uint> FactionChangeAchievements { get; set; } = new();
-
-    public Dictionary<uint, uint> FactionChangeItemsAllianceToHorde { get; set; } = new();
-
-    public Dictionary<uint, uint> FactionChangeItemsHordeToAlliance { get; set; } = new();
-
-    public Dictionary<uint, uint> FactionChangeQuests { get; set; } = new();
-
-    public Dictionary<uint, uint> FactionChangeReputation { get; set; } = new();
-
-    public Dictionary<uint, uint> FactionChangeSpells { get; set; } = new();
 
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
 
@@ -217,6 +206,11 @@ public sealed class GameObjectManager
     public SceneTemplateCache SceneTemplateCache
     {
         get { return _sceneTemplateCache; }
+    }
+
+    public FactionChangeCache FactionChangeCache
+    {
+        get { return _factionChangeCache; }
     }
 
     public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
@@ -1034,11 +1028,6 @@ public sealed class GameObjectManager
         LoadGossipMenu();
         LoadGossipMenuAddon();
         LoadPhases();
-        LoadFactionChangeAchievements();
-        LoadFactionChangeSpells();
-        LoadFactionChangeItems();
-        LoadFactionChangeQuests();
-        LoadFactionChangeReputations();
         ReturnOrDeleteOldMails(false);
         InitializeQueriesData(QueryDataGroup.All);
         LoadRealmNames();
@@ -1499,160 +1488,6 @@ public sealed class GameObjectManager
     }
 
     //Faction Change
-    public void LoadFactionChangeAchievements()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var alliance = result.Read<uint>(0);
-            var horde = result.Read<uint>(1);
-
-            if (!_cliDB.AchievementStorage.ContainsKey(alliance))
-                Log.Logger.Error("Achievement {0} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
-            else if (!_cliDB.AchievementStorage.ContainsKey(horde))
-                Log.Logger.Error("Achievement {0} (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
-            else
-                FactionChangeAchievements[alliance] = horde;
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} faction change achievement pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadFactionChangeItems()
-    {
-        var oldMSTime = Time.MSTime;
-
-        uint count = 0;
-
-        foreach (var itemPair in _itemTemplateCache.ItemTemplates)
-        {
-            if (itemPair.Value.OtherFactionItemId == 0)
-                continue;
-
-            if (itemPair.Value.HasFlag(ItemFlags2.FactionHorde))
-                FactionChangeItemsHordeToAlliance[itemPair.Key] = itemPair.Value.OtherFactionItemId;
-
-            if (itemPair.Value.HasFlag(ItemFlags2.FactionAlliance))
-                FactionChangeItemsAllianceToHorde[itemPair.Key] = itemPair.Value.OtherFactionItemId;
-
-            ++count;
-        }
-
-        Log.Logger.Information("Loaded {0} faction change item pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadFactionChangeQuests()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 faction change quest pairs. DB table `player_factionchange_quests` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var alliance = result.Read<uint>(0);
-            var horde = result.Read<uint>(1);
-
-            if (QuestTemplateCache.GetQuestTemplate(alliance) == null)
-                Log.Logger.Error("QuestId {0} (alliance_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", alliance);
-            else if (QuestTemplateCache.GetQuestTemplate(horde) == null)
-                Log.Logger.Error("QuestId {0} (horde_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", horde);
-            else
-                FactionChangeQuests[alliance] = horde;
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} faction change quest pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadFactionChangeReputations()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 faction change reputation pairs. DB table `player_factionchange_reputations` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var alliance = result.Read<uint>(0);
-            var horde = result.Read<uint>(1);
-
-            if (!_cliDB.FactionStorage.ContainsKey(alliance))
-                Log.Logger.Error("Reputation {0} (alliance_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
-            else if (!_cliDB.FactionStorage.ContainsKey(horde))
-                Log.Logger.Error("Reputation {0} (horde_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", horde);
-            else
-                FactionChangeReputation[alliance] = horde;
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} faction change reputation pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadFactionChangeSpells()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var alliance = result.Read<uint>(0);
-            var horde = result.Read<uint>(1);
-
-            if (!_spellManager.HasSpellInfo(alliance))
-                Log.Logger.Error("Spell {0} (alliance_id) referenced in `player_factionchange_spells` does not exist, pair skipped!", alliance);
-            else if (!_spellManager.HasSpellInfo(horde))
-                Log.Logger.Error("Spell {0} (horde_id) referenced in `player_factionchange_spells` does not exist, pair skipped!", horde);
-            else
-                FactionChangeSpells[alliance] = horde;
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} faction change spell pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
 
     public void LoadGameObjectAddons()
     {

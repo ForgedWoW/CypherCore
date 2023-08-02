@@ -1375,7 +1375,7 @@ public class CharacterHandler : IWorldSessionHandler
                 _playerComputators.SavePositionInDB(loc, zoneId, factionChangeInfo.Guid, trans);
 
                 // Achievement conversion
-                foreach (var (achievAlliance, achievHorde) in _objectManager.FactionChangeAchievements)
+                foreach (var (achievAlliance, achievHorde) in _objectManager.FactionChangeCache.FactionChangeAchievements)
                 {
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
                     stmt.AddValue(0, (ushort)(newTeamId == TeamIds.Alliance ? achievAlliance : achievHorde));
@@ -1390,7 +1390,7 @@ public class CharacterHandler : IWorldSessionHandler
                 }
 
                 // Item conversion
-                var itemConversionMap = newTeamId == TeamIds.Alliance ? _objectManager.FactionChangeItemsHordeToAlliance : _objectManager.FactionChangeItemsAllianceToHorde;
+                var itemConversionMap = newTeamId == TeamIds.Alliance ? _objectManager.FactionChangeCache.FactionChangeItemsHordeToAlliance : _objectManager.FactionChangeCache.FactionChangeItemsAllianceToHorde;
 
                 foreach (var (oldItemId, newItemId) in itemConversionMap)
                 {
@@ -1407,7 +1407,7 @@ public class CharacterHandler : IWorldSessionHandler
                 trans.Append(stmt);
 
                 // Quest conversion
-                foreach (var (questAlliance, questHorde) in _objectManager.FactionChangeQuests)
+                foreach (var (questAlliance, questHorde) in _objectManager.FactionChangeCache.FactionChangeQuests)
                 {
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
                     stmt.AddValue(0, lowGuid);
@@ -1445,7 +1445,7 @@ public class CharacterHandler : IWorldSessionHandler
                 }
 
                 // Spell conversion
-                foreach (var (spellAlliance, spellHorde) in _objectManager.FactionChangeSpells)
+                foreach (var (spellAlliance, spellHorde) in _objectManager.FactionChangeCache.FactionChangeSpells)
                 {
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_BY_SPELL);
                     stmt.AddValue(0, (newTeamId == TeamIds.Alliance ? spellAlliance : spellHorde));
@@ -1460,7 +1460,7 @@ public class CharacterHandler : IWorldSessionHandler
                 }
 
                 // Reputation conversion
-                foreach (var (reputationAlliance, reputationHorde) in _objectManager.FactionChangeReputation)
+                foreach (var (reputationAlliance, reputationHorde) in _objectManager.FactionChangeCache.FactionChangeReputation)
                 {
                     var newReputation = (newTeamId == TeamIds.Alliance) ? reputationAlliance : reputationHorde;
                     var oldReputation = (newTeamId == TeamIds.Alliance) ? reputationHorde : reputationAlliance;
