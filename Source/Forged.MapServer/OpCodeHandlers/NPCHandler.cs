@@ -591,7 +591,7 @@ public class NPCHandler : IWorldSessionHandler
         var corpseLocation = _session.Player.CorpseLocation;
 
         if (_session.Player.HasCorpse)
-            corpseGrave = _objectManager.GetClosestGraveYard(corpseLocation, _session.Player.Team, _session.Player);
+            corpseGrave = _objectManager.GraveyardCache.GetClosestGraveYard(corpseLocation, _session.Player.Team, _session.Player);
 
         // now can spawn bones
         _session.Player.SpawnCorpseBones();
@@ -599,7 +599,7 @@ public class NPCHandler : IWorldSessionHandler
         // teleport to nearest from corpse graveyard, if different from nearest to player ghost
         if (corpseGrave != null)
         {
-            var ghostGrave = _objectManager.GetClosestGraveYard(_session.Player.Location, _session.Player.Team, _session.Player);
+            var ghostGrave = _objectManager.GraveyardCache.GetClosestGraveYard(_session.Player.Location, _session.Player.Team, _session.Player);
 
             if (corpseGrave != ghostGrave)
                 _session.Player.TeleportTo(corpseGrave.Location);

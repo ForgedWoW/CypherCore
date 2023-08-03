@@ -784,7 +784,7 @@ internal class DebugCommands
             {
                 var bf = handler.ClassFactory.Resolve<BattleFieldManager>().GetBattlefieldToZoneId(player.Location.Map, player.Location.Zone);
 
-                nearestLoc = bf != null ? bf.GetClosestGraveYard(player) : handler.ObjectManager.GetClosestGraveYard(player.Location, player.Team, player);
+                nearestLoc = bf != null ? bf.GetClosestGraveYard(player) : handler.ObjectManager.GraveyardCache.GetClosestGraveYard(player.Location, player.Team, player);
             }
         }
         else

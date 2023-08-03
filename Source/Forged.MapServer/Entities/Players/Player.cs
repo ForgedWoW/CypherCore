@@ -3659,7 +3659,7 @@ public partial class Player : Unit
         {
             var bf = BattleFieldManager.GetBattlefieldToZoneId(Location.Map, Location.Zone);
 
-            closestGrave = bf != null ? bf.GetClosestGraveYard(this) : GameObjectManager.GetClosestGraveYard(Location, Team, this);
+            closestGrave = bf != null ? bf.GetClosestGraveYard(this) : GameObjectManager.GraveyardCache.GetClosestGraveYard(Location, Team, this);
         }
 
         // stop countdown until repop

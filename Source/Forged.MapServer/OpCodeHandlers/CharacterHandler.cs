@@ -64,6 +64,7 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly ObjectGuidGeneratorFactory _objectGuidGeneratorFactory;
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
     private readonly ClassAndRaceExpansionRequirementsCache _classAndRaceExpansionRequirementsCache;
+    private readonly GraveyardCache _graveyardCache;
     private readonly ScriptManager _scriptManager;
     private readonly WorldSession _session;
     private readonly WorldManager _worldManager;
@@ -72,7 +73,8 @@ public class CharacterHandler : IWorldSessionHandler
         CharacterDatabase characterDatabase, ScriptManager scriptManager, LoginDatabase loginDatabase, DB2Manager dB2Manager,
         WorldManager worldManager, GuildManager guildManager, GameObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
         ArenaTeamManager arenaTeamManager, ClassFactory classFactory, CalendarManager calendarManager, ConditionManager conditionManager, PlayerComputators playerComputators,
-        ObjectGuidGeneratorFactory objectGuidGeneratorFactory, FactionChangeTitleCache factionChangeTitleCache, ClassAndRaceExpansionRequirementsCache classAndRaceExpansionRequirementsCache)
+        ObjectGuidGeneratorFactory objectGuidGeneratorFactory, FactionChangeTitleCache factionChangeTitleCache, ClassAndRaceExpansionRequirementsCache classAndRaceExpansionRequirementsCache,
+        GraveyardCache graveyardCache)
     {
         _session = session;
         _cliDb = cliDb;
@@ -95,6 +97,7 @@ public class CharacterHandler : IWorldSessionHandler
         _objectGuidGeneratorFactory = objectGuidGeneratorFactory;
         _factionChangeTitleCache = factionChangeTitleCache;
         _classAndRaceExpansionRequirementsCache = classAndRaceExpansionRequirementsCache;
+        _graveyardCache = graveyardCache;
     }
 
     public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, Race race, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -2168,7 +2171,7 @@ public class CharacterHandler : IWorldSessionHandler
         var team = (uint)_session.Player.Team;
 
         List<uint> graveyardIds = new();
-        var range = _objectManager.GraveYardStorage.LookupByKey(zoneId);
+        var range = _graveyardCache.GraveYardStorage.LookupByKey(zoneId);
 
         for (uint i = 0; i < range.Count && graveyardIds.Count < 16; ++i) // client max
         {

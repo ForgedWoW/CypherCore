@@ -1851,7 +1851,7 @@ public partial class Player
 
         if (!ok)
         {
-            var loc = GameObjectManager.GetDefaultGraveYard(Team);
+            var loc = GameObjectManager.GraveyardCache.GetDefaultGraveYard(Team);
 
             if (loc == null && Race == Race.PandarenNeutral)
                 loc = _worldSafeLocationsCache.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY

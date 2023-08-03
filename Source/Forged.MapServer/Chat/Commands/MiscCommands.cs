@@ -974,7 +974,7 @@ internal class MiscCommands
             return false;
         }
 
-        if (handler.ObjectManager.AddGraveYardLink(graveyardId, zoneId, team))
+        if (handler.ObjectManager.GraveyardCache.AddGraveYardLink(graveyardId, zoneId, team))
             handler.SendSysMessage(CypherStrings.CommandGraveyardlinked, graveyardId, zoneId);
         else
             handler.SendSysMessage(CypherStrings.CommandGraveyardalrlinked, graveyardId, zoneId);
@@ -1285,13 +1285,13 @@ internal class MiscCommands
         var player = handler.Session.Player;
         var zoneId = player.Location.Zone;
 
-        var graveyard = handler.ObjectManager.GetClosestGraveYard(player.Location, team, null);
+        var graveyard = handler.ObjectManager.GraveyardCache.GetClosestGraveYard(player.Location, team, null);
 
         if (graveyard != null)
         {
             var graveyardId = graveyard.Id;
 
-            var data = handler.ObjectManager.FindGraveYardData(graveyardId, zoneId);
+            var data = handler.ObjectManager.GraveyardCache.FindGraveYardData(graveyardId, zoneId);
 
             if (data == null)
             {

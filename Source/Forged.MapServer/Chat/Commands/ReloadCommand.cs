@@ -330,7 +330,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Graveyard-zone links...");
 
-        handler.ObjectManager.LoadGraveyardZones();
+        handler.ObjectManager.GraveyardCache.Load();
 
         handler.SendGlobalGMSysMessage("DB table `game_graveyard_zone` reloaded.");
 

@@ -395,7 +395,7 @@ public class QueryHandler : IWorldSessionHandler
 
 		RealmId realmHandle = new(queryRealmName.VirtualRealmAddress);
 
-		if (_gameObjectManager.GetRealmName(realmHandle.Index, ref realmQueryResponse.NameInfo.RealmNameActual, ref realmQueryResponse.NameInfo.RealmNameNormalized))
+		if (_gameObjectManager.RealmNameCache.GetRealmName(realmHandle.Index, ref realmQueryResponse.NameInfo.RealmNameActual, ref realmQueryResponse.NameInfo.RealmNameNormalized))
 		{
 			realmQueryResponse.LookupState = (byte)ResponseCodes.Success;
 			realmQueryResponse.NameInfo.IsInternalRealm = false;

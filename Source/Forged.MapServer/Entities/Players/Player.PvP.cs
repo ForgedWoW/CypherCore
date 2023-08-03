@@ -564,7 +564,7 @@ public partial class Player
             // If map is dungeon find linked graveyard
             if (Location.Map.IsDungeon)
             {
-                var entry = GameObjectManager.GetClosestGraveYard(Location, Team, this);
+                var entry = GameObjectManager.GraveyardCache.GetClosestGraveYard(Location, Team, this);
 
                 if (entry != null)
                     _bgData.JoinPos = entry.Location;

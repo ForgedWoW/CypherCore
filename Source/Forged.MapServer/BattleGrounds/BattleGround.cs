@@ -944,7 +944,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public virtual WorldSafeLocsEntry GetClosestGraveYard(Player player)
     {
-        return ObjectManager.GetClosestGraveYard(player.Location, GetPlayerTeam(player.GUID), player);
+        return ObjectManager.GraveyardCache.GetClosestGraveYard(player.Location, GetPlayerTeam(player.GUID), player);
     }
 
     public Battleground GetCopy()

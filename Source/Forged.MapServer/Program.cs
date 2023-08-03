@@ -370,6 +370,7 @@ void RegisterCaches()
     builder.RegisterType<GameObjectTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GameTeleObjectCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<GossipMenuItemsCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<GraveyardCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<IdGeneratorCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<InstanceTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ItemTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
@@ -379,6 +380,7 @@ void RegisterCaches()
     builder.RegisterType<PlayerInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PointOfInterestCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<QuestTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<RealmNameCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SceneTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ScriptLoader>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SpawnDataCacheRouter>().SingleInstance();
