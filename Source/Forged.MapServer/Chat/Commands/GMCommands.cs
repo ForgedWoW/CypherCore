@@ -191,7 +191,7 @@ internal class GMCommands
 
         if (!visibleArg.HasValue)
         {
-            handler.SendSysMessage(CypherStrings.YouAre, player.IsGMVisible ? handler.ObjectManager.GetCypherString(CypherStrings.Visible) : handler.ObjectManager.GetCypherString(CypherStrings.Invisible));
+            handler.SendSysMessage(CypherStrings.YouAre, player.IsGMVisible ? handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.Visible) : handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.Invisible));
 
             return true;
         }

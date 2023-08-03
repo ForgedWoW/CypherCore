@@ -2058,7 +2058,7 @@ public partial class Player
             // Send problematic items by mail
             while (problematicItems.Count != 0)
             {
-                var subject = GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
+                var subject = GameObjectManager.CypherStringCache.GetCypherString(CypherStrings.NotEquippedItem);
                 var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>(subject, "There were problems with equipping item(s).");
 
                 for (var i = 0; problematicItems.Count != 0 && i < SharedConst.MaxMailItems; ++i)

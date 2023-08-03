@@ -362,6 +362,7 @@ void RegisterCaches()
     builder.RegisterType<CreatureModelCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureMovementOverrideCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<CreatureTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<CypherStringCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<EquipmentInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<ExplorationExpCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<FactionChangeTitleCache>().SingleInstance().OnActivated(c => c.Instance.Load());

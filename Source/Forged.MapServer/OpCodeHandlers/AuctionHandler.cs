@@ -78,7 +78,7 @@ public class AuctionHandler : IWorldSessionHandler
     {
         if (_session.Player.Level < _configuration.GetDefaultValue("LevelReq:Auction", 1))
         {
-            _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.AuctionReq), _configuration.GetValue<int>("LevelReq:Auction"));
+            _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.AuctionReq), _configuration.GetValue<int>("LevelReq:Auction"));
 
             return;
         }

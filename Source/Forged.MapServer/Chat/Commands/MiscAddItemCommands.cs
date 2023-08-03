@@ -217,7 +217,7 @@ internal class MiscAddItemCommands
         if (playerTarget == null)
             playerTarget = player;
 
-        Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.Additemset), itemSetId);
+        Log.Logger.Debug(handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.Additemset), itemSetId);
 
         var found = false;
         var its = handler.ClassFactory.Resolve<ItemTemplateCache>().ItemTemplates;

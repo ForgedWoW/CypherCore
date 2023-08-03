@@ -437,8 +437,8 @@ public class PhasingHandler
         if (!phaseShift.Phases.Empty())
         {
             StringBuilder phases = new();
-            var cosmetic = _objectManager.GetCypherString(CypherStrings.PhaseFlagCosmetic, chat.SessionDbcLocale);
-            var personal = _objectManager.GetCypherString(CypherStrings.PhaseFlagPersonal, chat.SessionDbcLocale);
+            var cosmetic = _objectManager.CypherStringCache.GetCypherString(CypherStrings.PhaseFlagCosmetic, chat.SessionDbcLocale);
+            var personal = _objectManager.CypherStringCache.GetCypherString(CypherStrings.PhaseFlagPersonal, chat.SessionDbcLocale);
 
             foreach (var pair in phaseShift.Phases)
             {

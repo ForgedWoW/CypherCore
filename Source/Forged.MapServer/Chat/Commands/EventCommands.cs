@@ -18,7 +18,7 @@ internal class EventCommands
         var events = gameEventManager.GetEventMap();
         var activeEvents = gameEventManager.GetActiveEventList();
 
-        var active = handler.ObjectManager.GetCypherString(CypherStrings.Active);
+        var active = handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.Active);
 
         foreach (var eventId in activeEvents)
         {
@@ -62,7 +62,7 @@ internal class EventCommands
 
         var activeEvents = gameEventManager.GetActiveEventList();
         var active = activeEvents.Contains(eventId);
-        var activeStr = active ? handler.ObjectManager.GetCypherString(CypherStrings.Active) : "";
+        var activeStr = active ? handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.Active) : "";
 
         var startTimeStr = Time.UnixTimeToDateTime(eventData.Start).ToLongDateString();
         var endTimeStr = Time.UnixTimeToDateTime(eventData.End).ToLongDateString();

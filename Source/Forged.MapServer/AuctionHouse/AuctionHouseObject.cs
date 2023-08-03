@@ -685,7 +685,7 @@ public class AuctionHouseObject
                 var bidderAccId = player.Session.AccountId;
 
                 if (!_characterCache.GetCharacterNameByGuid(auction.Owner, out var ownerName))
-                    ownerName = _objectManager.GetCypherString(CypherStrings.Unknown);
+                    ownerName = _objectManager.CypherStringCache.GetCypherString(CypherStrings.Unknown);
 
                 Log.Logger.ForContext<GMCommands>()
                    .Information($"GM {player.GetName()} (Account: {bidderAccId}) bought commodity in auction: {items[0].Items[0].GetName(_worldManager.DefaultDbcLocale)} (Entry: {items[0].Items[0].Entry} " +
@@ -1060,13 +1060,13 @@ public class AuctionHouseObject
             bidderAccId = _characterCache.GetCharacterAccountIdByGuid(auction.Bidder);
 
             if (logGmTrade && !_characterCache.GetCharacterNameByGuid(auction.Bidder, out bidderName))
-                bidderName = _objectManager.GetCypherString(CypherStrings.Unknown);
+                bidderName = _objectManager.CypherStringCache.GetCypherString(CypherStrings.Unknown);
         }
 
         if (logGmTrade)
         {
             if (!_characterCache.GetCharacterNameByGuid(auction.Owner, out var ownerName))
-                ownerName = _objectManager.GetCypherString(CypherStrings.Unknown);
+                ownerName = _objectManager.CypherStringCache.GetCypherString(CypherStrings.Unknown);
 
             var ownerAccId = _characterCache.GetCharacterAccountIdByGuid(auction.Owner);
 

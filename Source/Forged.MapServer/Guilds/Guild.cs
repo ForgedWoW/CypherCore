@@ -2240,11 +2240,11 @@ public class Guild
         stmt.AddValue(0, _id);
         trans.Append(stmt);
 
-        CreateRank(trans, _objectManager.GetCypherString(CypherStrings.GuildMaster, loc), GuildRankRights.All);
-        CreateRank(trans, _objectManager.GetCypherString(CypherStrings.GuildOfficer, loc), GuildRankRights.All);
-        CreateRank(trans, _objectManager.GetCypherString(CypherStrings.GuildVeteran, loc), GuildRankRights.GChatListen | GuildRankRights.GChatSpeak);
-        CreateRank(trans, _objectManager.GetCypherString(CypherStrings.GuildMember, loc), GuildRankRights.GChatListen | GuildRankRights.GChatSpeak);
-        CreateRank(trans, _objectManager.GetCypherString(CypherStrings.GuildInitiate, loc), GuildRankRights.GChatListen | GuildRankRights.GChatSpeak);
+        CreateRank(trans, _objectManager.CypherStringCache.GetCypherString(CypherStrings.GuildMaster, loc), GuildRankRights.All);
+        CreateRank(trans, _objectManager.CypherStringCache.GetCypherString(CypherStrings.GuildOfficer, loc), GuildRankRights.All);
+        CreateRank(trans, _objectManager.CypherStringCache.GetCypherString(CypherStrings.GuildVeteran, loc), GuildRankRights.GChatListen | GuildRankRights.GChatSpeak);
+        CreateRank(trans, _objectManager.CypherStringCache.GetCypherString(CypherStrings.GuildMember, loc), GuildRankRights.GChatListen | GuildRankRights.GChatSpeak);
+        CreateRank(trans, _objectManager.CypherStringCache.GetCypherString(CypherStrings.GuildInitiate, loc), GuildRankRights.GChatListen | GuildRankRights.GChatSpeak);
     }
 
     // Private methods

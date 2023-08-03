@@ -404,7 +404,7 @@ public class CommandHandler
 
     public string GetCypherString(CypherStrings str)
     {
-        return ObjectManager.GetCypherString(str);
+        return ObjectManager.CypherStringCache.GetCypherString(str);
     }
 
     public string GetNameLink(Player obj)
@@ -424,7 +424,7 @@ public class CommandHandler
 
     public string GetParsedString(CypherStrings cypherString, params object[] args)
     {
-        return string.Format(ObjectManager.GetCypherString(cypherString), args);
+        return string.Format(ObjectManager.CypherStringCache.GetCypherString(cypherString), args);
     }
 
     public bool GetPlayerGroupAndGUIDByName(string name, out Player player, out PlayerGroup group, out ObjectGuid guid, bool offline = false)
@@ -590,7 +590,7 @@ public class CommandHandler
 
     public void SendSysMessage(CypherStrings cypherString, params object[] args)
     {
-        SendSysMessage(string.Format(ObjectManager.GetCypherString(cypherString), args));
+        SendSysMessage(string.Format(ObjectManager.CypherStringCache.GetCypherString(cypherString), args));
     }
 
     public virtual void SendSysMessage(string str, bool escapeCharacters = false)

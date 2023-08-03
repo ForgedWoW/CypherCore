@@ -4694,7 +4694,7 @@ public partial class Player
 
                 var sendItemsBatch = new Action<int, int>((batchNumber, batchSize) =>
                 {
-                    var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>(GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
+                    var draft = ClassFactory.ResolveWithPositionalParameters<MailDraft>(GameObjectManager.CypherStringCache.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
 
                     for (var j = 0; j < batchSize; ++j)
                         draft.AddItem(unstorableItems[batchNumber * SharedConst.MaxMailItems + j]);

@@ -461,7 +461,7 @@ internal class ListCommands
         var map = player.Location.Map;
 
         var locale = handler.Session.SessionDbcLocale;
-        var stringOverdue = handler.ObjectManager.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
+        var stringOverdue = handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
 
         var zoneId = player.Location.Zone;
         var zoneName = GetZoneName(zoneId, locale, handler);

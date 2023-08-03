@@ -425,7 +425,7 @@ internal class ModifyCommand
         {
             var newmoney = (long)targetMoney + moneyToAdd;
 
-            Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
+            Log.Logger.Debug(handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
 
             if (newmoney <= 0)
             {
@@ -472,7 +472,7 @@ internal class ModifyCommand
             target.ModifyMoney(moneyToAdd);
         }
 
-        Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
+        Log.Logger.Debug(handler.ObjectManager.CypherStringCache.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
 
         return true;
     }

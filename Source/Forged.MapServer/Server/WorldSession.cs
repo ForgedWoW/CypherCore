@@ -850,7 +850,7 @@ public class WorldSession : IDisposable
 
     public void SendNotification(CypherStrings str, params object[] args)
     {
-        SendNotification(_gameObjectManager.GetCypherString(str), args);
+        SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(str), args);
     }
 
     public void SendNotification(string str, params object[] args)

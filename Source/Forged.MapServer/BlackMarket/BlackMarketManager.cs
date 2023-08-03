@@ -288,7 +288,7 @@ public class BlackMarketManager
             logGmTrade = _accountManager.HasPermission(bidderAccId, RBACPermissions.LogGmTrade, _realm.Id.Index);
 
             if (logGmTrade && !_characterCache.GetCharacterNameByGuid(bidderGuid, out bidderName))
-                bidderName = _objectManager.GetCypherString(CypherStrings.Unknown);
+                bidderName = _objectManager.CypherStringCache.GetCypherString(CypherStrings.Unknown);
         }
 
         // Create item

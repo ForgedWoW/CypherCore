@@ -123,7 +123,7 @@ public class Channel
         if (!channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global))
         {
             if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly))
-                channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), objectManager.GetCypherString(CypherStrings.ChannelCity, locale));
+                channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), objectManager.CypherStringCache.GetCypherString(CypherStrings.ChannelCity, locale));
             else
                 channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), zoneEntry.AreaName[locale]);
         }

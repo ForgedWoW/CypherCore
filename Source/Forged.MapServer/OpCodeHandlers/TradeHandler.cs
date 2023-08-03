@@ -593,7 +593,7 @@ public class TradeHandler : IWorldSessionHandler
 
         if (_session.Player.Level < _configuration.GetDefaultValue("LevelReq:Trade", 1))
         {
-            _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.TradeReq), _configuration.GetDefaultValue("LevelReq:Trade", 1));
+            _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.TradeReq), _configuration.GetDefaultValue("LevelReq:Trade", 1));
             info.Status = TradeStatus.Failed;
             SendTradeStatus(info);
 
@@ -680,7 +680,7 @@ public class TradeHandler : IWorldSessionHandler
 
         if (pOther.Level < _configuration.GetDefaultValue("LevelReq:Trade", 1))
         {
-            _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.TradeOtherReq), _configuration.GetDefaultValue("LevelReq:Trade", 1));
+            _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.TradeOtherReq), _configuration.GetDefaultValue("LevelReq:Trade", 1));
             info.Status = TradeStatus.Failed;
             SendTradeStatus(info);
 

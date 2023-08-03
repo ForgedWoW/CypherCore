@@ -286,7 +286,7 @@ internal class ReloadCommand
     private static bool HandleReloadCypherStringCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading trinity_string Table!");
-        handler.ObjectManager.LoadCypherStrings();
+        handler.ObjectManager.CypherStringCache.Load();
         handler.SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
 
         return true;

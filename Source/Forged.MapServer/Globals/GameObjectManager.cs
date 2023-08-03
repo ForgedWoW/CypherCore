@@ -42,7 +42,6 @@ public sealed class GameObjectManager
     private readonly MultiMap<uint, uint> _creatureQuestItemStorage = new();
     private readonly MultiMap<uint, uint> _creatureQuestRelations = new();
     private readonly Dictionary<uint, CreatureAddon> _creatureTemplateAddonStorage = new();
-    private readonly Dictionary<uint, StringArray> _cypherStringStorage = new();
     private readonly MultiMap<ulong, DungeonEncounter> _dungeonEncounterStorage = new();
     private readonly Dictionary<ulong, GameObjectAddon> _gameObjectAddonStorage = new();
     private readonly List<uint> _gameObjectForQuestStorage = new();
@@ -109,6 +108,7 @@ public sealed class GameObjectManager
     private WorldManager _worldManager;
     private readonly ItemTemplateCache _itemTemplateCache;
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
+    private readonly CypherStringCache _cypherStringCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -187,6 +187,11 @@ public sealed class GameObjectManager
     public RealmNameCache RealmNameCache { get; }
 
     public PointOfInterestLocaleCache PointOfInterestLocaleCache { get; }
+
+    public CypherStringCache CypherStringCache
+    {
+        get { return _cypherStringCache; }
+    }
 
     public void AddLocaleString(string value, Locale locale, StringArray data)
     {
@@ -341,28 +346,6 @@ public sealed class GameObjectManager
     public CreatureAddon GetCreatureTemplateAddon(uint entry)
     {
         return _creatureTemplateAddonStorage.LookupByKey(entry);
-    }
-
-    public string GetCypherString(uint entry, Locale locale = Locale.enUS)
-    {
-        if (!_cypherStringStorage.ContainsKey(entry))
-        {
-            Log.Logger.Error("Cypher string entry {0} not found in DB.", entry);
-
-            return "<Error>";
-        }
-
-        var cs = _cypherStringStorage[entry];
-
-        if (cs.Length > (int)locale && !string.IsNullOrEmpty(cs[(int)locale]))
-            return cs[(int)locale];
-
-        return cs[(int)SharedConst.DefaultLocale];
-    }
-
-    public string GetCypherString(CypherStrings cmd, Locale locale = Locale.enUS)
-    {
-        return GetCypherString((uint)cmd, locale);
     }
 
     public List<DungeonEncounter> GetDungeonEncounterList(uint mapId, Difficulty difficulty)
@@ -749,9 +732,6 @@ public sealed class GameObjectManager
         _questPoolManager = _classFactory.Resolve<QuestPoolManager>();
 
         FillSpellSummary();
-
-        if (!LoadCypherStrings())
-            Environment.Exit(1);
         
         LoadGameObjectLocales();
         LoadQuestTemplateLocale();
@@ -760,7 +740,6 @@ public sealed class GameObjectManager
         LoadQuestObjectivesLocale();
         LoadPageTextLocales();
         LoadGossipMenuItemsLocales();
-        PointOfInterestLocaleCache.Load();
         LoadGameObjectTemplateAddons();
         LoadNPCText();
         LoadCreatureTemplateAddons();
@@ -1221,37 +1200,6 @@ public sealed class GameObjectManager
     //Creatures
 
     //General
-    public bool LoadCypherStrings()
-    {
-        var time = Time.MSTime;
-        _cypherStringStorage.Clear();
-
-        var result = _worldDatabase.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 CypherStrings. DB table `trinity_string` is empty.");
-
-            return false;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var entry = result.Read<uint>(0);
-
-            _cypherStringStorage[entry] = new StringArray((int)SharedConst.DefaultLocale + 1);
-            count++;
-
-            for (var i = SharedConst.DefaultLocale; i >= 0; --i)
-                AddLocaleString(result.Read<string>((int)i + 1).ConvertFormatSyntax(), i, _cypherStringStorage[entry]);
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} CypherStrings in {1} ms", count, Time.GetMSTimeDiffToNow(time));
-
-        return true;
-    }
 
     //Faction Change
 

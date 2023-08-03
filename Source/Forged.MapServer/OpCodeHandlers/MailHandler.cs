@@ -359,7 +359,7 @@ public class MailHandler : IWorldSessionHandler
                         senderAccId = _characterCache.GetCharacterAccountIdByGuid(senderGUID);
 
                         if (!_characterCache.GetCharacterNameByGuid(senderGUID, out senderName))
-                            senderName = _objectManager.GetCypherString(CypherStrings.Unknown);
+                            senderName = _objectManager.CypherStringCache.GetCypherString(CypherStrings.Unknown);
                     }
 
                     Log.Logger.ForContext<GMCommands>().Information(

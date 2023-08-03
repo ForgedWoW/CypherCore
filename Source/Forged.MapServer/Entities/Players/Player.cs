@@ -636,7 +636,7 @@ public partial class Player : Unit
             offItem.DeleteFromInventoryDB(trans); // deletes item from character's inventory
             offItem.SaveToDB(trans);              // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
-            var subject = GameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
+            var subject = GameObjectManager.CypherStringCache.GetCypherString(CypherStrings.NotEquippedItem);
             ClassFactory.ResolveWithPositionalParameters<MailDraft>(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
 
             CharacterDatabase.CommitTransaction(trans);
@@ -7801,7 +7801,7 @@ public partial class Player : Unit
 
     public void SendSysMessage(uint str, params object[] args)
     {
-        var input = GameObjectManager.GetCypherString(str);
+        var input = GameObjectManager.CypherStringCache.GetCypherString(str);
         var pattern = @"%(\d+(\.\d+)?)?(d|f|s|u)";
 
         var count = 0;

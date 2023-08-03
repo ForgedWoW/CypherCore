@@ -135,7 +135,7 @@ public class ChatHandler : IWorldSessionHandler
 
         if (sender.HasAura(1852) && type != ChatMsg.Whisper)
         {
-            _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.GmSilence), sender.GetName());
+            _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.GmSilence), sender.GetName());
 
             return;
         }
@@ -155,7 +155,7 @@ public class ChatHandler : IWorldSessionHandler
 
                 if (sender.Level < _config.GetValue("ChatLevelReq.Say", 1))
                 {
-                    _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.SayReq), _config.GetValue("ChatLevelReq.Say", 1));
+                    _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.SayReq), _config.GetValue("ChatLevelReq.Say", 1));
 
                     return;
                 }
@@ -171,7 +171,7 @@ public class ChatHandler : IWorldSessionHandler
 
                 if (sender.Level < _config.GetValue("ChatLevelReq.Emote", 1))
                 {
-                    _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.SayReq), _config.GetValue("ChatLevelReq.Emote", 1));
+                    _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.SayReq), _config.GetValue("ChatLevelReq.Emote", 1));
 
                     return;
                 }
@@ -187,7 +187,7 @@ public class ChatHandler : IWorldSessionHandler
 
                 if (sender.Level < _config.GetValue("ChatLevelReq.Yell", 1))
                 {
-                    _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.SayReq), _config.GetValue("ChatLevelReq.Yell", 1));
+                    _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.SayReq), _config.GetValue("ChatLevelReq.Yell", 1));
 
                     return;
                 }
@@ -221,7 +221,7 @@ public class ChatHandler : IWorldSessionHandler
                 {
                     if (!sender.IsGameMaster && sender.Level < _config.GetValue("ChatLevelReq.Whisper", 1))
                     {
-                        _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.WhisperReq), _config.GetValue("ChatLevelReq.Whisper", 1));
+                        _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.WhisperReq), _config.GetValue("ChatLevelReq.Whisper", 1));
 
                         return;
                     }
@@ -236,7 +236,7 @@ public class ChatHandler : IWorldSessionHandler
 
                 if (_session.Player.HasAura(1852) && !receiver.IsGameMaster)
                 {
-                    _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.GmSilence), _session.Player.GetName());
+                    _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.GmSilence), _session.Player.GetName());
 
                     return;
                 }
@@ -344,7 +344,7 @@ public class ChatHandler : IWorldSessionHandler
                 if (!_session.HasPermission(RBACPermissions.SkipCheckChatChannelReq))
                     if (_session.Player.Level < _config.GetValue("ChatLevelReq.Channel", 1))
                     {
-                        _session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.ChannelReq), _config.GetValue("ChatLevelReq.Channel", 1));
+                        _session.SendNotification(_gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.ChannelReq), _config.GetValue("ChatLevelReq.Channel", 1));
 
                         return;
                     }
@@ -582,7 +582,7 @@ public class ChatHandler : IWorldSessionHandler
         }
         else // New AFK mode
         {
-            sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? _gameObjectManager.GetCypherString(CypherStrings.PlayerAfkDefault) : packet.Text;
+            sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? _gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.PlayerAfkDefault) : packet.Text;
 
             if (sender.IsDnd)
                 sender.ToggleDnd();
@@ -628,7 +628,7 @@ public class ChatHandler : IWorldSessionHandler
         }
         else // New DND mode
         {
-            sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? _gameObjectManager.GetCypherString(CypherStrings.PlayerDndDefault) : packet.Text;
+            sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? _gameObjectManager.CypherStringCache.GetCypherString(CypherStrings.PlayerDndDefault) : packet.Text;
 
             if (sender.IsAfk)
                 sender.ToggleAfk();
