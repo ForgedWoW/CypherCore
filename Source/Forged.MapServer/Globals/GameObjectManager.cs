@@ -7,7 +7,6 @@ using System.Linq;
 using System.Numerics;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.D;
 using Forged.MapServer.DungeonFinding;
@@ -19,10 +18,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals.Caching;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
-using Forged.MapServer.Maps;
-using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Movement;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Questing;
 using Forged.MapServer.Reputation;
@@ -41,10 +37,6 @@ namespace Forged.MapServer.Globals;
 
 public sealed class GameObjectManager
 {
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly ClassFactory _classFactory;
-    private readonly CliDB _cliDB;
-    private readonly IConfiguration _configuration;
     private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelations = new();
     private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelationsReverse = new();
     private readonly MultiMap<uint, uint> _creatureQuestItemStorage = new();
@@ -78,7 +70,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, string> _phaseNameStorage = new();
     private readonly Dictionary<int, PlayerChoiceLocale> _playerChoiceLocales = new();
     private readonly Dictionary<int /*choiceId*/, PlayerChoice> _playerChoices = new();
-    private readonly Dictionary<uint, PointOfInterestLocale> _pointOfInterestLocaleStorage = new();
     private readonly MultiMap<uint, uint> _questAreaTriggerStorage = new();
     private readonly Dictionary<uint, QuestGreetingLocale>[] _questGreetingLocaleStorage = new Dictionary<uint, QuestGreetingLocale>[2];
     private readonly Dictionary<uint, QuestGreeting>[] _questGreetingStorage = new Dictionary<uint, QuestGreeting>[2];
@@ -91,41 +82,33 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, RepRewardRate> _repRewardRateStorage = new();
     private readonly Dictionary<uint, RepSpilloverTemplate> _repSpilloverTemplateStorage = new();
     private readonly List<string> _reservedNamesStorage = new();
-    private readonly ScriptManager _scriptManager;
     private readonly Dictionary<uint, SkillTiersEntry> _skillTiers = new();
     private readonly List<uint> _tavernAreaTriggerStorage = new();
     private readonly MultiMap<Tuple<uint, SummonerType, byte>, TempSummonData> _tempSummonDataStorage = new();
 
 
-    private readonly WorldDatabase _worldDatabase;
 
     // first free id for selected id type
 
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly ScriptManager _scriptManager;
     private AzeriteEmpoweredItemFactory _azeriteEmpoweredItemFactory;
     private AzeriteItemFactory _azeriteItemFactory;
-    private ConditionManager _conditionManager;
     private DB2Manager _db2Manager;
-    private GridDefines _gridDefines;
     private uint _hiPetNumber;
     private ItemFactory _itemFactory;
     private LFGManager _lfgManager;
     private LootStoreBox _lootStoreBox;
     private ObjectAccessor _objectAccessor;
-    private PhasingHandler _phasingHandler;
     private QuestPoolManager _questPoolManager;
     private SpellManager _spellManager;
-    private TerrainManager _terrainManager;
-    private TransportManager _transportManager;
     private WorldManager _worldManager;
-    private readonly WorldSafeLocationsCache _worldSafeLocationsCache;
     private readonly ItemTemplateCache _itemTemplateCache;
     private readonly FactionChangeTitleCache _factionChangeTitleCache;
-    private readonly TerrainSwapCache _terrainSwapCache;
-    private readonly PlayerInfoCache _playerInfoCache;
-    private readonly SceneTemplateCache _sceneTemplateCache;
-    private readonly FactionChangeCache _factionChangeCache;
-    private readonly GraveyardCache _graveyardCache;
-    private readonly RealmNameCache _realmNameCache;
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory,
                              CharacterDatabase characterDatabase, LoginDatabase loginDatabase, ScriptManager scriptManager, 
@@ -139,7 +122,6 @@ public sealed class GameObjectManager
         _characterDatabase = characterDatabase;
         _loginDatabase = loginDatabase;
         _scriptManager = scriptManager;
-        _worldSafeLocationsCache = worldSafeLocationsCache;
         _itemTemplateCache = itemTemplateCache;
 
         
@@ -192,35 +174,19 @@ public sealed class GameObjectManager
 
     public FishingBaseForAreaCache FishingBaseForAreaCache { get; }
 
-    public TerrainSwapCache TerrainSwapCache
-    {
-        get { return _terrainSwapCache; }
-    }
+    public TerrainSwapCache TerrainSwapCache { get; }
 
-    public PlayerInfoCache PlayerInfoCache
-    {
-        get { return _playerInfoCache; }
-    }
+    public PlayerInfoCache PlayerInfoCache { get; }
 
-    public SceneTemplateCache SceneTemplateCache
-    {
-        get { return _sceneTemplateCache; }
-    }
+    public SceneTemplateCache SceneTemplateCache { get; }
 
-    public FactionChangeCache FactionChangeCache
-    {
-        get { return _factionChangeCache; }
-    }
+    public FactionChangeCache FactionChangeCache { get; }
 
-    public GraveyardCache GraveyardCache
-    {
-        get { return _graveyardCache; }
-    }
+    public GraveyardCache GraveyardCache { get; }
 
-    public RealmNameCache RealmNameCache
-    {
-        get { return _realmNameCache; }
-    }
+    public RealmNameCache RealmNameCache { get; }
+
+    public PointOfInterestLocaleCache PointOfInterestLocaleCache { get; }
 
     public void AddLocaleString(string value, Locale locale, StringArray data)
     {
@@ -622,11 +588,6 @@ public sealed class GameObjectManager
         baseMana = (uint)CliDB.GetGameTableColumnForClass(mp, @class);
     }
 
-    public PointOfInterestLocale GetPointOfInterestLocale(uint id)
-    {
-        return _pointOfInterestLocaleStorage.LookupByKey(id);
-    }
-
     public QuestGreeting GetQuestGreeting(TypeId type, uint id)
     {
         byte typeIndex;
@@ -782,15 +743,10 @@ public sealed class GameObjectManager
         _db2Manager = _classFactory.Resolve<DB2Manager>();
         _spellManager = _classFactory.Resolve<SpellManager>();
         _worldManager = _classFactory.Resolve<WorldManager>();
-        _terrainManager = _classFactory.Resolve<TerrainManager>();
-        _conditionManager = _classFactory.Resolve<ConditionManager>();
         _lootStoreBox = _classFactory.Resolve<LootStoreBox>();
         _lfgManager = _classFactory.Resolve<LFGManager>();
-        _transportManager = _classFactory.Resolve<TransportManager>();
         _objectAccessor = _classFactory.Resolve<ObjectAccessor>();
         _questPoolManager = _classFactory.Resolve<QuestPoolManager>();
-        _gridDefines = _classFactory.Resolve<GridDefines>();
-        _phasingHandler = _classFactory.Resolve<PhasingHandler>();
 
         FillSpellSummary();
 
@@ -804,7 +760,7 @@ public sealed class GameObjectManager
         LoadQuestObjectivesLocale();
         LoadPageTextLocales();
         LoadGossipMenuItemsLocales();
-        LoadPointOfInterestLocales();
+        PointOfInterestLocaleCache.Load();
         LoadGameObjectTemplateAddons();
         LoadNPCText();
         LoadCreatureTemplateAddons();
@@ -826,8 +782,6 @@ public sealed class GameObjectManager
         LoadTavernAreaTriggers();
         LoadAreaTriggerScripts();
         LoadInstanceEncounters();
-        GraveyardCache.Load();
-        SceneTemplateCache.Load(); // must be before LoadPlayerInfo
         LoadPetNames();
         LoadPlayerChoices();
         LoadPlayerChoicesLocale();
@@ -843,7 +797,6 @@ public sealed class GameObjectManager
         LoadPhases();
         ReturnOrDeleteOldMails(false);
         InitializeQueriesData(QueryDataGroup.All);
-        RealmNameCache.Load();
         LoadPhaseNames();
     }
 
@@ -2439,15 +2392,9 @@ public sealed class GameObjectManager
         foreach (var phase in _cliDB.PhaseStorage.Values)
             _phaseInfoById.Add(phase.Id, new PhaseInfoStruct(phase.Id, _db2Manager));
 
-        foreach (var map in _cliDB.MapStorage.Values)
-            if (map.ParentMapID != -1)
-                TerrainSwapCache._terrainSwapInfoById.Add(map.Id, new TerrainSwapInfo(map.Id));
+      
 
-        Log.Logger.Information("Loading Terrain World Map definitions...");
-        TerrainSwapCache.LoadTerrainWorldMaps();
 
-        Log.Logger.Information("Loading Terrain Swap Default definitions...");
-        TerrainSwapCache.LoadTerrainSwapDefaults();
 
         Log.Logger.Information("Loading Phase Area definitions...");
         LoadAreaPhases();
@@ -2939,37 +2886,6 @@ public sealed class GameObjectManager
     }
 
     //Player
-
-    public void LoadPointOfInterestLocales()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _pointOfInterestLocaleStorage.Clear(); // need for reload case
-
-        //                                        0      1      2
-        var result = _worldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
-
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            var id = result.Read<uint>(0);
-            var localeName = result.Read<string>(1);
-            var locale = localeName.ToEnum<Locale>();
-
-            if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
-                continue;
-
-            if (!_pointOfInterestLocaleStorage.ContainsKey(id))
-                _pointOfInterestLocaleStorage[id] = new PointOfInterestLocale();
-
-            var data = _pointOfInterestLocaleStorage[id];
-            AddLocaleString(result.Read<string>(2), locale, data.Name);
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} points_of_interest locale strings in {1} ms", _pointOfInterestLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
 
     public void LoadQuestAreaTriggers()
     {

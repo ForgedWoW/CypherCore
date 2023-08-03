@@ -648,7 +648,7 @@ internal class ReloadCommand
     private static bool HandleReloadPointsOfInterestLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Points Of Interest Locale... ");
-        handler.ObjectManager.LoadPointOfInterestLocales();
+        handler.ObjectManager.PointOfInterestLocaleCache.Load();
         handler.SendGlobalGMSysMessage("DB table `points_of_interest_locale` reloaded.");
 
         return true;

@@ -170,7 +170,7 @@ public class PlayerMenu
 
         if (locale != Locale.enUS)
         {
-            var localeData = _objectManager.GetPointOfInterestLocale(id);
+            var localeData = _objectManager.PointOfInterestLocaleCache.GetPointOfInterestLocale(id);
 
             if (localeData != null)
                 _objectManager.GetLocaleString(localeData.Name, locale, ref packet.Name);

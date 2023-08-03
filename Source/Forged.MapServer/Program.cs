@@ -379,6 +379,7 @@ void RegisterCaches()
     builder.RegisterType<PageTextCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PlayerInfoCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<PointOfInterestCache>().SingleInstance().OnActivated(c => c.Instance.Load());
+    builder.RegisterType<PointOfInterestLocaleCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<QuestTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<RealmNameCache>().SingleInstance().OnActivated(c => c.Instance.Load());
     builder.RegisterType<SceneTemplateCache>().SingleInstance().OnActivated(c => c.Instance.Load());

@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.M;
@@ -33,8 +34,14 @@ public class TerrainSwapCache : IObjectCache
 
     public void Load()
     {
-        LoadTerrainSwapDefaults();
+        foreach (var map in _mapRecords.Values.Where(map => map.ParentMapID != -1))
+            _terrainSwapInfoById.Add(map.Id, new TerrainSwapInfo(map.Id));
+
+        Log.Logger.Information("Loading Terrain World Map definitions...");
         LoadTerrainWorldMaps();
+
+        Log.Logger.Information("Loading Terrain Swap Default definitions...");
+        LoadTerrainSwapDefaults();
     }
 
     private void LoadTerrainSwapDefaults()
